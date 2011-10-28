@@ -1,0 +1,72 @@
+module "utils/log"
+
+test "Full logging (check your console)", ->
+  original = config.logging
+  
+  config.logging = 2
+  log.message "1/7 A message!"
+  log.info    "2/7 An info message!"
+  log.error   "3/7 An error!"
+  
+  log.group   "4/7 A group! (check inside)"
+  log.message "1/1 A nested message!"
+  log.closeGroup()
+  
+  log.group   "5/7 Another group! (check inside)", "1/2 A nested message!", "2/2 Another nested message!"
+  
+  log.errorGroup "6/7 An error group!"
+  log.message "1/1 A nested message!"
+  log.closeGroup()
+  
+  log.errorGroup   "7/7 Another error group! (check inside)", "1/1 A nested message!"
+  
+  config.logging = original
+
+test "Error logging (check your console)", ->
+  original = config.logging
+  
+  config.logging = 1
+  log.message "1 You shouldn't be seeing this"
+  log.info    "2 You shouldn't be seeing this"
+  log.error   "1/3 An error!"
+  
+  log.group   "3 You shouldn't be seeing this"
+  log.message "4 You shouldn't be seeing this"
+  log.closeGroup()
+  
+  log.group   "5 You shouldn't be seeing this", "5.1 You shouldn't be seeing this"
+  
+  log.errorGroup   "2/3 An error group!"
+  log.error   "1/1 An error!"
+  log.message "6 You shouldn't be seeing this"
+  log.closeGroup()
+  
+  log.errorGroup   "3/3 Another error group!", "1/1 A nested message!"
+  
+  config.logging = original
+
+test "No logging (check your console)", ->
+  original = config.logging
+  
+  config.logging = 0
+  log.message "1 You shouldn't be seeing this"
+  log.info    "2 You shouldn't be seeing this"
+  log.error   "3 You shouldn't be seeing this"
+  
+  log.group   "4 You shouldn't be seeing this"
+  log.message "5 You shouldn't be seeing this"
+  log.closeGroup()
+  
+  log.group   "6 You shouldn't be seeing this", "7 You shouldn't be seeing this"
+  
+  log.errorGroup "8 You shouldn't be seeing this"
+  log.error   "9 You shouldn't be seeing this"
+  log.message "10 You shouldn't be seeing this"
+  log.closeGroup()
+  
+  log.errorGroup   "11 You shouldn't be seeing this", "12 You shouldn't be seeing this"
+  
+  config.logging = original
+
+test "Trace logging (check your console)", ->
+  log.trace()

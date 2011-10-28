@@ -1,0 +1,165 @@
+<!DOCTYPE html>  <html> <head>   <title>nccfile.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="cache.html">                 cache.coffee               </a>                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="daisy.html">                 daisy.coffee               </a>                                           <a class="source" href="nccfile.html">                 nccfile.coffee               </a>                                           <a class="source" href="protocol.html">                 protocol.coffee               </a>                                           <a class="source" href="rpc.html">                 rpc.coffee               </a>                                           <a class="source" href="service.html">                 service.coffee               </a>                                           <a class="source" href="utils.html">                 utils.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               nccfile.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Class to model an NCC file
+What does "NCC" stand for anyway? Besides being the first letters in the starship <em>Entreprise's</em> hull number (NCC-1701), I mean. And why do I even know this? I'm not a Star Trek fan!</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">do</span> <span class="o">=&gt;</span>
+  <span class="k">class</span> <span class="nx">@NCCFile</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Create a new <code>NCCFile</code> instance from the URL of an NCC file</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">constructor: </span><span class="nf">(@url) -&gt;</span>
+      <span class="nv">loadRemote = </span><span class="o">=&gt;</span>
+        <span class="nv">options = </span>
+          <span class="nv">url: </span>     <span class="nx">@url</span>
+          <span class="nv">dataType: </span><span class="s2">&quot;xml&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>FIXME: It really should be asynchronous...</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nv">async: </span>   <span class="kc">false</span>
+          <span class="nv">cache: </span>   <span class="kc">false</span>
+          <span class="nv">success: </span> <span class="p">(</span><span class="nx">xml</span><span class="p">,</span> <span class="nx">status</span><span class="p">,</span> <span class="nx">xhr</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="nv">xml = </span><span class="nx">jQuery</span> <span class="nx">xml</span>
+            <span class="vi">@structure = </span><span class="nx">parseStructure</span> <span class="nx">xml</span>
+            <span class="vi">@metadata  = </span><span class="nx">parseMetadata</span> <span class="nx">xml</span>
+            
+        <span class="nx">jQuery</span><span class="p">.</span><span class="nx">ajax</span> <span class="nx">@url</span><span class="p">,</span> <span class="nx">options</span>
+      
+      <span class="nv">cacheLocally = </span><span class="o">=&gt;</span>
+        <span class="nx">cache</span><span class="p">.</span><span class="nx">write</span> <span class="s2">&quot;ncc&quot;</span><span class="p">,</span> <span class="nx">@url</span><span class="p">,</span> <span class="nx">@toJSON</span><span class="p">()</span>
+      
+      <span class="nv">loadLocal = </span><span class="o">=&gt;</span>
+        <span class="nv">data = </span><span class="nx">cache</span><span class="p">.</span><span class="nx">read</span> <span class="s2">&quot;ncc&quot;</span><span class="p">,</span> <span class="nx">@url</span>
+        <span class="k">return</span> <span class="kc">false</span> <span class="nx">unless</span> <span class="nx">data</span> <span class="o">and</span> <span class="nx">data</span><span class="p">.</span><span class="nx">structure</span> <span class="o">and</span> <span class="nx">data</span><span class="p">.</span><span class="nx">metadata</span>
+        <span class="vi">@structure = </span><span class="nx">data</span><span class="p">.</span><span class="nx">structure</span>
+        <span class="vi">@metadata  = </span><span class="nx">data</span><span class="p">.</span><span class="nx">metadata</span>
+        <span class="kc">true</span>
+      
+      <span class="k">if</span> <span class="o">not</span> <span class="nx">loadLocal</span><span class="p">()</span> <span class="k">then</span> <span class="nx">loadRemote</span><span class="p">()</span>
+    
+    <span class="nv">creators: </span><span class="o">-&gt;</span>
+      <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;?&quot;</span><span class="p">]</span> <span class="nx">unless</span> <span class="nx">@metadata</span><span class="p">.</span><span class="nx">creator</span><span class="o">?</span>
+      <span class="nv">creators = </span><span class="p">(</span><span class="nx">creator</span><span class="p">.</span><span class="nx">content</span> <span class="k">for</span> <span class="nx">creator</span> <span class="k">in</span> <span class="nx">@metadata</span><span class="p">.</span><span class="nx">creator</span><span class="p">)</span>
+      <span class="k">if</span> <span class="nx">creators</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="nx">creators</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &amp; &quot;</span> <span class="o">+</span> <span class="nx">creators</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+      <span class="k">else</span>
+        <span class="nx">creators</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Convert the structure tree to an HTML nested list
+FIXME: Doesn't create proper markup!</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">toHTMLList: </span><span class="o">-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Recursively builds nested ordered lists from an array of items</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">mapper = </span><span class="nf">(items) -&gt;</span>
+        <span class="nv">list = </span><span class="nx">jQuery</span> <span class="s2">&quot;&lt;ol&gt;&lt;/ol&gt;&quot;</span>
+        <span class="k">for</span> <span class="nx">item</span> <span class="k">in</span> <span class="nx">items</span>
+          <span class="nv">element = </span><span class="nx">jQuery</span> <span class="s2">&quot;&lt;li&gt;&lt;/li&gt;&quot;</span>
+          <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">id</span>
+          <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;xhref&quot;</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nx">href</span>
+          <span class="nx">element</span><span class="p">.</span><span class="nx">text</span> <span class="nx">item</span><span class="p">.</span><span class="nx">text</span>
+          <span class="nx">element</span><span class="p">.</span><span class="nx">append</span> <span class="nx">mapper</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">children</span><span class="p">)</span> <span class="k">if</span> <span class="nx">item</span><span class="p">.</span><span class="nx">children</span><span class="o">?</span>
+          <span class="nx">list</span><span class="p">.</span><span class="nx">append</span> <span class="nx">element</span>
+        <span class="nx">list</span>
+      </pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Create the wrapper unordered list</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">element = </span><span class="nx">jQuery</span> <span class="s2">&quot;&lt;ul&gt;&lt;/ul&gt;&quot;</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;titel&quot;</span><span class="p">,</span> <span class="nx">@metadata</span><span class="p">.</span><span class="nx">title</span><span class="p">.</span><span class="nx">content</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;forfatter&quot;</span><span class="p">,</span> <span class="nx">@creators</span><span class="p">()</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;totalTime&quot;</span><span class="p">,</span> <span class="nx">@metadata</span><span class="p">.</span><span class="nx">totalTime</span><span class="p">.</span><span class="nx">content</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;NccRootElement&quot;</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;data-role&quot;</span><span class="p">,</span> <span class="s2">&quot;listview&quot;</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">append</span> <span class="nx">mapper</span><span class="p">(</span><span class="nx">@structure</span><span class="p">).</span><span class="nx">html</span><span class="p">()</span>
+      <span class="nx">element</span>
+    
+    <span class="nv">toJSON: </span><span class="o">-&gt;</span>
+      <span class="k">return</span> <span class="kc">null</span> <span class="nx">unless</span> <span class="nx">@structure</span><span class="o">?</span> <span class="o">and</span> <span class="nx">@metadata</span><span class="o">?</span>
+      <span class="nv">structure: </span><span class="nx">@structure</span>
+      <span class="nv">metadata: </span> <span class="nx">@metadata</span>
+      <span class="nv">timestamp: </span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">).</span><span class="nx">getTime</span><span class="p">()</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre>  </pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <h2>Chaching</h2>             </td>             <td class="code">               <div class="highlight"><pre>  
+  <span class="nv">loadCache = </span><span class="nf">(url) -&gt;</span>
+    
+  </pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <hr />             </td>             <td class="code">               <div class="highlight"><pre>  </pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h2>Parsing functions</h2>             </td>             <td class="code">               <div class="highlight"><pre>  </pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>Parses <code>meta</code> nodes in the head-element</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">parseMetadata = </span><span class="nf">(xml) -&gt;</span>
+    <span class="nv">selectors = </span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Name attribute values for nodes that appear 0-1 times per file <br />
+TODO: Move these to config?</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">singular: </span><span class="p">[</span>
+        <span class="s2">&quot;dc:coverage&quot;</span>
+        <span class="s2">&quot;dc:date&quot;</span>
+        <span class="s2">&quot;dc:description&quot;</span>
+        <span class="p">[</span><span class="s2">&quot;dc:format&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:format&quot;</span><span class="p">]</span>
+        <span class="p">[</span><span class="s2">&quot;dc:identifier&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:identifier&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;dc:publisher&quot;</span>
+        <span class="s2">&quot;dc:relation&quot;</span>
+        <span class="s2">&quot;dc:rights&quot;</span>
+        <span class="s2">&quot;dc:source&quot;</span>
+        <span class="s2">&quot;dc:subject&quot;</span>
+        <span class="s2">&quot;dc:title&quot;</span>
+        <span class="s2">&quot;dc:type&quot;</span>
+        <span class="s2">&quot;ncc:charset&quot;</span>
+        <span class="s2">&quot;ncc:depth&quot;</span>
+        <span class="s2">&quot;ncc:files&quot;</span>
+        <span class="s2">&quot;ncc:footnotes&quot;</span>
+        <span class="s2">&quot;ncc:generator&quot;</span>
+        <span class="s2">&quot;ncc:kByteSize&quot;</span>
+        <span class="s2">&quot;ncc:maxPageNormal&quot;</span>
+        <span class="s2">&quot;ncc:multimediaType&quot;</span>
+        <span class="s2">&quot;ncc:pageFront&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:page-front&quot;</span>
+        <span class="s2">&quot;ncc:pageNormal&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:page-normal&quot;</span>
+        <span class="p">[</span><span class="s2">&quot;ncc:pageSpecial&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:page-special&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;ncc:prodNotes&quot;</span>
+        <span class="s2">&quot;ncc:producer&quot;</span>
+        <span class="s2">&quot;ncc:producedDate&quot;</span>
+        <span class="s2">&quot;ncc:revision&quot;</span>
+        <span class="s2">&quot;ncc:revisionDate&quot;</span>
+        <span class="p">[</span><span class="s2">&quot;ncc:setInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:setinfo&quot;</span><span class="p">]</span>
+        <span class="s2">&quot;ncc:sidebars&quot;</span>
+        <span class="s2">&quot;ncc:sourceDate&quot;</span>
+        <span class="s2">&quot;ncc:sourceEdition&quot;</span>
+        <span class="s2">&quot;ncc:sourcePublisher&quot;</span>
+        <span class="s2">&quot;ncc:sourceRights&quot;</span>
+        <span class="s2">&quot;ncc:sourceTitle&quot;</span>
+        <span class="p">[</span><span class="s2">&quot;ncc:tocItems&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:tocitems&quot;</span><span class="p">]</span>
+        <span class="p">[</span><span class="s2">&quot;ncc:totalTime&quot;</span><span class="p">,</span> <span class="s2">&quot;ncc:totaltime&quot;</span><span class="p">]</span>
+      <span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>Name attribute values for nodes that may appear multiple times per file</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">plural: </span><span class="p">[</span>
+        <span class="s2">&quot;dc:contributor&quot;</span>
+        <span class="s2">&quot;dc:creator&quot;</span>
+        <span class="s2">&quot;dc:language&quot;</span>
+        <span class="s2">&quot;ncc:narrator&quot;</span>
+      <span class="p">]</span>
+    </pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>Finds nodes by the given name attribute value(s) <em>(multiple values given as an array)</em></p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">findNodes = </span><span class="nf">(selectors) -&gt;</span>
+      <span class="nv">selectors = </span><span class="p">[</span><span class="nx">selectors</span><span class="p">]</span> <span class="nx">unless</span> <span class="nx">selectors</span> <span class="k">instanceof</span> <span class="nb">Array</span>
+      <span class="nv">name = </span><span class="nx">selectors</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">replace</span> <span class="sr">/[^:]+:/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+      <span class="nv">nodes = </span><span class="p">[]</span>
+      <span class="k">while</span> <span class="nx">selectors</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="nv">selector = </span><span class="s2">&quot;meta[name=&#39;#{selectors.shift()}&#39;]&quot;</span>
+        <span class="nx">xml</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">selector</span><span class="p">).</span><span class="nx">each</span> <span class="o">-&gt;</span>
+          <span class="nv">node = </span><span class="nx">jQuery</span> <span class="k">this</span>
+          <span class="nv">obj = </span><span class="p">{}</span>
+          <span class="nv">obj.content = </span><span class="nx">node</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+          <span class="nv">obj.scheme  = </span><span class="nx">node</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;scheme&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nx">node</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;scheme&quot;</span>
+          <span class="nx">nodes</span><span class="p">.</span><span class="nx">push</span> <span class="nx">obj</span>
+      
+      <span class="k">return</span> <span class="kc">null</span> <span class="k">if</span> <span class="nx">nodes</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">0</span>
+      <span class="p">{</span> <span class="nv">nodes: </span><span class="nx">nodes</span><span class="p">,</span> <span class="nv">name: </span><span class="nx">name</span> <span class="p">}</span>
+    
+    <span class="nv">xml = </span><span class="nx">xml</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;head&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">()</span>
+    <span class="nv">metadata = </span><span class="p">{}</span>
+    <span class="k">for</span> <span class="nx">selector</span> <span class="k">in</span> <span class="nx">selectors</span><span class="p">.</span><span class="nx">singular</span>
+      <span class="nv">found = </span><span class="nx">findNodes</span> <span class="nx">selector</span>
+      <span class="k">if</span> <span class="nx">found</span><span class="o">?</span>
+        <span class="nx">metadata</span><span class="p">[</span><span class="nx">found</span><span class="p">.</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">found</span><span class="p">.</span><span class="nx">nodes</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="nx">selector</span> <span class="k">in</span> <span class="nx">selectors</span><span class="p">.</span><span class="nx">plural</span>
+      <span class="nv">found = </span><span class="nx">findNodes</span> <span class="nx">selector</span>
+      <span class="k">if</span> <span class="nx">found</span><span class="o">?</span>
+        <span class="nx">metadata</span><span class="p">[</span><span class="nx">found</span><span class="p">.</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">makeArray</span> <span class="nx">found</span><span class="p">.</span><span class="nx">nodes</span>
+    
+    <span class="nx">metadata</span>
+  </pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p>Parses the structure of headings (and heading only) in the NCC file into a nested array (a tree) <br />
+<em>Note:</em> This function absolutely relies on the NCC file being well-formed <br />
+TODO: What about DIVs and SPANs in the file? Currently, they aren't collected</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">parseStructure = </span><span class="nf">(xml) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>Collects consecutive heading of the given level, and recursively collects each of their "children", and so on…</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">getConsecutive = </span><span class="nf">(headings, level, collector) -&gt;</span>
+      <span class="k">for</span> <span class="nx">heading</span><span class="p">,</span> <span class="nx">index</span> <span class="k">in</span> <span class="nx">headings</span>
+        <span class="k">return</span> <span class="nx">index</span> <span class="k">if</span> <span class="nx">heading</span><span class="p">.</span><span class="nx">tagName</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span> <span class="o">isnt</span> <span class="s2">&quot;h#{level}&quot;</span>
+        <span class="nv">heading = </span><span class="nx">jQuery</span> <span class="nx">heading</span>
+        <span class="nv">link = </span><span class="nx">heading</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">).</span><span class="nx">first</span><span class="p">()</span>
+        <span class="nv">node = </span><span class="p">{</span>
+          <span class="nv">text: </span><span class="nx">link</span><span class="p">.</span><span class="nx">text</span><span class="p">()</span>
+          <span class="nv">href: </span><span class="nx">link</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;href&quot;</span>
+          <span class="nv">id: </span>  <span class="nx">heading</span><span class="p">.</span><span class="nx">attr</span> <span class="s2">&quot;id&quot;</span>
+        <span class="p">}</span>
+        <span class="nv">children = </span><span class="p">[]</span>
+        <span class="nx">index</span> <span class="o">+=</span> <span class="nx">getConsecutive</span> <span class="nx">headings</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">index</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="nx">level</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nx">children</span>
+        <span class="nv">node.children = </span><span class="nx">children</span> <span class="k">if</span> <span class="nx">children</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="nx">collector</span><span class="p">.</span><span class="nx">push</span> <span class="nx">node</span>
+      
+      <span class="nx">headings</span><span class="p">.</span><span class="nx">length</span>
+    
+    <span class="nv">headings = </span><span class="nx">jQuery</span><span class="p">.</span><span class="nx">makeArray</span> <span class="nx">xml</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;:header&quot;</span><span class="p">)</span>
+    <span class="nv">level = </span><span class="nb">parseInt</span> <span class="nx">headings</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">tagName</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">10</span>
+    <span class="nv">structure = </span><span class="p">[]</span>
+    
+    <span class="nx">getConsecutive</span> <span class="nx">headings</span><span class="p">,</span> <span class="nx">level</span><span class="p">,</span> <span class="nx">structure</span>
+    <span class="nx">structure</span>
+  
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

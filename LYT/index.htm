@@ -1,0 +1,263 @@
+<!DOCTYPE html> 
+
+<html class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px"> 
+	<head> 
+	<!--View fullscreen on IOS devices if added to homescreen--> 
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1">
+	<!--Stable build jquerymobile-->
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.css" />
+
+	<script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script> 	
+	<script src="js/init.js" type="text/javascript"></script>
+	<script src="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.js"></script>
+	<link rel="stylesheet" href="/css/nota.css" />
+
+	<!--Latest build jquerymobile
+	<link href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" rel="stylesheet" type="text/css" />
+	<script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+    <script src="js/init.js" type="text/javascript"></script>
+	<script src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script>
+-->	
+<!-GOOGLE ANALYTICS-->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-25712607-1']);
+  _gaq.push(['_trackPageview']);  
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+ 
+</head> 
+<body> 
+
+<!-- Start of login page -->
+<div data-role="page" id="login">
+
+	<div data-role="header" data-theme="" data-backbtn="false">
+		<h1>Logger på...</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+	<form action="#" method="get" id="login-form">
+		<div data-role="fieldcontain" id="loginwrapper">
+		    <label for="username">Brugernavn:</label>
+		    <input type="text" name="username" id="username" value="" />
+		    <label for="password">Kodeord:</label>
+		    <input type="password" name="password" id="password" value="" />
+		    <label for="name"></label>
+		    <input type="submit" name="submit" id="submit" value="ok" data-inline="true" />
+		</div>
+	</form>
+	</div><!-- /content -->
+
+</div><!-- /page -->
+
+<!-- Start of bookshelf page -->
+<div data-role="page" id="bookshelf">
+	<div data-role="header" data-theme="">		
+		<a data-role="button" href="#search" data-icon="search">Find</a>
+		<h1>Boghylde</h1>
+		<div data-role="navbar" id="book-top-menu">
+			<ul>
+				<li></li>
+			</ul>
+		</div>
+
+	</div><!-- /header -->
+	<div data-role="content" id ="bookshelf-content">	
+	</div><!-- /content -->
+</div><!-- /page -->
+
+<!-- Start of search page -->
+<div data-role="page" id="search">
+	<div data-role="header" data-theme="">
+		<a href="javascript:$.mobile.showPageLoadingMsg();GetBookShelf();"  data-direction="reverse">Boghylde</a>
+		<h1>Find</h1>
+	</div><!-- /header -->
+
+	<div data-role="content" class="search-top">
+		<div data-role="fieldcontain">
+			<form action="#" method="get" id ="search-form">
+				<label for="searchterm"></label>
+				<input type="search" name="term" id="searchterm" alt="Indtast dine søgeord" value=""  x-webkit-speech  />
+			</form>
+		</div>
+	        <ul id="searchresult" data-role="listview">
+	        	<li>Søg for eksempel på en forfatter, en genre eller en titel på en lydbog...</li>
+	        </ul>
+		</div><!-- /content -->
+</div><!-- /page -->
+
+
+<!-- Start of book-details page -->
+<div data-role="page" id="book-details" data-add-back-btn="true"  data-back-btn-text="tilbage">
+	<div data-role="header" data-theme="">
+		<h1>Bog detaljer</h1>
+	</div><!-- /header -->
+	<div data-role="content">	
+		<div class="ui-grid-a">
+			<div id="book-details-image" class="ui-block-a"><img src="/images/default.png"/></div>
+			<div id="book-details-content" class="ui-block-b"><strong>I'm Block B</strong> and text inside will wrap</div>
+		</div><!-- /grid-a -->
+	</div><!-- /content -->
+</div> <!-- /page -->
+
+<!-- Start of book-play page -->
+<div data-role="page" id="book-play" >
+	<div data-add-back-btn="false" id="book-play-header" data-role="header">	
+		<h1>Afspiller nu</h1>
+		<div data-role="navbar" id="book-top-menu">
+			<ul>
+				<li><a data-icon="" href="javascript:$.mobile.showPageLoadingMsg();GetBookShelf();setDestination('bookshelf')">Boghylde</a></li>
+				<li><a data-icon="" href="javascript:showIndex()">Indhold</a></li>	      	
+				<li><a data-icon="" href="#settings">Indstillinger</a></li>	   
+			</ul>
+		</div>
+ 	</div --><!-- /header -->
+		<div class="ui-grid-a ui-bar" id="book-middle-menu">
+			<div class="ui-block-a" id="currentbook_image"><img  src="/images/default.png" /></div>
+			<div class="ui-block-b">
+				<div id="book_title">Title</div>
+				<div id="book_author">Author</div>
+			</div>
+		</div>
+		<div id="timeline">
+			<div id="timeline_progress_left"></div>
+			<div id="timeline_progress_right"></div>
+		</div>                
+		<div class="ui-grid-b ui-bar" id="book-chapter-menu">
+			<div class="ui-block-a">
+				<div id="current_time">0</div>
+			</div>
+			<div class="ui-block-b">
+				<div id="book_chapter">Kapitel</div>
+			</div>
+			<div class="ui-block-b">
+				<div id="total_time">5:34 </div>
+			</div>
+		</div>
+		<div data-role="navbar" id="book-play-menu" data-theme="c">
+			<ul>
+				<li><a href="javascript:LastPart();"	id="button-rewind" title="rewind"><img height="20px" src="/images/rewind.png" /></a></li>
+				<li><a href="javascript:PlayOrPause();"	id="button-play" title="play/pause"><img height="20px" src="/images/pause.png" /></a></li>	  
+				<li><a href="javascript:NextPart();"	id="button-forward" title="forward"><img height="20px" src="/images/forward.png" /></a></li>	   
+			</ul>
+		</div>
+    <div data-role="content" id="book-text-content" ></div><!-- /content -->	
+	</div>    
+    <div data-role="footer" data-theme="">    
+    </div><!-- /footer -->
+</div><!-- /page -->
+
+
+<!-- Start of navigation page -->
+<div data-role="page" id="book_index" data-dom-cache="true">
+	<div data-role="header" data-theme="">
+		<h1>Index</h1>
+	</div><!-- /header -->
+	<div data-role="content" id="book_index_content">
+	</div>
+</div><!-- /page -->
+
+<!-- Start of profile page -->
+<div data-role="page" id="profile" data-dom-cache="true">
+	<div data-role="header" data-theme="">
+		<h1>Min profil</h1>
+	</div><!-- /header -->
+	<div data-role="fieldcontain">
+	    <fieldset data-role="controlgroup" id="remember" data-type="horizontal">
+	    	<legend>Husk login</legend>
+
+	         	<input type="radio" name="radio-choice-4" id="radio-choice-20" value="1"  />
+	         	<label for="radio-choice-20">husk</label>
+
+	         	<input type="radio" name="radio-choice-4" id="radio-choice-21" value="0"  />
+	         	<label for="radio-choice-21">glem</label>
+
+	    </fieldset>
+	<div data-role="fieldcontain">
+		<div data-role="fieldcontain">
+			<a data-inline="true" id="log-off" href="javascript:$.mobile.showPageLoadingMsg();Pause();logUserOff();" data-role="button" >Log af nu</a>
+		</div>			
+	</div>
+	</div>	    
+</div><!-- /page -->
+
+<!-- Start of settings page -->
+<div data-role="page" id="settings">
+	<div data-role="header"  data-theme="">
+	   <a href="#book-play" data-inline="true" class="ui-btn-left"  data-icon="arrow-l" data-direction="reverse" data-role="button" >Bog</a>
+		<h1>Indstillinger</h1>		
+	</div><!-- /header -->
+	
+	<div data-role="content" id="set-content">
+	
+	
+	<div data-role="fieldcontain">
+	   <label for="textarea-example">Tekst-eksempel</label>
+	   <textarea readonly cols="40" rows="8" name="textarea" id="textarea-example">Der var så dejligt ude på landet; det var sommer, kornet stod gult, havren grøn, høet var rejst i stakke nede i de grønne enge, og der gik</textarea>  
+	</div>
+		
+	<div data-role="fieldcontain">
+	    <fieldset data-role="controlgroup" id="textsize_2" data-type="horizontal">
+	    	<legend>Tekststørrelse</legend>
+	    	
+	         	<input type="radio" name="radio-choice-3" id="radio-choice-12" value="12"  />
+	         	<label for="radio-choice-12"><span style="font-size:10px">A</span></label>
+
+	         	<input type="radio" name="radio-choice-3" id="radio-choice-13" value="16"  />
+	         	<label for="radio-choice-13"><span style="font-size:12px">A</span></label>
+
+	         	<input type="radio" name="radio-choice-3" id="radio-choice-14" value="20"  />
+	         	<label for="radio-choice-14"><span style="font-size:14px">A</span></label>
+
+	         	<input type="radio" name="radio-choice-3" id="radio-choice-15" value="24"  />
+	         	<label for="radio-choice-15"><span style="font-size:16px">A</span></label>
+	    </fieldset>
+	</div>	    
+	
+
+	<div data-role="fieldcontain">
+	    <fieldset data-role="controlgroup" id="text-types">
+	    	<legend>Skrifttype:</legend>
+	         	<input type="radio" name="radio-choice-1" id="radio-choice-1" value="Georgia" />
+	         	<label for="radio-choice-1">Georgia</label>
+
+	         	<input type="radio" name="radio-choice-1" id="radio-choice-2" value="Helvetica"  />
+	         	<label for="radio-choice-2">Helvetica</label>
+	    </fieldset>
+	</div>	    
+	
+	<div data-role="fieldcontain">
+	    <fieldset data-role="controlgroup" id="marking-color">
+	    	<legend>Markeringsfarve:</legend>
+	         	<input type="radio" name="radio-choice-2" id="radio-choice-g" value="none-black" />
+	         	<label for="radio-choice-g">Ingen</label>
+
+	         	<input type="radio" name="radio-choice-2" id="radio-choice-h" value="black-yellow"  />
+	         	<label for="radio-choice-h">Sort/Gul</label>
+
+	         	<input type="radio" name="radio-choice-2" id="radio-choice-i" value="yellow-black"  />
+	         	<label for="radio-choice-i">Sort/gul</label>
+
+	         	<input type="radio" name="radio-choice-2" id="radio-choice-j" value="white-blue"  />
+	         	<label for="radio-choice-j">Hvid/Blå</label>
+	    </fieldset>
+	</div>
+	<div data-role="fieldcontain">
+		<ul data-role="listview">
+			<li><a href="#profile">Min profil</a></li>
+		</ul>	
+	</div>				
+	</div><!-- /content -->	
+</div><!-- /page -->
+	
+</body>
+</html>
