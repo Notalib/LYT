@@ -8,9 +8,7 @@
 #  - `complete`  - a function that will be called when the request completes
 #  - `error`     - an error-handling function
 #
-# All these members are optional
-#
-# FIXME: ... moar docs!
+# All these members are optional (see below)
 # 
 # An RPC is called by passing its name to the rpc function, plus whatever arguments are needed:
 # 
@@ -24,11 +22,20 @@
 # XML tag, mirroring the name of the RPC
 # 
 # ## RPC example
+# 
+# All the members of an RPC object are optional. At it's simplest, an RPC can be defined as
+# 
+#     someServerAction: true
 #
-#     # The RPC's name, i.e. the name of the action to call on the server
+# This will allow you to call `rpc "someServerAction"`. The request will use the default options
+# and the body of the request data will be an empty SOAP tag, mirroring the name, i.e. `<ns1:someServerAction />`
+# 
+# Below is an example using all the optional members
+# 
+#     # The RPC's name, i.e. the name of the action to call on the server.
 #     actionName: 
 #       
-#       # The optional request function, with whatever
+#       # The request function, with whatever
 #       # arguments it requires (if any)
 #       request: (args...) -> 
 #         # The request function may optionally return
@@ -36,14 +43,14 @@
 #         # turned into XML and sent as the SOAP body
 #         key1: value1
 #       
-#       # The optional receive function which will
+#       # The receive function which will
 #       # be passed the data returned by the server
 #       receive: ($xml, data, status, xhr) -> ...
 #       
-#       # The optional complete callback
+#       # The complete callback
 #       complete: (xhr, status) -> ...
 #       
-#       # The optional error handler
+#       # The error handler
 #       error: (xhr, status, error) -> ...
 
 @protocol =

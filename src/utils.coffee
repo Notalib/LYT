@@ -1,29 +1,36 @@
 # A facade for `console.*` functions
+#
+# These functions respect the `config.logging` setting
 @log = do ->
   console = window.console or {}
   
-  # Error-checking alias for `console.log()`
+  # Error-checking alias for `console.log()`  
+  # Logging level: 2 or higher
   message: (messages...) ->
     return unless config.logging > 1
     console.log? messages...
   
-  # Error-checking alias for `console.error()` (falls back to `console.log`)
+  # Error-checking alias for `console.error()` (falls back to `console.log`)  
+  # Logging level: 1 or higher
   error: (messages...) ->
     return unless config.logging > 0
     method = console.error or console.log
     method?.apply console, messages
   
-  # Error-checking alias for `console.info()` (falls back to `console.log`)
+  # Error-checking alias for `console.info()` (falls back to `console.log`)  
+  # Logging level: 2 or higher
   info: (messages...) ->
     return unless config.logging > 1
     (console.info or @message).apply console, messages
   
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
   # than `console.group()`. If neither function exists, it'll fake it with `log.message`
-  #
+  # 
   # The first argument is the title of the group. If you pass more than 1 argument, 
   # the remaining arguments will each be logged inside the group by `log.message`, and
   # the group will be "closed" with `log.groupEnd`
+  # 
+  # Logging level: 2 or higher
   group: (title = "", messages...) ->
     return unless config.logging > 1
     method = console.groupCollapsed or console.group
@@ -36,7 +43,8 @@
       @message message for message in messages
       @closeGroup()
   
-  # Same as `group` except 
+  # Same as `group` except it'll log when `config.logging` is 1 or higher  
+  # Logging level: 1 or higher
   errorGroup: (title = "", messages...) ->
     return unless config.logging > 0
     method = console.groupCollapsed or console.group
@@ -50,17 +58,19 @@
       @closeGroup()
   
   # Closes an open group
+  # Logging level: N/A
   closeGroup: ->
     (console.groupEnd or @message).call console, "=== *** ==="
   
-  # Error-checking alias for `console.trace`
+  # Error-checking alias for `console.trace`  
+  # Logging level: 1 or higher
   trace: ->
     return unless config.logging > 0
     console.trace?()
   
 # ---------
 
-# These 5 lines replace the 26-34 lines in `SecToTime` _and_ does type checking… I deserve a damn medal for that! :-)
+# These 6 lines replace the 26-34 lines in `SecToTime` _and_ does type checking… I deserve a damn medal for that! :-)
 @formatTime = (seconds) ->
   seconds = parseInt(seconds, 10)
   seconds = 0 if not seconds? or seconds < 0
