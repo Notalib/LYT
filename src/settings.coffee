@@ -13,7 +13,7 @@
     currentBook: "0"
     currentTitle: "Ingen Titel"
     currentAuthor: "John Doe"
-  	textMode: 1, # phrasemode = 1, All text = 2
+  	textMode: 1 # phrasemode = 1, All text = 2
   	username: ""
   	password: ""   
     
