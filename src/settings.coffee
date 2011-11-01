@@ -27,9 +27,9 @@
     
   load: ->
     # Load settings if they are set in localstorage
-    data = JSON.parse localStorage.getItem("mobileSettings")
+    data = localStorage.getItem("mobileSettings")
     if data is not null
-      @data = data 
+      @data = JSON.parse data 
   
   save: ->
     localStorage.setItem "mobileSettings", JSON.stringify(@data) 
