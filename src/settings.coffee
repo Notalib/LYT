@@ -3,7 +3,7 @@
 
 @settings =
 
-  data:
+  data: {
     # default settings
     textSize: "14px" 
     markingColor: "none-black"
@@ -15,7 +15,8 @@
     currentAuthor: "John Doe"
   	textMode: 1 # phrasemode = 1, All text = 2
   	username: ""
-  	password: ""   
+  	password: ""
+	}
     
   get: (key) -> 
     #todo: key not found error
@@ -27,12 +28,12 @@
     
   load: ->
     # Load settings if they are set in localstorage
-    data = localStorage.getItem("mobileSettings")
-    if data is not null
-      @data = JSON.parse data 
+    data = @cache.read("lyt","settings")   
+    unless data is null
+      @data = data
   
   save: ->
-    localStorage.setItem "mobileSettings", JSON.stringify(@data) 
+    @cache.write("lyt", "settings", @data)
         
         
         
