@@ -56,6 +56,7 @@ do =>
       
       # Create the wrapper unordered list
       element = jQuery "<ul></ul>"
+      # FIXME: Use data-* attrs and use English names, plz
       element.attr "titel", @metadata.title.content
       element.attr "forfatter", @creators()
       element.attr "totalTime", @metadata.totalTime.content

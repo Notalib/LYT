@@ -19,6 +19,7 @@
     success = false
     until success
       try
+        # FIXME: Check that the JSON-object is available on all targeted platforms and/or use jQuery's options
         localStorage.setItem "#{prefix}/#{id}", JSON.stringify(cache)
         success = true
       catch error
