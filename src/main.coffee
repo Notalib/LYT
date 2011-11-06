@@ -1,4 +1,6 @@
-$(document).bind "mobileinit", ->  
+$(document).bind "mobileinit", ->
+  
+    LYT.player.setup()
     LYT.gui.setup()
     
     $("[data-role=page]").live "pageshow", (event, ui) ->
