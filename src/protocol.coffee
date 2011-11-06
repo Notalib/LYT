@@ -66,7 +66,7 @@
       if $xml.find("logOnResult").text() is "true"
         rpc "getServiceAttributes"
       else
-        eventSystemForceLogin "Du har indtastet et forkert brugernavn eller password" # FIXME: Not a great function name
+        eventSystemForceLogin "Du har indtastet et forkert brugernavn eller password" # FIXME: Not a great function name. Also, hard-coded error message
   
   
   logOff:
