@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">
+<!-- http://m.nota.nu/DodpDistributor/Distribute.aspx?session=100017&book=15000&file=//LOCAL/UNI0/150__/15000/dtb_0007.smil -->
+<smil>
+    <head>
+        <meta name="dc:identifier" content="DK-DBB-15000"/>
+        <meta name="dc:title" content="Harry Potter og Fønixordenen"/>
+        <meta name="dc:format" content="Daisy 2.02"/>
+        <meta name="title" content="3. kapitel - Fortroppen"/>
+        <meta name="ncc:totalElapsedTime" content="01:22:22"/>
+        <meta name="ncc:timeInThisSmil" content="00:35:14"/>
+        <meta name="ncc:generator" content="Regenerator 1.0.21"/>
+        <layout>
+            <region id="txtView"/>
+        </layout>
+    </head>
+    <body>
+        <seq dur="2114.22s">
+            <par endsync="last" id="rgn_par_0007_0001">
+                <text src="15000.htm#rgn_cnt_0480" id="rgn_txt_0007_0001"/>
+                <seq>
+                    <audio src="dtb_0007.mp3" clip-begin="npt=0.000s" clip-end="npt=4.706s" id="rgn_aud_0007_0001"/>
+                </seq>
+            </par>
+            <par endsync="last" id="rgn_par_0007_0002">
+                <text src="15000.htm#rgn_cnt_0481" id="rgn_txt_0007_0002"/>
+                <seq>
+                    <audio src="dtb_0007.mp3" clip-begin="npt=4.706s" clip-end="npt=13.450s" id="rgn_aud_0007_0002"/>
+                </seq>
+            </par>
+        </seq>
+    </body>
+</smil>
