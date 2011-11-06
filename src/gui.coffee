@@ -30,7 +30,6 @@ LYT.gui:
   
   onBookDetailsSuccess: (data, status) ->
     $("#book-details-image").html "<img id=\"" + data.d[0].imageid + "\" class=\"nota-full\" src=\"/images/default.png\" >"
-    s = ""
     s = "<p>Serie: " + data.d[0].series + ", del " + data.d[0].seqno + " af " + data.d[0].totalcnt + "</p>"  if data.d[0].totalcnt > 1
     $("#book-details-content").empty()
     #fixme: remove inline javascript and create new listener for playnewbook
@@ -42,11 +41,10 @@ LYT.gui:
     $("#book-details-content").html "<h2>Hov!</h2>" + "<p>Der skulle have været en bog her - men systemet kan ikke finde den. Det beklager vi meget! <a href=\"mailto:info@nota.nu?subject=Bog kunne ikke findes på E17 mobilafspiller\">Send os gerne en mail om fejlen</a>, så skal vi fluks se om det kan rettes.</p>"
 
   onSearchSuccess: (data, status) ->
-    s = ""
     unless data.d[0].resultstatus is "NORESULTS"
       s += "<li><h3>" + data.d[0].totalcount + " resultat(er)</h3></li>"
       $.each data.d, (index, item) ->
-        s += "<li id=\"" + item.imageid + "\"><a href=\"#book-details\">" + "<img class=\"ui-li-icon\" src=\"/images/default.png\" /><h3>" + item.title + "</h3><p>" + item.author + " | " + parse_media_name(item.media) + "</p></a></li>"
+        s += "<li id=\"" + item.imageid + "\"><a href=\"#book-details\">" + "<img class=\"ui-li-icon\" src=\"/images/default.png\" ><h3>" + item.title + "</h3><p>" + item.author + " | " + parse_media_name(item.media) + "</p></a></li>"
     else
       s += "<li><h3>Ingen resultater</h3><p>Prøv eventuelt at bruge bredere søgeord. For at teste funktionen, søg på et vanligt navn, såsom \"kim\" eller \"anders\".</p></li>"
       $("#searchresult").html s
