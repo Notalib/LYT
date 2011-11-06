@@ -75,7 +75,7 @@ LYT.rpc = do ->
 # ---------
 
 # This utility function converts the arguments given to well-formed XML
-@rpc.toXML = (hash) ->
+LYT.rpc.toXML = (hash) ->
   return "" unless hash?
   
   xml = ""
@@ -93,11 +93,11 @@ LYT.rpc = do ->
   if type is "object"
     # Loop through the object, recursively converting members to XML
     for own key, value of hash
-      key = rpc.toXML key
+      key = LYT.rpc.toXML key
       if value instanceof Array
-        xml += "<ns1:#{key}>#{rpc.toXML item}</ns1:#{key}>" for item in value
+        xml += "<ns1:#{key}>#{LYT.rpc.toXML item}</ns1:#{key}>" for item in value
       else
-        xml += "<ns1:#{key}>#{rpc.toXML value}</ns1:#{key}>"
+        xml += "<ns1:#{key}>#{LYT.rpc.toXML value}</ns1:#{key}>"
   
   # Return the XML
   xml
@@ -105,7 +105,7 @@ LYT.rpc = do ->
 # ---------
 
 # The default ajax error handler
-@rpc.error = do ->
+LYT.rpc.error = do ->
   errorRegExp = /session (is (invalid|uninitialized)|has not been initialized)/i
   
   (xhr, error, exception) ->

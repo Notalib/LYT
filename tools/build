@@ -1,0 +1,65 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+while [[ $# > 0 ]]; do # for each argument...
+  case "$1" in
+    "html" )
+      # Concat the pages, and add a leading tab to each line
+      cat ./html/pages/*.html | sed "s/^/	/" 1> ./html/tmp.html
+      
+      # Insert the result into the template
+      placeholder="<!-- body -->"
+      sed -e "/$placeholder/r ./html/tmp.html" -e "/$placeholder/d" ./html/index.html 1> ./dist/index.html
+      
+      # Remove the temp file
+      rm ./html/tmp.html
+      
+      echo "Built html"
+    ;;
+    
+    "src" )
+      # Compile src into several files
+      coffee -c -o ./compiled ./src/*.coffee || exit 1
+      
+      # Compile src into a single file, too 
+      # coffee -c -j lyt -o ./dist ./src/*.coffee || exit 1
+      
+      echo "Built src"
+    ;;
+    
+    "tests" ) 
+      # Compile the tests into a single file
+      coffee -c -j "suite" -o ./test/tests/compiled/ ./test/tests/src/*.coffee || exit 1
+      
+      echo "Built tests"
+    ;;
+    
+    "docs" )
+      # Run docco on the src files
+      docco ./src/*.coffee 1> /dev/null || exit 1
+      
+      # Highlight labels (if possible)
+      if [[ -x $(which ruby) ]] && [[ -f ./highlight_labels.rb ]]; then
+        cd ./tools
+        ruby highlight_labels.rb ../docs/*.html 2> /dev/null
+        cd - 1> /dev/null
+      fi
+      
+      echo "Built docs"
+    ;;
+    
+    * ) # Unrecognized argument
+      echo "Usage: build src|html|tests|docs [docs|html|...]
+      src   - Compile the .coffee files in src
+      html  - Concat all pages and insert them into
+              the html/index.html template
+      tests - Compile the .coffee files in test/tests/src
+      docs  - Create the Docco documentation"
+      exit 1
+    ;;
+  esac
+  shift # shift to next argument
+done
+
+echo "Done"
