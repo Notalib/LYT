@@ -3,9 +3,9 @@
 LYT.player =
   
   ready: false 
-  jplayer: undefined
+  jplayer: null
   el: jQuery("#jplayer")
-  currentTranscript: undefined #id start end text
+  currentTranscript: null #id start end text
   currentMedia: ""
   currentTime: ""
   
@@ -17,16 +17,16 @@ LYT.player =
           # Continously update transcript for current time of media
           @currentTime = event.jPlayer.status.currentTime
           
-          if currentTranscript is undefined or currentTranscript.end < currentTime
+          if not currentTranscript? or currentTranscript.end < @currentTime
             # update transcript if we don't have one or if it is in the past
-            @currentTranscript = LYT.Book.getTranscriptForTime currentMedia, @currentTime
+            @currentTranscript = LYT.Book.getTranscriptForTime @currentMedia, @currentTime
             
-          if currentTranscript.end < currentTime
+          if @currentTranscript.end < @currentTime
             # hide transcript
-          else if currentTranscript.start >= currentTime
+            
+          else if @currentTranscript.start >= @currentTime
             # update and show transcript
           
-        
         @ready = True
       
       swfPath: "/lib/jplayer"
@@ -51,7 +51,7 @@ LYT.player =
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from 
     # when media was paused, else from the beginning.
-    if time is undefined
+    if not time?
       @jplayer('play')
     else
       @jplayer('play', time)
