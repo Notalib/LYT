@@ -1,0 +1,20 @@
+<div data-role="page" id="search">
+	
+	<div data-role="header" data-theme="">
+		<a href="javascript:$.mobile.showPageLoadingMsg();GetBookShelf();"  data-direction="reverse">Boghylde</a>
+		<h1>Find</h1>
+	</div>
+
+	<div data-role="content" class="search-top">
+		<div data-role="fieldcontain">
+			<form action="#" method="get" id ="search-form">
+				<label for="searchterm"></label>
+				<input type="search" name="term" id="searchterm" alt="Indtast dine søgeord" value="" x-webkit-speech>
+			</form>
+		</div>
+		<ul id="searchresult" data-role="listview">
+			<li>Søg for eksempel på en forfatter, en genre eller en titel på en lydbog...</li>
+		</ul>
+	</div>
+	
+</div>
