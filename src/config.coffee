@@ -1,5 +1,5 @@
 # Central system configuration
-@config =
+LYT.config =
   
   # The level of logging:  
   #     0 = No logging

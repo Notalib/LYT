@@ -1,4 +1,4 @@
-@cache = do =>
+LYT.cache = do =>
   
   read = (prefix, id) ->
     return null unless window.localStorage?

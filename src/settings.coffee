@@ -1,7 +1,7 @@
 # Setting and retrieving user settings and session states
 # Should this use the cache functions?
 
-@settings =
+LYT.settings =
 
   data: {
     # default settings
@@ -28,10 +28,10 @@
     
   load: ->
     # Load settings if they are set in localstorage
-    data = @cache.read("lyt","settings")   
+    data = LYT.cache.read("lyt","settings")   
     unless data is null
       @data = data
   
   save: ->
-    @cache.write("lyt", "settings", @data)
+    LYT.cache.write("lyt", "settings", @data)
     

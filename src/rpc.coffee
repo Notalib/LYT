@@ -9,7 +9,7 @@
 # --------
 
 # Define `rpc` inside a closure
-@rpc = do ->
+LYT.rpc = do ->
   
   # The template for SOAP request content
   soapTemplate = '<?xml version="1.0" encoding="UTF-8"?>

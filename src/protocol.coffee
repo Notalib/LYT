@@ -53,7 +53,7 @@
 #       # The error handler
 #       error: (xhr, status, error) -> ...
 
-@protocol =
+LYT.protocol =
   
   # -----
   
@@ -136,7 +136,7 @@
     
     receive: ($xml) ->
       if $xml.find('issueContentResult').text() is "true"
-        rpc "getContentResources", settings.currentBook
+        rpc "getContentResources", settings.get('currentBook')
       else
         log.error "PRO: Error in issueContent parsing: #{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
         alert "#{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
