@@ -1,6 +1,6 @@
 # work in progress, nothing is really working here
 
-@gui:
+LYT.gui:
   
   goto: "bookshelf"
   

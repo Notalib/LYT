@@ -1,6 +1,6 @@
 # Higher-level functions for interacting with the server 
 
-@daisy:
+LYT.daisy:
   getBookshelf: ->
     rpc "getContentList", "issued", 0, -1
   

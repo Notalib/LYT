@@ -53,7 +53,7 @@
 #       # The error handler
 #       error: (xhr, status, error) -> ...
 
-@protocol =
+LYT.protocol =
   
   # -----
   

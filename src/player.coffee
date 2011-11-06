@@ -1,4 +1,4 @@
-@player =
+LYT.player =
 
   init: ->
     $("#jplayer").jPlayer

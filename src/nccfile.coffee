@@ -2,7 +2,7 @@
 # What does "NCC" stand for anyway? Besides being the first letters in the starship _Entreprise's_ hull number (NCC-1701), I mean. And why do I even know this? I'm not a Star Trek fan!
 
 do =>
-  class @NCCFile
+  class LYT.NCCFile
     # Create a new `NCCFile` instance from the URL of an NCC file
     constructor: (@url) ->
       loadRemote = =>

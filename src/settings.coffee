@@ -1,7 +1,7 @@
 # Setting and retrieving user settings and session states
 # Should this use the cache functions?
 
-@settings =
+LYT.settings =
 
   data: {
     # default settings
