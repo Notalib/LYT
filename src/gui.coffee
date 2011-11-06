@@ -1,3 +1,4 @@
+# This module handles gui event listeners and utility functions
 # work in progress, nothing is really working here
 
 LYT.gui:
@@ -36,10 +37,10 @@ LYT.gui:
         event.preventDefault()
         event.stopPropagation()
     
-        @settings.set('username') = $("#username").val()  if $("#username").val().length < 10
-        @settings.set('password') = $("#password").val()
+        LYT.settings.set('username') = $("#username").val()  if $("#username").val().length < 10
+        LYT.set('password') = $("#password").val()
 
-        @protocol.LogOn $("#username").val(), $("#password").val()
+        LYT.LogOn $("#username").val(), $("#password").val()
 
     $("#book_index").live "pagebeforeshow", (event) ->
        $("#book_index_content").trigger "create"
@@ -73,74 +74,6 @@ LYT.gui:
 
         $("#book-play").bind "swipeleft", ->
             LastPart()
-
-    $("#search").live "pagebeforeshow", (event) ->
-        $("#search-form").submit ->
-            $("#searchterm").blur()
-            $.mobile.showPageLoadingMsg()
-            $("#searchresult").empty()
-            $.ajax
-                type: "POST"
-                contentType: "application/json; charset=utf-8"
-                dataType: "json"
-                url: "/Lyt/search.asmx/SearchFreetext"
-                cache: false
-                data: "{term:\"" + $("#searchterm").val() + "\"}"
-                success: #fixme window.fileInterface.onSearchSuccess
-                error: #fixme window.fileInterface.onSearchError
-                complete: #fixme window.fileInterface.onSearchComplete
-
-            false
-
-        $("#searchterm").autocomplete
-            source: (request, response) ->
-                $.ajax
-                    url: "/Lyt/search.asmx/SearchAutocomplete"
-                    data: "{term:\"" + $("#searchterm").val() + "\"}"
-                    dataType: "json"
-                    type: "POST"
-                    contentType: "application/json; charset=utf-8"
-                    dataFilter: (data) ->
-                        data
-
-                    success: (data) ->
-                        response $.map(data.d, (item) ->
-                            value: item.keywords
-                        )
-                        $(".ui-autocomplete").css "visibility", "hidden"
-                        list = $(".ui-autocomplete").find("li").each(->
-                            $(this).removeAttr "class"
-                            $(this).attr "class", "ui-icon-searchfield"
-                            $(this).removeAttr "role"
-                            $(this).html "<h3>" + $(this).find("a").text() + "</h3>"
-                            $(this).attr "onclick", "javascript:$(\"#searchterm\").val('" + $(this).text() + "')"
-                        )
-
-                        $(list).html "<h3>Ingen forslag</h3>"  if list.length is 1 and $(list).find("h3:first").text().length is 0
-                        $("#searchresult").html(list).listview "refresh"
-
-                    error: (XMLHttpRequest, textStatus, errorThrown) ->
-                        alert textStatus
-
-            minLength: 2
-
-        $("#searchterm").bind "autocompleteclose", (event, ui) ->
-            $("#search-form").submit()
-
-        $("#search li").live "click", ->
-            $("#book-details-image").empty()
-            $("#book-details-content").empty()
-            $.ajax
-                type: "POST"
-                contentType: "application/json; charset=utf-8"
-                dataType: "json"
-                url: "/Lyt/search.asmx/GetItemById"
-                cache: false
-                data: "{itemid:\"" + $(this).attr("id") + "\"}"
-                success: #fixme: window.fileInterface.onBookDetailsSuccess
-                error: #fixme: window.fileInterface.onBookDetailsError
-
-            false
 
     $("#bookshelf").live "pagebeforeshow", (event) ->
         $.mobile.hidePageLoadingMsg()

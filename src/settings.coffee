@@ -1,12 +1,12 @@
-# Setting and retrieving user settings and session states
-# Should this use the cache functions?
+# This module sets and retrieves user specific settings and session variables
 
 LYT.settings =
 
   data: {
     # default settings
-    textSize: "14px" 
-    markingColor: "none-black"
+    textSize: "14px"
+    
+    markingColor: "none-black" # todod split into two variables
     textType: "Helvetica"
     textPresentation: "full"
     readSpeed: "1.0"

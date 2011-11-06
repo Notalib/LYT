@@ -1,5 +1,7 @@
 LYT.app:
   
+  
+  
   onBookDetailsSuccess: (data, status) ->
       $("#book-details-image").html "<img id=\"" + data.d[0].imageid + "\" class=\"nota-full\" src=\"/images/default.png\" />"
       s = ""
@@ -33,7 +35,9 @@ LYT.app:
 
   PlayNewBook: (id, title, author) ->
       $.mobile.showPageLoadingMsg()
-      Pause()
+      
+      LYT.Pause()
+      
       @settings.currentBook = id.toString()
       @settings.currentTitle = title
       @settings.currentAuthor = author
@@ -46,6 +50,7 @@ LYT.app:
       $("#book_time").text 0
       $.mobile.showPageLoadingMsg()
       window.fileInterface.GetBook @settings.currentBook
+      
       Play()
 
   eventSystemLoggedOn: (loggedOn, id) ->
