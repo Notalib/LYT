@@ -1,37 +1,6 @@
+# This module is intended as a controller ...
+
 LYT.app:
-  
-  
-  
-  onBookDetailsSuccess: (data, status) ->
-      $("#book-details-image").html "<img id=\"" + data.d[0].imageid + "\" class=\"nota-full\" src=\"/images/default.png\" />"
-      s = ""
-      s = "<p>Serie: " + data.d[0].series + ", del " + data.d[0].seqno + " af " + data.d[0].totalcnt + "</p>"  if data.d[0].totalcnt > 1
-      $("#book-details-content").empty()
-      $("#book-details-content").append("<h2>" + data.d[0].title + "</h2>" + "<h4>" + data.d[0].author + "</h4>" + "<a href=\"javascript:PlayNewBook(" + data.d[0].imageid + ", '" + data.d[0].title.replace("'", "") + "','" + data.d[0].author + "')\" data-role=\"button\" data-inline=\"true\">Afspil</a>" + "<p>" + parse_media_name(data.d[0].media) + "</p>" + "<p>" + data.d[0].teaser + "</p>" + s).trigger "create"
-      @covercache_one $("#book-details-image")
-
-  onBookDetailsError: (msg, data) ->
-      $("#book-details-image").html "<img src=\"/images/default.png\" />"
-      $("#book-details-content").html "<h2>Hov!</h2>" + "<p>Der skulle have været en bog her - men systemet kan ikke finde den. Det beklager vi meget! <a href=\"mailto:info@nota.nu?subject=Bog kunne ikke findes på E17 mobilafspiller\">Send os gerne en mail om fejlen</a>, så skal vi fluks se om det kan rettes.</p>"
-
-  onSearchSuccess: (data, status) ->
-      s = ""
-      unless data.d[0].resultstatus is "NORESULTS"
-          s += "<li><h3>" + data.d[0].totalcount + " resultat(er)</h3></li>"
-          $.each data.d, (index, item) ->
-              s += "<li id=\"" + item.imageid + "\"><a href=\"#book-details\">" + "<img class=\"ui-li-icon\" src=\"/images/default.png\" /><h3>" + item.title + "</h3><p>" + item.author + " | " + parse_media_name(item.media) + "</p></a></li>"
-      else
-          s += "<li><h3>Ingen resultater</h3><p>Prøv eventuelt at bruge bredere søgeord. For at teste funktionen, søg på et vanligt navn, såsom \"kim\" eller \"anders\".</p></li>"
-          $("#searchresult").html s
-
-  onSearchError = (msg, data) ->
-      $("#searchresult").text "Error thrown: " + msg.status
-
-  onSearchComplete: ->
-      $("#searchresult").listview "refresh"
-      $("#searchresult").find("a:first").css "padding-left", "40px"
-      $.mobile.hidePageLoadingMsg()
-      @covercache $("#searchresult").html()
 
   PlayNewBook: (id, title, author) ->
       $.mobile.showPageLoadingMsg()
