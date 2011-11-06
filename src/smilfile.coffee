@@ -1,6 +1,6 @@
 # TODO: How to best model this domain? MP3-file has sequences with text? Text-data refers to sequence, which refers to MP3? Sequences refer to... etc
 
-do =>
+do ->
   class LYT.SMILFile
   
     constructor: (@url) ->

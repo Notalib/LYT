@@ -20,10 +20,10 @@ do =>
         jQuery.ajax @url, options
       
       cacheLocally = =>
-        cache.write "ncc", @url, @toJSON()
+        LYT.cache.write "ncc", @url, @toJSON()
       
       loadLocal = =>
-        data = cache.read "ncc", @url
+        data = LYT.cache.read "ncc", @url
         return false unless data and data.structure and data.metadata
         @structure = data.structure
         @metadata  = data.metadata
