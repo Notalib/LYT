@@ -1,3 +1,13 @@
+@app:
+
+  logUserOff: ->
+      @settings.username = ""
+      @settings.password = ""
+      @SetSettings()
+      
+      @protocol.LogOff()
+
+
 $(document).bind "mobileinit", ->
     
     @gui.setup()
