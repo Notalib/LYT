@@ -10,7 +10,7 @@ while [[ $# > 0 ]]; do # for each argument...
       
       # Insert the result into the template
       placeholder="<!-- body -->"
-      sed -e "/$placeholder/r ./html/tmp.html" -e "/$placeholder/d" ./html/index.html 1> ./dist/index.html
+      sed -e "/$placeholder/r ./html/tmp.html" -e "/$placeholder/d" ./html/index.html 1> ./index.html
       
       # Remove the temp file
       rm ./html/tmp.html

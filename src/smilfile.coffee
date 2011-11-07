@@ -17,6 +17,14 @@ do ->
         # FIXME: Handle errors
           
       jQuery.ajax @url, options
+    
+    audioFiles: ->
+      return @_audioFiles if @_audioFiles?
+      files = {}
+      for sequence in @sequences
+        for segment in sequence.segments
+          files[segment.audio.src] = segment.audio.src
+      @_audioFiles = (file for own file, ignore of files)
   
   parseSequences = (xml) ->
     sequences = []
@@ -24,7 +32,7 @@ do ->
       element = jQuery this
       sequences.push {
         duration: parseFloat(element.attr("dur")) || 0 # get the duration
-        contents: parseSequence element
+        segments: parseSequence element
       }
     
     sequences

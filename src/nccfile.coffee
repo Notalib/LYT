@@ -5,17 +5,19 @@ do =>
   class LYT.NCCFile
     # Create a new `NCCFile` instance from the URL of an NCC file
     constructor: (@url) ->
+      @base = @url.replace /\/[^\/?=&]*$/, ''
       loadRemote = =>
         options = 
           url:      @url
           dataType: "xml"
           # FIXME: It really should be asynchronous...
-          async:    false
+          async:    true
           cache:    false
           success:  (xml, status, xhr) =>
-            xml = jQuery xml
-            @structure = parseStructure xml
-            @metadata  = parseMetadata xml
+            @xml = jQuery xml
+            @structure = parseStructure @xml
+            @metadata  = parseMetadata @xml
+            @smilFiles = loadSMILFiles(@structure, @base)
             
         jQuery.ajax @url, options
       
@@ -27,9 +29,13 @@ do =>
         return false unless data and data.structure and data.metadata
         @structure = data.structure
         @metadata  = data.metadata
+        @smilFiles = loadSMILFiles(@structure, @base)
         true
       
-      if not loadLocal() then loadRemote()
+      # FIXME: Caching disabled  
+      # if not loadLocal() then
+      loadRemote()
+      
     
     creators: ->
       return ["?"] unless @metadata.creator?
@@ -38,6 +44,10 @@ do =>
         creators.slice(0, -1).join(", ") + " & " + creators.pop()
       else
         creators[0]
+    
+    getTextById: (id) ->
+      id = id.replace /^[^#]*/, ''
+      @xml.find(id).first().text()
     
     # Convert the structure tree to an HTML nested list
     # FIXME: Doesn't create proper markup!
@@ -48,7 +58,7 @@ do =>
         for item in items
           element = jQuery "<li></li>"
           element.attr "id", item.id
-          element.attr "xhref", item.href
+          element.attr "data-href", item.href
           element.text item.text
           element.append mapper(item.children) if item.children?
           list.append element
@@ -57,10 +67,10 @@ do =>
       # Create the wrapper unordered list
       element = jQuery "<ul></ul>"
       # FIXME: Use data-* attrs and use English names, plz
-      element.attr "titel", @metadata.title.content
-      element.attr "forfatter", @creators()
-      element.attr "totalTime", @metadata.totalTime.content
-      element.attr "id", "NccRootElement"
+      element.attr "data-title", @metadata.title.content
+      element.attr "data-creator", @creators()
+      element.attr "data-totalTime", @metadata.totalTime.content
+      element.attr "id", "NCCRootElement"
       element.attr "data-role", "listview"
       element.append mapper(@structure).html()
       element
@@ -68,8 +78,7 @@ do =>
     toJSON: ->
       return null unless @structure? and @metadata?
       structure: @structure
-      metadata:  @metadata
-      timestamp: (new Date).getTime()
+      metadata:  @metadata || false
     
   # ---------
   
@@ -166,8 +175,7 @@ do =>
     metadata
   
   # Parses the structure of headings (and heading only) in the NCC file into a nested array (a tree)  
-  # *Note:* This function absolutely relies on the NCC file being well-formed  
-  # TODO: What about DIVs and SPANs in the file? Currently, they aren't collected
+  # **Note:** This function absolutely relies on the NCC file being well-formed
   parseStructure = (xml) ->
     # Collects consecutive heading of the given level, and recursively collects each of their "children", and so on…
     getConsecutive = (headings, level, collector) ->
@@ -187,10 +195,25 @@ do =>
       
       headings.length
     
-    headings = jQuery.makeArray xml.find(":header")
-    level = parseInt headings[0].tagName.slice(1), 10
+    headings  = jQuery.makeArray xml.find(":header")
+    level     = parseInt headings[0].tagName.slice(1), 10
     structure = []
     
     getConsecutive headings, level, structure
     structure
   
+  loadSMILFiles = (nodes, baseURI) ->
+    console.log nodes
+    urls = []
+    getURLs = (nodes) ->
+      for node in nodes
+        urls.push "#{baseURI}/#{node.href.replace(/#.*$/, '')}"
+        if node.children?
+          getURLs node.children
+    
+    getURLs nodes
+    
+    (new LYT.SMILFile url for url in urls)
+    
+
+    
