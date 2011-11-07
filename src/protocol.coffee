@@ -63,24 +63,20 @@ LYT.protocol =
       password: password
     
     receive: ($xml, data) ->
-      if $xml.find("logOnResult").text() is "true"
-        rpc "getServiceAttributes"
-      else
-        eventSystemForceLogin "Du har indtastet et forkert brugernavn eller password" # FIXME: Not a great function name. Also, hard-coded error message
+      $xml.find("logOnResult").text() is "true" or RPC_ERROR
   
   
   logOff:
-    # FIXME: Can log off fail? If so, how should it be handled?
     receive: ($xml, data) ->
-      eventSystemLogedOff $xml.find("logOffResult")?.text() or "" # FIXME: Not a great function name - and it's spelled wrong
+      $xml.find("logOffResult").text() is "true" or RPC_ERROR
   
   
   getServiceAttributes:
     receive: ($xml, data) ->
+      operations = []
       $xml.find("supportedOptionalOperations > operation").each ->
-        op = jQuery this
-        DODP.service.announcements = (op.text() is "SERVICE_ANNOUNCEMENTS")
-      rpc "setReadingSystemAttributes"
+        operations.push $(this).text()
+      [operations]
   
   
   setReadingSystemAttributes:
@@ -93,24 +89,19 @@ LYT.protocol =
         config: null
     
     receive: ($xml, data) ->
-       if $xml.find("setReadingSystemAttributesResult").text() is "true"
-         eventSystemLogedOn true, $xml.find("MemberId").text()  # FIXME: Not a great function name - and it's spelled wrong
-       
-         # TODO: There's something weird going on here (read on)
-         # If DODP.service.announcements is true (and announcements should be shown), then getServiceAnnouncements() is called
-         # But getServiceAnnouncements' callback is responsible for setting DODP.service.announcements to true/false
-         # So as far as I can tell, it's circular
-         if DODP.service.announcements and false then rpc "getServiceAnnouncements" # FIXME: replace false with SHOW_SERVICE_ANNOUNCEMENTS
-       else
-         alert aLang.translate "MESSAGE_LOGON_FAILED" # FIXME: What the...? There's localization? Since when?
+      $xml.find("setReadingSystemAttributesResult").text() is "true" or RPC_ERROR
   
   
   getServiceAnnouncements:
     receive: ($xml, data) ->
+      announcements = []
       $xml.find("announcements > announcement").each ->
         announcement = jQuery this
-        alert announcement.find("text").text()
-        rpc "markAnnouncementsAsRead", announcement.id
+        announcements.push {
+          text: announcement.find("text").text()
+          id:   announcement.attr("id")
+        }
+      [announcements]
   
   
   markAnnouncementsAsRead:
@@ -127,7 +118,15 @@ LYT.protocol =
       lastItem:  lastItem
     
     receive: ($xml, data) ->
-      eventSystemGotBookShelf data
+      items = []
+      $xml.find("contentItem").each ->
+        item = jQuery this
+        # TODO: Should really extract the lang attribute too - it'd make it easier to correctly markup the list in the UI
+        items.push {
+          id: item.attr("id")
+          label: item.find("label > text").text()
+        }
+      [items]
     
   
   issueContent:
@@ -135,23 +134,15 @@ LYT.protocol =
       contentID: bookID
     
     receive: ($xml) ->
-      if $xml.find('issueContentResult').text() is "true"
-        rpc "getContentResources", settings.get('currentBook')
-      else
-        log.error "PRO: Error in issueContent parsing: #{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
-        alert "#{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
+      $xml.find('issueContentResult').text() is "true" or RPC_ERROR
       
     
   returnContent:
     request: (bookID) ->
-      contentId: bookID
+      contentID: bookID
     
     receive: ($xml) ->
-      if $xml.find("returnContentResult").text() is "true"
-        rpc "getBookShelf"
-      else
-        log.error "PRO: Error in returnContent parsing: #{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
-        alert "#{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
+      $xml.find("returnContentResult").text() is "true" or RPC_ERROR
       
   
   getContentMetadata:
@@ -166,23 +157,23 @@ LYT.protocol =
     
     # FIXME: Not fully implemented
     receive: ($xml, data) ->
-      fault = $xml.find('faultstring').text()
-      if fault isnt ""
-        if fault is "s:invalidParameterFault"
-          eventSystemEndLoading()
-        log.error "PRO: Resource error: #{fault}"
-        return
-          
-        
+      isMP3  = /\.mp3$/i
+      isSMIL = /\.smil$/i
+      isNCC  = /ncc.html?$/i
+      
+      resources =
+        smil: []
+        mp3:  []
+      
+      # TODO: Assumes only 1 NCC file...
       $xml.find("resource").each ->
         resource = jQuery this
-        resourceURI = resource.attr "uri"
-        components = resourceURI.match /^([^\/]+)\/\/([^\/]+)\/(.*)$/
-        
-        url = "#{components[1]}//#{window.location.hostame}/#{components[3]}"
-        if resourceURI.match /ncc.htm$/i then nccPath = url
-        
-      # FIXME: Not fully implemented
+        uri = resource.attr("uri")
+        if isMP3.test uri then       resources.mp3.push uri
+        else if isSMIL.test uri then resources.smil.push uri
+        else if isNCC.test uri then  resources.ncc = uri
+      
+      return resources
   
   
   setBookmarks:

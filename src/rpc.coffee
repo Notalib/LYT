@@ -8,6 +8,12 @@
 
 # --------
 
+# ## Constants
+
+window.RPC_ERROR = {}
+
+# --------
+
 # Define `rpc` inside a closure
 LYT.rpc = do ->
   
@@ -24,14 +30,14 @@ LYT.rpc = do ->
       throw new TypeError
     
     # Also complain if the `protocol` module doens't contain the RPC
-    unless protocol[action]?
+    unless LYT.protocol[action]?
       throw "RPC: Action \"#{action}\" not found"
     
     # Get the RPC object
-    handlers = protocol[action]
+    handlers = LYT.protocol[action]
     
     # Clone the default options
-    options = jQuery.extend {}, config.rpc.options
+    options = jQuery.extend {}, LYT.config.rpc.options
     
     # Get the request data from the RPC's `request` function, if present, passing along any arguments
     soap = handlers.request?(args...) or null
@@ -40,9 +46,12 @@ LYT.rpc = do ->
     # Convert the data obj to XML and insert it into the SOAP template
     xml = {}
     xml[action] = soap
-    xml = rpc.toXML xml
+    xml = LYT.rpc.toXML xml
     xml = if xml isnt "" then "<ns1:#{action}>#{xml}</ns1:#{action}>" else "<ns1:#{action} />"
     options.data = soapTemplate.replace /#\{body\}/, xml
+    
+    # Create a new Deferred
+    deferred = jQuery.Deferred();
     
     # Log the call
     log.group "RPC: Calling \"#{action}\"", soap, options.data
@@ -51,26 +60,38 @@ LYT.rpc = do ->
     options.success  = (data, status, xhr) ->
       $xml = jQuery data
       # FIXME: Generalize the fault-handling to handle other faults too. Also, wouldn't it be better to check faultcodes rather than faultstrings?
-      if $xml.find("faultstring").text().match errorRegExp
-        log.group "RPC: Error: Invalid/uninitialized session"
+      if $xml.find("faultcode").length > 0 or $xml.find("faultstring").length > 0
+        message = $xml.find("faultstring").text()
+        code    = $xml.find("faultcode").text()
+        log.errorGroup "PRO: Resource error: #{code}: #{message}"
         log.message data
         log.closeGroup()
-        eventSystemNotLoggedIn()
+        deferred.reject code, message
       else
         log.group "RPC: Response for action \"#{action}\""
         log.message data
         log.closeGroup()
         # Call the RPC's `receive` function, if it exists
-        if handlers.receive? then handlers.receive $xml, data, status, xhr
+        if handlers.receive?
+          results = handlers.receive $xml, data, status, xhr
+          if results is RPC_ERROR
+            deferred.reject -1, "RPC error"
+          else
+            if not (results instanceof Array) then results = [results]
+            deferred.resolve.apply null, results
+        else
+          deferred.resolve data.status.xhr
     
     # Attach the RPC's `complete` handler (if any)
     options.complete = handlers.complete if handlers.complete?
     
     # Attach the RPC's `error` handler (or use the default)
-    options.error    = handlers.error or rpc.error
+    options.error    = handlers.error or LYT.rpc.error
     
     # Perform the request
     jQuery.ajax options
+    
+    return deferred
 
 # ---------
 
