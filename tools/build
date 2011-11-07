@@ -39,7 +39,7 @@ while [[ $# > 0 ]]; do # for each argument...
       mkdir -pm 0777 ./build/test
       
       # Compile the tests into a single file
-      coffee -c -j "suite" -o ./build/test/ ./test/tests/src/*.coffee || exit 1
+      coffee -c -j "suite" -o ./build/test/ ./test/src/*.coffee || exit 1
       
       # Copy the other test files
       cp ./test/index.html ./build/test/
