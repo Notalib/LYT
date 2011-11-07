@@ -5,27 +5,34 @@ cd $(dirname $0)/..
 while [[ $# > 0 ]]; do # for each argument...
   case "$1" in
     "html" )
+      mkdir -pm 0777 ./build
+      
       # Concat the pages, and add a leading tab to each line
       cat ./html/pages/*.html | sed "s/^/	/" 1> ./html/tmp.html
       
       # Insert the result into the template
       placeholder="<!-- body -->"
-      sed -e "/$placeholder/r ./html/tmp.html" -e "/$placeholder/d" ./html/index.html 1> ./index.html
+      sed -e "/$placeholder/r ./html/tmp.html" -e "/$placeholder/d" ./html/index.html 1> ./build/index.html
       
       # Remove the temp file
       rm ./html/tmp.html
       
-      echo "Built html"
+      # Copy the other files
+      cp -R ./css ./build/
+      cp -R ./images ./build/
+      
+      echo "Built html -> build/index.html"
     ;;
     
     "src" )
       # Compile src into several files
+      mkdir -pm 0777 ./build/javascript
       coffee -c -o ./compiled ./src/*.coffee || exit 1
       
       # Compile src into a single file, too 
       # coffee -c -j lyt -o ./dist ./src/*.coffee || exit 1
       
-      echo "Built src"
+      echo "Built src -> build/javascript"
     ;;
     
     "tests" ) 
@@ -38,13 +45,6 @@ while [[ $# > 0 ]]; do # for each argument...
     "docs" )
       # Run docco on the src files
       docco ./src/*.coffee 1> /dev/null || exit 1
-      
-      # Highlight labels (if possible)
-      if [[ -x $(which ruby) ]] && [[ -f ./highlight_labels.rb ]]; then
-        cd ./tools
-        ruby highlight_labels.rb ../docs/*.html 2> /dev/null
-        cd - 1> /dev/null
-      fi
       
       echo "Built docs"
     ;;
