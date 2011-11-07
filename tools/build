@@ -19,7 +19,7 @@ while [[ $# > 0 ]]; do # for each argument...
       
       # Copy the other files
       cp -R ./css ./build/
-      cp -R ./images ./build/
+      cp -R ./assets/* ./build/
       
       echo "Built html -> build/index.html"
     ;;
