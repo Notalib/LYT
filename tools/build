@@ -2,8 +2,36 @@
 
 cd $(dirname $0)/..
 
+function copy_assets {
+  cp -R ./assets/* ./build/
+}
+
+function print_usage {
+  echo "Usage:
+  build all
+  build src|html|tests|docs [docs|html|...]
+
+Options:
+  all   - Same as 'build html src tests docs'
+  src   - Compile the .coffee files in src
+  html  - Concat all pages and insert them into
+          the html/index.html template
+  tests - Compile the .coffee files in test/tests/src
+  docs  - Create the Docco documentation"
+  exit 1
+}
+
+if [[ $# = 0 ]]; then
+  print_usage
+fi
+
 while [[ $# > 0 ]]; do # for each argument...
   case "$1" in
+    "all" )
+      tools/build html src tests docs
+      exit $?
+      ;;
+    
     "html" )
       mkdir -pm 0777 ./build
       
@@ -19,7 +47,7 @@ while [[ $# > 0 ]]; do # for each argument...
       
       # Copy the other files
       cp -R ./css ./build/
-      cp -R ./assets/* ./build/
+      copy_assets
       
       echo "Built html -> build/index.html"
     ;;
@@ -45,6 +73,9 @@ while [[ $# > 0 ]]; do # for each argument...
       cp ./test/index.html ./build/test/
       cp -R ./test/fixtures ./build/test/
       
+      # Copy the assets, too
+      copy_assets
+      
       echo "Built tests"
     ;;
     
@@ -56,16 +87,8 @@ while [[ $# > 0 ]]; do # for each argument...
     ;;
     
     * ) # Unrecognized argument
-      echo "Usage: build src|html|tests|docs [docs|html|...]
-      src   - Compile the .coffee files in src
-      html  - Concat all pages and insert them into
-              the html/index.html template
-      tests - Compile the .coffee files in test/tests/src
-      docs  - Create the Docco documentation"
-      exit 1
+      print_usage
     ;;
   esac
   shift # shift to next argument
 done
-
-echo "Done"
