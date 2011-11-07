@@ -1,6 +1,6 @@
 # Style Guide (draft)
 
-## CoffeeScript identation
+## CoffeeScript Identation
 Soft-tabs, 2 spaces (important, since CoffeeScript relies on significant whitespace).
 
 For the love of all that's holy, **never mix tabs and soft-tabs in the same file!** I *will* call you mean names if you do (and so will CoffeeScript's compiler, no doubt)
@@ -19,16 +19,23 @@ Be descriptive in naming things, but don't overdo it. `JSON.parse` is just as cl
 
 Oh, and use English names for everything, please.
 
-## General style
+## Commits
+- Commit often
+- Use English for commit messages
+- Commit messages should begin with a verb, e.g. "Updated …", "Fixed …", "Added …"
+
+## Coding Style
 - DRY: Don't repeat yourself. If you find yourself about to copy/paste code, then stop coding, sober up/ride out your high, and realize you weren't thinking straight. Make a function instead. They're cheap and can be made with common household materials! (Learn to love closures)
 - Comment your code (duh!)
-- Use comment labels (TODO/FIXME) where appropriate:
+- Use comment labels (`TODO`, `FIXME`, `CHANGED`) where appropriate:
 
         # FIXME: Something that definitely needs fixing
         
-        # TODO: Something that might need fixing or refactoring, but which works OK right now
+        # TODO: Something that may need fixing or refactoring, but is low priority
+        
+        # CHANGED: Something has been changed in a way that's important for others to know about, e.g. deprecated functions and such
 
-- Keep your code's interface as clean as possible - don't expose helper functions and variables that are useless to the outside world (learn to love closures)
+- Keep your code's public interface as clean as possible - don't expose helper functions and variables that are useless to the outside world (learn to love closures)
 - Leave an empty line at the end of each file to make `diff` happy
 - Never trust JavaScript type coercion, and...
 - Throw a `TypeError` rather than doing type coercion, when types really matter
@@ -82,7 +89,7 @@ Oh, and use English names for everything, please.
             #
             # ... lots of code
             #
-            # Also explicit for the sake of consistency
+            # Also explicit
             return value2
           
 

@@ -7,6 +7,8 @@ Tests run with [QUnit](http://docs.jquery.com/QUnit)
 
 ## Development
 
+First, [read the style guide](/Notalib/LYT/blob/master/styleguide.mdown).
+
 To compile the *.coffee source files, issue the following from the repo's root:
 
     $ tools/build src 
@@ -18,4 +20,3 @@ To compile (concatenate, really) the *.html files, use:
 To see what else you can build, run `tools/build` with no arguments:
 
     $ tools/build
-
