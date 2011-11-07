@@ -1,0 +1,24 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+<s:Header>
+<MemberId xmlns="http://www.e17.dk">99999</MemberId>
+<Username xmlns="http://www.e17.dk">test</Username>
+<Realname xmlns="http://www.e17.dk">test testerson</Realname>
+<Email xmlns="http://www.e17.dk">test@example.com</Email>
+<Address xmlns="http://www.e17.dk">123 Test st</Address>
+<Age xmlns="http://www.e17.dk">99</Age>
+<Gender xmlns="http://www.e17.dk">true</Gender>
+<Teacher xmlns="http://www.e17.dk">0</Teacher>
+<Usergroup xmlns="http://www.e17.dk">Z</Usergroup>
+</s:Header>
+<s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/">
+	<resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00">
+		<resource uri="http://test.test/123/00001_01.mp3" mimeType="application/octet-stream" size="0" localURI="00001_01.mp3" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="http://test.test/123/00001_01.smil" mimeType="application/octet-stream" size="0" localURI="00001_01.smil" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="http://test.test/123/00001_02.mp3" mimeType="application/octet-stream" size="0" localURI="00001_02.mp3" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="http://test.test/123/00001_02.smil" mimeType="application/octet-stream" size="0" localURI="00001_02.smil" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="http://test.test/123/ncc.html" mimeType="application/octet-stream" size="0" localURI="ncc.html" lastModifiedDate="2011-11-07T13:42:12.3523042+01:00"/>
+	</resources>
+</getContentResourcesResponse>
+</s:Body>
+</s:Envelope>
