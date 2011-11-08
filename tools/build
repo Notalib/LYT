@@ -3,7 +3,8 @@
 cd $(dirname $0)/..
 
 function copy_assets {
-  cp -R ./assets/* ./build/
+  cp -R ./assets/ ./build/
+  echo "Copied assets/* -> build/"
 }
 
 function print_usage {
@@ -63,20 +64,20 @@ while [[ $# > 0 ]]; do # for each argument...
       echo "Built src -> build/javascript"
     ;;
     
-    "tests" ) 
+    "tests" )
       mkdir -pm 0777 ./build/test
       
       # Compile the tests into a single file
       coffee -c -j "suite" -o ./build/test/ ./test/src/*.coffee || exit 1
       
       # Copy the other test files
-      cp ./test/index.html ./build/test/
+      cp -f ./test/index.html ./build/test/
       cp -R ./test/fixtures ./build/test/
       
       # Copy the assets, too
       copy_assets
       
-      echo "Built tests"
+      echo "Built tests -> build/test"
     ;;
     
     "docs" )
