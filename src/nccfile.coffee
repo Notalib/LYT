@@ -1,41 +1,33 @@
-# Class to model an NCC file
-# What does "NCC" stand for anyway? Besides being the first letters in the starship _Entreprise's_ hull number (NCC-1701), I mean. And why do I even know this? I'm not a Star Trek fan!
+# This class models an NCC (Navigation Control Center) file
+#
+#
 
-do =>
-  class LYT.NCCFile
-    # Create a new `NCCFile` instance from the URL of an NCC file
+do ->
+  
+  class LYT.NCCDocument
     constructor: (@url) ->
-      @base = @url.replace /\/[^\/?=&]*$/, ''
-      loadRemote = =>
-        options = 
-          url:      @url
-          dataType: "xml"
-          # FIXME: It really should be asynchronous...
-          async:    true
-          cache:    false
-          success:  (xml, status, xhr) =>
-            @xml = jQuery xml
-            @structure = parseStructure @xml
-            @metadata  = parseMetadata @xml
-            @smilFiles = loadSMILFiles(@structure, @base)
-            
-        jQuery.ajax @url, options
+      deferred = jQuery.Deferred()
+      deferred.promise this
       
-      cacheLocally = =>
-        LYT.cache.write "ncc", @url, @toJSON()
-      
-      loadLocal = =>
-        data = LYT.cache.read "ncc", @url
-        return false unless data and data.structure and data.metadata
-        @structure = data.structure
-        @metadata  = data.metadata
-        @smilFiles = loadSMILFiles(@structure, @base)
-        true
-      
-      # FIXME: Caching disabled  
-      # if not loadLocal() then
-      loadRemote()
-      
+      jQuery.ajax {
+        url:      @url
+        dataType: "xml"
+        async:    true
+        cache:    true
+        success: (xml, status, xhr) =>
+          @xml = jQuery xml
+          @structure = parseStructure @xml
+          @metadata  = parseMetadata @xml
+          deferred.resolve()
+        
+        error: ->
+          deferred.reject(xhr, status, error)
+      }
+    
+    toJSON: ->
+      return null unless @structure? and @metadata?
+      structure: @structure
+      metadata:  @metadata || false
     
     creators: ->
       return ["?"] unless @metadata.creator?
@@ -47,10 +39,10 @@ do =>
     
     getTextById: (id) ->
       id = id.replace /^[^#]*/, ''
-      @xml.find(id).first().text()
+      jQuery.trim @xml.find(id).first().text()
     
-    # Convert the structure tree to an HTML nested list
-    # FIXME: Doesn't create proper markup!
+    # Convert the structure tree to an HTML nested list   
+    # FIXME: This shouldn't be here... it should be in gui or something
     toHTMLList: ->
       # Recursively builds nested ordered lists from an array of items
       mapper = (items) ->
@@ -59,6 +51,7 @@ do =>
           element = jQuery "<li></li>"
           element.attr "id", item.id
           element.attr "data-href", item.href
+          element.attr "data-class", item.class
           element.text item.text
           element.append mapper(item.children) if item.children?
           list.append element
@@ -66,7 +59,6 @@ do =>
       
       # Create the wrapper unordered list
       element = jQuery "<ul></ul>"
-      # FIXME: Use data-* attrs and use English names, plz
       element.attr "data-title", @metadata.title.content
       element.attr "data-creator", @creators()
       element.attr "data-totalTime", @metadata.totalTime.content
@@ -75,23 +67,33 @@ do =>
       element.append mapper(@structure).html()
       element
     
+    firstSection: ->
+      @structure[0] or null
+    
+    findSection: (id) ->
+      find = (id, sections) ->
+        for section in sections
+          if section.id is id
+            return section
+          else if section.children?
+            child = find id, section.children
+            return child if child?
+        
+        return null
+      
+      find @structure
+    
     toJSON: ->
       return null unless @structure? and @metadata?
       structure: @structure
       metadata:  @metadata || false
-    
-  # ---------
-  
-  # ## Chaching 
-  
-  loadCache = (url) ->
     
   
   # ---------
   
   # ## Parsing functions
   
-  # Parses `meta` nodes in the head-element
+  # Parses `<meta>` nodes in the head-element
   parseMetadata = (xml) ->
     selectors = 
       # Name attribute values for nodes that appear 0-1 times per file  
@@ -174,6 +176,22 @@ do =>
     
     metadata
   
+  
+  class Section
+    constructor: (values) ->
+      jQuery.extend this, values
+      
+    flatten: ->
+      flat = [this]
+      if @children
+        flat = flat.concat child.flatten() for child in @children
+      return flat
+    
+    smilURLs: ->
+      section.href for section in @flatten
+        
+  
+  
   # Parses the structure of headings (and heading only) in the NCC file into a nested array (a tree)  
   # **Note:** This function absolutely relies on the NCC file being well-formed
   parseStructure = (xml) ->
@@ -183,10 +201,11 @@ do =>
         return index if heading.tagName.toLowerCase() isnt "h#{level}"
         heading = jQuery heading
         link = heading.find("a").first()
-        node = {
-          text: link.text()
-          href: link.attr "href"
-          id:   heading.attr "id"
+        node = new Section {
+          text:    link.text()
+          url:     link.attr "href"
+          id:      heading.attr "id"
+          class:   heading.attr "class"
         }
         children = []
         index += getConsecutive headings.slice(index+1), level+1, children
@@ -202,18 +221,3 @@ do =>
     getConsecutive headings, level, structure
     structure
   
-  loadSMILFiles = (nodes, baseURI) ->
-    console.log nodes
-    urls = []
-    getURLs = (nodes) ->
-      for node in nodes
-        urls.push "#{baseURI}/#{node.href.replace(/#.*$/, '')}"
-        if node.children?
-          getURLs node.children
-    
-    getURLs nodes
-    
-    (new LYT.SMILFile url for url in urls)
-    
-
-    

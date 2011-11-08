@@ -1,54 +1,93 @@
-# This module models the Daisy Online Protocol
-# 
-# An RPC (Remote Procedure Call) is declared as a nested object in the `protocol`-object
-# An RPC object can have the following members:
+# Defines functions for sending and receiving SOAP data.
 #
-#  - `request`   - a function that returns the SOAP data to be sent as the request body
-#  - `receive`   - a function that parses the response from the server, if the request is successful
-#  - `complete`  - a function that will be called when the request completes
-#  - `error`     - an error-handling function
+# The functions are defined in objects nested in the `protocol` object. Each nested
+# object - an RPC object - is named after the action it calls on the server. The
+# idea is to have 1-to-1 mapping of server actions and RPC objects.
 #
-# All these members are optional (see below)
+# **Note:** The RPC object functions are intended to act as an XML-to-JS layer.
+# I.e. taking JS objects and primitives and preparing them for requests, and
+# taking the returned XML and parsing it into JS data. The functions should not
+# call initiate further calls to the server, and generally be as isolated from
+# the rest of the system as possible.
+#
+# CHANGED: Deprecated the `complete` function in favor of the Promise/Deferred pattern
 # 
-# An RPC is called by passing its name to the rpc function, plus whatever arguments are needed:
+# An RPC object can have the following functions:
+#
+#  - `request`   - returns the data to be sent as the request body
+#  - `receive`   - parses the response from the server, if the request is successful, and returns the parsed data
+#  - `error`     - handles errors
+#  - `complete`  - (DEPRECATED) will be called when the request completes, regardless of success or failure
+#
+# All these members are optional (see below). The `error` and `complete` callbacks.
+# 
+# An RPC is called by passing its name to the [`rpc` function](rpc.html),
+# passing along whatever arguments are needed:
 # 
 #     rpc "getStuffFromServer", foo, bar
 # 
-# If an RPC named "getStuffFromServer" doens't exist, the rpc function will throw an exception.
-# If it does exist, the rpc function will look for the request member. If such a member is found, and is a function
-# it will be passed the arguments (`foo` & `bar` in this example), and its return value (if any) will be used to
-# generate the SOAP request body.
-# If no request function is found, or it returns a non-object value, the request body will simply be an empty
-# XML tag, mirroring the name of the RPC
+# If an RPC object named "getStuffFromServer" doens't exist, the rpc function
+# will throw an exception.
+#
+# If such an object does exist, the `rpc` function will look for the `request`
+# function in that object. If such a function is found, it will be passed the
+# arguments (`foo` & `bar` in this example), and its return value (if any)
+# will be used to generate the SOAP request body.
+# 
+# If no `request` function is found, or if it returns a non-object value, the
+# request body will simply be an empty XML tag (see below)
 # 
 # ## RPC example
 # 
-# All the members of an RPC object are optional. At it's simplest, an RPC can be defined as
+# All the members of an RPC object are optional. At it's simplest, an RPC can
+# be defined as:
 # 
 #     someServerAction: true
 #
-# This will allow you to call `rpc "someServerAction"`. The request will use the default options
-# and the body of the request data will be an empty SOAP tag, mirroring the name, i.e. `<ns1:someServerAction />`
+# This will allow you to call `rpc "someServerAction"`. The request will use
+# the default options and the body of the request data will be an empty SOAP
+# tag, mirroring the name, i.e. `<ns1:someServerAction />`
 # 
 # Below is an example using all the optional members
 # 
 #     # The RPC's name, i.e. the name of the action to call on the server.
-#     actionName: 
+#     # Note: Put the name in quotes
+#     "findUser": 
 #       
 #       # The request function, with whatever
 #       # arguments it requires (if any)
-#       request: (args...) -> 
+#       request: (name) -> 
 #         # The request function may optionally return
 #         # an object. If it does, that object is then
 #         # turned into XML and sent as the SOAP body
-#         key1: value1
+#         first: name.split(" ")[0]
+#         last:  name.split(" ")[1]
 #       
 #       # The receive function which will
 #       # be passed the data returned by the server
-#       receive: ($xml, data, status, xhr) -> ...
-#       
-#       # The complete callback
-#       complete: (xhr, status) -> ...
+#       receive: ($xml, data, status, xhr) ->
+#         # $xml is a jQuery-wrapped XML document,
+#         # whereas data is the "raw" XML document.
+#         # The receive function is responsible for
+#         # the initial parsing and checking of the
+#         # XML data returned by the server.
+#         # If there's a problem with the data,
+#         # the receive function can return
+#         # RPC_ERROR
+#         if $xml.find("result").length is 0 then
+#           return RPC_ERROR
+#
+#         # In this example, that means extracting
+#         # the user IDs returned by the server
+#         ids = []
+#         $xml.find("result > userid").each ->
+#           ids.push jQuery(this).text()
+#         
+#         # Returning an array, will cause downstream
+#         # functions to receive the array's contents
+#         # as multiple arguments. So wrap the ids
+#         # in another array
+#         return [ids]
 #       
 #       # The error handler
 #       error: (xhr, status, error) -> ...
@@ -155,25 +194,12 @@ LYT.protocol =
     request: (bookID) ->
       contentID: bookID
     
-    # FIXME: Not fully implemented
     receive: ($xml, data) ->
-      isMP3  = /\.mp3$/i
-      isSMIL = /\.smil$/i
-      isNCC  = /ncc.html?$/i
-      
-      resources =
-        smil: []
-        mp3:  []
-      
-      # TODO: Assumes only 1 NCC file...
+      resources = []
       $xml.find("resource").each ->
-        resource = jQuery this
-        uri = resource.attr("uri")
-        if isMP3.test uri then       resources.mp3.push uri
-        else if isSMIL.test uri then resources.smil.push uri
-        else if isNCC.test uri then  resources.ncc = uri
+        resources.push jQuery(this).attr("uri")
       
-      return resources
+      return [resources]
   
   
   setBookmarks:

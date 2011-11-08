@@ -2,7 +2,7 @@
 # 
 # E.g.
 # 
-#     rpc "logOn", "someUser", "supeSekretPassword"
+#     rpc "logOn", "someUser", "supeSekretPassword" #=> Deferred object
 #
 # See protocol.coffee for more
 
