@@ -1,9 +1,6 @@
 QUnit.config.testTimeout = 5000
 _originalURL = LYT.config.rpc.options.url
 
-createAsyncCounter = (count = 1) ->
-  -> --count or start()
-
 setURL = (url) ->
   LYT.config.rpc.options.type = "GET"
   LYT.config.rpc.options.url  = url
@@ -80,13 +77,12 @@ asyncTest "getContentList", 1, ->
     .always done
 
 
-asyncTest "getContentResources", 3, ->
+asyncTest "getContentResources", 2, ->
   done = createAsyncCounter 1
 
   setURL "fixtures/protocol/getContentRes.xml"
   LYT.rpc("getContentResources")
     .then (resources) ->
-      equal resources.smil.length, 2
-      equal resources.mp3.length, 2
-      equal resources.ncc, "http://test.test/123/ncc.html"
+      equal resources.length, 5
+      notEqual resources.indexOf("http://test.test/123/ncc.html"), -1
     .always done
