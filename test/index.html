@@ -9,18 +9,27 @@
 	<script src="http://code.jquery.com/qunit/qunit-git.js"></script>
 	<script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
 	
+	
+	<!-- Extras -->
+	<script type="text/javascript" charset="utf-8">
+		function createAsyncCounter(count) {
+			count = count || 1;
+			return function() { --count || start(); };
+		}
+	</script>
+	
 	<!-- Scripts -->
-	<script src="../javascript/lyt.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/utils.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/config.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/cache.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/protocol.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/rpc.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/nccfile.js" type="text/javascript" charset="utf-8"></script>
-	<script src="../javascript/smilfile.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../javascript/lyt.js"></script>
+	<script src="../javascript/utils.js"></script>
+	<script src="../javascript/config.js"></script>
+	<script src="../javascript/cache.js"></script>
+	<script src="../javascript/protocol.js"></script>
+	<script src="../javascript/rpc.js"></script>
+	<script src="../javascript/nccfile.js"></script>
+	<script src="../javascript/smilfile.js"></script>
 	
 	<!-- Test suite -->
-	<script src="suite.js" type="text/javascript" charset="utf-8"></script>
+	<script src="suite.js"></script>
 </head>
 
 <body>
