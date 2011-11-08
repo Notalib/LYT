@@ -88,3 +88,10 @@
   # (Always use the radix argument for `parseInt`! Especially here, where `parseInt("08")` would return `0`, as "0*" is interpreted as octal, and 08 is meaningless in octal)
   components = (parseInt(component, 10) || 0 for component in components)
   components[0] * 3600 + components[1] * 60 + components[2]
+
+@toSentence = (array) ->
+  return "" if not (array instanceof Array)
+  return String(array[0]) if array.length is 1
+  return "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
+  
+    
