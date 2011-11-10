@@ -195,11 +195,11 @@ LYT.protocol =
       contentID: bookID
     
     receive: ($xml, data) ->
-      resources = []
+      resources = {}
       $xml.find("resource").each ->
-        resources.push jQuery(this).attr("uri")
+        resources[ jQuery(this).attr("localURI") ] = jQuery(this).attr("uri")
       
-      return [resources]
+      return resources
   
   
   setBookmarks:

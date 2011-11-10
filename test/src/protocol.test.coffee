@@ -77,12 +77,12 @@ asyncTest "getContentList", 1, ->
     .always done
 
 
-asyncTest "getContentResources", 2, ->
+asyncTest "getContentResources", ->
   done = createAsyncCounter 1
 
   setURL "fixtures/protocol/getContentRes.xml"
   LYT.rpc("getContentResources")
     .then (resources) ->
-      equal resources.length, 5
-      notEqual resources.indexOf("http://test.test/123/ncc.html"), -1
+      for own key, value of resources
+        equal value, "fixtures/#{key}"
     .always done

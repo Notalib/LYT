@@ -1,9 +1,12 @@
+
+
 do ->
   # RegExp patterns for matching URLs
   AUDIO = /[^\/]+\.mp3$/i
   SMIL  = /[^\/]+\.smil$/i
   NCC   = /ncc.html?$/i
   
+  # FIXME: This entire class is in dire need of refactoring
   class LYT.Book
     @load: (id) ->
       deferred = jQuery.Deferred()
@@ -12,12 +15,15 @@ do ->
         deferred.resolve book
       book.fail ->
         deferred.reject null
+      deferred
     
     constructor: (@id) ->
       deferred = jQuery.Deferred()
       deferred.promise this
       
       @smilDocuments = {}
+      @textDocuments = {}
+      @nccDocument   = null
       
       issue = ->
         issued = LYT.rpc "issueContent", @id
@@ -26,18 +32,29 @@ do ->
       
       getResources = =>
         got = LYT.rpc "getContentResources", @id
-        
-        got.then (list) =>
-          @resources = parseContentResources list
-          @baseURL   = @resources.ncc.replace /\/[^\/]+\.html?$/, ""
-          getNCC @resources.ncc
+        ncc = null
+        got.then (@resources) =>
+          for own localUri, uri of @resources
+            @resources[localUri] =
+              url:      uri
+              document: null
+            
+            if localUri.match /ncc\.html?$/i then ncc = @resources[localUri]
+          
+          getNCC ncc
         
         got.fail -> deferred.reject()
       
-      getNCC = (url) =>
-        @nccDocument = new LYT.NCCDocument(url)
-        @nccDocument.then -> deferred.resolve()
-        @nccDocument.fail -> deferred.reject()
+      getNCC = (obj) =>
+        ncc = new LYT.NCCDocument(obj.url)
+        
+        ncc.then (document) =>
+          obj.document = document
+          @nccDocument = document
+          deferred.resolve()
+        
+        ncc.fail ->
+          deferred.reject()
       
       issue(@id)
     
@@ -45,31 +62,27 @@ do ->
     preloadSection: (section = null) ->
       deferred = jQuery.Deferred()
       
-      if section?
-        section = @nccDocument.findSection section
-      else
-        section = @nccDocument.firstSection()
+      section = @nccDocument.findSection section
       
       deferred.reject(null) unless section?
       
-      console.log "Preloading section #{section.id}"
-      subsections = section.flatten()
+      sections = section.flatten()
       
-      console.log subsections
       watch = []
-      for subsection in subsections
-        subsection.absoluteURL or= @resolveURL(subsection.url)
+      
+      for section in sections
+        file = section.url.replace /#.*$/, ""
+        section.absoluteURL or= @resources[file].url
         
-        unless subsection.document?
-          console.log "no document for subsection #{subsection.id}"
-          subsection.document = new LYT.SMILDocument subsection.absoluteURL
-          watch.push subsection.document
+        unless section.document?
+          section.document = new LYT.SMILDocument section.absoluteURL
+          watch.push section.document
       
       if watch.length is 0
-        deferred.resolve subsections
+        deferred.resolve sections
       else
         jQuery.when.apply(null, watch)
-          .then -> deferred.resolve(subsections)
+          .then -> deferred.resolve(sections)
           .fail -> deferred.reject()
       
       return deferred
@@ -83,21 +96,31 @@ do ->
       
       preload = @preloadSection section
       preload.done (sections) =>
-        console.log "Preload done"
         media = null
         until media? or sections.length is 0
           section = sections.shift()
-          media = section.document.mediaFor offset or 0
+          media = section.document.getParByTime offset or 0
           if media
-            media.text  = @nccDocument.getTextById media.text.src
-            media.audio = @resolveURL media.audio.src
+            media.audio = @resources[media.audio.src]?.url
+            
+            [txtfile, txtid] = media.text.src.split "#"
+            unless @resources[txtfile].document # and @resources[file].document.state() isnt "pending"
+              @resources[txtfile].document = new LYT.TextContentDocument @resources[txtfile].url
+              @resources[txtfile].document.done ->
+                media.text = @resources[txtfile].document.getTextById txtid
+                deferred.resolve media
+            else
+              media.text  = @resources[txtfile].document.getTextById txtid
+              deferred.resolve media
+            
+          
         
-        deferred.resolve media
       
       preload.fail ->
         deferred.resolve null
       
       deferred
+    
   
   parseContentResources = (list) ->
     resources =

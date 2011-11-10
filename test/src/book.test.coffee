@@ -1,12 +1,12 @@
 module "Book"
 
-asyncTest "Basics", 6, ->
+asyncTest "Basics", 5, ->
   done = createAsyncCounter 2
   
   book = new LYT.Book 23
   book.done ->
-    equal book.resources.ncc, "/DodpMobile/resources/ncc.html"
-    equal book.resolveURL("dtb_0002.smil"), "/DodpMobile/resources/dtb_0002.smil"
+    equal book.nccDocument.url, "/DodpMobile/resources/ncc.html"
+    
     media = book.mediaFor()
     media.done (media) ->
       equal media.text,  "Bognr. 15000 - J. K. Rowling: Harry Potter og Fønixordenen"

@@ -13,11 +13,11 @@
 <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 <getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/">
 	<resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00">
-		<resource uri="http://test.test/123/00001_01.mp3" mimeType="application/octet-stream" size="0" localURI="00001_01.mp3" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
-		<resource uri="http://test.test/123/00001_01.smil" mimeType="application/octet-stream" size="0" localURI="00001_01.smil" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
-		<resource uri="http://test.test/123/00001_02.mp3" mimeType="application/octet-stream" size="0" localURI="00001_02.mp3" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
-		<resource uri="http://test.test/123/00001_02.smil" mimeType="application/octet-stream" size="0" localURI="00001_02.smil" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
-		<resource uri="http://test.test/123/ncc.html" mimeType="application/octet-stream" size="0" localURI="ncc.html" lastModifiedDate="2011-11-07T13:42:12.3523042+01:00"/>
+		<resource uri="fixtures/00001_01.mp3" mimeType="application/octet-stream" size="0" localURI="00001_01.mp3" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="fixtures/00001_01.smil" mimeType="application/octet-stream" size="0" localURI="00001_01.smil" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="fixtures/00001_02.mp3" mimeType="application/octet-stream" size="0" localURI="00001_02.mp3" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="fixtures/00001_02.smil" mimeType="application/octet-stream" size="0" localURI="00001_02.smil" lastModifiedDate="2011-11-07T13:42:12.3211034+01:00"/>
+		<resource uri="fixtures/ncc.html" mimeType="application/octet-stream" size="0" localURI="ncc.html" lastModifiedDate="2011-11-07T13:42:12.3523042+01:00"/>
 	</resources>
 </getContentResourcesResponse>
 </s:Body>
