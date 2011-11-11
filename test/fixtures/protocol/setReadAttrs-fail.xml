@@ -1,0 +1,18 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+<s:Header>
+<MemberId xmlns="http://www.e17.dk">99999</MemberId>
+<Username xmlns="http://www.e17.dk">test</Username>
+<Realname xmlns="http://www.e17.dk">test testerson</Realname>
+<Email xmlns="http://www.e17.dk">test@example.com</Email>
+<Address xmlns="http://www.e17.dk">123 Test st</Address>
+<Age xmlns="http://www.e17.dk">99</Age>
+<Gender xmlns="http://www.e17.dk">true</Gender><!-- HA! -->
+<Teacher xmlns="http://www.e17.dk">0</Teacher>
+<Usergroup xmlns="http://www.e17.dk">Z</Usergroup>
+</s:Header>
+<s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<setReadingSystemAttributesResponse xmlns="http://www.daisy.org/ns/daisy-online/">
+	<setReadingSystemAttributesResult>false</setReadingSystemAttributesResult>
+</setReadingSystemAttributesResponse>
+</s:Body>
+</s:Envelope>

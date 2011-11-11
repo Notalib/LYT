@@ -1,67 +1,47 @@
-# TODO: How to best model this domain? MP3-file has sequences with text? Text-data refers to sequence, which refers to MP3? Sequences refer to... etc
-
 do ->
-  class LYT.SMILFile
   
-    constructor: (@url) ->
-      # TODO: This shares some parts with the NCCFile class. Make a common ancestor class for both?
+  # ## Privileged
+  
+  class LYT.SMILDocument extends LYT.DTBDocument
+    constructor: (url) ->
+      super url, (deferred) =>
+        mainSequence = @xml.find("body > seq:first")
+        @duration    = parseFloat(mainSequence.attr("dur")) or 0
+        @pars        = parseMainSequence mainSequence
+    
+    getParByTime: (offset = 0) ->
+      for par in @pars
+        return par if par.start <= offset < par.end
       
-      options = 
-        url:      @url
-        dataType: "xml"
-        # FIXME: It really should be asynchronous...
-        async:    false
-        cache:    false
-        success:  (xml, status, xhr) =>
-          @sequences = parseSequences jQuery(xml)
-        # FIXME: Handle errors
-          
-      jQuery.ajax @url, options
-    
-    audioFiles: ->
-      return @_audioFiles if @_audioFiles?
-      files = {}
-      for sequence in @sequences
-        for segment in sequence.segments
-          files[segment.audio.src] = segment.audio.src
-      @_audioFiles = (file for own file, ignore of files)
+      return null
   
-  parseSequences = (xml) ->
-    sequences = []
-    xml.find("body > seq").each ->
-      element = jQuery this
-      sequences.push {
-        duration: parseFloat(element.attr("dur")) || 0 # get the duration
-        segments: parseSequence element
-      }
-    
-    sequences
+  # -------
   
-  # TODO: Right now, this only handles text and audio
-  parseSequence = (sequence) ->
-    data = []
-    sequence.find("par").each ->
+  # ## Privileged
+  
+  # Parse the main `<seq>` element's `<par>` (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
+  parseMainSequence = (sequence) ->
+    pars = []
+    sequence.children("par").each ->
       par = jQuery this
-      text  = par.find("text").first()
-      audio = par.find("seq audio").first()
-      data.push {
-        id: par.attr "id"
-        text:
-          id:  text.attr("id")
-          src: text.attr("src")
+      audio = par.find "audio:first"
+      text  = par.find "text:first"
+      pars.push {
+        id:    par.attr "id"
+        start: parseNPT audio.attr("clip-begin")
+        end:   parseNPT audio.attr("clip-end")
         audio:
-          id:    audio.attr "id"
-          start: parseTime audio.attr("clip-begin")
-          end:   parseTime audio.attr("clip-end")
-          src:   audio.attr "src"
+          id:  audio.attr "id"
+          src: audio.attr "src"
+        text:
+          id:  text.attr "id"
+          src: text.attr "src"
       }
     
-    return data
+    return pars
   
-  # TODO: SMIL defines several ways to define a time-offset. Right now, this only handles the "npt=XX.Xs" format
-  parseTime = (value) ->
-    m = value.match /^npt=([\d.]+)s/
-    return 0 unless m
-    parseFloat(m[1]) || 0
-    
+  # Parse the Normal Play Time format (npt=ss.s) (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
+  parseNPT = (string) ->
+    time = string.match /^npt=([\d.]+)s?$/i
+    parseFloat(time?[1]) or 0
   

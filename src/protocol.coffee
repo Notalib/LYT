@@ -1,54 +1,93 @@
-# This module models the Daisy Online Protocol
-# 
-# An RPC (Remote Procedure Call) is declared as a nested object in the `protocol`-object
-# An RPC object can have the following members:
+# Defines functions for sending and receiving SOAP data.
 #
-#  - `request`   - a function that returns the SOAP data to be sent as the request body
-#  - `receive`   - a function that parses the response from the server, if the request is successful
-#  - `complete`  - a function that will be called when the request completes
-#  - `error`     - an error-handling function
+# The functions are defined in objects nested in the `protocol` object. Each nested
+# object - an RPC object - is named after the action it calls on the server. The
+# idea is to have 1-to-1 mapping of server actions and RPC objects.
 #
-# All these members are optional (see below)
+# **Note:** The RPC object functions are intended to act as an XML-to-JS layer.
+# I.e. taking JS objects and primitives and preparing them for requests, and
+# taking the returned XML and parsing it into JS data. The functions should not
+# call initiate further calls to the server, and generally be as isolated from
+# the rest of the system as possible.
+#
+# CHANGED: Deprecated the `complete` function in favor of the Promise/Deferred pattern
 # 
-# An RPC is called by passing its name to the rpc function, plus whatever arguments are needed:
+# An RPC object can have the following functions:
+#
+#  - `request`   - returns the data to be sent as the request body
+#  - `receive`   - parses the response from the server, if the request is successful, and returns the parsed data
+#  - `error`     - handles errors
+#  - `complete`  - (DEPRECATED) will be called when the request completes, regardless of success or failure
+#
+# All these members are optional (see below). The `error` and `complete` callbacks.
+# 
+# An RPC is called by passing its name to the [`rpc` function](rpc.html),
+# passing along whatever arguments are needed:
 # 
 #     rpc "getStuffFromServer", foo, bar
 # 
-# If an RPC named "getStuffFromServer" doens't exist, the rpc function will throw an exception.
-# If it does exist, the rpc function will look for the request member. If such a member is found, and is a function
-# it will be passed the arguments (`foo` & `bar` in this example), and its return value (if any) will be used to
-# generate the SOAP request body.
-# If no request function is found, or it returns a non-object value, the request body will simply be an empty
-# XML tag, mirroring the name of the RPC
+# If an RPC object named "getStuffFromServer" doens't exist, the rpc function
+# will throw an exception.
+#
+# If such an object does exist, the `rpc` function will look for the `request`
+# function in that object. If such a function is found, it will be passed the
+# arguments (`foo` & `bar` in this example), and its return value (if any)
+# will be used to generate the SOAP request body.
+# 
+# If no `request` function is found, or if it returns a non-object value, the
+# request body will simply be an empty XML tag (see below)
 # 
 # ## RPC example
 # 
-# All the members of an RPC object are optional. At it's simplest, an RPC can be defined as
+# All the members of an RPC object are optional. At it's simplest, an RPC can
+# be defined as:
 # 
 #     someServerAction: true
 #
-# This will allow you to call `rpc "someServerAction"`. The request will use the default options
-# and the body of the request data will be an empty SOAP tag, mirroring the name, i.e. `<ns1:someServerAction />`
+# This will allow you to call `rpc "someServerAction"`. The request will use
+# the default options and the body of the request data will be an empty SOAP
+# tag, mirroring the name, i.e. `<ns1:someServerAction />`
 # 
 # Below is an example using all the optional members
 # 
 #     # The RPC's name, i.e. the name of the action to call on the server.
-#     actionName: 
+#     # Note: Put the name in quotes
+#     "findUser": 
 #       
 #       # The request function, with whatever
 #       # arguments it requires (if any)
-#       request: (args...) -> 
+#       request: (name) -> 
 #         # The request function may optionally return
 #         # an object. If it does, that object is then
 #         # turned into XML and sent as the SOAP body
-#         key1: value1
+#         first: name.split(" ")[0]
+#         last:  name.split(" ")[1]
 #       
 #       # The receive function which will
 #       # be passed the data returned by the server
-#       receive: ($xml, data, status, xhr) -> ...
-#       
-#       # The complete callback
-#       complete: (xhr, status) -> ...
+#       receive: ($xml, data, status, xhr) ->
+#         # $xml is a jQuery-wrapped XML document,
+#         # whereas data is the "raw" XML document.
+#         # The receive function is responsible for
+#         # the initial parsing and checking of the
+#         # XML data returned by the server.
+#         # If there's a problem with the data,
+#         # the receive function can return
+#         # RPC_ERROR
+#         if $xml.find("result").length is 0 then
+#           return RPC_ERROR
+#
+#         # In this example, that means extracting
+#         # the user IDs returned by the server
+#         ids = []
+#         $xml.find("result > userid").each ->
+#           ids.push jQuery(this).text()
+#         
+#         # Returning an array, will cause downstream
+#         # functions to receive the array's contents
+#         # as multiple arguments. So wrap the ids
+#         # in another array
+#         return [ids]
 #       
 #       # The error handler
 #       error: (xhr, status, error) -> ...
@@ -63,24 +102,20 @@ LYT.protocol =
       password: password
     
     receive: ($xml, data) ->
-      if $xml.find("logOnResult").text() is "true"
-        rpc "getServiceAttributes"
-      else
-        eventSystemForceLogin "Du har indtastet et forkert brugernavn eller password" # FIXME: Not a great function name. Also, hard-coded error message
+      $xml.find("logOnResult").text() is "true" or RPC_ERROR
   
   
   logOff:
-    # FIXME: Can log off fail? If so, how should it be handled?
     receive: ($xml, data) ->
-      eventSystemLogedOff $xml.find("logOffResult")?.text() or "" # FIXME: Not a great function name - and it's spelled wrong
+      $xml.find("logOffResult").text() is "true" or RPC_ERROR
   
   
   getServiceAttributes:
     receive: ($xml, data) ->
+      operations = []
       $xml.find("supportedOptionalOperations > operation").each ->
-        op = jQuery this
-        DODP.service.announcements = (op.text() is "SERVICE_ANNOUNCEMENTS")
-      rpc "setReadingSystemAttributes"
+        operations.push $(this).text()
+      [operations]
   
   
   setReadingSystemAttributes:
@@ -93,24 +128,19 @@ LYT.protocol =
         config: null
     
     receive: ($xml, data) ->
-       if $xml.find("setReadingSystemAttributesResult").text() is "true"
-         eventSystemLogedOn true, $xml.find("MemberId").text()  # FIXME: Not a great function name - and it's spelled wrong
-       
-         # TODO: There's something weird going on here (read on)
-         # If DODP.service.announcements is true (and announcements should be shown), then getServiceAnnouncements() is called
-         # But getServiceAnnouncements' callback is responsible for setting DODP.service.announcements to true/false
-         # So as far as I can tell, it's circular
-         if DODP.service.announcements and false then rpc "getServiceAnnouncements" # FIXME: replace false with SHOW_SERVICE_ANNOUNCEMENTS
-       else
-         alert aLang.translate "MESSAGE_LOGON_FAILED" # FIXME: What the...? There's localization? Since when?
+      $xml.find("setReadingSystemAttributesResult").text() is "true" or RPC_ERROR
   
   
   getServiceAnnouncements:
     receive: ($xml, data) ->
+      announcements = []
       $xml.find("announcements > announcement").each ->
         announcement = jQuery this
-        alert announcement.find("text").text()
-        rpc "markAnnouncementsAsRead", announcement.id
+        announcements.push {
+          text: announcement.find("text").text()
+          id:   announcement.attr("id")
+        }
+      [announcements]
   
   
   markAnnouncementsAsRead:
@@ -127,7 +157,15 @@ LYT.protocol =
       lastItem:  lastItem
     
     receive: ($xml, data) ->
-      eventSystemGotBookShelf data
+      items = []
+      $xml.find("contentItem").each ->
+        item = jQuery this
+        # TODO: Should really extract the lang attribute too - it'd make it easier to correctly markup the list in the UI
+        items.push {
+          id: item.attr("id")
+          label: item.find("label > text").text()
+        }
+      [items]
     
   
   issueContent:
@@ -135,23 +173,15 @@ LYT.protocol =
       contentID: bookID
     
     receive: ($xml) ->
-      if $xml.find('issueContentResult').text() is "true"
-        rpc "getContentResources", settings.get('currentBook')
-      else
-        log.error "PRO: Error in issueContent parsing: #{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
-        alert "#{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
+      $xml.find('issueContentResult').text() is "true" or RPC_ERROR
       
     
   returnContent:
     request: (bookID) ->
-      contentId: bookID
+      contentID: bookID
     
     receive: ($xml) ->
-      if $xml.find("returnContentResult").text() is "true"
-        rpc "getBookShelf"
-      else
-        log.error "PRO: Error in returnContent parsing: #{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
-        alert "#{$xml.find("faultcode").text()} - #{$xml.find('faultstring').text()}"
+      $xml.find("returnContentResult").text() is "true" or RPC_ERROR
       
   
   getContentMetadata:
@@ -164,25 +194,12 @@ LYT.protocol =
     request: (bookID) ->
       contentID: bookID
     
-    # FIXME: Not fully implemented
     receive: ($xml, data) ->
-      fault = $xml.find('faultstring').text()
-      if fault isnt ""
-        if fault is "s:invalidParameterFault"
-          eventSystemEndLoading()
-        log.error "PRO: Resource error: #{fault}"
-        return
-          
-        
+      resources = {}
       $xml.find("resource").each ->
-        resource = jQuery this
-        resourceURI = resource.attr "uri"
-        components = resourceURI.match /^([^\/]+)\/\/([^\/]+)\/(.*)$/
-        
-        url = "#{components[1]}//#{window.location.hostame}/#{components[3]}"
-        if resourceURI.match /ncc.htm$/i then nccPath = url
-        
-      # FIXME: Not fully implemented
+        resources[ jQuery(this).attr("localURI") ] = jQuery(this).attr("uri")
+      
+      return resources
   
   
   setBookmarks:
