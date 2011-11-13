@@ -1,7 +1,11 @@
+# This file contains the `LYT.DTBDocument` class, which forms the basis for other classes.
+# It is not meant for direct instantiation.
+
 do ->
   # Meta-element name attribute values to look for
   # Name attribute values for nodes that may appear 0-1 times per file  
-  # Names that may have variations (e.g. `ncc:format` is the deprecated in favor of `dc:format`) are defined a arrays
+  # Names that may have variations (e.g. `ncc:format` is the deprecated in favor of `dc:format`) are defined a arrays.
+  # C.f. [The DAISY 2.02 specification](http://www.daisy.org/z3986/specifications/daisy_202.html#h3metadef)
   METADATA_NAMES =
     singular:
       coverage:         "dc:coverage"
@@ -52,28 +56,39 @@ do ->
   
   # -------
   
-  # This class serves as the parent of the `NCCDocument`, `SMILDocument`, and `TextContentDocument` classes
+  # This class serves as the parent of the `SMILDocument` and `TextContentDocument` classes.  
+  # It is not meant for direct instantiation - instantiate the specific subclasses.
   class LYT.DTBDocument
+    
+    # The constructor takes 1-2 arguments (the 2nd argument is optional):  
+    # - url: (string) the URL to retrieve
+    # - callback: (function) called when the download is complete (used by subclasses)
+    #
+    # `LYT.DTBDocument` acts as a Deferred.
     constructor: (@url, callback) ->
       deferred = jQuery.Deferred()
       deferred.promise this
       
       @xml = null
       
+      # Perform the request
       log.message "DTB: Getting: #{@url}"
-      
+      # TODO: Move options to `config`?
       jQuery.ajax {
         url:      @url
         dataType: "xml"
         async:    yes
         cache:    yes
         
+        # On success, wrap the XML with jQuery, call the callback (if any),
+        # and propagate the instance
         success: (xml, status, jqXHR) =>
           log.group "DTB: Got: #{@url}", xml
           @xml = jQuery xml
           callback?(deferred)
           deferred.resolve this
         
+        # On failure, propagate failure
         error: (jqXHR, status, error) =>
           deferred.reject jqXHR, status, error
       }

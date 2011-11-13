@@ -1,7 +1,6 @@
 do ->
   
-  # ## Privileged
-  
+  # Class to model a SMIL document
   class LYT.SMILDocument extends LYT.DTBDocument
     constructor: (url) ->
       super url, (deferred) =>
