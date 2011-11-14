@@ -16,23 +16,36 @@
 			count = count || 1;
 			return function() { --count || start(); };
 		}
+		
+		function requestVariant(variant, tests) {
+			var headers = LYT.config.rpc.options.headers || (LYT.config.rpc.options.headers = {});
+			if( !tests ) {
+				tests = variant;
+				variant = null;
+			}
+			headers["X-TestVariant"] = variant;
+			tests();
+			delete headers["X-TestVariant"];
+		}
+		
+		QUnit.config.testTimeout = 5000
 	</script>
 	
 	<!-- Scripts -->
-	<script src="../javascript/lyt.js"></script>
-	<script src="../javascript/utils.js"></script>
-	<script src="../javascript/config.js"></script>
-	<script src="../javascript/cache.js"></script>
-	<script src="../javascript/protocol.js"></script>
-	<script src="../javascript/rpc.js"></script>
-	<script src="../javascript/dtbdocument.js"></script>
-	<script src="../javascript/textcontentdocument.js"></script>
-	<script src="../javascript/nccfile.js"></script>
-	<script src="../javascript/smilfile.js"></script>
-	<script src="../javascript/book.js"></script>
+	<script src="/javascript/lyt.js"></script>
+	<script src="/javascript/utils.js"></script>
+	<script src="/javascript/config.js"></script>
+	<script src="/javascript/cache.js"></script>
+	<script src="/javascript/protocol.js"></script>
+	<script src="/javascript/rpc.js"></script>
+	<script src="/javascript/dtbdocument.js"></script>
+	<script src="/javascript/textcontentdocument.js"></script>
+	<script src="/javascript/nccfile.js"></script>
+	<script src="/javascript/smilfile.js"></script>
+	<script src="/javascript/book.js"></script>
 	
 	<!-- Test suite -->
-	<script src="suite.js"></script>
+	<script src="/test/suite.js"></script>
 </head>
 
 <body>

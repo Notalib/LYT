@@ -1,0 +1,80 @@
+#!/usr/bin/env coffee
+
+http    = require "http"
+{parse} = require "url"
+fs      = require "fs"
+fs.path = require "path"
+util    = require "util"
+
+PORT = 7357
+ROOT = fs.path.resolve __dirname, "../build/"
+
+handler = (request, response) ->
+  data = ""
+  url = parse request.url, true
+  if responders[url.pathname]?
+    responders[url.pathname] request, response, url
+  else
+    path = url.pathname
+    if !path or path.slice(-1) is "/"
+      response.writeHead 302, "Location": "/test/index.html"
+      response.end()
+    else
+      send response, path, mimetype(path)
+
+responders =
+  "/DodpMobile/Service.svc": (request, response, url) ->
+    data = ""
+    request.on "data", (chunk) ->
+      data += chunk.toString "utf8"
+    request.on "end", ->
+      variant = if request.headers["x-testvariant"]? then ".#{request.headers["x-testvariant"]}" else ""
+      action = data.match /<SOAP-ENV:Body>\s*<ns1:(\w+)/i
+      if action and (action = action[1])
+        console.log "> Service: #{action} #{request.headers["x-testvariant"]}"
+        send response, "test/fixtures/service/#{action}#{variant}.xml", "text/xml; charset=utf-8"
+      else
+        fail response, "Couldn't parse request"
+  
+  "/DodpDistributor/Distribute.aspx": (request, response, url) ->
+    if not url.query.file?
+      fail response, "No file specified"
+    else
+      console.log "> Content: #{fs.path.basename url.query.file}"
+      path = "test/fixtures/content/#{fs.path.basename url.query.file}"
+      contentType = if path.match /\.x?html?$/ then "application/xhtml+xml; charset=utf-8" else null
+      send response, path, contentType
+
+
+send = (response, path, contentType = null) ->
+  contentType or= mimetype path
+  stream = fs.createReadStream fs.path.join(ROOT, path)
+  stream.on "open", (data) ->
+    console.log "< 200 Sending #{path} "
+    response.writeHead 200, "Content-Type": contentType
+  stream.on "end", ->
+    response.end()
+  stream.on "error", (exception) ->
+    fail response, exception
+  util.pump stream, response
+
+
+fail = (response, message = "") ->
+  console.error "< 500 #{message}"
+  response.writeHead 500, "Content-Type": "text/plain"
+  response.end "500\n\n#{message}"
+
+
+mimetype = (path) ->
+  switch path.split(/\.+/).pop()
+    when "js"          then contentType = "text/javascript"
+    when "smil", "xml" then contentType = "application/xml"
+    when "xhtml"       then contentType = "application/xhtml+xml"
+    else                    contentType = "text/html"
+  "#{contentType}; charset=utf-8"
+
+
+http.createServer(handler).listen PORT, ->
+  console.log "Server running on 127.0.0.1:#{PORT}"
+  console.log "Press ctrl-C to stop server"
+  require("child_process").exec "which open && open http://127.0.0.1:#{PORT}/test/index.html"

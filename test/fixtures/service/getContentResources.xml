@@ -1,0 +1,64 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+<s:Header>
+<MemberId xmlns="http://www.e17.dk">99999</MemberId>
+<Username xmlns="http://www.e17.dk">test</Username>
+<Realname xmlns="http://www.e17.dk">test testerson</Realname>
+<Email xmlns="http://www.e17.dk">test@example.com</Email>
+<Address xmlns="http://www.e17.dk">123 Test st</Address>
+<Age xmlns="http://www.e17.dk">99</Age>
+<Gender xmlns="http://www.e17.dk">true</Gender>
+<Teacher xmlns="http://www.e17.dk">0</Teacher>
+<Usergroup xmlns="http://www.e17.dk">Z</Usergroup>
+</s:Header>
+<s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/">
+<resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2011-11-09T01:44:17.059125+01:00">
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/0000.htm" mimeType="application/octet-stream" size="0" localURI="0000.htm" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0001.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0001.mp3" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0001.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0001.smil" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0002.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0002.mp3" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0002.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0002.smil" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0003.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0003.mp3" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0003.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0003.smil" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0004.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0004.mp3" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0004.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0004.smil" lastModifiedDate="2011-11-09T01:44:17.059125+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0005.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0005.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0005.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0005.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0006.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0006.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0006.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0006.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0007.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0007.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0007.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0007.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0008.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0008.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0008.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0008.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0009.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0009.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0009.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0009.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0010.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0010.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0010.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0010.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0011.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0011.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0011.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0011.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0012.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0012.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0012.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0012.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0013.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0013.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0013.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0013.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0014.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0014.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0014.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0014.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0015.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0015.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0015.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0015.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0016.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0016.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0016.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0016.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0017.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0017.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0017.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0017.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0018.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0018.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0018.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0018.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0019.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0019.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0019.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0019.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0020.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0020.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0020.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0020.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0021.mp3" mimeType="application/octet-stream" size="0" localURI="dtb_0021.mp3" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/dtb_0021.smil" mimeType="application/octet-stream" size="0" localURI="dtb_0021.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/master.smil" mimeType="application/octet-stream" size="0" localURI="master.smil" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+<resource uri="/DodpDistributor/Distribute.aspx?session=9999&amp;book=0000&amp;file=//path/to/content/ncc.html" mimeType="application/octet-stream" size="0" localURI="ncc.html" lastModifiedDate="2011-11-09T01:44:17.0747251+01:00"/>
+</resources>
+</getContentResourcesResponse>
+</s:Body>
+</s:Envelope>

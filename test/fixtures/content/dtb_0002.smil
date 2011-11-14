@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">
+<smil>
+	<head>
+		<meta name="dc:identifier" content="DK-DBB-0000"/>
+		<meta name="dc:title" content="Test Book"/>
+		<meta name="dc:format" content="Daisy 2.02"/>
+		<meta name="title" content="Book cover - back "/>
+		<meta name="ncc:totalElapsedTime" content="00:00:08"/>
+		<meta name="ncc:timeInThisSmil" content="00:00:25"/>
+		<meta name="ncc:generator" content="Regenerator 1.0.21"/>
+		<layout>
+			<region id="txtView"/>
+		</layout>
+	</head>
+	<body>
+		<seq dur="24.711s">
+			<par endsync="last" id="rgn_par_0002_0001">
+				<text src="0000.htm#rgn_cnt_0002" id="rgn_txt_0002_0001"/>
+				<seq>
+					<audio src="dtb_0002.mp3" clip-begin="npt=0.000s" clip-end="npt=2.348s" id="rgn_aud_0002_0001"/>
+				</seq>
+			</par>
+			<par endsync="last" id="rgn_par_0002_0002">
+				<text src="0000.htm#rgn_cnt_0003" id="rgn_txt_0002_0002"/>
+				<seq>
+					<audio src="dtb_0002.mp3" clip-begin="npt=2.348s" clip-end="npt=24.711s" id="rgn_aud_0002_0002"/>
+				</seq>
+			</par>
+		</seq>
+	</body>
+</smil>

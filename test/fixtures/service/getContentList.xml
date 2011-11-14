@@ -19,13 +19,13 @@
 		
 		<contentItem id="1">
 			<label xml:lang="en" dir="">
-				<text>test 1</text>
+				<text>Bog$Forfatter</text>
 			</label>
 		</contentItem>
 		
 		<contentItem id="2">
 			<label xml:lang="en" dir="">
-				<text>test 2</text>
+				<text>Bog 2$En anden forfatter</text>
 			</label>
 		</contentItem>
 		

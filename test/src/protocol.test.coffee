@@ -1,88 +1,75 @@
-QUnit.config.testTimeout = 5000
-_originalURL = LYT.config.rpc.options.url
-
-setURL = (url) ->
-  LYT.config.rpc.options.type = "GET"
-  LYT.config.rpc.options.url  = url
-
-module "protocol", {
-  teardown: -> setURL _originalURL
-}
+module "protocol"
 
 asyncTest "logOn", 2, ->
   done = createAsyncCounter 2
   
-  setURL "fixtures/protocol/logOn-ok.xml"
   LYT.rpc("logOn", "test", "test")
     .then (result) ->
-      equal result, true
+      equal result, true, "logOn should succeed"
     .always done
   
-  setURL "fixtures/protocol/logOn-fail.xml"
-  LYT.rpc("logOn", "test", "test")
-    .fail (code, msg) ->
-      equal code, -1
-    .always done
+  requestVariant "fail", ->
+    LYT.rpc("logOn", "test", "test")
+      .fail (code, msg) ->
+        equal code, -1, "logOn should fail"
+      .always done
 
 
 asyncTest "getServiceAttributes", 1, ->
   done = createAsyncCounter 1
   
-  setURL "fixtures/protocol/getAttrs.xml"
   LYT.rpc("getServiceAttributes")
     .then (result) ->
-      deepEqual result, ["test op"]
+      deepEqual result, ["test op"], "Response should contain the optional 'test op' operation"
     .always done
 
 
 asyncTest "setReadingSystemAttributes", 2, ->
   done = createAsyncCounter 2
-
-  setURL "fixtures/protocol/setReadAttrs-ok.xml"
+  
   LYT.rpc("setReadingSystemAttributes")
     .then (result) ->
-      equal result, true
+      equal result, true, "setReadingSystemAttributes should succeed"
     .always done
   
-  setURL "fixtures/protocol/setReadAttrs-fail.xml"
-  LYT.rpc("setReadingSystemAttributes")
-    .fail (code) ->
-      equal code, -1
-    .always done
+  requestVariant "fail", ->
+    LYT.rpc("setReadingSystemAttributes")
+      .fail (code) ->
+        equal code, -1, "setReadingSystemAttributes should fail"
+      .always done
 
 
 asyncTest "issueContent", 2, ->
   done = createAsyncCounter 2
-
-  setURL "fixtures/protocol/issueContent-ok.xml"
+  
   LYT.rpc("issueContent", 1)
     .then (result) ->
-      equal result, true
+      equal result, true, "issueContent should succeed"
     .always done
-
-  setURL "fixtures/protocol/issueContent-fail.xml"
-  LYT.rpc("issueContent", 1)
-    .fail (code) ->
-      equal code, -1
-    .always done
+  
+  requestVariant "fail", ->
+    LYT.rpc("issueContent", 1)
+      .fail (code) ->
+        equal code, -1, "issueContent should fail"
+      .always done
 
 
 asyncTest "getContentList", 1, ->
   done = createAsyncCounter 1
-
-  setURL "fixtures/protocol/getContentList.xml"
+  
   LYT.rpc("getContentList")
     .then (result) ->
-      deepEqual result, [{id: "1", label: "test 1"}, {id: "2", label: "test 2"}]
+      deepEqual result, [{id: "1", label: "Bog$Forfatter"}, {id: "2", label: "Bog 2$En anden forfatter"}], "getContentList should return 2 objs"
     .always done
 
 
 asyncTest "getContentResources", ->
   done = createAsyncCounter 1
-
-  setURL "fixtures/protocol/getContentRes.xml"
+  
   LYT.rpc("getContentResources")
     .then (resources) ->
       for own key, value of resources
-        equal value, "fixtures/#{key}"
+        equal value, "/DodpDistributor/Distribute.aspx?session=9999&book=0000&file=//path/to/content/#{key}", "Resource should match expected URL"
     .always done
+  
+

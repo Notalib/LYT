@@ -1,13 +1,13 @@
 do ->
   
-  # ## Public
-  
   # Class to model an NCC document
   class LYT.NCCDocument extends LYT.TextContentDocument
     constructor: (url) ->
       super url, (deferred) =>
         @structure = parseStructure @xml
     
+    # Find a section by its ID. If no ID is given,
+    # the first section will be returned
     findSection: (id = null) ->
       find = (id, sections) ->
         for section in sections

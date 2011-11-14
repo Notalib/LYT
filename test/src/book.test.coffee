@@ -1,18 +1,16 @@
 module "Book"
 
-asyncTest "Basics", 5, ->
+asyncTest "Basics", 4, ->
   done = createAsyncCounter 2
   
   book = new LYT.Book 23
   book.done ->
-    equal book.nccDocument.url, "/DodpMobile/resources/ncc.html"
-    
     media = book.mediaFor()
     media.done (media) ->
-      equal media.text,  "Bognr. 15000 - J. K. Rowling: Harry Potter og Fønixordenen"
-      equal media.audio, "/DodpMobile/resources/dtb_0001.mp3"
-      equal media.start, 0
-      equal media.end,   7.735
+      equal media.text,  "Book #0000 - Test Author: Test Book", "First media entry's text should be the title"
+      ok    media.audio.match(/dtb_0001\.mp3$/), "First media entry should point to first mp3"
+      equal media.start, 0, "First media entry should start at 0 seconds"
+      equal media.end,   7.68, "Frist media entry should end at 7.68 seconds"
     media.always done
   book.fail ->
     console.log "Fail", arguments
