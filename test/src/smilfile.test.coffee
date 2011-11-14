@@ -1,17 +1,16 @@
-module "SMILDocument class"
+module "SMILDocument"
 
 asyncTest "Basics", 4, ->
-  file = new LYT.SMILDocument "fixtures/smil.smil"
+  file = new LYT.SMILDocument "/test/fixtures/smiltest.smil"
   file.done ->
     console.log file.pars
     par = file.getParByTime()
-    console.log par
-    equal par.id,       "rgn_par_0007_0001"
-    equal par.text.src, "15000.htm#rgn_cnt_0480"
+    equal par.id,       "rgn_par_test_0001"
+    equal par.text.src, "0000.htm#rgn_cnt_0009"
     
-    par = file.getParByTime 7.23
-    equal par.id,       "rgn_par_0007_0002"
-    equal par.text.src, "15000.htm#rgn_cnt_0481"
+    par = file.getParByTime 23
+    equal par.id,       "rgn_par_test_0004"
+    equal par.text.src, "0000.htm#rgn_cnt_0012"
   file.fail ->
     console.log arguments
     equal false, true
