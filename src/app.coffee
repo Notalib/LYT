@@ -1,6 +1,8 @@
 # This module is intended as a controller ...
 
 LYT.app:
+  
+  next: "bookshelf"
 
   PlayNewBook: (id, title, author) ->
       $.mobile.showPageLoadingMsg()
@@ -24,26 +26,20 @@ LYT.app:
 
   eventSystemLoggedOn: (loggedOn, id) ->
       unless id is -1
-          @settings.username = id
-          @SetSettings()
+          LYT.settings.set('username', id)
+
       if loggedOn
-          console.log "GUI: Event system logged on - kalder goto " + @goto
-          @gotoPage()
+          $.mobile.changePage @next
+          
       else
           $.mobile.hidePageLoadingMsg()
           $.mobile.changePage "#login"
-
-  eventSystemLoggedOff: (LoggedOff) ->
-      console.log "GUI: Event system logged off"  if console
-      $.mobile.hidePageLoadingMsg()
-      @goto = "bookshelf"
-      $.mobile.changePage "#login"  if LoggedOff
 
   eventSystemNotLoggedIn: (where) ->
       @goto = where
       if @settings.username isnt "" and @settings.password isnt ""
           console.log "GUI: Event system not logged in, logger på i baggrunden"  if console
-          window.fileInterface.LogOn @settings.username, @settings.password
+          LYT.protocol.LogOn LYT.settings.get('username'), LYT.settings.get('password')
       else
           $.mobile.changePage "#login"
 
@@ -136,12 +132,6 @@ LYT.app:
       catch e
           alert e
 
-  eventSystemStartLoading: ->
-      $.mobile.showPageLoadingMsg()
-
-  eventSystemEndLoading: ->
-      $.mobile.hidePageLoadingMsg()
-
   showIndex: ->
       $.mobile.changePage "#book_index"
 
@@ -150,9 +140,6 @@ LYT.app:
         $.mobile.changePage "#book-play"
       else
         @PlayNewBook @settings.currentBook, @settings.currentTitle, @settings.currentAuthor
-
-  setDestination: (where) =>
-      @goto = where
 
   gotoPage: ->
       console.log "GUI: gotoPage - " + @goto  if console
@@ -164,14 +151,7 @@ LYT.app:
               window.fileInterface.GetBookShelf()  if $(".ui-page-active").attr("id") is "login"
 
   logUserOff: ->
-      @settings.username = ""
-      @settings.password = ""
-      @SetSettings()
-      window.fileInterface.LogOff()
-  
-  logUserOff: ->
-      @settings.username = ""
-      @settings.password = ""
-      @SetSettings()
+      LYT.settings.set('username', "")
+      LYT.settings.set('password', "")
+      LYT.protocol.LogOff()
       
-      @protocol.LogOff()

@@ -5,7 +5,7 @@ LYT.player =
   ready: false 
   jplayer: null
   el: jQuery("#jplayer")
-  currentTranscript: null #id start end text
+  currentTranscript: null #id, start, end, text
   currentMedia: ""
   currentTime: ""
   
