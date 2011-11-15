@@ -1,34 +1,48 @@
 # Higher-level functions for interacting with the server 
 
 LYT.service =
+  # Perform the logOn handshake:
+  # logOn -> getServiceAttributes -> setReadingSystemAttributes
   logOn: (username, password) ->
     deferred = jQuery.Deferred()
+    operations = null
     
     # For readability, the handlers are separated out here
-    logOnHandler = (success) ->
-      LYT.rpc("getServiceAttributes")
-        .then(serviceAttrsHandler)
-        .fail(fail)
-    
-    serviceAttrsHandler = (operations) ->
-      LYT.rpc("setReadingSystemAttributes")
-        .fail(fail)
+    failed = (code, message) ->
+      deferred.reject code, message
       
-      if operations.indexOf("SERVICE_ANNOUNCEMENTS") is -1
-        deferred.resolve []
-      else
+    loggedOn = (success) ->
+      LYT.rpc("getServiceAttributes")
+        .done(gotServiceAttrs)
+        .fail(failed)
+    
+    gotServiceAttrs = (ops) ->
+      operations = ops
+      LYT.rpc("setReadingSystemAttributes")
+        .done(readingSystemAttrsSet)
+        .fail(failed)
+    
+    readingSystemAttrsSet = ->
+      deferred.resolve()
+      
+      # TODO: If there are service announcements, do they have to be
+      # retrieved before the handshake is considered done?
+      if operations.indexOf("SERVICE_ANNOUNCEMENTS") isnt -1
         LYT.rpc("getServiceAnnouncements")
-          .then (announcements) -> deferred.resolve announcements
-          .fail(fail)    
+          .done(gotServiceAnnouncements)
+          # Fail silently
     
-    fail = (code, message) -> deferred.reject code, message
+    # FIXME: Not implemented
+    gotServiceAnnouncements = (announcements) ->
     
+    # Kick it off
     LYT.rpc("logOn", username, password)
-      .then(logOnHandler)
-      .fail(fail)
+      .done(loggedOn)
+      .fail(failed)
     
-    deferred
+    return deferred
   
+  # TODO: Can logOff fail? If so, what to do?
   logOff: ->
     LYT.rpc("logOff")
   
@@ -38,14 +52,12 @@ LYT.service =
     LYT.rpc("getContentList", "issued", from, to)
       .then (list) ->
         for item in list
-          info = item.label?.split("$")
-          item.author = info[0] or ""
-          item.title  = info[1] or ""
+          [item.author, item.title] = item.label?.split("$") or ["", ""]
           delete item.label
         deferred.resolve list
         
       .fail -> deferred.reject()
     
-    deferred
+    return deferred
   
       
