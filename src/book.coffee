@@ -31,7 +31,7 @@ class LYT.Book
     @nccDocument = null
     
     # First step: Request that the book be issued
-    issue = ->
+    issue = =>
       # Perform the RPC
       issued = LYT.rpc "issueContent", @id
       
@@ -151,11 +151,12 @@ class LYT.Book
   # The media object that's propagated has the following
   # members:
   #
-  # - id:    The id of the <par> element in the SMIL document
-  # - start: The start time, in seconds, relative to the audio
-  # - end:   The end time, in seconds, relative to the audio
-  # - audio: The url of the audio file (or null)
-  # - text:  The text to display (or null)
+  # - id:      The id of the <par> element in the SMIL document
+  # - section: The id of the section the media belongs to
+  # - start:   The start time, in seconds, relative to the audio
+  # - end:     The end time, in seconds, relative to the audio
+  # - audio:   The url of the audio file (or null)
+  # - text:    The text to display (or null)
   mediaFor: (section = null, offset = null) ->
     deferred = jQuery.Deferred()
     
@@ -170,8 +171,9 @@ class LYT.Book
         par = section.document.getParByTime(offset or 0)
         if par
           media =
-            start: par.start
-            end:   par.end
+            section: section.id
+            start:   par.start
+            end:     par.end
           # Get the audio URL, if any
           media.audio = @resources[par.audio.src]?.url or null if par.audio?.src?
           #alert par.text.src
