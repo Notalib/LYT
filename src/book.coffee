@@ -167,29 +167,37 @@ class LYT.Book
     # time offset
     preload.done (sections) =>
       for section in sections
-        par = section.document.getParByTime offset or 0
+        par = section.document.getParByTime(offset or 0)
         if par
+          media =
+            start: par.start
+            end:   par.end
           # Get the audio URL, if any
-          par.audio = @resources[par.audio.src]?.url or null
-          [txtfile, txtid] = par.text.src.split "#"
+          media.audio = @resources[par.audio.src]?.url or null if par.audio?.src?
+          #alert par.text.src
+          [txtfile, txtid] = if par.text?.src? then par.text.src.split("#") else [null, null]
           
           # Get the text, if any
-          if @resources[txtfile]
+          if txtfile? and @resources[txtfile]
             # Load the text document, if necessary
             unless @resources[txtfile].document
               @resources[txtfile].document = new LYT.TextContentDocument @resources[txtfile].url
             # Get the text content
             @resources[txtfile].document.done =>
-              par.text = @resources[txtfile].document.getTextById txtid
-              deferred.resolve par
+              media.text = @resources[txtfile].document.getTextById txtid
+              deferred.resolve media
+            
+            @resources[txtfile].document.fail =>
+              media.text = null
+              deferred.resolve media
           else
             media.text = null
-            deferred.resolve par
+            deferred.resolve media
           
           # Exit the method, since a matching `<par>` element has been found
-          return
+          return deferred
       
-      # Didn't find anything, so propagate `null`
+      # Didn't find anything in the loop above, so propagate `null`
       deferred.resolve null
     
     # Return the deferred object
