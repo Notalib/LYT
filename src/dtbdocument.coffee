@@ -89,7 +89,9 @@ do ->
       # document. If that also fails, then propagate the
       # failure
       failed = (jqXHR, status, error) =>
+        # If the XML failed to parse...
         if status is "parsererror"
+          log.message "DTBDocument: Received invalid XML. Attempting recovery"
           # Get everything in the document element
           content = jqXHR.responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
           if content? and content[1]
@@ -101,11 +103,14 @@ do ->
             # Do a quick check to see if the HTML was
             # parsed
             if html.find("body").length isnt 0
+              log.message "DTBDocument: Recovery succeeded"
               # Sucessfully rescued the content
               # so pretend the load worked fine,
               # and exit the function
               loaded(html, status, jqXHR)
-              return 
+              return
+          else
+            log.message "DTBDocument: Recovery failed"
         
         # If all of the above failed, then fail some more
         log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
