@@ -120,12 +120,7 @@ LYT.protocol =
   
   setReadingSystemAttributes:
     request: ->
-      readingSystemAttributes:
-        manufacturer: "NOTA"
-        model: "LYT"
-        serialNumber: "1"
-        version: "1"
-        config: null
+      LYT.config.protocol.readingSystemAttributes
     
     receive: ($xml, data) ->
       $xml.find("setReadingSystemAttributesResult").text() is "true" or RPC_ERROR
