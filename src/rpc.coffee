@@ -18,10 +18,11 @@ window.RPC_ERROR = {}
 LYT.rpc = do ->
   
   # The template for SOAP request content
-  soapTemplate = '<?xml version="1.0" encoding="UTF-8"?>
-    <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.daisy.org/ns/daisy-online/">
-    <SOAP-ENV:Body>#{body}</SOAP-ENV:Body>
-    </SOAP-ENV:Envelope>'
+  soapTemplate = 
+  '''<?xml version="1.0" encoding="UTF-8"?>
+  <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.daisy.org/ns/daisy-online/">
+  <SOAP-ENV:Body>#{body}</SOAP-ENV:Body>
+  </SOAP-ENV:Envelope>'''
   
   # The actual `rpc` function
   (action, args...) ->
@@ -47,8 +48,10 @@ LYT.rpc = do ->
     xml = {}
     xml[action] = soap
     xml = LYT.rpc.toXML xml
-    xml = if xml isnt "" then "<ns1:#{action}>#{xml}</ns1:#{action}>" else "<ns1:#{action} />"
     options.data = soapTemplate.replace /#\{body\}/, xml
+    
+    # Set the soapaction header
+    options.headers = "Soapaction": "/#{action}"
     
     # Create a new Deferred
     deferred = jQuery.Deferred();
