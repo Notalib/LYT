@@ -1,94 +1,103 @@
-img.nota-full{
-	max-height:120px;
+img.nota-full {
+	max-height: 120px;
 }
 
-.ui-li-icon.ui-li-thumb{
+.ui-li-icon.ui-li-thumb {
 	max-width: 25px;
 }
+
 #NccRootElement li,
-#NccRootElement a
-{
+#NccRootElement a {
 	list-style: none;
 	counter-increment: none;
 	content: none;
 }
 
 #book-text-content,
-#textarea-example
-{
-	text-shadow:none;
+#textarea-example {
+	text-shadow: none;
 }
-#book-text-content h1 a, #book-text-content h2 a
-{
-	text-decoration:none;
+
+#book-text-content h1 a,
+#book-text-content h2 a {
+	text-decoration: none;
 }
-#book-text-content
-{
+
+#book-text-content {
 	min-height: 500px;
 }
-#book-top-menu{
+
+#book-top-menu {
 	border-bottom: 1px solid #B3B3B3;
 }
-#book-play-menu{
+
+#book-play-menu {
 	border-top: 1px solid #B3B3B3;
 }
-#book_title{
+
+#book_title {
 	font-weight: bold;
 }
-#book_chapter{
+
+#book_chapter {
 	text-align: center;
 }
-#total_time{
+
+#total_time {
 	text-align: right;
 }
-#timeline_progress_left{
+
+#timeline_progress_left {
 	background: none;
 }
 
-#timeline_progress_left{
-	margin-left:15px;
+#timeline_progress_left {
+	margin-left: 15px;
 	background: black;
 	min-height: 2px;
-	float: left
-}
-#timeline_progress_right{
-	background-image: url(/images/dotted.png);
-	background-repeat: repeat-x;
-	min-height: 2px;
-	min-width: 96%;
-	overflow: hidden;
-	margin-right:15px;
-	margin-left:15px;
+	float: left;
 }
 
-#book-chapter-menu{
-	margin-top:3px;
-	font-size: 10px;
+#timeline_progress_right {
+	background-image:  url(/images/dotted.png);
+	background-repeat: repeat-x;
+	min-height: 2px;
+	min-width:  96%;
+	overflow: hidden;
+	margin-right: 15px;
+	margin-left:  15px;
+}
+
+#book-chapter-menu {
+	margin-top: 3px;
+	font-size:  10px;
 }
 
 #book-middle-menu .ui-block-a,
-#book-details .ui-block-a{
-		width: 18%;
-		margin-right:2%;
-		overflow:hidden;
-}
-#book-middle-menu .ui-block-b,
-#book-details .ui-block-b{
-		width: 80%;
+#book-details .ui-block-a {
+	width: 18%;
+	margin-right: 2%;
+	overflow: hidden;
 }
 
-#book-details-content h2{
-	margin-top:0px;
+#book-middle-menu .ui-block-b,
+#book-details .ui-block-b {
+	width: 80%;
 }
+
+#book-details-content h2 {
+	margin-top: 0px;
+}
+
 .ui-li-static {
 	font-size: inherit;
 }
 
-.search-top .ui-field-contain{
-	padding-top:0px;
+.search-top .ui-field-contain {
+	padding-top: 0px;
 }
 
-#searchresult .ui-icon-searchfield{
-	padding:3px;
-	padding-left:30px;
+#searchresult .ui-icon-searchfield {
+	padding: 3px;
+	padding-left: 30px;
 }
