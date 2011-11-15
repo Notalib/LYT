@@ -43,16 +43,15 @@ do ->
       sourcePublisher:  "ncc:sourcePublisher"
       sourceRights:     "ncc:sourceRights"
       sourceTitle:      "ncc:sourceTitle"
-      tocItems:        ["ncc:tocItems", "ncc:tocitems"]
+      tocItems:        ["ncc:tocItems", "ncc:tocitems", "ncc:TOCitems"]
       totalTime:       ["ncc:totalTime", "ncc:totaltime"]
     
     # Name attribute values for nodes that may appear multiple times per file
-    plural: [
+    plural:
       contributor: "dc:contributor"
       creator:     "dc:creator"
       language:    "dc:language"
       narrator:    "ncc:narrator"
-    ]
   
   # -------
   
@@ -71,6 +70,47 @@ do ->
       
       @xml = null
       
+      # Handlers
+      
+      # On success, wrap the XML with jQuery, call the callback (if any),
+      # and propagate the instance
+      loaded = (xml, status, jqXHR) =>
+        log.group "DTB: Got: #{@url}", xml
+        @xml = jQuery xml
+        callback? deferred
+        deferred.resolve this
+      
+      # On failure, check if it's a parser error.
+      # The NCC and text content documents can be very
+      # shoddily produced and full of very invalid XML
+      # which causes the browser's parser to complain.
+      # If that happens, try to rescue the content,
+      # by "copying and pasting it" into a tagsoup HTML
+      # document. If that also fails, then propagate the
+      # failure
+      failed = (jqXHR, status, error) =>
+        if status is "parsererror"
+          # Get everything in the document element
+          content = jqXHR.responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+          if content? and content[1]
+            # If something was found, create an empty HTML
+            # document in memory (no DOCTYPE) and put the
+            # content in there
+            html = jQuery "<html></html>"
+            html.html content[1]
+            # Do a quick check to see if the HTML was
+            # parsed
+            if html.find("body").length isnt 0
+              # Sucessfully rescued the content
+              # so pretend the load worked fine,
+              # and exit the function
+              loaded(html, status, jqXHR)
+              return 
+        
+        # If all of the above failed, then fail some more
+        log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
+        deferred.reject jqXHR, status, error
+      
       # Perform the request
       log.message "DTB: Getting: #{@url}"
       # TODO: Move options to `config`?
@@ -79,18 +119,8 @@ do ->
         dataType: "xml"
         async:    yes
         cache:    yes
-        
-        # On success, wrap the XML with jQuery, call the callback (if any),
-        # and propagate the instance
-        success: (xml, status, jqXHR) =>
-          log.group "DTB: Got: #{@url}", xml
-          @xml = jQuery xml
-          callback?(deferred)
-          deferred.resolve this
-        
-        # On failure, propagate failure
-        error: (jqXHR, status, error) =>
-          deferred.reject jqXHR, status, error
+        success:  loaded
+        error:    failed
       }
     
     # Parse and return the metadata as an array
