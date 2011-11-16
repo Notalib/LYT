@@ -110,6 +110,7 @@ LYT.protocol =
       $xml.find("logOffResult").text() is "true" or RPC_ERROR
   
   
+  # TODO: Do we need to pull anything besides the optional operations out of the response?
   getServiceAttributes:
     receive: ($xml, data) ->
       operations = []
@@ -139,7 +140,7 @@ LYT.protocol =
   
   
   markAnnouncementsAsRead:
-    # TODO: Can you send an array or list of IDs instead? If you can, it would reduce the number of calls/requests
+    # TODO: Can you send an array or list of IDs instead? If you can, it could reduce the number of calls/requests
     request: (id) ->
       read:
         item: id
@@ -177,8 +178,9 @@ LYT.protocol =
     
     receive: ($xml) ->
       $xml.find("returnContentResult").text() is "true" or RPC_ERROR
-      
   
+  
+  # FIXME: Not fully implemented
   getContentMetadata:
     request: (bookID) ->
       contentID: bookID
@@ -193,8 +195,7 @@ LYT.protocol =
       resources = {}
       $xml.find("resource").each ->
         resources[ jQuery(this).attr("localURI") ] = jQuery(this).attr("uri")
-      
-      return resources
+      resources
   
   
   setBookmarks:

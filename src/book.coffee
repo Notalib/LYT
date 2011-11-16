@@ -21,7 +21,6 @@ class LYT.Book
   #       # Do something about the failure
   # 
   # FIXME: reject with error code/message  
-  # FIXME: avoid direct calls to RPC (should go through `service` to catch login issues)
   constructor: (@id) ->
     # Create a Deferred, and link it to `this`
     deferred = jQuery.Deferred()
@@ -33,7 +32,7 @@ class LYT.Book
     # First step: Request that the book be issued
     issue = =>
       # Perform the RPC
-      issued = LYT.rpc "issueContent", @id
+      issued = LYT.service.issue @id
       
       # When the book has been issued, proceed to download
       # its resources list, ...
@@ -45,7 +44,7 @@ class LYT.Book
     # Second step: Get the book's resources list
     getResources = =>
       # Perform the RPC
-      got = LYT.rpc "getContentResources", @id
+      got = LYT.service.getResources @id
       
       # If fail, then fail
       got.fail -> deferred.reject()
@@ -77,15 +76,14 @@ class LYT.Book
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument(obj.url)
+      ncc = new LYT.NCCDocument obj.url
       
       # Propagate a failure
       ncc.fail -> deferred.reject()
       
       # 
       ncc.then (document) =>
-        obj.document = document
-        @nccDocument = document
+        obj.document = @nccDocument = document
         deferred.resolve this
       
     # Kick the whole process off
@@ -167,8 +165,9 @@ class LYT.Book
     # Once the sections have loaded, find the data for the
     # time offset
     preload.done (sections) =>
+      offset = offset or 0
       for section in sections
-        par = section.document.getParByTime(offset or 0)
+        par = section.document.getParByTime offset
         if par
           media =
             section: section.id

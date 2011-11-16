@@ -1,5 +1,7 @@
 # Higher-level functions for interacting with the server 
 
+# FIXME: Check for errors and attempt re-login etc.
+
 LYT.service =
   # Perform the logOn handshake:
   # logOn -> getServiceAttributes -> setReadingSystemAttributes
@@ -42,9 +44,26 @@ LYT.service =
     
     return deferred
   
+  
   # TODO: Can logOff fail? If so, what to do?
   logOff: ->
     LYT.rpc("logOff")
+  
+  
+  issue: (bookId) ->
+    LYT.rpc "issueContent", bookId
+  
+  
+  return: (bookId) ->
+    LYT.rpc "returnContent", bookId
+  
+  
+  getMetadata: (bookId) ->
+    LYT.rpc "getContentMetadata", bookId
+  
+  
+  getResources: (bookId) ->
+    LYT.rpc "getContentResources", bookId
   
   
   getBookshelf: (from = 0, to = -1) ->
@@ -52,12 +71,17 @@ LYT.service =
     LYT.rpc("getContentList", "issued", from, to)
       .then (list) ->
         for item in list
+          # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.  
+          # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
           [item.author, item.title] = item.label?.split("$") or ["", ""]
           delete item.label
         deferred.resolve list
-        
       .fail -> deferred.reject()
-    
-    return deferred
+    deferred
   
-      
+  
+  # Non-Daisy function
+  search: (query) ->
+  
+  
+  
