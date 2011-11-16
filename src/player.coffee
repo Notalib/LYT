@@ -5,28 +5,16 @@ LYT.player =
   ready: false 
   jplayer: null
   el: jQuery("#jplayer")
-  currentTranscript: null #id, start, end, text
-  currentMedia: ""
-  currentTime: ""
+  media: null #id, start, end, text
+  time: ""
+  book: null #reference to an instance of book class
+  
+  # todo: consider array of all played sections and a few following
   
   setup: =>
     # Initialize jplayer and set ready True when ready
     @jplayer = @el.jPlayer
       ready: =>      
-        @el.bind jQuery.jPlayer.event.timeupdate, (event) =>
-          # Continously update transcript for current time of media
-          @currentTime = event.jPlayer.status.currentTime
-          
-          if not currentTranscript? or currentTranscript.end < @currentTime
-            # update transcript if we don't have one or if it is in the past
-            @currentTranscript = LYT.Book.getTranscriptForTime @currentMedia, @currentTime
-            
-          if @currentTranscript.end < @currentTime
-            # hide transcript
-            
-          else if @currentTranscript.start >= @currentTime
-            # update and show transcript
-          
         @ready = True
       
       swfPath: "/lib/jplayer"
@@ -42,11 +30,6 @@ LYT.player =
     @jplayer('stop')
     @jplayer('clearmedia')
   
-  load: (media) =>
-    if @currentMedia is not media
-      @jplayer('setmedia', media)
-      @currentMedia = media
-  
   play: (time) =>
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from 
@@ -55,6 +38,52 @@ LYT.player =
       @jplayer('play')
     else
       @jplayer('play', time)
+  
+  update: (time) =>
+    # Continously update media for current time of section
+    @time = time
     
+    if not @media?
+      # get media if we don't have it yet    
+      @book.mediaFor().done (media) =>
+        if not media?
+          @media = media
+        else
+          #todo:error
+    else if @media.end < @time
+      @book.mediaFor(@section, @time).done (media) =>
+        if not media?
+          if @media.audio is not media.audio
+             @jplayer('setmedia', media)
+             @play()
+          
+          @media = media
+          
+    if @currentTranscript.end < @currentTime
+      #LYT.gui.hideTranscript("")
+      
+    else if @currentTranscript.start >= @currentTime
+      #LYT.gui.updateTranscript("")
+      #LYT.gui.showTranscript("")
+     
+  loadBook: (book, section, offset) =>
+    if @ready
+      @book = book
+      
+      # select section or take first off book.sections
+         
+      @el.bind jQuery.jPlayer.event.timeupdate, (event) =>
+         @update(event.jPlayer.status.currentTime)
+      
+  nextPart: () ->
+    @stop()
+    # get next part
+    @load()
+    
+  previousPart: () ->
+    @stop()
+    # get next part
+    @load()
+     
 
   

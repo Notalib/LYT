@@ -1,38 +1,42 @@
 $(document).bind "mobileinit", ->
   
     LYT.player.setup()
-    
     #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
     
     $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
         LYT.app.next = "bookshelf"
+        
         $.mobile.showPageLoadingMsg()
         $("#password").blur()
+        
         event.preventDefault()
         event.stopPropagation()
     
-        #do we need this check? if $("#username").val().length < 10
-        LYT.settings.set('username', $("#username").val())
-        LYT.settings.set('password', $("#password").val())
-
-        LYT.protocol.LogOn $("#username").val(), $("#password").val()
+        LYT.service.LogOn $("#username").val(), $("#password").val()
 
     $("#book_index").live "pagebeforeshow", (event) ->
        $("#book_index_content").trigger "create"
            $("li[xhref]").bind "click", (event) ->
              $.mobile.showPageLoadingMsg()
              
-             if ($(window).width() - event.pageX > 40) or (typeof $(this).find("a").attr("href") is "undefined") # what is this doing?
+             if ($(window).width() - event.pageX > 40) or (typeof $(this).find("a").attr("href") is "undefined") # submenu handling
                 if $(this).find("a").attr("href")
                     event.preventDefault()
                     event.stopPropagation()
-                    event.stopImmediatePropagation()
-                    #window.fileInterface.GetTextAndSound this
-                    $.mobile.changePage "#book-play"
+                    event.stopImmediatePropagation()                   
+                    
+                    book = new LYT.Book 1                                
+                    book.done (book) ->
+                      LYT.player.loadBook(book)
+                      
+                      $.mobile.changePage "#book-play"
+                    book.fail () ->
+                      #todo:error                            
+                    
                 else
                     event.stopImmediatePropagation()
-                    $.mobile.changePage $(this).find("a").attr("href") # doesn't jquey mobile automaticly have this behavior when clicking internal links?
+                    $.mobile.changePage $(this).find("a").attr("href")
 
     $("#book-play").live "pagebeforeshow", (event) ->
             
@@ -44,15 +48,13 @@ $(document).bind "mobileinit", ->
         $("#bookshelf [data-role=header]").trigger "create"
 
         $("#book-play").bind "swiperight", ->
-            NextPart()
+            LYT.player.nextPart()
 
         $("#book-play").bind "swipeleft", ->
-            LastPart()
-
+            LYT.player.previousPart()
 
     $("#bookshelf").live "pagebeforeshow", (event) ->
         $.mobile.hidePageLoadingMsg()
-
 
     $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
@@ -92,6 +94,5 @@ $(document).bind "mobileinit", ->
    
     
     $("[data-role=page]").live "pageshow", (event, ui) ->
-        #_gaq.push [ "_setAccount", "UA-25712607-1" ] being set in html
         _gaq.push [ "_trackPageview", event.target.id ]      
     

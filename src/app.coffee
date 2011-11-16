@@ -1,4 +1,4 @@
-# This module is intended as a controller ...
+# Application logic abstracted functions
 
 LYT.app:
   
@@ -20,7 +20,6 @@ LYT.app:
       $("#book_chapter").text 0
       $("#book_time").text 0
       $.mobile.showPageLoadingMsg()
-      window.fileInterface.GetBook @settings.currentBook
       
       Play()
 
