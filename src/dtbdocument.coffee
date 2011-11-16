@@ -72,13 +72,54 @@ do ->
       
       # Handlers
       
+      resolve = (document) =>
+        @xml = jQuery document
+        callback? deferred
+        deferred.resolve this
+      
+      reject = (status, error) =>
+        deferred.reject status, error
+      
+      recover = (jqXHR, status) ->
+        log.message "DTBDocument: Received invalid XML. Attempting recovery"
+        # Get everything in the document element
+        content = jqXHR.responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        if content? and content[1]
+          # If something was found, create an empty HTML
+          # document in memory (no DOCTYPE) and put the
+          # content in there
+          html = jQuery "<html></html>"
+          html.html content[1]
+          # Do a quick check to see if the HTML was
+          # parsed
+          if html.find("body").length isnt 0
+            log.message "DTBDocument: Recovery succeeded"
+            # Sucessfully rescued the content
+            # so pretend the load worked fine,
+            # and exit the function
+            #loaded(html, status, jqXHR)
+            resolve html
+            return true
+        else
+          log.message "DTBDocument: Recovery failed"
+        false
+      
+      ready = (document) =>
+        @xml = jQuery document
+        callback? deferred
+        deferred.resolve this
+      
       # On success, wrap the XML with jQuery, call the callback (if any),
       # and propagate the instance
       loaded = (xml, status, jqXHR) =>
         log.group "DTB: Got: #{@url}", xml
-        @xml = jQuery xml
-        callback? deferred
-        deferred.resolve this
+        # Check for parser errors
+        # TODO: How to improve this?!
+        if jQuery(xml).find("parsererror").length > 0
+          recover(jqXHR, status) or reject
+        else
+          ready xml
+        
       
       # On failure, check if it's a parser error.
       # The NCC and text content documents can be very
@@ -91,30 +132,11 @@ do ->
       failed = (jqXHR, status, error) =>
         # If the XML failed to parse...
         if status is "parsererror"
-          log.message "DTBDocument: Received invalid XML. Attempting recovery"
-          # Get everything in the document element
-          content = jqXHR.responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
-          if content? and content[1]
-            # If something was found, create an empty HTML
-            # document in memory (no DOCTYPE) and put the
-            # content in there
-            html = jQuery "<html></html>"
-            html.html content[1]
-            # Do a quick check to see if the HTML was
-            # parsed
-            if html.find("body").length isnt 0
-              log.message "DTBDocument: Recovery succeeded"
-              # Sucessfully rescued the content
-              # so pretend the load worked fine,
-              # and exit the function
-              loaded(html, status, jqXHR)
-              return
-          else
-            log.message "DTBDocument: Recovery failed"
+          return if recover jqXHR, status
         
         # If all of the above failed, then fail some more
         log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
-        deferred.reject jqXHR, status, error
+        reject status, error
       
       # Perform the request
       log.message "DTB: Getting: #{@url}"
