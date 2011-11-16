@@ -11,12 +11,23 @@ LYT.config =
   rpc:
     # The default set of options to pass to jQuery's ajax functions
     options:
+      async:       yes
       cache:       no
       contentType: "text/xml; charset=utf-8"
       data:        null
       dataType:    "xml"
       headers:     null
-      processData: true
+      processData: yes
       timeout:     30000
       type:        "POST"
       url:         "/DodpMobile/Service.svc"
+    
+  protocol:
+    readingSystemAttributes:
+      manufacturer: "NOTA"
+      model: "LYT"
+      serialNumber: "1"
+      version: "1"
+      config: null
+    
+  

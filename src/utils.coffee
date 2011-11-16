@@ -73,7 +73,7 @@
 # These 6 lines replace the 26-34 lines in `SecToTime` _and_ does type checking… I deserve a damn medal for that! :-)
 @formatTime = (seconds) ->
   seconds = parseInt(seconds, 10)
-  seconds = 0 if not seconds? or seconds < 0
+  seconds = 0 if not seconds or seconds < 0
   hours   = (seconds / 3600) >>> 0
   minutes = "0" + (((seconds % 3600 ) / 60) >>> 0)
   seconds = "0" + (seconds % 60)

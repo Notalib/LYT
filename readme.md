@@ -7,7 +7,7 @@ Tests run with [QUnit](http://docs.jquery.com/QUnit)
 
 ## Development
 
-First, [read the style guide](/Notalib/LYT/blob/master/styleguide.mdown).
+First, [read the style guide](/Notalib/LYT/wiki/Style-Guide).
 
 To compile the *.coffee source files, issue the following from the repo's root:
 

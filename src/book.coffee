@@ -21,7 +21,6 @@ class LYT.Book
   #       # Do something about the failure
   # 
   # FIXME: reject with error code/message  
-  # FIXME: avoid direct calls to RPC (should go through `service` to catch login issues)
   constructor: (@id) ->
     # Create a Deferred, and link it to `this`
     deferred = jQuery.Deferred()
@@ -31,9 +30,9 @@ class LYT.Book
     @nccDocument = null
     
     # First step: Request that the book be issued
-    issue = ->
+    issue = =>
       # Perform the RPC
-      issued = LYT.rpc "issueContent", @id
+      issued = LYT.service.issue @id
       
       # When the book has been issued, proceed to download
       # its resources list, ...
@@ -45,7 +44,7 @@ class LYT.Book
     # Second step: Get the book's resources list
     getResources = =>
       # Perform the RPC
-      got = LYT.rpc "getContentResources", @id
+      got = LYT.service.getResources @id
       
       # If fail, then fail
       got.fail -> deferred.reject()
@@ -77,15 +76,14 @@ class LYT.Book
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument(obj.url)
+      ncc = new LYT.NCCDocument obj.url
       
       # Propagate a failure
       ncc.fail -> deferred.reject()
       
       # 
       ncc.then (document) =>
-        obj.document = document
-        @nccDocument = document
+        obj.document = @nccDocument = document
         deferred.resolve this
       
     # Kick the whole process off
@@ -151,11 +149,12 @@ class LYT.Book
   # The media object that's propagated has the following
   # members:
   #
-  # - id:    The id of the <par> element in the SMIL document
-  # - start: The start time, in seconds, relative to the audio
-  # - end:   The end time, in seconds, relative to the audio
-  # - audio: The url of the audio file (or null)
-  # - text:  The text to display (or null)
+  # - id:      The id of the <par> element in the SMIL document
+  # - section: The id of the section the media belongs to
+  # - start:   The start time, in seconds, relative to the audio
+  # - end:     The end time, in seconds, relative to the audio
+  # - audio:   The url of the audio file (or null)
+  # - text:    The text to display (or null)
   mediaFor: (section = null, offset = null) ->
     deferred = jQuery.Deferred()
     
@@ -166,30 +165,40 @@ class LYT.Book
     # Once the sections have loaded, find the data for the
     # time offset
     preload.done (sections) =>
+      offset = offset or 0
       for section in sections
-        par = section.document.getParByTime offset or 0
+        par = section.document.getParByTime offset
         if par
+          media =
+            section: section.id
+            start:   par.start
+            end:     par.end
           # Get the audio URL, if any
-          par.audio = @resources[par.audio.src]?.url or null
-          [txtfile, txtid] = par.text.src.split "#"
+          media.audio = @resources[par.audio.src]?.url or null if par.audio?.src?
+          #alert par.text.src
+          [txtfile, txtid] = if par.text?.src? then par.text.src.split("#") else [null, null]
           
           # Get the text, if any
-          if @resources[txtfile]
+          if txtfile? and @resources[txtfile]
             # Load the text document, if necessary
             unless @resources[txtfile].document
               @resources[txtfile].document = new LYT.TextContentDocument @resources[txtfile].url
             # Get the text content
             @resources[txtfile].document.done =>
-              par.text = @resources[txtfile].document.getTextById txtid
-              deferred.resolve par
+              media.text = @resources[txtfile].document.getTextById txtid
+              deferred.resolve media
+            
+            @resources[txtfile].document.fail =>
+              media.text = null
+              deferred.resolve media
           else
             media.text = null
-            deferred.resolve par
+            deferred.resolve media
           
           # Exit the method, since a matching `<par>` element has been found
-          return
+          return deferred
       
-      # Didn't find anything, so propagate `null`
+      # Didn't find anything in the loop above, so propagate `null`
       deferred.resolve null
     
     # Return the deferred object
