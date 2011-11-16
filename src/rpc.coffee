@@ -8,6 +8,8 @@
 
 # --------
 
+# TODO: Better error handling/propagation
+
 # ## Constants
 
 window.RPC_ERROR = {}
@@ -19,10 +21,10 @@ LYT.rpc = do ->
   
   # The template for SOAP request content
   soapTemplate = 
-  '''<?xml version="1.0" encoding="UTF-8"?>
-  <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.daisy.org/ns/daisy-online/">
-  <SOAP-ENV:Body>#{body}</SOAP-ENV:Body>
-  </SOAP-ENV:Envelope>'''
+    '''<?xml version="1.0" encoding="UTF-8"?>
+    <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.daisy.org/ns/daisy-online/">
+    <SOAP-ENV:Body>#{body}</SOAP-ENV:Body>
+    </SOAP-ENV:Envelope>'''
   
   # The actual `rpc` function
   (action, args...) ->
@@ -51,7 +53,8 @@ LYT.rpc = do ->
     options.data = soapTemplate.replace /#\{body\}/, xml
     
     # Set the soapaction header
-    options.headers = "Soapaction": "/#{action}"
+    options.headers or= {}
+    options.headers["Soapaction"] = "/#{action}"
     
     # Create a new Deferred
     deferred = jQuery.Deferred();
@@ -99,6 +102,7 @@ LYT.rpc = do ->
 # ---------
 
 # This utility function converts the arguments given to well-formed XML
+# TODO: Could you do this with a couple of pseudo-elements? It would be considerably more robust
 LYT.rpc.toXML = (hash) ->
   return "" unless hash?
   
@@ -137,6 +141,7 @@ LYT.rpc.error = do ->
     if xhr.status > 399
       title += xhr.status
     else if exception is "timeout"
+      # FIXME: `No alert()`s here! 
       alert "Ups - vi misted forbindelsen. Måske har du ingen forbindelse til Internettet?"
       title += "Timed out"
     else if xhr.responseText.match errorRegExp
