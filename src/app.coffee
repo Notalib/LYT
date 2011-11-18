@@ -1,6 +1,6 @@
 # Application logic abstracted functions
 
-LYT.app:
+LYT.app =
   
   next: "bookshelf"
 

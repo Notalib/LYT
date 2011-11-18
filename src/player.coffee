@@ -4,7 +4,7 @@ LYT.player =
   
   ready: false 
   jplayer: null
-  el: jQuery("#jplayer")
+  el: null
   media: null #id, start, end, text
   time: ""
   book: null #reference to an instance of book class
@@ -13,11 +13,12 @@ LYT.player =
   
   setup: =>
     # Initialize jplayer and set ready True when ready
+    @el = jQuery("#jplayer")
     @jplayer = @el.jPlayer
       ready: =>      
         @ready = True
       
-      swfPath: "/lib/jplayer"
+      swfPath: "/lib/jPlayer/"
       supplied: "mp3"
       solution: 'html, flash'
       
@@ -61,10 +62,12 @@ LYT.player =
           
     if @currentTranscript.end < @currentTime
       #LYT.gui.hideTranscript("")
+      log('hide transcript')
       
     else if @currentTranscript.start >= @currentTime
       #LYT.gui.updateTranscript("")
       #LYT.gui.showTranscript("")
+      log('show transcript')
      
   loadBook: (book, section, offset) =>
     if @ready

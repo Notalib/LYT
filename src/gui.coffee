@@ -1,6 +1,6 @@
 # This module handles gui callbacks and various utility functions
 
-LYT.gui:
+LYT.gui =
   
   covercache: (element) ->
     $(element).each ->

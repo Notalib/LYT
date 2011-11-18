@@ -14,10 +14,10 @@ $(document).bind "mobileinit", ->
         event.stopPropagation()
     
         LYT.service.LogOn $("#username").val(), $("#password").val()
-
+        
     $("#book_index").live "pagebeforeshow", (event) ->
-       $("#book_index_content").trigger "create"
-           $("li[xhref]").bind "click", (event) ->
+      $("#book_index_content").trigger "create"
+      $("li[xhref]").bind "click", (event) ->
              $.mobile.showPageLoadingMsg()
              
              if ($(window).width() - event.pageX > 40) or (typeof $(this).find("a").attr("href") is "undefined") # submenu handling
