@@ -3,6 +3,20 @@ $(document).bind "mobileinit", ->
     LYT.player.setup()
     #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
     
+    $(document).bind "pagebeforechange", (e, data) ->
+      if typeof data.toPage is "string"
+        u = $.mobile.path.parseUrl(data.toPage)
+        
+        if u.hash.search(/^#book-details/) isnt -1
+          renderBookDetails u, data.options
+          e.preventDefault()
+        else if u.hash.search(/^#book-play/) isnt -1
+          renderBookPlay u, data.options
+          e.preventDefault()
+        else if u.hash.search(/^#book-index/) isnt -1
+          renderBookIndex u, data.options
+          e.preventDefault()
+      
     $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
         LYT.app.next = "bookshelf"
