@@ -30,10 +30,10 @@
       }
     },
     eventSystemNotLoggedIn: function(where) {
-      this.goto = where;
+      this.next = where;
       if (this.settings.username !== "" && this.settings.password !== "") {
         if (console) {
-          console.log("GUI: Event system not logged in, logger på i baggrunden");
+          log("GUI: Event system not logged in, logger på i baggrunden");
         }
         return LYT.protocol.LogOn(LYT.settings.get('username'), LYT.settings.get('password'));
       } else {
@@ -55,7 +55,7 @@
     },
     eventSystemGotBookShelf: __bind(function(bookShelf) {
       var aBookShelf, addMore, nowPlaying;
-      this.goto = "";
+      this.next = "";
       this.full_bookshelf = bookShelf;
       console.log(this.full_bookshelf);
       $("#bookshelf-content").empty();
@@ -152,30 +152,6 @@
         }
       } catch (e) {
         return alert(e);
-      }
-    },
-    showIndex: function() {
-      return $.mobile.changePage("#book_index");
-    },
-    playCurrent: function() {
-      if (isPlayerAlive()) {
-        return $.mobile.changePage("#book-play");
-      } else {
-        return this.PlayNewBook(this.settings.currentBook, this.settings.currentTitle, this.settings.currentAuthor);
-      }
-    },
-    gotoPage: function() {
-      if (console) {
-        console.log("GUI: gotoPage - " + this.goto);
-      }
-      switch (this.goto) {
-        case "bookshelf":
-          window.fileInterface.GetBookShelf();
-          return this.goto = "";
-        default:
-          if ($(".ui-page-active").attr("id") === "login") {
-            return window.fileInterface.GetBookShelf();
-          }
       }
     },
     logUserOff: function() {

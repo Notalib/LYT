@@ -13,7 +13,7 @@
         ready: __bind(function() {
           return this.ready = True;
         }, this),
-        swfPath: "/assets/lib/jPlayer/",
+        swfPath: "/lib/jPlayer/",
         supplied: "mp3",
         solution: 'html, flash'
       });

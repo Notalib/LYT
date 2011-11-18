@@ -1,32 +1,65 @@
 (function() {
   $(document).bind("mobileinit", function() {
+    var renderBookDetails;
     LYT.player.setup();
+    renderBookDetails = function(urlObj, options) {
+      var $page, book, bookId, pageSelector;
+      bookId = urlObj.hash.replace(/.*book=/, "");
+      pageSelector = urlObj.hash.replace(/\?.*$/, "");
+      log.message("Rendering book details for book with id " + bookId);
+      book = new LYT.Book(bookId);
+      book.done(function(book) {
+        var metadata;
+        LYT.player.loadBook(book);
+        metadata = book.nccDocument.getMetadata();
+        log.message(metadata.title.content);
+        log.message(metadata.totalTime.content);
+        return $.mobile.changePage("#book-play");
+      });
+      book.fail(function() {});
+      $page = $(pageSelector);
+      $page.page();
+      options.dataUrl = urlObj.href;
+      return $.mobile.changePage($page, options);
+    };
+    $(document).bind("pagebeforechange", function(e, data) {
+      var u;
+      if (typeof data.toPage === "string") {
+        u = $.mobile.path.parseUrl(data.toPage);
+        if (u.hash.search(/^#book-details/) !== -1) {
+          renderBookDetails(u, data.options);
+          return e.preventDefault();
+        } else if (u.hash.search(/^#book-play/) !== -1) {
+          renderBookPlay(u, data.options);
+          return e.preventDefault();
+        } else if (u.hash.search(/^#book-index/) !== -1) {
+          renderBookIndex(u, data.options);
+          return e.preventDefault();
+        }
+      }
+    });
     $("#login").live("pagebeforeshow", function(event) {
       return $("#login-form").submit(function(event) {
-        LYT.app.next = "bookshelf";
-        $.mobile.showPageLoadingMsg();
-        $("#password").blur();
+        var logon;
         event.preventDefault();
         event.stopPropagation();
-        return LYT.service.LogOn($("#username").val(), $("#password").val());
+        $.mobile.showPageLoadingMsg();
+        $("#password").blur();
+        logon = LYT.service.logOn($("#username").val(), $("#password").val());
+        return logon.done(function() {
+          return log.message("log on success!");
+        });
       });
     });
     $("#book_index").live("pagebeforeshow", function(event) {
       $("#book_index_content").trigger("create");
       return $("li[xhref]").bind("click", function(event) {
-        var book;
         $.mobile.showPageLoadingMsg();
         if (($(window).width() - event.pageX > 40) || (typeof $(this).find("a").attr("href") === "undefined")) {
           if ($(this).find("a").attr("href")) {
             event.preventDefault();
             event.stopPropagation();
-            event.stopImmediatePropagation();
-            book = new LYT.Book(1);
-            book.done(function(book) {
-              LYT.player.loadBook(book);
-              return $.mobile.changePage("#book-play");
-            });
-            return book.fail(function() {});
+            return event.stopImmediatePropagation();
           } else {
             event.stopImmediatePropagation();
             return $.mobile.changePage($(this).find("a").attr("href"));
