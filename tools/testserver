@@ -16,11 +16,31 @@ handler = (request, response) ->
     responders[url.pathname] request, response, url
   else
     path = url.pathname
-    if !path or path.slice(-1) is "/"
-      response.writeHead 302, "Location": "/test/index.html"
-      response.end()
-    else
-      send response, path, mimetype(path)
+    try
+      stats = fs.lstatSync fs.path.join ROOT, path
+      if stats.isDirectory()
+        index path, response
+      else if stats.isFile()
+        send response, path, mimetype(path)
+      else
+        fail response, "Unreadable"
+    catch error
+      fail response, "Error"
+      
+
+index = (path, response) ->
+  abspath = "#{ROOT}#{path}"
+  fs.readdir abspath, (err, list) ->
+    if err?
+      fail response, "Not found"
+      return
+    if list.indexOf("index.html") isnt -1
+      send response, "#{path}/index.html"
+      return
+    links = ("""<a href="#{path}/#{file}">#{path}/#{file}</a>""" for file in list when file.match /^[^.]/)
+    response.writeHead 200, "Content-Type": "text/html; charset=utf-8"
+    response.write """<!DOCTYPE html><html><head><title>#{path}</title></head><body>#{links.join "<br>"}</body></html>"""
+    response.end()
 
 responders =
   "/DodpMobile/Service.svc": (request, response, url) ->
@@ -77,4 +97,4 @@ mimetype = (path) ->
 http.createServer(handler).listen PORT, ->
   console.log "Server running on 127.0.0.1:#{PORT}"
   console.log "Press ctrl-C to stop server"
-  require("child_process").exec "which open && open http://127.0.0.1:#{PORT}/test/index.html"
+  # require("child_process").exec "which open && open http://127.0.0.1:#{PORT}/test/index.html"
