@@ -121,7 +121,7 @@ LYT.protocol =
   
   setReadingSystemAttributes:
     request: ->
-      LYT.config.protocol.readingSystemAttributes
+      readingSystemAttributes: LYT.config.protocol.readingSystemAttributes
     
     receive: ($xml, data) ->
       $xml.find("setReadingSystemAttributesResult").text() is "true" or RPC_ERROR
