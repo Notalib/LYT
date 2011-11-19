@@ -69,7 +69,7 @@ LYT.rpc = do ->
       if $xml.find("faultcode").length > 0 or $xml.find("faultstring").length > 0
         message = $xml.find("faultstring").text()
         code    = $xml.find("faultcode").text()
-        log.errorGroup "PRO: Resource error: #{code}: #{message}"
+        log.errorGroup "RPC: Resource error: #{code}: #{message}"
         log.message data
         log.closeGroup()
         deferred.reject code, message
