@@ -3,6 +3,37 @@ $(document).bind "mobileinit", ->
     LYT.player.setup()
     #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
     
+    renderBookDetails = (urlObj, options) ->
+      bookId = urlObj.hash.replace(/.*book=/, "")
+      pageSelector = urlObj.hash.replace(/\?.*$/, "")
+      
+      log.message "Rendering book details for book with id " + bookId
+  
+      book = new LYT.Book bookId                                
+      book.done (book) ->
+        LYT.player.loadBook(book)
+  
+        metadata = book.nccDocument.getMetadata()
+  
+        log.message metadata.title.content
+        log.message metadata.totalTime.content
+  
+  
+        $.mobile.changePage "#book-play"
+      book.fail () ->
+        #todo:error
+
+
+      # get book details    
+      # render book details
+
+
+      $page = $(pageSelector)
+      $page.page()
+
+      options.dataUrl = urlObj.href
+      $.mobile.changePage $page, options
+    
     $(document).bind "pagebeforechange", (e, data) ->
       if typeof data.toPage is "string"
         u = $.mobile.path.parseUrl(data.toPage)
@@ -19,15 +50,16 @@ $(document).bind "mobileinit", ->
       
     $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
-        LYT.app.next = "bookshelf"
+        event.preventDefault()
+        event.stopPropagation()
         
         $.mobile.showPageLoadingMsg()
         $("#password").blur()
         
-        event.preventDefault()
-        event.stopPropagation()
-    
-        LYT.service.LogOn $("#username").val(), $("#password").val()
+        logon = LYT.service.logOn $("#username").val(), $("#password").val()
+        logon.done ->
+          log.message "log on success!"
+          #$.mobile.changePage "#bookshelf"
         
     $("#book_index").live "pagebeforeshow", (event) ->
       $("#book_index_content").trigger "create"
@@ -39,14 +71,7 @@ $(document).bind "mobileinit", ->
                     event.preventDefault()
                     event.stopPropagation()
                     event.stopImmediatePropagation()                   
-                    
-                    book = new LYT.Book 1                                
-                    book.done (book) ->
-                      LYT.player.loadBook(book)
-                      
-                      $.mobile.changePage "#book-play"
-                    book.fail () ->
-                      #todo:error                            
+                                                
                     
                 else
                     event.stopImmediatePropagation()

@@ -35,9 +35,9 @@ LYT.app =
           $.mobile.changePage "#login"
 
   eventSystemNotLoggedIn: (where) ->
-      @goto = where
+      @next = where
       if @settings.username isnt "" and @settings.password isnt ""
-          console.log "GUI: Event system not logged in, logger på i baggrunden"  if console
+          log "GUI: Event system not logged in, logger på i baggrunden"  if console
           LYT.protocol.LogOn LYT.settings.get('username'), LYT.settings.get('password')
       else
           $.mobile.changePage "#login"
@@ -56,7 +56,7 @@ LYT.app =
       $.mobile.changePage "#book-play"
 
   eventSystemGotBookShelf: (bookShelf) =>
-      @goto = ""
+      @next = ""
       @full_bookshelf = bookShelf
       console.log @full_bookshelf
       $("#bookshelf-content").empty()
@@ -130,24 +130,6 @@ LYT.app =
           else
       catch e
           alert e
-
-  showIndex: ->
-      $.mobile.changePage "#book_index"
-
-  playCurrent: ->
-      if isPlayerAlive()
-        $.mobile.changePage "#book-play"
-      else
-        @PlayNewBook @settings.currentBook, @settings.currentTitle, @settings.currentAuthor
-
-  gotoPage: ->
-      console.log "GUI: gotoPage - " + @goto  if console
-      switch @goto
-          when "bookshelf"
-              window.fileInterface.GetBookShelf()
-              @goto = ""
-          else
-              window.fileInterface.GetBookShelf()  if $(".ui-page-active").attr("id") is "login"
 
   logUserOff: ->
       LYT.settings.set('username', "")
