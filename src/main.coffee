@@ -50,16 +50,19 @@ $(document).bind "mobileinit", ->
       
     $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
-        event.preventDefault()
-        event.stopPropagation()
         
         $.mobile.showPageLoadingMsg()
         $("#password").blur()
         
-        logon = LYT.service.logOn $("#username").val(), $("#password").val()
-        logon.done ->
-          log.message "log on success!"
+        LYT.service.logOn($("#username").val(), $("#password").val())
+          .done ->
+            log.message "log on success!"
+          .fail ->
+            log.message "log on failure!"
           #$.mobile.changePage "#bookshelf"
+          
+        event.preventDefault()
+        event.stopPropagation()
         
     $("#book_index").live "pagebeforeshow", (event) ->
       $("#book_index_content").trigger "create"

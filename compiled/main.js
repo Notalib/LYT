@@ -40,15 +40,15 @@
     });
     $("#login").live("pagebeforeshow", function(event) {
       return $("#login-form").submit(function(event) {
-        var logon;
-        event.preventDefault();
-        event.stopPropagation();
         $.mobile.showPageLoadingMsg();
         $("#password").blur();
-        logon = LYT.service.logOn($("#username").val(), $("#password").val());
-        return logon.done(function() {
+        LYT.service.logOn($("#username").val(), $("#password").val()).done(function() {
           return log.message("log on success!");
+        }).fail(function() {
+          return log.message("log on failure!");
         });
+        event.preventDefault();
+        return event.stopPropagation();
       });
     });
     $("#book_index").live("pagebeforeshow", function(event) {
