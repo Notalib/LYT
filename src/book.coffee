@@ -167,7 +167,9 @@ class LYT.Book
     preload.done (sections) =>
       offset = offset or 0
       for section in sections
-        par = section.document.getParByTime offset
+        par = null
+        if offset < section.document.duration
+          par = section.document.getParByTime offset
         if par
           media =
             section: section.id
@@ -197,6 +199,8 @@ class LYT.Book
           
           # Exit the method, since a matching `<par>` element has been found
           return deferred
+        
+        offset -= section.document.duration
       
       # Didn't find anything in the loop above, so propagate `null`
       deferred.resolve null
