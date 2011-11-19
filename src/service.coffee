@@ -2,6 +2,14 @@
 
 # FIXME: Check for errors and attempt re-login etc.
 
+# ## Faults (cf. [Daisy specification](http://www.daisy.org/projects/daisy-online-delivery/drafts/20100402/do-spec-20100402.html#apiReferenceFaults))
+window.SERVICE_INTERNAL_ERROR       = "internalServerError"
+window.SERVICE_NO_SESSION_ERROR     = "noActiveSession"
+window.SERVICE_UNSUPPORTED_OP_ERROR = "operationNotSupported"
+window.SERVICE_INVALID_OP_ERROR     = "invalidOperation"
+window.SERVICE_INVALID_PARAM_ERROR  = "invalidParameter"
+
+
 LYT.service =
   # Perform the logOn handshake:
   # logOn -> getServiceAttributes -> setReadingSystemAttributes

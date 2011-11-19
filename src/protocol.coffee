@@ -121,7 +121,7 @@ LYT.protocol =
   
   setReadingSystemAttributes:
     request: ->
-      LYT.config.protocol.readingSystemAttributes
+      readingSystemAttributes: LYT.config.protocol.readingSystemAttributes
     
     receive: ($xml, data) ->
       $xml.find("setReadingSystemAttributesResult").text() is "true" or RPC_ERROR
@@ -180,11 +180,16 @@ LYT.protocol =
       $xml.find("returnContentResult").text() is "true" or RPC_ERROR
   
   
-  # FIXME: Not fully implemented
   getContentMetadata:
     request: (bookID) ->
       contentID: bookID
-  
+    
+    receive: ($xml, data) ->
+      metadata =
+        sample: $xml.find("contentMetadata > sample").text()
+      $xml.find("contentMetadata > metadata > *").each ->
+        metadata[this.nodeName] = jQuery(this).text()
+      metadata
   
   
   getContentResources:
@@ -196,6 +201,24 @@ LYT.protocol =
       $xml.find("resource").each ->
         resources[ jQuery(this).attr("localURI") ] = jQuery(this).attr("uri")
       resources
+  
+  
+  getBookmarks:
+    request: (bookID) ->
+      contentID: bookID
+    
+    receive: ($xml) ->
+      parse = (element) ->
+        ncxRef:     element.find("ncxRef").text()
+        uri:        element.find("URI").text()
+        timeOffset: element.find("timeOffset").text()
+        note:       element.find("note > text").text()
+      response = bookmarks: []
+      lastmark = $xml.find("bookmarkSet > lastmark")
+      response.lastmark = parse lastmark if lastmark.length
+      $xml.find("bookmarkSet > bookmark").each ->
+        response.bookmarks.push parse(jQuery(this))
+      response
   
   
   setBookmarks:
