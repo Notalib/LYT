@@ -7,6 +7,8 @@ do ->
         mainSequence = @xml.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @pars        = parseMainSequence mainSequence
+        metadata = @getMetadata()
+        @absoluteOffset = if metadata.totalElapsedTime? then parseTime(metadata.totalElapsedTime.content) else null
     
     getParByTime: (offset = 0) ->
       for par in @pars
