@@ -101,34 +101,37 @@ LYT.rpc = do ->
 
 # ---------
 
-# This utility function converts the arguments given to well-formed XML
-# TODO: Could you do this with a couple of pseudo-elements? It would be considerably more robust
+# This utility function converts the arguments given to well-formed XML  
+# CHANGED: This function now _will_ re-encode encoded entities.
+# I.e. "&amp;" becomes "&amp;amp;"
 LYT.rpc.toXML = (hash) ->
-  return "" unless hash?
-  
   xml = ""
-  type = typeof hash
   
-  # If the argument is a string, number or boolean, then coerce it to a string and return it
-  if type is "string" or type is "number" or type is "boolean"
-    # Escape XML special chars
-    hash = String(hash).replace /&(?![a-z0-9]+;)/gi, "&amp;"
-    hash = hash.replace /</g, "&lt;"
-    hash = hash.replace />/g, "&gt;"
-    return hash
+  # Append XML-strings by recursively calling `toXML`
+  # on the data
+  append = (nodeName, data) ->
+    xml += "<ns1:#{nodeName}>#{LYT.rpc.toXML data}</ns1:#{nodeName}>"
   
-  # If the argument is an object
-  if type is "object"
-    # Loop through the object, recursively converting members to XML
-    for own key, value of hash
-      key = LYT.rpc.toXML key
-      if value instanceof Array
-        xml += "<ns1:#{key}>#{LYT.rpc.toXML item}</ns1:#{key}>" for item in value
-      else
-        xml += "<ns1:#{key}>#{LYT.rpc.toXML value}</ns1:#{key}>"
+  switch typeof hash
+    when "string", "number", "boolean"
+      # If the argument is a string, number or boolean,
+      # then coerce it to a string and use a pseudo element
+      # to handle the escaping of special chars
+      return jQuery("<div>").text(String(hash)).html()
+      
+    when "object"
+      # If the argument is an object, go through its members
+      for own key, value of hash
+        if value instanceof Array
+          # If the member is an array, use the `key`
+          # as the node name for each item
+          append key, item for item in value
+        else
+          # If the member's something else, pass it
+          # on to `append`
+          append key, value
   
-  # Return the XML
-  xml
+  return xml
 
 # ---------
 
@@ -141,7 +144,7 @@ LYT.rpc.error = do ->
     if xhr.status > 399
       title += xhr.status
     else if exception is "timeout"
-      # FIXME: `No alert()`s here! 
+      # FIXME: No `alert()`s here! 
       alert "Ups - vi misted forbindelsen. Måske har du ingen forbindelse til Internettet?"
       title += "Timed out"
     else if xhr.responseText.match errorRegExp
