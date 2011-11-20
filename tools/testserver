@@ -4,7 +4,6 @@ http    = require "http"
 {parse} = require "url"
 fs      = require "fs"
 fs.path = require "path"
-util    = require "util"
 
 PORT = 7357
 ROOT = fs.path.resolve __dirname, "../build/"
@@ -12,46 +11,45 @@ ROOT = fs.path.resolve __dirname, "../build/"
 handler = (request, response) ->
   data = ""
   url = parse request.url, true
-  if responders[url.pathname]?
-    responders[url.pathname] request, response, url
-  else
-    path = url.pathname
-    try
-      stats = fs.lstatSync fs.path.join ROOT, path
+  try
+    if responders[url.pathname]?
+      responders[url.pathname] request, response, url
+    else
+      stats = fs.lstatSync fs.path.join ROOT, url.pathname
       if stats.isDirectory()
-        index path, response
+        index url.pathname, response
       else if stats.isFile()
-        send response, path, mimetype(path)
+        send response, url.pathname, mimetype(url.pathname)
       else
-        fail response, "Unreadable"
-    catch error
-      fail response, "Error"
-      
+        throw "Unreadable path"
+  catch error
+    fail response, error
+  
 
 index = (path, response) ->
   abspath = "#{ROOT}#{path}"
   fs.readdir abspath, (err, list) ->
     if err?
-      fail response, "Not found"
+      fail response, err
       return
     if list.indexOf("index.html") isnt -1
       send response, "#{path}/index.html"
-      return
-    links = ("""<a href="#{path}/#{file}">#{path}/#{file}</a>""" for file in list when file.match /^[^.]/)
-    response.writeHead 200, "Content-Type": "text/html; charset=utf-8"
-    response.write """<!DOCTYPE html><html><head><title>#{path}</title></head><body>#{links.join "<br>"}</body></html>"""
-    response.end()
+    else
+      links = ("""<a href="#{path}/#{file}">#{file}</a>""" for file in list when file.match /^[^.]/)
+      response.writeHead 200, "Content-Type": "text/html; charset=utf-8"
+      response.write """<!DOCTYPE html><html><head><title>#{path}</title></head><body>#{links.join "<br>"}</body></html>"""
+      response.end()
 
 responders =
   "/DodpMobile/Service.svc": (request, response, url) ->
     data = ""
-    request.on "data", (chunk) ->
-      data += chunk.toString "utf8"
+    request.on "data", (chunk) -> data += chunk.toString "utf8"
     request.on "end", ->
       variant = if request.headers["x-testvariant"]? then ".#{request.headers["x-testvariant"]}" else ""
-      action = data.match /<SOAP-ENV:Body>\s*<ns1:(\w+)/i
-      if action and (action = action[1])
+      action = request.headers.soapaction
+      if action
         console.log "> Service: #{action} #{request.headers["x-testvariant"]}"
+        console.log "< 200 Sending test/fixtures/service/#{action}#{variant}.xml"
         send response, "test/fixtures/service/#{action}#{variant}.xml", "text/xml; charset=utf-8"
       else
         fail response, "Couldn't parse request"
@@ -63,6 +61,7 @@ responders =
       console.log "> Content: #{fs.path.basename url.query.file}"
       path = "test/fixtures/content/#{fs.path.basename url.query.file}"
       contentType = if path.match /\.x?html?$/ then "application/xhtml+xml; charset=utf-8" else null
+      console.log "< 200 Sending #{path} "
       send response, path, contentType
 
 
@@ -70,13 +69,10 @@ send = (response, path, contentType = null) ->
   contentType or= mimetype path
   stream = fs.createReadStream fs.path.join(ROOT, path)
   stream.on "open", (data) ->
-    console.log "< 200 Sending #{path} "
     response.writeHead 200, "Content-Type": contentType
-  stream.on "end", ->
-    response.end()
   stream.on "error", (exception) ->
     fail response, exception
-  util.pump stream, response
+  stream.pipe response
 
 
 fail = (response, message = "") ->
