@@ -10,7 +10,7 @@ img.nota-full {
 #NccRootElement a {
 	list-style: none;
 	counter-increment: none;
-	content: none;
+	content: "";
 }
 
 #book-text-content,
@@ -48,12 +48,12 @@ img.nota-full {
 }
 
 #timeline_progress_left {
-	background: none;
+	background-color: transparent;
 }
 
 #timeline_progress_left {
+  background-color: black;
 	margin-left: 15px;
-	background: black;
 	min-height: 2px;
 	float: left;
 }

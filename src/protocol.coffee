@@ -203,6 +203,7 @@ LYT.protocol =
       resources
   
   
+  # TODO: Handle hilite-nodes? cf. [the specs](http://www.daisy.org/z3986/2005/Z3986-2005.html#li_447)
   getBookmarks:
     request: (bookID) ->
       contentID: bookID
@@ -213,29 +214,23 @@ LYT.protocol =
         uri:        element.find("URI").text()
         timeOffset: element.find("timeOffset").text()
         note:       element.find("note > text").text()
-      response = bookmarks: []
+      bookmarkSet = bookmarks: [], book: {}
+      bookmarkSet.book.id    = $xml.find("bookmarkSet > uid").text()
+      bookmarkSet.book.title = $xml.find("bookmarkSet > title > text").text()
+      # TODO: extract title > audio, too?
       lastmark = $xml.find("bookmarkSet > lastmark")
-      response.lastmark = parse lastmark if lastmark.length
+      bookmarkSet.lastmark = parse lastmark if lastmark.length
       $xml.find("bookmarkSet > bookmark").each ->
-        response.bookmarks.push parse(jQuery(this))
-      response
+        bookmarkSet.bookmarks.push parse(jQuery(this))
+      bookmarkSet
   
   
   setBookmarks:
-    # FIXME: Not fully implemented
-    request: (bookID, bookmarkData) ->
-      contentID: bookID
-      bookmarkSet:
-        title:
-          text: bookID
-          audio: ""
-        uid: bookID
-        lastmark:
-          ncxref:     "xyub00066"
-          URI:        "cddw000A.smil#xyub00066"
-          timeOffset: "00:10.0"
-        
+    request: (bookmarkSet) ->
+      bookmarkSet
       
+    response: ($xml) ->
+      $xml.find("setBookmarksResult").text() is "true" or RPC_ERROR
     
   
 
