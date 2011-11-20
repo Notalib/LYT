@@ -11,15 +11,14 @@ LYT.gui =
       ).error(->
       ).attr("src", u)
 
-  covercache_one: (element) ->
-    id = $(element).find("img").attr("id")
+  covercacheOne: (element, id) ->
     u = "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
     img = $(new Image()).load(->
       $(element).find("img").attr "src", u
     ).error(->
     ).attr("src", u)
   
-  parse_media_name: (mediastring) ->
+  parseMediaType: (mediastring) ->
     unless mediastring.indexOf("AA") is -1
       "Lydbog"
     else

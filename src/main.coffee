@@ -1,40 +1,90 @@
 $(document).bind "mobileinit", ->
   
-    LYT.player.setup()
-    #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
+  #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
+  
+  
+  playBook = (book, section, offset) ->
+     #log.message book.nccDocument.structure
+     LYT.player.loadBook(book)
+     
+  
+  renderBookPlay = (urlObj, options) -> 
     
-    renderBookDetails = (urlObj, options) ->
-      bookId = urlObj.hash.replace(/.*book=/, "")
-      pageSelector = urlObj.hash.replace(/\?.*$/, "")
-      
-      log.message "Rendering book details for book with id " + bookId
+    bookId = urlObj.hash.replace(/.*book=/, "")
+    section = urlObj.hash.replace(/.*section=/, "")
+    offset = urlObj.hash.replace(/.*offset=/, "")
+    
+    pageSelector = urlObj.hash.replace(/\?.*$/, "")
+    
+    $page = $(pageSelector)
+    $header = $page.children( ":jqmData(role=header)" )
+    $content = $page.children( ":jqmData(role=content)" )
+    
+    book = new LYT.Book(bookId)                                
+      .done (book) ->
+        
+        if not LYT.player.ready
+          LYT.player.setup()  
+          LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
+             playNewBook(book)
+        else
+          playNewBook(book)
+              
+        metadata = book.nccDocument.getMetadata() 
+        
+        $page.page()
+        options.dataUrl = urlObj.href        
+        $.mobile.changePage $page, options
+        
+      .fail () ->
+        log.message "get book failure"
   
-      book = new LYT.Book bookId                                
-      book.done (book) ->
-        LYT.player.loadBook(book)
-  
+  renderBookDetails = (urlObj, options) ->
+    $.mobile.showPageLoadingMsg()
+    
+    bookId = urlObj.hash.replace(/.*book=/, "")
+    
+    pageSelector = urlObj.hash.replace(/\?.*$/, "")
+    $page = $(pageSelector)
+    $header = $page.children( ":jqmData(role=header)" )
+    $content = $page.children( ":jqmData(role=content)" )
+    
+    log.message "Rendering book details for book with id " + bookId
+
+    book = new LYT.Book(bookId)                                
+      .done (book) ->
         metadata = book.nccDocument.getMetadata()
-  
-        log.message metadata.title.content
-        log.message metadata.totalTime.content
-  
-  
-        $.mobile.changePage "#book-play"
-      book.fail () ->
-        #todo:error
+        
+        $content.find("h1").text metadata.title.content        
+        $content.find("#author").text toSentence(metadata.creator.map((creator) ->
+          creator.content
+        ))
+        
+        $content.find("#narrator").text toSentence(metadata.narrator.map((narrator) ->
+          narrator.content
+        ))       
+        
+        $content.find("#totaltime").text metadata.totalTime.content
+        
+        $content.find("#play-button").click (e) =>
+          e.preventDefault()
+          $.mobile.changePage("#book-play?book=" + bookId)
+        
+        LYT.gui.covercacheOne $content.find("figure"), bookId
+        
+        log.message metadata   
+        
+        $page.page()
+        
+        options.dataUrl = urlObj.href        
+        $.mobile.changePage $page, options         
 
+      .fail () ->
+        log.message "get book failure"
 
-      # get book details    
-      # render book details
-
-
-      $page = $(pageSelector)
-      $page.page()
-
-      options.dataUrl = urlObj.href
-      $.mobile.changePage $page, options
+     
     
-    $(document).bind "pagebeforechange", (e, data) ->
+  $(document).bind "pagebeforechange", (e, data) ->
       if typeof data.toPage is "string"
         u = $.mobile.path.parseUrl(data.toPage)
         
@@ -48,7 +98,7 @@ $(document).bind "mobileinit", ->
           renderBookIndex u, data.options
           e.preventDefault()
       
-    $("#login").live "pagebeforeshow", (event) ->
+  $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
         
         $.mobile.showPageLoadingMsg()
@@ -56,15 +106,17 @@ $(document).bind "mobileinit", ->
         
         LYT.service.logOn($("#username").val(), $("#password").val())
           .done ->
-            log.message "log on success!"
+            $.mobile.changePage "#book-details?book=15000"
+            
           .fail ->
-            log.message "log on failure!"
-          #$.mobile.changePage "#bookshelf"
+            log.message "log on failure"
           
         event.preventDefault()
         event.stopPropagation()
-        
-    $("#book_index").live "pagebeforeshow", (event) ->
+  
+  
+  ###      
+  $("#book_index").live "pagebeforeshow", (event) ->
       $("#book_index_content").trigger "create"
       $("li[xhref]").bind "click", (event) ->
              $.mobile.showPageLoadingMsg()
@@ -78,9 +130,9 @@ $(document).bind "mobileinit", ->
                     
                 else
                     event.stopImmediatePropagation()
-                    $.mobile.changePage $(this).find("a").attr("href")
+                    $.mobile.changePage $(this).find("a").attr("href")###
 
-    $("#book-play").live "pagebeforeshow", (event) ->
+  ###$("#book-play").live "pagebeforeshow", (event) ->
             
         LYT.gui.covercache_one $("#book-middle-menu")
         $("#book-text-content").css "background", LYT.settings.get('markingColor').substring( LYT.settings.get('markingColor').indexOf("-", 0))
@@ -93,12 +145,12 @@ $(document).bind "mobileinit", ->
             LYT.player.nextPart()
 
         $("#book-play").bind "swipeleft", ->
-            LYT.player.previousPart()
+            LYT.player.previousPart()###
 
-    $("#bookshelf").live "pagebeforeshow", (event) ->
+  $("#bookshelf").live "pagebeforeshow", (event) ->
         $.mobile.hidePageLoadingMsg()
 
-    $("#settings").live "pagebeforecreate", (event) ->
+  $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
         $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
         $("#textsize").find("input").val LYT.settings.get('textSize')
@@ -135,6 +187,6 @@ $(document).bind "mobileinit", ->
             $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
    
     
-    $("[data-role=page]").live "pageshow", (event, ui) ->
+  $("[data-role=page]").live "pageshow", (event, ui) ->
         _gaq.push [ "_trackPageview", event.target.id ]      
     

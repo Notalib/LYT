@@ -1,4 +1,8 @@
 .DS_Store
 build
+<<<<<<< HEAD
 docs
 compiled
+=======
+compiled/
+>>>>>>> 403c2be9cd3917a0dbf85886a21abefd824a6c59
