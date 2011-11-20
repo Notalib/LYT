@@ -1,5 +1,7 @@
 <div data-role="page" id="book-play" >
 
+    <div id="jplayer"><!-- placeholder for jplayer audio element --></div>
+
 	<header data-add-back-btn="false" id="book-play-header" data-role="header">	
 		<h1>Afspiller nu</h1>
 		<div data-role="navbar" id="book-top-menu">
@@ -10,44 +12,46 @@
 			</ul>
 		</div>
 	</header>
-
     
-	<div class="ui-grid-a ui-bar" id="book-middle-menu">
-		<figure class="ui-block-a" id="currentbook_image">
-			<img src="/images/default.png" alt="">
-		</figure>
-		<div class="ui-block-b">
-			<h1 id="title">Title</h1>
-			<h2 id="author">Author</h2>
-		</div>
+    <div id="jp_container_1">
+	    <div class="ui-grid-a ui-bar" id="book-middle-menu">
+    		<figure class="ui-block-a" id="currentbook_image">
+    			<img src="/images/default.png" alt="">
+    		</figure>
+    		<div class="ui-block-b">
+    			<h1 id="title">Title</h1>
+    			<h2 id="author">Author</h2>
+    		</div>
+    	</div>
+	
+    	<div id="timeline">
+    		<div id="timeline_progress_left"></div>
+    		<div id="timeline_progress_right"></div>
+    	</div>
+	
+    	<div class="ui-grid-b ui-bar" id="book-chapter-menu">
+    		<div class="ui-block-a">
+    			<div id="current_time">0</div>
+    		</div>
+    		<div class="ui-block-b">
+    			<div id="book_chapter">Kapitel</div>
+    		</div>
+    		<div class="ui-block-b">
+    			<div id="total_time">5:34</div>
+    		</div>
+    	</div>
+	
+    	<div data-role="navbar" id="book-play-menu" data-theme="c">
+    		<ul>
+    			<li><a href=""	class="previous-section" title="rewind"><img height="20" alt="Forrige kapitel" src="/images/rewind.png"></a></li>
+    			<li><a href=""	class="toggle-play" title="play/pause"><img height="20" alt="Afspil/Pause" src="/images/pause.png"></a></li>
+    			<li><a href=""	class="next-section" title="forward"><img height="20" alt="Næste kapitel" src="/images/forward.png"></a></li>
+    		</ul>
+    	</div>
 	</div>
 	
-	<div id="timeline">
-		<div id="timeline_progress_left"></div>
-		<div id="timeline_progress_right"></div>
+	<div data-role="content" id="book-text-content">
 	</div>
-	
-	<div class="ui-grid-b ui-bar" id="book-chapter-menu">
-		<div class="ui-block-a">
-			<div id="current_time">0</div>
-		</div>
-		<div class="ui-block-b">
-			<div id="book_chapter">Kapitel</div>
-		</div>
-		<div class="ui-block-b">
-			<div id="total_time">5:34</div>
-		</div>
-	</div>
-	
-	<div data-role="navbar" id="book-play-menu" data-theme="c">
-		<ul>
-			<li><a href=""	id="button-rewind" title="rewind"><img height="20" alt="Spol tilbage" src="/images/rewind.png"></a></li>
-			<li><a href=""	id="button-play" title="play/pause"><img height="20" alt="Afspil/Pause" src="/images/pause.png"></a></li>
-			<li><a href=""	id="button-forward" title="forward"><img height="20" alt="Spol frem" src="/images/forward.png"></a></li>
-		</ul>
-	</div>
-	
-	<div data-role="content" id="book-text-content" ></div>
 	
 	<footer data-role="footer" data-theme=""></footer>
 	

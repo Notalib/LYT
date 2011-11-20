@@ -2,9 +2,8 @@
 
 LYT.gui =
   
-  covercache: (element) ->
+  covercache: (element, id) ->
     $(element).each ->
-      id = $(this).attr("id")
       u = "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
       img = $(new Image()).load(->
         $("#" + id).find("img").attr "src", u
@@ -36,3 +35,7 @@ LYT.gui =
     $("#book-details-image").html "<img src=\"/images/default.png\" >"
     $("#book-details-content").html "<h2>Hov!</h2>" + "<p>Der skulle have været en bog her - men systemet kan ikke finde den. Det beklager vi meget! <a href=\"mailto:info@nota.nu?subject=Bog kunne ikke findes på E17 mobilafspiller\">Send os gerne en mail om fejlen</a>, så skal vi fluks se om det kan rettes.</p>"
   
+  #renderBookDetails: (book, view) ->
+  #renderBookPlayer: (book, view) ->
+  #renderBookIndex: (book, view) ->
+    

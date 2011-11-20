@@ -8,24 +8,41 @@ LYT.player =
   section: null
   time: ""
   book: null #reference to an instance of book class
-  
+  togglePlayButton: null
+  playing: false
   # todo: consider array of all played sections and a few following
-  
   
   setup: ->
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")
+    @togglePlayButton = jQuery("a.toggle-play")
+    
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
         
-        @el.bind jQuery.jPlayer.event.timeupdate, (event) =>
-          @updateText(event.jPlayer.status.currentTime)
         
-        @el.bind jQuery.jPlayer.event.ended, (event) =>
-          @updateText(event.jPlayer.status.currentTime)
-        
+        @togglePlayButton.click =>
+          if @playing
+            @el.jPlayer('pause')
+          else
+            @el.jPlayer('play')
+                
         null
+      
+      timeupdate: (event) =>
+        @updateText(event.jPlayer.status.currentTime)
+      
+      play: (event) =>
+        @togglePlayButton.find("img").attr('src', '/images/pause.png')
+        @playing = true
+      
+      pause: (event) =>
+        @togglePlayButton.find("img").attr('src', '/images/play.png')
+        @playing = false
+      
+      ended: (event) =>
+        @playing = false
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -95,8 +112,7 @@ LYT.player =
         @play()
       else
         log.message 'could not get media'
-    
-      
+          
   nextPart: () ->
     @stop()
     # get next part

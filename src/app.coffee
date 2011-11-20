@@ -1,28 +1,8 @@
 # Application logic abstracted functions
 
 LYT.app =
-  
   currentBook: null
   next: "bookshelf"
-
-  PlayNewBook: (id, title, author) ->
-      $.mobile.showPageLoadingMsg()
-      
-      LYT.Pause()
-      
-      @settings.currentBook = id.toString()
-      @settings.currentTitle = title
-      @settings.currentAuthor = author
-      @SetSettings()
-      $("#currentbook_image").find("img").attr("src", "/images/default.png").trigger "create"
-      $("#currentbook_image").find("img").attr("id", @settings.currentBook).trigger "create"
-      $("#book_title").text title
-      $("#book_author").text author
-      $("#book_chapter").text 0
-      $("#book_time").text 0
-      $.mobile.showPageLoadingMsg()
-      
-      Play()
 
   eventSystemLoggedOn: (loggedOn, id) ->
       unless id is -1
@@ -42,19 +22,6 @@ LYT.app =
           LYT.protocol.LogOn LYT.settings.get('username'), LYT.settings.get('password')
       else
           $.mobile.changePage "#login"
-
-  eventSystemForceLogin: (response) ->
-      alert response
-      $.mobile.hidePageLoadingMsg()
-      $.mobile.changePage "#login"
-
-  eventSystemGotBook: (bookTree) ->
-      $.mobile.hidePageLoadingMsg()
-      $("#book-play #book-text-content").html window.globals.text_window
-      GetTextAndSound PLAYLIST[0]
-      $("#book_index_content").empty()
-      $("#book_index_content").append bookTree
-      $.mobile.changePage "#book-play"
 
   eventSystemGotBookShelf: (bookShelf) =>
       @next = ""
@@ -78,22 +45,6 @@ LYT.app =
       $("#bookshelf-content").append("<ul data-split-icon=\"delete\" data-split-theme=\"d\" data-role=\"listview\" id=\"bookshelf-list\">" + nowPlaying + aBookShelf + addMore + "</ul>").trigger "create"
       @covercache $("#bookshelf-list").html()
 
-  addBooks: ->
-      @bookshelf_showitems += 5
-      @eventSystemGotBookShelf @full_bookshelf
-
-  eventSystemPause: (aType) ->
-      $("#button-play").find("img").attr("src", "/images/play.png").trigger "create"
-      if aType is Player.Type.user
-
-      else aType is Player.Type.system
-
-  eventSystemPlay: (aType) ->
-      $("#button-play").find("img").attr("src", "/images/pause.png").trigger "create"
-      if aType is Player.Type.user
-
-      else aType is Player.Type.system
-
   eventSystemTime: (t) ->
       total_secs = undefined
       current_percentage = undefined
@@ -106,31 +57,6 @@ LYT.app =
       $("#current_time").text SecToTime(t)
       $("#total_time").text $("#NccRootElement").attr("totaltime")
       $("#timeline_progress_left").css "width", current_percentage + "%"
-
-  eventSystemTextChanged: (textBefore, currentText, textAfter, chapter) ->
-      try
-          window.globals.text_window.innerHTML = ""
-          chapter = "Kapitel"  if chapter is "" or not chapter?
-          chapter = chapter.substring(0, 14) + "..."  if chapter.length > 14
-          $("#book_chapter").text chapter
-          unless currentText.nodeType is `undefined`
-              window.globals.text_window.appendChild document.importNode(currentText, true)
-              $("#book-text-content").find("img").each ->
-                  rep_src = $(this).attr("src").replace(/\\/g, "\\\\")
-                  oldimage = $(this)
-                  img = $(new Image()).load(->
-                      $(oldimage).replaceWith $(this)
-                      $(oldimage).attr "src", $(this).attr("src")
-                      $(this).css "max-width", "100%"
-                      position = $(this).position()
-                      $.mobile.silentScroll position.top
-                  ).error(->
-                  ).attr("src", rep_src)
-
-              $("#book-text-content h1 a, #book-text-content h2 a").css("color", @settings.markingColor.substring(@settings.markingColor.indexOf("-", 0) + 1)).trigger "create"
-          else
-      catch e
-          alert e
 
   logUserOff: ->
       LYT.settings.set('username', "")
