@@ -43,7 +43,9 @@ do ->
       sourcePublisher:  "ncc:sourcePublisher"
       sourceRights:     "ncc:sourceRights"
       sourceTitle:      "ncc:sourceTitle"
+      timeInThisSmil:  ["ncc:timeInThisSmil", "time-in-this-smil"]
       tocItems:        ["ncc:tocItems", "ncc:tocitems", "ncc:TOCitems"]
+      totalElapsedTime:["ncc:totalElapsedTime", "total-elapsed-time"]
       totalTime:       ["ncc:totalTime", "ncc:totaltime"]
     
     # Name attribute values for nodes that may appear multiple times per file
