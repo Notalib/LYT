@@ -1,15 +1,15 @@
 <div data-role="page" id="book-play" >
 
-	<div data-add-back-btn="false" id="book-play-header" data-role="header">	
+	<header data-add-back-btn="false" id="book-play-header" data-role="header">	
 		<h1>Afspiller nu</h1>
 		<div data-role="navbar" id="book-top-menu">
 			<ul>
-				<li><a data-icon="" href="javascript:$.mobile.showPageLoadingMsg();GetBookShelf();setDestination('bookshelf')">Boghylde</a></li>
-				<li><a data-icon="" href="javascript:showIndex()">Indhold</a></li>	      	
+				<li><a data-icon="" href="">Boghylde</a></li>
+				<li><a data-icon="" href="#book-index">Indhold</a></li>	      	
 				<li><a data-icon="" href="#settings">Indstillinger</a></li>	   
 			</ul>
 		</div>
-	</div>
+	</header>
 
 	<div class="ui-grid-a ui-bar" id="book-middle-menu">
 		<div class="ui-block-a" id="currentbook_image">
@@ -40,14 +40,14 @@
 	
 	<div data-role="navbar" id="book-play-menu" data-theme="c">
 		<ul>
-			<li><a href="javascript:LastPart();"	id="button-rewind" title="rewind"><img height="20" alt="Spol tilbage" src="/images/rewind.png"></a></li>
-			<li><a href="javascript:PlayOrPause();"	id="button-play" title="play/pause"><img height="20" alt="Afspil/Pause" src="/images/pause.png"></a></li>
-			<li><a href="javascript:NextPart();"	id="button-forward" title="forward"><img height="20" alt="Spol frem" src="/images/forward.png"></a></li>
+			<li><a href=""	id="button-rewind" title="rewind"><img height="20" alt="Spol tilbage" src="/images/rewind.png"></a></li>
+			<li><a href=""	id="button-play" title="play/pause"><img height="20" alt="Afspil/Pause" src="/images/pause.png"></a></li>
+			<li><a href=""	id="button-forward" title="forward"><img height="20" alt="Spol frem" src="/images/forward.png"></a></li>
 		</ul>
 	</div>
 	
 	<div data-role="content" id="book-text-content" ></div>
 	
-	<div data-role="footer" data-theme=""></div>
+	<footer data-role="footer" data-theme=""></footer>
 	
 </div>

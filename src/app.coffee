@@ -2,6 +2,7 @@
 
 LYT.app =
   
+  currentBook: null
   next: "bookshelf"
 
   PlayNewBook: (id, title, author) ->
