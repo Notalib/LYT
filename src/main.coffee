@@ -5,13 +5,13 @@ $(document).bind "mobileinit", ->
   
   playBook = (book, section, offset) ->
      #log.message book.nccDocument.structure
-     LYT.player.loadBook(book)
+     LYT.player.loadBook(book, section)
      
   
   renderBookPlay = (urlObj, options) -> 
     
     bookId = urlObj.hash.replace(/.*book=/, "")
-    section = urlObj.hash.replace(/.*section=/, "")
+    #section = urlObj.hash.replace(/.*section=/, "")
     offset = urlObj.hash.replace(/.*offset=/, "")
     
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
@@ -23,15 +23,25 @@ $(document).bind "mobileinit", ->
     book = new LYT.Book(bookId)                                
       .done (book) ->
         
+        metadata = book.nccDocument.getMetadata() 
+        
+        $page.find("#title").text metadata.title.content        
+        $page.find("#author").text toSentence(metadata.creator.map((creator) ->
+          creator.content
+        ))
+        
+        log.message book.nccDocument.structure
+        section = book.nccDocument.structure[4]
+        $page.find("#book_chapter").text section.title
+        
         if not LYT.player.ready
           LYT.player.setup()  
           LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
-             playNewBook(book)
+             playBook(book, section)
         else
-          playNewBook(book)
+          playBook(book, section)
               
-        metadata = book.nccDocument.getMetadata() 
-        
+                
         $page.page()
         options.dataUrl = urlObj.href        
         $.mobile.changePage $page, options
@@ -55,7 +65,7 @@ $(document).bind "mobileinit", ->
       .done (book) ->
         metadata = book.nccDocument.getMetadata()
         
-        $content.find("h1").text metadata.title.content        
+        $content.find("#title").text metadata.title.content        
         $content.find("#author").text toSentence(metadata.creator.map((creator) ->
           creator.content
         ))
@@ -85,6 +95,7 @@ $(document).bind "mobileinit", ->
      
     
   $(document).bind "pagebeforechange", (e, data) ->
+      # Intercept and parse urls with a query string
       if typeof data.toPage is "string"
         u = $.mobile.path.parseUrl(data.toPage)
         

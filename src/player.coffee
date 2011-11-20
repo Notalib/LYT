@@ -20,10 +20,10 @@ LYT.player =
         @ready = true
         
         @el.bind jQuery.jPlayer.event.timeupdate, (event) =>
-          @update(event.jPlayer.status.currentTime)
+          @updateText(event.jPlayer.status.currentTime)
         
         @el.bind jQuery.jPlayer.event.ended, (event) =>
-          @update(event.jPlayer.status.currentTime)
+          @updateText(event.jPlayer.status.currentTime)
         
         null
       
@@ -55,33 +55,43 @@ LYT.player =
     else
       @el.jPlayer('play', time)
     
-    log.message('now playing')
-    
     'playing'
   
   updateText: (time) ->
-    #log.message('update text')
     # Continously update media for current time of section
     @time = time
-          
-    if @currentTranscript.end < @time
-      #LYT.gui.hideTranscript("")
-      log.message('hide transcript')
+    if @media.end < @time
+      #log.message('current media has ended at ' + @media.end + ' getting new media for ' + @time ) 
+      @book.mediaFor(@section.id,@time).done (media) =>
+        if media
+          @media = media
+          jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
+        else
+          log.message 'failed to get media'
+    
+    #if @media.end < @time
+    #  #LYT.gui.hideTranscript("")
+    #  log.message(@media.end + ' is less than ' + @time)
+    #  log.message('Hide:' + @media.text)
       
-    else if @currentTranscript.start >= @time
-      #LYT.gui.updateTranscript("")
-      #LYT.gui.showTranscript("")
-      log.message('show transcript')
+    #else if @media.start >= @time
+    #  log.message(@media.start + ' is more than ' + @time)
+    #  #LYT.gui.updateTranscript("")
+    #  #LYT.gui.showTranscript("")
+    #  log.message('Show:' + @media.text)
      
   loadBook: (book, section, offset) ->
     @book = book
     # select section or take first off book.sections
     
-    @book.mediaFor(null,0).done (media) =>
+    @section = section
+    
+    @book.mediaFor(@section.id,0).done (media) =>
       log.message media
       if media
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
+        jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
         @play()
       else
         log.message 'could not get media'
