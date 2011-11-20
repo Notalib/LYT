@@ -149,12 +149,13 @@ class LYT.Book
   # The media object that's propagated has the following
   # members:
   #
-  # - id:      The id of the <par> element in the SMIL document
-  # - section: The id of the section the media belongs to
-  # - start:   The start time, in seconds, relative to the audio
-  # - end:     The end time, in seconds, relative to the audio
-  # - audio:   The url of the audio file (or null)
-  # - text:    The text to display (or null)
+  # - id:             The id of the <par> element in the SMIL document
+  # - section:        The id of the section the media belongs to
+  # - start:          The start time, in seconds, relative to the audio
+  # - end:            The end time, in seconds, relative to the audio
+  # - audio:          The url of the audio file (or null)
+  # - text:           The text to display (or null)
+  # - absoluteOffset: The _approximate_ absolute start time of the section
   mediaFor: (section = null, offset = null) ->
     deferred = jQuery.Deferred()
     
@@ -172,9 +173,12 @@ class LYT.Book
           par = section.document.getParByTime offset
         if par
           media =
+            id:      par.id
             section: section.id
             start:   par.start
             end:     par.end
+            absoluteOffset: section.document.absoluteOffset
+          
           # Get the audio URL, if any
           media.audio = @resources[par.audio.src]?.url or null if par.audio?.src?
           #alert par.text.src
