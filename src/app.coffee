@@ -3,7 +3,11 @@
 LYT.app =
   currentBook: null
   next: "bookshelf"
-
+  
+  
+  
+  
+  
   eventSystemLoggedOn: (loggedOn, id) ->
       unless id is -1
           LYT.settings.set('username', id)

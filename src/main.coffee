@@ -5,15 +5,17 @@ $(document).bind "mobileinit", ->
   
   playBook = (book, section, offset) ->
      #log.message book.nccDocument.structure
-     LYT.player.loadBook(book, section)
-     
+     LYT.player.loadBook(book, section)     
   
-  renderBookPlay = (urlObj, options) -> 
+  getParam = (name, hash) ->
+    match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
+    return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
+  
+  renderBookPlayer = (urlObj, options) -> 
     
-    bookId = urlObj.hash.replace(/.*book=/, "")
-    #section = urlObj.hash.replace(/.*section=/, "")
-    offset = urlObj.hash.replace(/.*offset=/, "")
-    
+    bookId = getParam('book', urlObj.hash)
+    sectionNumber = getParam('section', urlObj.hash)   
+    offset = getParam('offset', urlObj.hash)
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
     
     $page = $(pageSelector)
@@ -31,7 +33,7 @@ $(document).bind "mobileinit", ->
         ))
         
         log.message book.nccDocument.structure
-        section = book.nccDocument.structure[4]
+        section = book.nccDocument.structure[sectionNumber]
         $page.find("#book_chapter").text section.title
         
         if not LYT.player.ready
@@ -41,10 +43,21 @@ $(document).bind "mobileinit", ->
         else
           playBook(book, section)
               
+            
+        ###
+        $("#book-play").bind "swiperight", ->
+            LYT.player.nextPart()
+
+        $("#book-play").bind "swipeleft", ->
+            LYT.player.previousPart()
+        ###
                 
         $page.page()
         options.dataUrl = urlObj.href        
         $.mobile.changePage $page, options
+        
+        
+        
         
       .fail () ->
         log.message "get book failure"
@@ -90,9 +103,7 @@ $(document).bind "mobileinit", ->
         $.mobile.changePage $page, options         
 
       .fail () ->
-        log.message "get book failure"
-
-     
+        log.message "get book failure"     
     
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
@@ -103,7 +114,7 @@ $(document).bind "mobileinit", ->
           renderBookDetails u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-play/) isnt -1
-          renderBookPlay u, data.options
+          renderBookPlayer u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-index/) isnt -1
           renderBookIndex u, data.options
@@ -152,11 +163,7 @@ $(document).bind "mobileinit", ->
         $("#book-text-content").css "font-family",  LYT.settings.get('textType')
         $("#bookshelf [data-role=header]").trigger "create"
 
-        $("#book-play").bind "swiperight", ->
-            LYT.player.nextPart()
-
-        $("#book-play").bind "swipeleft", ->
-            LYT.player.previousPart()###
+        
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
         $.mobile.hidePageLoadingMsg()

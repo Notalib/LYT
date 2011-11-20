@@ -1,7 +1,6 @@
 # This module handles playback of current media and timing of transcript updates
 
-LYT.player =
-  
+LYT.player = 
   ready: false 
   el: null
   media: null #id, start, end, text
@@ -20,8 +19,7 @@ LYT.player =
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
-        
-        
+              
         @togglePlayButton.click =>
           if @playing
             @el.jPlayer('pause')
@@ -82,21 +80,13 @@ LYT.player =
       @book.mediaFor(@section.id,@time).done (media) =>
         if media
           @media = media
-          jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
+          @renderText()
         else
           log.message 'failed to get media'
-    
-    #if @media.end < @time
-    #  #LYT.gui.hideTranscript("")
-    #  log.message(@media.end + ' is less than ' + @time)
-    #  log.message('Hide:' + @media.text)
-      
-    #else if @media.start >= @time
-    #  log.message(@media.start + ' is more than ' + @time)
-    #  #LYT.gui.updateTranscript("")
-    #  #LYT.gui.showTranscript("")
-    #  log.message('Show:' + @media.text)
-     
+  
+  renderText: () ->
+    jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
+  
   loadBook: (book, section, offset) ->
     @book = book
     # select section or take first off book.sections
@@ -108,7 +98,7 @@ LYT.player =
       if media
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
-        jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
+        @renderText()
         @play()
       else
         log.message 'could not get media'
