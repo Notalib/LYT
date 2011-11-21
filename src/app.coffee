@@ -5,7 +5,85 @@ LYT.app =
   next: "bookshelf"
   
   
+  bookDetails: (urlObj, options) ->
+    
+    #todo: clear data from earlier book
+    
+    $.mobile.showPageLoadingMsg()
+    bookId = urlObj.hash.replace(/.*book=/, "")
+    
+    pageSelector = urlObj.hash.replace(/\?.*$/, "")
+    $page = $(pageSelector)
+    $header = $page.children( ":jqmData(role=header)" )
+    $content = $page.children( ":jqmData(role=content)" )
+    
+    log.message "Rendering book details for book with id " + bookId
+
+    book = new LYT.Book(bookId)                                
+      .done (book) ->
+        metadata = book.nccDocument.getMetadata()
+        #log.message metadata
+        
+        LYT.gui.renderBookDetails(metadata, $content)
+        
+        $content.find("#play-button").click (e) =>
+          e.preventDefault()
+          $.mobile.changePage("#book-play?book=" + bookId)
+
+        LYT.gui.covercacheOne $content.find("figure"), bookId
+        
+        $page.page()
+        
+        options.dataUrl = urlObj.href        
+        $.mobile.changePage $page, options         
+
+      .fail () ->
+        log.message "get book failure"
   
+  bookPlayer: (urlObj, options) -> 
+    
+    pageSelector = urlObj.hash.replace(/\?.*$/, "")
+    
+    bookId = getParam('book', urlObj.hash)
+    sectionNumber = getParam('section', urlObj.hash) or 0  
+    offset = getParam('offset', urlObj.hash) or 0
+    
+    $page = $(pageSelector)
+    $header = $page.children( ":jqmData(role=header)" )
+    $content = $page.children( ":jqmData(role=content)" )
+    
+    book = new LYT.Book(bookId)                                
+      .done (book) ->
+        
+        metadata = book.nccDocument.getMetadata()
+        book.nccDocument.structure 
+        
+        log.message book.nccDocument.structure
+        section = book.nccDocument.structure[sectionNumber]
+        
+        LYT.gui.renderBookPlayer(metadata, section, $page)
+        
+        if not LYT.player.ready
+          LYT.player.setup()  
+          LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
+             LYT.player.loadBook(book, section, offset)
+        else
+          LYT.player.loadBook(book, section, offset)
+                          
+        ###
+        $("#book-play").bind "swiperight", ->
+            LYT.player.nextPart()
+
+        $("#book-play").bind "swipeleft", ->
+            LYT.player.previousPart()
+        ###
+                
+        $page.page()
+        options.dataUrl = urlObj.href        
+        $.mobile.changePage $page, options        
+        
+      .fail () ->
+        log.message "get book failure"
   
   
   eventSystemLoggedOn: (loggedOn, id) ->
