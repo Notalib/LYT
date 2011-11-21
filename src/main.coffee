@@ -2,15 +2,6 @@ $(document).bind "mobileinit", ->
   
   #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
   
-  
-  playBook = (book, section, offset) ->
-     #log.message book.nccDocument.structure
-     LYT.player.loadBook(book, section)     
-  
-  getParam = (name, hash) ->
-    match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
-    return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
-  
   renderBookPlayer = (urlObj, options) -> 
     
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
@@ -41,9 +32,9 @@ $(document).bind "mobileinit", ->
         if not LYT.player.ready
           LYT.player.setup()  
           LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
-             playBook(book, section)
+             LYT.player.loadBook(book, section, offset)
         else
-          playBook(book, section)
+          LYT.player.loadBook(book, section, offset)
               
             
         ###

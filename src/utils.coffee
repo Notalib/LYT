@@ -94,4 +94,6 @@
   return String(array[0]) if array.length is 1
   return "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
   
-    
+@getParam = (name, hash) ->
+    match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
+    return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
