@@ -1,102 +1,6 @@
 $(document).bind "mobileinit", ->
   
-  #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
-  
-  renderBookPlayer = (urlObj, options) -> 
-    
-    pageSelector = urlObj.hash.replace(/\?.*$/, "")
-    
-    bookId = getParam('book', urlObj.hash)
-    sectionNumber = getParam('section', urlObj.hash) or 0  
-    offset = getParam('offset', urlObj.hash) or 0
-    
-    $page = $(pageSelector)
-    $header = $page.children( ":jqmData(role=header)" )
-    $content = $page.children( ":jqmData(role=content)" )
-    
-    book = new LYT.Book(bookId)                                
-      .done (book) ->
-        
-        metadata = book.nccDocument.getMetadata()
-        book.nccDocument.structure 
-        
-        $page.find("#title").text metadata.title.content        
-        $page.find("#author").text toSentence(metadata.creator.map((creator) ->
-          creator.content
-        ))
-        
-        log.message book.nccDocument.structure
-        section = book.nccDocument.structure[sectionNumber]
-        $page.find("#book_chapter").text section.title
-        
-        if not LYT.player.ready
-          LYT.player.setup()  
-          LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
-             LYT.player.loadBook(book, section, offset)
-        else
-          LYT.player.loadBook(book, section, offset)
-              
-            
-        ###
-        $("#book-play").bind "swiperight", ->
-            LYT.player.nextPart()
-
-        $("#book-play").bind "swipeleft", ->
-            LYT.player.previousPart()
-        ###
-                
-        $page.page()
-        options.dataUrl = urlObj.href        
-        $.mobile.changePage $page, options
-        
-        
-        
-        
-      .fail () ->
-        log.message "get book failure"
-  
-  renderBookDetails = (urlObj, options) ->
-    $.mobile.showPageLoadingMsg()
-    
-    bookId = urlObj.hash.replace(/.*book=/, "")
-    
-    pageSelector = urlObj.hash.replace(/\?.*$/, "")
-    $page = $(pageSelector)
-    $header = $page.children( ":jqmData(role=header)" )
-    $content = $page.children( ":jqmData(role=content)" )
-    
-    log.message "Rendering book details for book with id " + bookId
-
-    book = new LYT.Book(bookId)                                
-      .done (book) ->
-        metadata = book.nccDocument.getMetadata()
-        
-        $content.find("#title").text metadata.title.content        
-        $content.find("#author").text toSentence(metadata.creator.map((creator) ->
-          creator.content
-        ))
-        
-        $content.find("#narrator").text toSentence(metadata.narrator.map((narrator) ->
-          narrator.content
-        ))       
-        
-        $content.find("#totaltime").text metadata.totalTime.content
-        
-        $content.find("#play-button").click (e) =>
-          e.preventDefault()
-          $.mobile.changePage("#book-play?book=" + bookId)
-        
-        LYT.gui.covercacheOne $content.find("figure"), bookId
-        
-        log.message metadata   
-        
-        $page.page()
-        
-        options.dataUrl = urlObj.href        
-        $.mobile.changePage $page, options         
-
-      .fail () ->
-        log.message "get book failure"     
+  #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html     
     
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
@@ -104,10 +8,10 @@ $(document).bind "mobileinit", ->
         u = $.mobile.path.parseUrl(data.toPage)
         
         if u.hash.search(/^#book-details/) isnt -1
-          renderBookDetails u, data.options
+          LYT.app.bookDetails u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-play/) isnt -1
-          renderBookPlayer u, data.options
+          LYT.app.bookPlayer u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-index/) isnt -1
           renderBookIndex u, data.options
