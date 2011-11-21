@@ -13,6 +13,7 @@
 # ## Constants
 
 window.RPC_ERROR = {}
+window.RPC_UNEXPECTED_RESPONSE_ERROR = "RPC_UNEXPECTED_RESPONSE_ERROR"
 
 # --------
 
@@ -81,7 +82,7 @@ LYT.rpc = do ->
         if handlers.receive?
           results = handlers.receive $xml, data, status, xhr
           if results is RPC_ERROR
-            deferred.reject -1, "RPC error"
+            deferred.reject RPC_UNEXPECTED_RESPONSE_ERROR, "Unexpected response"
           else
             if not (results instanceof Array) then results = [results]
             deferred.resolve.apply null, results
