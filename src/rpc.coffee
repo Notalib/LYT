@@ -13,6 +13,7 @@
 # ## Constants
 
 window.RPC_ERROR = {}
+window.RPC_UNEXPECTED_RESPONSE_ERROR = "RPC_UNEXPECTED_RESPONSE_ERROR"
 
 # --------
 
@@ -69,10 +70,17 @@ LYT.rpc = do ->
       if $xml.find("faultcode").length > 0 or $xml.find("faultstring").length > 0
         message = $xml.find("faultstring").text()
         code    = $xml.find("faultcode").text()
+        
         log.errorGroup "RPC: Resource error: #{code}: #{message}"
         log.message data
         log.closeGroup()
-        deferred.reject code, message
+        
+        # FIXME: Temporary fix!!!
+        if code.match /noActiveSession/i
+          deferred.reject SERVICE_NO_SESSION_ERROR, message
+        else
+          deferred.reject code, message
+        
       else
         log.group "RPC: Response for action \"#{action}\""
         log.message data
@@ -81,7 +89,7 @@ LYT.rpc = do ->
         if handlers.receive?
           results = handlers.receive $xml, data, status, xhr
           if results is RPC_ERROR
-            deferred.reject -1, "RPC error"
+            deferred.reject RPC_UNEXPECTED_RESPONSE_ERROR, "Unexpected response"
           else
             if not (results instanceof Array) then results = [results]
             deferred.resolve.apply null, results

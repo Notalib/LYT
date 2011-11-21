@@ -1,109 +1,6 @@
 $(document).bind "mobileinit", ->
   
-  #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html
-  
-  
-  playBook = (book, section, offset) ->
-     #log.message book.nccDocument.structure
-     LYT.player.loadBook(book, section)     
-  
-  getParam = (name, hash) ->
-    match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
-    return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
-  
-  renderBookPlayer = (urlObj, options) -> 
-    
-    bookId = getParam('book', urlObj.hash)
-    sectionNumber = getParam('section', urlObj.hash)   
-    offset = getParam('offset', urlObj.hash)
-    pageSelector = urlObj.hash.replace(/\?.*$/, "")
-    
-    $page = $(pageSelector)
-    $header = $page.children( ":jqmData(role=header)" )
-    $content = $page.children( ":jqmData(role=content)" )
-    
-    book = new LYT.Book(bookId)                                
-      .done (book) ->
-        
-        metadata = book.nccDocument.getMetadata() 
-        
-        $page.find("#title").text metadata.title.content        
-        $page.find("#author").text toSentence(metadata.creator.map((creator) ->
-          creator.content
-        ))
-        
-        log.message book.nccDocument.structure
-        section = book.nccDocument.structure[sectionNumber]
-        $page.find("#book_chapter").text section.title
-        
-        if not LYT.player.ready
-          LYT.player.setup()  
-          LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
-             playBook(book, section)
-        else
-          playBook(book, section)
-              
-            
-        ###
-        $("#book-play").bind "swiperight", ->
-            LYT.player.nextPart()
-
-        $("#book-play").bind "swipeleft", ->
-            LYT.player.previousPart()
-        ###
-                
-        $page.page()
-        options.dataUrl = urlObj.href        
-        $.mobile.changePage $page, options
-        
-        
-        
-        
-      .fail () ->
-        log.message "get book failure"
-  
-  renderBookDetails = (urlObj, options) ->
-    $.mobile.showPageLoadingMsg()
-    
-    bookId = urlObj.hash.replace(/.*book=/, "")
-    
-    pageSelector = urlObj.hash.replace(/\?.*$/, "")
-    $page = $(pageSelector)
-    $header = $page.children( ":jqmData(role=header)" )
-    $content = $page.children( ":jqmData(role=content)" )
-    
-    log.message "Rendering book details for book with id " + bookId
-
-    book = new LYT.Book(bookId)                                
-      .done (book) ->
-        metadata = book.nccDocument.getMetadata()
-        
-        $content.find("#title").text metadata.title.content        
-        $content.find("#author").text toSentence(metadata.creator.map((creator) ->
-          creator.content
-        ))
-        
-        $content.find("#narrator").text toSentence(metadata.narrator.map((narrator) ->
-          narrator.content
-        ))       
-        
-        $content.find("#totaltime").text metadata.totalTime.content
-        
-        $content.find("#play-button").click (e) =>
-          e.preventDefault()
-          $.mobile.changePage("#book-play?book=" + bookId)
-        
-        LYT.gui.covercacheOne $content.find("figure"), bookId
-        
-        log.message metadata   
-        
-        $page.page()
-        
-        options.dataUrl = urlObj.href        
-        $.mobile.changePage $page, options         
-
-      .fail () ->
-        log.message "get book failure"     
+  #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html     
     
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
@@ -111,10 +8,10 @@ $(document).bind "mobileinit", ->
         u = $.mobile.path.parseUrl(data.toPage)
         
         if u.hash.search(/^#book-details/) isnt -1
-          renderBookDetails u, data.options
+          LYT.app.bookDetails u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-play/) isnt -1
-          renderBookPlayer u, data.options
+          LYT.app.bookPlayer u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-index/) isnt -1
           renderBookIndex u, data.options
@@ -128,7 +25,7 @@ $(document).bind "mobileinit", ->
         
         LYT.service.logOn($("#username").val(), $("#password").val())
           .done ->
-            $.mobile.changePage "#book-details?book=15000"
+            $.mobile.changePage "#bookshelf"
             
           .fail ->
             log.message "log on failure"
@@ -162,12 +59,22 @@ $(document).bind "mobileinit", ->
         $("#book-text-content").css "font-size",  LYT.settings.get('textSize') + "px"
         $("#book-text-content").css "font-family",  LYT.settings.get('textType')
         $("#bookshelf [data-role=header]").trigger "create"
-
+        ###
         
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
-        $.mobile.hidePageLoadingMsg()
-
+    $.mobile.hidePageLoadingMsg()  
+    $page = $("#bookshelf")
+    $content = $page.children(":jqmData(role=content)")
+    
+    LYT.bookshelf.load()
+      .done (books) ->
+        LYT.gui.renderBookshelf(books, $content)
+      .fail ->
+        log.message 'damn it'
+    
+ 
+ 
   $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
         $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"

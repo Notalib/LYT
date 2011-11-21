@@ -142,6 +142,7 @@ do ->
       
       # Perform the request
       log.message "DTB: Getting: #{@url}"
+      
       # TODO: Move options to `config`?
       jQuery.ajax {
         url:      @url
@@ -150,7 +151,19 @@ do ->
         cache:    yes
         success:  loaded
         error:    failed
+        headers:
+          connection: "close"
       }
+      
+      ###
+      jQuery.ajax {
+        url: "/images/1x1.gif"
+        cache: no
+        async: yes
+        success: -> log.message "DEBUG: Got the .gif"
+        error:   -> log.message "DEBUG: Oh shit! Didn't get the .gif"
+      }
+      ###
     
     # Parse and return the metadata as an array
     getMetadata: ->

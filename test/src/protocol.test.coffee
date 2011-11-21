@@ -11,7 +11,7 @@ asyncTest "logOn", 2, ->
   requestVariant "fail", ->
     LYT.rpc("logOn", "test", "test")
       .fail (code, msg) ->
-        equal code, -1, "logOn should fail"
+        equal code, RPC_UNEXPECTED_RESPONSE_ERROR, "logOn should fail"
       .always done
 
 
@@ -35,7 +35,7 @@ asyncTest "setReadingSystemAttributes", 2, ->
   requestVariant "fail", ->
     LYT.rpc("setReadingSystemAttributes")
       .fail (code) ->
-        equal code, -1, "setReadingSystemAttributes should fail"
+        equal code, RPC_UNEXPECTED_RESPONSE_ERROR, "setReadingSystemAttributes should fail"
       .always done
 
 
@@ -50,7 +50,7 @@ asyncTest "issueContent", 2, ->
   requestVariant "fail", ->
     LYT.rpc("issueContent", 1)
       .fail (code) ->
-        equal code, -1, "issueContent should fail"
+        equal code, RPC_UNEXPECTED_RESPONSE_ERROR, "issueContent should fail"
       .always done
 
 

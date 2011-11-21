@@ -56,7 +56,7 @@ while [[ $# > 0 ]]; do # for each argument...
     "src" )
       # Compile src into several files
       mkdir -pm 0777 ./build/javascript
-      coffee -c -o ./compiled ./src/*.coffee || exit 1
+      coffee -c -o ./build/javascript ./src/*.coffee || exit 1
       
       # Compile src into a single file, too 
       # coffee -c -j lyt -o ./dist ./src/*.coffee || exit 1

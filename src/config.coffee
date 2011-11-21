@@ -18,16 +18,16 @@ LYT.config =
       dataType:    "xml"
       headers:     null
       processData: yes
-      timeout:     30000
+      timeout:     10000
       type:        "POST"
       url:         "/DodpMobile/Service.svc"
     
   protocol:
     readingSystemAttributes:
       manufacturer: "NOTA"
-      model: "LYT"
+      model:        "LYT"
       serialNumber: "1"
-      version: "1"
-      config: null
+      version:      "1"
+      config:       null
     
   

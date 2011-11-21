@@ -35,6 +35,7 @@
 	<script src="javascript/cache.js"></script>
 	<script src="javascript/settings.js"></script>
 	<script src="javascript/book.js"></script>
+	<script src="javascript/bookshelf.js"></script>
 	<script src="javascript/player.js"></script>
 	<script src="javascript/app.js"></script>
 	<script src="javascript/gui.js"></script>
@@ -45,6 +46,21 @@
 </head>
 
 <body>
+
+    <div data-role="page" id="bookshelf">
+
+    	<header data-role="header" data-theme="">
+    		<a data-role="button" href="#search" data-icon="search">Find</a>
+    		<h1>Boghylde</h1>
+    		
+    	</header>
+    	
+    	<div data-role="content" id="bookshelf-content">
+    	    <ul data-role="listview">
+    	    </ul>
+    	</div>
+
+    </div>
 
 <!-- body -->
 <!-- jquery mobile page templates are added here -->
