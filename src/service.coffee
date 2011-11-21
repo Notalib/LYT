@@ -40,7 +40,7 @@ LYT.service = do ->
       # Is it because the user's not logged in?
       if code is SERVICE_NO_SESSION_ERROR
         # If so , the attempt log-on
-        LYT.service.logOn()
+        logOn()
           .done ->
             # Logon worked, so re-attempt the call
             callback()
@@ -59,7 +59,7 @@ LYT.service = do ->
   
   # Perform the logOn handshake:
   # logOn -> getServiceAttributes -> setReadingSystemAttributes
-  logOn: (username = session.username, password = session.password) ->
+  logOn = (username = session.username, password = session.password) ->
     deferred = jQuery.Deferred()
     
     unless username? and password?
@@ -122,6 +122,9 @@ LYT.service = do ->
     
     return deferred
   
+  # -- Return ---
+  
+  logOn: logOn
   
   # TODO: Can logOff fail? If so, what to do?
   logOff: ->
