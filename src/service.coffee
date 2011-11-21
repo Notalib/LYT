@@ -64,7 +64,7 @@ LYT.service = do ->
     
     unless username? and password?
       deferred.reject SERVICE_MUST_LOGON_ERROR
-      return
+      return deferred
     
     session.username = username
     session.password = password
@@ -163,7 +163,7 @@ LYT.service = do ->
         delete item.label
       deferred.resolve list
     
-    response.fail (err, message) -> deferred.reject()
+    response.fail (err, message) -> deferred.reject err, message
     
     deferred
   
