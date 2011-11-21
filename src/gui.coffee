@@ -2,6 +2,14 @@
 
 LYT.gui =
   
+  renderBookshelf: (books, view) ->
+    list = view.find("ul")
+    for book in books
+      log.message book
+      list.append("""<li><a href="#book-play?book=#{book.id}"><h1>#{book.title}</h1><h2>#{book.author}</h2></a></li>""")
+    
+    list.listview('refresh')
+  
   covercache: (element, id) ->
     $(element).each ->
       u = "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
@@ -36,6 +44,9 @@ LYT.gui =
     $("#book-details-content").html "<h2>Hov!</h2>" + "<p>Der skulle have været en bog her - men systemet kan ikke finde den. Det beklager vi meget! <a href=\"mailto:info@nota.nu?subject=Bog kunne ikke findes på E17 mobilafspiller\">Send os gerne en mail om fejlen</a>, så skal vi fluks se om det kan rettes.</p>"
   
   #renderBookDetails: (book, view) ->
+    
   #renderBookPlayer: (book, view) ->
+  #  view.find('h1').text book.title
+  
   #renderBookIndex: (book, view) ->
     

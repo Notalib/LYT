@@ -18,8 +18,7 @@ LYT.player =
     
     jplayer = @el.jPlayer
       ready: =>
-        @ready = true
-              
+        @ready = true      
         @togglePlayButton.click =>
           if @playing
             @el.jPlayer('pause')
@@ -88,8 +87,10 @@ LYT.player =
     jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
   
   loadBook: (book, section, offset) ->
+    @el.jPlayer('clearMedia')
+    @el.jPlayer('stop')
+    
     @book = book
-    # select section or take first off book.sections
     
     @section = section
     

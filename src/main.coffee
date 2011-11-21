@@ -13,10 +13,11 @@ $(document).bind "mobileinit", ->
   
   renderBookPlayer = (urlObj, options) -> 
     
-    bookId = getParam('book', urlObj.hash)
-    sectionNumber = getParam('section', urlObj.hash)   
-    offset = getParam('offset', urlObj.hash)
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
+    
+    bookId = getParam('book', urlObj.hash)
+    sectionNumber = getParam('section', urlObj.hash) or 0  
+    offset = getParam('offset', urlObj.hash) or 0
     
     $page = $(pageSelector)
     $header = $page.children( ":jqmData(role=header)" )
@@ -25,7 +26,8 @@ $(document).bind "mobileinit", ->
     book = new LYT.Book(bookId)                                
       .done (book) ->
         
-        metadata = book.nccDocument.getMetadata() 
+        metadata = book.nccDocument.getMetadata()
+        book.nccDocument.structure 
         
         $page.find("#title").text metadata.title.content        
         $page.find("#author").text toSentence(metadata.creator.map((creator) ->
@@ -128,7 +130,7 @@ $(document).bind "mobileinit", ->
         
         LYT.service.logOn($("#username").val(), $("#password").val())
           .done ->
-            $.mobile.changePage "#book-details?book=15000"
+            $.mobile.changePage "#bookshelf"
             
           .fail ->
             log.message "log on failure"
@@ -162,12 +164,22 @@ $(document).bind "mobileinit", ->
         $("#book-text-content").css "font-size",  LYT.settings.get('textSize') + "px"
         $("#book-text-content").css "font-family",  LYT.settings.get('textType')
         $("#bookshelf [data-role=header]").trigger "create"
-
+        ###
         
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
-        $.mobile.hidePageLoadingMsg()
-
+    $.mobile.hidePageLoadingMsg()  
+    $page = $("#bookshelf")
+    $content = $page.children(":jqmData(role=content)")
+    
+    LYT.bookshelf.load()
+      .done (books) ->
+        LYT.gui.renderBookshelf(books, $content)
+      .fail ->
+        log.message 'damn it'
+    
+ 
+ 
   $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
         $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
