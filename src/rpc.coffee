@@ -70,10 +70,17 @@ LYT.rpc = do ->
       if $xml.find("faultcode").length > 0 or $xml.find("faultstring").length > 0
         message = $xml.find("faultstring").text()
         code    = $xml.find("faultcode").text()
+        
         log.errorGroup "RPC: Resource error: #{code}: #{message}"
         log.message data
         log.closeGroup()
-        deferred.reject code, message
+        
+        # FIXME: Temporary fix!!!
+        if code.match /noActiveSession/i
+          deferred.reject SERVICE_NO_SESSION_ERROR, message
+        else
+          deferred.reject code, message
+        
       else
         log.group "RPC: Response for action \"#{action}\""
         log.message data
