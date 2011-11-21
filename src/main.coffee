@@ -1,6 +1,9 @@
+$(document).ready ->
+  LYT.player.setup()
+
 $(document).bind "mobileinit", ->  
   #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html     
-    
+  
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
       if typeof data.toPage is "string"

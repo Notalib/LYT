@@ -1,9 +1,10 @@
-# Application logic abstracted functions
+# Application logic
+
+#todo: create a listener for SERVICE_MUST_LOGON_ERROR that redirects to #login and sets next to requested page 
 
 LYT.app =
   currentBook: null
   next: "bookshelf"
-  
   
   bookshelf: ->
     $page = $("#bookshelf")
@@ -12,9 +13,19 @@ LYT.app =
     LYT.bookshelf.load()
       .done (books) ->
         LYT.gui.renderBookshelf(books, $content)
-        $.mobile.hidePageLoadingMsg() 
+        
+        $content.find('a').click ->
+          log.message 'click'
+          if LYT.player.ready
+            alert 'dixie chicks'
+            #LYT.player.play()
+            LYT.player.el.jPlayer('play')
+            #LYT.player.pause()
+        
+        $.mobile.hidePageLoadingMsg()
       .fail (error, msg) ->
-        log.message "#{error}: #{msg}"
+        if error is SERVICE_MUST_LOGON_ERROR
+          $.mobile.changePage("#login")
   
   bookDetails: (urlObj, options) ->
     #todo: clear data from earlier book
@@ -46,11 +57,11 @@ LYT.app =
         $.mobile.hidePageLoadingMsg()     
         $.mobile.changePage $page, options         
 
-      .fail () ->
-        log.message "get book failure"
+      .fail (error, msg) ->
+        if error is SERVICE_MUST_LOGON_ERROR
+          $.mobile.changePage("#login")
   
   bookPlayer: (urlObj, options) -> 
-    
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
     
     bookId = getParam('book', urlObj.hash)
@@ -61,7 +72,7 @@ LYT.app =
     $header = $page.children( ":jqmData(role=header)" )
     $content = $page.children( ":jqmData(role=content)" )
     
-    book = new LYT.Book(bookId)                                
+    book = new LYT.Book(bookId)                            
       .done (book) ->
         
         metadata = book.nccDocument.getMetadata()
@@ -92,8 +103,9 @@ LYT.app =
         $.mobile.hidePageLoadingMsg()
         $.mobile.changePage $page, options        
         
-      .fail () ->
-        log.message "get book failure"
+      .fail (error, msg) ->
+        if error is SERVICE_MUST_LOGON_ERROR
+          $.mobile.changePage("#login")
 
   eventSystemTime: (t) ->
       total_secs = undefined
