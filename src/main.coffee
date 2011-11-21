@@ -1,12 +1,10 @@
-$(document).bind "mobileinit", ->
-  
+$(document).bind "mobileinit", ->  
   #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html     
     
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
       if typeof data.toPage is "string"
         u = $.mobile.path.parseUrl(data.toPage)
-        
         if u.hash.search(/^#book-details/) isnt -1
           LYT.app.bookDetails u, data.options
           e.preventDefault()
@@ -33,7 +31,6 @@ $(document).bind "mobileinit", ->
         event.preventDefault()
         event.stopPropagation()
   
-  
   ###      
   $("#book_index").live "pagebeforeshow", (event) ->
       $("#book_index_content").trigger "create"
@@ -44,8 +41,7 @@ $(document).bind "mobileinit", ->
                 if $(this).find("a").attr("href")
                     event.preventDefault()
                     event.stopPropagation()
-                    event.stopImmediatePropagation()                   
-                                                
+                    event.stopImmediatePropagation()                                         
                     
                 else
                     event.stopImmediatePropagation()
@@ -59,21 +55,11 @@ $(document).bind "mobileinit", ->
         $("#book-text-content").css "font-size",  LYT.settings.get('textSize') + "px"
         $("#book-text-content").css "font-family",  LYT.settings.get('textType')
         $("#bookshelf [data-role=header]").trigger "create"
-        ###
-        
+        ###      
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
-    $.mobile.hidePageLoadingMsg()  
-    $page = $("#bookshelf")
-    $content = $page.children(":jqmData(role=content)")
+    LYT.app.bookshelf()
     
-    LYT.bookshelf.load()
-      .done (books) ->
-        LYT.gui.renderBookshelf(books, $content)
-      .fail ->
-        log.message 'damn it'
-    
- 
  
   $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
@@ -111,7 +97,6 @@ $(document).bind "mobileinit", ->
             $("#book-text-content").css "background", vsettings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
             $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
    
-    
   $("[data-role=page]").live "pageshow", (event, ui) ->
         _gaq.push [ "_trackPageview", event.target.id ]      
     
