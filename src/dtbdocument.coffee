@@ -99,7 +99,6 @@ do ->
             # Sucessfully rescued the content
             # so pretend the load worked fine,
             # and exit the function
-            #loaded(html, status, jqXHR)
             resolve html
             return true
         else
@@ -116,7 +115,8 @@ do ->
       loaded = (xml, status, jqXHR) =>
         log.group "DTB: Got: #{@url}", xml
         # Check for parser errors
-        # TODO: How to improve this?!
+        # TODO: How to improve this?! It seems ripe for cross-browser issues.  
+        # I.e. do non-WebKit browsers create that `parsererror` node?
         if jQuery(xml).find("parsererror").length > 0
           recover(jqXHR, status) or reject
         else
@@ -152,22 +152,17 @@ do ->
         success:  loaded
         error:    failed
         headers:
+          # For some strange reason, this avoids a hanging bug in Chrome,
+          # even though Chrome refuses to set this particular header...
           connection: "close"
       }
-      
-      ###
-      jQuery.ajax {
-        url: "/images/1x1.gif"
-        cache: no
-        async: yes
-        success: -> log.message "DEBUG: Got the .gif"
-        error:   -> log.message "DEBUG: Oh shit! Didn't get the .gif"
-      }
-      ###
     
     # Parse and return the metadata as an array
     getMetadata: ->
       return {} unless @xml?
+      
+      # Return cached metadata, if available
+      return @_metadata if @_metadata?
       
       # Find the `meta` elements matching the given name-attribute values.
       # Multiple values are given as an array
@@ -186,16 +181,16 @@ do ->
         return nodes
       
       xml = @xml.find("head").first()
-      metadata = {}
+      @_metadata = {}
       
       for own name, values of METADATA_NAMES.singular
         found = findNodes values
-        metadata[name] = found.shift() if found?
+        @_metadata[name] = found.shift() if found?
       
       for own name, values of METADATA_NAMES.plural
         found = findNodes values
-        metadata[name] = found if found?
+        @_metadata[name] = found if found?
       
-      return metadata
+      @_metadata
     
   
