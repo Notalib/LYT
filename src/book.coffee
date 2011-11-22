@@ -84,12 +84,28 @@ class LYT.Book
       # 
       ncc.then (document) =>
         obj.document = @nccDocument = document
+        
+        # Get the author(s)
+        metadata = @nccDocument.getMetadata()
+        creators = metadata?.creators or []
+        @author = toSentence (creator.content for creator in creators)
+        
+        # Get the title
+        @title = metadata?.title?.content or ""
+        
+        # Get the total time
+        @totalTime = metadata?.totalTime.content or ""
+        
         deferred.resolve this
       
     # Kick the whole process off
     issue @id
   
   # ----------
+  
+  # Gets the book's metadata (as stated in the NCC document)
+  getMetadata: ->
+    @nccDocument?.getMetadata() or null
   
   # Loads a section by its ID
   preloadSection: (section = null) ->
