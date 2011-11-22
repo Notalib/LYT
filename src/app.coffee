@@ -1,15 +1,34 @@
-# Application logic abstracted functions
+# Application logic
+
+#todo: create a listener for SERVICE_MUST_LOGON_ERROR that redirects to #login and sets next to requested page 
 
 LYT.app =
   currentBook: null
   next: "bookshelf"
   
+  bookshelf: ->
+    $page = $("#bookshelf")
+    $content = $page.children(":jqmData(role=content)")
+    
+    LYT.bookshelf.load()
+      .done (books) ->
+        LYT.gui.renderBookshelf(books, $content)
+        
+        $content.find('a').click ->
+          log.message 'click'
+          if LYT.player.ready
+            alert 'dixie chicks'
+            #LYT.player.play()
+            LYT.player.el.jPlayer('play')
+            #LYT.player.pause()
+        
+        $.mobile.hidePageLoadingMsg()
+      .fail (error, msg) ->
+        if error is SERVICE_MUST_LOGON_ERROR
+          $.mobile.changePage("#login")
   
   bookDetails: (urlObj, options) ->
-    
     #todo: clear data from earlier book
-    
-    $.mobile.showPageLoadingMsg()
     bookId = urlObj.hash.replace(/.*book=/, "")
     
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
@@ -34,14 +53,15 @@ LYT.app =
         
         $page.page()
         
-        options.dataUrl = urlObj.href        
+        options.dataUrl = urlObj.href
+        $.mobile.hidePageLoadingMsg()     
         $.mobile.changePage $page, options         
 
-      .fail () ->
-        log.message "get book failure"
+      .fail (error, msg) ->
+        if error is SERVICE_MUST_LOGON_ERROR
+          $.mobile.changePage("#login")
   
   bookPlayer: (urlObj, options) -> 
-    
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
     
     bookId = getParam('book', urlObj.hash)
@@ -52,7 +72,7 @@ LYT.app =
     $header = $page.children( ":jqmData(role=header)" )
     $content = $page.children( ":jqmData(role=content)" )
     
-    book = new LYT.Book(bookId)                                
+    book = new LYT.Book(bookId)                            
       .done (book) ->
         
         metadata = book.nccDocument.getMetadata()
@@ -79,53 +99,13 @@ LYT.app =
         ###
                 
         $page.page()
-        options.dataUrl = urlObj.href        
+        options.dataUrl = urlObj.href
+        $.mobile.hidePageLoadingMsg()
         $.mobile.changePage $page, options        
         
-      .fail () ->
-        log.message "get book failure"
-  
-  
-  eventSystemLoggedOn: (loggedOn, id) ->
-      unless id is -1
-          LYT.settings.set('username', id)
-
-      if loggedOn
-          $.mobile.changePage @next
-          
-      else
-          $.mobile.hidePageLoadingMsg()
-          $.mobile.changePage "#login"
-
-  eventSystemNotLoggedIn: (where) ->
-      @next = where
-      if @settings.username isnt "" and @settings.password isnt ""
-          log "GUI: Event system not logged in, logger på i baggrunden"  if console
-          LYT.protocol.LogOn LYT.settings.get('username'), LYT.settings.get('password')
-      else
-          $.mobile.changePage "#login"
-
-  eventSystemGotBookShelf: (bookShelf) =>
-      @next = ""
-      @full_bookshelf = bookShelf
-      console.log @full_bookshelf
-      $("#bookshelf-content").empty()
-      aBookShelf = ""
-      nowPlaying = ""
-      addMore = ""
-      $(bookShelf).find("contentItem:lt(" + @bookshelf_showitems + ")").each =>        
-          delimiter = $(this).text().indexOf("$")
-          author = $(this).text().substring(0, delimiter)
-          title = $(this).text().substring(delimiter + 1)
-          if $(this).attr("id") is @settings.currentBook
-              nowPlaying = "<li id=\"" + $(this).attr("id") + "\" title=\"" + title.replace("'", "") + "\" author=\"" + author + "\" ><a href=\"javascript:playCurrent();\"><img class=\"ui-li-icon\" src=\"/images/default.png\" />" + "<h3>" + title + "</h3><p>" + author + " | afspiller nu</p></a></li>"
-          else
-              aBookShelf += "<li id=\"" + $(this).attr("id") + "\" title=\"" + title.replace("'", "") + "\" author=\"" + author + "\"><a href='javascript:PlayNewBook(" + $(this).attr("id") + ", \" " + title.replace("'", "") + " \" , \" " + author + " \")'><img class=\"ui-li-icon\" src=\"/images/default.png\" />" + "<h3>" + title + "</h3><p>" + author + "</p></a><a href=\"javascript:if(confirm('Fjern " + title.replace("'", "") + " fra din boghylde?')){ReturnContent(" + $(this).attr("id") + ");}\" >Fjern fra boghylde</a></li>"
-
-      addMore = "<li id=\"bookshelf-end \"><a href=\"javascript:addBooks()\">Hent flere bøger på min boghylde</p></li>"  if $(@full_bookshelf).find("contentList").attr("totalItems") > @bookshelf_showitems
-      $.mobile.changePage "#bookshelf"
-      $("#bookshelf-content").append("<ul data-split-icon=\"delete\" data-split-theme=\"d\" data-role=\"listview\" id=\"bookshelf-list\">" + nowPlaying + aBookShelf + addMore + "</ul>").trigger "create"
-      @covercache $("#bookshelf-list").html()
+      .fail (error, msg) ->
+        if error is SERVICE_MUST_LOGON_ERROR
+          $.mobile.changePage("#login")
 
   eventSystemTime: (t) ->
       total_secs = undefined

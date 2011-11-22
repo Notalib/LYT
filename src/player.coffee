@@ -12,13 +12,16 @@ LYT.player =
   # todo: consider array of all played sections and a few following
   
   setup: ->
+    log.message 'player setup called'
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")
     @togglePlayButton = jQuery("a.toggle-play")
     
     jplayer = @el.jPlayer
       ready: =>
-        @ready = true      
+        @ready = true
+        log.message 'player is ready'
+        @el.jPlayer('setMedia', {mp3: 'http://m.nota.nu/sound/dixie.mp3'})
         @togglePlayButton.click =>
           if @playing
             @el.jPlayer('pause')
@@ -51,7 +54,7 @@ LYT.player =
     # Pause current media
     @el.jPlayer('pause')
     
-    null
+    'paused'
   
   stop: ->
     # Stop playing and stop downloading current media file
@@ -73,6 +76,7 @@ LYT.player =
   
   updateText: (time) ->
     # Continously update media for current time of section
+    return unless @book?
     @time = time
     if @media.end < @time
       #log.message('current media has ended at ' + @media.end + ' getting new media for ' + @time ) 
@@ -91,7 +95,6 @@ LYT.player =
     @el.jPlayer('stop')
     
     @book = book
-    
     @section = section
     
     @book.mediaFor(@section.id,0).done (media) =>
