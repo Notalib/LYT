@@ -66,87 +66,65 @@ do ->
     # - callback: (function) called when the download is complete (used by subclasses)
     #
     # `LYT.DTBDocument` acts as a Deferred.
-    constructor: (@url, callback) ->
+    constructor: (@url, callback = null) ->
       deferred = jQuery.Deferred()
       deferred.promise this
       
-      @xml = null
+      @source = null
+      dataType = if @url.match(/\.x?html?$/i)? then "html" else "xml"
       
-      # Handlers
+      coerceToHTML = (responseText) =>
+        console.log "DTB: Coercing #{@url} into HTML"
+        html = jQuery "<html/>"
+        document = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        return null unless (document = document[1])?
+        
+        document = nerfImageURLs document
+        
+        html.html document
       
-      resolve = (document) =>
-        @xml = jQuery document
-        callback? deferred
-        deferred.resolve this
+      nerfImageURLs = (html) ->
+        html.replace ///
+          (<img [^>]*?)        # image tag
+          src\s*=\s*           # src attr (plus possible whitespace)
+          (                    # branch...
+            (("')([^"']+)\3)   # quoted src attr value
+            |
+            ([^\s]+)           # unquoted src attr value
+          )///ig, "$1data-x-src=$2"
+          
       
-      reject = (status, error) =>
+      
+      loaded = (document, status, jqXHR) =>
+        if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
+          @source = coerceToHTML jqXHR.responseText
+        else
+          @source = jQuery document
+        resolve()
+      
+      failed = (jqXHR, status, error) =>
+        if status is "parsererror"
+          log.error "DTB: Parser error in XML response. Attempting recovering"
+          @source = coerceToHTML jqXHR.responseText
+          resolve()
+          return
+        log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
         deferred.reject status, error
       
-      recover = (jqXHR, status) ->
-        log.message "DTBDocument: Received invalid XML. Attempting recovery"
-        # Get everything in the document element
-        content = jqXHR.responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
-        if content? and content[1]
-          # If something was found, create an empty HTML
-          # document in memory (no DOCTYPE) and put the
-          # content in there
-          html = jQuery "<html></html>"
-          html.html content[1]
-          # Do a quick check to see if the HTML was
-          # parsed
-          if html.find("body").length isnt 0
-            log.message "DTBDocument: Recovery succeeded"
-            # Sucessfully rescued the content
-            # so pretend the load worked fine,
-            # and exit the function
-            resolve html
-            return true
+      resolve = =>
+        if @source?
+          log.group "DTB: Got: #{@url}", document
+          callback? deferred
+          deferred.resolve this
         else
-          log.message "DTBDocument: Recovery failed"
-        false
+          console.log "Rejecting #{@source?} #{typeof @source}"
+          deferred.reject -1, "FAILED_TO_LOAD"
       
-      ready = (document) =>
-        @xml = jQuery document
-        callback? deferred
-        deferred.resolve this
-      
-      # On success, wrap the XML with jQuery, call the callback (if any),
-      # and propagate the instance
-      loaded = (xml, status, jqXHR) =>
-        log.group "DTB: Got: #{@url}", xml
-        # Check for parser errors
-        # TODO: How to improve this?! It seems ripe for cross-browser issues.  
-        # I.e. do non-WebKit browsers create that `parsererror` node?
-        if jQuery(xml).find("parsererror").length > 0
-          recover(jqXHR, status) or reject
-        else
-          ready xml
-        
-      
-      # On failure, check if it's a parser error.
-      # The NCC and text content documents can be very
-      # shoddily produced and full of very invalid XML
-      # which causes the browser's parser to complain.
-      # If that happens, try to rescue the content,
-      # by "copying and pasting it" into a tagsoup HTML
-      # document. If that also fails, then propagate the
-      # failure
-      failed = (jqXHR, status, error) =>
-        # If the XML failed to parse...
-        if status is "parsererror"
-          return if recover jqXHR, status
-        
-        # If all of the above failed, then fail some more
-        log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
-        reject status, error
-      
-      # Perform the request
       log.message "DTB: Getting: #{@url}"
       
-      # TODO: Move options to `config`?
-      jQuery.ajax {
+      request = jQuery.ajax {
         url:      @url
-        dataType: "xml"
+        dataType: dataType
         async:    yes
         cache:    yes
         success:  loaded
@@ -156,10 +134,13 @@ do ->
           # even though Chrome refuses to set this particular header...
           connection: "close"
       }
+      
+      deferred
+    
     
     # Parse and return the metadata as an array
     getMetadata: ->
-      return {} unless @xml?
+      return {} unless @source?
       
       # Return cached metadata, if available
       return @_metadata if @_metadata?
@@ -170,7 +151,7 @@ do ->
         values = [values] unless values instanceof Array
         nodes  = []
         selectors = ("meta[name='#{value}']" for value in values).join(", ")
-        @xml.find(selectors).each ->
+        @source.find(selectors).each ->
           node = jQuery this
           nodes.push {
             content: node.attr("content")
@@ -180,7 +161,7 @@ do ->
         return null if nodes.length is 0
         return nodes
       
-      xml = @xml.find("head").first()
+      xml = @source.find("head").first()
       @_metadata = {}
       
       for own name, values of METADATA_NAMES.singular

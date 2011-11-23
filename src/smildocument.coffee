@@ -4,7 +4,7 @@ do ->
   class LYT.SMILDocument extends LYT.DTBDocument
     constructor: (url) ->
       super url, (deferred) =>
-        mainSequence = @xml.find("body > seq:first")
+        mainSequence = @source.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @clips       = parseMainSeqNode mainSequence
         metadata = @getMetadata()

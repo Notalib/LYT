@@ -4,7 +4,7 @@ do ->
   class LYT.NCCDocument extends LYT.TextContentDocument
     constructor: (url) ->
       super url, (deferred) =>
-        @structure = parseStructure @xml
+        @structure = parseStructure @source
     
     # Find a section by its ID. If no ID is given,
     # the first section will be returned
