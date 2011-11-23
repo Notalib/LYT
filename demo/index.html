@@ -76,6 +76,11 @@
 			<label for="password">Password:</label>&nbsp;<input type="password" name="password" value="" id="password">
 			<br>
 			<label for="book_id">Book #:</label>&nbsp;<input type="text" name="book_id" value="15000" id="book_id">
+			<select onchange="document.getElementById('book_id').value=this.value">
+				<option value="" selected>Test IDs</option>
+				<option value="15000">A book&hellip;</option>
+				<option value="36738">A comic&hellip;</option>
+			</select>
 		</p>
 		<p>
 			<input type="submit" value="Load book">
@@ -93,7 +98,7 @@
 		<div id="live">
 			
 			<p id="controls">
-				Played <span id="time"></span> of <span id="total"></span> total(approx.)
+				Played <span id="time"></span> of <span id="total"></span> total (approx.) <a href="#" onclick="stopClock()">STOP!</a>
 			</p>
 			
 			<div id="transcript"></div>
