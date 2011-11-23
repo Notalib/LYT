@@ -72,11 +72,9 @@ unlockForm = ->
 # Prints the basic metadata on the page
 printMetadata = (book) ->
   metadata = book.nccDocument.getMetadata()
-  $("#title").text metadata.title.content
-  $("#total").text metadata.totalTime.content
-  # There might be several authors, so use `toSentence`
-  # to nicely format the list as a string
-  $("#author").text toSentence(item.content for item in metadata.creator)
+  $("#title").text book.title
+  $("#total").text book.totalTime
+  $("#author").text book.author
 
 
 # Creates a set of nested ordered lists for the book's structure
@@ -132,6 +130,11 @@ do ->
   # Time-stuff for playback
   startTime = null
   timer     = null
+  
+  # The Book instance
+  book = null
+  
+  lastContent = null
   
   # Loads a book by its ID  
   # _Globally accessible function (i.e. attached to `window`)_
@@ -197,8 +200,10 @@ do ->
         # per second, is there?)
         highlightSection media.section
         
-        # Show the text
-        $("#transcript").text media.text or ""
+        # Show the html if it's different
+        if media.html isnt lastContent
+          lastContent = media.html
+          $("#transcript").html media.html or ""
         
         # Show the audio URL and the text's in- and out-marks
         $("#audio").text "MP3: #{media.audio or ""} from #{formatTime media.start} to #{formatTime media.end}"
@@ -212,6 +217,7 @@ do ->
         stopClock()
         
         # Clear the text and the audio
+        lastContent = null
         $("#transcript").text ""
         $("#audio").text ""
         
