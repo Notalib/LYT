@@ -5,92 +5,173 @@ http    = require "http"
 fs      = require "fs"
 fs.path = require "path"
 
+
+# The port to listen on
 PORT = 7357
+
+# The www root directory
 ROOT = fs.path.resolve __dirname, "../build/"
 
-handler = (request, response) ->
-  data = ""
-  url = parse request.url, true
+
+# --------------------------------------------
+
+
+# The initial request handler
+handleRequest = (request, response) ->
+  url = resolveRequestUrl request
+  unless url?
+    response.forbidden()
+    return 
   try
     if responders[url.pathname]?
       responders[url.pathname] request, response, url
     else
-      stats = fs.lstatSync fs.path.join ROOT, url.pathname
-      if stats.isDirectory()
-        index url.pathname, response
-      else if stats.isFile()
-        send response, url.pathname, mimetype(url.pathname)
-      else
-        throw "Unreadable path"
+      serve request, response, url
   catch error
-    fail response, error
-  
+    response.error error
 
-index = (path, response) ->
-  abspath = "#{ROOT}#{path}"
-  fs.readdir abspath, (err, list) ->
-    if err?
-      fail response, err
-      return
-    if list.indexOf("index.html") isnt -1
-      send response, "#{path}/index.html"
+
+# Resolve the requested path relative to the www root,
+# taking into account the referrer path
+resolveRequestUrl = (request) ->
+  url = parse request.url, true
+  url.filename = fs.path.resolve "#{ROOT}/#{url.pathname}"
+  return null unless url.filename.match (new RegExp "^#{ROOT}")
+  url
+
+
+# Attempt to serve a static file or directory index
+serve = (request, response, url) ->
+  stats = fs.lstatSync url.filename
+  if stats.isDirectory()
+    if url.pathname.match /\/$/
+      indexDirectory url.filename, response
     else
-      links = ("""<a href="#{path}/#{file}">#{file}</a>""" for file in list when file.match /^[^.]/)
-      response.writeHead 200, "Content-Type": "text/html; charset=utf-8"
-      response.write """<!DOCTYPE html><html><head><title>#{path}</title></head><body>#{links.join "<br>"}</body></html>"""
-      response.end()
+      response.redirect "#{url.pathname}/"
+  else if stats.isFile()
+    response.sendFile url.filename
+  else
+    throw "Unreadable path"
 
+
+# Respond with a directory listing
+indexDirectory = (path, response) ->
+  fs.readdir path, (err, list) ->
+    throw err if err?
+    for file in list
+      if file.match /index.html?$/
+        response.sendFile "#{path}/#{file}"
+        return
+    
+    links = ("""<a href="#{file}">#{file}</a>""" for file in list when file.match /^[^.]/)
+    response.send "text/html; charset=utf-8", """<!DOCTYPE html>
+      <html>
+      <head>
+        <title>Listing /#{fs.path.relative ROOT, path}</title>
+      </head>
+      <body>
+        <h1>Listing /#{fs.path.relative ROOT, path}</h1>
+        #{links.join "<br>\n\t"}
+      </body>
+      </html>
+      """
+    response.end()
+
+
+# Guess a MIME-type based on filename extension
+mimetype = (path) ->
+  switch path.split(/\.+/).pop()
+    when "js"          then contentType = "text/javascript"
+    when "css"         then contentType = "text/css"
+    when "mp3"         then contentType = "audio/mp3"
+    when "jpg", "jpeg" then contentType = "image/jpeg"
+    when "gif"         then contentType = "image/gif"
+    when "png"         then contentType = "image/png"
+    when "smil", "xml" then contentType = "application/xml"
+    when "xhtml"       then contentType = "application/xhtml+xml"
+    when "html", "htm" then contentType = "text/html"
+    else                    contentType = "text/plain"
+  "#{contentType}; charset=utf-8"
+
+
+# --------------------------------------------
+
+
+# Extend Node's http.ServerResponse
+# with a bunch of convenience methods
+do ->
+  genericResponse = (code, name) ->
+    (message) ->
+      console.log "< #{code} #{name}"
+      @writeHead code, "Content-Type": "text/plain; charset=utf-8"
+      @write "#{code} #{name}\n\n"
+      @write "#{message}" if message?
+      @end()
+
+  http.ServerResponse::forbidden = genericResponse 403, "Forbidden"
+  http.ServerResponse::notFound  = genericResponse 404, "Not Found"
+  http.ServerResponse::error     = genericResponse 500, "Internal Error"
+  
+  http.ServerResponse::redirect = (code, location) ->
+    [code, location] = [302, code] if arguments.length < 2
+    @writeHead code, "Location": location
+    @end()
+  
+  http.ServerResponse::send = (contentType, data) ->
+    [contentType, data] = ["text/plain", contentType] if arguments.length < 2
+    @writeHead 200, "Content-Type": contentType
+    @write data
+    @end()
+    
+  http.ServerResponse::sendFile = (path, contentType = null) ->
+    contentType or= mimetype path
+    stream = fs.createReadStream path
+    
+    stream.on "error", (exception) =>
+      @error exception
+    
+    stream.on "open", (data) => 
+      @writeHead 200, "Content-Type": contentType
+    
+    stream.pipe this
+
+
+# --------------------------------------------
+
+
+# Custom responders for certain paths
 responders =
+  # Emulate the service
   "/DodpMobile/Service.svc": (request, response, url) ->
     data = ""
-    request.on "data", (chunk) -> data += chunk.toString "utf8"
+    request.on "data", (chunk) ->
+      data += chunk.toString "utf8"
+    
     request.on "end", ->
       variant = if request.headers["x-testvariant"]? then ".#{request.headers["x-testvariant"]}" else ""
       action = request.headers.soapaction
       if action
-        console.log "> Service: #{action} #{request.headers["x-testvariant"]}"
-        console.log "< 200 Sending test/fixtures/service/#{action}#{variant}.xml"
-        send response, "test/fixtures/service/#{action}#{variant}.xml", "text/xml; charset=utf-8"
+        console.log "Service: #{action} #{request.headers["x-testvariant"] or ""}"
+        response.sendFile "#{ROOT}/test/fixtures/service/#{action}#{variant}.xml", "text/xml; charset=utf-8"
       else
-        fail response, "Couldn't parse request"
+        response.error "Couldn't parse request"
   
+  # Emulate the content distributor
   "/DodpDistributor/Distribute.aspx": (request, response, url) ->
     if not url.query.file?
-      fail response, "No file specified"
+      response.notFound "No file specified"
     else
-      console.log "> Content: #{fs.path.basename url.query.file}"
-      path = "test/fixtures/content/#{fs.path.basename url.query.file}"
+      path = "#{ROOT}/test/fixtures/content/#{fs.path.basename url.query.file}"
+      console.log "Content: #{url.query.file}"
       contentType = if path.match /\.x?html?$/ then "application/xhtml+xml; charset=utf-8" else null
-      console.log "< 200 Sending #{path} "
-      send response, path, contentType
+      response.sendFile path, contentType
 
 
-send = (response, path, contentType = null) ->
-  contentType or= mimetype path
-  stream = fs.createReadStream fs.path.join(ROOT, path)
-  stream.on "open", (data) ->
-    response.writeHead 200, "Content-Type": contentType
-  stream.on "error", (exception) ->
-    fail response, exception
-  stream.pipe response
+# --------------------------------------------
 
 
-fail = (response, message = "") ->
-  console.error "< 500 #{message}"
-  response.writeHead 500, "Content-Type": "text/plain"
-  response.end "500\n\n#{message}"
+# Start the server
+http.createServer(handleRequest).listen PORT, ->
+  console.log "Server running on http://127.0.0.1:#{PORT}"
+  console.log "Press ctrl-C to stop the server"
 
-
-mimetype = (path) ->
-  switch path.split(/\.+/).pop()
-    when "js"          then contentType = "text/javascript"
-    when "smil", "xml" then contentType = "application/xml"
-    when "xhtml"       then contentType = "application/xhtml+xml"
-    else                    contentType = "text/html"
-  "#{contentType}; charset=utf-8"
-
-
-http.createServer(handler).listen PORT, ->
-  console.log "Server running on 127.0.0.1:#{PORT}"
-  console.log "Press ctrl-C to stop server"
-  # require("child_process").exec "which open && open http://127.0.0.1:#{PORT}/test/index.html"
