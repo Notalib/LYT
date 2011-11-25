@@ -4,7 +4,7 @@ do ->
   class LYT.NCCDocument extends LYT.TextContentDocument
     constructor: (url) ->
       super url, (deferred) =>
-        @structure = parseStructure @xml
+        @structure = parseStructure @source
     
     # Find a section by its ID. If no ID is given,
     # the first section will be returned
@@ -25,30 +25,6 @@ do ->
   
   # ## Privileged
   
-  # Internal class to model a section (i.e. a heading and its
-  # sub-headings) of an NCC document
-  class NCCSection
-    constructor: (heading) ->
-      # Wrap the heading in a jQuery object
-      heading = jQuery heading
-      # Get the basic attributes
-      @id    = heading.attr "id"
-      @class = heading.attr "class"
-      # Get the anchor element of the heading, and its attributes
-      anchor = heading.find("a:first")
-      @title = jQuery.trim anchor.text()
-      @url   = anchor.attr "href"
-      # Create an array to collect any sub-headings
-      @children = []
-    
-    # Flattens the structure from this section and "downwards"
-    flatten: ->
-      flat = [this]
-      flat = flat.concat child.flatten() for child in @children
-      flat
-    
-  # -------
-  
   # Internal helper function to parse the (flat) heading structure of an NCC document
   # into a nested collection of `NCCSection` objects
   parseStructure = (xml) ->
@@ -63,7 +39,7 @@ do ->
         # Return the current index if the heading isn't the given level
         return index if heading.tagName.toLowerCase() isnt "h#{level}"
         # Create a section object
-        section = new NCCSection heading
+        section = new LYT.Section heading
         # Collect all higher-level headings into that section's `children` array,
         # and increment the `index` accordingly
         index += getConsecutive headings.slice(index+1), level+1, section.children

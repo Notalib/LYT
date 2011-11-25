@@ -70,7 +70,8 @@
   
 # ---------
 
-# These 6 lines replace the 26-34 lines in `SecToTime` _and_ does type checking… I deserve a damn medal for that! :-)
+# Convert seconds to a timecode string, e.g.
+#     formatTime(3723) #=> "1:02:03"
 @formatTime = (seconds) ->
   seconds = parseInt(seconds, 10)
   seconds = 0 if not seconds or seconds < 0
@@ -79,21 +80,21 @@
   seconds = "0" + (seconds % 60)
   "#{hours}:#{minutes.slice -2}:#{seconds.slice -2}"
 
-# Ok, so this one is actually a bit longer than the original in `SetTotalSeconds`, but it's way more robust and
-# handles times both with and without the hour component (e.g. both "24:36" and "1:32:53")
+# Convert a timecode string ("H:MM:SS" or "MM:SS") to seconds, e.g.
+#     parseTime("1:02:03") #=> 3723
 @parseTime = (string) ->
   components = String(string).match /^(\d*):?(\d{2}):(\d{2})$/
   return 0 unless components?
   components.shift()
-  # (Always use the radix argument for `parseInt`! Especially here, where `parseInt("08")` would return `0`, as "0*" is interpreted as octal, and 08 is meaningless in octal)
   components = (parseInt(component, 10) || 0 for component in components)
   components[0] * 3600 + components[1] * 60 + components[2]
 
 @toSentence = (array) ->
-  return "" if not (array instanceof Array)
+  return "" if not (array instanceof Array) or array.length is 0
   return String(array[0]) if array.length is 1
-  return "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
+  "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
   
 @getParam = (name, hash) ->
-    match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
-    return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
+  match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
+  return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
+

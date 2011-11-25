@@ -8,59 +8,50 @@
 	<!-- FIXME: I just put some title in there - find the proper one -->
 	<title>Nota &mdash; LYT</title>
 	
-	<!--View fullscreen on iOS devices if added to homescreen--> 
+	<!-- View fullscreen on iOS devices if added to homescreen --> 
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1">
 	
-	<!--Stable build jquerymobile-->
+	<!-- jQuery UI and jQuery Mobile stylesheets -->
 	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.css">
+	
+	<!-- App-specific stylesheets -->
 	<link rel="stylesheet" type="text/css" href="/css/nota.css">
-
+	
+	<!-- JavaScript libraries -->
 	<script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 	<script src="lib/jPlayer/jquery.jplayer.min.js"></script>
-		
-    <script src="javascript/utils.js"></script>
-	<script src="javascript/lyt.js"></script>
-	<script src="javascript/config.js"></script>
-	<script src="javascript/protocol.js"></script>
-	<script src="javascript/rpc.js"></script>
-	<script src="javascript/service.js"></script>
-	<script src="javascript/dtbdocument.js"></script>
-	<script src="javascript/textcontentdocument.js"></script>
-	<script src="javascript/smildocument.js"></script>
-	<script src="javascript/nccdocument.js"></script>
-	<script src="javascript/cache.js"></script>
-	<script src="javascript/settings.js"></script>
-	<script src="javascript/book.js"></script>
-	<script src="javascript/bookshelf.js"></script>
-	<script src="javascript/player.js"></script>
-	<script src="javascript/app.js"></script>
-	<script src="javascript/gui.js"></script>
-	<script src="javascript/main.js"></script>	
+	
+	<!-- App-specific javascript -->
+	<!-- scripts -->
+	
+	<!-- jQuery Mobile -->
 	<script src="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.js"></script>
 	
 </head>
 
 <body>
-
-    <div data-role="page" id="bookshelf">
-    	<header data-role="header" data-theme="">
-    		<a data-role="button" href="#search" data-icon="search">Find</a>
-    		<h1>Boghylde</h1>	
-    	</header>
-    	<div data-role="content" id="bookshelf-content">
-    	    <ul data-role="listview">
-    	    </ul>
-    	</div>
-    </div>
-
-<!-- body -->
-<!-- jquery mobile page templates are added here -->
-
+	
+	<!-- Initial "page" -->
+	<div data-role="page" id="bookshelf">
+		<header data-role="header" data-theme="">
+			<a data-role="button" href="#search" data-icon="search">Find</a>
+			<h1>Boghylde</h1>	
+		</header>
+		<div data-role="content" id="bookshelf-content">
+			<ul data-role="listview">
+			</ul>
+		</div>
+	</div>
+	
+	<!-- jQuery mobile page templates are added below -->
+	<!-- body -->
+	
 	<!-- Google Analytics -->
+	<!-- TODO: Perhaps it'd be nice to get this out of the HTML - just to keep things clean -->
 	<script type="text/javascript">
 		var _gaq = _gaq || [];
 		_gaq.push(['_setAccount', 'UA-25712607-1']);

@@ -1,0 +1,220 @@
+#!/usr/bin/env coffee
+
+http    = require "http"
+{parse} = require "url"
+fs      = require "fs"
+fs.path = require "path"
+
+# The port to listen on
+PORT = 7357
+
+# The www root directory
+ROOT = fs.path.resolve __dirname, "../build/"
+
+PROXY = process.argv.indexOf("proxy") isnt -1
+
+
+# --------------------------------------------
+
+
+# The initial request handler
+handleRequest = (request, response) ->
+  url = resolveRequestUrl request
+  unless url?
+    response.forbidden()
+    return 
+  try
+    if responders[url.pathname]?
+      if PROXY
+        proxy "m.nota.nu", request, response
+      else
+        responders[url.pathname] request, response, url
+    else
+      serve request, response, url
+  catch error
+    response.error error
+
+
+# Resolve the requested path relative to the www root,
+# taking into account the referrer path
+resolveRequestUrl = (request) ->
+  url = parse request.url, true
+  url.filename = fs.path.resolve "#{ROOT}/#{url.pathname}"
+  return null unless url.filename.match (new RegExp "^#{ROOT}")
+  url
+
+
+# Attempt to serve a static file or directory index
+serve = (request, response, url) ->
+  stats = fs.lstatSync url.filename
+  if stats.isDirectory()
+    if url.pathname.match /\/$/
+      indexDirectory url.filename, response
+    else
+      response.redirect "#{url.pathname}/"
+  else if stats.isFile()
+    response.sendFile url.filename
+  else
+    throw "Unreadable path"
+
+
+# Respond with a directory listing
+indexDirectory = (path, response) ->
+  fs.readdir path, (err, list) ->
+    throw err if err?
+    for file in list
+      if file.match /index.html?$/
+        response.sendFile "#{path}/#{file}"
+        return
+    
+    links = ("""<a href="#{file}">#{file}</a>""" for file in list when file.match /^[^.]/)
+    response.send "text/html; charset=utf-8", """<!DOCTYPE html>
+      <html>
+      <head>
+        <title>Listing /#{fs.path.relative ROOT, path}</title>
+      </head>
+      <body>
+        <h1>Listing /#{fs.path.relative ROOT, path}</h1>
+        #{links.join "<br>\n\t"}
+      </body>
+      </html>
+      """
+    response.end()
+
+
+# Guess a MIME-type based on filename extension
+mimetype = (path) ->
+  switch path.split(/\.+/).pop()
+    when "js"          then contentType = "text/javascript"
+    when "css"         then contentType = "text/css"
+    when "mp3"         then contentType = "audio/mp3"
+    when "jpg", "jpeg" then contentType = "image/jpeg"
+    when "gif"         then contentType = "image/gif"
+    when "png"         then contentType = "image/png"
+    when "smil", "xml" then contentType = "application/xml"
+    when "xhtml"       then contentType = "application/xhtml+xml"
+    when "html", "htm" then contentType = "text/html"
+    else                    contentType = "text/plain"
+  "#{contentType}; charset=utf-8"
+
+
+# --------------------------------------------
+
+
+# Extend Node's http.ServerResponse
+# with a bunch of convenience methods
+do ->
+  genericResponse = (code, name) ->
+    (message) ->
+      console.log "< #{code} #{name}"
+      @writeHead code, "Content-Type": "text/plain; charset=utf-8"
+      @write "#{code} #{name}\n\n"
+      @write "#{message}" if message?
+      @end()
+
+  http.ServerResponse::forbidden = genericResponse 403, "Forbidden"
+  http.ServerResponse::notFound  = genericResponse 404, "Not Found"
+  http.ServerResponse::error     = genericResponse 500, "Internal Error"
+  
+  http.ServerResponse::redirect = (code, location) ->
+    [code, location] = [302, code] if arguments.length < 2
+    @writeHead code, "Location": location
+    @end()
+  
+  http.ServerResponse::send = (contentType, data) ->
+    [contentType, data] = ["text/plain", contentType] if arguments.length < 2
+    @writeHead 200, "Content-Type": contentType
+    @write data
+    @end()
+    
+  http.ServerResponse::sendFile = (path, contentType = null) ->
+    contentType or= mimetype path
+    stream = fs.createReadStream path
+    
+    stream.on "error", (exception) =>
+      @error exception
+    
+    stream.on "open", (data) => 
+      @writeHead 200, "Content-Type": contentType
+    
+    stream.pipe this
+
+
+# --------------------------------------------
+
+
+# Custom responders for certain paths
+responders =
+  # Emulate the service
+  "/DodpMobile/Service.svc": (request, response, url) ->
+    data = ""
+    request.on "data", (chunk) ->
+      data += chunk.toString "utf8"
+    
+    request.on "end", ->
+      variant = if request.headers["x-testvariant"]? then ".#{request.headers["x-testvariant"]}" else ""
+      action = request.headers.soapaction
+      if action
+        console.log "Service: #{action} #{request.headers["x-testvariant"] or ""}"
+        response.sendFile "#{ROOT}/test/fixtures/service/#{action}#{variant}.xml", "text/xml; charset=utf-8"
+      else
+        response.error "Couldn't parse request"
+  
+  # Emulate the content distributor
+  "/DodpDistributor/Distribute.aspx": (request, response, url) ->
+    if not url.query.file?
+      response.notFound "No file specified"
+    else
+      path = "#{ROOT}/test/fixtures/content/#{fs.path.basename url.query.file}"
+      console.log "Content: #{url.query.file}"
+      contentType = if path.match /\.x?html?$/ then "application/xhtml+xml; charset=utf-8" else null
+      response.sendFile path, contentType
+
+
+# --------------------------------------------
+
+# A really in-elegant proxy-thing
+proxy = (host, request, response) ->
+  options =
+    host: host
+    port: 80
+    method: request.method
+    path: request.url
+    headers: {}
+  
+  for own header, value of request.headers
+    options.headers[header] = value if header isnt "content-length" and header isnt "transfer-encoding"
+  
+  options.headers["referer"] = "http://#{host}/"
+  options.headers["origin"]  = "http://#{host}"
+  
+  forward = http.request options, (incoming) ->
+    incoming.setEncoding "utf8"
+    headers = incoming.headers
+    headers["origin"] = request.headers["origin"]
+    delete headers["content-length"]
+    response.writeHead incoming.statusCode, headers
+    data = ""
+    incoming.on "data", (chunk) ->
+      data += chunk
+    incoming.on "end", ->
+      data = data.replace /[ ](src|href|uri)=(["'])http:\/\/[^\/]+/ig, " $1=$2"
+      response.write data
+      response.end()
+  
+  if request.method.toUpperCase() is "POST"
+    request.on "data", (chunk) -> forward.write chunk
+    request.on "end", -> forward.end()
+  else
+    forward.end()
+
+
+# --------------------------------------------
+
+
+# Start the server
+http.createServer(handleRequest).listen PORT, ->
+  console.log "Server running on http://127.0.0.1:#{PORT}"
+  console.log "Proxy mode on" if PROXY
+  console.log "Press ctrl-C to stop the server"
+

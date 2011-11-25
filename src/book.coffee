@@ -63,7 +63,7 @@ class LYT.Book
           
           # If the url of the resource is the NCC document,
           # save the resource for later
-          if localUri.match /^ncc\.html?$/i then ncc = @resources[localUri]
+          if localUri.match /^ncc\.x?html?$/i then ncc = @resources[localUri]
         
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document. Otherwise, fail.
@@ -84,12 +84,29 @@ class LYT.Book
       # 
       ncc.then (document) =>
         obj.document = @nccDocument = document
+        
+        metadata = @nccDocument.getMetadata()
+        
+        # Get the author(s)
+        creators = metadata.creator or []
+        @author = toSentence (creator.content for creator in creators)
+        
+        # Get the title
+        @title = metadata.title?.content or ""
+        
+        # Get the total time
+        @totalTime = metadata.totalTime?.content or ""
+        
         deferred.resolve this
       
     # Kick the whole process off
     issue @id
   
   # ----------
+  
+  # Gets the book's metadata (as stated in the NCC document)
+  getMetadata: ->
+    @nccDocument?.getMetadata() or null
   
   # Loads a section by its ID
   preloadSection: (section = null) ->
@@ -101,7 +118,7 @@ class LYT.Book
     # Fail if the section's not found
     unless section?
       deferred.reject(null)
-      return
+      return deferred
     
     sections = section.flatten()
     # Go through each section, and find the SMIL files to load
@@ -111,7 +128,7 @@ class LYT.Book
         url  = @resources[file]?.url
         unless url?
           deferred.reject(null) 
-          return
+          return deferred
         
         # Load the SMIL file, if it hasn't happened already
         unless @resources[file].document?
@@ -154,62 +171,151 @@ class LYT.Book
   # - start:          The start time, in seconds, relative to the audio
   # - end:            The end time, in seconds, relative to the audio
   # - audio:          The url of the audio file (or null)
-  # - text:           The text to display (or null)
+  # - html:           The HTML to display (or null)
   # - absoluteOffset: The _approximate_ absolute start time of the section
   mediaFor: (section = null, offset = null) ->
-    deferred = jQuery.Deferred()
-    
-    # Preload the sections or propagate the failure
-    preload = @preloadSection section
-    preload.fail -> deferred.resolve null
-    
-    # Once the sections have loaded, find the data for the
-    # time offset
-    preload.done (sections) =>
+    # Find the requested section
+    findSection = (sections) =>
       offset = offset or 0
+      clip = null
       for section in sections
-        par = null
-        if offset < section.document.duration
-          par = section.document.getParByTime offset
-        if par
-          media =
-            id:      par.id
-            section: section.id
-            start:   par.start
-            end:     par.end
-            absoluteOffset: section.document.absoluteOffset
-          
-          # Get the audio URL, if any
-          media.audio = @resources[par.audio.src]?.url or null if par.audio?.src?
-          #alert par.text.src
-          [txtfile, txtid] = if par.text?.src? then par.text.src.split("#") else [null, null]
-          
-          # Get the text, if any
-          if txtfile? and @resources[txtfile]
-            # Load the text document, if necessary
-            unless @resources[txtfile].document
-              @resources[txtfile].document = new LYT.TextContentDocument @resources[txtfile].url
-            # Get the text content
-            @resources[txtfile].document.done =>
-              media.text = @resources[txtfile].document.getTextById txtid
-              deferred.resolve media
-            
-            @resources[txtfile].document.fail =>
-              media.text = null
-              deferred.resolve media
-          else
-            media.text = null
-            deferred.resolve media
-          
-          # Exit the method, since a matching `<par>` element has been found
-          return deferred
+        # Check that the requested offset is in the section. If not,
+        # "shift" the offset, and try the next section
+        if offset > section.document.duration
+          offset -= section.document.duration
+          continue
         
-        offset -= section.document.duration
+        # Get the clip for offset
+        clip = section.document.getClipByTime offset
+        
+        if clip?
+          # If a clip was found, get the media for that clip
+          # Note that getMedia assumes responsibility for
+          # resolving/rejecting `deferred`
+          getMedia section, clip
+          # Return here, since something was found. Subsequent
+          # function will take responsibility for resolving/
+          # rejecting the deferred
+          return
       
-      # Didn't find anything in the loop above, so propagate `null`
+      # If no section was found, or no clip was found in the sections
+      # resolve with `null`  
+      # TODO: Reject with error?
       deferred.resolve null
     
-    # Return the deferred object
+    # Finds the media (audio URL, HTML) for a clip
+    getMedia = (section, clip) ->
+      media =
+        id:      clip.id
+        section: section.id # TODO: Move to NCCSection
+        start:   clip.start
+        end:     clip.end
+        absoluteOffset: section.document.absoluteOffset # TODO: Deprecate?
+        audio:   resolveRelativeUrl clip.audio.src
+        text:    null
+        html:    null
+      
+      # Find the content
+      content = getContent(clip.text.src)
+      
+      # If there isn't any, resolve and return
+      unless clip.text?.src?
+        deferred.resolve media
+        return
+      
+      # Otherwise, get the content
+      content.done (content) ->
+        jQuery.extend media, (content or {})
+        deferred.resolve media
+    
+    # Gets the content based on the relative src URL
+    getContent = (src) ->
+      # Create a deferred
+      process = jQuery.Deferred()
+      
+      # Check the input
+      unless src?
+        process.resolve null
+        return
+      
+      # Split the URL into the resource's filename and element ID
+      [resource, id] = src.split "#"
+      
+      # Get the resource
+      resource = getResource resource
+      
+      # Return null if there's no resource for that resouce-file
+      unless resource? and resource.url? and id?
+        process.resolve null
+        return
+      
+      # Load the text content document if necessary
+      resource.document = new LYT.TextContentDocument resource.url unless resource.document?
+      
+      # If the load fails, resolve `null`
+      resource.document.fail ->
+        process.resolve null
+      
+      # Otherwise, find and prepare the element
+      resource.document.done ->
+        element = resource.document.getElementById id
+        process.resolve prepareElement(element)
+      
+      # Return the deferred
+      process
+      
+    
+    # Parses a content HTML element (jQuery-wrapped)
+    prepareElement = (element) ->
+      
+      # Check the input
+      return null if not element? or element.length is 0
+      
+      # Remove links.  
+      # This will fall apart on nested links, I think.
+      # Then again, nested links are very illegal anyway
+      element.find("a").each ->
+        item = jQuery this
+        item.replaceWith item.html()
+      
+      # All image src urls are moved to a different attribute
+      # by DTBDocument to avoid the (overly aggressive and
+      # very annoying) must-load-all-images-now!-behavior of
+      # some browsers. It's annoying since the URLs are all
+      # relative, so the images (by the hundreds) just fail
+      # to load.  
+      # Now's the time to reinstate the URL's as absolute URLs
+      element.find("*[x-data-src]").each ->
+        item = jQuery this
+        src = item.attr "x-data-src"
+        item.attr "src", resolveRelativeUrl(src) or ""
+      
+      # Return what was found
+      text: jQuery.trim element.text() # TODO: Deprecate
+      html: element.html()
+    
+    # Get a resource by its local URL
+    getResource = (resource) =>
+      return null unless resource?
+      @resources[resource]
+    
+    # Get the absolute URL for a relative URL
+    resolveRelativeUrl = (relative) ->
+      getResource(relative)?.url or null
+    
+    # Create a deferred object
+    deferred = jQuery.Deferred()
+    
+    # Preload the sections
+    preload = @preloadSection section
+    
+    # If the preload fails, resolve with `null`
+    preload.fail -> deferred.resolve null
+    
+    # Otherwise find the requested section
+    preload.done findSection
+    
+    # Return the deferred
     deferred
   
 

@@ -4,15 +4,15 @@ do ->
   class LYT.SMILDocument extends LYT.DTBDocument
     constructor: (url) ->
       super url, (deferred) =>
-        mainSequence = @xml.find("body > seq:first")
+        mainSequence = @source.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
-        @pars        = parseMainSequence mainSequence
+        @clips       = parseMainSeqNode mainSequence
         metadata = @getMetadata()
         @absoluteOffset = if metadata.totalElapsedTime? then parseTime(metadata.totalElapsedTime.content) else null
     
-    getParByTime: (offset = 0) ->
-      for par in @pars
-        return par if par.start <= offset < par.end
+    getClipByTime: (offset = 0) ->
+      for clip in @clips
+        return clip if clip.start <= offset < clip.end
       
       return null
   
@@ -20,26 +20,40 @@ do ->
   
   # ## Privileged
   
-  # Parse the main `<seq>` element's `<par>` (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
-  parseMainSequence = (sequence) ->
-    pars = []
+  # Parse the main `<seq>` element's `<par>`s (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
+  parseMainSeqNode = (sequence) ->
+    clips = []
     sequence.children("par").each ->
-      par = jQuery this
-      audio = par.find "audio:first"
-      text  = par.find "text:first"
-      pars.push {
-        id:    par.attr "id"
-        start: parseNPT audio.attr("clip-begin")
-        end:   parseNPT audio.attr("clip-end")
-        audio:
-          id:  audio.attr "id"
-          src: audio.attr "src"
-        text:
-          id:  text.attr "id"
-          src: text.attr "src"
-      }
+      clips = clips.concat parseParNode(jQuery(this))
+    clips
+  
+  
+  # Parse a `<par>` node
+  parseParNode = (par) ->
+    # Find the `text` node, and parse it separately
+    text = parseTextNode par.find("text:first")
     
-    return pars
+    # Find all nested `audio` nodes
+    clips = par.find("seq > audio").map ->
+      audio = jQuery this
+      
+      id:    par.attr "id"
+      start: parseNPT audio.attr("clip-begin")
+      end:   parseNPT audio.attr("clip-end")
+      text:  text
+      audio:
+        id:  audio.attr "id"
+        src: audio.attr "src"
+    
+    # return as a straight array
+    jQuery.makeArray clips
+  
+  
+  parseTextNode = (text) ->
+    return null if text.length is 0
+    id:  text.attr "id"
+    src: text.attr "src"
+  
   
   # Parse the Normal Play Time format (npt=ss.s) (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
   parseNPT = (string) ->

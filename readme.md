@@ -9,14 +9,24 @@ Tests run with [QUnit](http://docs.jquery.com/QUnit)
 
 First, [read the style guide](/Notalib/LYT/wiki/Style-Guide).
 
-To compile the *.coffee source files, issue the following from the repo's root:
+To compile the CoffeeScript source files, issue the following from the repo's root:
 
-    $ tools/build src 
+    $ cake src
 
-To compile (concatenate, really) the *.html files, use:
+The compiled `.js` files will end up in `build/javascript`
 
-    $ tools/build html
+To compile (concatenate, really) the HTML files, use:
 
-To see what else you can build, run `tools/build` with no arguments:
+    $ cake html
 
-    $ tools/build
+This also copies the contents of `assets/` into the `build/` directory, and the contents of `css/` into `build/css`
+
+To see what else you can build, issue `cake` with no arguments:
+
+    $ cake
+
+To run a local webserver for testing purposes, issue the following (again from the repo's root):
+
+    $ tools/server
+
+This will start a (very simple) webserver that listens on http://127.0.0.1:7357, so you can check things out in a browser.
