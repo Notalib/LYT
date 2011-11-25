@@ -8,6 +8,8 @@ function copy_assets {
 }
 
 function print_usage {
+  echo "DEPRECATED. Use 'cake' instead" & exit 1
+  
   echo "Usage:
   build all
   build src|html|tests|docs [docs|html|...]
@@ -29,11 +31,13 @@ fi
 while [[ $# > 0 ]]; do # for each argument...
   case "$1" in
     "all" )
+      echo "DEPRECATED. Use 'cake' instead" & exit 1
       tools/build html src tests docs
       exit $?
       ;;
     
     "html" )
+      echo "DEPRECATED. Use 'cake html' instead" & exit 1
       mkdir -pm 0777 ./build
       
       # Concat the pages, and add a leading tab to each line
@@ -54,6 +58,7 @@ while [[ $# > 0 ]]; do # for each argument...
     ;;
     
     "src" )
+      echo "DEPRECATED. Use 'cake src' instead" & exit 1
       # Compile src into several files
       mkdir -pm 0777 ./build/javascript
       coffee -c -o ./build/javascript ./src/*.coffee || exit 1
@@ -65,6 +70,7 @@ while [[ $# > 0 ]]; do # for each argument...
     ;;
     
     "tests" )
+      echo "DEPRECATED. Use 'cake tests' instead" & exit 1
       mkdir -pm 0777 ./build/test
       
       # Compile the tests into a single file
@@ -81,6 +87,7 @@ while [[ $# > 0 ]]; do # for each argument...
     ;;
     
     "docs" )
+      echo "DEPRECATED. Use 'cake docs' instead" & exit 1
       # Run docco on the src files
       docco ./src/*.coffee 1> /dev/null || exit 1
       
