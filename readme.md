@@ -29,4 +29,4 @@ To run a local webserver for testing purposes, issue the following (again from t
 
     $ tools/server
 
-This will start a (very simple) webserver that listens on (localhost:7357)[http://127.0.0.1:7357], so you can check things out in a browser.
+This will start a (very simple) webserver that listens on http://127.0.0.1:7357, so you can check things out in a browser.
