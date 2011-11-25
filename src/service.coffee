@@ -4,21 +4,32 @@
 # 
 # - `logon:rejected` (data: none) - The username/password was rejected, or
 #    not supplied. User must log in
-# - `error:rpc` (data: `{code: [error constant]}`) - A communication error, e.g. timeout, occurred
-# - `error:service` (data: `{code: [error constant]}`) - The server barfed
+# - `error:rpc` (data: `{code: [RPC_* error constants]}`) - A communication error,
+#    e.g. timeout, occurred (see [rpc.coffee](rpc.html) for error codes)
+# - `error:service` (data: `{code: [DODP_* error constant]}`) - The server barfed
+#    (see [rpc.coffee](rpc.html) for error constants)
 #
+# Events are emitted and can be observed via jQuery. Example:
 #
-#
+#     jQuery(LYT.service).bind "logon:rejected", ->
+#       # go to the log-in page
 
+# ---------------
+
+# DEPRECATED
 window.SERVICE_MUST_LOGON_ERROR = {}
 
+# ---------------
+
 LYT.service = do ->
-  # "session" storage
+  # "session" storage  
+  # TODO: This should probably be moved
   session =
     username: null
     password: null
   
-  # The current logon process
+  # The current logon process  
+  # TODO: Should this be accessible from the outside?
   currentLogOnProcess = null
   
   # Emit an event
@@ -38,7 +49,6 @@ LYT.service = do ->
       else
         emit "error:server", code: code
   
-  # TODO: Store the currently outstanding logon-process?
   
   # Wraps a call in a couple of checks: If the call the fails,
   # check if the reason is due to the user not being logged in.
@@ -172,6 +182,8 @@ LYT.service = do ->
   logOn: logOn
   
   # TODO: Can logOff fail? If so, what to do?
+  # Also, there should probably be some global "cancel all
+  # outstanding ajax calls!" when log off is called
   logOff: ->
     LYT.rpc("logOff").always ->
       session.username = null
