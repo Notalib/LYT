@@ -5,12 +5,13 @@ http    = require "http"
 fs      = require "fs"
 fs.path = require "path"
 
-
 # The port to listen on
 PORT = 7357
 
 # The www root directory
 ROOT = fs.path.resolve __dirname, "../build/"
+
+PROXY = process.argv.indexOf("proxy") isnt -1
 
 
 # --------------------------------------------
@@ -24,7 +25,10 @@ handleRequest = (request, response) ->
     return 
   try
     if responders[url.pathname]?
-      responders[url.pathname] request, response, url
+      if PROXY
+        proxy "m.nota.nu", request, response
+      else
+        responders[url.pathname] request, response, url
     else
       serve request, response, url
   catch error
@@ -169,9 +173,48 @@ responders =
 
 # --------------------------------------------
 
+# A really in-elegant proxy-thing
+proxy = (host, request, response) ->
+  options =
+    host: host
+    port: 80
+    method: request.method
+    path: request.url
+    headers: {}
+  
+  for own header, value of request.headers
+    options.headers[header] = value if header isnt "content-length" and header isnt "transfer-encoding"
+  
+  options.headers["referer"] = "http://#{host}/"
+  options.headers["origin"]  = "http://#{host}"
+  
+  forward = http.request options, (incoming) ->
+    incoming.setEncoding "utf8"
+    headers = incoming.headers
+    headers["origin"] = request.headers["origin"]
+    delete headers["content-length"]
+    response.writeHead incoming.statusCode, headers
+    data = ""
+    incoming.on "data", (chunk) ->
+      data += chunk
+    incoming.on "end", ->
+      data = data.replace /[ ](src|href|uri)=(["'])http:\/\/[^\/]+/ig, " $1=$2"
+      response.write data
+      response.end()
+  
+  if request.method.toUpperCase() is "POST"
+    request.on "data", (chunk) -> forward.write chunk
+    request.on "end", -> forward.end()
+  else
+    forward.end()
+
+
+# --------------------------------------------
+
 
 # Start the server
 http.createServer(handleRequest).listen PORT, ->
   console.log "Server running on http://127.0.0.1:#{PORT}"
+  console.log "Proxy mode on" if PROXY
   console.log "Press ctrl-C to stop the server"
 
