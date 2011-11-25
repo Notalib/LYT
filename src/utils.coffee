@@ -56,7 +56,7 @@
       @closeGroup()
   
   # Same as `group` except it'll log when `config.logging` is 1 or higher  
-  # Logging level: 1 or higher
+  # Logging level: 1 or higher and messages will be logged as errors
   errorGroup: (title = "", messages...) ->
     return unless LYT.config.logging > 0
     method = console.groupCollapsed or console.group
