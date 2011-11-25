@@ -50,7 +50,7 @@ LYT.rpc = do ->
     # Convert the data obj to XML and insert it into the SOAP template
     xml = {}
     xml[action] = soap
-    xml = LYT.rpc.toXML xml
+    xml = toXML xml
     options.data = soapTemplate.replace /#\{body\}/, xml
     
     # Set the soapaction header
@@ -109,37 +109,10 @@ LYT.rpc = do ->
 
 # ---------
 
-# This utility function converts the arguments given to well-formed XML  
-# CHANGED: This function now _will_ re-encode encoded entities.
-# I.e. "&amp;" becomes "&amp;amp;"
+# Deprecated
 LYT.rpc.toXML = (hash) ->
-  xml = ""
-  
-  # Append XML-strings by recursively calling `toXML`
-  # on the data
-  append = (nodeName, data) ->
-    xml += "<ns1:#{nodeName}>#{LYT.rpc.toXML data}</ns1:#{nodeName}>"
-  
-  switch typeof hash
-    when "string", "number", "boolean"
-      # If the argument is a string, number or boolean,
-      # then coerce it to a string and use a pseudo element
-      # to handle the escaping of special chars
-      return jQuery("<div>").text(String(hash)).html()
-      
-    when "object"
-      # If the argument is an object, go through its members
-      for own key, value of hash
-        if value instanceof Array
-          # If the member is an array, use the `key`
-          # as the node name for each item
-          append key, item for item in value
-        else
-          # If the member's something else, pass it
-          # on to `append`
-          append key, value
-  
-  return xml
+  log.warn "LYT.rpc.toXML is deprecated. Use [window.]toXML instead"
+  toXML hash
 
 # ---------
 
