@@ -4,6 +4,9 @@ $(document).ready ->
 $(document).bind "mobileinit", ->  
   #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html     
   
+  #login failed event jQuery(LYT.service).
+  #
+  
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
       if typeof data.toPage is "string"
@@ -63,7 +66,6 @@ $(document).bind "mobileinit", ->
   $("#bookshelf").live "pagebeforeshow", (event) ->
     LYT.app.bookshelf()
     
- 
   $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
         $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
