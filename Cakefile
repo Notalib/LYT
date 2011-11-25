@@ -28,7 +28,7 @@ task "demo", "compile the demo page into build/demo", (options) ->
   src options, "#{DEST}/demo/javascript"
   find "#{ROOT}/demo", "coffee", (files) ->
     brew files, o: "#{DEST}/demo"
-  sync "#{ROOT}/demo/index.html", "#{DEST}/demo/index.html"
+  sync "#{ROOT}/demo/index.html", "#{DEST}/demo/"
 
 
 task "tests", "compile the tests (also compiles src/)", (options) ->
