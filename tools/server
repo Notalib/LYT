@@ -189,17 +189,27 @@ proxy = (host, request, response) ->
   options.headers["origin"]  = "http://#{host}"
   
   forward = http.request options, (incoming) ->
-    incoming.setEncoding "utf8"
     headers = incoming.headers
     headers["origin"] = request.headers["origin"]
     delete headers["content-length"]
+    
+    if headers['content-type'].match /^(text\/|application\/(xml|smil))/i
+      incoming.setEncoding "utf8"
+      rewriteURLs = true
+    else
+      rewriteURLs = false
+    
     response.writeHead incoming.statusCode, headers
     data = ""
     incoming.on "data", (chunk) ->
-      data += chunk
+      if rewriteURLs
+        data += chunk
+      else
+        response.write data
     incoming.on "end", ->
-      data = data.replace /[ ](src|href|uri)=(["'])http:\/\/[^\/]+/ig, " $1=$2"
-      response.write data
+      if rewriteURLs
+        data = data.replace /[ ](src|href|uri)=(["'])http:\/\/[^\/]+/ig, " $1=$2"
+        response.write data
       response.end()
   
   if request.method.toUpperCase() is "POST"
