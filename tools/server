@@ -1,17 +1,37 @@
 #!/usr/bin/env coffee
 
-http    = require "http"
-{parse} = require "url"
-fs      = require "fs"
-fs.path = require "path"
+http     = require "http"
+{parse}  = require "url"
+fs       = require "fs"
+fs.path  = require "path"
+{exec}   = require "child_process"
+optparse = require "./support/node_modules/optparse"
+
+
+opts = new optparse.OptionParser [
+  ["-p", "--proxy", "Act as a proxy for RPC calls"]
+  ["-l", "--live",  "JIT-compile changed src/ files"]
+  ["-h", "--help",  "Show this help"]
+]
+opts.banner = "Usage: tools/server [options]"
 
 # The port to listen on
 PORT = 7357
 
 # The www root directory
-ROOT = fs.path.resolve __dirname, "../build/"
+ROOT   = fs.path.resolve __dirname, "../build/"
+SRCDIR = fs.path.resolve __dirname, "../src/"
 
-PROXY = process.argv.indexOf("proxy") isnt -1
+# Options
+PROXY = no
+LIVE  = no
+
+opts.on "proxy", -> PROXY = yes
+opts.on "live", ->  LIVE  = yes
+opts.on "help", ->
+  console.log opts.toString()
+  process.exit 0
+opts.parse process.argv
 
 
 # --------------------------------------------
@@ -53,7 +73,11 @@ serve = (request, response, url) ->
     else
       response.redirect "#{url.pathname}/"
   else if stats.isFile()
-    response.sendFile url.filename
+    if (file = url.pathname.match /^\/javascript\/(.+?)\.js$/)
+      compile request, response, file[1], (err) ->
+        response.sendFile url.filename
+    else
+      response.sendFile url.filename
   else
     throw "Unreadable path"
 
@@ -80,6 +104,29 @@ indexDirectory = (path, response) ->
       </html>
       """
     response.end()
+
+
+# Compile a src/*.coffee file
+compiled = {}
+compile = (request, reponse, file, callback) ->
+  path = "#{SRCDIR}/#{file}.coffee"
+  try
+    stats = fs.lstatSync path
+    timestamp = stats.mtime.getTime()
+    if (compiled[file] or 0) >= timestamp
+      callback "unchanged"
+      return
+  catch error
+    callback error
+    return
+  console.log "Compiling src/#{file}.coffee ..."
+  exec "coffee -c -o '#{ROOT}/javascript' #{path}", (err, stdout, stderr) ->
+    if err? or stderr
+      console.log err or stderr
+      callback err or stderr
+    else
+      compiled[file] = timestamp
+      callback null
 
 
 # Guess a MIME-type based on filename extension
@@ -226,5 +273,6 @@ proxy = (host, request, response) ->
 http.createServer(handleRequest).listen PORT, ->
   console.log "Server running on http://127.0.0.1:#{PORT}"
   console.log "Proxy mode on" if PROXY
+  console.log "JIT compiling on" if LIVE
   console.log "Press ctrl-C to stop the server"
 
