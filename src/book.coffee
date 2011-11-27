@@ -166,13 +166,16 @@ class LYT.Book
   # The media object that's propagated has the following
   # members:
   #
-  # - id:             The id of the <par> element in the SMIL document
-  # - section:        The id of the section the media belongs to
-  # - start:          The start time, in seconds, relative to the audio
-  # - end:            The end time, in seconds, relative to the audio
-  # - audio:          The url of the audio file (or null)
-  # - html:           The HTML to display (or null)
-  # - absoluteOffset: The _approximate_ absolute start time of the section
+  # - id:              The id of the <par> element in the SMIL document
+  # - section:         The id of the section the media belongs to
+  # - start:           The start time, in seconds, relative to the audio
+  # - end:             The end time, in seconds, relative to the audio
+  # - audio:           The url of the audio file (or null)
+  # - html:            The HTML to display (or null)
+  # - text:            The text content of the HTML content (or null)
+  # - absoluteOffset:  The _approximate_ absolute start time of the section
+  # - previousSection: The ID of the previous section (or null)
+  # - nextSection:     The ID of the next section (or null)
   mediaFor: (section = null, offset = null) ->
     # Find the requested section
     findSection = (sections) =>
@@ -207,7 +210,9 @@ class LYT.Book
     getMedia = (section, clip) ->
       media =
         id:      clip.id
-        section: section.id # TODO: Move to NCCSection
+        section: section.id # TODO: Move to Section
+        previousSection: section.previousSection?.id or null # TODO: Move to Section
+        nextSection:     section.nextSection?.id or null     # TODO: Move to Section
         start:   clip.start
         end:     clip.end
         absoluteOffset: section.document.absoluteOffset # TODO: Deprecate?
