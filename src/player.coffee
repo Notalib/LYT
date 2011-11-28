@@ -3,13 +3,15 @@
 LYT.player = 
   ready: false 
   el: null
-  media: null #id, start, end, text
+  media: null #id, start, end, html
   section: null
   time: ""
   book: null #reference to an instance of book class
   togglePlayButton: null
   playing: false
   # todo: consider array of all played sections and a few following
+  
+  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
   
   setup: ->
     log.message 'player setup called'
@@ -21,7 +23,7 @@ LYT.player =
       ready: =>
         @ready = true
         log.message 'player is ready'
-        @el.jPlayer('setMedia', {mp3: 'http://m.nota.nu/sound/dixie.mp3'})
+        @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
         @togglePlayButton.click =>
           if @playing
             @el.jPlayer('pause')
@@ -56,10 +58,22 @@ LYT.player =
     
     'paused'
   
+  silentPlay: () =>
+      ###
+      IOS does not allow playing audio without a direct connection to a click event
+      we get around this here by starting playback of a silent audio file while 
+      the book media loads.
+      ###
+      
+      @stop
+      @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+      @play(0)
+  
   stop: ->
     # Stop playing and stop downloading current media file
     @el.jPlayer('stop')
     @el.jPlayer('clearMedia')
+    @book = null
     
     'stopped'
   
@@ -88,12 +102,9 @@ LYT.player =
           log.message 'failed to get media'
   
   renderText: () ->
-    jQuery("#book-text-content").html("<p id='#{@media.id}'>#{@media.text}</p>")
+    jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
   loadBook: (book, section, offset) ->
-    @el.jPlayer('clearMedia')
-    @el.jPlayer('stop')
-    
     @book = book
     @section = section
     

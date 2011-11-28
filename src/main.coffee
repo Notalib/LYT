@@ -1,14 +1,23 @@
+# This module serves as a router to the rest of the application and contains url entrypoints and event listeners
+
 $(document).ready ->
   LYT.player.setup()
 
-$(document).bind "mobileinit", ->  
-  #Todo:implement permanent links to books and chapters - http://jquerymobile.com/test/docs/pages/page-dynamic.html     
-  
-  #login failed event jQuery(LYT.service).
-  #
-  
+$(document).bind "mobileinit", ->
+  # wait for jplayer to be setup before initializing the app
+  if LYT.player.ready?
+    setup()
+  else
+    LYT.player.el.bind $.jPlayer.event.ready, (event) =>
+      setups()
+      
+setup = () ->
+  jQuery(LYT.service).bind 'logon:rejected', () ->
+    $.mobile.changePage  
+
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
+      # As done here http://jquerymobile.com/test/docs/pages/page-dynamic.html
       if typeof data.toPage is "string"
         u = $.mobile.path.parseUrl(data.toPage)
         if u.hash.search(/^#book-details/) isnt -1
@@ -20,41 +29,41 @@ $(document).bind "mobileinit", ->
         else if u.hash.search(/^#book-index/) isnt -1
           renderBookIndex u, data.options
           e.preventDefault()
-      
+
   $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
-        
+
         $.mobile.showPageLoadingMsg()
         $("#password").blur()
-        
+
         LYT.service.logOn($("#username").val(), $("#password").val())
           .done ->
             $.mobile.changePage "#bookshelf"
-            
+
           .fail ->
             log.message "log on failure"
-          
+
         event.preventDefault()
         event.stopPropagation()
-  
+
   ###      
   $("#book_index").live "pagebeforeshow", (event) ->
       $("#book_index_content").trigger "create"
       $("li[xhref]").bind "click", (event) ->
              $.mobile.showPageLoadingMsg()
-             
+
              if ($(window).width() - event.pageX > 40) or (typeof $(this).find("a").attr("href") is "undefined") # submenu handling
                 if $(this).find("a").attr("href")
                     event.preventDefault()
                     event.stopPropagation()
                     event.stopImmediatePropagation()                                         
-                    
+
                 else
                     event.stopImmediatePropagation()
                     $.mobile.changePage $(this).find("a").attr("href")###
 
   ###$("#book-play").live "pagebeforeshow", (event) ->
-            
+
         LYT.gui.covercache_one $("#book-middle-menu")
         $("#book-text-content").css "background", LYT.settings.get('markingColor').substring( LYT.settings.get('markingColor').indexOf("-", 0))
         $("#book-text-content").css "color", LYT.settings.get('markingColor').substring( LYT.settings.get('markingColor').indexOf("-", 0) + 1)
@@ -65,7 +74,7 @@ $(document).bind "mobileinit", ->
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
     LYT.app.bookshelf()
-    
+
   $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
         $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
@@ -101,7 +110,6 @@ $(document).bind "mobileinit", ->
             $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
             $("#book-text-content").css "background", vsettings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
             $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-   
+
   $("[data-role=page]").live "pageshow", (event, ui) ->
-        _gaq.push [ "_trackPageview", event.target.id ]      
-    
+        _gaq.push [ "_trackPageview", event.target.id ]

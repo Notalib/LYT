@@ -2,3 +2,5 @@
 build
 docs
 compiled/
+
+node_modules/

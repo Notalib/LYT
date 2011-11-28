@@ -1,12 +1,11 @@
 # Application logic
 
-#todo: create a listener for SERVICE_MUST_LOGON_ERROR that redirects to #login and sets next to requested page 
-
 LYT.app =
   currentBook: null
   next: "bookshelf"
   
   bookshelf: ->
+    $.mobile.showPageLoadingMsg()
     $page = $("#bookshelf")
     $content = $page.children(":jqmData(role=content)")
     
@@ -15,19 +14,15 @@ LYT.app =
         LYT.gui.renderBookshelf(books, $content)
         
         $content.find('a').click ->
-          log.message 'click'
-          if LYT.player.ready
-            alert 'dixie chicks'
-            #LYT.player.play()
-            LYT.player.el.jPlayer('play')
-            #LYT.player.pause()
+          log.message 'We got some dixie chicks for ya while you wait for your book!'
+          LYT.player.silentPlay()
         
         $.mobile.hidePageLoadingMsg()
       .fail (error, msg) ->
-        if error is SERVICE_MUST_LOGON_ERROR
-          $.mobile.changePage("#login")
+        log.message "failed with error #{error} and msg #{msg}"
   
   bookDetails: (urlObj, options) ->
+    $.mobile.showPageLoadingMsg()
     #todo: clear data from earlier book
     bookId = urlObj.hash.replace(/.*book=/, "")
     
@@ -58,10 +53,10 @@ LYT.app =
         $.mobile.changePage $page, options         
 
       .fail (error, msg) ->
-        if error is SERVICE_MUST_LOGON_ERROR
-          $.mobile.changePage("#login")
+        log.message "failed with error #{error} and msg #{msg}"
   
-  bookPlayer: (urlObj, options) -> 
+  bookPlayer: (urlObj, options) ->
+    $.mobile.showPageLoadingMsg() 
     pageSelector = urlObj.hash.replace(/\?.*$/, "")
     
     bookId = getParam('book', urlObj.hash)
@@ -71,6 +66,8 @@ LYT.app =
     $page = $(pageSelector)
     $header = $page.children( ":jqmData(role=header)" )
     $content = $page.children( ":jqmData(role=content)" )
+    
+    #currentBook
     
     book = new LYT.Book(bookId)                            
       .done (book) ->
@@ -82,13 +79,8 @@ LYT.app =
         section = book.nccDocument.structure[sectionNumber]
         
         LYT.gui.renderBookPlayer(metadata, section, $page)
-        
-        if not LYT.player.ready
-          LYT.player.setup()  
-          LYT.player.el.bind jQuery.jPlayer.event.ready, (event) =>
-             LYT.player.loadBook(book, section, offset)
-        else
-          LYT.player.loadBook(book, section, offset)
+
+        LYT.player.loadBook(book, section, offset)
                           
         ###
         $("#book-play").bind "swiperight", ->
@@ -104,8 +96,7 @@ LYT.app =
         $.mobile.changePage $page, options        
         
       .fail (error, msg) ->
-        if error is SERVICE_MUST_LOGON_ERROR
-          $.mobile.changePage("#login")
+        log.message "failed with error #{error} and msg #{msg}"
 
   eventSystemTime: (t) ->
       total_secs = undefined
@@ -119,9 +110,4 @@ LYT.app =
       $("#current_time").text SecToTime(t)
       $("#total_time").text $("#NccRootElement").attr("totaltime")
       $("#timeline_progress_left").css "width", current_percentage + "%"
-
-  logUserOff: ->
-      LYT.settings.set('username', "")
-      LYT.settings.set('password', "")
-      LYT.protocol.LogOff()
       
