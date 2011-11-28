@@ -90,7 +90,7 @@ LYT.rpc = do ->
       if faultcode or faultstring or $xml.find("Fault").length > 0
         fault = identifyDODPError faultcode, faultstring
         log.errorGroup "RPC: Resource error: #{faultcode}: #{faultstring}", data
-        deferred.reject fault, message
+        deferred.reject fault, faultstring
         return
       
       log.group "RPC: Response for action \"#{action}\"", data
