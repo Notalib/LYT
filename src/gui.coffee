@@ -55,4 +55,36 @@ LYT.gui =
     else
       "Lydbog med tekst"
    
-  #renderBookIndex: (book, view) ->
+  renderBookIndex: (book, view) ->  
+    # Recursively builds nested ordered lists from an array of items
+    mapper = (list, items) ->
+      log.message items
+      for item in items
+        element = jQuery "<li></li>"
+        element.attr "id", item.id
+        element.attr "data-href", item.href
+        element.text item.title
+        if item.children.length > 0
+          nested = jQuery "<ol></ol>"
+          mapper(nested, item.children)
+          element.append nested
+        list.append element
+        
+        element.click ->
+          log.message "go to now: #book-play?book=#{book.id}&section=#{item.id}"
+          $.mobile.changePage "#book-play?book=#{book.id}&section=#{item.id}"
+        
+
+    # Create an uordered list wrapper for the list
+    list = view.children("ol").empty()
+    list.attr "data-title", book.title
+    list.attr "data-author", book.author
+    list.attr "data-totalTime", book.totalTime
+    list.attr "id", "NCCRootElement"
+    mapper(list, book.nccDocument.structure)
+    
+    list.trigger 'create'
+    
+    #log.message list
+  
+    
