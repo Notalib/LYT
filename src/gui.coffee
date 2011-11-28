@@ -6,29 +6,29 @@ LYT.gui =
     #todo: add pagination
     list = view.find("ul")
     for book in books
-      log.message book
       list.append("""<li><a href="#book-play?book=#{book.id}"><h1>#{book.title}</h1><h2>#{book.author}</h2></a></li>""")
     
     list.listview('refresh')
   
   renderBookPlayer: (metadata, section, view) ->
     #fixme: something in this function makes the app hang indefinetely on android phones
+    #todo: use direct properties on book class book.title .author and .totaltime
     #alert "rendering book player book title"
-    #view.find("#title").text metadata.title.content
+    view.find("#title").text metadata.title.content
     #alert "rendering book player boo creator"
-    #if metadata.creator?   
-    #  view.find("#author").text toSentence(item.content for item in metadata.creator)
+    if metadata.creator?   
+      view.find("#author").text toSentence(item.content for item in metadata.creator)
     #alert "rendering book player section title" 
-    #view.find("#book_chapter").text section.title
+    view.find("#book_chapter").text section.title
     #alert "done"
     
   renderBookDetails: (metadata, view) ->
     view.find("#title").text metadata.title.content
     
-    if metadata.creator?    
+    if metadata.creator?
       view.find("#author").text toSentence(item.content for item in metadata.creator)
     
-    if metadata.narrator? 
+    if metadata.narrator?
       view.find("#narrator").text toSentence(item.content for item in metadata.narrator)
     
     view.find("#totaltime").text metadata.totalTime.content

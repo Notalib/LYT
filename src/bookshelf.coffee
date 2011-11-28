@@ -4,7 +4,6 @@ LYT.bookshelf =
     LYT.service.getBookshelf()
     
   add: (id) ->
-    
   
   remove: (id) ->
     

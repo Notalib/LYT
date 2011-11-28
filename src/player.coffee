@@ -23,7 +23,7 @@ LYT.player =
       ready: =>
         @ready = true
         log.message 'Player: setup complete'
-        @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+        @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})       
         
         @togglePlayButton.click =>
           if @playing
@@ -46,7 +46,13 @@ LYT.player =
       
       ended: (event) =>
         @nextSection()
-        
+      
+      canplay: (event) =>
+        log.message 'can play'
+        @play()
+      
+      progress: (event) =>
+        log.message 'progress'
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -67,8 +73,7 @@ LYT.player =
       the book media loads.
       ###
       
-      #@stop()
-      #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+      @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
   
   stop: ->
@@ -105,18 +110,18 @@ LYT.player =
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
   loadSection: (book, section, offset = 0) ->
-    alert "Player: load book"
+    #alert "Player: load book"
     @book = book
     @section = section
     
     @book.mediaFor(@section, offset).done (media) =>
-      log.message media
+      #log.message media
       if media
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
         @renderText()
-        sleep(10)
-        @play()
+        #sleep(10)
+        #@play()
       else
         log.message 'Player: failed to get media'
           
@@ -124,10 +129,12 @@ LYT.player =
     #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
     return unless @media.nextSection?
     @loadSection(@book, @media.nextSection)
+    @play()
     
   previousSection: () ->
     return unless @media.previousSection?
     @loadSection(@book, @media.previousSection)
+    @play()
      
 
   

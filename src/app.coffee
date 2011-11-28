@@ -13,6 +13,7 @@ LYT.app =
       .done (books) ->
         LYT.gui.renderBookshelf(books, $content)
         
+        ###
         $content.find('a').click ->
           alert 'We got some dixie chicks for ya while you wait for your book!'
           if LYT.player.ready
@@ -20,6 +21,7 @@ LYT.app =
           else
             LYT.player.el.bind $.jPlayer.event.ready, (event) ->
               LYT.player.silentPlay()
+        ###
         
         $.mobile.hidePageLoadingMsg()
       .fail (error, msg) ->
@@ -75,37 +77,37 @@ LYT.app =
         metadata = book.nccDocument.getMetadata()
         book.nccDocument.structure 
         
-        alert "App: got book"
+        #alert "App: got book"
         section = book.nccDocument.structure[sectionNumber]
         
-        alert "App: about to render book"
+        #alert "App: about to render book"
         LYT.gui.renderBookPlayer(metadata, section, $page)
-        alert "App: finished rendering book"
+        #alert "App: finished rendering book"
         
         if LYT.player.ready
-          alert "App: player was ready loading secttion"
+          #alert "App: player was ready loading section"
           LYT.player.loadSection(book, section.id, offset)
         else
           LYT.player.el.bind $.jPlayer.event.ready, (event) ->
-            alert "App: player was not ready waiting for it"
+            #alert "App: player was not ready waiting for it"
             LYT.player.loadSection(book, section.id, offset)
                                 
         ###
         $("#book-play").bind "swiperight", ->
-            LYT.player.nextPart()
+            LYT.player.nextSection()
 
         $("#book-play").bind "swipeleft", ->
-            LYT.player.previousPart()
+            LYT.player.previousSection()
         ###
                 
-        #$page.page()
+        $page.page()
         options.dataUrl = urlObj.href
         $.mobile.hidePageLoadingMsg()
-        alert "App: changing the page"
+        #alert "App: changing the page"
         $.mobile.changePage $page, options
         
-      .fail (error, msg) ->
-        log.message "failed with error #{error} and msg #{msg}"
+      .fail () ->
+        log.message "failed"
 
   eventSystemTime: (t) ->
       total_secs = undefined
