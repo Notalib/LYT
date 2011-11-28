@@ -2,6 +2,12 @@
 
 class LYT.Book
   
+  # Factory-method
+  this.load = do ->
+    loaded = {}
+    (id) -> loaded[id] or (loaded[id] = new LYT.Book id)
+      
+  
   # The constructor takes one argument; the ID of the book.  
   # The instantiated object acts as a Deferred object, as the instantiation of a book
   # requires several RPCs and file downloads, all of which are performed asynchronously.
