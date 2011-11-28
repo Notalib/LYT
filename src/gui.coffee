@@ -5,6 +5,7 @@ LYT.gui =
   renderBookshelf: (books, view) ->
     #todo: add pagination
     list = view.find("ul")
+    list.empty()
     for book in books
       list.append("""<li><a href="#book-play?book=#{book.id}"><h1>#{book.title}</h1><h2>#{book.author}</h2></a></li>""")
     

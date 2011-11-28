@@ -4,9 +4,13 @@ $(document).ready ->
   LYT.player.setup()
 
 $(document).bind "mobileinit", ->
+  
   $(LYT.service).bind "logon:rejected", () ->
     $.mobile.changePage "#login"
-
+  
+  $(LYT.service).bind "error:rpc", () ->
+    #$.mobile.changePage "#login"  
+  
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
       # As done here http://jquerymobile.com/test/docs/pages/page-dynamic.html

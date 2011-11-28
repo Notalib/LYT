@@ -8,6 +8,8 @@ LYT.player =
   time: ""
   book: null #reference to an instance of book class
   togglePlayButton: null
+  nextButton: null
+  previousButton: null
   playing: false
   # todo: consider array of all played sections and a few following
   
@@ -17,13 +19,23 @@ LYT.player =
     log.message 'Player: starting setup'
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")
+    
     @togglePlayButton = jQuery("a.toggle-play")
+    @nextButton = jQuery("a.next-section")
+    @previousButton = jQuery("a.previous-section")
     
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
         log.message 'Player: setup complete'
-        @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})       
+        #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+        #todo: add a silent state where we do not play on can play   
+        
+        @nextButton.click =>
+          @nextSection()
+        
+        @previousButton.click =>
+          @previousSection()
         
         @togglePlayButton.click =>
           if @playing
@@ -34,7 +46,7 @@ LYT.player =
         null
       
       timeupdate: (event) =>
-        @updateText(event.jPlayer.status.currentTime)
+        @updateHtml(event.jPlayer.status.currentTime)
       
       play: (event) =>
         @togglePlayButton.find("img").attr('src', '/images/pause.png')
@@ -53,6 +65,7 @@ LYT.player =
       
       progress: (event) =>
         log.message 'progress'
+        @renderHtml()
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -92,7 +105,7 @@ LYT.player =
     
     'playing'
   
-  updateText: (time) ->
+  updateHtml: (time) ->
     # Continously update media for current time of section
     return unless @book?
     return unless @media?
@@ -102,11 +115,11 @@ LYT.player =
       @book.mediaFor(@section,@time).done (media) =>
         if media
           @media = media
-          @renderText()
+          @renderHtml()
         else
           log.message 'Player: failed to get media'
   
-  renderText: () ->
+  renderHtml: () ->
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
   loadSection: (book, section, offset = 0) ->
@@ -115,26 +128,25 @@ LYT.player =
     @section = section
     
     @book.mediaFor(@section, offset).done (media) =>
-      #log.message media
+      log.message media
       if media
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
-        @renderText()
-        #sleep(10)
-        #@play()
       else
         log.message 'Player: failed to get media'
           
   nextSection: () ->
+    
     #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
     return unless @media.nextSection?
+    @pause()
     @loadSection(@book, @media.nextSection)
-    @play()
     
   previousSection: () ->
+    
     return unless @media.previousSection?
+    @pause()
     @loadSection(@book, @media.previousSection)
-    @play()
      
 
   
