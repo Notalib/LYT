@@ -41,13 +41,14 @@ LYT.rpc = do ->
       DODP_UNSUPPORTED_OP_ERROR: ///\b operationNotSupported ///i
       DODP_INVALID_OP_ERROR:     ///\b invalidOperation ///i
       DODP_INVALID_PARAM_ERROR:  ///\b invalidParameter ///i
-      # A catch-all error, in case none of the other errors
-      # match (which they should, according to the spec, but
-      # that's no guarantee)
-      DODP_UNKNOWN_ERROR:        "unknownerror" 
 
     # Add the faux-constants to `window`
     window[fault] = {} for fault of faultCodes
+    
+    # A catch-all error, in case none of the other errors
+    # match (which they should, according to the spec, but
+    # that's no guarantee)
+    window.DODP_UNKNOWN_ERROR = {}
     
     # Return the function
     (code, string) ->
@@ -57,8 +58,13 @@ LYT.rpc = do ->
   
   
   # Error-handler-factory-function-and-I-like-hyphens
-  createErrorHandler = (deferred) ->
+  createErrorHandler = (deferred, successHandler) ->
     (jqXHR, status, error) ->
+      if jqXHR.status is 500 and jqXHR.responseXML?
+        successHandler jqXHR.responseXML, jqXHR.status, jqXHR
+        return
+        
+      console.log status, jqXHR, jqXHR.responseXML
       switch status
         when "timeout"
           deferred.reject RPC_TIMEOUT_ERROR, error
@@ -79,7 +85,9 @@ LYT.rpc = do ->
     handlers = LYT.protocol[action]
     
     (data, status, xhr) ->
-      $xml = jQuery data
+      if not data or not ($xml = jQuery data)
+        deferred.reject DODP_UNKNOWN_ERROR, "Unknown error"
+        return
       
       # TODO: This is kinda brittle. Unless the server totally respects the
       # DODP/SOAP specifications, there're all kinds of ways this code will
@@ -151,7 +159,9 @@ LYT.rpc = do ->
     
     # Set up the success/error handlers
     options.success = createResponseHandler action, deferred
-    options.error   = createErrorHandler deferred
+    
+    # FIXME: Structure this better, so the errorHandler doesn't need to be passed the success-handler
+    options.error   = createErrorHandler deferred, options.success
     
     # Perform the request
     jQuery.ajax options
