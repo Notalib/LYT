@@ -5,15 +5,20 @@ do ->
     constructor: (url) ->
       super url, (deferred) =>
         @structure = parseStructure @source
+        @sectionList = flattenStructure @structure
+        
+        # FIXME: This isn't pretty, and shouldn't be handled here!
+        for section, index in @sectionList
+          section.previousSection = @sectionList[index-1] if index > 0
+          section.nextSection     = @sectionList[index+1] if index < @sectionList.length-1
     
     # Find a section by its ID. If no ID is given,
     # the first section will be returned
     findSection: (id = null) ->
       find = (id, sections) ->
         for section in sections
-          if section.id is id
-            return section
-          else if section.children?
+          return section if section.id is id
+          if section.children?
             child = find id, section.children
             return child if child?
         return null
@@ -60,3 +65,14 @@ do ->
     getConsecutive headings, level, structure
     return structure
   
+  
+  flattenStructure = (structure) ->
+    flat = []
+    for section in structure
+      flat.push section
+      flat = flat.concat flattenStructure(section.children)
+    flat
+    
+  
+
+

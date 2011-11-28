@@ -1,6 +1,8 @@
 # This file contains the `LYT.DTBDocument` class, which forms the basis for other classes.
 # It is not meant for direct instantiation.
 
+# FIXME: Improve error-handling, and send requests through service (or something)
+
 do ->
   # Meta-element name attribute values to look for
   # Name attribute values for nodes that may appear 0-1 times per file  
@@ -74,7 +76,7 @@ do ->
       dataType = if @url.match(/\.x?html?$/i)? then "html" else "xml"
       
       coerceToHTML = (responseText) =>
-        console.log "DTB: Coercing #{@url} into HTML"
+        log.message "DTB: Coercing #{@url} into HTML"
         html = jQuery "<html/>"
         document = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
         return null unless (document = document[1])?
@@ -117,7 +119,6 @@ do ->
           callback? deferred
           deferred.resolve this
         else
-          console.log "Rejecting #{@source?} #{typeof @source}"
           deferred.reject -1, "FAILED_TO_LOAD"
       
       log.message "DTB: Getting: #{@url}"

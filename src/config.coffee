@@ -29,5 +29,8 @@ LYT.config =
       serialNumber: "1"
       version:      "1"
       config:       null
+  
+  service:
+    logOnAttempts: 3
     
   

@@ -1,3 +1,8 @@
+# TODO: Split this file up? Perhaps namespace some of it
+# under `LYT`? Or `utils`. Just seems a little weird that
+# the global logging functions are dependent on e.g.
+# `LYT.config`
+
 # A facade for `console.*` functions
 #
 # These functions respect the `config.logging` setting
@@ -15,6 +20,13 @@
   error: (messages...) ->
     return unless LYT.config.logging > 0
     method = console.error or console.log
+    method?.apply console, messages
+  
+  # Error-checking alias for `console.warn()` (falls back to `console.log`)  
+  # Logging level: 1 or higher
+  warn: (messages...) ->
+    return unless LYT.config.logging > 0
+    method = console.warn or console.log
     method?.apply console, messages
   
   # Error-checking alias for `console.info()` (falls back to `console.log`)  
@@ -44,7 +56,7 @@
       @closeGroup()
   
   # Same as `group` except it'll log when `config.logging` is 1 or higher  
-  # Logging level: 1 or higher
+  # Logging level: 1 or higher and messages will be logged as errors
   errorGroup: (title = "", messages...) ->
     return unless LYT.config.logging > 0
     method = console.groupCollapsed or console.group
@@ -97,4 +109,38 @@
 @getParam = (name, hash) ->
   match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
   return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
+
+# This utility function converts the arguments given to well-formed XML  
+# CHANGED: This function now _will_ re-encode encoded entities.
+# I.e. "&amp;" becomes "&amp;amp;"
+@toXML = do ->
+  # Defined inside a closure since it's recursive and needs to be
+  # able to call itself regardless of its name "on the outside"
+  toXML = (hash) ->
+    xml = ""
+    
+    # Append XML-strings by recursively calling `toXML`
+    # on the data
+    append = (nodeName, data) ->
+      xml += "<ns1:#{nodeName}>#{toXML data}</ns1:#{nodeName}>"
+    
+    switch typeof hash
+      when "string", "number", "boolean"
+        # If the argument is a string, number or boolean,
+        # then coerce it to a string and use a pseudo element
+        # to handle the escaping of special chars
+        return jQuery("<div>").text(String(hash)).html()
+    
+      when "object"
+        # If the argument is an object, go through its members
+        for own key, value of hash
+          if value instanceof Array
+            # If the member is an array, use the `key`
+            # as the node name for each item
+            append key, item for item in value
+          else
+            # If the member's something else, pass it
+            # on to `append`
+            append key, value
+    xml
 

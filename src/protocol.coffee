@@ -10,16 +10,19 @@
 # call initiate further calls to the server, and generally be as isolated from
 # the rest of the system as possible.
 #
-# CHANGED: Deprecated the `complete` function in favor of the Promise/Deferred pattern
+# CHANGED: Deprecated the `complete` function in favor of the Promise/Deferred pattern  
+# CHANGED: Removed the `error` function since it'd be rather complex to make it
+# work with the deferred object created by LYT.rpc
+# 
 # 
 # An RPC object can have the following functions:
 #
 #  - `request`   - returns the data to be sent as the request body
 #  - `receive`   - parses the response from the server, if the request is successful, and returns the parsed data
-#  - `error`     - handles errors
+#  - `error`     - (REMOVED) handles errors
 #  - `complete`  - (DEPRECATED) will be called when the request completes, regardless of success or failure
 #
-# All these members are optional (see below). The `error` and `complete` callbacks.
+# All these members are optional (see below).
 # 
 # An RPC is called by passing its name to the [`rpc` function](rpc.html),
 # passing along whatever arguments are needed:
@@ -72,10 +75,10 @@
 #         # the initial parsing and checking of the
 #         # XML data returned by the server.
 #         # If there's a problem with the data,
-#         # the receive function can return
-#         # RPC_ERROR
+#         # the receive function throw an exception
+#         # (the exception being a simple string)
 #         if $xml.find("result").length is 0 then
-#           return RPC_ERROR
+#           throw "Uh-oh"
 #
 #         # In this example, that means extracting
 #         # the user IDs returned by the server
@@ -88,9 +91,7 @@
 #         # as multiple arguments. So wrap the ids
 #         # in another array
 #         return [ids]
-#       
-#       # The error handler
-#       error: (xhr, status, error) -> ...
+# 
 
 LYT.protocol =
   
@@ -102,12 +103,14 @@ LYT.protocol =
       password: password
     
     receive: ($xml, data) ->
-      $xml.find("logOnResult").text() is "true" or RPC_ERROR
+      throw "logOnFailed" unless $xml.find("logOnResult").text() is "true"
+      true
   
   
   logOff:
     receive: ($xml, data) ->
-      $xml.find("logOffResult").text() is "true" or RPC_ERROR
+      throw "logOffResult failed" unless $xml.find("logOffResult").text() is "true"
+      true
   
   
   # TODO: Do we need to pull anything besides the optional operations out of the response?
@@ -124,7 +127,8 @@ LYT.protocol =
       readingSystemAttributes: LYT.config.protocol.readingSystemAttributes
     
     receive: ($xml, data) ->
-      $xml.find("setReadingSystemAttributesResult").text() is "true" or RPC_ERROR
+      throw "setReadingSystemAttributes failed" unless $xml.find("setReadingSystemAttributesResult").text() is "true"
+      true
   
   
   getServiceAnnouncements:
@@ -169,7 +173,8 @@ LYT.protocol =
       contentID: bookID
     
     receive: ($xml) ->
-      $xml.find('issueContentResult').text() is "true" or RPC_ERROR
+      throw "issueContent failed" unless $xml.find('issueContentResult').text() is "true"
+      true
       
     
   returnContent:
@@ -177,7 +182,8 @@ LYT.protocol =
       contentID: bookID
     
     receive: ($xml) ->
-      $xml.find("returnContentResult").text() is "true" or RPC_ERROR
+      throw "returnContent failed" unless $xml.find("returnContentResult").text() is "true"
+      true
   
   
   getContentMetadata:
@@ -230,7 +236,8 @@ LYT.protocol =
       bookmarkSet
       
     response: ($xml) ->
-      $xml.find("setBookmarksResult").text() is "true" or RPC_ERROR
+      throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"
+      true
     
   
 

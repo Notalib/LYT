@@ -11,6 +11,10 @@ class LYT.Section
     @url   = anchor.attr "href"
     # Create an array to collect any sub-headings
     @children = []
+    
+    # TODO: Shoddy quick-fix. Will go away!
+    @nextSection     = null
+    @previousSection = null
   
   
   # Flattens the structure from this section and "downwards"
@@ -18,3 +22,4 @@ class LYT.Section
     flat = [this]
     flat = flat.concat child.flatten() for child in @children
     flat
+  
