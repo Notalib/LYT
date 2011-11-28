@@ -4,16 +4,8 @@ $(document).ready ->
   LYT.player.setup()
 
 $(document).bind "mobileinit", ->
-  # wait for jplayer to be setup before initializing the app
-  if LYT.player.ready?
-    setup()
-  else
-    LYT.player.el.bind $.jPlayer.event.ready, (event) =>
-      setups()
-      
-setup = () ->
-  jQuery(LYT.service).bind 'logon:rejected', () ->
-    $.mobile.changePage  
+  $(LYT.service).bind "logon:rejected", () ->
+    $.mobile.changePage "#login"
 
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string

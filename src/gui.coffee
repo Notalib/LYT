@@ -12,11 +12,15 @@ LYT.gui =
     list.listview('refresh')
   
   renderBookPlayer: (metadata, section, view) ->
-    view.find("#title").text metadata.title.content
-    if metadata.creator?   
-      view.find("#author").text toSentence(item.content for item in metadata.creator)
-     
-    view.find("#book_chapter").text section.title
+    #fixme: something in this function makes the app hang indefinetely on android phones
+    #alert "rendering book player book title"
+    #view.find("#title").text metadata.title.content
+    #alert "rendering book player boo creator"
+    #if metadata.creator?   
+    #  view.find("#author").text toSentence(item.content for item in metadata.creator)
+    #alert "rendering book player section title" 
+    #view.find("#book_chapter").text section.title
+    #alert "done"
     
   renderBookDetails: (metadata, view) ->
     view.find("#title").text metadata.title.content

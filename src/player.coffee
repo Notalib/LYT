@@ -14,7 +14,7 @@ LYT.player =
   SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
   
   setup: ->
-    log.message 'player setup called'
+    log.message 'Player: starting setup'
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")
     @togglePlayButton = jQuery("a.toggle-play")
@@ -22,8 +22,9 @@ LYT.player =
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
-        log.message 'player is ready'
+        log.message 'Player: setup complete'
         @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+        
         @togglePlayButton.click =>
           if @playing
             @el.jPlayer('pause')
@@ -44,7 +45,8 @@ LYT.player =
         @playing = false
       
       ended: (event) =>
-        @playing = false
+        @nextSection()
+        
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -58,22 +60,19 @@ LYT.player =
     
     'paused'
   
-  silentPlay: () =>
+  silentPlay: () ->
       ###
       IOS does not allow playing audio without a direct connection to a click event
       we get around this here by starting playback of a silent audio file while 
       the book media loads.
       ###
       
-      @stop
-      @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+      #@stop()
+      #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
   
   stop: ->
-    # Stop playing and stop downloading current media file
     @el.jPlayer('stop')
-    @el.jPlayer('clearMedia')
-    @book = null
     
     'stopped'
   
@@ -91,42 +90,44 @@ LYT.player =
   updateText: (time) ->
     # Continously update media for current time of section
     return unless @book?
+    return unless @media?
     @time = time
     if @media.end < @time
-      #log.message('current media has ended at ' + @media.end + ' getting new media for ' + @time ) 
-      @book.mediaFor(@section.id,@time).done (media) =>
+      log.message("Player: current media has ended at #{@media.end} getting new media for #{@time}") 
+      @book.mediaFor(@section,@time).done (media) =>
         if media
           @media = media
           @renderText()
         else
-          log.message 'failed to get media'
+          log.message 'Player: failed to get media'
   
   renderText: () ->
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
-  loadBook: (book, section, offset) ->
+  loadSection: (book, section, offset = 0) ->
+    alert "Player: load book"
     @book = book
     @section = section
     
-    @book.mediaFor(@section.id,0).done (media) =>
+    @book.mediaFor(@section, offset).done (media) =>
       log.message media
       if media
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
         @renderText()
+        sleep(10)
         @play()
       else
-        log.message 'could not get media'
+        log.message 'Player: failed to get media'
           
-  nextPart: () ->
-    @stop()
-    # get next part
-    @load()
+  nextSection: () ->
+    #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
+    return unless @media.nextSection?
+    @loadSection(@book, @media.nextSection)
     
-  previousPart: () ->
-    @stop()
-    # get next part
-    @load()
+  previousSection: () ->
+    return unless @media.previousSection?
+    @loadSection(@book, @media.previousSection)
      
 
   

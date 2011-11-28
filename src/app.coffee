@@ -14,8 +14,12 @@ LYT.app =
         LYT.gui.renderBookshelf(books, $content)
         
         $content.find('a').click ->
-          log.message 'We got some dixie chicks for ya while you wait for your book!'
-          LYT.player.silentPlay()
+          alert 'We got some dixie chicks for ya while you wait for your book!'
+          if LYT.player.ready
+            LYT.player.silentPlay()
+          else
+            LYT.player.el.bind $.jPlayer.event.ready, (event) ->
+              LYT.player.silentPlay()
         
         $.mobile.hidePageLoadingMsg()
       .fail (error, msg) ->
@@ -30,8 +34,6 @@ LYT.app =
     $page = $(pageSelector)
     $header = $page.children( ":jqmData(role=header)" )
     $content = $page.children( ":jqmData(role=content)" )
-    
-    log.message "Rendering book details for book with id " + bookId
 
     book = new LYT.Book(bookId)                                
       .done (book) ->
@@ -67,21 +69,27 @@ LYT.app =
     $header = $page.children( ":jqmData(role=header)" )
     $content = $page.children( ":jqmData(role=content)" )
     
-    #currentBook
-    
     book = new LYT.Book(bookId)                            
       .done (book) ->
         
         metadata = book.nccDocument.getMetadata()
         book.nccDocument.structure 
         
-        log.message book.nccDocument.structure
+        alert "App: got book"
         section = book.nccDocument.structure[sectionNumber]
         
+        alert "App: about to render book"
         LYT.gui.renderBookPlayer(metadata, section, $page)
-
-        LYT.player.loadBook(book, section, offset)
-                          
+        alert "App: finished rendering book"
+        
+        if LYT.player.ready
+          alert "App: player was ready loading secttion"
+          LYT.player.loadSection(book, section.id, offset)
+        else
+          LYT.player.el.bind $.jPlayer.event.ready, (event) ->
+            alert "App: player was not ready waiting for it"
+            LYT.player.loadSection(book, section.id, offset)
+                                
         ###
         $("#book-play").bind "swiperight", ->
             LYT.player.nextPart()
@@ -90,10 +98,11 @@ LYT.app =
             LYT.player.previousPart()
         ###
                 
-        $page.page()
+        #$page.page()
         options.dataUrl = urlObj.href
         $.mobile.hidePageLoadingMsg()
-        $.mobile.changePage $page, options        
+        alert "App: changing the page"
+        $.mobile.changePage $page, options
         
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
