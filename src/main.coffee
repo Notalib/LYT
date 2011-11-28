@@ -4,17 +4,13 @@ $(document).ready ->
   LYT.player.setup()
 
 $(document).bind "mobileinit", ->
-  # wait for jplayer to be setup before initializing the app
-  if LYT.player.ready?
-    setup()
-  else
-    LYT.player.el.bind $.jPlayer.event.ready, (event) =>
-      setups()
-      
-setup = () ->
-  jQuery(LYT.service).bind 'logon:rejected', () ->
-    $.mobile.changePage  
-
+  
+  $(LYT.service).bind "logon:rejected", () ->
+    $.mobile.changePage "#login"
+  
+  $(LYT.service).bind "error:rpc", () ->
+    #$.mobile.changePage "#login"  
+  
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
       # As done here http://jquerymobile.com/test/docs/pages/page-dynamic.html
@@ -27,7 +23,8 @@ setup = () ->
           LYT.app.bookPlayer u, data.options
           e.preventDefault()
         else if u.hash.search(/^#book-index/) isnt -1
-          renderBookIndex u, data.options
+          log.message "Main: changepage"
+          LYT.app.bookIndex u, data.options
           e.preventDefault()
 
   $("#login").live "pagebeforeshow", (event) ->
@@ -45,32 +42,6 @@ setup = () ->
 
         event.preventDefault()
         event.stopPropagation()
-
-  ###      
-  $("#book_index").live "pagebeforeshow", (event) ->
-      $("#book_index_content").trigger "create"
-      $("li[xhref]").bind "click", (event) ->
-             $.mobile.showPageLoadingMsg()
-
-             if ($(window).width() - event.pageX > 40) or (typeof $(this).find("a").attr("href") is "undefined") # submenu handling
-                if $(this).find("a").attr("href")
-                    event.preventDefault()
-                    event.stopPropagation()
-                    event.stopImmediatePropagation()                                         
-
-                else
-                    event.stopImmediatePropagation()
-                    $.mobile.changePage $(this).find("a").attr("href")###
-
-  ###$("#book-play").live "pagebeforeshow", (event) ->
-
-        LYT.gui.covercache_one $("#book-middle-menu")
-        $("#book-text-content").css "background", LYT.settings.get('markingColor').substring( LYT.settings.get('markingColor').indexOf("-", 0))
-        $("#book-text-content").css "color", LYT.settings.get('markingColor').substring( LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-        $("#book-text-content").css "font-size",  LYT.settings.get('textSize') + "px"
-        $("#book-text-content").css "font-family",  LYT.settings.get('textType')
-        $("#bookshelf [data-role=header]").trigger "create"
-        ###      
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
     LYT.app.bookshelf()

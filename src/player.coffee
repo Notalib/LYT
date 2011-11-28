@@ -8,22 +8,35 @@ LYT.player =
   time: ""
   book: null #reference to an instance of book class
   togglePlayButton: null
+  nextButton: null
+  previousButton: null
   playing: false
   # todo: consider array of all played sections and a few following
   
   SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
   
   setup: ->
-    log.message 'player setup called'
+    log.message 'Player: starting setup'
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")
+    
     @togglePlayButton = jQuery("a.toggle-play")
+    @nextButton = jQuery("a.next-section")
+    @previousButton = jQuery("a.previous-section")
     
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
-        log.message 'player is ready'
-        @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+        log.message 'Player: setup complete'
+        #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
+        #todo: add a silent state where we do not play on can play   
+        
+        @nextButton.click =>
+          @nextSection()
+        
+        @previousButton.click =>
+          @previousSection()
+        
         @togglePlayButton.click =>
           if @playing
             @el.jPlayer('pause')
@@ -33,7 +46,7 @@ LYT.player =
         null
       
       timeupdate: (event) =>
-        @updateText(event.jPlayer.status.currentTime)
+        @updateHtml(event.jPlayer.status.currentTime)
       
       play: (event) =>
         @togglePlayButton.find("img").attr('src', '/images/pause.png')
@@ -44,7 +57,15 @@ LYT.player =
         @playing = false
       
       ended: (event) =>
-        @playing = false
+        @nextSection()
+      
+      canplay: (event) =>
+        log.message 'can play'
+        @play()
+      
+      progress: (event) =>
+        log.message 'progress'
+        @renderHtml()
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -58,22 +79,18 @@ LYT.player =
     
     'paused'
   
-  silentPlay: () =>
+  silentPlay: () ->
       ###
       IOS does not allow playing audio without a direct connection to a click event
       we get around this here by starting playback of a silent audio file while 
       the book media loads.
       ###
       
-      @stop
       @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
   
   stop: ->
-    # Stop playing and stop downloading current media file
     @el.jPlayer('stop')
-    @el.jPlayer('clearMedia')
-    @book = null
     
     'stopped'
   
@@ -88,45 +105,48 @@ LYT.player =
     
     'playing'
   
-  updateText: (time) ->
+  updateHtml: (time) ->
     # Continously update media for current time of section
     return unless @book?
+    return unless @media?
     @time = time
     if @media.end < @time
-      #log.message('current media has ended at ' + @media.end + ' getting new media for ' + @time ) 
-      @book.mediaFor(@section.id,@time).done (media) =>
+      log.message("Player: current media has ended at #{@media.end} getting new media for #{@time}") 
+      @book.mediaFor(@section,@time).done (media) =>
         if media
           @media = media
-          @renderText()
+          @renderHtml()
         else
-          log.message 'failed to get media'
+          log.message 'Player: failed to get media'
   
-  renderText: () ->
+  renderHtml: () ->
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
-  loadBook: (book, section, offset) ->
+  loadSection: (book, section, offset = 0) ->
+    #alert "Player: load book"
     @book = book
     @section = section
     
-    @book.mediaFor(@section.id,0).done (media) =>
+    @book.mediaFor(@section, offset).done (media) =>
       log.message media
       if media
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
-        @renderText()
-        @play()
       else
-        log.message 'could not get media'
+        log.message 'Player: failed to get media'
           
-  nextPart: () ->
-    @stop()
-    # get next part
-    @load()
+  nextSection: () ->
     
-  previousPart: () ->
-    @stop()
-    # get next part
-    @load()
+    #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
+    return unless @media.nextSection?
+    @pause()
+    @loadSection(@book, @media.nextSection)
+    
+  previousSection: () ->
+    
+    return unless @media.previousSection?
+    @pause()
+    @loadSection(@book, @media.previousSection)
      
 
   
