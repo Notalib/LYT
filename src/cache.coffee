@@ -2,15 +2,18 @@ LYT.cache = do =>
   
   read = (prefix, id) ->
     return null unless window.localStorage?
+    log.message "Cache: Reading '#{prefix}/#{id}'"
     cache = getCache "#{prefix}/#{id}"
     cache?.data or null
   
   write = (prefix, id, data) ->
     return null unless window.localStorage?
+    log.message "Cache: Writing '#{prefix}/#{id}'"
     removeCache "#{prefix}/#{id}"
     
     if typeof data isnt "object"
       data = String data
+    
     cache =
       type:      typeof data
       data:      data
@@ -32,6 +35,7 @@ LYT.cache = do =>
   
   remove = (prefix, id) ->
     return null unless window.localStorage?
+    log.message "Cache: Deleting '#{prefix}/#{id}'"
     removeCache "#{prefix}/#{id}"
   
   # ----------
@@ -55,7 +59,7 @@ LYT.cache = do =>
     oldestTimestamp = getTimestamp()
     oldestKey       = false
     
-    for index in [0..localStorage.length]
+    for index in [0...localStorage.length]
       key = localStorage.key(index)
       if key?.indexOf(prefix) is 0
         cache = getCache key
