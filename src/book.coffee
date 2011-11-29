@@ -289,17 +289,10 @@ class LYT.Book
         item = jQuery this
         item.replaceWith item.html()
       
-      # All image src urls are moved to a different attribute
-      # by DTBDocument to avoid the (overly aggressive and
-      # very annoying) must-load-all-images-now!-behavior of
-      # some browsers. It's annoying since the URLs are all
-      # relative, so the images (by the hundreds) just fail
-      # to load.  
-      # Now's the time to reinstate the URL's as absolute URLs
-      element.find("*[x-data-src]").each ->
+      # Fix relative links in `src` attrs
+      element.find("*[src]").each ->
         item = jQuery this
-        src = item.attr "x-data-src"
-        item.attr "src", resolveRelativeUrl(src) or ""
+        item.attr "src", "#{resolveRelativeUrl item.attr("src")}"
       
       # Return what was found
       text: jQuery.trim element.text() # TODO: Deprecate

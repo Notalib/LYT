@@ -77,25 +77,11 @@ do ->
       
       coerceToHTML = (responseText) =>
         log.message "DTB: Coercing #{@url} into HTML"
-        html = jQuery "<html/>"
-        document = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
-        return null unless (document = document[1])?
-        
-        document = nerfImageURLs document
-        
-        html.html document
-      
-      nerfImageURLs = (html) ->
-        html.replace ///
-          (<img [^>]*?)        # image tag
-          src\s*=\s*           # src attr (plus possible whitespace)
-          (                    # branch...
-            (("')([^"']+)\3)   # quoted src attr value
-            |
-            ([^\s]+)           # unquoted src attr value
-          )///ig, "$1data-x-src=$2"
-          
-      
+        markup = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        return null unless (markup = markup[1])?
+        html = document.implementation.createHTMLDocument ""
+        html.documentElement.innerHTML = markup
+        jQuery html
       
       loaded = (document, status, jqXHR) =>
         if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
