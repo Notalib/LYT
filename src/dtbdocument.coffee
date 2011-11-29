@@ -6,8 +6,9 @@
 do ->
   # Meta-element name attribute values to look for
   # Name attribute values for nodes that may appear 0-1 times per file  
-  # Names that may have variations (e.g. `ncc:format` is the deprecated in favor of `dc:format`) are defined a arrays.
+  # Names that may have variations (e.g. `ncc:format` is the deprecated form of `dc:format`) are defined a arrays.
   # C.f. [The DAISY 2.02 specification](http://www.daisy.org/z3986/specifications/daisy_202.html#h3metadef)
+  # TODO: Comment out the things we'll never need to speed up the processing
   METADATA_NAMES =
     singular:
       coverage:         "dc:coverage"

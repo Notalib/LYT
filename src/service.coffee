@@ -16,11 +16,6 @@
 
 # ---------------
 
-# DEPRECATED
-window.SERVICE_MUST_LOGON_ERROR = {}
-
-# ---------------
-
 LYT.service = do ->
   
   # "session" storage  
@@ -128,7 +123,7 @@ LYT.service = do ->
     
     unless username and password
       emit "logon:rejected"
-      deferred.reject SERVICE_MUST_LOGON_ERROR
+      deferred.reject()
       return deferred
     
     session.username = username
@@ -147,7 +142,7 @@ LYT.service = do ->
     failed = (code, message) ->
       if code is RPC_UNEXPECTED_RESPONSE_ERROR
         emit "logon:rejected"
-        deferred.reject SERVICE_MUST_LOGON_ERROR, "Logon rejected"
+        deferred.reject()
       else
         if attempts > 0
           attemptLogOn()
