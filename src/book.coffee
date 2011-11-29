@@ -1,12 +1,17 @@
 # This class models a book for the purposes of playback.
 
+window.BOOK_ISSUE_CONTENT_ERROR     = {}
+window.BOOK_CONTENT_RESOURCES_ERROR = {}
+window.BOOK_NCC_NOT_FOUND_ERROR     = {}
+window.BOOK_NCC_NOT_LOADED_ERROR    = {}
+
 class LYT.Book
   
   # Factory-method
   this.load = do ->
     loaded = {}
     (id) -> loaded[id] or (loaded[id] = new LYT.Book id)
-      
+  
   
   # The constructor takes one argument; the ID of the book.  
   # The instantiated object acts as a Deferred object, as the instantiation of a book
@@ -26,7 +31,6 @@ class LYT.Book
   #     book.fail () ->
   #       # Do something about the failure
   # 
-  # FIXME: reject with error code/message  
   constructor: (@id) ->
     # Create a Deferred, and link it to `this`
     deferred = jQuery.Deferred()
@@ -45,7 +49,7 @@ class LYT.Book
       issued.then getResources
       
       # ... or fail
-      issued.fail -> deferred.reject()
+      issued.fail -> deferred.reject BOOK_ISSUE_CONTENT_ERROR
     
     # Second step: Get the book's resources list
     getResources = =>
@@ -53,7 +57,7 @@ class LYT.Book
       got = LYT.service.getResources @id
       
       # If fail, then fail
-      got.fail -> deferred.reject()
+      got.fail -> deferred.reject BOOK_CONTENT_RESOURCES_ERROR
       
       got.then (@resources) =>
         ncc = null
@@ -76,7 +80,7 @@ class LYT.Book
         if ncc?
           getNCC ncc
         else
-          deferred.reject()
+          deferred.reject BOOK_NCC_NOT_FOUND_ERROR
         
       
     # Third step: Get the NCC document
@@ -85,7 +89,7 @@ class LYT.Book
       ncc = new LYT.NCCDocument obj.url
       
       # Propagate a failure
-      ncc.fail -> deferred.reject()
+      ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
       
       # 
       ncc.then (document) =>
@@ -289,17 +293,10 @@ class LYT.Book
         item = jQuery this
         item.replaceWith item.html()
       
-      # All image src urls are moved to a different attribute
-      # by DTBDocument to avoid the (overly aggressive and
-      # very annoying) must-load-all-images-now!-behavior of
-      # some browsers. It's annoying since the URLs are all
-      # relative, so the images (by the hundreds) just fail
-      # to load.  
-      # Now's the time to reinstate the URL's as absolute URLs
-      element.find("*[x-data-src]").each ->
+      # Fix relative links in `src` attrs
+      element.find("*[src]").each ->
         item = jQuery this
-        src = item.attr "x-data-src"
-        item.attr "src", resolveRelativeUrl(src) or ""
+        item.attr "src", "#{resolveRelativeUrl item.attr("src")}"
       
       # Return what was found
       text: jQuery.trim element.text() # TODO: Deprecate

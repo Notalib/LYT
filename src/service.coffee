@@ -16,17 +16,27 @@
 
 # ---------------
 
-# DEPRECATED
-window.SERVICE_MUST_LOGON_ERROR = {}
-
-# ---------------
-
 LYT.service = do ->
+  
   # "session" storage  
-  # TODO: This should probably be moved
+  # TODO: Store username/password in local storage
   session =
     username: null
     password: null
+  
+  getCredentials = ->
+    unless session.username? and session.password?
+      session = LYT.cache.read "session", "credentials"
+    session
+  
+  setCredentials = (username, password) ->
+    [session.username, session.password] = [username, password]
+    LYT.cache.write "session", "credentials", session if session.username? and session.password?
+  
+  deleteCredentials = ->
+    [session.username, session.password] = [null, null]
+    LYT.cache.remove "session", "credentials"
+  
   
   # The current logon process  
   # TODO: Should this be accessible from the outside?
@@ -47,7 +57,7 @@ LYT.service = do ->
       when RPC_GENERAL_ERROR, RPC_TIMEOUT_ERROR, RPC_ABORT_ERROR, RPC_HTTP_ERROR
         emit "error:rpc", code: code
       else
-        emit "error:server", code: code
+        emit "error:service", code: code
   
   
   # Wraps a call in a couple of checks: If the call the fails,
@@ -100,15 +110,20 @@ LYT.service = do ->
   
   # Perform the logOn handshake:
   # logOn -> getServiceAttributes -> setReadingSystemAttributes
-  logOn = (username = session.username, password = session.password) ->
+  logOn = (username, password) ->
     # Check for pending logon processes
     return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state is "pending"
     
     deferred = currentLogOnProcess = jQuery.Deferred()
     
-    unless username? and password?
+    if username and password
+      setCredentials username, password
+    else
+      {username, password} = credentials if (credentials = getCredentials())
+    
+    unless username and password
       emit "logon:rejected"
-      deferred.reject SERVICE_MUST_LOGON_ERROR
+      deferred.reject()
       return deferred
     
     session.username = username
@@ -127,7 +142,7 @@ LYT.service = do ->
     failed = (code, message) ->
       if code is RPC_UNEXPECTED_RESPONSE_ERROR
         emit "logon:rejected"
-        deferred.reject SERVICE_MUST_LOGON_ERROR, "Logon rejected"
+        deferred.reject()
       else
         if attempts > 0
           attemptLogOn()
@@ -186,8 +201,7 @@ LYT.service = do ->
   # outstanding ajax calls!" when log off is called
   logOff: ->
     LYT.rpc("logOff").always ->
-      session.username = null
-      session.password = null
+      deleteCredentials()
   
   
   issue: (bookId) ->
