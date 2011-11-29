@@ -47,26 +47,40 @@ $(document).bind "mobileinit", ->
     LYT.app.bookshelf()
     
   $('#search').live "pagebeforeshow", (event) ->
+    # TODO: Move the search logic to a separate file?  
+    # Also, shouldn't the `$("#search-form").submit` call only
+    # happen once (in either`mobileinit` or `$(document).ready`)?
+    # Right now, I'm guessing it happens every time the search page
+    # is shown so more and more submit handlers are added... doesn't
+    # seem correct...
     $("#search-form").submit ->
       $('#searchterm').blur()
       $.mobile.showPageLoadingMsg()
       $('#searchresult').empty()
       $.ajax
         contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        url: "/CatalogSearch/search.asmx/SearchFreetext",
-        type: "POST"
-        data: '{term:"' + $('#searchterm').val() + '"}'
+        dataType:    "json",
+        url:         "/CatalogSearch/search.asmx/SearchFreetext",
+        type:        "POST"
+        data:        JSON.stringify(term: $('#searchterm').val())
+        
+        # TODO: I think success-handler this should probably be a
+        # `renderSearchResults` function in `LYT.gui` or something.
+        # If nothing else, there shouldn't be any UI text this file
         success: (data, status) -> 
-          if data.d[0].resultstatus!="NORESULTS"
-            s = '<li><h3>' + data.d[0].totalcount + ' resultat(er)</h3></li>'
+          # TODO: More robust checking. If `data` or `data.d` or `data.d[0]`
+          # don't exist for some reason, this code will fail
+          if data.d[0].resultstatus isnt "NORESULTS"
+            # TODO: Properly pluralize "resultat". It just looks so lazy
+            # to say "resultat(er)". Also, hard-coded UI text here? Oh, noes!
+            s = "<li><h3>#{data.d[0].totalcount}resultat(er)</h3></li>"
             for item in data.d
               s += """
                <li id="#{item.imageid}">
                  <a href="#book-details">
                    <img class="ui-li-icon" src="/images/default.png">
-                     <h3>#{item.title}</h3>
-                       <p>#{item.author}|#{LYT.gui.parseMediaType item.media}</p>
+                   <h3>#{item.title}</h3>
+                   <p>#{item.author}|#{LYT.gui.parseMediaType item.media}</p>
                  </a>
                </li>"""
           else
@@ -85,29 +99,36 @@ $(document).bind "mobileinit", ->
       LYT.gui.covercache($('#searchresult').html())
         
     $("#searchterm").autocomplete
-	    source: (request, response) ->
-	      $.ajax
-	        url: "/CatalogSearch/search.asmx/SearchAutocomplete"
-	        data: '{term:"' + $('#searchterm').val() + '"}'
-	        dataType: "json"
-	        type: "POST"
-	        contentType: "application/json; charset=utf-8"
-	        dataFilter: (data) -> data
-	        success: (data) ->
-	          response($.map(data.d, (item)-> value: item.keywords))
-	          list = $('.ui-autocomplete').find('li').each ->
-                  $(@).removeAttr 'class'  
-                  $(@).attr 'class', 'ui-icon-searchfield'
-                  $(@).removeAttr 'role'
-                  $(@).html '<h3>' + $(@).find('a').text() + '</h3>'
-              if list.length==1 and $(list).find('h3:first').text().length==0
+      source: (request, response) ->
+        # TODO: OH SHI---! Duplication of ajax options... D.R.Y! :)
+        # Also, move it to `config` 
+        $.ajax
+          url:         "/CatalogSearch/search.asmx/SearchAutocomplete"
+          data:        JSON.stringify(term: $('#searchterm').val())
+          dataType:    "json"
+          type:        "POST"
+          contentType: "application/json; charset=utf-8"
+          minLength:   2
+          
+          # TODO: Is the `dataFilter` even necessary? It's just an identity function...
+          dataFilter: (data) -> data
+          
+          success: (data) ->
+            response($.map(data.d, (item)-> value: item.keywords))
+            list = $('.ui-autocomplete').find('li').each ->
+              item = jQuery this
+              item.removeAttr 'class'  
+              item.attr 'class', 'ui-icon-searchfield'
+              item.removeAttr 'role'
+              item.html "<h3>#{item.find('a').text()}</h3>"
+              if list.length is 1 and $(list).find('h3:first').text().length is 0
                 $(list).html '<h3>Ingen forslag</h3>'
               $('#searchresult').html(list).listview('refresh')
-		    error: (XMLHttpRequest, textStatus, errorThrown) ->
-	          log.message textStatus
-	        minLength: 2
-    $("#searchresult li").live "click", (event) -> $("#searchterm").val($(@).text())
-    #$("#searchterm").val $(@).text()
+          
+          error: (XMLHttpRequest, textStatus, errorThrown) ->
+            log.message textStatus
+    
+    $("#searchresult li").live "click", (event) -> $("#searchterm").val($(this).text())
     
     $("#searchterm").live "autocompleteclose", (event, ui) -> 
       $("#search-form").submit()
