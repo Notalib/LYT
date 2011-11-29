@@ -1,0 +1,234 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'install', '-g', 'coffee-script' ]
+info using npm@1.0.106
+info using node@v0.6.3
+verbose config file /Users/simonmoe/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose into /usr/local/lib [ 'coffee-script' ]
+verbose cache add coffee-script
+verbose cache add [ 'coffee-script', null ]
+silly cache add: name, spec, args [ undefined, 'coffee-script', [ 'coffee-script', null ] ]
+verbose parsed url { pathname: 'coffee-script',
+verbose parsed url   path: 'coffee-script',
+verbose parsed url   href: 'coffee-script' }
+info addNamed [ 'coffee-script', '' ]
+verbose addNamed [ null, '' ]
+verbose GET coffee-script
+verbose raw, before any munging coffee-script
+verbose url resolving [ 'https://registry.npmjs.org/', './coffee-script' ]
+verbose url resolved https://registry.npmjs.org/coffee-script
+verbose etag "3ONKTXF18L6O34VBYXVTOHK1E"
+silly get cb [ 304,
+silly get cb   { server: 'CouchDB/1.1.0 (Erlang OTP/R14B04)',
+silly get cb     etag: '"3ONKTXF18L6O34VBYXVTOHK1E"',
+silly get cb     date: 'Mon, 28 Nov 2011 19:34:58 GMT',
+silly get cb     'content-length': '0' } ]
+verbose etag coffee-script from cache
+verbose GET coffee-script/1.1.3
+verbose raw, before any munging coffee-script/1.1.3
+verbose url resolving [ 'https://registry.npmjs.org/', './coffee-script/1.1.3' ]
+verbose url resolved https://registry.npmjs.org/coffee-script/1.1.3
+verbose etag "3ONKTXF18L6O34VBYXVTOHK1E"
+silly get cb [ 304,
+silly get cb   { server: 'CouchDB/1.1.0 (Erlang OTP/R14B04)',
+silly get cb     etag: '"3ONKTXF18L6O34VBYXVTOHK1E"',
+silly get cb     date: 'Mon, 28 Nov 2011 19:34:58 GMT',
+silly get cb     'content-length': '0' } ]
+verbose etag coffee-script/1.1.3 from cache
+verbose bin dist [ '0.6-ares1.7.5-DEV-evundefined-openssl0.9.8r-v83.6.6.8-darwin-x64-11.2.0',
+verbose bin dist   { shasum: '04cb82e59653fcad6ae6050900c81adf3af6d798',
+verbose bin dist     tarball: 'http://registry.npmjs.org/coffee-script/-/coffee-script-1.1.3.tgz' } ]
+silly testEngine { name: 'coffee-script',
+silly testEngine   description: 'Unfancy JavaScript',
+silly testEngine   keywords: [ 'javascript', 'language', 'coffeescript', 'compiler' ],
+silly testEngine   author: { name: 'Jeremy Ashkenas' },
+silly testEngine   version: '1.1.3',
+silly testEngine   licenses: 
+silly testEngine    [ { type: 'MIT',
+silly testEngine        url: 'http://github.com/jashkenas/coffee-script/raw/master/LICENSE' } ],
+silly testEngine   engines: { node: '>=0.4.0' },
+silly testEngine   directories: { lib: './lib/coffee-script' },
+silly testEngine   main: './lib/coffee-script/coffee-script',
+silly testEngine   bin: { coffee: './bin/coffee', cake: './bin/cake' },
+silly testEngine   homepage: 'http://coffeescript.org',
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/jashkenas/coffee-script.git' },
+silly testEngine   devDependencies: { 'uglify-js': '1.0.6', jison: '0.2.11' },
+silly testEngine   _id: 'coffee-script@1.1.3',
+silly testEngine   dependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.6.3',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   scripts: {} }
+verbose caching /Users/simonmoe/.npm/coffee-script/1.1.3/package/package.json
+verbose loadDefaults coffee-script@1.1.3
+silly resolved [ { name: 'coffee-script',
+silly resolved     description: 'Unfancy JavaScript',
+silly resolved     keywords: [ 'javascript', 'language', 'coffeescript', 'compiler' ],
+silly resolved     author: { name: 'Jeremy Ashkenas' },
+silly resolved     version: '1.1.3',
+silly resolved     licenses: 
+silly resolved      [ { type: 'MIT',
+silly resolved          url: 'http://github.com/jashkenas/coffee-script/raw/master/LICENSE' } ],
+silly resolved     engines: { node: '>=0.4.0' },
+silly resolved     directories: { lib: './lib/coffee-script' },
+silly resolved     main: './lib/coffee-script/coffee-script',
+silly resolved     bin: { coffee: './bin/coffee', cake: './bin/cake' },
+silly resolved     homepage: 'http://coffeescript.org',
+silly resolved     repository: 
+silly resolved      { type: 'git',
+silly resolved        url: 'git://github.com/jashkenas/coffee-script.git' },
+silly resolved     devDependencies: { 'uglify-js': '1.0.6', jison: '0.2.11' },
+silly resolved     _id: 'coffee-script@1.1.3',
+silly resolved     dependencies: {},
+silly resolved     _engineSupported: true,
+silly resolved     _npmVersion: '1.0.106',
+silly resolved     _nodeVersion: 'v0.6.3',
+silly resolved     _defaultsLoaded: true,
+silly resolved     scripts: {} } ]
+info into /usr/local/lib coffee-script@1.1.3
+info installOne coffee-script@1.1.3
+info unbuild /usr/local/lib/node_modules/coffee-script
+verbose from cache /Users/simonmoe/.npm/coffee-script/1.1.3/package/package.json
+verbose mkdir (expected) error ENOENT, no such file or directory '/usr/local/lib/node_modules/___coffee-script.npm'
+verbose mkdir done: /usr/local/lib/node_modules/___coffee-script.npm 755
+verbose unpack_ uid, gid [ undefined, undefined ]
+verbose unpackTarget /usr/local/lib/node_modules/coffee-script
+silly gunzTarPerm modes [ '755', '644' ]
+silly spawning [ 'tar',
+silly spawning   [ '-zmvxpf',
+silly spawning     '/Users/simonmoe/.npm/coffee-script/1.1.3/package.tgz' ],
+silly spawning   '/usr/local/lib/node_modules/___coffee-script.npm' ]
+silly tar err x package/.npmignore
+silly tar err x package/bin/
+silly tar err x package/bin/cake
+silly tar err x package/bin/coffee
+silly tar err x package/extras/
+silly tar err x package/extras/jsl.conf
+silly tar err x package/lib/
+silly tar err x package/lib/coffee-script/
+silly tar err x package/lib/coffee-script/browser.js
+silly tar err x package/lib/coffee-script/cake.js
+silly tar err x package/lib/coffee-script/coffee-script.js
+silly tar err x package/lib/coffee-script/command.js
+silly tar err x package/lib/coffee-script/grammar.js
+silly tar err x package/lib/coffee-script/helpers.js
+silly tar err x package/lib/coffee-script/index.js
+silly tar err x package/lib/coffee-script/lexer.js
+silly tar err x package/lib/coffee-script/nodes.js
+silly tar err x package/lib/coffee-script/optparse.js
+silly tar err x package/lib/coffee-script/parser.js
+silly tar err x package/lib/coffee-script/repl.js
+silly tar err x package/lib/coffee-script/rewriter.js
+silly tar err x package/lib/coffee-script/scope.js
+silly tar err x package/LICENSE
+silly tar err x package/npm-install-45965.sh
+silly tar err x package/package.json
+silly tar err x package/Rakefile
+silly tar err x package/README
+silly tar exit 0
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/.npmignore
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/LICENSE
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/npm-install-45965.sh
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/package.json
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/Rakefile
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/README
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/bin
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/bin/cake
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/bin/coffee
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/extras
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/extras/jsl.conf
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/browser.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/cake.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/coffee-script.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/command.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/grammar.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/helpers.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/index.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/lexer.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/nodes.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/optparse.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/parser.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/repl.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/rewriter.js
+silly asyncMap in gTP /usr/local/lib/node_modules/___coffee-script.npm/package/lib/coffee-script/scope.js
+verbose gunzed /usr/local/lib/node_modules/___coffee-script.npm/package
+verbose rm'ed /usr/local/lib/node_modules/coffee-script
+verbose renamed [ '/usr/local/lib/node_modules/___coffee-script.npm/package',
+verbose renamed   '/usr/local/lib/node_modules/coffee-script' ]
+silly testEngine { name: 'coffee-script',
+silly testEngine   description: 'Unfancy JavaScript',
+silly testEngine   keywords: [ 'javascript', 'language', 'coffeescript', 'compiler' ],
+silly testEngine   author: { name: 'Jeremy Ashkenas' },
+silly testEngine   version: '1.1.3',
+silly testEngine   licenses: 
+silly testEngine    [ { type: 'MIT',
+silly testEngine        url: 'http://github.com/jashkenas/coffee-script/raw/master/LICENSE' } ],
+silly testEngine   engines: { node: '>=0.4.0' },
+silly testEngine   directories: { lib: './lib/coffee-script' },
+silly testEngine   main: './lib/coffee-script/coffee-script',
+silly testEngine   bin: { coffee: './bin/coffee', cake: './bin/cake' },
+silly testEngine   homepage: 'http://coffeescript.org',
+silly testEngine   repository: 
+silly testEngine    { type: 'git',
+silly testEngine      url: 'git://github.com/jashkenas/coffee-script.git' },
+silly testEngine   devDependencies: { 'uglify-js': '1.0.6', jison: '0.2.11' },
+silly testEngine   _id: 'coffee-script@1.1.3',
+silly testEngine   dependencies: {},
+silly testEngine   _engineSupported: true,
+silly testEngine   _npmVersion: '1.0.106',
+silly testEngine   _nodeVersion: 'v0.6.3',
+silly testEngine   _defaultsLoaded: true,
+silly testEngine   scripts: {} }
+verbose caching /usr/local/lib/node_modules/coffee-script/package.json
+verbose loadDefaults coffee-script@1.1.3
+info preinstall coffee-script@1.1.3
+verbose from cache /usr/local/lib/node_modules/coffee-script/package.json
+verbose into /usr/local/lib/node_modules/coffee-script []
+silly resolved []
+verbose about to build /usr/local/lib/node_modules/coffee-script
+info build /usr/local/lib/node_modules/coffee-script
+verbose from cache /usr/local/lib/node_modules/coffee-script/package.json
+verbose linkStuff [ true,
+verbose linkStuff   '/usr/local/lib/node_modules',
+verbose linkStuff   true,
+verbose linkStuff   '/usr/local/lib/node_modules' ]
+info linkStuff coffee-script@1.1.3
+verbose linkBins coffee-script@1.1.3
+verbose bins linking [ { coffee: './bin/coffee', cake: './bin/cake' },
+verbose bins linking   '/usr/local/bin',
+verbose bins linking   true ]
+verbose linkMans coffee-script@1.1.3
+verbose rebuildBundles coffee-script@1.1.3
+ERR! error installing coffee-script@1.1.3 Error: EACCES, permission denied '../lib/node_modules/coffee-script/bin/coffee'
+info unbuild /usr/local/lib/node_modules/coffee-script
+verbose from cache /usr/local/lib/node_modules/coffee-script/package.json
+info preuninstall coffee-script@1.1.3
+info uninstall coffee-script@1.1.3
+verbose unbuild coffee-script@1.1.3 [ true,
+verbose unbuild coffee-script@1.1.3   '/usr/local/lib/node_modules',
+verbose unbuild coffee-script@1.1.3   '/usr/local/lib/node_modules' ]
+verbose binRoot [ '/usr/local/bin',
+verbose binRoot   { coffee: './bin/coffee', cake: './bin/cake' } ]
+info postuninstall coffee-script@1.1.3
+verbose installOne cb coffee-script@1.1.3
+ERR! Error: EACCES, permission denied '../lib/node_modules/coffee-script/bin/coffee'
+ERR! Report this *entire* log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Darwin 11.2.0
+ERR! command "node" "/usr/local/bin/npm" "install" "-g" "coffee-script"
+ERR! cwd /Users/simonmoe/Documents/LYT
+ERR! node -v v0.6.3
+ERR! npm -v 1.0.106
+ERR! path ../lib/node_modules/coffee-script/bin/coffee
+ERR! code EACCES
+verbose exit [ 1, true ]

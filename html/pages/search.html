@@ -1,7 +1,7 @@
 <div data-role="page" id="search">
 	
 	<div data-role="header" data-theme="">
-		<a href="javascript:$.mobile.showPageLoadingMsg();GetBookShelf();" data-direction="reverse">Boghylde</a>
+		<a href="#bookshelf" data-direction="reverse">Boghylde</a>
 		<h1>Find</h1>
 	</div>
 
@@ -9,7 +9,7 @@
 		<div data-role="fieldcontain">
 			<form action="#" method="get" id ="search-form">
 				<label for="searchterm"></label>
-				<input type="search" name="term" id="searchterm" placeholder="Indtast dine søgeord" title="Indtast dine søgeord" value="" x-webkit-speech>
+				<input type="search" name="term" id="searchterm" placeholder="Indtast dine søgeord" title="Indtast dine søgeord">
 			</form>
 		</div>
 		<ul id="searchresult" data-role="listview">

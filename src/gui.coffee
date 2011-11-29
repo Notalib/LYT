@@ -34,8 +34,9 @@ LYT.gui =
     
     view.find("#totaltime").text metadata.totalTime.content
     
-  covercache: (element, id) ->
+  covercache: (element) ->
     $(element).each ->
+      id = $(@).attr('id')
       u = "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
       img = $(new Image()).load(->
         $("#" + id).find("img").attr "src", u

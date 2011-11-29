@@ -45,7 +45,73 @@ $(document).bind "mobileinit", ->
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
     LYT.app.bookshelf()
+    
+  $('#search').live "pagebeforeshow", (event) ->
+    $("#search-form").submit ->
+      $('#searchterm').blur()
+      $.mobile.showPageLoadingMsg()
+      $('#searchresult').empty()
+      $.ajax
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        url: "/CatalogSearch/search.asmx/SearchFreetext",
+        type: "POST"
+        data: '{term:"' + $('#searchterm').val() + '"}'
+        success: (data, status) -> 
+          if data.d[0].resultstatus!="NORESULTS"
+            s = '<li><h3>' + data.d[0].totalcount + ' resultat(er)</h3></li>'
+            for item in data.d
+              s += """
+               <li id="#{item.imageid}">
+                 <a href="#book-details">
+                   <img class="ui-li-icon" src="/images/default.png">
+                     <h3>#{item.title}</h3>
+                       <p>#{item.author}|#{LYT.gui.parseMediaType item.media}</p>
+                 </a>
+               </li>"""
+          else
+            s += '<li><h3>Ingen resultater</h3></li>'
+          $('#searchresult').html(s)
+        error: onSearchError
+        complete: onSearchComplete
 
+    onSearchError = (msg, data)->
+      $("#searchresult").text("Error thrown: " + msg.status);
+
+    onSearchComplete = ->
+      $('#searchresult').listview('refresh');
+      $('#searchresult').find('a:first').css 'padding-left','40px'
+      $.mobile.hidePageLoadingMsg();
+      LYT.gui.covercache($('#searchresult').html())
+        
+    $("#searchterm").autocomplete
+	    source: (request, response) ->
+	      $.ajax
+	        url: "/CatalogSearch/search.asmx/SearchAutocomplete"
+	        data: '{term:"' + $('#searchterm').val() + '"}'
+	        dataType: "json"
+	        type: "POST"
+	        contentType: "application/json; charset=utf-8"
+	        dataFilter: (data) -> data
+	        success: (data) ->
+	          response($.map(data.d, (item)-> value: item.keywords))
+	          list = $('.ui-autocomplete').find('li').each ->
+                  $(@).removeAttr 'class'  
+                  $(@).attr 'class', 'ui-icon-searchfield'
+                  $(@).removeAttr 'role'
+                  $(@).html '<h3>' + $(@).find('a').text() + '</h3>'
+              if list.length==1 and $(list).find('h3:first').text().length==0
+                $(list).html '<h3>Ingen forslag</h3>'
+              $('#searchresult').html(list).listview('refresh')
+		    error: (XMLHttpRequest, textStatus, errorThrown) ->
+	          log.message textStatus
+	        minLength: 2
+    $("#searchresult li").live "click", (event) -> $("#searchterm").val($(@).text())
+    #$("#searchterm").val $(@).text()
+    
+    $("#searchterm").live "autocompleteclose", (event, ui) -> 
+      $("#search-form").submit()
+    
   $("#settings").live "pagebeforecreate", (event) ->
         initialize = true
         $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
