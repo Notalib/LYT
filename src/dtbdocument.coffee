@@ -74,7 +74,7 @@ do ->
       deferred.promise this
       
       @source = null
-      dataType = if @url.match(/\.x?html?$/i)? then "html" else "xml"
+      dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
       
       coerceToHTML = (responseText) =>
         log.message "DTB: Coercing #{@url} into HTML"

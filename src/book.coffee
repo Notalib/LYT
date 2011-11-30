@@ -73,7 +73,7 @@ class LYT.Book
           
           # If the url of the resource is the NCC document,
           # save the resource for later
-          if localUri.match /^ncc\.x?html?$/i then ncc = @resources[localUri]
+          if (/^ncc\.x?html?$/i).test localUri then ncc = @resources[localUri]
         
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document. Otherwise, fail.
