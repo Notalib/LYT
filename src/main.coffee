@@ -99,6 +99,7 @@ $(document).bind "mobileinit", ->
       LYT.gui.covercache($('#searchresult').html())
         
     $("#searchterm").autocomplete
+      minLength: 2
       source: (request, response) ->
         # TODO: OH SHI---! Duplication of ajax options... D.R.Y! :)
         # Also, move it to `config` 
@@ -108,7 +109,6 @@ $(document).bind "mobileinit", ->
           dataType:    "json"
           type:        "POST"
           contentType: "application/json; charset=utf-8"
-          minLength:   2
           
           # TODO: Is the `dataFilter` even necessary? It's just an identity function...
           dataFilter: (data) -> data
