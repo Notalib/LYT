@@ -19,10 +19,20 @@
 LYT.service = do ->
   
   # "session" storage  
-  # TODO: Store username/password in local storage
   session =
     username: null
     password: null
+  
+  
+  # optional service operations  
+  operations = {
+    DYNAMIC_MENUS:         false
+    SET_BOOKMARKS:         false
+    GET_BOOKMARKS:         false
+    SERVICE_ANNOUNCEMENTS: false
+    PDTB2_KEY_PROVISION:   false
+  }
+  
   
   getCredentials = ->
     unless session.username? and session.password?
@@ -129,10 +139,6 @@ LYT.service = do ->
     session.username = username
     session.password = password
     
-    # optional operations  
-    # TODO: Handle this better
-    operations = null
-    
     # The maximum number of attempts to make
     attempts = LYT.config.service.logOnAttempts
     
@@ -158,7 +164,8 @@ LYT.service = do ->
     
     
     gotServiceAttrs = (ops) ->
-      operations = ops
+      operations[op] = false for op of operations
+      operations[op] = true for op in ops
       LYT.rpc("setReadingSystemAttributes")
         .done(readingSystemAttrsSet)
         .fail(failed)
@@ -167,9 +174,7 @@ LYT.service = do ->
     readingSystemAttrsSet = ->
       deferred.resolve()
       
-      # TODO: If there are service announcements, do they have to be
-      # retrieved before the handshake is considered done?
-      if operations.indexOf("SERVICE_ANNOUNCEMENTS") isnt -1
+      if LYT.service.announcementsSupported()
         LYT.rpc("getServiceAnnouncements")
           .done(gotServiceAnnouncements)
           # Fail silently
@@ -192,7 +197,9 @@ LYT.service = do ->
     
     return deferred
   
-  # -- Return ---
+  # -------
+  # # Public API
+  # ## Basic operations
   
   logOn: logOn
   
@@ -239,8 +246,16 @@ LYT.service = do ->
     
     deferred
   
+  # -------
+  # ## Optional operations
+  
+  bookmarksSupported: ->
+    operations.GET_BOOKMARKS and operations.SET_BOOKMARKS
   
   getBookmarks: (id) ->
-    withLogOn -> LYT.rpc("getBookmarks")
+    withLogOn -> LYT.rpc("getBookmarks", id)
+  
+  announcementsSupported: ->
+    operations.SERVICE_ANNOUNCEMENTS
   
 
