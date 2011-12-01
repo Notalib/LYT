@@ -52,11 +52,10 @@ LYT.render =
   bookIndex: (book, view) ->  
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
-      log.message items
       for item in items
         element = jQuery "<li></li>" 
         element.attr "id", item.id
-        element.attr "data-href", item.href
+        element.attr "data-href", item.id
         
         if item.children.length > 0
           element.text item.title        
@@ -78,12 +77,10 @@ LYT.render =
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
-    list.attr "id", "NCCRootElement"
+    list.attr "id", "NccRootElement"
     mapper(list, book.nccDocument.structure)
     
     list.listview('refresh')
-    
-    #log.message list
   
   searchResults: (results, view) ->
     null

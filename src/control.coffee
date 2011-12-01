@@ -72,9 +72,10 @@ LYT.control =
         log.message "failed with error #{error} and msg #{msg}"
   
   bookIndex: (type, match, ui, page) ->
+    
     $.mobile.showPageLoadingMsg()
     params = LYT.router.getParams(match[1])
-     
+    
     content = $(page).children( ":jqmData(role=content)" )
     
     LYT.Book.load(params.book)                            
@@ -91,11 +92,16 @@ LYT.control =
   bookPlayer: (type, match, ui, page) ->
     jQuery.mobile.showPageLoadingMsg()
     
-    params = LYT.router.getParams(match[1]) 
+    params = LYT.router.getParams(match[1])
+    
+    #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
+    header = $(page).children( ":jqmData(role=header)") 
+    $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
+    
     section = params.section or 0
     offset = params.offset or 0
     
-    header = $(page).children( ":jqmData(role=header)")   
+      
     #content = $(page).children( ":jqmData(role=content)" )
         
     LYT.Book.load(params.book)                            
@@ -105,10 +111,7 @@ LYT.control =
         
         #fixme: lookup section by its ID so we send the right one the the renderer.
         #section = book.nccDocument.structure[1]
-        
-        #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
-        header.find('#book-index-button').attr 'href', """#book-index?book=#{book.id}"""
-        
+
         LYT.render.bookPlayer(book, $(page))
         
         if LYT.player.ready

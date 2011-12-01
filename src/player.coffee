@@ -119,8 +119,10 @@ LYT.player =
         @el.jPlayer('play', time)
   
   updateHtml: (time) ->
-    log.message("Player: update html")
-    # Continously update media for current time of section
+    # Continously update player rendering for current time of section
+    #log.message("Player: update ui")
+    
+    $("#elapsed-time").text @time
     return unless @book?
     return unless @media?
     @time = time
@@ -134,10 +136,11 @@ LYT.player =
           log.message 'Player: failed to get media'
   
   renderHtml: () ->
+    #log.message("Player: render new transcript")
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
   loadSection: (book, section, offset = 0, autoPlay = false) ->
-    #alert "Player: load book"
+    @stop()
     @book = book
     @section = section
     
