@@ -5,13 +5,13 @@ $(document).ready ->
     LYT.player.setup()
 
 $(document).bind "mobileinit", ->
-    
+  
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
       events: "bs"
     "#book-play([?].*)?":
-      handler: "bookPlay"
+      handler: "bookPlayer"
       events: "bs"
     "#book-index([?].*)?":
       handler: "bookIndex"
@@ -25,8 +25,8 @@ $(document).bind "mobileinit", ->
     "#login":
       handler: "login"
       events: "bs"
-    "#logout":
-      handler: "logout"
+    "#profile":
+      handler: "profile"
       events: "bs"
     "#bookshelf":
       handler: "bookshelf"
@@ -37,6 +37,9 @@ $(document).bind "mobileinit", ->
   
   $(LYT.service).bind "logon:rejected", () ->
     $.mobile.changePage "#login"
+  
+  $("[data-role=page]").live "pageshow", (event, ui) ->
+    _gaq.push [ "_trackPageview", event.target.id ]
   
   $(LYT.service).bind "error:rpc", () ->
     #todo: apologize on behalf of the server 
@@ -58,26 +61,7 @@ $(document).bind "mobileinit", ->
           LYT.app.bookIndex u, data.options
           e.preventDefault()
   ###
-  ###
-  $("#login").live "pagebeforeshow", (event) ->
-      $("#login-form").submit (event) ->
-
-        $.mobile.showPageLoadingMsg()
-        $("#password").blur()
-
-        LYT.service.logOn($("#username").val(), $("#password").val())
-          .done ->
-            $.mobile.changePage "#bookshelf"
-
-          .fail ->
-            log.message "log on failure"
-
-        event.preventDefault()
-        event.stopPropagation()
-
-  $("#bookshelf").live "pagebeforeshow", (event) ->
-    LYT.app.bookshelf()
-  ###
+ 
   ###
   $('#search').live "pagebeforeshow", (event) ->
     # TODO: Move the search logic to a separate file?  
@@ -203,5 +187,3 @@ $(document).bind "mobileinit", ->
             $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
   ###
   
-  $("[data-role=page]").live "pageshow", (event, ui) ->
-        _gaq.push [ "_trackPageview", event.target.id ]
