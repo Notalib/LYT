@@ -1,11 +1,6 @@
 # Application logic
-
-LYT.app =
-  
-  #todo: check if book is already loaded in the 3 book related pages
-  currentBook: null
-  
-  next: "bookshelf"
+#
+LYT.control =
   
   bookshelf: ->
     $.mobile.showPageLoadingMsg()
@@ -141,7 +136,9 @@ LYT.app =
         
       .fail () ->
         log.message "failed"
-
+        
+###
+LYT.app = #deprecated split into control object and the stuff that don't fit should go in utils, locally used utils can just be outside of the object
   eventSystemTime: (t) ->
       total_secs = undefined
       current_percentage = undefined
@@ -154,4 +151,4 @@ LYT.app =
       $("#current_time").text SecToTime(t)
       $("#total_time").text $("#NccRootElement").attr("totaltime")
       $("#timeline_progress_left").css "width", current_percentage + "%"
-      
+###     

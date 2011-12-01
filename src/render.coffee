@@ -1,8 +1,8 @@
 # This module handles gui callbacks and various utility functions
 
-LYT.gui =
+LYT.render =
   
-  renderBookshelf: (books, view) ->
+  bookshelf: (books, view) ->
     #todo: add pagination
     list = view.find("ul")
     list.empty()
@@ -11,13 +11,13 @@ LYT.gui =
     
     list.listview('refresh')
   
-  renderBookPlayer: (book, section, view) ->
+  bookPlayer: (book, section, view) ->
     view.find("#title").text book.title
     if book.creator   
       view.find("#author").text book.author
     view.find("#book_chapter").text section.title
     
-  renderBookDetails: (book, view) ->
+  bookDetails: (book, view) ->
     view.find("#title").text book.title
     
     if metadata.creator?
@@ -47,7 +47,7 @@ LYT.gui =
     else
       "Lydbog med tekst"
    
-  renderBookIndex: (book, view) ->  
+  bookIndex: (book, view) ->  
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
       log.message items

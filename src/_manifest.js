@@ -21,7 +21,7 @@ exports.files = [
   "settings",
   "bookshelf",
   "player",
-  "app",
-  "gui",
+  "control",
+  "render",
   "main"
 ];

@@ -1,9 +1,27 @@
 # This module serves as a router to the rest of the application and contains url entrypoints and event listeners
 
 $(document).ready ->
-  LYT.player.setup()
+  if not LYT.player.ready
+    LYT.player.setup()
 
 $(document).bind "mobileinit", ->
+  
+  ControllerObject =
+    login: (eventType,matchObj,ui,page) ->
+      alert('controller object works')
+  
+  router = new $.mobile.Router([
+    "#book-details": {
+      handler: "LYT.app.bookDetails"
+      events: "bs"
+    },
+    "#login": {
+      handler: "login"
+      events: "bs"
+    }
+    
+   ], ControllerObject, { ajaxApp: true})
+  
   
   $(LYT.service).bind "logon:rejected", () ->
     $.mobile.changePage "#login"
@@ -11,6 +29,7 @@ $(document).bind "mobileinit", ->
   $(LYT.service).bind "error:rpc", () ->
     #$.mobile.changePage "#login"  
   
+  ###
   $(document).bind "pagebeforechange", (e, data) ->
       # Intercept and parse urls with a query string
       # As done here http://jquerymobile.com/test/docs/pages/page-dynamic.html
@@ -26,7 +45,8 @@ $(document).bind "mobileinit", ->
           log.message "Main: changepage"
           LYT.app.bookIndex u, data.options
           e.preventDefault()
-
+  ###
+  ###
   $("#login").live "pagebeforeshow", (event) ->
       $("#login-form").submit (event) ->
 
@@ -45,7 +65,8 @@ $(document).bind "mobileinit", ->
 
   $("#bookshelf").live "pagebeforeshow", (event) ->
     LYT.app.bookshelf()
-    
+  ###
+  ###
   $('#search').live "pagebeforeshow", (event) ->
     # TODO: Move the search logic to a separate file?  
     # Also, shouldn't the `$("#search-form").submit` call only
@@ -168,6 +189,7 @@ $(document).bind "mobileinit", ->
             $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
             $("#book-text-content").css "background", vsettings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
             $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-
+  ###
+  
   $("[data-role=page]").live "pageshow", (event, ui) ->
         _gaq.push [ "_trackPageview", event.target.id ]
