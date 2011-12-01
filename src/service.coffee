@@ -233,14 +233,12 @@ LYT.service = do ->
     response = withLogOn -> LYT.rpc("getContentList", "issued", from, to)
     
     response.done (list) ->
-      deferred.resolve (
+      for item in list
         # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.  
-        # To quote [Nokogiri](http://nokogiri.org/):
-        # > "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
-        for item in list when item.label and not /^unknown$/i.test item.label
-          obj = {}
-          [obj.author, obj.title] = item.label.split("$") or ["", ""]
-      )
+        # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
+        [item.author, item.title] = item.label?.split("$") or ["", ""]
+        delete item.label
+      deferred.resolve list
     
     response.fail (err, message) -> deferred.reject err, message
     
