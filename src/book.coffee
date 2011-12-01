@@ -1,9 +1,10 @@
 # This class models a book for the purposes of playback.
 
-window.BOOK_ISSUE_CONTENT_ERROR     = {}
-window.BOOK_CONTENT_RESOURCES_ERROR = {}
-window.BOOK_NCC_NOT_FOUND_ERROR     = {}
-window.BOOK_NCC_NOT_LOADED_ERROR    = {}
+window.BOOK_ISSUE_CONTENT_ERROR        = {}
+window.BOOK_CONTENT_RESOURCES_ERROR    = {}
+window.BOOK_NCC_NOT_FOUND_ERROR        = {}
+window.BOOK_NCC_NOT_LOADED_ERROR       = {}
+window.BOOK_BOOKMARKS_NOT_LOADED_ERROR = {}
 
 class LYT.Book
   
@@ -38,6 +39,10 @@ class LYT.Book
     
     @resources   = {}
     @nccDocument = null
+    
+    pending = 2
+    resolve = ->
+      --pending or deferred.resolve this
     
     # First step: Request that the book be issued
     issue = =>
@@ -76,9 +81,11 @@ class LYT.Book
           if (/^ncc\.x?html?$/i).test localUri then ncc = @resources[localUri]
         
         # If an NCC reference was found, go to the next step:
-        # Getting the NCC document. Otherwise, fail.
+        # Getting the NCC document, and the bookmarks in
+        # parallel. Otherwise, fail.
         if ncc?
           getNCC ncc
+          getBookmarks()
         else
           deferred.reject BOOK_NCC_NOT_FOUND_ERROR
         
@@ -107,8 +114,31 @@ class LYT.Book
         # Get the total time
         @totalTime = metadata.totalTime?.content or ""
         
-        deferred.resolve this
+        resolve()
+    
+    
+    getBookmarks = =>
+      @lastMark  = null
+      @bookmarks = []
       
+      # Resolve and return early if bookmarks aren't supported
+      unless LYT.service.bookmarksSupported()
+        resolve()
+        return
+      
+      process = LYT.service.getBookmarks(@id)
+      
+      # TODO: Currently, failing to get the bookmarks will "fail" the
+      # the entire book loading-process... perhaps the system should
+      # be more lenient, and allow bookmarks to fail? Or perhaps they
+      # should be loaded lazily, when required?
+      process.fail -> deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
+      
+      process.done (set) ->
+        @lastMark = set.lastmark
+        @bookmarks = set.bookmarks
+        resolve()
+    
     # Kick the whole process off
     issue @id
   
