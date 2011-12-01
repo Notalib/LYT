@@ -2,7 +2,7 @@
 #
 LYT.control =
     
-  login: (eventType, matchObj, ui, page) ->
+  login: (type, match, ui, page) ->
     $("#login-form").submit (event) ->
 
       $.mobile.showPageLoadingMsg()
@@ -19,13 +19,15 @@ LYT.control =
       event.stopPropagation()
   
     
-  bookshelf: (eventType, matchObj, ui, page) ->
+  bookshelf: (type, match, ui, page) ->
     $.mobile.showPageLoadingMsg()
-    $content = page.children(":jqmData(role=content)")
+    
+    content = $(page).children(":jqmData(role=content)")
     
     LYT.bookshelf.load()
       .done (books) ->
-        LYT.render.bookshelf(books, $content)
+        log.message books
+        LYT.render.bookshelf(books, content)
         
         ###
         $content.find('a').click ->
@@ -42,84 +44,64 @@ LYT.control =
         log.message "failed with error #{error} and msg #{msg}"
   
   
-  bookDetails: (eventType, matchObj, ui, page) ->
-    $.mobile.showPageLoadingMsg()
-    #todo: clear data from earlier book
-    bookId = urlObj.hash.replace(/.*book=/, "")
+  bookDetails: (type, match, ui, page) ->
+    params = LYT.router.getParams(match[1])
     
-    pageSelector = urlObj.hash.replace(/\?.*$/, "")
-    $page = $(pageSelector)
-    $header = $page.children( ":jqmData(role=header)" )
-    $content = $page.children( ":jqmData(role=content)" )
-
-    book = new LYT.Book(bookId)                                
+    $.mobile.showPageLoadingMsg()   
+    content = $(page).children( ":jqmData(role=content)" )    
+    
+    # todo validate query string
+    
+    book = LYT.Book.load(params.book)                                
       .done (book) ->
-        currentBook = book
-        metadata = book.nccDocument.getMetadata()
-        #log.message metadata
+        log.message book
         
-        LYT.gui.renderBookDetails(book, $content)
+        LYT.render.bookDetails(book, content)
         
-        $content.find("#play-button").click (e) =>
+        content.find("#play-button").click (e) =>
           e.preventDefault()
-          $.mobile.changePage("#book-play?book=" + bookId)
+          $.mobile.changePage("#book-play?book=" + book.id)
 
-        LYT.gui.covercacheOne $content.find("figure"), bookId
+        #LYT.render.covercacheOne content.find("figure"), bookId
         
         #$page.page()
-        
-        options.dataUrl = urlObj.href
-        $.mobile.hidePageLoadingMsg()     
-        $.mobile.changePage $page, options         
+        #$.mobile.hidePageLoadingMsg()     
+        #$.mobile.changePage page, options         
 
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
   
-  bookIndex: (eventType, matchObj, ui, page) ->
-    $.mobile.showPageLoadingMsg()
-        
-    bookId = getParam('book', urlObj.hash)
+  bookIndex: (type, match, ui, page) ->
+    params = LYT.router.getParams(match[1])
     
-    $header = page.children( ":jqmData(role=header)" )
-    $content = page.children( ":jqmData(role=content)" )
+    $.mobile.showPageLoadingMsg()
+    content = $(page).children( ":jqmData(role=content)" )
     
     #unless bookId?
     
-    book = new LYT.Book(bookId)                            
+    book = LYT.Book.load(params.book)                            
       .done (book) ->
         currentBook = book
-        LYT.render.bookIndex(book, $content)
         
-        $page.page()
+        LYT.render.bookIndex(book, content)
         
-        options.dataUrl = urlObj.href
         $.mobile.hidePageLoadingMsg()
-        $.mobile.changePage $page, options
         
         #$("#book-index ol l").each ->
         #  #log.message $(@).attr('href')
         #  #attr = $(@).attr('href') + '?book=15000'
         #  #$(@).attr('href', attr)
   
-  bookPlayer: (eventType, matchObj, ui, page) ->
+  bookPlayer: (type, match, ui, page) ->
+    params = LYT.router.getParams(match[1])
     $.mobile.showPageLoadingMsg() 
-    
-    bookId = getParam('book', urlObj.hash)
-    sectionNumber = getParam('section', urlObj.hash) or 0  
-    offset = getParam('offset', urlObj.hash) or 0
-    
-    $header = page.children( ":jqmData(role=header)" )
-    $content = page.children( ":jqmData(role=content)" )
-    
-    book = new LYT.Book(bookId)                            
+        
+    book = LYT.Book.load(params.book)                            
       .done (book) ->
+                
+        section = book.nccDocument.structure[params.section]
         
-        metadata = book.nccDocument.getMetadata()
-        book.nccDocument.structure 
-        
-        section = book.nccDocument.structure[sectionNumber]
-        
-        LYT.render.bookPlayer(book, section, $page)
+        LYT.render.bookPlayer(book, section, $(page))
         
         if LYT.player.ready
           LYT.player.loadSection(book, section.id, offset)
@@ -130,16 +112,12 @@ LYT.control =
         ###
         $("#book-play").bind "swiperight", ->
             LYT.player.nextSection()
-
+            
         $("#book-play").bind "swipeleft", ->
             LYT.player.previousSection()
         ###
                 
-        #$page.page()
-        options.dataUrl = urlObj.href
         $.mobile.hidePageLoadingMsg()
-        #alert "App: changing the page"
-        $.mobile.changePage $page, options
         
       .fail () ->
         log.message "failed"
