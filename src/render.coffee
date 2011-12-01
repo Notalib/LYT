@@ -17,10 +17,10 @@ LYT.render =
     
     list.listview('refresh')
   
-  bookPlayer: (book, section, view) ->
+  bookPlayer: (book, view) ->
     view.find("#title").text book.title  
     view.find("#author").text book.author
-    view.find("#book_chapter").text section.title
+    #view.find("#book_chapter").text section.title
     
   bookDetails: (book, view) ->
     view.find("#title").text book.title

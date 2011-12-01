@@ -1,5 +1,7 @@
 # This module handles playback of current media and timing of transcript updates
 
+# todo: provide a visual cue on the next and previous section buttons if there are no next or previous section.
+
 LYT.player = 
   ready: false 
   el: null
@@ -11,6 +13,8 @@ LYT.player =
   nextButton: null
   previousButton: null
   playing: false
+  playIntentOffset: null
+  playIntentFlag: false
   # todo: consider array of all played sections and a few following
   
   SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
@@ -47,23 +51,24 @@ LYT.player =
         @updateHtml(event.jPlayer.status.currentTime)
       
       play: (event) =>
-
+        @setPlaying()
       
       pause: (event) =>
-        
-      
+        @setPaused()
+         
       ended: (event) =>
+        @setPaused()
         @nextSection()
       
       canplay: (event) =>
         #is not called in firefox 
         log.message 'can play'
-        @play()    
+        @playOnIntent()
       
       progress: (event) =>
         #is not called in chrome
         log.message 'progress'
-        @play()
+        @playOnIntent()
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -88,14 +93,30 @@ LYT.player =
   stop: ->
     @el.jPlayer('stop')
   
-  play: (time) ->
+  
+  playOnIntent: ->
+    # calls play and resets flag if the intent flag was set
+    
+    if @playIntentFlag
+      @play(@playIntentOffset)  
+      @playIntentFlag = false
+      @playIntentOffset = null
+              
+  
+  play: (time, intent = false) ->
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from 
-    # when media was paused, else from the beginning.
-    if not time?
-      @el.jPlayer('play')
+    # when media was paused or from the beginning.
+    
+    if intent
+      @playIntentFlag = true
+      @playIntentOffset = time
+      
     else
-      @el.jPlayer('play', time)
+      if not time?
+        @el.jPlayer('play')
+      else
+        @el.jPlayer('play', time)
   
   updateHtml: (time) ->
     log.message("Player: update html")
@@ -115,7 +136,7 @@ LYT.player =
   renderHtml: () ->
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
-  loadSection: (book, section, offset = 0) ->
+  loadSection: (book, section, offset = 0, autoPlay = false) ->
     #alert "Player: load book"
     @book = book
     @section = section
@@ -127,7 +148,8 @@ LYT.player =
         @el.jPlayer('setMedia', {mp3: media.audio})
         @el.jPlayer('load')
         @renderHtml()
-        #$.mobile.showPageLoadingMsg()
+        if autoPlay
+          @play(offset, true)
       else
         log.message 'Player: failed to get media'
           
@@ -135,18 +157,18 @@ LYT.player =
     #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
     return unless @media.nextSection?
     @pause()
-    @loadSection(@book, @media.nextSection)
+    @loadSection(@book, @media.nextSection, 0, true)
     
   previousSection: () ->  
     return unless @media.previousSection?
     @pause()
-    @loadSection(@book, @media.previousSection)
+    @loadSection(@book, @media.previousSection, 0, true)
     
-  renderPaused: () ->
+  setPaused: () ->
     @togglePlayButton.find("img").attr('src', '/images/play.png')
     @playing = false
   
-  renderPlaying: () ->
+  setPlaying: () ->
     @togglePlayButton.find("img").attr('src', '/images/pause.png')
     @playing = true
 
