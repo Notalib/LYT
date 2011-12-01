@@ -85,4 +85,6 @@ LYT.render =
     
     #log.message list
   
+  searchResults: (results, view) ->
+    null
     
