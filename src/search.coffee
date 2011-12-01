@@ -18,7 +18,7 @@ LYT.search = do ->
     dataType:    "json"
     type:        "POST"
     contentType: "application/json; charset=utf-8"
-    data:        JSON.stringify request
+    data:        JSON.stringify data
     url:         url
   
   
