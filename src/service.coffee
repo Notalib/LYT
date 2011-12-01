@@ -196,7 +196,7 @@ LYT.service = do ->
   
   logOn: logOn
   
-  # TODO: Can logOff fail? If so, what to do?
+  # TODO: Can logOff fail? If so, what to do? Very zen!  
   # Also, there should probably be some global "cancel all
   # outstanding ajax calls!" when log off is called
   logOff: ->
@@ -238,7 +238,7 @@ LYT.service = do ->
     deferred
   
   
-  # Non-Daisy function
-  search: (query) ->
+  getBookmarks: (id) ->
+    withLogOn -> LYT.rpc("getBookmarks")
   
 
