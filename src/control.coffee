@@ -51,7 +51,7 @@ LYT.control =
     
     # todo validate query string
     
-    book = LYT.Book.load(params.book)                                
+    LYT.Book.load(params.book)                                
       .done (book) ->
         log.message book
         
@@ -76,7 +76,7 @@ LYT.control =
     $.mobile.showPageLoadingMsg()
     content = $(page).children( ":jqmData(role=content)" )
     
-    book = LYT.Book.load(params.book)                            
+    LYT.Book.load(params.book)                            
       .done (book) ->
         
         LYT.render.bookIndex(book, content)
@@ -97,7 +97,7 @@ LYT.control =
     header = $(page).children( ":jqmData(role=header)")   
     #content = $(page).children( ":jqmData(role=content)" )
         
-    book = LYT.Book.load(params.book)                            
+    LYT.Book.load(params.book)                            
       .done (book) ->
         
         section = book.nccDocument.structure[sectionNumber]
@@ -125,7 +125,19 @@ LYT.control =
         
       .fail () ->
         log.message "failed"
-        
+  
+  search: (type, match, ui, page) ->
+    params = LYT.router.getParams(match[1])
+    
+    if params.term
+      
+      LYT.search.full(params.term)
+        .done (result) ->
+          log.message(result)
+    
+    
+    
+          
 ###
 LYT.app = #deprecated split into control object and the stuff that don't fit should go in utils, locally used utils can just be outside of the object
   eventSystemTime: (t) ->
