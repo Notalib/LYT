@@ -106,7 +106,9 @@
   return String(array[0]) if array.length is 1
   "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
   
+# deprecated use the geparam function in router
 @getParam = (name, hash) ->
+  log.message("This function is deprecated use the getParams in router")
   match = RegExp('[?&]' + name + '=([^&]*)').exec(hash);
   return match and decodeURIComponent(match[1].replace(/\+/g, ' '))
 
