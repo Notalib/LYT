@@ -7,22 +7,24 @@ LYT.render =
     list = view.find("ul")
     list.empty()
     for book in books
-      list.append("""<li><a href="#book-play?book=#{book.id}"><h1>#{book.title}</h1><h2>#{book.author}</h2></a></li>""")
+      list.append("""
+        <li>
+          <a href="#book-play?book=#{book.id}">
+            <h1>#{book.title}</h1>
+            <h2>#{book.author}</h2>
+          </a>
+        </li>""")
     
     list.listview('refresh')
   
   bookPlayer: (book, section, view) ->
-    view.find("#title").text book.title
-    if book.creator   
-      view.find("#author").text book.author
+    view.find("#title").text book.title  
+    view.find("#author").text book.author
     view.find("#book_chapter").text section.title
     
   bookDetails: (book, view) ->
     view.find("#title").text book.title
-    
-    if metadata.creator?
-      view.find("#author").text book.author
-    
+    view.find("#author").text book.author
     view.find("#totaltime").text book.totalTime
     
   covercache: (element) ->
