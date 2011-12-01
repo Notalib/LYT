@@ -8,8 +8,6 @@
 
 # --------
 
-# TODO: Better error handling/propagation
-
 # ## Constants
 
 window.RPC_UNEXPECTED_RESPONSE_ERROR = {}
