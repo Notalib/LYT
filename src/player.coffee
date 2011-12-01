@@ -39,33 +39,31 @@ LYT.player =
         
         @togglePlayButton.click =>
           if @playing
-            @el.jPlayer('pause')
+            @pause()
           else
-            @el.jPlayer('play')
-                
-        null
-      
+            @play()
+                     
       timeupdate: (event) =>
         @updateHtml(event.jPlayer.status.currentTime)
       
       play: (event) =>
-        @togglePlayButton.find("img").attr('src', '/images/pause.png')
-        @playing = true
+
       
       pause: (event) =>
-        @togglePlayButton.find("img").attr('src', '/images/play.png')
-        @playing = false
+        
       
       ended: (event) =>
         @nextSection()
       
       canplay: (event) =>
+        #is not called in firefox 
         log.message 'can play'
-        @play()
+        @play()    
       
       progress: (event) =>
+        #is not called in chrome
         log.message 'progress'
-        @renderHtml()
+        @play()
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -76,8 +74,6 @@ LYT.player =
   pause: ->
     # Pause current media
     @el.jPlayer('pause')
-    
-    'paused'
   
   silentPlay: () ->
       ###
@@ -91,8 +87,6 @@ LYT.player =
   
   stop: ->
     @el.jPlayer('stop')
-    
-    'stopped'
   
   play: (time) ->
     # Start or resume playing if media is loaded
@@ -102,18 +96,17 @@ LYT.player =
       @el.jPlayer('play')
     else
       @el.jPlayer('play', time)
-    
-    'playing'
   
   updateHtml: (time) ->
+    log.message("Player: update html")
     # Continously update media for current time of section
     return unless @book?
     return unless @media?
     @time = time
     if @media.end < @time
-      log.message("Player: current media has ended at #{@media.end} getting new media for #{@time}") 
       @book.mediaFor(@section,@time).done (media) =>
-        if media
+        if media?
+          log.message @media
           @media = media
           @renderHtml()
         else
@@ -128,25 +121,33 @@ LYT.player =
     @section = section
     
     @book.mediaFor(@section, offset).done (media) =>
-      log.message media
-      if media
+      #log.message media
+      if media?
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
+        @el.jPlayer('load')
+        @renderHtml()
+        #$.mobile.showPageLoadingMsg()
       else
         log.message 'Player: failed to get media'
           
-  nextSection: () ->
-    
+  nextSection: () ->   
     #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
     return unless @media.nextSection?
     @pause()
     @loadSection(@book, @media.nextSection)
     
-  previousSection: () ->
-    
+  previousSection: () ->  
     return unless @media.previousSection?
     @pause()
     @loadSection(@book, @media.previousSection)
-     
+    
+  renderPaused: () ->
+    @togglePlayButton.find("img").attr('src', '/images/play.png')
+    @playing = false
+  
+  renderPlaying: () ->
+    @togglePlayButton.find("img").attr('src', '/images/pause.png')
+    @playing = true
 
   
