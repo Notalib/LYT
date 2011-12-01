@@ -20,7 +20,7 @@ $(document).bind "mobileinit", ->
       handler: "settings"
       events: "bs"
     "#search([?].*)?":
-      handler: "bookDetails"
+      handler: "search"
       events: "bs"
     "#login":
       handler: "login"
