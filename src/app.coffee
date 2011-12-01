@@ -47,7 +47,7 @@ LYT.app =
         metadata = book.nccDocument.getMetadata()
         #log.message metadata
         
-        LYT.gui.renderBookDetails(metadata, $content)
+        LYT.gui.renderBookDetails(book, $content)
         
         $content.find("#play-button").click (e) =>
           e.preventDefault()
@@ -114,7 +114,7 @@ LYT.app =
         section = book.nccDocument.structure[sectionNumber]
         
         #alert "App: about to render book"
-        LYT.gui.renderBookPlayer(metadata, section, $page)
+        LYT.gui.renderBookPlayer(book, section, $page)
         #alert "App: finished rendering book"
         
         if LYT.player.ready

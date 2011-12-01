@@ -11,28 +11,19 @@ LYT.gui =
     
     list.listview('refresh')
   
-  renderBookPlayer: (metadata, section, view) ->
-    #fixme: something in this function makes the app hang indefinetely on android phones
-    #todo: use direct properties on book class book.title .author and .totaltime
-    #alert "rendering book player book title"
-    view.find("#title").text metadata.title.content
-    #alert "rendering book player boo creator"
-    if metadata.creator?   
-      view.find("#author").text toSentence(item.content for item in metadata.creator)
-    #alert "rendering book player section title" 
+  renderBookPlayer: (book, section, view) ->
+    view.find("#title").text book.title
+    if book.creator   
+      view.find("#author").text book.author
     view.find("#book_chapter").text section.title
-    #alert "done"
     
-  renderBookDetails: (metadata, view) ->
-    view.find("#title").text metadata.title.content
+  renderBookDetails: (book, view) ->
+    view.find("#title").text book.title
     
     if metadata.creator?
-      view.find("#author").text toSentence(item.content for item in metadata.creator)
+      view.find("#author").text book.author
     
-    if metadata.narrator?
-      view.find("#narrator").text toSentence(item.content for item in metadata.narrator)
-    
-    view.find("#totaltime").text metadata.totalTime.content
+    view.find("#totaltime").text book.totalTime
     
   covercache: (element) ->
     $(element).each ->
