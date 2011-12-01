@@ -151,8 +151,8 @@ LYT.protocol =
     
   
   getContentList:
-    request: (listID, firstItem, lastItem) ->
-      id:        listID
+    request: (listIdentifier, firstItem, lastItem) ->
+      id:        listIdentifier
       firstItem: firstItem
       lastItem:  lastItem
     
@@ -224,7 +224,7 @@ LYT.protocol =
       bookmarkSet.book.id    = $xml.find("bookmarkSet > uid").text()
       bookmarkSet.book.title = $xml.find("bookmarkSet > title > text").text()
       # TODO: extract title > audio, too?
-      lastmark = $xml.find("bookmarkSet > lastmark")
+      lastmark = $xml.find("bookmarkSet > lastmark").first()
       bookmarkSet.lastmark = parse lastmark if lastmark.length
       $xml.find("bookmarkSet > bookmark").each ->
         bookmarkSet.bookmarks.push parse(jQuery(this))
