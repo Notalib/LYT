@@ -23,7 +23,7 @@ LYT.search = do ->
   
   
   # Perform a "full" search. Takes the search term as its
-  # ony argument, and returns a deferred object.  
+  # only argument, and returns a deferred object.  
   # The deferred object will resolve with an array of search
   # result objects (or an empty array, if there are no results).  
   # In case of an error, the deferred will be rejected with the
