@@ -89,7 +89,7 @@ LYT.search = do ->
   
   
   # Attach the autocomplete eventhandler to the element passed
-  attachAutocomplete: (element) ->
+  attachAutocomplete = (element) ->
     jQuery(element).autocomplete getAutocompleteOptions()
   
   
