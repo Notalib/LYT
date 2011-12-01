@@ -7,7 +7,7 @@ LYT.config =
   #     2 = Everything
   logging: 2
   
-  # rpc system config
+  # LYT.rpc function config
   rpc:
     # The default set of options to pass to jQuery's ajax functions
     options:
@@ -21,8 +21,11 @@ LYT.config =
       timeout:     10000
       type:        "POST"
       url:         "/DodpMobile/Service.svc"
-    
+  
+  # Values used by protocol functions
   protocol:
+    # The reading system attrs to send with
+    # the `setReadingSystemAttributes` request
     readingSystemAttributes:
       manufacturer: "NOTA"
       model:        "LYT"
@@ -30,7 +33,21 @@ LYT.config =
       version:      "1"
       config:       null
   
+  # LYT.service config
   service:
     logOnAttempts: 3
+  
+  # LYT.search config
+  search:
+    # Full (free text) search options
+    full:
+      url: "/CatalogSearch/search.asmx/SearchFreetext"
     
+    # Autocomplete options
+    autocomplete:
+      # The URL to request results from
+      url: "/CatalogSearch/search.asmx/SearchAutocomplete"
+      # The options to pass to jQuery UI's `.autocomplete()`
+      setup:
+        minLength: 2
   

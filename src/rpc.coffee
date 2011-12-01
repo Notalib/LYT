@@ -8,8 +8,6 @@
 
 # --------
 
-# TODO: Better error handling/propagation
-
 # ## Constants
 
 window.RPC_UNEXPECTED_RESPONSE_ERROR = {}
@@ -169,39 +167,3 @@ LYT.rpc = do ->
     # Return the deferred
     deferred
 
-# ---------
-
-# Deprecated
-LYT.rpc.toXML = (hash) ->
-  log.warn "LYT.rpc.toXML is deprecated. Use [window.]toXML instead"
-  toXML hash
-
-# ---------
-
-# The default ajax error handler
-LYT.rpc.error = do ->
-  errorRegExp = /session (is (invalid|uninitialized)|has not been initialized)/i
-  
-  (xhr, error, exception) ->
-    title = "ERROR: RPC: "
-    if xhr.status > 399
-      title += xhr.status
-    else if exception is "timeout"
-      # FIXME: No `alert()`s here! 
-      alert "Ups - vi misted forbindelsen. Måske har du ingen forbindelse til Internettet?"
-      title += "Timed out"
-    else if xhr.responseText.match errorRegExp
-      eventSystemNotLoggedIn()  # FIXME: Not a great function name
-      title += "Invalid/uninitialized session"
-    else
-      title += "General error"
-    
-    log.errorGroup title
-    log.error xhr
-    log.error "Error:", error
-    log.error "Exception:", exception
-    log.error "Response: ", xhr.responseText
-    log.closeGroup()
-  
-  
-  

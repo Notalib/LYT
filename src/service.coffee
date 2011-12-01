@@ -16,17 +16,37 @@
 
 # ---------------
 
-# DEPRECATED
-window.SERVICE_MUST_LOGON_ERROR = {}
-
-# ---------------
-
 LYT.service = do ->
+  
   # "session" storage  
-  # TODO: This should probably be moved
   session =
     username: null
     password: null
+  
+  
+  # optional service operations  
+  operations = {
+    DYNAMIC_MENUS:         false
+    SET_BOOKMARKS:         false
+    GET_BOOKMARKS:         false
+    SERVICE_ANNOUNCEMENTS: false
+    PDTB2_KEY_PROVISION:   false
+  }
+  
+  
+  getCredentials = ->
+    unless session.username? and session.password?
+      session = LYT.cache.read "session", "credentials"
+    session
+  
+  setCredentials = (username, password) ->
+    [session.username, session.password] = [username, password]
+    LYT.cache.write "session", "credentials", session if session.username? and session.password?
+  
+  deleteCredentials = ->
+    [session.username, session.password] = [null, null]
+    LYT.cache.remove "session", "credentials"
+  
   
   # The current logon process  
   # TODO: Should this be accessible from the outside?
@@ -47,7 +67,7 @@ LYT.service = do ->
       when RPC_GENERAL_ERROR, RPC_TIMEOUT_ERROR, RPC_ABORT_ERROR, RPC_HTTP_ERROR
         emit "error:rpc", code: code
       else
-        emit "error:server", code: code
+        emit "error:service", code: code
   
   
   # Wraps a call in a couple of checks: If the call the fails,
@@ -100,23 +120,24 @@ LYT.service = do ->
   
   # Perform the logOn handshake:
   # logOn -> getServiceAttributes -> setReadingSystemAttributes
-  logOn = (username = session.username, password = session.password) ->
+  logOn = (username, password) ->
     # Check for pending logon processes
     return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state is "pending"
     
     deferred = currentLogOnProcess = jQuery.Deferred()
     
-    unless username? and password?
+    if username and password
+      setCredentials username, password
+    else
+      {username, password} = credentials if (credentials = getCredentials())
+    
+    unless username and password
       emit "logon:rejected"
-      deferred.reject SERVICE_MUST_LOGON_ERROR
+      deferred.reject()
       return deferred
     
     session.username = username
     session.password = password
-    
-    # optional operations  
-    # TODO: Handle this better
-    operations = null
     
     # The maximum number of attempts to make
     attempts = LYT.config.service.logOnAttempts
@@ -127,7 +148,7 @@ LYT.service = do ->
     failed = (code, message) ->
       if code is RPC_UNEXPECTED_RESPONSE_ERROR
         emit "logon:rejected"
-        deferred.reject SERVICE_MUST_LOGON_ERROR, "Logon rejected"
+        deferred.reject()
       else
         if attempts > 0
           attemptLogOn()
@@ -143,7 +164,8 @@ LYT.service = do ->
     
     
     gotServiceAttrs = (ops) ->
-      operations = ops
+      operations[op] = false for op of operations
+      operations[op] = true for op in ops
       LYT.rpc("setReadingSystemAttributes")
         .done(readingSystemAttrsSet)
         .fail(failed)
@@ -152,9 +174,7 @@ LYT.service = do ->
     readingSystemAttrsSet = ->
       deferred.resolve()
       
-      # TODO: If there are service announcements, do they have to be
-      # retrieved before the handshake is considered done?
-      if operations.indexOf("SERVICE_ANNOUNCEMENTS") isnt -1
+      if LYT.service.announcementsSupported()
         LYT.rpc("getServiceAnnouncements")
           .done(gotServiceAnnouncements)
           # Fail silently
@@ -177,17 +197,18 @@ LYT.service = do ->
     
     return deferred
   
-  # -- Return ---
+  # -------
+  # # Public API
+  # ## Basic operations
   
   logOn: logOn
   
-  # TODO: Can logOff fail? If so, what to do?
+  # TODO: Can logOff fail? If so, what to do? Very zen!  
   # Also, there should probably be some global "cancel all
   # outstanding ajax calls!" when log off is called
   logOff: ->
     LYT.rpc("logOff").always ->
-      session.username = null
-      session.password = null
+      deleteCredentials()
   
   
   issue: (bookId) ->
@@ -212,19 +233,29 @@ LYT.service = do ->
     response = withLogOn -> LYT.rpc("getContentList", "issued", from, to)
     
     response.done (list) ->
-      for item in list
+      deferred.resolve (
         # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.  
-        # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
-        [item.author, item.title] = item.label?.split("$") or ["", ""]
-        delete item.label
-      deferred.resolve list
+        # To quote [Nokogiri](http://nokogiri.org/):
+        # > "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
+        for item in list when item.label and not /^unknown$/i.test item.label
+          obj = {}
+          [obj.author, obj.title] = item.label.split("$") or ["", ""]
+      )
     
     response.fail (err, message) -> deferred.reject err, message
     
     deferred
   
+  # -------
+  # ## Optional operations
   
-  # Non-Daisy function
-  search: (query) ->
+  bookmarksSupported: ->
+    operations.GET_BOOKMARKS and operations.SET_BOOKMARKS
+  
+  getBookmarks: (id) ->
+    withLogOn -> LYT.rpc("getBookmarks", id)
+  
+  announcementsSupported: ->
+    operations.SERVICE_ANNOUNCEMENTS
   
 

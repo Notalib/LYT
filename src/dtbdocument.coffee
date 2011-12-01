@@ -6,8 +6,9 @@
 do ->
   # Meta-element name attribute values to look for
   # Name attribute values for nodes that may appear 0-1 times per file  
-  # Names that may have variations (e.g. `ncc:format` is the deprecated in favor of `dc:format`) are defined a arrays.
+  # Names that may have variations (e.g. `ncc:format` is the deprecated form of `dc:format`) are defined a arrays.
   # C.f. [The DAISY 2.02 specification](http://www.daisy.org/z3986/specifications/daisy_202.html#h3metadef)
+  # TODO: Comment out the things we'll never need to speed up the processing
   METADATA_NAMES =
     singular:
       coverage:         "dc:coverage"
@@ -73,28 +74,15 @@ do ->
       deferred.promise this
       
       @source = null
-      dataType = if @url.match(/\.x?html?$/i)? then "html" else "xml"
+      dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
       
       coerceToHTML = (responseText) =>
         log.message "DTB: Coercing #{@url} into HTML"
-        html = jQuery "<html/>"
-        document = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
-        return null unless (document = document[1])?
-        
-        document = nerfImageURLs document
-        
-        html.html document
-      
-      nerfImageURLs = (html) ->
-        html.replace ///
-          (<img [^>]*?)        # image tag
-          src\s*=\s*           # src attr (plus possible whitespace)
-          (                    # branch...
-            (("')([^"']+)\3)   # quoted src attr value
-            |
-            ([^\s]+)           # unquoted src attr value
-          )///ig, "$1data-x-src=$2"
-          
+        markup = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        return null unless (markup = markup[1])?
+        html = document.implementation.createHTMLDocument ""
+        html.documentElement.innerHTML = markup
+        jQuery html
       
       
       loaded = (document, status, jqXHR) =>
@@ -104,6 +92,7 @@ do ->
           @source = jQuery document
         resolve()
       
+      
       failed = (jqXHR, status, error) =>
         if status is "parsererror"
           log.error "DTB: Parser error in XML response. Attempting recovering"
@@ -112,6 +101,7 @@ do ->
           return
         log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
         deferred.reject status, error
+      
       
       resolve = =>
         if @source?

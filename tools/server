@@ -26,6 +26,8 @@ SRCDIR = fs.path.resolve __dirname, "../src/"
 PROXY = no
 LIVE  = no
 
+PROXY_HOST = "m.e17.dk"
+
 opts.on "proxy", -> PROXY = yes
 opts.on "live", ->  LIVE  = yes
 opts.on "help", ->
@@ -46,7 +48,7 @@ handleRequest = (request, response) ->
   try
     if responders[url.pathname]?
       if PROXY
-        proxy "m.nota.nu", request, response
+        proxy PROXY_HOST, request, response
       else
         responders[url.pathname] request, response, url
     else

@@ -10,7 +10,7 @@
 # call initiate further calls to the server, and generally be as isolated from
 # the rest of the system as possible.
 #
-# CHANGED: Deprecated the `complete` function in favor of the Promise/Deferred pattern  
+# CHANGED: Removed the `complete` function in favor of the Promise/Deferred pattern  
 # CHANGED: Removed the `error` function since it'd be rather complex to make it
 # work with the deferred object created by LYT.rpc
 # 
@@ -20,7 +20,7 @@
 #  - `request`   - returns the data to be sent as the request body
 #  - `receive`   - parses the response from the server, if the request is successful, and returns the parsed data
 #  - `error`     - (REMOVED) handles errors
-#  - `complete`  - (DEPRECATED) will be called when the request completes, regardless of success or failure
+#  - `complete`  - (REMOVED) will be called when the request completes, regardless of success or failure
 #
 # All these members are optional (see below).
 # 
@@ -151,8 +151,8 @@ LYT.protocol =
     
   
   getContentList:
-    request: (listID, firstItem, lastItem) ->
-      id:        listID
+    request: (listIdentifier, firstItem, lastItem) ->
+      id:        listIdentifier
       firstItem: firstItem
       lastItem:  lastItem
     
@@ -224,7 +224,7 @@ LYT.protocol =
       bookmarkSet.book.id    = $xml.find("bookmarkSet > uid").text()
       bookmarkSet.book.title = $xml.find("bookmarkSet > title > text").text()
       # TODO: extract title > audio, too?
-      lastmark = $xml.find("bookmarkSet > lastmark")
+      lastmark = $xml.find("bookmarkSet > lastmark").first()
       bookmarkSet.lastmark = parse lastmark if lastmark.length
       $xml.find("bookmarkSet > bookmark").each ->
         bookmarkSet.bookmarks.push parse(jQuery(this))

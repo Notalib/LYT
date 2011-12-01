@@ -101,3 +101,7 @@ img.nota-full {
 	padding: 3px;
 	padding-left: 30px;
 }
+
+.ui-autocomplete{
+	visibility:hidden;
+}
