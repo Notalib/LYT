@@ -1,5 +1,4 @@
-# Application logic
-#
+# This module Controller
 LYT.control =
     
   login: (type, match, ui, page) ->
@@ -90,12 +89,21 @@ LYT.control =
   
   bookPlayer: (type, match, ui, page) ->
     params = LYT.router.getParams(match[1])
-    jQuery.mobile.showPageLoadingMsg() 
+    
+    sectionNumber = params.section or 0
+    offset = params.offset or 0
+    
+    jQuery.mobile.showPageLoadingMsg()
+    header = $(page).children( ":jqmData(role=header)")   
+    #content = $(page).children( ":jqmData(role=content)" )
         
     book = LYT.Book.load(params.book)                            
       .done (book) ->
-                
-        section = book.nccDocument.structure[params.section]
+        
+        section = book.nccDocument.structure[sectionNumber]
+        
+        #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
+        header.find('#book-index-button').attr 'href', """#book-index?book=#{book.id}"""
         
         LYT.render.bookPlayer(book, section, $(page))
         

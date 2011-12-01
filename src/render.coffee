@@ -54,11 +54,9 @@ LYT.render =
     mapper = (list, items) ->
       log.message items
       for item in items
-        element = jQuery "<li></li>"
-        
-        #element.attr "id", item.id
-        #element.attr "data-href", item.href
-        #element.text item.title
+        element = jQuery "<li></li>" 
+        element.attr "id", item.id
+        element.attr "data-href", item.href
         
         if item.children.length > 0
           element.text item.title        
@@ -74,11 +72,7 @@ LYT.render =
           element.append nested
         list.append element
         
-        element.click ->
-          log.message "Should now go to: #book-play?book=#{book.id}&section=#{item.id}"
-          #$.mobile.changePage "#book-play?book=#{book.id}&section=#{item.id}"
         
-
     # Create an uordered list wrapper for the list
     list = view.children("ol").empty()
     list.attr "data-title", book.title
