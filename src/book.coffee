@@ -41,7 +41,7 @@ class LYT.Book
     @nccDocument = null
     
     pending = 2
-    resolve = ->
+    resolve = =>
       --pending or deferred.resolve this
     
     # First step: Request that the book be issued
