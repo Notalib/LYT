@@ -7,23 +7,39 @@ $(document).ready ->
 $(document).bind "mobileinit", ->
     
   LYT.router = new $.mobile.Router([
-    "#book-details": {
+    "#book-details([?].*)?":
       handler: "bookDetails"
       events: "bs"
-    },
-    "#login": {
+    "#book-play([?].*)?":
+      handler: "bookPlay"
+      events: "bs"
+    "#book-index([?].*)?":
+      handler: "bookIndex"
+      events: "bs"
+    "#settings":
+      handler: "settings"
+      events: "bs"
+    "#search([?].*)?":
+      handler: "bookDetails"
+      events: "bs"
+    "#login":
       handler: "login"
       events: "bs"
-    }
+    "#logout":
+      handler: "logout"
+      events: "bs"
+    "#bookshelf":
+      handler: "bookshelf"
+      events: "bs"
     
-   ], LYT.control, { ajaxApp: true})
+   ], LYT.control, { ajaxApp: false })
   
   
   $(LYT.service).bind "logon:rejected", () ->
     $.mobile.changePage "#login"
   
   $(LYT.service).bind "error:rpc", () ->
-    #$.mobile.changePage "#login"  
+    #todo: apologize on behalf of the server 
   
   ###
   $(document).bind "pagebeforechange", (e, data) ->
