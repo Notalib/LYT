@@ -17,11 +17,12 @@ exports.files = [
   "section",
   "nccdocument",
   "book",
+  "search",
   
   "settings",
   "bookshelf",
   "player",
-  "control",
   "render",
+  "control",
   "router"
 ];
