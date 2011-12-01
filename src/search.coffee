@@ -4,7 +4,7 @@
 
 # ## Constants
 
-window.SEARCH_GENERAL_ERROR    = {}
+window.SEARCH_GENERAL_ERROR = {}
 
 # --------
 
