@@ -77,24 +77,20 @@ LYT.control =
     $.mobile.showPageLoadingMsg()
     content = $(page).children( ":jqmData(role=content)" )
     
-    #unless bookId?
-    
     book = LYT.Book.load(params.book)                            
       .done (book) ->
-        currentBook = book
         
         LYT.render.bookIndex(book, content)
+        jQuery.mobile.hidePageLoadingMsg()
         
-        $.mobile.hidePageLoadingMsg()
-        
-        #$("#book-index ol l").each ->
-        #  #log.message $(@).attr('href')
-        #  #attr = $(@).attr('href') + '?book=15000'
-        #  #$(@).attr('href', attr)
+        #jQuery("#book-index ol l").each ->
+        #  #log.message jQuery(@).attr('href')
+        #  #attr = jQuery(@).attr('href') + '?book=15000'
+        #  #jQuery(@).attr('href', attr)
   
   bookPlayer: (type, match, ui, page) ->
     params = LYT.router.getParams(match[1])
-    $.mobile.showPageLoadingMsg() 
+    jQuery.mobile.showPageLoadingMsg() 
         
     book = LYT.Book.load(params.book)                            
       .done (book) ->

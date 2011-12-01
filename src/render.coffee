@@ -43,7 +43,7 @@ LYT.render =
     ).error(->
     ).attr("src", u)
   
-  parseMediaType: (mediastring) ->
+  mediaType: (mediastring) ->
     unless mediastring.indexOf("AA") is -1
       "Lydbog"
     else
@@ -55,9 +55,19 @@ LYT.render =
       log.message items
       for item in items
         element = jQuery "<li></li>"
-        element.attr "id", item.id
-        element.attr "data-href", item.href
-        element.text item.title
+        
+        #element.attr "id", item.id
+        #element.attr "data-href", item.href
+        #element.text item.title
+        
+        if item.children.length > 0
+          element.text item.title        
+        else
+          element.append("""
+            <a href="#book-play?book=#{book.id}&section=#{item.id}"> 
+              #{item.title}
+            </a>""")
+          
         if item.children.length > 0
           nested = jQuery "<ol></ol>"
           mapper(nested, item.children)
@@ -65,8 +75,8 @@ LYT.render =
         list.append element
         
         element.click ->
-          log.message "go to now: #book-play?book=#{book.id}&section=#{item.id}"
-          $.mobile.changePage "#book-play?book=#{book.id}&section=#{item.id}"
+          log.message "Should now go to: #book-play?book=#{book.id}&section=#{item.id}"
+          #$.mobile.changePage "#book-play?book=#{book.id}&section=#{item.id}"
         
 
     # Create an uordered list wrapper for the list
@@ -77,7 +87,7 @@ LYT.render =
     list.attr "id", "NCCRootElement"
     mapper(list, book.nccDocument.structure)
     
-    list.trigger 'create'
+    list.listview('refresh')
     
     #log.message list
   
