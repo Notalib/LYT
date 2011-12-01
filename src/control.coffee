@@ -2,6 +2,27 @@
 #
 LYT.control =
   
+  
+  
+  login: (eventType,matchObj,ui,page) ->
+    $("#login-form").submit (event) ->
+
+      $.mobile.showPageLoadingMsg()
+      $("#password").blur()
+
+      LYT.service.logOn($("#username").val(), $("#password").val())
+        .done ->
+          $.mobile.changePage "#bookshelf"
+
+        .fail ->
+          log.message "log on failure"
+
+      event.preventDefault()
+      event.stopPropagation()
+  
+  
+  logout: ->  
+  
   bookshelf: ->
     $.mobile.showPageLoadingMsg()
     $page = $("#bookshelf")

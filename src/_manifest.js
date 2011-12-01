@@ -23,5 +23,5 @@ exports.files = [
   "player",
   "control",
   "render",
-  "main"
+  "router"
 ];

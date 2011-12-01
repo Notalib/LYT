@@ -5,14 +5,10 @@ $(document).ready ->
     LYT.player.setup()
 
 $(document).bind "mobileinit", ->
-  
-  ControllerObject =
-    login: (eventType,matchObj,ui,page) ->
-      alert('controller object works')
-  
-  router = new $.mobile.Router([
+    
+  LYT.router = new $.mobile.Router([
     "#book-details": {
-      handler: "LYT.app.bookDetails"
+      handler: "bookDetails"
       events: "bs"
     },
     "#login": {
@@ -20,7 +16,7 @@ $(document).bind "mobileinit", ->
       events: "bs"
     }
     
-   ], ControllerObject, { ajaxApp: true})
+   ], LYT.control, { ajaxApp: true})
   
   
   $(LYT.service).bind "logon:rejected", () ->
