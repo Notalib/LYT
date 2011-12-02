@@ -162,6 +162,7 @@ LYT.player =
       #log.message media
       if media?
         @media = media
+        @renderTranscript()
         @el.jPlayer('setMedia', {mp3: media.audio})
         @el.jPlayer('load')
         if autoPlay
