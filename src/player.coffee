@@ -48,7 +48,11 @@ LYT.player =
             @play()
                      
       timeupdate: (event) =>
-        @updateHtml(event.jPlayer.status.currentTime)
+        @updateHtml(event.jPlayer.status)
+      
+      loadstart: (event) =>
+        log.message 'load start'
+        @updateHtml(event.jPlayer.status)
       
       play: (event) =>
         @setPlaying()
@@ -63,11 +67,13 @@ LYT.player =
       canplay: (event) =>
         #is not called in firefox 
         log.message 'can play'
+        @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
       progress: (event) =>
         #is not called in chrome
         log.message 'progress'
+        @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
       swfPath: "./lib/jPlayer/"
@@ -118,26 +124,34 @@ LYT.player =
       else
         @el.jPlayer('play', time)
   
-  updateHtml: (time) ->
+  updateHtml: (status) ->
     # Continously update player rendering for current time of section
-    #log.message("Player: update ui")
     
-    $("#elapsed-time").text @time
     return unless @book?
     return unless @media?
-    @time = time
+    
+    @time = status.currentTime
+    
+    $("#chapter-duration").text status.duration
+    $("#elapsed-time").text @time
+    
+    # render percent bar
+    
     if @media.end < @time
       @book.mediaFor(@section,@time).done (media) =>
         if media?
           log.message @media
           @media = media
-          @renderHtml()
+          @renderTranscript()
         else
           log.message 'Player: failed to get media'
   
-  renderHtml: () ->
+  renderTranscript: () ->
     #log.message("Player: render new transcript")
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
+  
+  renderTime: () ->
+    null
   
   loadSection: (book, section, offset = 0, autoPlay = false) ->
     @stop()
@@ -150,7 +164,6 @@ LYT.player =
         @media = media
         @el.jPlayer('setMedia', {mp3: media.audio})
         @el.jPlayer('load')
-        @renderHtml()
         if autoPlay
           @play(offset, true)
       else
