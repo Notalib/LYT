@@ -72,22 +72,21 @@ LYT.control =
         log.message "failed with error #{error} and msg #{msg}"
   
   bookIndex: (type, match, ui, page) ->
-    
-    $.mobile.showPageLoadingMsg()
     params = LYT.router.getParams(match[1])
-    
     content = $(page).children( ":jqmData(role=content)" )
     
-    LYT.Book.load(params.book)                            
-      .done (book) ->
+    if params.book
+      $.mobile.showPageLoadingMsg()
+      LYT.Book.load(params.book)                            
+        .done (book) ->
         
-        LYT.render.bookIndex(book, content)
-        jQuery.mobile.hidePageLoadingMsg()
+          LYT.render.bookIndex(book, content)
+          $.mobile.hidePageLoadingMsg()
         
-        #jQuery("#book-index ol l").each ->
-        #  #log.message jQuery(@).attr('href')
-        #  #attr = jQuery(@).attr('href') + '?book=15000'
-        #  #jQuery(@).attr('href', attr)
+          #jQuery("#book-index ol l").each ->
+          #  #log.message jQuery(@).attr('href')
+          #  #attr = jQuery(@).attr('href') + '?book=15000'
+          #  #jQuery(@).attr('href', attr)
   
   bookPlayer: (type, match, ui, page) ->
     $.mobile.showPageLoadingMsg()
@@ -134,7 +133,6 @@ LYT.control =
         log.message "failed"
   
   search: (type, match, ui, page) ->
-    $.mobile.showPageLoadingMsg()
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
     
@@ -145,6 +143,7 @@ LYT.control =
       
     
     if params.term  # this allows for bookmarkable search terms
+      $.mobile.showPageLoadingMsg()
       LYT.search.full(params.term)
         .done (results) ->
           LYT.render.searchResults(results, content)

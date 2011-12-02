@@ -9,28 +9,28 @@ $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
-      events: "bs"
+      events: "bs,s"
     "#book-play([?].*)?":
       handler: "bookPlayer"
-      events: "bs"
+      events: "bs,s"
     "#book-index([?].*)?":
       handler: "bookIndex"
-      events: "bs"
+      events: "bs,s"
     "#settings":
       handler: "settings"
-      events: "bs"
+      events: "bs,s"
     "#search([?].*)?":
       handler: "search"
-      events: "bs"
+      events: "bs,s"
     "#login":
       handler: "login"
-      events: "bs"
+      events: "bs,s"
     "#profile":
       handler: "profile"
-      events: "bs"
+      events: "bs,s"
     "#bookshelf":
       handler: "bookshelf"
-      events: "bs"
+      events: "bs,s"
     
    ], LYT.control, { ajaxApp: false })
   
