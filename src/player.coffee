@@ -13,6 +13,7 @@ LYT.player =
   nextButton: null
   previousButton: null
   playing: false
+  
   playIntentOffset: null
   playIntentFlag: false
   # todo: consider array of all played sections and a few following
@@ -134,13 +135,14 @@ LYT.player =
     
     $("#chapter-duration").text status.duration
     $("#elapsed-time").text @time
+    status.currentPercentAbsolute
     
     # render percent bar
     
     if @media.end < @time
       @book.mediaFor(@section,@time).done (media) =>
         if media?
-          log.message @media
+          #log.message @media
           @media = media
           @renderTranscript()
         else
@@ -187,4 +189,18 @@ LYT.player =
     @togglePlayButton.find("img").attr('src', '/images/pause.png')
     @playing = true
 
-  
+
+###
+  eventSystemTime: (t) ->
+      total_secs = undefined
+      current_percentage = undefined
+      if $("#NccRootElement").attr("totaltime")?
+          tt = $("#NccRootElement").attr("totaltime")
+          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60) + parseInt(tt.substr(6, 2))  if tt.length is 8
+          total_secs = tt.substr(0, 1) * 3600 + (tt.substr(2, 2) * 60) + parseInt(tt.substr(5, 2))  if tt.length is 7
+          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60)  if tt.length is 5
+      current_percentage = Math.round(t / total_secs * 98)
+      $("#current_time").text SecToTime(t)
+      $("#total_time").text $("#NccRootElement").attr("totaltime")
+      $("#timeline_progress_left").css "width", current_percentage + "%"
+###
