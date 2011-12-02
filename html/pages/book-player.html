@@ -3,7 +3,7 @@
 	<div id="jplayer"><!-- placeholder for jplayer audio element --></div>
 
 	<header data-add-back-btn="false" id="book-play-header" data-role="header">
-		<h1>Afspiller nu</h1>
+		<h1>Afspiller</h1>
 		<div data-role="navbar" id="book-top-menu">
 			<ul>
 				<li><a data-icon="" href="#bookshelf">Boghylde</a></li>
@@ -21,6 +21,7 @@
 			<div class="ui-block-b">
 				<h1 id="title">Title</h1>
 				<h2 id="author">Author</h2>
+				<p>Længde i alt: <span id="book-duration"></span></p>
 			</div>
 		</div>
 
@@ -31,13 +32,13 @@
 
 		<div class="ui-grid-b ui-bar" id="book-chapter-menu">
 			<div class="ui-block-a">
-				<div id="current_time">0</div>
+				<div id="elapsed-time">0</div>
 			</div>
 			<div class="ui-block-b">
-				<div id="book_chapter">Kapitel</div>
+				<div id="chapter-title">Kapitel</div>
 			</div>
 			<div class="ui-block-b">
-				<div id="total_time">5:34</div>
+				<div id="chapter-duration">0</div>
 			</div>
 		</div>
 

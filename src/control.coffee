@@ -72,9 +72,10 @@ LYT.control =
         log.message "failed with error #{error} and msg #{msg}"
   
   bookIndex: (type, match, ui, page) ->
+    
     $.mobile.showPageLoadingMsg()
     params = LYT.router.getParams(match[1])
-     
+    
     content = $(page).children( ":jqmData(role=content)" )
     
     LYT.Book.load(params.book)                            
@@ -89,13 +90,18 @@ LYT.control =
         #  #jQuery(@).attr('href', attr)
   
   bookPlayer: (type, match, ui, page) ->
-    jQuery.mobile.showPageLoadingMsg()
+    $.mobile.showPageLoadingMsg()
     
-    params = LYT.router.getParams(match[1]) 
+    params = LYT.router.getParams(match[1])
+    
+    #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
+    header = $(page).children( ":jqmData(role=header)") 
+    $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
+    
     section = params.section or 0
     offset = params.offset or 0
     
-    header = $(page).children( ":jqmData(role=header)")   
+      
     #content = $(page).children( ":jqmData(role=content)" )
         
     LYT.Book.load(params.book)                            
@@ -105,10 +111,7 @@ LYT.control =
         
         #fixme: lookup section by its ID so we send the right one the the renderer.
         #section = book.nccDocument.structure[1]
-        
-        #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
-        header.find('#book-index-button').attr 'href', """#book-index?book=#{book.id}"""
-        
+
         LYT.render.bookPlayer(book, $(page))
         
         if LYT.player.ready
@@ -131,29 +134,32 @@ LYT.control =
         log.message "failed"
   
   search: (type, match, ui, page) ->
+    $.mobile.showPageLoadingMsg()
     params = LYT.router.getParams(match[1])
+    content = $(page).children( ":jqmData(role=content)" )
     
-    if params.term
+    LYT.search.attachAutocomplete $('#searchterm')
+    
+    $(LYT.search).bind 'autocomplete', (event) ->
+      log.message "Autocomplete suggestions: #{event.data}"
       
+    
+    if params.term  # this allows for bookmarkable search terms
       LYT.search.full(params.term)
-        .done (result) ->
-          log.message(result)
+        .done (results) ->
+          LYT.render.searchResults(results, content)
+          $.mobile.hidePageLoadingMsg()
     
-    
-    
+    $("#search-form").submit (event) ->
+      $('#searchterm').blur()
+      $.mobile.showPageLoadingMsg()
+      
+      LYT.search.full($('#searchterm').val())
+        .done (results) ->
+          LYT.render.searchResults(results, content)
+          $.mobile.hidePageLoadingMsg()
           
-###
-LYT.app = #deprecated split into control object and the stuff that don't fit should go in utils, locally used utils can just be outside of the object
-  eventSystemTime: (t) ->
-      total_secs = undefined
-      current_percentage = undefined
-      if $("#NccRootElement").attr("totaltime")?
-          tt = $("#NccRootElement").attr("totaltime")
-          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60) + parseInt(tt.substr(6, 2))  if tt.length is 8
-          total_secs = tt.substr(0, 1) * 3600 + (tt.substr(2, 2) * 60) + parseInt(tt.substr(5, 2))  if tt.length is 7
-          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60)  if tt.length is 5
-      current_percentage = Math.round(t / total_secs * 98)
-      $("#current_time").text SecToTime(t)
-      $("#total_time").text $("#NccRootElement").attr("totaltime")
-      $("#timeline_progress_left").css "width", current_percentage + "%"
-###     
+      event.preventDefault()
+      event.stopPropagation()
+      
+    

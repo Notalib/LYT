@@ -13,6 +13,7 @@ LYT.player =
   nextButton: null
   previousButton: null
   playing: false
+  
   playIntentOffset: null
   playIntentFlag: false
   # todo: consider array of all played sections and a few following
@@ -48,7 +49,11 @@ LYT.player =
             @play()
                      
       timeupdate: (event) =>
-        @updateHtml(event.jPlayer.status.currentTime)
+        @updateHtml(event.jPlayer.status)
+      
+      loadstart: (event) =>
+        log.message 'load start'
+        @updateHtml(event.jPlayer.status)
       
       play: (event) =>
         @setPlaying()
@@ -63,11 +68,13 @@ LYT.player =
       canplay: (event) =>
         #is not called in firefox 
         log.message 'can play'
+        @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
       progress: (event) =>
         #is not called in chrome
         log.message 'progress'
+        @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
       swfPath: "./lib/jPlayer/"
@@ -118,26 +125,38 @@ LYT.player =
       else
         @el.jPlayer('play', time)
   
-  updateHtml: (time) ->
-    log.message("Player: update html")
-    # Continously update media for current time of section
+  updateHtml: (status) ->
+    # Continously update player rendering for current time of section
+    
     return unless @book?
     return unless @media?
-    @time = time
+    
+    @time = status.currentTime
+    
+    $("#chapter-duration").text status.duration
+    $("#elapsed-time").text @time
+    status.currentPercentAbsolute
+    
+    # render percent bar
+    
     if @media.end < @time
       @book.mediaFor(@section,@time).done (media) =>
         if media?
-          log.message @media
+          #log.message @media
           @media = media
-          @renderHtml()
+          @renderTranscript()
         else
           log.message 'Player: failed to get media'
   
-  renderHtml: () ->
+  renderTranscript: () ->
+    #log.message("Player: render new transcript")
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
+  renderTime: () ->
+    null
+  
   loadSection: (book, section, offset = 0, autoPlay = false) ->
-    #alert "Player: load book"
+    @stop()
     @book = book
     @section = section
     
@@ -145,9 +164,9 @@ LYT.player =
       #log.message media
       if media?
         @media = media
+        @renderTranscript()
         @el.jPlayer('setMedia', {mp3: media.audio})
         @el.jPlayer('load')
-        @renderHtml()
         if autoPlay
           @play(offset, true)
       else
@@ -156,12 +175,10 @@ LYT.player =
   nextSection: () ->   
     #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
     return unless @media.nextSection?
-    @pause()
     @loadSection(@book, @media.nextSection, 0, true)
     
   previousSection: () ->  
     return unless @media.previousSection?
-    @pause()
     @loadSection(@book, @media.previousSection, 0, true)
     
   setPaused: () ->
@@ -172,4 +189,18 @@ LYT.player =
     @togglePlayButton.find("img").attr('src', '/images/pause.png')
     @playing = true
 
-  
+
+###
+  eventSystemTime: (t) ->
+      total_secs = undefined
+      current_percentage = undefined
+      if $("#NccRootElement").attr("totaltime")?
+          tt = $("#NccRootElement").attr("totaltime")
+          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60) + parseInt(tt.substr(6, 2))  if tt.length is 8
+          total_secs = tt.substr(0, 1) * 3600 + (tt.substr(2, 2) * 60) + parseInt(tt.substr(5, 2))  if tt.length is 7
+          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60)  if tt.length is 5
+      current_percentage = Math.round(t / total_secs * 98)
+      $("#current_time").text SecToTime(t)
+      $("#total_time").text $("#NccRootElement").attr("totaltime")
+      $("#timeline_progress_left").css "width", current_percentage + "%"
+###

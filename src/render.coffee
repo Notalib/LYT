@@ -27,21 +27,8 @@ LYT.render =
     view.find("#author").text book.author
     view.find("#totaltime").text book.totalTime
     
-  covercache: (element) ->
-    $(element).each ->
-      id = $(@).attr('id')
-      u = "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
-      img = $(new Image()).load(->
-        $("#" + id).find("img").attr "src", u
-      ).error(->
-      ).attr("src", u)
-
-  covercacheOne: (element, id) ->
-    u = "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
-    img = $(new Image()).load(->
-      $(element).find("img").attr "src", u
-    ).error(->
-    ).attr("src", u)
+  getCoverSrc:(id) ->
+    return "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
   
   mediaType: (mediastring) ->
     unless mediastring.indexOf("AA") is -1
@@ -52,11 +39,10 @@ LYT.render =
   bookIndex: (book, view) ->  
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
-      log.message items
       for item in items
         element = jQuery "<li></li>" 
         element.attr "id", item.id
-        element.attr "data-href", item.href
+        element.attr "data-href", item.id
         
         if item.children.length > 0
           element.text item.title        
@@ -78,13 +64,23 @@ LYT.render =
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
-    list.attr "id", "NCCRootElement"
+    list.attr "id", "NccRootElement"
     mapper(list, book.nccDocument.structure)
     
     list.listview('refresh')
-    
-    #log.message list
   
   searchResults: (results, view) ->
-    null
-    
+    list = view.find("ol").empty()
+    if results.length > 0
+      for item in results
+        log.message item
+        list.append("""
+         <li id="#{item.id}">
+           <a href="#book-details?book=#{item.id}">
+             <img class="ui-li-icon" src="#{@getCoverSrc(item.id)}">
+             <h3>#{item.author}</h3>
+             <p>#{item.author} | #{@mediaType item.media}</p>
+           </a>
+         </li>""")
+       
+    list.listview('refresh')

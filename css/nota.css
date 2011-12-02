@@ -18,6 +18,11 @@ img.nota-full {
 	text-shadow: none;
 }
 
+#book-text-content img {
+  width: 100%;
+  height: auto;
+}
+
 #book-text-content h1 a,
 #book-text-content h2 a {
 	text-decoration: none;
@@ -39,11 +44,11 @@ img.nota-full {
 	font-weight: bold;
 }
 
-#book_chapter {
+#chapter-title {
 	text-align: center;
 }
 
-#total_time {
+#chapter-duration {
 	text-align: right;
 }
 

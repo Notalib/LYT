@@ -44,23 +44,6 @@ $(document).bind "mobileinit", ->
   $(LYT.service).bind "error:rpc", () ->
     #todo: apologize on behalf of the server 
   
-  ###
-  $(document).bind "pagebeforechange", (e, data) ->
-      # Intercept and parse urls with a query string
-      # As done here http://jquerymobile.com/test/docs/pages/page-dynamic.html
-      if typeof data.toPage is "string"
-        u = $.mobile.path.parseUrl(data.toPage)
-        if (/^#book-details/i).test u.hash
-          LYT.app.bookDetails u, data.options
-          e.preventDefault()
-        else if (/^#book-play/i).test u.hash
-          LYT.app.bookPlayer u, data.options
-          e.preventDefault()
-        else if (/^#book-index/i).test u.hash
-          log.message "Main: changepage"
-          LYT.app.bookIndex u, data.options
-          e.preventDefault()
-  ###
  
   ###
   $('#search').live "pagebeforeshow", (event) ->
