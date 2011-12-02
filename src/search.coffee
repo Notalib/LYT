@@ -103,7 +103,7 @@ LYT.search = do ->
       # Create the AJAX options. Since `request` is a simple object containing
       # a single value, called `term`, the request object can be sent directly
       # to the `getOptions` helper
-      options      = getOptions LYT.config.search.autocomplete.url, request
+      options = getOptions LYT.config.search.autocomplete.url, request
       
       # Create an empty results array
       results = []
