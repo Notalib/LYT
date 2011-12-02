@@ -173,12 +173,10 @@ LYT.player =
   nextSection: () ->   
     #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
     return unless @media.nextSection?
-    @pause()
     @loadSection(@book, @media.nextSection, 0, true)
     
   previousSection: () ->  
     return unless @media.previousSection?
-    @pause()
     @loadSection(@book, @media.previousSection, 0, true)
     
   setPaused: () ->
