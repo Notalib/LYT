@@ -35,11 +35,12 @@ LYT.service = do ->
   
   
   getCredentials = ->
-    unless session.username? and session.password?
+    unless session? and session.username? and session.password?
       session = LYT.cache.read "session", "credentials"
     session
   
   setCredentials = (username, password) ->
+    session or= {}
     [session.username, session.password] = [username, password]
     LYT.cache.write "session", "credentials", session if session.username? and session.password?
   
