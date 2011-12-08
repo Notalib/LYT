@@ -140,8 +140,9 @@ LYT.control =
     
     LYT.search.attachAutocomplete $('#searchterm')
     
+    # TODO: Shouldn't this only be bound once? Or does jQuery take care of that?
     $(LYT.search).bind 'autocomplete', (event) ->
-      log.message "Autocomplete suggestions: #{event.data}"
+      log.message "Autocomplete suggestions: #{event.results}"
       
     
     if params.term  # this allows for bookmarkable search terms

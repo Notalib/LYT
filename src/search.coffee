@@ -116,10 +116,10 @@ LYT.search = do ->
         # call succeeded or not)
         response results
         
-        # Emit an event with the results attached as `event.data` 
+        # Emit an event with the results attached as `event.results` 
         event = jQuery.Event "autocomplete"
-        event.data = results
-        log.message "Search: Emitting suggestions event"
+        event.results = results
+        log.message "Search: Emitting autocomplete event"
         jQuery(LYT.search).trigger event
       
       # Perform the request
