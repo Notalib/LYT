@@ -2,6 +2,8 @@
 
 LYT.render =
   
+  defaultCover = ""
+  
   bookshelf: (books, view) ->
     #todo: add pagination
     list = view.find("ul")
@@ -27,10 +29,16 @@ LYT.render =
     view.find("#author").text book.author
     view.find("#totaltime").text book.totalTime
     
-  getCoverSrc:(id) ->
-    return "http://www.e17.dk/sites/default/files/bookcovercache/" + id + "_h80.jpg"
+  getCoverSrc: (id) ->
+    "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
   
-  mediaType: (mediastring) ->
+  getCover: (id) ->
+    if load(@getCoverSrc(id))
+      render
+    else
+      render @defaultCover
+  
+  getMediaType: (mediastring) ->
     unless mediastring.indexOf("AA") is -1
       "Lydbog"
     else
