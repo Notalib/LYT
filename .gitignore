@@ -4,3 +4,4 @@ docs
 compiled/
 
 node_modules/
+.sass-cache/
