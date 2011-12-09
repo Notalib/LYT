@@ -156,7 +156,7 @@ LYT.player =
     null
   
   loadSection: (book, section, offset = 0, autoPlay = false) ->
-    @stop()
+    @pause()
     @book = book
     @section = section
     
