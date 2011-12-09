@@ -2,7 +2,7 @@
 
 LYT.render =
   
-  defaultCover = ""
+  defaultCover: ""
   
   bookshelf: (books, view) ->
     #todo: add pagination

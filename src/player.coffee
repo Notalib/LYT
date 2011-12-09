@@ -36,6 +36,11 @@ LYT.player =
         #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
         #todo: add a silent state where we do not play on can play   
         
+        $.jPlayer.timeFormat.showHour = true
+        $.jPlayer.timeFormat.sepHour = " timer "
+        $.jPlayer.timeFormat.sepMin = " minutter "
+        $.jPlayer.timeFormat.sepSec = " sekunder"    
+        
         @nextButton.click =>
           @nextSection()
         
@@ -68,14 +73,23 @@ LYT.player =
       canplay: (event) =>
         #is not called in firefox 
         log.message 'can play'
-        @updateHtml(event.jPlayer.status)
         @playOnIntent()
+        @updateHtml(event.jPlayer.status)       
       
       progress: (event) =>
         #is not called in chrome
         log.message 'progress'
-        @updateHtml(event.jPlayer.status)
         @playOnIntent()
+        @updateHtml(event.jPlayer.status)        
+      
+      error: (event) =>
+        switch event.jPlayer.error.type
+          when $.jPlayer.error.URL
+            log.message 'jPlayer: url error'
+            # try again before reporting error to user
+          when $.jPlayer.error.NO_SOLUTION
+            log.message 'jPlayer: no solution error'
+            # say we are sorry 
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -97,14 +111,15 @@ LYT.player =
       @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
   
-  stop: ->
+  stop: () ->
     @el.jPlayer('stop')
   
   
-  playOnIntent: ->
+  playOnIntent: () ->
     # calls play and resets flag if the intent flag was set
     
     if @playIntentFlag
+      log.message 'Player: play intent used'
       @play(@playIntentOffset)  
       @playIntentFlag = false
       @playIntentOffset = null
@@ -116,10 +131,12 @@ LYT.player =
     # when media was paused or from the beginning.
     
     if intent
+      log.message 'Player: play intent flag set'
       @playIntentFlag = true
       @playIntentOffset = time
       
     else
+      log.message 'Player: Play'
       if not time?
         @el.jPlayer('play')
       else
@@ -133,8 +150,8 @@ LYT.player =
     
     @time = status.currentTime
     
-    $("#chapter-duration").text status.duration
-    $("#elapsed-time").text @time
+    #$("#chapter-duration").text $.jQuery.convertTime(status.duration)
+    #$("#elapsed-time").text $.jQuery.convertTime(@time)
     status.currentPercentAbsolute
     
     # render percent bar
@@ -189,18 +206,3 @@ LYT.player =
     @togglePlayButton.find("img").attr('src', '/images/pause.png')
     @playing = true
 
-
-###
-  eventSystemTime: (t) ->
-      total_secs = undefined
-      current_percentage = undefined
-      if $("#NccRootElement").attr("totaltime")?
-          tt = $("#NccRootElement").attr("totaltime")
-          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60) + parseInt(tt.substr(6, 2))  if tt.length is 8
-          total_secs = tt.substr(0, 1) * 3600 + (tt.substr(2, 2) * 60) + parseInt(tt.substr(5, 2))  if tt.length is 7
-          total_secs = tt.substr(0, 2) * 3600 + (tt.substr(3, 2) * 60)  if tt.length is 5
-      current_percentage = Math.round(t / total_secs * 98)
-      $("#current_time").text SecToTime(t)
-      $("#total_time").text $("#NccRootElement").attr("totaltime")
-      $("#timeline_progress_left").css "width", current_percentage + "%"
-###
