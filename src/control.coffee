@@ -161,5 +161,38 @@ LYT.control =
           
       event.preventDefault()
       event.stopPropagation()
+  
+  settings: (type, match, ui, page) ->
+      initialize = true
+      $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
+      $("#textsize").find("input").val LYT.settings.get('textSize')
+      $("#textsize_2").find("input").each ->
+          $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('textSize')
+
+      $("#text-types").find("input").each ->
+          $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('textType')
+
+      $("#textarea-example").css "font-family", LYT.settings.get('textType')
+      $("#marking-color").find("input").each ->
+          $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('markingColor')
+
+      $("#textarea-example").css "background", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
+      $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
+      $("#textsize_2 input").change ->
+          LYT.settings.set('textSize', $(this).attr("value"))
+          $("#textarea-example").css "font-size", LYT.settings.get('textSize') + "px"
+          $("#book-text-content").css "font-size", LYT.settings.get('textSize') + "px"
+
+      $("#text-types input").change ->
+          LYT.settings.set('textType', $(this).attr("value"))
+          $("#textarea-example").css "font-family", LYT.settings.get('textType')
+          $("#book-text-content").css "font-family", LYT.settings.get('textType')
+
+      $("#marking-color input").change ->
+          LYT.settings.set('markingColor', $(this).attr("value"))
+          $("#textarea-example").css "background", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
+          $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
+          $("#book-text-content").css "background", vsettings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
+          $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
       
     
