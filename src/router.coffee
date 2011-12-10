@@ -2,9 +2,10 @@
 
 $(document).ready ->
   if not LYT.player.ready
-    LYT.player.setup()
+    LYT.player.init()
 
 $(document).bind "mobileinit", ->
+  LYT.render.init()
   
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":

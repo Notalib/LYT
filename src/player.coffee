@@ -15,8 +15,8 @@ LYT.player =
   
   SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
   
-  setup: ->
-    log.message 'Player: starting setup'
+  init: ->
+    log.message 'Player: starting initialization'
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")  
     @nextButton = jQuery("a.next-section")
@@ -25,7 +25,7 @@ LYT.player =
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
-        log.message 'Player: setup complete'
+        log.message 'Player: initialization complete'
         #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
         #todo: add a silent state where we do not play on can play   
         

@@ -4,6 +4,9 @@ LYT.render =
   
   defaultCover: ""
   
+  init: () ->
+    @setStyle()
+    
   bookshelf: (books, view) ->
     #todo: add pagination
     list = view.find("ul")
@@ -43,7 +46,10 @@ LYT.render =
       "Lydbog"
     else
       "Lydbog med tekst"
-   
+  
+  setStyle: () ->
+    $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
+  
   bookIndex: (book, view) ->  
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->

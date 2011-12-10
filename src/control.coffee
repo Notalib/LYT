@@ -165,8 +165,7 @@ LYT.control =
     # todo: change the structure of settings so we save to a somewhat css compatible data struture instead of 
     # getting css values from combined strings such as that in markingColor.
        
-    style = LYT.settings.get('textStyle') 
-    $("#textarea-example").css style
+    style = LYT.settings.get('textStyle')
 
     $("#textsize").find("input").val style.size
     $("#textsize_2").find("input").each ->
@@ -194,5 +193,5 @@ LYT.control =
           style['color'] = c[1]
       
       LYT.settings.set('textStyle', style)
-      $("#textarea-example, #book-text-content").css style
+      LYT.render.setStyle()
     
