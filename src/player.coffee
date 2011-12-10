@@ -8,7 +8,6 @@ LYT.player =
   section: null
   time: ""
   book: null #reference to an instance of book class
-  togglePlayButton: null
   nextButton: null
   previousButton: null
   playIntentOffset: null
@@ -19,9 +18,7 @@ LYT.player =
   setup: ->
     log.message 'Player: starting setup'
     # Initialize jplayer and set ready True when ready
-    @el = jQuery("#jplayer")
-    
-    @togglePlayButton = jQuery("a.toggle-play")
+    @el = jQuery("#jplayer")  
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
     
@@ -75,7 +72,6 @@ LYT.player =
       supplied: "mp3"
       solution: 'html, flash'
     
-    @ready
     
   pause: ->
     # Pause playback
@@ -147,9 +143,6 @@ LYT.player =
   renderTranscript: () ->
     #log.message("Player: render new transcript")
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
-  
-  renderTime: () ->
-    null
   
   loadSection: (book, section, offset = 0, autoPlay = false) ->
     @pause()
