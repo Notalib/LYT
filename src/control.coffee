@@ -185,10 +185,8 @@ LYT.control =
       name = target.attr 'name'
       value = target.attr 'value'
       
-      log.message event.type
-      
       switch name
-        when 'font-size' or 'font-family'
+        when 'font-size', 'font-family'
           style[name] = value
         when 'marking-color'
           c = value.split(';')
