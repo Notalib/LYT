@@ -13,12 +13,12 @@ option "-c", "--concat", "Concatenate src/ files before compiling"
 
 # ---------------- Tasks
 
+
 task "src", "compile src/ into build/javascript", (options) ->
   compileSrc options
 
-
 task "html", "compile html/ into build/index.html", (options) ->
-  css options
+  style options
   sync "#{ROOT}/assets/", "#{DEST}/"
   console.log "synced assets/ -> build/"
   html options
@@ -107,16 +107,16 @@ compileSrc = (options, outdir) ->
 
 # Sync the css dir to build DEPRECATED
 css = ->
-  console.log "This function is deprecated and will be removed use cake style."
+  console.log "This function is deprecated and will be removed, write your stylesheets in sass and use `cake style` ."
+  return
   exec "mkdir -p '#{DEST}'", (err) ->
     throw err if err?
     sync "#{ROOT}/css/", "#{DEST}/css"
     console.log "synced css/ -> build/css/"
 
 # Compile sass to css
-style = () ->
-  exec "sass --update sass:build/css", (err) ->
-    throw err if err? 
+style = (options) ->
+  sass options, -> 
     console.log "compiled sass -> build/css"
 
 
@@ -140,6 +140,15 @@ html = (options) ->
 
 
 # ---------------- Helpers/utils
+
+# Compile Sass file(s)
+
+sass = (options, callback) ->
+  exec "sass --update sass:build/css", (err, stdout) ->
+    console.log err if err?
+    console.log stdout if stdout?
+    callback?() if not err?
+    
 
 # Compile CoffeeScript file(s)
 
