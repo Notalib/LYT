@@ -162,35 +162,34 @@ LYT.control =
       event.stopPropagation()
   
   settings: (type, match, ui, page) ->
-    # todo: change the structure of settings so we save to a somewhat css compatible data struture instead of 
-    # getting css values from combined strings such as that in markingColor.
        
     style = LYT.settings.get('textStyle')
-
-    $("#textsize").find("input").val style.size
-    $("#textsize_2").find("input").each ->
-      $(this).attr "checked", true  if $(this).attr("value") is style['font-size']
-
-    $("#text-types").find("input").each ->
-      if $(this).attr("value") is style['font-family']
-        $(this).attr "checked", true  
-
-    $("#marking-color").find("input").each ->
-      if $(this).attr("value") is "#{style['background-color']},#{style['color']}"
-        $(this).attr "checked", true
     
-    $("#style-settings input").change (event) ->     
-      target = $(event.target)
-      name = target.attr 'name'
-      value = target.attr 'value'
+    $("#style-settings").find("input").each ->
+      name = $(this).attr 'name'
+      val = $(this).val()
       
       switch name
         when 'font-size', 'font-family'
-          style[name] = value
+          if val is style[name]
+            $(this).attr("checked", true).checkboxradio("refresh");
         when 'marking-color'
-          c = value.split(';')
-          style['background-color'] = c[0]
-          style['color'] = c[1]
+          colors = val.split(';')
+          if style['background-color'] is colors[0] and style['color'] is colors[1]
+            $(this).attr("checked", true).checkboxradio("refresh");
+            
+    $("#style-settings input").change (event) ->     
+      target = $(event.target)
+      name = target.attr 'name'
+      val = target.val()
+      
+      switch name
+        when 'font-size', 'font-family'
+          style[name] = val
+        when 'marking-color'
+          colors = val.split(';')
+          style['background-color'] = colors[0]
+          style['color'] = colors[1]
       
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()

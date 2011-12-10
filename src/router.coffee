@@ -3,39 +3,40 @@
 $(document).ready ->
   if not LYT.player.ready
     LYT.player.init()
+  
+  LYT.settings.init()
+  LYT.render.init()
 
 $(document).bind "mobileinit", ->
-  LYT.render.init()
-  
+
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
-      events: "bs,s"
+      events: "bs"
     "#book-play([?].*)?":
       handler: "bookPlayer"
-      events: "bs,s"
+      events: "bs"
     "#book-index([?].*)?":
       handler: "bookIndex"
-      events: "bs,s"
+      events: "bs"
     "#settings":
       handler: "settings"
-      events: "bs,s"
+      events: "s"
     "#search([?].*)?":
       handler: "search"
-      events: "bs,s"
+      events: "bs"
     "#login":
       handler: "login"
-      events: "bs,s"
+      events: "s"
     "#profile":
       handler: "profile"
-      events: "bs,s"
+      events: "s"
     "#bookshelf":
       handler: "bookshelf"
-      events: "bs,s"
+      events: "bs"
     
    ], LYT.control, { ajaxApp: false })
-  
-  
+   
   $(LYT.service).bind "logon:rejected", () ->
     $.mobile.changePage "#login"
   
@@ -134,40 +135,3 @@ $(document).bind "mobileinit", ->
     $("#searchterm").live "autocompleteclose", (event, ui) -> 
       $("#search-form").submit()
     
-  $("#settings").live "pagebeforecreate", (event) ->
-        initialize = true
-        $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
-        $("#textsize").find("input").val LYT.settings.get('textSize')
-        $("#textsize_2").find("input").each ->
-            $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('textSize')
-
-        $("#text-types").find("input").each ->
-            $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('textType')
-
-        $("#textarea-example").css "font-family", LYT.settings.get('textType')
-        $("#marking-color").find("input").each ->
-            $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('markingColor')
-
-        $("#textarea-example").css "background", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
-        $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-        $("#textsize_2 input").change ->
-            LYT.settings.set('textSize', $(this).attr("value"))
-
-            $("#textarea-example").css "font-size", LYT.settings.get('textSize') + "px"
-            $("#book-text-content").css "font-size", LYT.settings.get('textSize') + "px"
-
-        $("#text-types input").change ->
-            LYT.settings.set('textType', $(this).attr("value"))
-
-            $("#textarea-example").css "font-family", LYT.settings.get('textType')
-            $("#book-text-content").css "font-family", LYT.settings.get('textType')
-
-        $("#marking-color input").change ->
-            LYT.settings.set('markingColor', $(this).attr("value"))
-
-            $("#textarea-example").css "background", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
-            $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-            $("#book-text-content").css "background", vsettings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
-            $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-  ###
-  
