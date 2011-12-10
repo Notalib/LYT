@@ -4,10 +4,10 @@ LYT.settings =
   # default settings
   data: {
     textStyle:
-      size: "14px"
-      background: "transparent"
-      color: "#000"   
-      family: "Helvetica"
+      'font-size': "14px"
+      'background-color': "transparent"
+      'color': "#000000"
+      'font-family': "Helvetica"
     textPresentation: "full"
     readSpeed: "1.0"
     textMode: 1 # phrasemode = 1, All text = 2

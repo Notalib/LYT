@@ -1,6 +1,5 @@
 # This module Controller
-LYT.control =
-    
+LYT.control =    
   login: (type, match, ui, page) ->
     $("#login-form").submit (event) ->
 
@@ -163,36 +162,39 @@ LYT.control =
       event.stopPropagation()
   
   settings: (type, match, ui, page) ->
-      initialize = true
-      $("#textarea-example").css "font-size",  LYT.settings.get('textSize') + "px"
-      $("#textsize").find("input").val LYT.settings.get('textSize')
-      $("#textsize_2").find("input").each ->
-          $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('textSize')
+    # todo: change the structure of settings so we save to a somewhat css compatible data struture instead of 
+    # getting css values from combined strings such as that in markingColor.
+       
+    style = LYT.settings.get('textStyle') 
+    $("#textarea-example").css style
 
-      $("#text-types").find("input").each ->
-          $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('textType')
+    $("#textsize").find("input").val style.size
+    $("#textsize_2").find("input").each ->
+      $(this).attr "checked", true  if $(this).attr("value") is style['font-size']
 
-      $("#textarea-example").css "font-family", LYT.settings.get('textType')
-      $("#marking-color").find("input").each ->
-          $(this).attr "checked", true  if $(this).attr("value") is LYT.settings.get('markingColor')
+    $("#text-types").find("input").each ->
+      if $(this).attr("value") is style['font-family']
+        $(this).attr "checked", true  
 
-      $("#textarea-example").css "background", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
-      $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-      $("#textsize_2 input").change ->
-          LYT.settings.set('textSize', $(this).attr("value"))
-          $("#textarea-example").css "font-size", LYT.settings.get('textSize') + "px"
-          $("#book-text-content").css "font-size", LYT.settings.get('textSize') + "px"
-
-      $("#text-types input").change ->
-          LYT.settings.set('textType', $(this).attr("value"))
-          $("#textarea-example").css "font-family", LYT.settings.get('textType')
-          $("#book-text-content").css "font-family", LYT.settings.get('textType')
-
-      $("#marking-color input").change ->
-          LYT.settings.set('markingColor', $(this).attr("value"))
-          $("#textarea-example").css "background", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
-          $("#textarea-example").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
-          $("#book-text-content").css "background", vsettings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0))
-          $("#book-text-content").css "color", LYT.settings.get('markingColor').substring(0, LYT.settings.get('markingColor').indexOf("-", 0) + 1)
+    $("#marking-color").find("input").each ->
+      if $(this).attr("value") is "#{style['background-color']},#{style['color']}"
+        $(this).attr "checked", true
+    
+    $("#style-settings input").change (event) ->     
+      target = $(event.target)
+      name = target.attr 'name'
+      value = target.attr 'value'
       
+      log.message event.type
+      
+      switch name
+        when 'font-size' or 'font-family'
+          style[name] = value
+        when 'marking-color'
+          c = value.split(';')
+          style['background-color'] = c[0]
+          style['color'] = c[1]
+      
+      LYT.settings.set('textStyle', style)
+      $("#textarea-example, #book-text-content").css style
     

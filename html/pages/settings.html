@@ -5,54 +5,55 @@
 		<h1>Indstillinger</h1>		
 	</div>
 
-	<div data-role="content" id="set-content">
+	<div data-role="content" id="style-settings">
 		<div data-role="fieldcontain">
 			<label for="textarea-example">Tekst-eksempel</label>
 			<textarea readonly cols="40" rows="8" name="textarea" id="textarea-example">Der var så dejligt ude på landet; det var sommer, kornet stod gult, havren grøn, høet var rejst i stakke nede i de grønne enge, og der gik</textarea>  
 		</div>
 
 		<div data-role="fieldcontain">
-			<fieldset data-role="controlgroup" id="textsize_2" data-type="horizontal">
+			<fieldset data-role="controlgroup" id="font-size" data-type="horizontal">
 				<legend>Tekststørrelse</legend>
 
-				<input type="radio" name="radio-choice-3" id="radio-choice-12" value="12">
-				<label for="radio-choice-12"><span style="font-size:10px">A</span></label>
+				<input type="radio" name="font-size" id="font-size-1" value="12px">
+				<label for="font-size-1"><span style="font-size:12px">A</span></label>
 
-				<input type="radio" name="radio-choice-3" id="radio-choice-13" value="16">
-				<label for="radio-choice-13"><span style="font-size:12px">A</span></label>
+				<input type="radio" name="font-size" id="font-size-2" value="16px">
+				<label for="font-size-2"><span style="font-size:16px">A</span></label>
 
-				<input type="radio" name="radio-choice-3" id="radio-choice-14" value="20">
-				<label for="radio-choice-14"><span style="font-size:14px">A</span></label>
+				<input type="radio" name="font-size" id="font-size-3" value="20px">
+				<label for="font-size-3"><span style="font-size:20px">A</span></label>
 
-				<input type="radio" name="radio-choice-3" id="radio-choice-15" value="24">
-				<label for="radio-choice-15"><span style="font-size:16px">A</span></label>
+				<input type="radio" name="font-size" id="font-size-4" value="24px">
+				<label for="font-size-4"><span style="font-size:24px">A</span></label>
+				
 			</fieldset>
 		</div>	    
 
 		<div data-role="fieldcontain">
-			<fieldset data-role="controlgroup" id="text-types">
+			<fieldset data-role="controlgroup" id="font-family">
 				<legend>Skrifttype:</legend>
-				<input type="radio" name="radio-choice-1" id="radio-choice-1" value="Georgia">
-				<label for="radio-choice-1">Georgia</label>
+				<input type="radio" name="font-family" id="font-family-1" value="Georgia">
+				<label for="font-family-1">Georgia</label>
 
-				<input type="radio" name="radio-choice-1" id="radio-choice-2" value="Helvetica">
-				<label for="radio-choice-2">Helvetica</label>
+				<input type="radio" name="font-family" id="font-family-2" value="Helvetica">
+				<label for="font-family-2">Helvetica</label>
 			</fieldset>
 		</div>	    
 
 		<div data-role="fieldcontain">
 			<fieldset data-role="controlgroup" id="marking-color">
 				<legend>Markeringsfarve:</legend>
-				<input type="radio" name="radio-choice-2" id="radio-choice-g" value="none-black">
+				<input type="radio" name="marking-color" id="radio-choice-g" value="transparent;#000000">
 				<label for="radio-choice-g">Ingen</label>
 
-				<input type="radio" name="radio-choice-2" id="radio-choice-h" value="black-yellow">
+				<input type="radio" name="marking-color" id="radio-choice-h" value="#000000;#FFF800">
 				<label for="radio-choice-h">Sort/Gul</label>
 
-				<input type="radio" name="radio-choice-2" id="radio-choice-i" value="yellow-black">
+				<input type="radio" name="marking-color" id="radio-choice-i" value="#FFF800;#000000">
 				<label for="radio-choice-i">Gul/Sort</label>
 
-				<input type="radio" name="radio-choice-2" id="radio-choice-j" value="white-blue">
+				<input type="radio" name="marking-color" id="radio-choice-j" value="#ffffff;#0000ff">
 				<label for="radio-choice-j">Hvid/Blå</label>
 			</fieldset>
 		</div>
