@@ -1,5 +1,4 @@
 # This module handles playback of current media and timing of transcript updates
-
 # todo: provide a visual cue on the next and previous section buttons if there are no next or previous section.
 
 LYT.player = 
@@ -12,11 +11,8 @@ LYT.player =
   togglePlayButton: null
   nextButton: null
   previousButton: null
-  playing: false
-  
   playIntentOffset: null
   playIntentFlag: false
-  # todo: consider array of all played sections and a few following
   
   SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
   
@@ -37,21 +33,12 @@ LYT.player =
         #todo: add a silent state where we do not play on can play   
         
         $.jPlayer.timeFormat.showHour = true
-        $.jPlayer.timeFormat.sepHour = " timer "
-        $.jPlayer.timeFormat.sepMin = " minutter "
-        $.jPlayer.timeFormat.sepSec = " sekunder"    
         
         @nextButton.click =>
           @nextSection()
         
         @previousButton.click =>
           @previousSection()
-        
-        @togglePlayButton.click =>
-          if @playing
-            @pause()
-          else
-            @play()
                      
       timeupdate: (event) =>
         @updateHtml(event.jPlayer.status)
@@ -60,14 +47,7 @@ LYT.player =
         log.message 'load start'
         @updateHtml(event.jPlayer.status)
       
-      play: (event) =>
-        @setPlaying()
-      
-      pause: (event) =>
-        @setPaused()
-         
       ended: (event) =>
-        @setPaused()
         @nextSection()
       
       canplay: (event) =>
@@ -98,8 +78,12 @@ LYT.player =
     @ready
     
   pause: ->
-    # Pause current media
+    # Pause playback
     @el.jPlayer('pause')
+  
+  getStatus: ->
+    # Be cautious only read from status
+    @el.data('jPlayer').status
   
   silentPlay: () ->
       ###
@@ -112,11 +96,12 @@ LYT.player =
       @play(0)
   
   stop: () ->
+    # Stop playback and loading of media
     @el.jPlayer('stop')
   
   
   playOnIntent: () ->
-    # calls play and resets flag if the intent flag was set
+    # Calls play and resets flag if the intent flag was set
     
     if @playIntentFlag
       log.message 'Player: play intent used'
@@ -149,12 +134,6 @@ LYT.player =
     return unless @media?
     
     @time = status.currentTime
-    
-    #$("#chapter-duration").text $.jQuery.convertTime(status.duration)
-    #$("#elapsed-time").text $.jQuery.convertTime(@time)
-    status.currentPercentAbsolute
-    
-    # render percent bar
     
     if @media.end < @time
       @book.mediaFor(@section,@time).done (media) =>
@@ -197,12 +176,3 @@ LYT.player =
   previousSection: () ->  
     return unless @media.previousSection?
     @loadSection(@book, @media.previousSection, 0, true)
-    
-  setPaused: () ->
-    @togglePlayButton.find("img").attr('src', '/images/play.png')
-    @playing = false
-  
-  setPlaying: () ->
-    @togglePlayButton.find("img").attr('src', '/images/pause.png')
-    @playing = true
-
