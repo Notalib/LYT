@@ -161,8 +161,7 @@ LYT.control =
       event.preventDefault()
       event.stopPropagation()
   
-  settings: (type, match, ui, page) ->
-       
+  settings: (type, match, ui, page) ->      
     style = LYT.settings.get('textStyle')
     
     $("#style-settings").find("input").each ->
@@ -193,4 +192,9 @@ LYT.control =
       
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
-    
+  
+  profile: (type, match, ui, page) ->
+    $("#log-off").click (event) ->
+      LYT.service.logOff()
+      
+      
