@@ -209,7 +209,7 @@ LYT.service = do ->
   logOff: ->
     LYT.rpc("logOff").always ->
       deleteCredentials()
-      emit "logoffs"
+      emit "logoff"
   
   
   issue: (bookId) ->
