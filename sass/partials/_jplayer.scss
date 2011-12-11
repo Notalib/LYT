@@ -1,0 +1,39 @@
+.jp-audio {
+    position: relative;
+    padding-top: 42px; }
+    
+.jp-progress {
+    overflow: hidden;
+    background-color: rgb(200, 200, 200);
+    position: absolute;
+    top: 22px;
+    height: 15px; 
+    left: 15px;
+    right: 15px; }
+
+.jp-seek-bar {
+    background: rgb(180, 180, 180);
+    width: 0px;
+    height: 100%;
+    cursor: pointer; }
+    
+.jp-play-bar {
+    background: rgb(40, 40, 40);;
+    width: 0px;
+    height: 100%; }
+    
+.jp-seeking-bg {
+    background: url("../images/jplayer.blue.monday.seeking.gif"); }
+
+.jp-play .jp-pause {
+  display: block !important;
+}
+
+ 
+#player-duration {
+  text-align: right;}
+#player-current-time {
+  text-align: left;}
+#player-chapter-title {
+  text-align: center;}
+

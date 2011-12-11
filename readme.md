@@ -1,9 +1,9 @@
 # LYT
 
-Source written in [CoffeeScript](http://jashkenas.github.com/coffee-script/)  
+Source written in [CoffeeScript](http://jashkenas.github.com/coffee-script/)
+Stylesheets written in [SASS](http://sass-lang.com/)
 Inline docs written for [Docco](http://jashkenas.github.com/docco/)  
 Tests run with [QUnit](http://docs.jquery.com/QUnit)
-
 
 ## Development
 
@@ -19,7 +19,7 @@ To compile (concatenate, really) the HTML files, use:
 
     $ cake html
 
-This also copies the contents of `assets/` into the `build/` directory, and the contents of `css/` into `build/css`
+This also copies the contents of `assets/` into the `build/` directory, and compiles `sass/` to `build/css`
 
 To see what else you can build, issue `cake` with no arguments:
 

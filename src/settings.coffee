@@ -1,17 +1,28 @@
 # This module sets and retrieves user specific settings
-
 LYT.settings =
-
+  
+  # default settings
   data: {
-    # default settings
-    textSize: "14px"   
-    markingColor: "none-black" # todod split into two variables
-    textType: "Helvetica"
+    textStyle:
+      'font-size': "14px"
+      'background-color': "transparent"
+      'color': "#000000"
+      'font-family': "Helvetica"
     textPresentation: "full"
     readSpeed: "1.0"
     textMode: 1 # phrasemode = 1, All text = 2
   }
-    
+  
+  init: () ->
+    log.message 'Settings: init'
+    @load()
+  
+  # Load settings if they are set in localstorage
+  load: ->
+    data = LYT.cache.read("lyt","settings")   
+    unless data is null
+      @data = data
+  
   get: (key) -> 
     #todo: key not found error
     return @data[key]
@@ -19,12 +30,6 @@ LYT.settings =
   set: (key, value) ->
     @data[key] = value
     @save()
-    
-  load: ->
-    # Load settings if they are set in localstorage
-    data = LYT.cache.read("lyt","settings")   
-    unless data is null
-      @data = data
   
   save: ->
     LYT.cache.write("lyt", "settings", @data)

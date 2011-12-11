@@ -1,6 +1,5 @@
 # This module Controller
-LYT.control =
-    
+LYT.control =    
   login: (type, match, ui, page) ->
     $("#login-form").submit (event) ->
 
@@ -161,5 +160,41 @@ LYT.control =
           
       event.preventDefault()
       event.stopPropagation()
-      
+  
+  settings: (type, match, ui, page) ->      
+    style = LYT.settings.get('textStyle')
     
+    $("#style-settings").find("input").each ->
+      name = $(this).attr 'name'
+      val = $(this).val()
+      
+      switch name
+        when 'font-size', 'font-family'
+          if val is style[name]
+            $(this).attr("checked", true).checkboxradio("refresh");
+        when 'marking-color'
+          colors = val.split(';')
+          if style['background-color'] is colors[0] and style['color'] is colors[1]
+            $(this).attr("checked", true).checkboxradio("refresh");
+            
+    $("#style-settings input").change (event) ->     
+      target = $(event.target)
+      name = target.attr 'name'
+      val = target.val()
+      
+      switch name
+        when 'font-size', 'font-family'
+          style[name] = val
+        when 'marking-color'
+          colors = val.split(';')
+          style['background-color'] = colors[0]
+          style['color'] = colors[1]
+      
+      LYT.settings.set('textStyle', style)
+      LYT.render.setStyle()
+  
+  profile: (type, match, ui, page) ->
+    $("#log-off").click (event) ->
+      LYT.service.logOff()
+      
+      

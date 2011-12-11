@@ -17,11 +17,9 @@
 	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.css">
 	
-	<!-- jQuery mobile skin -->
-	<link href="http://jplayer.org/latest/skin/pink.flag/jplayer.pink.flag.css" rel="stylesheet" type="text/css" />
 	
 	<!-- App-specific stylesheets -->
-	<link rel="stylesheet" type="text/css" href="css/nota.css">
+	<link rel="stylesheet" type="text/css" href="css/screen.css">
 	
 
 	
@@ -41,6 +39,17 @@
 </head>
 
 <body>
+	
+	<div data-role="page" id="bookshelf">
+    	<header data-role="header" data-theme="">
+    		<a data-role="button" href="#search" data-icon="search">Find</a>
+    		<h1>Boghylde</h1>	
+    	</header>
+    	<div data-role="content" id="bookshelf-content">
+    		<ul data-role="listview">
+    		</ul>
+    	</div>
+    </div>
 	
 	<!-- jQuery mobile page templates are added below -->
 	<!-- body -->
