@@ -1,22 +1,22 @@
 <div data-role="page" id="search">
 	
-	<div data-role="header" data-theme="">
-		<a href="#bookshelf" data-direction="reverse">Boghylde</a>
-		<h1>Find</h1>
+	<div data-role="header">
+		<a href="#bookshelf" data-direction="reverse">Mine bøger</a>
+		<h1>Søg</h1>
 	</div>
-
-	<div data-role="content" class="search-top">
-		<div data-role="fieldcontain">
-			<form action="#" method="get" id ="search-form">
-				<label for="searchterm"></label>
-				<input type="search" name="term" id="searchterm" placeholder="Indtast dine søgeord" title="Indtast dine søgeord">
-			</form>
-			<p class="help">Søg for eksempel på en forfatter, en genre eller en titel på en lydbog&hellip;</p>
-		</div>
-		
-		<ol id="searchresult" data-role="listview">
-			
-		</ol>
+	<div data-role="content" class="search-top ui-bar-b">
+		<form action="#" method="get" id ="search-form">
+			<input data-theme="d" type="search" name="term" id="searchterm" placeholder="Titel, forfatter eller genre" title="Titel, forfatter eller genre">
+		</form>
+		<div class="ui-bar-c">
+			<ul id="searchresult" data-role="listview">
+				<li><h3>Nyeste bøger</h3></li>
+				<li><h3>Top 10 alle</h3></li>
+				<li><h3>Top 10 børn og unge</h3></li>
+				<li><h3>Top 10 voksne</h3></li>
+				<li><h3>Top 10 krimi</h3></li>
+				<li><h3>Top 10 fantasy</h3></li>
+			</ul>
+		</div>	
 	</div>
-	
 </div>
