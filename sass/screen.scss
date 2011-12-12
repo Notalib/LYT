@@ -7,11 +7,10 @@ img.nota-full {
 .ui-li-icon.ui-li-thumb {
   max-width: 25px; }
 
-#NccRootElement {
-  li, a {
+#NccRootElement a::before {
     list-style: none;
     counter-increment: none;
-    content: ""; } }
+    content: none; } 
 
 #book-text-content, #textarea-example {
   text-shadow: none; }
