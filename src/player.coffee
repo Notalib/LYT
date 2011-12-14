@@ -8,6 +8,7 @@ LYT.player =
   section: null
   time: ""
   book: null #reference to an instance of book class
+  playlist: null # reference to an instance of LYT.Playlist
   nextButton: null
   previousButton: null
   playIntentOffset: null
@@ -132,40 +133,52 @@ LYT.player =
     @time = status.currentTime
     
     if @media.end < @time
-      @book.mediaFor(@section,@time).done (media) =>
-        if media?
-          #log.message @media
-          @media = media
-          @renderTranscript()
-        else
-          log.message 'Player: failed to get media'
+      log.message "Current media", @media
+      @media = @media.getNext()
+      log.message "Next media", @media
+      if @media?
+        @renderTranscript()
+      else
+        log.message "Player: failed to get next media segment"
   
   renderTranscript: () ->
     #log.message("Player: render new transcript")
     jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
   
+  # FIXME: Temporary implementation below!
+  
   loadSection: (book, section, offset = 0, autoPlay = false) ->
     @pause()
     @book = book
-    @section = section
     
-    @book.mediaFor(@section, offset).done (media) =>
-      #log.message media
-      if media?
-        @media = media
-        @renderTranscript()
-        @el.jPlayer('setMedia', {mp3: media.audio})
-        @el.jPlayer('load')
-        if autoPlay
-          @play(offset, true)
-      else
-        log.message 'Player: failed to get media'
-          
-  nextSection: () ->   
-    #todo: emit some event to let the app know that we should change the url to reflect the new section being played and render new section title
-    return unless @media.nextSection?
-    @loadSection(@book, @media.nextSection, 0, true)
+    @playlist = book.getPlaylist section
+    @playlist.done =>
+      @playSection @playlist.getCurrentSection(), offset, autoPlay
     
-  previousSection: () ->  
-    return unless @media.previousSection?
-    @loadSection(@book, @media.previousSection, 0, true)
+    @playlist.fail ->
+      log.error "Player: Failed to get playlist"
+    
+  
+  playSection: (@section, offset = 0, autoPlay = true) ->
+    @section.done =>
+      @media = @section.mediaAtOffset offset
+      unless @media?
+        log.message "Player: failed to get media"
+        return
+      
+      @renderTranscript()
+      @el.jPlayer "setMedia", {mp3: @media.audio}
+      @el.jPlayer "load"
+      @play offset, true if autoPlay
+    
+    @section.fail ->
+      log.error "Player: Failed to load section #{section}"
+  
+  nextSection: ->
+    return null unless @playlist?.hasNextSection()
+    @playSection @playlist.next(), 0, true
+  
+  previousSection: ->
+    return null unless @playlist?.hasPreviousSection()
+    @playSection @playlist.previous(), 0, true
+    
