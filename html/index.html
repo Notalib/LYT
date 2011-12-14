@@ -15,8 +15,7 @@
 	
 	<!-- jQuery UI and jQuery Mobile stylesheets -->
 	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
-	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.css">
-	
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />	
 	
 	<!-- App-specific stylesheets -->
 	<link rel="stylesheet" type="text/css" href="css/screen.css">
@@ -34,20 +33,22 @@
 	
 	<!-- jQuery Mobile -->
 	
-	<script src="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>	
 	
 	<!--[if lt IE 9]>
     <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-	
+
+
 </head>
 
 <body>
 	
 	<div data-role="page" id="bookshelf">
-    	<header data-role="header" data-theme="">
-    		<a data-role="button" href="#search" data-icon="search">Find</a>
-    		<h1>Boghylde</h1>	
+    	<header data-role="header">
+    		<a data-role="button" href="#search" data-icon="search" data-theme="b">Søg</a>
+	    		<h1>Mine bøger</h1>	
+    		<a data-role="button" href="#profile" data-icon="gear" data-iconpos="notext">Profil</a>
     	</header>
     	<div data-role="content" id="bookshelf-content">
     		<ul data-role="listview">

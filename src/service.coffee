@@ -25,13 +25,12 @@ LYT.service = do ->
   
   
   # optional service operations  
-  operations = {
+  operations =
     DYNAMIC_MENUS:         false
     SET_BOOKMARKS:         false
     GET_BOOKMARKS:         false
     SERVICE_ANNOUNCEMENTS: false
     PDTB2_KEY_PROVISION:   false
-  }
   
   
   getCredentials = ->
@@ -210,6 +209,7 @@ LYT.service = do ->
   logOff: ->
     LYT.rpc("logOff").always ->
       deleteCredentials()
+      emit "logoff"
   
   
   issue: (bookId) ->

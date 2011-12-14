@@ -16,6 +16,7 @@ exports.files = [
   "textcontentdocument",
   "section",
   "nccdocument",
+	"playlist",
   "book",
   "search",
   

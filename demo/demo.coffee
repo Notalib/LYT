@@ -90,7 +90,7 @@ printStructure = (book) ->
       li = $ "<li/>"
       html.append li
       li.html """<a href="#">#{item.title}</a>"""
-      li.attr "id", item.id
+      li.attr "id", "section#{item.id}"
       
       # Attach click handler
       li.click (event) ->
@@ -112,7 +112,7 @@ printStructure = (book) ->
 # Highlights a given section in the section list
 highlightSection = (id) ->
   $("li").removeClass "highlighted"
-  $("li##{id}").first().addClass "highlighted" if id
+  $("li#section#{id}").first().addClass "highlighted" if id
 
 
 # --------------------
@@ -124,9 +124,6 @@ do ->
   # Current section ID
   currentSection = null
   
-  # Current section's time offset (realtive to the book)
-  sectionOffset  = null
-  
   # Time-stuff for playback
   startTime = null
   timer     = null
@@ -136,19 +133,30 @@ do ->
   
   lastContent = null
   
+  playlist = null
+  
   # Loads a book by its ID  
   # _Globally accessible function (i.e. attached to `window`)_
   window.loadBook = (bookid) ->
     book = new LYT.Book bookid
+    
     book.done ->
       printMsg "Book #{bookid} loaded"
       # Show the playback UI
       $("#book").show();
       printMetadata book
       printStructure book
-      playSection null
+      
+      pl = book.getPlaylist()
+      pl.done (pl) ->
+        playlist = pl
+        playSection null
+      
+      pl.fail (pl) ->
+        error "Failed to get the playlist"
     
-    book.fail -> error "Failed to load book"
+    book.fail ->
+      error "Failed to load book"
   
   # Helper function
   getSeconds = -> ((new Date()).getTime() / 1000) >>> 0
@@ -158,16 +166,19 @@ do ->
     # Stop the timer, in case it's playing
     stopClock()
     
-    # Setup some variables
-    sectionOffset  = null
-    currentSection = section
-    startTime = getSeconds()
+    currentSection = playlist.setCurrentSection section
     
-    # Reset the time counter
-    $("#time").text formatTime(0)
+    currentSection.done ->
+      startTime = getSeconds()
+      
+      # Reset the time counter
+      $("#time").text formatTime(0)
+      
+      # Start the timer
+      restartClock()
     
-    # Start the timer
-    restartClock()
+    currentSection.fail ->
+      error "Failed to find any media for the given section/offset"
   
   # Pauses the playback clock
   window.stopClock = -> clearInterval timer
@@ -185,49 +196,60 @@ do ->
     $("#time").text formatTime(time)
     
     # Get the media for the current section at the current point in time
-    book.mediaFor(currentSection, time)
-    .done (media) ->
-      if media?
-        # When some media is successfully loaded...  
-        # Set the section's absolute time-offset, if it hasn't been done already
-        sectionOffset = media.absoluteOffset unless sectionOffset?
+    media = currentSection.mediaAtOffset time
+    if media?
+      # When some media is successfully loaded...  
+      # Set the section's absolute time-offset, if it hasn't been done already
+      sectionOffset = currentSection.getOffset()
+      
+      # Set the time
+      $("#time").text formatTime(time + sectionOffset)
+      
+      # Show the html if it's different
+      if media.html isnt lastContent
+        lastContent = media.html
+        $("#transcript").html media.html or ""
+      
+      # Show the audio URL and the text's in- and out-marks
+      $("#audio").text "MP3: #{media.audio.src or ""} from #{formatTime media.start} to #{formatTime media.end}"
+      
+    else
+      # If no media was found, then it's the end of the section, so...
+      
+      # Go to the next section, if there is one
+      if playlist.hasNextSection()
+        currentSection = playlist.next()
+        currentSection.done ->
+          highlightSection currentSection.id
+          startTime = getSeconds()
+          
+          # Reset the time counter
+          $("#time").text formatTime(0)
+          
+          # Start the timer
+          restartClock()
         
-        # Set the time
-        $("#time").text formatTime(time + sectionOffset)
-        
-        # Highlight the playing section (this really only needs
-        # to be done once, but there's no harm in doing it 4 times
-        # per second, is there?)
-        highlightSection media.section
-        
-        # Show the html if it's different
-        if media.html isnt lastContent
-          lastContent = media.html
-          $("#transcript").html media.html or ""
-        
-        # Show the audio URL and the text's in- and out-marks
-        $("#audio").text "MP3: #{media.audio or ""} from #{formatTime media.start} to #{formatTime media.end}"
-        
+        currentSection.fail ->
+          error "Failed to find any media for the given section/offset"
+      
       else
-        # If no media was found, then it's the end of the section, so...
+      
         # Highlight nothing
         highlightSection()
-        
+      
         # Stop the clock
         stopClock()
-        
+      
         # Clear the text and the audio
         lastContent = null
         $("#transcript").text ""
         $("#audio").text ""
-        
+      
         # Explain
         printMsg "End of section/book"
-        
+      
         # Unlock the form fields
         unlockForm()
     
-    # If the media-loading failed...
-    .fail -> error "Failed to find any media for the given section/offset"
   
 

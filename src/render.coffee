@@ -2,7 +2,7 @@
 
 LYT.render =
   
-  defaultCover: ""
+  defaultCover: "/images/default.png"
   
   init: () ->
     log.message 'Render: init'
@@ -16,7 +16,7 @@ LYT.render =
       list.append("""
         <li>
           <a href="#book-play?book=#{book.id}">
-            <h1>#{book.title}</h1>
+	        <h1>#{book.title}</h1>
             <h2>#{book.author}</h2>
           </a>
         </li>""")

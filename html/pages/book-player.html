@@ -1,20 +1,16 @@
-<div data-role="page" id="book-play" >
+<div data-role="page" id="book-play" data-theme="a">
 
 	<div id="jplayer" class="jp-jplayer"></div>
 
-	<header data-add-back-btn="false" id="book-play-header" data-role="header">
-		<h1>Afspiller</h1>
-		<div data-role="navbar" id="book-top-menu">
-			<ul>
-				<li><a data-icon="" href="#bookshelf">Boghylde</a></li>
-				<li><a data-icon="" id="book-index-button" href="#book-index">Indhold</a></li>
-				<li><a data-icon="" href="#settings">Indstillinger</a></li>
-			</ul>
+	<div data-role="header">
+		<a data-icon="" href="#bookshelf" data-role="button" data-inline="true">Mine bøger</a>
+		<div data-role="controlgroup" id="submenu" data-type="horizontal">
+			<a href="#book-index" data-role="button" id="book-index-button"><img src="images/index.png"/></a>
+			<a href="#bookmark" data-role="button"><img src="images/bookmark.png"/></a>
+			<a href="#settings" data-role="button"><img src="images/booksettings.png"/></a>
 		</div>
-	</header>
-    
-	
-		<div class="ui-grid-a ui-bar" id="book-middle-menu">
+	</div>
+	<div class="ui-grid-a ui-bar" id="book-middle-menu">
 		<figure class="ui-block-a" id="currentbook_image">
 			<img src="/images/default.png" alt="">
 		</figure>
@@ -49,7 +45,7 @@
     			</div>
     		</div>
 
-    		<div data-role="navbar" id="book-play-menu" data-theme="c">
+    		<div data-role="navbar" id="book-play-menu">
     			<ul class="jp-controls">
     				<li><a href=""	class="previous-section" tabindex="1" title="rewind"><img height="20" alt="Forrige kapitel" src="/images/rewind.png"></a></li>
 			

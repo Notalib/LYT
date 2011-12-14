@@ -6,15 +6,31 @@ do ->
       super url, (deferred) =>
         mainSequence = @source.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
-        @clips       = parseMainSeqNode mainSequence
+        @segments    = parseMainSeqNode mainSequence
         metadata = @getMetadata()
         @absoluteOffset = if metadata.totalElapsedTime? then parseTime(metadata.totalElapsedTime.content) else null
     
-    getClipByTime: (offset = 0) ->
-      for clip in @clips
-        return clip if clip.start <= offset < clip.end
+    getSegmentByTime: (offset = 0) ->
+      for segment, index in @segments
+        segment.index = index
+        if segment.start <= offset < segment.end
+          return segment
       
       return null
+    
+    getTextContentReferences: ->
+      urls = []
+      for segment in @segments when segment.text?
+        url = segment.text.src.replace /#.*$/, ""
+        urls.push url if urls.indexOf(url) is -1
+      urls
+    
+    getAudioReferences: ->
+      urls = []
+      for segment in @segments when segment.audio.src
+        urls.push segment.audio.src if urls.indexOf(segment.audio.src) is -1
+      urls
+        
   
   # -------
   
