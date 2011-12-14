@@ -86,7 +86,7 @@ LYT.render =
     list.listview('refresh')
   
   searchResults: (results, view) ->
-    list = view.find("ol").empty()
+    list = view.find("ul").empty()
     if results.length > 0
       for item in results
         log.message item
@@ -95,7 +95,7 @@ LYT.render =
            <a href="#book-details?book=#{item.id}">
              <img class="ui-li-icon" src="#{@getCoverSrc(item.id)}">
              <h3>#{item.author}</h3>
-             <p>#{item.author} | #{@mediaType item.media}</p>
+             <p>#{item.author} | #{@getMediaType item.media}</p>
            </a>
          </li>""")
        
