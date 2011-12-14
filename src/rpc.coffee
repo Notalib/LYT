@@ -61,8 +61,7 @@ LYT.rpc = do ->
       if jqXHR.status is 500 and jqXHR.responseXML?
         successHandler jqXHR.responseXML, jqXHR.status, jqXHR
         return
-        
-      console.log status, jqXHR, jqXHR.responseXML
+      
       switch status
         when "timeout"
           deferred.reject RPC_TIMEOUT_ERROR, error
