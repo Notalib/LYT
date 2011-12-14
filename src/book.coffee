@@ -149,5 +149,8 @@ class LYT.Book
     @nccDocument?.getMetadata() or null
   
   getPlaylist: (initialSection = null) ->
-    new LYT.Playlist @nccDocument.sections, @resources, initialSection
+    if @_playlist?
+      @_playlist.setCurrentSection initialSection
+      return @_playlist 
+    @_playlist = new LYT.Playlist @nccDocument.sections, @resources, initialSection
   
