@@ -33,15 +33,17 @@ LYT.render =
     view.find("#author").text book.author
     view.find("#totaltime").text book.totalTime
     
-  getCoverSrc: (id) ->
+  getCoverSrcString: (id) ->
     "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
   
   getCover: (id) ->
-    if load(@getCoverSrc(id))
-      render
-    else
-      render @defaultCover
-  
+    src = @getCoverSrcString(id)
+    #if jQuery.load(src)
+    #  return src
+    #else
+    #  return defaultCover
+    return src
+    
   getMediaType: (mediastring) ->
     unless mediastring.indexOf("AA") is -1
       "Lydbog"
@@ -93,7 +95,7 @@ LYT.render =
         list.append("""
          <li id="#{item.id}">
            <a href="#book-details?book=#{item.id}">
-             <img class="ui-li-icon" src="#{@getCoverSrc(item.id)}">
+             <img class="ui-li-icon" src="#{@getCover(item.id)}">
              <h3>#{item.author}</h3>
              <p>#{item.author} | #{@getMediaType item.media}</p>
            </a>
