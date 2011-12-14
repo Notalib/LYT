@@ -58,7 +58,7 @@ LYT.player =
         @updateHtml(event.jPlayer.status)
       
       ended: (event) =>
-        if autoAdvance
+        if @autoProgression
           @nextSection()
       
       canplay: (event) =>
