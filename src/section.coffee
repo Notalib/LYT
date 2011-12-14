@@ -117,13 +117,13 @@ class LYT.Section
           item = jQuery this
           item.attr "src", "#{resolveRelativeUrl item.attr("src")}"
         
-        element
+        element.html()
       
       media =
         id:      segment.id
         start:   segment.start
         end:     segment.end
-        audio:   @resources[segment.audio.src]
+        audio:   @resources[segment.audio.src]?.url
         text:    null
         html:    null
       
