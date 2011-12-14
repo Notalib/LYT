@@ -2,9 +2,15 @@
 # todo: provide a visual cue on the next and previous section buttons if there are no next or previous section.
 
 LYT.player = 
+  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
+  PROGRESSION_MODES:
+    MP3:  'mp3'
+    TEXT: 'text'
+  
   ready: false 
   el: null
-  media: null #id, start, end, html
+  
+  media: null
   section: null
   time: ""
   book: null #reference to an instance of book class
@@ -14,7 +20,12 @@ LYT.player =
   playIntentOffset: null
   playIntentFlag: false
   
-  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
+  autoProgression: true 
+  toggleAutoProgression: null
+  progressionMode: @PROGRESSION_MODES.MP3
+  
+  nextButton: null
+  previousButton: null
   
   init: ->
     log.message 'Player: starting initialization'
@@ -46,7 +57,8 @@ LYT.player =
         @updateHtml(event.jPlayer.status)
       
       ended: (event) =>
-        @nextSection()
+        if autoAdvance
+          @nextSection()
       
       canplay: (event) =>
         #is not called in firefox 
@@ -66,8 +78,8 @@ LYT.player =
             log.message 'jPlayer: url error'
             # try again before reporting error to user
           when $.jPlayer.error.NO_SOLUTION
-            log.message 'jPlayer: no solution error'
-            # say we are sorry 
+            log.message 'jPlayer: no solution error, you need to install flash or update your browser.'
+
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -95,7 +107,6 @@ LYT.player =
   stop: () ->
     # Stop playback and loading of media
     @el.jPlayer('stop')
-  
   
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
