@@ -22,17 +22,18 @@ LYT.player =
   
   autoProgression: true 
   toggleAutoProgression: null
-  progressionMode: @PROGRESSION_MODES.MP3
-  
+  progressionMode: null
   nextButton: null
   previousButton: null
   
   init: ->
     log.message 'Player: starting initialization'
     # Initialize jplayer and set ready True when ready
-    @el = jQuery("#jplayer")  
+    @el = jQuery("#jplayer")
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
+    
+    @progressionMode = @PROGRESSION_MODES.MP3
     
     jplayer = @el.jPlayer
       ready: =>
@@ -168,8 +169,7 @@ LYT.player =
     
     @playlist.fail ->
       log.error "Player: Failed to get playlist"
-    
-  
+      
   playSection: (@section, offset = 0, autoPlay = true) ->
     @section.done =>
       @media = @section.mediaAtOffset offset
