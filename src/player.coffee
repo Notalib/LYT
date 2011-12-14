@@ -138,20 +138,19 @@ LYT.player =
   
   updateHtml: (status) ->
     # Continously update player rendering for current time of section
-    
     return unless @book?
     return unless @media?
     
     @time = status.currentTime
-    newMedia = @section.mediaAtOffset @time
     
-    if not newMedia?
-      log.warn "Player: failed to get next media segment"
+    return if @media.start < @time <= @media.end
+    
+    @media = @section.mediaAtOffset @time
+    
+    if not @media?
+      log.warn "Player: failed to get media segment for offset #{@time}"
       return
-      
-    return if newMedia.index = @media.index
     
-    @media = newMedia
     @renderTranscript()
   
   renderTranscript: () ->
@@ -172,6 +171,7 @@ LYT.player =
       log.error "Player: Failed to get playlist"
       
   playSection: (@section, offset = 0, autoPlay = true) ->
+    # TODO: Preload next/previous sections by calling @playlist.getNextSection()/@playlist.getPreviousSection()
     @section.done =>
       @media = @section.mediaAtOffset offset
       unless @media?
