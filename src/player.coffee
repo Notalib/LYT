@@ -154,10 +154,11 @@ LYT.player =
     @renderTranscript()
   
   renderTranscript: () ->
-    #log.message("Player: render new transcript")
-    jQuery("#book-text-content").html("<div id='#{@media.id}'>#{@media.html}</div>")
+    jQuery("#book-text-content").html @media.html
+    # TODO: Possibly add "onload" handlers to images in the HTML
+    # and pause the playback until they're all there?
   
-  # FIXME: Temporary implementation below!
+  # FIXME: Temporary playlist-using implementation below! Clean it up
   
   loadSection: (book, section, offset = 0, autoPlay = false) ->
     @pause()
