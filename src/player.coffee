@@ -142,15 +142,16 @@ LYT.player =
     return unless @media?
     
     @time = status.currentTime
+    newMedia = @section.mediaAtOffset @time
     
-    if @media.end < @time
-      log.message "Current media", @media
-      @media = @media.getNext()
-      log.message "Next media", @media
-      if @media?
-        @renderTranscript()
-      else
-        log.message "Player: failed to get next media segment"
+    if not newMedia?
+      log.warn "Player: failed to get next media segment"
+      return
+      
+    return if newMedia.index = @media.index
+    
+    @media = newMedia
+    @renderTranscript()
   
   renderTranscript: () ->
     #log.message("Player: render new transcript")
