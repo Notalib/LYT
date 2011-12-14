@@ -135,31 +135,43 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
     
-    LYT.search.attachAutocomplete $('#searchterm')
-    
+    LYT.search.attachAutocomplete $('#searchterm')  
     # TODO: Shouldn't this only be bound once? Or does jQuery take care of that?
     $(LYT.search).bind 'autocomplete', (event) ->
       log.message "Autocomplete suggestions: #{event.results}"
-      
     
+    #log.message type, match, ui, page
+       
     if params.term  # this allows for bookmarkable search terms
-      $.mobile.showPageLoadingMsg()
       LYT.search.full(params.term)
         .done (results) ->
           LYT.render.searchResults(results, content)
           $.mobile.hidePageLoadingMsg()
     
     $("#search-form").submit (event) ->
+      log.message 'you searched'      
       $('#searchterm').blur()
       $.mobile.showPageLoadingMsg()
       
-      LYT.search.full($('#searchterm').val())
-        .done (results) ->
-          LYT.render.searchResults(results, content)
-          $.mobile.hidePageLoadingMsg()
-          
+      $.mobile.changePage "#search?term=#{$('#searchterm').val()}",
+        allowSamePageTransition: true
+      
       event.preventDefault()
-      event.stopPropagation()
+      event.stopImmediatePropagation()
+      
+      #$.mobile.changePage "#search",
+      #  allowSamePageTransition: true
+      #  type: "get"
+      #  data: $("form#search-form").serialize()
+      
+      #$.mobile.changePage("#{page}?term=#{$('#searchterm').val()}")
+      
+      #LYT.search.full()
+      #  .done (results) ->
+      #    LYT.render.searchResults(results, content)
+      #    $.mobile.hidePageLoadingMsg()
+          
+
   
   settings: (type, match, ui, page) ->      
     style = LYT.settings.get('textStyle')
