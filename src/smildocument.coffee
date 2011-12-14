@@ -12,9 +12,7 @@ do ->
     
     getSegmentByTime: (offset = 0) ->
       for segment, index in @segments
-        segment.index = index
-        if segment.start <= offset < segment.end
-          return segment
+        return segment if segment.start <= offset < segment.end
       
       return null
     
@@ -41,6 +39,7 @@ do ->
     clips = []
     sequence.children("par").each ->
       clips = clips.concat parseParNode(jQuery(this))
+    clip.index = index for clip, index in clips
     clips
   
   

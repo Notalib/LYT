@@ -121,6 +121,7 @@ class LYT.Section
       
       media =
         id:      segment.id
+        index:   segment.index
         start:   segment.start
         end:     segment.end
         audio:   @resources[segment.audio.src]?.url
@@ -135,19 +136,19 @@ class LYT.Section
       
       segments = @document.segments
       
-      media.hasNext     = ->
-        segment.index < segments.length - 1
+      media.hasNext = ->
+        @index < segments.length - 1
       
       media.hasPrevious = ->
-        segment.index > 0
+        @index > 0
       
       media.getNext = ->
         return null unless @hasNext()
-        compile segments[segment.index+1]
+        compile segments[@index+1]
       
       media.getPrevious = ->
-        return null unless @hasNext()
-        compile segments[segment.index-1]
+        return null unless @hasPrevious()
+        compile segments[@index-1]
       
       media
     
@@ -156,7 +157,9 @@ class LYT.Section
       return null
     
     segment = @document.getSegmentByTime offset
-    return null unless segment?
+    unless segment?
+      log.warning "Section: Failed to find media for offset #{offset}"
+      return null
     
     compile segment
   
