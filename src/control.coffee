@@ -125,6 +125,8 @@ LYT.control =
     else
       params = {}
     
+    params.term = jQuery.trim(decodeURI(params.term or "")) or null
+    
     content = $(page).children( ":jqmData(role=content)" )
     
     LYT.search.attachAutocomplete $('#searchterm')
@@ -132,8 +134,8 @@ LYT.control =
     $(LYT.search).bind 'autocomplete', (event) ->
       log.message "Autocomplete suggestions: #{event.results}"
     
-    loadResults = (page = 1) ->
-      LYT.search.full(params.term, page)
+    loadResults = (term, page = 1) ->
+      LYT.search.full(term, page)
         .done (results) ->
           $("#more-search-results").unbind "click"
           $("#more-search-results").click (event) ->
@@ -147,7 +149,7 @@ LYT.control =
     # this allows for bookmarkable search terms
     if params.term and $('#searchterm').val() isnt params.term
       $('#searchterm').val params.term
-      loadResults()
+      loadResults params.term
       ###
       LYT.search.full(params.term)
         .done (results) ->
@@ -166,7 +168,9 @@ LYT.control =
       $('#searchterm').blur()
       $.mobile.showPageLoadingMsg()
       
-      $.mobile.changePage "#search?term=#{$('#searchterm').val()}" , transition: "none"
+      term = encodeURI $('#searchterm').val()
+      loadResults $('#searchterm').val()
+      $.mobile.changePage "#search?term=#{term}" , transition: "none"
       
       event.preventDefault()
       event.stopImmediatePropagation()
