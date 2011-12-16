@@ -89,7 +89,9 @@ LYT.render =
     list.listview('refresh')
   
   searchResults: (results, view) ->
-    list = view.find("ul").empty()
+    list = view.find "ul"
+    list.empty() if results.currentPage is 1
+    
     if results.length > 0
       for item in results
         list.append """
@@ -103,5 +105,11 @@ LYT.render =
     
     # TODO: Temporary fix for missing covers
     list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover
+    
+    # TODO: Temporary, I hope
+    if results.nextPage
+      $("#more-search-results").show()
+    else
+      $("#more-search-results").hide()
     
     list.listview('refresh')

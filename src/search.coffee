@@ -54,8 +54,6 @@ LYT.search = do ->
   createResponseHandler = (deferred, currentPage) ->
     (data, status, jqHXR) ->
       results = []
-      # TODO: Temporary
-      results.nextPage = currentPage + 1
       if data.d? and data.d.length > 0 and not (/noresults/i).test data.d[0].results
         results = (for item in data.d
           {
@@ -65,6 +63,14 @@ LYT.search = do ->
             media:  item.media
           }
         )
+      
+      # TODO: Temporary
+      results.currentPage = currentPage
+      if results.length >= LYT.config.search.full.parameters.pagesize
+        results.nextPage = currentPage + 1
+      else
+        results.nextPage = false
+      
       deferred.resolve results
   
   
