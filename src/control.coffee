@@ -2,21 +2,21 @@
 LYT.control =    
   login: (type, match, ui, page) ->
     $("#login-form").submit (event) ->
-
+      
       $.mobile.showPageLoadingMsg()
       $("#password").blur()
-
+      
       LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
           $.mobile.changePage "#bookshelf"
-
+        
         .fail ->
           log.message "log on failure"
-
+        
       event.preventDefault()
       event.stopPropagation()
-  
     
+  
   bookshelf: (type, match, ui, page) ->
     $.mobile.showPageLoadingMsg()
     
@@ -38,6 +38,7 @@ LYT.control =
         ###
         
         $.mobile.hidePageLoadingMsg()
+      
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
   
@@ -46,12 +47,12 @@ LYT.control =
     $.mobile.showPageLoadingMsg()
     params = LYT.router.getParams(match[1])
     
-    $.mobile.showPageLoadingMsg()   
-    content = $(page).children( ":jqmData(role=content)" )    
+    $.mobile.showPageLoadingMsg()
+    content = $(page).children( ":jqmData(role=content)" )
     
-    # todo validate query string
+    # TODO: validate query string
     
-    LYT.Book.load(params.book)                                
+    LYT.Book.load(params.book)
       .done (book) ->
         log.message book
         
@@ -60,13 +61,13 @@ LYT.control =
         content.find("#play-button").click (e) =>
           e.preventDefault()
           $.mobile.changePage("#book-play?book=" + book.id)
-
+        
         #LYT.render.covercacheOne content.find("figure"), bookId
         
         #$page.page()
-        $.mobile.hidePageLoadingMsg()     
-        #$.mobile.changePage page, options         
-
+        $.mobile.hidePageLoadingMsg()
+        #$.mobile.changePage page, options
+      
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
   
@@ -76,12 +77,12 @@ LYT.control =
     
     if params.book
       $.mobile.showPageLoadingMsg()
-      LYT.Book.load(params.book)                            
+      LYT.Book.load(params.book)
         .done (book) ->
-        
+          
           LYT.render.bookIndex(book, content)
           $.mobile.hidePageLoadingMsg()
-        
+          
           #jQuery("#book-index ol l").each ->
           #  #log.message jQuery(@).attr('href')
           #  #attr = jQuery(@).attr('href') + '?book=15000'
@@ -93,55 +94,43 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     
     #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
-    header = $(page).children( ":jqmData(role=header)") 
+    header = $(page).children( ":jqmData(role=header)")
     $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
     
     section = params.section or 0
     offset = params.offset or 0
     
-      
-    #content = $(page).children( ":jqmData(role=content)" )
-        
-    LYT.Book.load(params.book)                            
+    LYT.Book.load(params.book)
       .done (book) ->
         
-        #log.message book.nccDocument.structure
+        LYT.render.bookPlayer book, $(page)
         
-        #fixme: lookup section by its ID so we send the right one the the renderer.
-        #section = book.nccDocument.structure[1]
-
-        LYT.render.bookPlayer(book, $(page))
+        LYT.player.load book, section, offset
         
-        if LYT.player.ready
-          LYT.player.loadSection(book, section, offset)
-        else
-          LYT.player.el.bind $.jPlayer.event.ready, (event) ->
-            LYT.player.loadSection(book, section, offset)
-                                
         ###
         $("#book-play").bind "swiperight", ->
             LYT.player.nextSection()
-            
+        
         $("#book-play").bind "swipeleft", ->
             LYT.player.previousSection()
         ###
-                
+        
         $.mobile.hidePageLoadingMsg()
         
       .fail () ->
-        log.message "failed"
+        log.error "Control: Failed to load book ID #{params.book}"
   
   search: (type, match, ui, page) ->
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
     
-    LYT.search.attachAutocomplete $('#searchterm')  
+    LYT.search.attachAutocomplete $('#searchterm')
     # TODO: Shouldn't this only be bound once? Or does jQuery take care of that?
     $(LYT.search).bind 'autocomplete', (event) ->
       log.message "Autocomplete suggestions: #{event.results}"
     
     #log.message type, match, ui, page
-       
+    
     if params.term  # this allows for bookmarkable search terms
       LYT.search.full(params.term)
         .done (results) ->
@@ -170,10 +159,10 @@ LYT.control =
       #  .done (results) ->
       #    LYT.render.searchResults(results, content)
       #    $.mobile.hidePageLoadingMsg()
-          
-
+      
   
-  settings: (type, match, ui, page) ->      
+  
+  settings: (type, match, ui, page) ->
     style = LYT.settings.get('textStyle')
     
     $("#style-settings").find("input").each ->
@@ -189,7 +178,7 @@ LYT.control =
           if style['background-color'] is colors[0] and style['color'] is colors[1]
             $(this).attr("checked", true).checkboxradio("refresh");
             
-    $("#style-settings input").change (event) ->     
+    $("#style-settings input").change (event) ->
       target = $(event.target)
       name = target.attr 'name'
       val = target.val()
@@ -208,5 +197,5 @@ LYT.control =
   profile: (type, match, ui, page) ->
     $("#log-off").click (event) ->
       LYT.service.logOff()
-      
-      
+    
+  

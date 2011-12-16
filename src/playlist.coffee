@@ -47,14 +47,14 @@ class LYT.Playlist
     @getCurrentSection()
   
   setCurrentSection: (id = null) ->
-    if id
+    if !!id
       for section, index in @sections
         if section.id is id
           @currentIndex = index
           return @getCurrentSection()
-      return null
+      log.warn "Playlist: Couldn't find section #{id}"
     
     @currentIndex = 0
-    @getCurrentSection() or null
+    @getCurrentSection()
 
 

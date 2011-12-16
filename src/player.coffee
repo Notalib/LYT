@@ -44,6 +44,7 @@ LYT.player =
         
         $.jPlayer.timeFormat.showHour = true
         
+        # TODO: Disable next/prev buttons if there are not next/prev sections?
         @nextButton.click =>
           @nextSection()
         
@@ -54,7 +55,7 @@ LYT.player =
         @updateHtml(event.jPlayer.status)
       
       loadstart: (event) =>
-        log.message 'load start'
+        log.message 'Player: load start'
         @updateHtml(event.jPlayer.status)
       
       ended: (event) =>
@@ -63,13 +64,12 @@ LYT.player =
       
       canplay: (event) =>
         #is not called in firefox 
-        log.message 'can play'
+        log.message 'Player: can play'
         @playOnIntent()
         @updateHtml(event.jPlayer.status)       
       
       progress: (event) =>
         #is not called in chrome
-        log.message 'progress'
         @playOnIntent()
         @updateHtml(event.jPlayer.status)        
       
@@ -153,27 +153,40 @@ LYT.player =
     
     @renderTranscript()
   
+  
   renderTranscript: () ->
     jQuery("#book-text-content").html @media.html
     # TODO: Possibly add "onload" handlers to images in the HTML
     # and pause the playback until they're all there?
   
-  # FIXME: Temporary playlist-using implementation below! Clean it up
   
-  loadSection: (book, section, offset = 0, autoPlay = false) ->
-    @pause()
-    @book = book
-    
-    @playlist = book.getPlaylist section
-    @playlist.done =>
-      @playSection @playlist.getCurrentSection(), offset, autoPlay
-    
-    @playlist.fail ->
-      log.error "Player: Failed to get playlist"
-      
+  whenReady: (callback) ->
+    if @ready
+      callback()
+    else
+      @el.bind $.jPlayer.event.ready, callback
+  
+  load: (@book, section = null, offset = 0, autoPlay = false) ->
+    log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
+    @book.done =>
+      @whenReady =>
+        @playlist = book.getPlaylist section
+        
+        @playlist.done =>
+          @playSection @playlist.getCurrentSection(), offset, autoPlay
+        
+        @playlist.fail =>
+          log.error "Player: Failed to get playlist"
+  
+  
   playSection: (@section, offset = 0, autoPlay = true) ->
-    # TODO: Preload next/previous sections by calling @playlist.getNextSection()/@playlist.getPreviousSection()
     @section.done =>
+      log.message "Player: Playlist current section #{@section.id}"
+      
+      # Preload the next/prev sections
+      @playlist.getNextSection() if @playlist.hasNextSection()
+      @playlist.getPreviousSection() if @playlist.hasPreviousSection()
+      
       @media = @section.mediaAtOffset offset
       unless @media?
         log.message "Player: failed to get media"
@@ -187,9 +200,11 @@ LYT.player =
     @section.fail ->
       log.error "Player: Failed to load section #{section}"
   
+  
   nextSection: ->
     return null unless @playlist?.hasNextSection()
     @playSection @playlist.next(), 0, true
+  
   
   previousSection: ->
     return null unless @playlist?.hasPreviousSection()
