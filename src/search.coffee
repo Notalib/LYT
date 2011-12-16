@@ -29,15 +29,17 @@ LYT.search = do ->
   # In case of an error, the deferred will be rejected with the
   # `SEARCH_GENERAL_ERROR` constant, the response status, and
   # the error thrown
-  full = (term) ->
+  full = (term, page = 1) ->
+    params = jQuery.extend {term: term, pagenbr: page}, LYT.config.search.full.parameters
+    
     # Get the ajax options
-    options = getOptions LYT.config.search.full.url, {term: term}
+    options = getOptions LYT.config.search.full.url, params
     
     # Create the deferred
     deferred = jQuery.Deferred()
     
     # Add the `success` and `error` handlers
-    options.success = createResponseHandler deferred
+    options.success = createResponseHandler deferred, page
     options.error   = createErrorHandler deferred
     
     # Perform the request
@@ -49,9 +51,11 @@ LYT.search = do ->
   
   # Create an AJAX success handler (this could be inside `full`,
   # but has been placed here for clarity)
-  createResponseHandler = (deferred) ->
+  createResponseHandler = (deferred, currentPage) ->
     (data, status, jqHXR) ->
       results = []
+      # TODO: Temporary
+      results.nextPage = currentPage + 1
       if data.d? and data.d.length > 0 and not (/noresults/i).test data.d[0].results
         results = (for item in data.d
           {
@@ -126,7 +130,7 @@ LYT.search = do ->
       jQuery.ajax(options)
         # On success, extract the results
         .done (data) ->
-          results = (item.keywords for item in data.d) if data? and data.d?
+          results = (item.term for item in data.d) if data? and data.d?
           complete()
         # On fail, just call `complete`
         .fail complete

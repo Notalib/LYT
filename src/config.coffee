@@ -41,7 +41,10 @@ LYT.config =
   search:
     # Full (free text) search options
     full:
-      url: "/CatalogSearch/search.asmx/SearchFreetext"
+      url: "/CatalogSearch/search.asmx/SearchSortedPaged"
+      parameters:
+        sort:     1
+        pagesize: 20
     
     # Autocomplete options
     autocomplete:
