@@ -16,8 +16,9 @@ LYT.render =
       list.append("""
         <li>
           <a href="#book-play?book=#{book.id}">
-	        <h1>#{book.title}</h1>
-            <h2>#{book.author}</h2>
+            <img class="ui-li-icon" src="#{@getCover(book.id)}">
+            <h3>#{book.title}</h3>
+            <p>#{book.author}</p>
           </a>
         </li>""")
     
