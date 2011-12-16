@@ -24,7 +24,6 @@ LYT.control =
     
     LYT.bookshelf.load()
       .done (books) ->
-        log.message books
         LYT.render.bookshelf(books, content)
         
         ###
@@ -121,7 +120,11 @@ LYT.control =
         log.error "Control: Failed to load book ID #{params.book}"
   
   search: (type, match, ui, page) ->
-    params = LYT.router.getParams(match[1])
+    if match?[1]
+      params = LYT.router.getParams match[1]
+    else
+      params = {}
+    
     content = $(page).children( ":jqmData(role=content)" )
     
     LYT.search.attachAutocomplete $('#searchterm')
@@ -129,9 +132,8 @@ LYT.control =
     $(LYT.search).bind 'autocomplete', (event) ->
       log.message "Autocomplete suggestions: #{event.results}"
     
-    #log.message type, match, ui, page
-    
-    if params.term  # this allows for bookmarkable search terms
+    if params.term and $('#searchterm').val() isnt params.term  # this allows for bookmarkable search terms
+      $('#searchterm').val params.term
       LYT.search.full(params.term)
         .done (results) ->
           LYT.render.searchResults(results, content)
@@ -142,8 +144,7 @@ LYT.control =
       $('#searchterm').blur()
       $.mobile.showPageLoadingMsg()
       
-      $.mobile.changePage "#search?term=#{$('#searchterm').val()}",
-        allowSamePageTransition: true
+      $.mobile.changePage "#search?term=#{$('#searchterm').val()}" , transition: "none"
       
       event.preventDefault()
       event.stopImmediatePropagation()
