@@ -45,11 +45,20 @@ LYT.player =
         $.jPlayer.timeFormat.showHour = true
         
         # TODO: Disable next/prev buttons if there are not next/prev sections?
+        # FIXME: Needs more error checking
         @nextButton.click =>
-          @nextSection()
+          if @media?.hasNext()
+            @media = @media.getNext()
+            @play @media.start
+          else
+            @nextSection()
         
         @previousButton.click =>
-          @previousSection()
+          if @media?.hasPrevious()
+            @media = @media.getPrevious()
+            @play @media.start
+          else
+            @previousSection()
                      
       timeupdate: (event) =>
         @updateHtml(event.jPlayer.status)
