@@ -55,7 +55,7 @@ LYT.search = do ->
       if data.d? and data.d.length > 0 and not (/noresults/i).test data.d[0].results
         results = (for item in data.d
           {
-            id:     item.imageid
+            id:     item.itemid
             title:  item.title
             author: item.author
             media:  item.media

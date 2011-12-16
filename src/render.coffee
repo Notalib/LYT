@@ -96,7 +96,7 @@ LYT.render =
          <li id="#{item.id}">
            <a href="#book-details?book=#{item.id}">
              <img class="ui-li-icon" src="#{@getCover(item.id)}">
-             <h3>#{item.author}</h3>
+             <h3>#{item.title}</h3>
              <p>#{item.author} | #{@getMediaType item.media}</p>
            </a>
          </li>""")
