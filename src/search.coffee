@@ -11,6 +11,8 @@ window.SEARCH_GENERAL_ERROR = {}
 # Define the `LYT.search` object
 LYT.search = do ->
   
+  autocompleteCache: {}
+  
   # Internal helper to build the AJAX options.  
   # Takes to 2 arguments: The URL to call, and
   # and the data (as an object) to send
@@ -115,11 +117,8 @@ LYT.search = do ->
       # to the `getOptions` helper
       options = getOptions LYT.config.search.autocomplete.url, request
       
-      # Create an empty results array
-      results = []
-      
       # An internal function to be called when the AJAX call completes
-      complete = ->
+      complete = (results) ->
         # Send the results - empty or not - back to the jQuery
         # UI's autocomplete function (the `response` callback
         # must always be called, regardless of whether the AJAX
@@ -129,15 +128,20 @@ LYT.search = do ->
         # Emit an event with the results attached as `event.results` 
         event = jQuery.Event "autocomplete"
         event.results = results
-        log.message "Search: Emitting autocomplete event"
+        #log.message "Search: Emitting autocomplete event"
         jQuery(LYT.search).trigger event
+      
+      # if autocompleteCache[request.term]?
+      #   complete autocompleteCache[request.term]
+      #   return
       
       # Perform the request
       jQuery.ajax(options)
         # On success, extract the results
         .done (data) ->
           results = (item.term for item in data.d) if data? and data.d?
-          complete()
+          #autocompleteCache[request.term] = results
+          complete results
         # On fail, just call `complete`
         .fail complete
     

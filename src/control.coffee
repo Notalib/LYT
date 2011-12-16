@@ -120,19 +120,6 @@ LYT.control =
         log.error "Control: Failed to load book ID #{params.book}"
   
   search: (type, match, ui, page) ->
-    if match?[1]
-      params = LYT.router.getParams match[1]
-    else
-      params = {}
-    
-    params.term = jQuery.trim(decodeURI(params.term or "")) or null
-    
-    content = $(page).children( ":jqmData(role=content)" )
-    
-    LYT.search.attachAutocomplete $('#searchterm')
-    # TODO: Shouldn't this only be bound once? Or does jQuery take care of that?
-    $(LYT.search).bind 'autocomplete', (event) ->
-      log.message "Autocomplete suggestions: #{event.results}"
     
     loadResults = (term, page = 1) ->
       LYT.search.full(term, page)
@@ -145,6 +132,21 @@ LYT.control =
           
           LYT.render.searchResults(results, content)
           $.mobile.hidePageLoadingMsg()
+    
+    if match?[1]
+      params = LYT.router.getParams match[1]
+    else
+      params = {}
+    
+    params.term = jQuery.trim(decodeURI(params.term or "")) or null
+    
+    content = $(page).children( ":jqmData(role=content)" )
+    
+    LYT.search.attachAutocomplete $('#searchterm')
+    $("#searchterm").bind "autocompleteselect", (event, ui) ->
+      loadResults ui.item.value
+      $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
+    
     
     # this allows for bookmarkable search terms
     if params.term and $('#searchterm').val() isnt params.term
