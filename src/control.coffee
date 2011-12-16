@@ -139,7 +139,7 @@ LYT.control =
         .done (results) ->
           $("#more-search-results").unbind "click"
           $("#more-search-results").click (event) ->
-            loadResults results.nextPage if results.nextPage
+            loadResults term, results.nextPage if results.nextPage
             event.preventDefault()
             event.stopImmediatePropagation()
           
@@ -150,18 +150,6 @@ LYT.control =
     if params.term and $('#searchterm').val() isnt params.term
       $('#searchterm').val params.term
       loadResults params.term
-      ###
-      LYT.search.full(params.term)
-        .done (results) ->
-          $("#more-search-results").unbind "click"
-          $("#more-search-results").click -> (event)
-            
-            event.preventDefault()
-            event.stopImmediatePropagation()
-          
-          LYT.render.searchResults(results, content)
-          $.mobile.hidePageLoadingMsg()
-      ###
     
     $("#search-form").submit (event) ->
       log.message 'you searched'      
