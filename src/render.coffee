@@ -12,15 +12,19 @@ LYT.render =
     #todo: add pagination
     list = view.find("ul")
     list.empty()
+    # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
-      list.append("""
+      list.append """
         <li>
           <a href="#book-play?book=#{book.id}">
-            <img class="ui-li-icon" src="#{@getCover(book.id)}">
+            <img class="ui-li-icon cover-image" src="#{@getCover(book.id)}">
             <h3>#{book.title}</h3>
             <p>#{book.author}</p>
           </a>
-        </li>""")
+        </li>"""
+    
+    # TODO: Temporary fix for missing covers
+    list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover
     
     list.listview('refresh')
   
@@ -38,15 +42,11 @@ LYT.render =
     "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
   
   getCover: (id) ->
-    src = @getCoverSrcString(id)
-    #if jQuery.load(src)
-    #  return src
-    #else
-    #  return defaultCover
+    src = @getCoverSrcString id
     return src
     
   getMediaType: (mediastring) ->
-    unless mediastring.indexOf("AA") is -1
+    if /\bAA\b/i.test mediastring
       "Lydbog"
     else
       "Lydbog med tekst"
@@ -92,14 +92,16 @@ LYT.render =
     list = view.find("ul").empty()
     if results.length > 0
       for item in results
-        log.message item
-        list.append("""
-         <li id="#{item.id}">
-           <a href="#book-details?book=#{item.id}">
-             <img class="ui-li-icon" src="#{@getCover(item.id)}">
-             <h3>#{item.title}</h3>
-             <p>#{item.author} | #{@getMediaType item.media}</p>
-           </a>
-         </li>""")
-       
+        list.append """
+          <li id="#{item.id}">
+            <a href="#book-details?book=#{item.id}">
+              <img class="ui-li-icon cover-image" src="#{@getCover(item.id)}">
+              <h3>#{item.title}</h3>
+              <p>#{item.author} | #{@getMediaType item.media}</p>
+            </a>
+          </li>"""
+    
+    # TODO: Temporary fix for missing covers
+    list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover
+    
     list.listview('refresh')
