@@ -129,8 +129,8 @@ class LYT.Section
         html:    null
       
       [contentUrl, contentId] = segment.text.src.split "#"
-      if @resources[contentUrl].document?.isResolved() and contentId
-        element = @resources[contentUrl].document.getElementById contentId
+      if @resources[contentUrl]?.document?.isResolved() and contentId
+        element = @resources[contentUrl].document.getContentById contentId
         media.text = jQuery.trim element.text()
         media.html = prepareContentElement element
       
@@ -158,7 +158,7 @@ class LYT.Section
     
     segment = @document.getSegmentByTime offset
     unless segment?
-      log.warning "Section: Failed to find media for offset #{offset}"
+      log.warn "Section: Failed to find media for offset #{offset}"
       return null
     
     compile segment
