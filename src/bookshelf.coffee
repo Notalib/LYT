@@ -1,7 +1,13 @@
 LYT.bookshelf =
   
-  load: ->
-    LYT.service.getBookshelf(0,5)
+  load: (page = 0) ->
+    if page is 0
+      from = 0 
+    else
+      from = page*5   
+    to = from+5
+    
+    LYT.service.getBookshelf(from,to)
     
   add: (id) ->
     LYT.service.issue(id)

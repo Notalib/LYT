@@ -8,10 +8,12 @@ LYT.render =
     log.message 'Render: init'
     @setStyle()
     
-  bookshelf: (books, view) ->
+  bookshelf: (books, view, n) ->
     #todo: add pagination
     list = view.find("ul")
-    list.empty()
+    if n is 0
+      list.empty()
+      
     # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
       if book.id is LYT.player.book?.id?
@@ -43,12 +45,8 @@ LYT.render =
     view.find("#author").text book.author
     view.find("#totaltime").text book.totalTime
     
-  getCoverSrcString: (id) ->
-    "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
-  
   getCover: (id) ->
-    src = @getCoverSrcString id
-    return src
+    "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
     
   getMediaType: (mediastring) ->
     if /\bAA\b/i.test mediastring

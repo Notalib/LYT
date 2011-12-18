@@ -18,29 +18,39 @@ LYT.control =
     
   
   bookshelf: (type, match, ui, page, event) ->
-    $.mobile.showPageLoadingMsg()
     
     content = $(page).children(":jqmData(role=content)")
+    pagenumber = 0
     
-    LYT.bookshelf.load()
-      .done (books) ->
-        LYT.render.bookshelf(books, content)
+    load = ->
+      $.mobile.showPageLoadingMsg()     
+      LYT.bookshelf.load(pagenumber)
+        .done (books) ->
+          LYT.render.bookshelf(books, content, pagenumber)
+          log.message books
+          $("#more-bookshelf-entries").unbind "click"
+          $("#more-bookshelf-entries").click (event) ->
+            pagenumber += 1
+            load()
+            #event.preventDefault()
+            #event.stopImmediatePropagation()
         
-        ###
-        $content.find('a').click ->
-          alert 'We got some dixie chicks for ya while you wait for your book!'
-          if LYT.player.ready
-            LYT.player.silentPlay()
-          else
-            LYT.player.el.bind $.jPlayer.event.ready, (event) ->
+          $.mobile.hidePageLoadingMsg()
+        
+          ###
+          $content.find('a').click ->
+            alert 'We got some dixie chicks for ya while you wait for your book!'
+            if LYT.player.ready
               LYT.player.silentPlay()
-        ###
-        
-        $.mobile.hidePageLoadingMsg()
+            else
+              LYT.player.el.bind $.jPlayer.event.ready, (event) ->
+                LYT.player.silentPlay()
+          ###
       
-      .fail (error, msg) ->
-        log.message "failed with error #{error} and msg #{msg}"
-  
+        .fail (error, msg) ->
+          log.message "failed with error #{error} and msg #{msg}"
+    
+    load()
   
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pageshow'
@@ -58,7 +68,7 @@ LYT.control =
         content.find("#play-button").click (event) =>
           $.mobile.changePage("#book-play?book=" + book.id)
           event.preventDefault()
-          event.stopPropagation()
+          event.stopImmediatePropagation()
         
         $.mobile.hidePageLoadingMsg()
       
@@ -114,8 +124,8 @@ LYT.control =
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      $.mobile.showPageLoadingMsg()
       loadResults = (term, page = 1) ->
+        $.mobile.showPageLoadingMsg()
         LYT.search.full(term, page)
           .done (results) ->
             $("#more-search-results").unbind "click"
