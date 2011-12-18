@@ -7,8 +7,7 @@ do ->
         mainSequence = @source.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @segments    = parseMainSeqNode mainSequence
-        metadata = @getMetadata()
-        @absoluteOffset = if metadata.totalElapsedTime? then parseTime(metadata.totalElapsedTime.content) else null
+        @absoluteOffset = parseTime(@getMetadata().totalElapsedTime?.content) or null
     
     getSegmentByTime: (offset = 0) ->
       for segment, index in @segments
@@ -49,7 +48,7 @@ do ->
     text = parseTextNode par.find("text:first")
     
     # Find all nested `audio` nodes
-    clips = par.find("seq > audio").map ->
+    clips = par.find("> audio, seq > audio").map ->
       audio = jQuery this
       
       id:    par.attr "id"
@@ -60,8 +59,11 @@ do ->
         id:  audio.attr "id"
         src: audio.attr "src"
     
+    clips = jQuery.makeArray clips
+    clips.sort (a, b) -> a.start - b.start
+    
     # return as a straight array
-    jQuery.makeArray clips
+    clips
   
   
   parseTextNode = (text) ->

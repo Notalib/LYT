@@ -148,25 +148,27 @@ LYT.player =
   updateHtml: (status) ->
     # Continously update player rendering for current time of section
     return unless @book?
-    return unless @media?
     
     @time = status.currentTime
     
-    return if @media.start < @time <= @media.end
+    return if @media? and @media.start < @time <= @media.end
     
     @media = @section.mediaAtOffset @time
     
-    if not @media?
-      log.warn "Player: failed to get media segment for offset #{@time}"
-      return
+    log.warn "Player: failed to get media segment for offset #{@time}" unless @media?
     
     @renderTranscript()
   
   
   renderTranscript: () ->
-    jQuery("#book-text-content").html @media.html
-    # TODO: Possibly add "onload" handlers to images in the HTML
-    # and pause the playback until they're all there?
+    if @media?
+      jQuery("#book-text-content").html @media.html
+      # TODO: Possibly add "onload" handlers to images in the HTML
+      # and pause the playback until they're all there?
+      return
+    
+    # If there's no media, show nothing
+    jQuery("#book-text-content").empty()
   
   
   whenReady: (callback) ->
@@ -196,13 +198,23 @@ LYT.player =
       @playlist.getNextSection() if @playlist.hasNextSection()
       @playlist.getPreviousSection() if @playlist.hasPreviousSection()
       
+      # Get the media obj
       @media = @section.mediaAtOffset offset
-      unless @media?
-        log.message "Player: failed to get media"
-        return
-      
       @renderTranscript()
-      @el.jPlayer "setMedia", {mp3: @media.audio}
+      
+      if @media?
+        @el.jPlayer "setMedia", {mp3: @media.audio}
+      else
+        # If no media was found, check whether the section has a single,
+        # unambiguous MP3 file, we can load instead
+        log.warn "Player: failed to get media"
+        mp3s = @section.getAudioUrls()
+        if mp3s.length isnt 1
+          # No media, no MP3: Just give up...
+          log.error "Player: Couldn't determine MP3 file"
+          return
+        @el.jPlayer "setMedia", {mp3: mp3s.pop()}
+      
       @el.jPlayer "load"
       @play offset, true if autoPlay
     
