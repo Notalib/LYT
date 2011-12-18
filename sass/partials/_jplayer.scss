@@ -25,10 +25,9 @@
 .jp-seeking-bg {
     background: url("../images/jplayer.blue.monday.seeking.gif"); }
 
-.jp-play .jp-pause {
-  display: block !important;
+.jp-play, .jp-pause {
+  display: block;
 }
-
  
 #player-duration {
   text-align: right;}
