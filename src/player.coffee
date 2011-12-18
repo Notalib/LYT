@@ -189,7 +189,10 @@ LYT.player =
     else
       @el.bind $.jPlayer.event.ready, callback
   
-  load: (@book, section = null, offset = 0, autoPlay = false) ->
+  load: (book, section = null, offset = 0, autoPlay = false) ->
+    return if book.id is @book?.id
+    @book = book
+    
     log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
     @book.done =>
       jQuery("#book-duration").text @book.totalTime
@@ -203,7 +206,10 @@ LYT.player =
           log.error "Player: Failed to get playlist"
   
   
-  playSection: (@section, offset = 0, autoPlay = true) ->
+  playSection: (section, offset = 0, autoPlay = true) ->
+    return if section is @section
+    @section = section
+    
     @section.done =>
       log.message "Player: Playlist current section #{@section.id}"
       
