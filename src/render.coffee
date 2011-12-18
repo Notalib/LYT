@@ -2,7 +2,7 @@
 
 LYT.render =
   
-  defaultCover: "/images/default.png"
+  defaultCover: "/images/icons/default-cover.png"
   
   init: () ->
     log.message 'Render: init'
