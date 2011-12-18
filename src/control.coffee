@@ -1,6 +1,6 @@
 # This module Controller
 LYT.control =    
-  login: (type, match, ui, page) ->
+  login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       
       $.mobile.showPageLoadingMsg()
@@ -17,7 +17,7 @@ LYT.control =
       event.stopPropagation()
     
   
-  bookshelf: (type, match, ui, page) ->
+  bookshelf: (type, match, ui, page, event) ->
     $.mobile.showPageLoadingMsg()
     
     content = $(page).children(":jqmData(role=content)")
@@ -42,15 +42,13 @@ LYT.control =
         log.message "failed with error #{error} and msg #{msg}"
   
   
-  bookDetails: (type, match, ui, page) ->
-    $.mobile.showPageLoadingMsg()
+  bookDetails: (type, match, ui, page, event) ->
+    if type is 'pageshow'
+      $.mobile.showPageLoadingMsg()
+      
     params = LYT.router.getParams(match[1])
-    
-    $.mobile.showPageLoadingMsg()
     content = $(page).children( ":jqmData(role=content)" )
-    
-    # TODO: validate query string
-    
+        
     LYT.Book.load(params.book)
       .done (book) ->
         log.message book
@@ -67,116 +65,114 @@ LYT.control =
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
   
-  bookIndex: (type, match, ui, page) ->
-    params = LYT.router.getParams(match[1])
-    content = $(page).children( ":jqmData(role=content)" )
-    
-    if params.book
-      $.mobile.showPageLoadingMsg()
-      LYT.Book.load(params.book)
-        .done (book) ->
-          
-          LYT.render.bookIndex(book, content)
-          $.mobile.hidePageLoadingMsg()
-          
-          #jQuery("#book-index ol l").each ->
-          #  #log.message jQuery(@).attr('href')
-          #  #attr = jQuery(@).attr('href') + '?book=15000'
-          #  #jQuery(@).attr('href', attr)
-  
-  bookPlayer: (type, match, ui, page) ->
-    $.mobile.showPageLoadingMsg()
-    
-    params = LYT.router.getParams(match[1])
-    
-    #fixme: next line should probably update the href preserving current parameters in hash instead of replacing
-    header = $(page).children( ":jqmData(role=header)")
-    $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
-    
-    section = params.section or 0
-    offset = params.offset or 0
-    
-    LYT.Book.load(params.book)
-      .done (book) ->
-        
-        LYT.render.bookPlayer book, $(page)
-        
-        LYT.player.load book, section, offset
-        
-        ###
-        $("#book-play").bind "swiperight", ->
-            LYT.player.nextSection()
-        
-        $("#book-play").bind "swipeleft", ->
-            LYT.player.previousSection()
-        ###
-        
-        $.mobile.hidePageLoadingMsg()
-        
-      .fail () ->
-        log.error "Control: Failed to load book ID #{params.book}"
-  
-  search: (type, match, ui, page) ->
-    
-    loadResults = (term, page = 1) ->
-      LYT.search.full(term, page)
-        .done (results) ->
-          $("#more-search-results").unbind "click"
-          $("#more-search-results").click (event) ->
-            loadResults term, results.nextPage if results.nextPage
-            event.preventDefault()
-            event.stopImmediatePropagation()
-          
-          LYT.render.searchResults(results, content)
-          $.mobile.hidePageLoadingMsg()
-    
-    if match?[1]
-      params = LYT.router.getParams match[1]
-    else
-      params = {}
-    
-    params.term = jQuery.trim(decodeURI(params.term or "")) or null
-    
-    content = $(page).children( ":jqmData(role=content)" )
-    
-    LYT.search.attachAutocomplete $('#searchterm')
-    $("#searchterm").bind "autocompleteselect", (event, ui) ->
-      loadResults ui.item.value
-      $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
-    
-    
-    # this allows for bookmarkable search terms
-    if params.term and $('#searchterm').val() isnt params.term
-      $('#searchterm').val params.term
-      loadResults params.term
-    
-    $("#search-form").submit (event) ->
-      log.message 'you searched'      
-      $('#searchterm').blur()
+  bookIndex: (type, match, ui, page, event) ->
+    if type is 'pageshow'
       $.mobile.showPageLoadingMsg()
       
-      term = encodeURI $('#searchterm').val()
-      loadResults $('#searchterm').val()
-      $.mobile.changePage "#search?term=#{term}" , transition: "none"
+      params = LYT.router.getParams(match[1])
+      content = $(page).children( ":jqmData(role=content)" )
+    
+      if params.book
+        LYT.Book.load(params.book)
+          .done (book) ->
+          
+            LYT.render.bookIndex(book, content)
+            $.mobile.hidePageLoadingMsg()
+          
+            #jQuery("#book-index ol l").each ->
+            #  #log.message jQuery(@).attr('href')
+            #  #attr = jQuery(@).attr('href') + '?book=15000'
+            #  #jQuery(@).attr('href', attr)
+  
+  bookPlayer: (type, match, ui, page, event) -> 
+    if type is 'pageshow'
+        $.mobile.showPageLoadingMsg()
+        
+        params = LYT.router.getParams(match[1])
+    
+        header = $(page).children( ":jqmData(role=header)")
+        $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
+    
+        section = params.section or 0
+        offset = params.offset or 0
+    
+        LYT.Book.load(params.book)
+          .done (book) ->        
+            LYT.render.bookPlayer book, $(page)        
+            LYT.player.load book, section, offset       
+            ###
+            $("#book-play").bind "swiperight", ->
+                LYT.player.nextSection()
+        
+            $("#book-play").bind "swipeleft", ->
+                LYT.player.previousSection()
+            ###       
+            $.mobile.hidePageLoadingMsg()
+        
+          .fail () ->
+            log.error "Control: Failed to load book ID #{params.book}"
+  
+  search: (type, match, ui, page, event) ->
+    if type is 'pageshow'
+      $.mobile.showPageLoadingMsg()
+      loadResults = (term, page = 1) ->
+        LYT.search.full(term, page)
+          .done (results) ->
+            $("#more-search-results").unbind "click"
+            $("#more-search-results").click (event) ->
+              loadResults term, results.nextPage if results.nextPage
+              event.preventDefault()
+              event.stopImmediatePropagation()
+          
+            LYT.render.searchResults(results, content)
+            $.mobile.hidePageLoadingMsg()
+    
+      if match?[1]
+        params = LYT.router.getParams match[1]
+      else
+        params = {}
+    
+      params.term = jQuery.trim(decodeURI(params.term or "")) or null
+    
+      content = $(page).children( ":jqmData(role=content)" )
+    
+      LYT.search.attachAutocomplete $('#searchterm')
+      $("#searchterm").bind "autocompleteselect", (event, ui) ->
+        loadResults ui.item.value
+        $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
+        
+      # this allows for bookmarkable search terms
+      if params.term and $('#searchterm').val() isnt params.term
+        $('#searchterm').val params.term
+        loadResults params.term
+    
+      $("#search-form").submit (event) ->
+        log.message 'you searched'      
+        $('#searchterm').blur()
+        $.mobile.showPageLoadingMsg()
       
-      event.preventDefault()
-      event.stopImmediatePropagation()
+        term = encodeURI $('#searchterm').val()
+        loadResults $('#searchterm').val()
+        $.mobile.changePage "#search?term=#{term}" , transition: "none"
       
-      #$.mobile.changePage "#search",
-      #  allowSamePageTransition: true
-      #  type: "get"
-      #  data: $("form#search-form").serialize()
+        event.preventDefault()
+        event.stopImmediatePropagation()
       
-      #$.mobile.changePage("#{page}?term=#{$('#searchterm').val()}")
+        #$.mobile.changePage "#search",
+        #  allowSamePageTransition: true
+        #  type: "get"
+        #  data: $("form#search-form").serialize()
       
-      #LYT.search.full()
-      #  .done (results) ->
-      #    LYT.render.searchResults(results, content)
-      #    $.mobile.hidePageLoadingMsg()
+        #$.mobile.changePage("#{page}?term=#{$('#searchterm').val()}")
+      
+        #LYT.search.full()
+        #  .done (results) ->
+        #    LYT.render.searchResults(results, content)
+        #    $.mobile.hidePageLoadingMsg()
       
   
   
-  settings: (type, match, ui, page) ->
+  settings: (type, match, ui, page, event) ->
     style = LYT.settings.get('textStyle')
     
     $("#style-settings").find("input").each ->
@@ -208,7 +204,7 @@ LYT.control =
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
   
-  profile: (type, match, ui, page) ->
+  profile: (type, match, ui, page, event) ->
     $("#log-off").click (event) ->
       LYT.service.logOff()
     

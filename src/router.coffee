@@ -12,19 +12,19 @@ $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
-      events: "bc"
+      events: "bs,s"
     "#book-play([?].*)?":
       handler: "bookPlayer"
-      events: "bc"
+      events: "bs,s"
     "#book-index([?].*)?":
       handler: "bookIndex"
-      events: "bc"
+      events: "bs,s"
     "#settings":
       handler: "settings"
       events: "s"
     "#search([?].*)?":
       handler: "search"
-      events: "bc"
+      events: "bs,s"
     "#login":
       handler: "login"
       events: "s"
@@ -33,7 +33,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#bookshelf":
       handler: "bookshelf"
-      events: "bc"
+      events: "bs,s"
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
    
   $(LYT.service).bind "logon:rejected", () ->
