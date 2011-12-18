@@ -180,6 +180,7 @@ LYT.player =
   load: (@book, section = null, offset = 0, autoPlay = false) ->
     log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
     @book.done =>
+      jQuery("#book-duration").text @book.totalTime
       @whenReady =>
         @playlist = book.getPlaylist section
         
