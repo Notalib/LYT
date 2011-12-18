@@ -76,8 +76,8 @@ LYT.render =
               #{item.title}
             </a>""")
         
-        if book.id is LYT.player.book?.id and item.id is LYT.player.section?.id
-          element.append """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
+        # if book.id is LYT.player.book?.id and item.id is LYT.player.section?.id
+        #   element.append """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
         
         if item.children.length > 0
           nested = jQuery "<ol></ol>"
