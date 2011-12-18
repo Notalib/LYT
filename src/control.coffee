@@ -57,15 +57,12 @@ LYT.control =
         
         LYT.render.bookDetails(book, content)
         
-        content.find("#play-button").click (e) =>
-          e.preventDefault()
+        content.find("#play-button").click (event) =>
           $.mobile.changePage("#book-play?book=" + book.id)
+          event.preventDefault()
+          event.stopPropagation()
         
-        #LYT.render.covercacheOne content.find("figure"), bookId
-        
-        #$page.page()
         $.mobile.hidePageLoadingMsg()
-        #$.mobile.changePage page, options
       
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
