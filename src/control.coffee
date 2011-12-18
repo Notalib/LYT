@@ -154,7 +154,8 @@ LYT.control =
       $.mobile.showPageLoadingMsg()
       
       $.mobile.changePage "#search?term=#{$('#searchterm').val()}",
-        allowSamePageTransition: true
+        #allowSamePageTransition: true
+        #transition = none
       
       event.preventDefault()
       event.stopImmediatePropagation()

@@ -76,7 +76,6 @@ LYT.render =
           element.append nested
         list.append element
         
-        
     # Create an uordered list wrapper for the list
     list = view.children("ol").empty()
     list.attr "data-title", book.title
