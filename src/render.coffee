@@ -14,12 +14,17 @@ LYT.render =
     list.empty()
     # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
+      if book.id is LYT.player.book?.id?
+        nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
+      else
+        nowPlaying = ""
       list.append """
         <li>
           <a href="#book-play?book=#{book.id}">
             <img class="ui-li-icon cover-image" src="#{@getCover(book.id)}">
             <h3>#{book.title}</h3>
             <p>#{book.author}</p>
+            #{nowPlaying}
           </a>
         </li>"""
     
@@ -70,7 +75,10 @@ LYT.render =
             <a href="#book-play?book=#{book.id}&section=#{item.id}"> 
               #{item.title}
             </a>""")
-          
+        
+        if book.id is LYT.player.book?.id and item.id is LYT.player.section?.id
+          element.append """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
+        
         if item.children.length > 0
           nested = jQuery "<ol></ol>"
           mapper(nested, item.children)
@@ -93,12 +101,17 @@ LYT.render =
     
     if results.length > 0
       for item in results
+        if item.id is LYT.player.book?.id?
+          nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
+        else
+          nowPlaying = ""
         list.append """
           <li id="#{item.id}">
             <a href="#book-details?book=#{item.id}">
               <img class="ui-li-icon cover-image" src="#{@getCover(item.id)}">
               <h3>#{item.title}</h3>
               <p>#{item.author} | #{@getMediaType item.media}</p>
+              #{nowPlaying}
             </a>
           </li>"""
     

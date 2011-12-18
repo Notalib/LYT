@@ -93,7 +93,7 @@ LYT.control =
     header = $(page).children( ":jqmData(role=header)")
     $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
     
-    section = params.section or 0
+    section = params.section or null
     offset = params.offset or 0
     
     LYT.Book.load(params.book)
