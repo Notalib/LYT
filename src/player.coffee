@@ -66,6 +66,8 @@ LYT.player =
       loadstart: (event) =>
         log.message 'Player: load start'
         @updateHtml(event.jPlayer.status)
+        if jQuery.browser.webkit
+          @playOnIntent()
       
       ended: (event) =>
         if @autoProgression
@@ -143,8 +145,6 @@ LYT.player =
     
     #pl = @el.jPlayer.platform
     
-    if jQuery.browser.webkit
-      @el.jPlayer('play')
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
