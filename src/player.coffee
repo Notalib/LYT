@@ -71,16 +71,21 @@ LYT.player =
         if @autoProgression
           @nextSection()
       
-      canplay: (event) =>
-        #is not called in firefox 
-        log.message 'Player: can play'
+      canplaythrough: (event) =>
+        log.message 'Player: event can play through'
         @playOnIntent()
-        @updateHtml(event.jPlayer.status)       
+      
+      loadeddata: (event) =>
+        log.message 'Player: event loaded data'
+        @playOnIntent()
+      
+      canplay: (event) =>
+        log.message 'Player: event can play'
+        @playOnIntent()
       
       progress: (event) =>
-        #is not called in chrome
+        log.message 'Player: event progress'
         @playOnIntent()
-        @updateHtml(event.jPlayer.status)        
       
       error: (event) =>
         switch event.jPlayer.error.type
@@ -123,17 +128,24 @@ LYT.player =
     
     if @playIntentFlag
       log.message 'Player: play intent used'
-      @play(@playIntentOffset)  
+      @play(@playIntentOffset, false)  
       @playIntentFlag = false
       @playIntentOffset = null
               
   
-  play: (time, intent = false) ->
+  play: (time, setIntent = true) ->
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from 
     # when media was paused or from the beginning.
     
-    if intent
+    # android, chrome, ipad and firefox uses and intent
+    # safari uses a immediate play
+    
+    #pl = @el.jPlayer.platform
+    
+    if jQuery.browser.webkit
+      @el.jPlayer('play')
+    if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
       @playIntentOffset = time
@@ -204,7 +216,7 @@ LYT.player =
       @renderTranscript()
       @el.jPlayer "setMedia", {mp3: @media.audio}
       @el.jPlayer "load"
-      @play offset, true if autoPlay
+      @play offset if autoPlay
     
     @section.fail ->
       log.error "Player: Failed to load section #{section}"
