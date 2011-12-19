@@ -68,9 +68,10 @@ LYT.player =
         
         return if jQuery.jPlayer.platform.android
         return unless jQuery.browser.webkit    
-          log.message "only for safari laptop"
-          @updateHtml(event.jPlayer.status)
-          @playOnIntent()
+        
+        log.message "only for safari laptop"
+        @updateHtml(event.jPlayer.status)
+        @playOnIntent()
       
       ended: (event) =>
         if @autoProgression
