@@ -77,6 +77,10 @@ LYT.player =
         log.message 'Player: event can play through'
         @playOnIntent()
       
+      seeked: (event) =>
+        log.message 'Player: event seeked'
+        #@playOnIntent()
+      
       loadeddata: (event) =>
         log.message 'Player: event loaded data'
         @playOnIntent()
@@ -96,7 +100,7 @@ LYT.player =
             # try again before reporting error to user
           when $.jPlayer.error.NO_SOLUTION
             log.message 'jPlayer: no solution error, you need to install flash or update your browser.'
-
+      
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
@@ -127,11 +131,10 @@ LYT.player =
   
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
-    
     if @playIntentFlag
       log.message 'Player: play intent used'
-      @play(@playIntentOffset, false)  
       @playIntentFlag = false
+      @play(@playIntentOffset, false)
       @playIntentOffset = null
               
   
@@ -139,20 +142,27 @@ LYT.player =
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from 
     # when media was paused or from the beginning.
-    
     # android, chrome, ipad and firefox uses and intent
     # safari uses a immediate play
+    
+    #if $.jPlayer.platform.iphone
+    ##@el.jPlayer("playHead", 0)
     
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
       @playIntentOffset = time
       
+      ###
       if $.jPlayer.platform.iphone
+        # if on iphone use intent immediately because playing on progress events does not seem to work
+        log.message 'we are on iphone'
         @playOnIntent()
+      ###
       
     else
       log.message 'Player: Play'
+      @pause()
       if not time?
         @el.jPlayer('play')
       else
@@ -193,7 +203,7 @@ LYT.player =
       @el.bind $.jPlayer.event.ready, callback
   
   load: (book, section = null, offset = 0, autoPlay = false) ->
-    return if book.id is @book?.id
+    #return if book.id is @book?.id
     @book = book
     
     log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
@@ -210,7 +220,7 @@ LYT.player =
   
   
   playSection: (section, offset = 0, autoPlay = true) ->
-    return if section is @section
+    #return if section is @section
     @section = section
     
     @section.done =>
