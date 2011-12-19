@@ -65,8 +65,11 @@ LYT.player =
       
       loadstart: (event) =>
         log.message 'Player: load start'
-        @updateHtml(event.jPlayer.status)
-        if jQuery.browser.webkit
+        
+        return if jQuery.jPlayer.platform.android
+        return unless jQuery.browser.webkit    
+          log.message "only for safari laptop"
+          @updateHtml(event.jPlayer.status)
           @playOnIntent()
       
       ended: (event) =>
@@ -79,7 +82,9 @@ LYT.player =
       
       seeked: (event) =>
         log.message 'Player: event seeked'
-        #@playOnIntent()
+        #if jQuery.jPlayer.platform.iphone
+        #  log.message 'Player: this is iphone'
+        #  @playOnIntent()
       
       loadeddata: (event) =>
         log.message 'Player: event loaded data'
@@ -145,24 +150,19 @@ LYT.player =
     # android, chrome, ipad and firefox uses and intent
     # safari uses a immediate play
     
-    #if $.jPlayer.platform.iphone
-    ##@el.jPlayer("playHead", 0)
+    
+    if $.jPlayer.platform.iphone
+      log.message 'this is play on iphone'
+      @pause()
+      
     
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
       @playIntentOffset = time
       
-      ###
-      if $.jPlayer.platform.iphone
-        # if on iphone use intent immediately because playing on progress events does not seem to work
-        log.message 'we are on iphone'
-        @playOnIntent()
-      ###
-      
     else
       log.message 'Player: Play'
-      @pause()
       if not time?
         @el.jPlayer('play')
       else
