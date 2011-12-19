@@ -120,6 +120,7 @@ do ->
         cache:    yes
         success:  loaded
         error:    failed
+        timeout:  20000
         headers:
           # For some strange reason, this avoids a hanging bug in Chrome,
           # even though Chrome refuses to set this particular header...
