@@ -62,7 +62,12 @@ do ->
     clips = jQuery.makeArray clips
     clips.sort (a, b) -> a.start - b.start
     
-    # return as a straight array
+    # Collapse audio references into 1
+    if clips.length > 1
+      clip = clips[0]
+      clip.end = clips[clips.length-1].end
+      return [clip]
+    
     clips
   
   
