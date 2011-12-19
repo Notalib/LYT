@@ -46,19 +46,27 @@ LYT.player =
         
         # TODO: Disable next/prev buttons if there are not next/prev sections?
         # FIXME: Needs more error checking
+        jumpTo = (@media) =>
+          if @getStatus().paused
+            @el.jPlayer "pause", Math.ceil(@media.start)
+          else
+            @el.jPlayer "play", Math.ceil(@media.start)
+          @renderTranscript()
+          
+        
         @nextButton.click =>
           if @media?.hasNext()
-            @media = @media.getNext()
-            @play @media.start
+            jumpTo @media.getNext()
           else
             @nextSection()
+          false
         
         @previousButton.click =>
           if @media?.hasPrevious()
-            @media = @media.getPrevious()
-            @play @media.start
+            jumpTo @media.getPrevious()
           else
             @previousSection()
+          false
                      
       timeupdate: (event) =>
         @updateHtml(event.jPlayer.status)
@@ -177,8 +185,7 @@ LYT.player =
     
     @time = status.currentTime
     
-    return if @media? and @media.start < @time <= @media.end
-    
+    return if @media? and @media.start <= @time < @media.end
     @media = @section.mediaAtOffset @time
     
     log.warn "Player: failed to get media segment for offset #{@time}" unless @media?
@@ -257,10 +264,10 @@ LYT.player =
   
   nextSection: ->
     return null unless @playlist?.hasNextSection()
-    @playSection @playlist.next(), 0, true
+    @playSection @playlist.next(), 0, (@getStatus().paused is false)
   
   
   previousSection: ->
     return null unless @playlist?.hasPreviousSection()
-    @playSection @playlist.previous(), 0, true
+    @playSection @playlist.previous(), 0, (@getStatus().paused is false)
     
