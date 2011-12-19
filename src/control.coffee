@@ -60,6 +60,12 @@ LYT.control =
           event.preventDefault()
           event.stopImmediatePropagation()
         
+        content.find("#add-to-bookshelf-button").click (event) =>
+          LYT.bookshelf.add(book.id)
+          $.mobile.changePage("#bookshelf")
+          event.preventDefault()
+          event.stopImmediatePropagation()
+        
         $.mobile.hidePageLoadingMsg()
       
       .fail (error, msg) ->
