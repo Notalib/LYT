@@ -49,11 +49,11 @@ class LYT.Section
     this
   
   getOffset: ->
-    return null unless @document?.isResolved()
+    return null unless @document?.state() is "resolved"
     @document.absoluteOffset
   
   getAudioUrls: ->
-    return [] unless @document?.isResolved()
+    return [] unless @document?.state() is "resolved"
     urls = []
     for file in @document.getAudioReferences()
       url = @resources[file]?.url
@@ -129,7 +129,7 @@ class LYT.Section
         html:    null
       
       [contentUrl, contentId] = segment.text.src.split "#"
-      if @resources[contentUrl]?.document?.isResolved() and contentId
+      if @resources[contentUrl]?.document?.state() is "resolved" and contentId
         element = @resources[contentUrl].document.getContentById contentId
         media.text = jQuery.trim element.text()
         media.html = prepareContentElement element
@@ -152,7 +152,7 @@ class LYT.Section
       
       media
     
-    unless @document? and @document.isResolved()
+    unless @document? and @document.state() is "resolved"
       log.warn "Section: SMIL document not loaded"
       return null
     
