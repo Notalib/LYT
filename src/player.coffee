@@ -2,7 +2,7 @@
 # todo: provide a visual cue on the next and previous section buttons if there are no next or previous section.
 
 LYT.player = 
-  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" #dixie chicks as we test, replace with silent mp3 when moving to production
+  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" # FIXME: dixie chicks as we test, replace with silent mp3 when moving to production
   PROGRESSION_MODES:
     MP3:  'mp3'
     TEXT: 'text'
@@ -45,9 +45,11 @@ LYT.player =
         $.jPlayer.timeFormat.showHour = true
         
         # TODO: Disable next/prev buttons if there are not next/prev sections?
-        # FIXME: Needs more error checking
         jumpTo = (@media) =>
-          if @getStatus().paused
+          # Use Math.ceil() to prevent jPlayer from approximating to a slightly
+          # earlier point in time, which will cause the wrong media-object to be
+          # loaded
+          if @getStatus()?.paused
             @el.jPlayer "pause", Math.ceil(@media.start)
           else
             @el.jPlayer "play", Math.ceil(@media.start)
@@ -83,7 +85,7 @@ LYT.player =
       
       ended: (event) =>
         if @autoProgression
-          @nextSection()
+          @nextSection true
       
       canplaythrough: (event) =>
         log.message 'Player: event can play through'
@@ -262,12 +264,12 @@ LYT.player =
       log.error "Player: Failed to load section #{section}"
   
   
-  nextSection: ->
+  nextSection: (autoPlay = false) ->
     return null unless @playlist?.hasNextSection()
-    @playSection @playlist.next(), 0, (@getStatus().paused is false)
+    @playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
   
   
-  previousSection: ->
+  previousSection: (autoPlay = false) ->
     return null unless @playlist?.hasPreviousSection()
-    @playSection @playlist.previous(), 0, (@getStatus().paused is false)
+    @playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
     
