@@ -33,7 +33,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#bookshelf":
       handler: "bookshelf"
-      events: "bs,s"
+      events: "s"
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
    
   $(LYT.service).bind "logon:rejected", () ->
