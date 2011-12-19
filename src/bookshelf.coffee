@@ -1,13 +1,24 @@
 LYT.bookshelf =
-  
-  load: (page = 0) ->
-    if page is 0
-      from = 0 
-    else
-      from = page*5   
-    to = from+5
+  load: (page = 1) ->
+    deferred = jQuery.Deferred()
+    pageSize = 5
+    from = (page - 1) * pageSize
+    to   = from + pageSize
+    log.message "Bookshelf: Getting book from #{from} to #{to}"
+    response = LYT.service.getBookshelf(from, to)
+    response.done (list) ->
+      log.message "Bookshelf: Got #{list.length} book(s)"
+      if list.length >= pageSize
+        list.pop()
+        list.nextPage = page + 1
+      else
+        list.nextPage = false
+      deferred.resolve list
     
-    LYT.service.getBookshelf(from,to)
+    response.fail (args...) ->
+      deferred.reject args...
+    
+    deferred
     
   add: (id) ->
     LYT.service.issue(id)
