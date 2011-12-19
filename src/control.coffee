@@ -19,28 +19,31 @@ LYT.control =
   
   bookshelf: (type, match, ui, page, event) ->
     if type is 'pageshow'
+      log.message "Controller: Action bookshelf"
       content = $(page).children(":jqmData(role=content)")
-      pagenumber = 0
     
-      load = ->
+      load = (page = 1) ->
         $.mobile.showPageLoadingMsg()     
-        LYT.bookshelf.load(pagenumber)
+        LYT.bookshelf.load(page)
           .done (books) ->
-            LYT.render.bookshelf(books, content, pagenumber)
-            log.message books
+            LYT.render.bookshelf(books, content, page)
+            #log.message books
             $("#more-bookshelf-entries").unbind "click"
-            $("#more-bookshelf-entries").click (event) ->
-              pagenumber += 1
-              load()
-              event.preventDefault()
-              event.stopImmediatePropagation()
+            if books.nextPage
+              $("#more-bookshelf-entries").click (event) ->
+                load books.nextPage
+                event.preventDefault()
+                event.stopImmediatePropagation()
+              $("#more-bookshelf-entries").show()
+            else
+              $("#more-bookshelf-entries").hide()
           
             $.mobile.hidePageLoadingMsg()
-      
+        
           .fail (error, msg) ->
             log.message "failed with error #{error} and msg #{msg}"
     
-      load()
+        load()
   
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pageshow'
