@@ -143,12 +143,13 @@ LYT.player =
     # android, chrome, ipad and firefox uses and intent
     # safari uses a immediate play
     
-    #pl = @el.jPlayer.platform
-    
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
       @playIntentOffset = time
+      
+      if $.jPlayer.platform.iphone
+        @playOnIntent()
       
     else
       log.message 'Player: Play'
@@ -156,6 +157,8 @@ LYT.player =
         @el.jPlayer('play')
       else
         @el.jPlayer('play', time)
+        
+      
   
   updateHtml: (status) ->
     # Continously update player rendering for current time of section
