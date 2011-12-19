@@ -148,6 +148,9 @@ LYT.player =
       @playIntentFlag = true
       @playIntentOffset = time
       
+      if $.jPlayer.platform.iphone
+        @playOnIntent()
+      
     else
       log.message 'Player: Play'
       if not time?
@@ -155,8 +158,6 @@ LYT.player =
       else
         @el.jPlayer('play', time)
         
-    if $.jPlayer.platform.iphone
-      @playOnIntent()
       
   
   updateHtml: (status) ->
