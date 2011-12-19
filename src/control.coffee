@@ -32,20 +32,10 @@ LYT.control =
           $("#more-bookshelf-entries").click (event) ->
             pagenumber += 1
             load()
-            #event.preventDefault()
-            #event.stopImmediatePropagation()
-        
+            event.preventDefault()
+            event.stopImmediatePropagation()
+          
           $.mobile.hidePageLoadingMsg()
-        
-          ###
-          $content.find('a').click ->
-            alert 'We got some dixie chicks for ya while you wait for your book!'
-            if LYT.player.ready
-              LYT.player.silentPlay()
-            else
-              LYT.player.el.bind $.jPlayer.event.ready, (event) ->
-                LYT.player.silentPlay()
-          ###
       
         .fail (error, msg) ->
           log.message "failed with error #{error} and msg #{msg}"

@@ -20,19 +20,32 @@ LYT.render =
         nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
       else
         nowPlaying = ""
-      list.append """
-        <li>
+      
+        
+      el = $("""
+        <li data-book-id="#{book.id}">
           <a href="#book-play?book=#{book.id}">
             <img class="ui-li-icon cover-image" src="#{@getCover(book.id)}">
             <h3>#{book.title}</h3>
             <p>#{book.author}</p>
             #{nowPlaying}
           </a>
-        </li>"""
+          <a href="" title="Slet bog" class="remove-book"></a>     
+        </li>""")
+      
+      el.find('a.remove-book').click (event) ->
+        li = $(this).parent("li")
+        id = li.attr 'data-book-id'
+        log.message """Bookshelf: remove book with id #{id}"""
+        LYT.bookshelf.remove id
+        li.remove()
+      
+      list.append el
+      
+      
     
     # TODO: Temporary fix for missing covers
-    list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover
-    
+    list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover    
     list.listview('refresh')
   
   bookPlayer: (book, view) ->
