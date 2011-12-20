@@ -105,7 +105,7 @@ do ->
       
       resolve = =>
         if @source?
-          log.group "DTB: Got: #{@url}", document
+          log.group "DTB: Got: #{@url}", @source
           callback? deferred
           deferred.resolve this
         else
