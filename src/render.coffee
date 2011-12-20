@@ -26,8 +26,8 @@ LYT.render =
         <li data-book-id="#{book.id}">
           <a href="#book-play?book=#{book.id}">
             <img class="ui-li-icon cover-image" src="#{@getCover(book.id)}">
-            <h3>#{book.title}</h3>
-            <p>#{book.author}</p>
+            <h3>#{book.title or "&nbsp;"}</h3>
+            <p>#{book.author or "&nbsp;"}</p>
             #{nowPlaying}
           </a>
           <a href="" title="Slet bog" class="remove-book"></a>     
