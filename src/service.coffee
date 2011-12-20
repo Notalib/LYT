@@ -122,7 +122,7 @@ LYT.service = do ->
   # logOn -> getServiceAttributes -> setReadingSystemAttributes
   logOn = (username, password) ->
     # Check for pending logon processes
-    return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state is "pending"
+    return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state() is "pending"
     
     deferred = currentLogOnProcess = jQuery.Deferred()
     
@@ -202,6 +202,31 @@ LYT.service = do ->
   # ## Basic operations
   
   logOn: logOn
+  
+  # Silently attempt to refresh a session. I.e. if this fails, no logOn errors are
+  # emitted directly. This is intended for use with e.g. DTBDocument
+  refreshSession: ->
+    deferred = jQuery.Deferred()
+    
+    fail = -> deferred.reject()
+    
+    {username, password} = credentials if (credentials = getCredentials())
+    unless username and password
+      fail()
+      return deferred
+    
+    loggedOn = ->
+      LYT.rpc("getServiceAttributes").then gotServiceAttrs, fail
+    
+    gotServiceAttrs = ->
+      LYT.rpc("setReadingSystemAttributes").then readingSystemAttrsSet, fail
+    
+    readingSystemAttrsSet = ->
+      deferred.resolve()
+    
+    LYT.rpc("logOn", username, password).then loggedOn, fail
+    
+    deferred
   
   # TODO: Can logOff fail? If so, what to do? Very zen!  
   # Also, there should probably be some global "cancel all
