@@ -6,7 +6,8 @@ LYT.config =
   #     1 = Errors
   #     2 = Errors & warnings
   #     3 = Errors, warnings, and messages (everything)
-  logging: 3
+  # FIXME: Quick hack to lessen the logging on mobile devices
+  logging: if /android.+mobile|blackberry|iemobile|ip(hone|od)/i.test (navigator.userAgent or navigator.vendor) then 2 else 3
   
   # LYT.rpc function config
   rpc:
