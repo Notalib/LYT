@@ -10,6 +10,7 @@ do ->
         @absoluteOffset = parseTime(@getMetadata().totalElapsedTime?.content) or null
     
     getSegmentByTime: (offset = 0) ->
+      offset = 0 if offset < 0
       for segment, index in @segments
         return segment if segment.start <= offset < segment.end
       
