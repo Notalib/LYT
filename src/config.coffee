@@ -4,8 +4,9 @@ LYT.config =
   # The level of logging:  
   #     0 = No logging
   #     1 = Errors
-  #     2 = Everything
-  logging: 2
+  #     2 = Errors & warnings
+  #     3 = Errors, warnings, and messages (everything)
+  logging: 3
   
   # LYT.rpc function config
   rpc:
