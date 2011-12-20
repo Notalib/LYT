@@ -87,6 +87,11 @@ do ->
       
       
       loaded = (document, status, jqXHR) =>
+        # TODO: Now that the documents are all valid XHTML, they should be parsable
+        # as XML. I.e. `coerceToHTML` shouldn't be necessary _unlees_ there's a parsererror.
+        # But for some reason, that causes a problem elsewhere in the system, so right now
+        # _all_ html-type documents are forcibly sent through `coerceToHTML` even though
+        # it shouldn't be necessary...
         if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
           @source = coerceToHTML jqXHR.responseText
         else
@@ -127,7 +132,7 @@ do ->
         log.message "DTB: Getting: #{@url}"
         request = jQuery.ajax {
           url:      @url
-          dataType: dataType
+          dataType: dataType # TODO: It should be fine to just put "xml" here...
           async:    yes
           cache:    yes
           success:  loaded
