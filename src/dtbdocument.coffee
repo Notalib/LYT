@@ -86,20 +86,19 @@ do ->
       
       
       loaded = (document, status, jqXHR) =>
-        if dataType is "html" and jQuery(document).find("parsererror").length isnt 0
-          failed jqXHR, "parsererror", "parsererror"
+        if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
+          @source = coerceToHTML jqXHR.responseText
         else
           @source = jQuery document
-          resolve()
+        resolve()
       
       
       failed = (jqXHR, status, error) =>
         if status is "parsererror"
           log.error "DTB: Parser error in XML response. Attempting recovering"
           @source = coerceToHTML jqXHR.responseText
-          if @source?
-            resolve()
-            return
+          resolve()
+          return
         log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
         deferred.reject status, error
       
@@ -116,7 +115,7 @@ do ->
       
       request = jQuery.ajax {
         url:      @url
-        dataType: "xml"
+        dataType: dataType
         async:    yes
         cache:    yes
         success:  loaded
