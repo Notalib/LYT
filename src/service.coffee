@@ -48,9 +48,9 @@ LYT.service = do ->
     LYT.cache.remove "session", "credentials"
   
   
-  # The current logon process  
-  # TODO: Should this be accessible from the outside?
+  # The current logon process(es)
   currentLogOnProcess = null
+  currentRefreshSessionProcess = null
   
   # Emit an event
   emit = (event, data = {}) ->
@@ -123,6 +123,8 @@ LYT.service = do ->
   logOn = (username, password) ->
     # Check for pending logon processes
     return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state() is "pending"
+    
+    currentRefreshSessionProcess.reject() if currentRefreshSessionProcess? and currentRefreshSessionProcess.state() is "pending"
     
     deferred = currentLogOnProcess = jQuery.Deferred()
     
@@ -204,9 +206,12 @@ LYT.service = do ->
   logOn: logOn
   
   # Silently attempt to refresh a session. I.e. if this fails, no logOn errors are
-  # emitted directly. This is intended for use with e.g. DTBDocument
+  # emitted directly. This is intended for use with e.g. DTBDocument.
+  # However, if there's an explicit logon process running, it'll use that
   refreshSession: ->
-    deferred = jQuery.Deferred()
+    return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state() is "pending"
+    return currentRefreshSessionProcess if currentRefreshSessionProcess? and currentRefreshSessionProcess.state() is "pending"
+    deferred = currentRefreshSessionProcess = jQuery.Deferred()
     
     fail = -> deferred.reject()
     
