@@ -75,6 +75,7 @@ do ->
       
       @source = null
       dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
+      attempts = 3
       
       coerceToHTML = (responseText) =>
         log.message "DTB: Coercing #{@url} into HTML"
@@ -99,6 +100,16 @@ do ->
           @source = coerceToHTML jqXHR.responseText
           resolve()
           return
+        
+        if status is 403 and attempts > 0
+          log.warn "DTB: Access forbidden - refreshing session"
+          LYT.service.refreshSession()
+            .done load
+            .fail ->
+              log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
+              deferred.reject status, error
+          return
+        
         log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
         deferred.reject status, error
       
@@ -111,22 +122,24 @@ do ->
         else
           deferred.reject -1, "FAILED_TO_LOAD"
       
-      log.message "DTB: Getting: #{@url}"
+      load = =>
+        --attempts
+        log.message "DTB: Getting: #{@url}"
+        request = jQuery.ajax {
+          url:      @url
+          dataType: dataType
+          async:    yes
+          cache:    yes
+          success:  loaded
+          error:    failed
+          timeout:  20000
+          headers:
+            # For some strange reason, this avoids a hanging bug in Chrome,
+            # even though Chrome refuses to set this particular header...
+            connection: "close"
+        }
       
-      request = jQuery.ajax {
-        url:      @url
-        dataType: dataType
-        async:    yes
-        cache:    yes
-        success:  loaded
-        error:    failed
-        timeout:  20000
-        headers:
-          # For some strange reason, this avoids a hanging bug in Chrome,
-          # even though Chrome refuses to set this particular header...
-          connection: "close"
-      }
-      
+      load()
       deferred
     
     
