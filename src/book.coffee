@@ -14,6 +14,25 @@ class LYT.Book
     (id) -> loaded[id] or (loaded[id] = new LYT.Book id)
   
   
+  this.getDetails = do ->
+    loaded = {}
+    (id) ->
+      deferred = jQuery.Deferred()
+      if loaded[id]?
+        deferred.resolve loaded[id]
+        return deferred
+      
+      LYT.service.getMetadata(id)
+        .done (metadata) ->
+          loaded[id] = metadata
+          deferred.resolve metadata
+        
+        .fail (args...) ->
+          deferred.reject args...
+      
+      deferred
+  
+  
   # The constructor takes one argument; the ID of the book.  
   # The instantiated object acts as a Deferred object, as the instantiation of a book
   # requires several RPCs and file downloads, all of which are performed asynchronously.
