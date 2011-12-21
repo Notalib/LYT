@@ -37,13 +37,13 @@ LYT.control =
               $("#more-bookshelf-entries").show()
             else
               $("#more-bookshelf-entries").hide()
-          
+            
             $.mobile.hidePageLoadingMsg()
-        
+          
           .fail (error, msg) ->
             log.message "failed with error #{error} and msg #{msg}"
-    
-        load()
+        
+      load()
   
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pageshow'
