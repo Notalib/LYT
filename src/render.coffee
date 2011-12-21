@@ -72,6 +72,9 @@ LYT.render =
     $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
   
   bookIndex: (book, view) ->  
+    # Set the back button's href
+    $("#index-back-button").attr "href", "#book-play?book=#{book.id}"
+    
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
       for item in items
