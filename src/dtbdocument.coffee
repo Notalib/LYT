@@ -135,7 +135,7 @@ do ->
       load = =>
         --attempts
         url = @url
-        if LYT.config.dtbDocument?.useForceClose?
+        if LYT.config.dtbDocument.useForceClose
           forceCloseMsg = "[forceclose ON]"
           # TODO: Hack'y way of appending the `forceclose` parameter... ugh
           if /\?.+$/.test url
