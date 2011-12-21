@@ -106,16 +106,20 @@ do ->
           resolve()
           return
         
-        if status is 403 and attempts > 0
+        if jqXHR.status is 403 and attempts > 0
           log.warn "DTB: Access forbidden - refreshing session"
           LYT.service.refreshSession()
             .done load
             .fail ->
-              log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
+              log.errorGroup "DTB: Failed to get #{@url} (status: #{status})", jqXHR, status, error
               deferred.reject status, error
           return
         
-        log.errorGroup "DTB: Failed to get #{@url}", jqXHR, status, error
+        if status isnt "abort" and attempts > 0
+          load()
+          return
+        
+        log.errorGroup "DTB: Failed to get #{@url} (status: #{status})", jqXHR, status, error
         deferred.reject status, error
       
       
@@ -129,19 +133,15 @@ do ->
       
       load = =>
         --attempts
-        log.message "DTB: Getting: #{@url}"
+        log.message "DTB: Getting: #{@url} (#{attempts} attempts left)"
         request = jQuery.ajax {
-          url:      @url
-          dataType: dataType # TODO: It should be fine to just put "xml" here...
+          url:      @url + "&forceclose=true"
+          dataType: dataType # TODO: It should be fine to just put "xml" here... but it ain't
           async:    yes
           cache:    yes
           success:  loaded
           error:    failed
           timeout:  20000
-          headers:
-            # For some strange reason, this avoids a hanging bug in Chrome,
-            # even though Chrome refuses to set this particular header...
-            connection: "close"
         }
       
       load()
