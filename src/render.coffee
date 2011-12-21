@@ -8,12 +8,11 @@ LYT.render =
     log.message 'Render: init'
     @setStyle()
     
-  bookshelf: (books, view, n) ->
+  bookshelf: (books, view, page) ->
     #todo: add pagination
     list = view.find("ul")
-    if n is 0
-      list.empty()
-      
+    list.empty() if page is 1
+    
     # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
       if book.id is LYT.player.book?.id?
