@@ -39,6 +39,10 @@ LYT.config =
   service:
     logOnAttempts: 3
   
+  # LYT.bookshelf module config
+  bookshelf:
+    pageSize: 5
+  
   # LYT.search config
   search:
     # Full (free text) search options
