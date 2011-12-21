@@ -101,6 +101,10 @@ class LYT.Section
       resolveRelativeUrl = (relative) ->
         getResource(relative)?.url or null
       
+      # Prepare HTML content for display:
+      #
+      # 1. Remove links (leaving their text content in place)
+      # 2. Make relative `src` attributes (i.e. images) absolute
       prepareContentElement = (element) ->
         # Check the input
         return null if not element? or element.length is 0

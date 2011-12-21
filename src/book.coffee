@@ -9,11 +9,15 @@ window.BOOK_BOOKMARKS_NOT_LOADED_ERROR = {}
 class LYT.Book
   
   # Factory-method
+  # Note: Instances are cached in memory
   this.load = do ->
     loaded = {}
     (id) -> loaded[id] or (loaded[id] = new LYT.Book id)
   
   
+  # "Class"/"static" method for retrieving a
+  # book's metadata  
+  # Note: Results are cached in memory
   this.getDetails = do ->
     loaded = {}
     (id) ->

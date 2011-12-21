@@ -1,3 +1,5 @@
+# This class models a "playlist" of book sections
+
 class LYT.Playlist
   
   constructor: (@sections, @resources, initialSectionId = null) ->

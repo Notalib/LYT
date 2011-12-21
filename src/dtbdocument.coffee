@@ -70,25 +70,42 @@ do ->
     #
     # `LYT.DTBDocument` acts as a Deferred.
     constructor: (@url, callback = null) ->
+      # The instance will act as a Deferred
       deferred = jQuery.Deferred()
       deferred.promise this
       
+      # This instance property will hold the XML/HTML
+      # document, once it's been downloaded
       @source = null
+      
+      # Set up some local variables
       dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
       attempts = 3
       
+      # Internal function to convert raw text to a HTML DOM document
       coerceToHTML = (responseText) =>
         log.message "DTB: Coercing #{@url} into HTML"
+        # Grab everything inside the "root" `<html></html>` element
         markup = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        
+        # Give up, if nothing was found
         return null unless (markup = markup[1])?
+        
+        # Create the DOM document
+        # Note: This function has limited support in older browsers!
         html = document.implementation.createHTMLDocument ""
+        
+        # Insert the markup into the document
         html.documentElement.innerHTML = markup
+        
+        # Wrap it with jQuery and return it
         jQuery html
       
       
+      # This function will be called, when a DTB document has been successfully downloaded
       loaded = (document, status, jqXHR) =>
-        # TODO: Now that the documents are all valid XHTML, they should be parsable
-        # as XML. I.e. `coerceToHTML` shouldn't be necessary _unlees_ there's a parsererror.
+        # TODO: Now that all the documents _should be_ valid XHTML, they should be parsable
+        # as XML. I.e. `coerceToHTML` shouldn't be necessary _unless_ there's a `parsererror`.
         # But for some reason, that causes a problem elsewhere in the system, so right now
         # _all_ html-type documents are forcibly sent through `coerceToHTML` even though
         # it shouldn't be necessary...
@@ -99,6 +116,7 @@ do ->
         resolve()
       
       
+      # This function will be called if `load()` (below) fails
       failed = (jqXHR, status, error) =>
         if status is "parsererror"
           log.error "DTB: Parser error in XML response. Attempting recovering"
@@ -106,6 +124,7 @@ do ->
           resolve()
           return
         
+        # If access was denied, try silently logging in and then try again
         if jqXHR.status is 403 and attempts > 0
           log.warn "DTB: Access forbidden - refreshing session"
           LYT.service.refreshSession()
@@ -115,15 +134,18 @@ do ->
               deferred.reject status, error
           return
         
+        # If the failure was due to something else (and wasn't an explicit abort)
+        # try again, if there are any attempts left
         if status isnt "abort" and attempts > 0
           log.warn "DTB: Unexpected failure (#{attempts} attempts left)"
           load()
           return
         
+        # If all else fails, give up
         log.errorGroup "DTB: Failed to get #{@url} (status: #{status})", jqXHR, status, error
         deferred.reject status, error
       
-      
+      # Resolve the promise
       resolve = =>
         if @source?
           log.group "DTB: Got: #{@url}", @source
@@ -132,6 +154,7 @@ do ->
         else
           deferred.reject -1, "FAILED_TO_LOAD"
       
+      # Perform the actual AJAX request to load the file
       load = =>
         --attempts
         url = @url

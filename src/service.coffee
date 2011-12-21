@@ -258,6 +258,12 @@ LYT.service = do ->
     withLogOn -> LYT.rpc "getContentResources", bookId
   
   
+  # The the list of issued content (i.e. the bookshelf)
+  # Note: The `getContentList` API gets items by range
+  # I.e. from 1 item index to (and including) another
+  # index. So getting item 0 to 5, will get you 6 items.
+  # Specifying `-1` as the `to` argument will get all
+  # items from the `from` index to the end of the list
   getBookshelf: (from = 0, to = -1) ->
     deferred = jQuery.Deferred()
     
