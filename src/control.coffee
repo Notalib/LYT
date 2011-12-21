@@ -52,25 +52,30 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
         
-      LYT.Book.load(params.book)
-        .done (book) ->
-          log.message book
-        
-          LYT.render.bookDetails(book, content)
-        
-          content.find("#play-button").click (event) =>
-            $.mobile.changePage("#book-play?book=" + book.id)
+      LYT.Book.getDetails(params.book)
+        .done (details) ->
+          LYT.render.bookDetails(details, content)
+          
+          content.find("#play-button").click (event) ->
+            $.mobile.changePage("#book-play?book=#{params.book}")
             event.preventDefault()
             event.stopImmediatePropagation()
-        
-          content.find("#add-to-bookshelf-button").click (event) =>
-            LYT.bookshelf.add(book.id)
-            $.mobile.changePage("#bookshelf")
+          
+          content.find("#add-to-bookshelf-button").one "click", (event) ->
+            $.mobile.showPageLoadingMsg()
+            # TODO: This is far from perfect: The loading-thing might
+            # blink on and off due to the changePage, there's no way
+            # of knowing if something's already on the shelf, etc.
+            LYT.bookshelf.add(params.book)
+              .done ->
+                $.mobile.changePage("#bookshelf")
+              .always ->
+                $.mobile.hidePageLoadingMsg()
             event.preventDefault()
             event.stopImmediatePropagation()
-        
+          
           $.mobile.hidePageLoadingMsg()
-      
+        
         .fail (error, msg) ->
           log.message "failed with error #{error} and msg #{msg}"
   

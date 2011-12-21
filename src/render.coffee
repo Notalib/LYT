@@ -52,10 +52,12 @@ LYT.render =
     view.find("#author").text book.author
     #view.find("#book_chapter").text section.title
     
-  bookDetails: (book, view) ->
-    view.find("#title").text book.title
-    view.find("#author").text book.author
-    view.find("#totaltime").text book.totalTime
+  bookDetails: (details, view) ->
+    view.find("#title").text details.title
+    view.find("#author").text details.author
+    view.find("#description").text details.description
+    # TODO: totalTime isn't available in getContentMetadata
+    # view.find("#totaltime").text details.totalTime
     
   getCover: (id) ->
     "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
