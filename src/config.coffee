@@ -56,3 +56,5 @@ LYT.config =
       setup:
         minLength: 2
   
+  dtbDocument:
+    useForceClose: yes

@@ -116,6 +116,7 @@ do ->
           return
         
         if status isnt "abort" and attempts > 0
+          log.warn "DTB: Unexpected failure (#{attempts} attempts left)"
           load()
           return
         
@@ -133,9 +134,20 @@ do ->
       
       load = =>
         --attempts
-        log.message "DTB: Getting: #{@url} (#{attempts} attempts left)"
+        url = @url
+        if LYT.config.dtbDocument?.useForceClose?
+          forceCloseMsg = "[forceclose ON]"
+          # TODO: Hack'y way of appending the `forceclose` parameter... ugh
+          if /\?.+$/.test url
+            url = "#{url}&forceclose=true"
+          else
+            url = "#{url}?forceclose=true"
+        else
+          forceCloseMsg = ""
+          
+        log.message "DTB: Getting: #{@url} (#{attempts} attempts left) #{forceCloseMsg}"
         request = jQuery.ajax {
-          url:      @url + "&forceclose=true"
+          url:      url
           dataType: dataType # TODO: It should be fine to just put "xml" here... but it ain't
           async:    yes
           cache:    yes
