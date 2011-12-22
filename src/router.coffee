@@ -39,6 +39,9 @@ $(document).bind "mobileinit", ->
   $(LYT.service).bind "logon:rejected", () ->
     $.mobile.changePage "#login"
   
+  $(LYT.service).bind "logoff", ->
+    $.mobile.changePage "#login"
+  
   $("[data-role=page]").live "pageshow", (event, ui) ->
     _gaq.push [ "_trackPageview", event.target.id ]
   
