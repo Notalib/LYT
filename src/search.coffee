@@ -11,12 +11,35 @@ window.SEARCH_GENERAL_ERROR = {}
 # Define the `LYT.search` object
 LYT.search = do ->
   
-  autocompleteCache: {}
+  autocompleteCache = {}
+  
+  # Sorting options for the server-side `SearchFlex` function
+  SORTING_OPTIONS =
+    "new":        1 # default
+    "lastmonth":  2
+    "last3month": 3
+    "thisyear":   4
+    "forever":    5
+    "author":     6
+    "title":      7
+    "yearasc":    8
+    "yeardesc":   9
+    "series":     10
+  
+  # Fields to be searched by the server-side `SearchFlex` function
+  FIELD_OPTIONS =
+    "freetext": 0 # all fields (default)
+    "author":   1
+    "title":    2
+    "keywords": 3
+    "speaker":  4
+    "teaser":   5
+    "series":   6
   
   # Internal helper to build the AJAX options.  
   # Takes to 2 arguments: The URL to call, and
   # and the data (as an object) to send
-  getOptions = (url, data) ->
+  getAjaxOptions = (url, data) ->
     dataType:    "json"
     type:        "POST"
     contentType: "application/json; charset=utf-8"
@@ -32,10 +55,15 @@ LYT.search = do ->
   # `SEARCH_GENERAL_ERROR` constant, the response status, and
   # the error thrown
   full = (term, page = 1) ->
-    params = jQuery.extend {term: term, pagenbr: page}, LYT.config.search.full.parameters
+    # Get the search params
+    params =
+      term:     term
+      options:
+        pagesize: LYT.config.search.full.pageSize
+        pagenbr:  page
     
     # Get the ajax options
-    options = getOptions LYT.config.search.full.url, params
+    options = getAjaxOptions LYT.config.search.full.url, params
     
     # Create the deferred
     deferred = jQuery.Deferred()
@@ -68,7 +96,7 @@ LYT.search = do ->
       
       # TODO: Temporary
       results.currentPage = currentPage
-      if results.length >= LYT.config.search.full.parameters.pagesize
+      if results.length >= LYT.config.search.full.pageSize
         results.nextPage = currentPage + 1
       else
         results.nextPage = false
@@ -114,8 +142,8 @@ LYT.search = do ->
     setup.source = (request, response) ->
       # Create the AJAX options. Since `request` is a simple object containing
       # a single value, called `term`, the request object can be sent directly
-      # to the `getOptions` helper
-      options = getOptions LYT.config.search.autocomplete.url, request
+      # to the `getAjaxOptions` helper
+      options = getAjaxOptions LYT.config.search.autocomplete.url, request
       
       # An internal function to be called when the AJAX call completes
       complete = (results) ->
@@ -131,16 +159,16 @@ LYT.search = do ->
         #log.message "Search: Emitting autocomplete event"
         jQuery(LYT.search).trigger event
       
-      # if autocompleteCache[request.term]?
-      #   complete autocompleteCache[request.term]
-      #   return
+      if autocompleteCache[request.term]?
+        complete autocompleteCache[request.term]
+        return
       
       # Perform the request
       jQuery.ajax(options)
         # On success, extract the results
         .done (data) ->
-          results = (item.term for item in data.d) if data? and data.d?
-          #autocompleteCache[request.term] = results
+          results = data.d or []
+          autocompleteCache[request.term] = results
           complete results
         # On fail, just call `complete`
         .fail complete
