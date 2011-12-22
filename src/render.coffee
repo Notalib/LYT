@@ -1,19 +1,17 @@
 # This module handles gui callbacks and various utility functions
 
-LYT.render =
+LYT.render = do ->
   
-  defaultCover: "/images/icons/default-cover.png"
+  # ## Privileged API
   
-  init: () ->
-    log.message 'Render: init'
-    @setStyle()
-  
+  # Default book cover image
+  defaultCover = "/images/icons/default-cover.png"
   
   # Create a book list-item which links to the `target` page
-  bookListItem: (target, book) ->
+  bookListItem = (target, book) ->
     info = []
     info.push book.author if book.author?
-    info.push @getMediaType(book.media) if book.media?
+    info.push getMediaType(book.media) if book.media?
     info = info.join "&nbsp;&nbsp;|&nbsp;&nbsp;"
     
     if book.id is LYT.player.book?.id?
@@ -22,7 +20,7 @@ LYT.render =
     element = jQuery """
     <li data-book-id="#{book.id}">
       <a href="##{target}?book=#{book.id}">
-        <img class="ui-li-icon cover-image" src="#{LYT.render.defaultCover}">
+        <img class="ui-li-icon cover-image" src="#{defaultCover}">
         <h3>#{book.title or "&nbsp;"}</h3>
         <p>#{info or "&nbsp;"}</p>
         #{nowPlaying or ""}
@@ -33,9 +31,34 @@ LYT.render =
     # Attempt to get the book's cover image
     cover = new Image
     cover.onload = -> element.find("img.cover-image").attr "src", @src
-    cover.src = @getCover book.id
+    cover.src = getCover book.id
     
     return element
+  
+  getCover = (id) ->
+    return LYT.render.defaultCover unless id?
+    # TODO: It'd be nice to get this URL cut down a bit. Maybe just an absolute path
+    "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
+  
+  getMediaType = (mediastring) ->
+    if /\bAA\b/i.test mediastring
+      "Lydbog"
+    else
+      "Lydbog med tekst"
+  
+  setStyle = ->
+    log.message 'Render: setting custom style'
+    $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
+  
+  
+  # ## Public API
+  
+  init: ->
+    log.message 'Render: init'
+    setStyle()
+  
+  
+  setStyle: setStyle
   
   
   bookshelf: (books, view, page) ->
@@ -45,7 +68,7 @@ LYT.render =
     
     # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
-      li = @bookListItem "book-play", book
+      li = bookListItem "book-play", book
       removeLink = jQuery """<a href="" title="Slet bog" class="remove-book"></a>"""
       removeLink.click (event) ->
         LYT.bookshelf.remove(book.id).done -> li.remove()
@@ -55,11 +78,13 @@ LYT.render =
     
     list.listview('refresh')
   
+  
   bookPlayer: (book, view) ->
     view.find("#title").text book.title  
     view.find("#author").text book.author
     #view.find("#book_chapter").text section.title
     
+  
   bookDetails: (details, view) ->
     view.find("#title").text details.title
     view.find("#author").text details.author
@@ -67,18 +92,6 @@ LYT.render =
     # TODO: totalTime isn't available in getContentMetadata
     # view.find("#totaltime").text details.totalTime
     
-  getCover: (id) ->
-    "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
-    
-  getMediaType: (mediastring) ->
-    if /\bAA\b/i.test mediastring
-      "Lydbog"
-    else
-      "Lydbog med tekst"
-  
-  setStyle: () ->
-    log.message 'Render: setting custom style'
-    $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
   
   bookIndex: (book, view) ->  
     # Set the back button's href
@@ -118,11 +131,12 @@ LYT.render =
     
     list.listview('refresh')
   
+  
   searchResults: (results, view) ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1
     
-    list.append @bookListItem("book-details", result) for result in results
+    list.append bookListItem("book-details", result) for result in results
     
     if results.nextPage
       $("#more-search-results").show()
