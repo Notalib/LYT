@@ -7,7 +7,37 @@ LYT.render =
   init: () ->
     log.message 'Render: init'
     @setStyle()
+  
+  
+  # Create a book list-item which links to the `target` page
+  bookListItem: (target, book) ->
+    info = []
+    info.push book.author if book.author?
+    info.push @getMediaType(book.media) if book.media?
+    info = info.join "&nbsp;&nbsp;|&nbsp;&nbsp;"
     
+    if book.id is LYT.player.book?.id?
+      nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing" alt="">"""
+    
+    element = jQuery """
+    <li data-book-id="#{book.id}">
+      <a href="##{target}?book=#{book.id}">
+        <img class="ui-li-icon cover-image" src="#{LYT.render.defaultCover}">
+        <h3>#{book.title or "&nbsp;"}</h3>
+        <p>#{info or "&nbsp;"}</p>
+        #{nowPlaying or ""}
+      </a>
+    </li>
+    """
+    
+    # Attempt to get the book's cover image
+    cover = new Image
+    cover.onload = -> element.find("img.cover-image").attr "src", @src
+    cover.src = @getCover book.id
+    
+    return element
+  
+  
   bookshelf: (books, view, page) ->
     #todo: add pagination
     list = view.find("ul")
@@ -15,36 +45,14 @@ LYT.render =
     
     # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
-      if book.id is LYT.player.book?.id?
-        nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
-      else
-        nowPlaying = ""
+      li = @bookListItem "book-play", book
+      removeLink = jQuery """<a href="" title="Slet bog" class="remove-book"></a>"""
+      removeLink.click (event) ->
+        LYT.bookshelf.remove(book.id).done -> li.remove()
       
-        
-      el = $("""
-        <li data-book-id="#{book.id}">
-          <a href="#book-play?book=#{book.id}">
-            <img class="ui-li-icon cover-image" src="#{@getCover(book.id)}">
-            <h3>#{book.title or "&nbsp;"}</h3>
-            <p>#{book.author or "&nbsp;"}</p>
-            #{nowPlaying}
-          </a>
-          <a href="" title="Slet bog" class="remove-book"></a>     
-        </li>""")
-      
-      el.find('a.remove-book').click (event) ->
-        li = $(this).parent("li")
-        id = li.attr 'data-book-id'
-        log.message """Bookshelf: remove book with id #{id}"""
-        LYT.bookshelf.remove id
-        li.remove()
-      
-      list.append el
-      
-      
+      li.append removeLink
+      list.append li
     
-    # TODO: Temporary fix for missing covers
-    list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover    
     list.listview('refresh')
   
   bookPlayer: (book, view) ->
@@ -114,29 +122,12 @@ LYT.render =
     list = view.find "ul"
     list.empty() if results.currentPage is 1
     
-    if results.length > 0
-      for item in results
-        if item.id is LYT.player.book?.id?
-          nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
-        else
-          nowPlaying = ""
-        list.append """
-          <li id="#{item.id}">
-            <a href="#book-details?book=#{item.id}">
-              <img class="ui-li-icon cover-image" src="#{@getCover(item.id)}">
-              <h3>#{item.title}</h3>
-              <p>#{item.author} | #{@getMediaType item.media}</p>
-              #{nowPlaying}
-            </a>
-          </li>"""
+    list.append @bookListItem("book-details", result) for result in results
     
-    # TODO: Temporary fix for missing covers
-    list.find("img.cover-image").one "error", (event) -> @src = LYT.render.defaultCover
-    
-    # TODO: Temporary, I hope
     if results.nextPage
       $("#more-search-results").show()
     else
       $("#more-search-results").hide()
     
     list.listview('refresh')
+  
