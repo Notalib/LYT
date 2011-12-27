@@ -77,7 +77,7 @@ task "lint:html", "validate build/index.html", (options) ->
 
 task "lint:css", "validate css/nota.css", (options) ->
   w3c = require "./tools/support/w3c"
-  find "#{ROOT}/css", "*.css", (err, files) ->
+  find "#{DEST}/css", "*.css", (err, files) ->
     throw err if err?
     iterator = ->
       return if files.length is 0
