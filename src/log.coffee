@@ -1,38 +1,38 @@
-# TODO: Split this file up? Perhaps namespace some of it
-# under `LYT`? Or `utils`. Just seems a little weird that
-# the global logging functions are dependent on e.g.
-# `LYT.config`
-
 # A facade for `console.*` functions
-#
-# These functions respect the `config.logging` setting
 @log = do ->
   console = window.console or {}
+  
+  # The level of logging:  
+  #     0 = No logging
+  #     1 = Errors
+  #     2 = Errors & warnings
+  #     3 = Errors, warnings, and messages (everything)
+  level: 3
   
   # Error-checking alias for `console.log()`  
   # Logging level: 3 or higher
   message: (messages...) ->
-    return unless LYT.config.logging > 2
+    return unless log.level > 2
     console.log? messages...
   
   # Error-checking alias for `console.error()` (falls back to `console.log`)  
   # Logging level: 1 or higher
   error: (messages...) ->
-    return unless LYT.config.logging > 0
+    return unless log.level > 0
     method = console.error or console.log
     method?.apply console, messages
   
   # Error-checking alias for `console.warn()` (falls back to `console.log`)  
   # Logging level: 2 or higher
   warn: (messages...) ->
-    return unless LYT.config.logging > 1
+    return unless log.level > 1
     method = console.warn or console.log
     method?.apply console, messages
   
   # Error-checking alias for `console.info()` (falls back to `console.log`)  
   # Logging level: 3 or higher
   info: (messages...) ->
-    return unless LYT.config.logging > 2
+    return unless log.level > 2
     (console.info or @message).apply console, messages
   
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
@@ -44,7 +44,7 @@
   # 
   # Logging level: 3 or higher
   group: (title = "", messages...) ->
-    return unless LYT.config.logging > 2
+    return unless log.level > 2
     method = console.groupCollapsed or console.group
     if method?
       method.call console, title
@@ -58,7 +58,7 @@
   # Same as `group` except it'll log when `config.logging` is 1 or higher  
   # Logging level: 1 or higher and messages will be logged as errors
   errorGroup: (title = "", messages...) ->
-    return unless LYT.config.logging > 0
+    return unless log.level > 0
     method = console.groupCollapsed or console.group
     if method?
       method.call console, title
@@ -70,13 +70,14 @@
       @closeGroup()
   
   # Closes an open group
-  # Logging level: N/A
+  # Logging level: 1 or higher
   closeGroup: ->
-    (console.groupEnd or @message).call console, "=== *** ==="
+    return unless log.level > 0
+    (console.groupEnd or @message)?.call console, "=== *** ==="
   
   # Error-checking alias for `console.trace`  
   # Logging level: 1 or higher
   trace: ->
-    return unless LYT.config.logging > 0
+    return unless log.level > 0
     console.trace?()
   
