@@ -55,6 +55,7 @@ task "tests", "compile the tests (also compiles src/)", (options) ->
     throw err if err?
     fs.readFile "#{ROOT}/test/index.html", "utf8", (err, html) ->
       throw err if err?
+      options.files = (require "./test/src/_manifest.js").files
       html = insertScriptTags options, html, null, "#{DEST}/test/"
       fs.writeFileSync "#{DEST}/test/index.html", html, "utf8"
       console.log "wrote build/test/index.html"
@@ -174,6 +175,8 @@ insertScriptTags = (options, html, base = "#{DEST}/javascript", relativeTo = DES
   timestamp = (new Date).getTime()
   if options.concat
     files = [CONCAT_NAME]
+  else if options.files?
+    files = options.files
   else
     {files} = require "./src/_manifest.js"
   files = (fs.path.relative relativeTo, "#{base}/#{file}.js" for file in files)
