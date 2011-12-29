@@ -80,7 +80,8 @@ do ->
       
       # Set up some local variables
       dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
-      attempts = 3
+      attempts = LYT.config.dtbDocument?.attempts? or 3
+      useForceClose = yes unless LYT.config.dtbDocument?.useForceClose? is no
       
       # Internal function to convert raw text to a HTML DOM document
       coerceToHTML = (responseText) =>
@@ -158,7 +159,7 @@ do ->
       load = =>
         --attempts
         url = @url
-        if LYT.config.dtbDocument.useForceClose
+        if useForceClose
           forceCloseMsg = "[forceclose ON]"
           # TODO: Hack'y way of appending the `forceclose` parameter... ugh
           if /\?.+$/.test url

@@ -12,20 +12,35 @@
 	
 	<!-- Extras -->
 	<script type="text/javascript" charset="utf-8">
+		// Returns a function to call each time an
+		// asynchronous test completes
 		function createAsyncCounter(count) {
 			count = count || 1;
 			return function() { --count || start(); };
 		}
 		
+		// Sets the `X-TestVariant` header on all jQuery AJAX calls
+		// (as long is it's not overridden locally when performing
+		// the call itself). For use with the test server  
+		// Arguments:
+		//   variant: The variant name to use (optional)
+		//   tests:   A callback containing the tests
 		function requestVariant(variant, tests) {
-			var headers = LYT.config.rpc.options.headers || (LYT.config.rpc.options.headers = {});
+			// Shift arguments
 			if( !tests ) {
 				tests = variant;
 				variant = null;
 			}
-			headers["X-TestVariant"] = variant;
+			// Set the headers
+			jQuery.ajaxSetup({
+				headers: { "X-TestVariant": variant }
+			});
+			// Run the tests
 			tests();
-			delete headers["X-TestVariant"];
+			// Remove the headers
+			jQuery.ajaxSetup({
+				headers: null
+			});
 		}
 		
 		QUnit.config.testTimeout = 5000

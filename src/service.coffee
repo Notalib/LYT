@@ -142,7 +142,7 @@ LYT.service = do ->
     session.password = password
     
     # The maximum number of attempts to make
-    attempts = LYT.config.service.logOnAttempts
+    attempts = LYT.config.service?.logOnAttempts? or 3
     
     # (For readability, the handlers are separated out here)
     

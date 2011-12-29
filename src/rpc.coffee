@@ -30,6 +30,18 @@ LYT.rpc = do ->
     </SOAP-ENV:Envelope>'''
   
   
+  # AJAX options
+  ajaxOptions =
+    async:       yes
+    cache:       no
+    contentType: "text/xml; charset=utf-8"
+    dataType:    "xml"
+    processData: yes
+    timeout:     10000
+    type:        "POST"
+    url:         LYT.config.rpc.url
+  
+  
   identifyDODPError = do ->
     # Faults (cf. [Daisy specification](http://www.daisy.org/projects/daisy-online-delivery/drafts/20100402/do-spec-20100402.html#apiReferenceFaults))  
     # They're defined here, and added dynamically since they're needed in obj-form later
@@ -129,7 +141,7 @@ LYT.rpc = do ->
     handlers = LYT.protocol[action]
     
     # Clone the default options (since we'll be modifying the options)
-    options = jQuery.extend {}, LYT.config.rpc.options
+    options = jQuery.extend {}, ajaxOptions
     
     # Get the request data from the RPC's `request` function, if present,
     # passing along any arguments

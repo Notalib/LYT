@@ -1,33 +1,27 @@
-# The level of logging:  
+# This file contains various configuration options for different parts of the app
+
+# ## The level of logging:  
 #     0 = No logging
 #     1 = Errors
 #     2 = Errors & warnings
-#     3 = Errors, warnings, and messages (everything)
+#     3 = Errors, warnings, and messages (default)
+#
 # FIXME: Quick hack to lessen the logging on mobile devices
 log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 2 else 3
 
-# Central system configuration
+# ## Central system configuration
 LYT.config =
   
-  # LYT.rpc function config
+  # ### LYT.rpc function config
   rpc:
-    # The default set of options to pass to jQuery's ajax functions
-    options:
-      async:       yes
-      cache:       no
-      contentType: "text/xml; charset=utf-8"
-      data:        null
-      dataType:    "xml"
-      headers:     null
-      processData: yes
-      timeout:     10000
-      type:        "POST"
-      url:         "/DodpMobile/Service.svc"
+    # The service's server-side URL
+    url: "/DodpMobile/Service.svc" # No default - must be present
   
-  # Values used by protocol functions
+  # ### LYT.protocol config
   protocol:
     # The reading system attrs to send with
-    # the `setReadingSystemAttributes` request
+    # the `setReadingSystemAttributes` request  
+    # (No default - must be present)
     readingSystemAttributes:
       manufacturer: "NOTA"
       model:        "LYT"
@@ -35,28 +29,44 @@ LYT.config =
       version:      "1"
       config:       null
   
-  # LYT.service config
+  # ### LYT.service config
   service:
-    logOnAttempts: 3
+    # The number of attempts to make when logging on
+    # (multiple attempts are only made if the log on
+    # process fails _unexpectedly_, i.e. connection
+    # drops etc.) . If the server explicitly rejects
+    # the username/password, `service` won't stupidly
+    # try the same combo X more times.
+    logOnAttempts: 3 # default: 3
   
-  # LYT.bookshelf module config
+  # ### LYT.bookshelf module config
   bookshelf:
-    pageSize: 5
+    # Number of books to load per page
+    pageSize: 5 # default: 5
   
-  # LYT.search config
+  # ### LYT.search config
   search:
     # Full (free text) search options
     full:
-      url: "/CatalogSearch/search.asmx/SearchFlex"
-      pageSize: 10
+      url: "/CatalogSearch/search.asmx/SearchFlex" # No default - must be present
+      pageSize: 10 # Default: 10
     
     # Autocomplete options
     autocomplete:
       # The URL to request results from
-      url: "/CatalogSearch/search.asmx/SearchAutocomplete"
+      url: "/CatalogSearch/search.asmx/SearchAutocomplete" # No default - must be present
+      
       # The options to pass to jQuery UI's `.autocomplete()`
-      setup:
-        minLength: 2
+      options:
+        # Minimum length of text before autocompleting
+        minLength: 2   # default: 1
+        
+        # Delay before autocompleting (milliseconds)
+        delay:     300 # default: 300
   
+  # ### LYT.DTBDocument config
   dtbDocument:
-    useForceClose: yes
+    # Whether to use the `forceclose=true` parameter
+    useForceClose: yes # Default: yes
+    # Number of attempts to make when fetching a file
+    attempts:      3   # Default: 3

@@ -59,7 +59,7 @@ LYT.search = do ->
     params =
       term:     term
       options:
-        pagesize: LYT.config.search.full.pageSize
+        pagesize: LYT.config.search.full.pageSize or 10
         pagenbr:  page
     
     # Get the ajax options
@@ -94,9 +94,11 @@ LYT.search = do ->
           }
         )
       
-      # TODO: Temporary
+      # TODO: Temporary "solution", until the server response gets
+      # updated with a "number of pages" or "next page available"
+      # value
       results.currentPage = currentPage
-      if results.length >= LYT.config.search.full.pageSize
+      if results.length >= (LYT.config.search.full.pageSize or 10)
         results.nextPage = currentPage + 1
       else
         results.nextPage = false
@@ -136,7 +138,7 @@ LYT.search = do ->
   # Returns an options array for the autocomplete function.
   getAutocompleteOptions = ->
     # Clone the autocomplete options from config
-    setup = jQuery.extend {}, LYT.config.search.autocomplete.setup
+    setup = jQuery.extend {}, (LYT.config.search.autocomplete.setup or {})
     
     # Add the `source` callback
     setup.source = (request, response) ->
