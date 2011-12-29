@@ -11,24 +11,24 @@ test "should raise on non-string rpc names", ->
 module "rpc/XML conversion"
 
 test "basics", ->
-  equal toXML({someKey: "some value"}), "<ns1:someKey>some value</ns1:someKey>"
-  equal toXML({noValue: null}), "<ns1:noValue></ns1:noValue>"
+  equal LYT.utils.toXML({someKey: "some value"}), "<ns1:someKey>some value</ns1:someKey>"
+  equal LYT.utils.toXML({noValue: null}), "<ns1:noValue></ns1:noValue>"
 
 test "character escapes", ->
-  equal toXML("special chars & < >"), "special chars &amp; &lt; &gt;"
-  equal toXML("special chars &amp; &lt; &gt;"), "special chars &amp;amp; &amp;lt; &amp;gt;"
+  equal LYT.utils.toXML("special chars & < >"), "special chars &amp; &lt; &gt;"
+  equal LYT.utils.toXML("special chars &amp; &lt; &gt;"), "special chars &amp;amp; &amp;lt; &amp;gt;"
 
 test "nesting", ->
-  equal toXML({x: {y: {z: 23}}}), "<ns1:x><ns1:y><ns1:z>23</ns1:z></ns1:y></ns1:x>"
+  equal LYT.utils.toXML({x: {y: {z: 23}}}), "<ns1:x><ns1:y><ns1:z>23</ns1:z></ns1:y></ns1:x>"
 
 test "arrays", ->
-  equal toXML({x: [1, 2, 3]}), "<ns1:x>1</ns1:x><ns1:x>2</ns1:x><ns1:x>3</ns1:x>"
+  equal LYT.utils.toXML({x: [1, 2, 3]}), "<ns1:x>1</ns1:x><ns1:x>2</ns1:x><ns1:x>3</ns1:x>"
 
 test "all together now!", ->
   input = 
     x:
       y: "something & something > &amp; but < something big",
       z: [1, 2, 3]
-  equal toXML(input), "<ns1:x><ns1:y>something &amp; something &gt; &amp;amp; but &lt; something big</ns1:y><ns1:z>1</ns1:z><ns1:z>2</ns1:z><ns1:z>3</ns1:z></ns1:x>"
+  equal LYT.utils.toXML(input), "<ns1:x><ns1:y>something &amp; something &gt; &amp;amp; but &lt; something big</ns1:y><ns1:z>1</ns1:z><ns1:z>2</ns1:z><ns1:z>3</ns1:z></ns1:x>"
 
   

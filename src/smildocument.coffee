@@ -7,7 +7,7 @@ do ->
         mainSequence = @source.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @segments    = parseMainSeqNode mainSequence
-        @absoluteOffset = parseTime(@getMetadata().totalElapsedTime?.content) or null
+        @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
     
     getSegmentByTime: (offset = 0) ->
       offset = 0 if offset < 0

@@ -129,7 +129,7 @@ class LYT.Book
         
         # Get the author(s)
         creators = metadata.creator or []
-        @author = toSentence (creator.content for creator in creators)
+        @author = LYT.utils.toSentence (creator.content for creator in creators)
         
         # Get the title
         @title = metadata.title?.content or ""

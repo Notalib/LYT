@@ -141,7 +141,7 @@ LYT.rpc = do ->
     # string-interpolated key-names such as `{ "#{action}": soap }`
     xml = {}
     xml[action] = soap
-    xml = toXML xml
+    xml = LYT.utils.toXML xml
     options.data = soapTemplate.replace /#\{body\}/, xml
     
     # Set the soapaction header
