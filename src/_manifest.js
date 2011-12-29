@@ -2,9 +2,10 @@
 // Add files all you want, just leave off their extensions
 exports.files = [
   "log",
-  "utils",
   
   "lyt",
+
+	"utils",
   "config",
   "cache",
   

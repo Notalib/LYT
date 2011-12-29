@@ -1,9 +1,11 @@
 // The load/concatenation order of the src files
 // Add files all you want, just leave off their extensions
 exports.files = [
-  "utils",
+  "log",
   
   "lyt",
+
+	"utils",
   "config",
   "cache",
   
