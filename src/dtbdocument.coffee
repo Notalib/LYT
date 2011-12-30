@@ -93,8 +93,12 @@ do ->
         return null unless (markup = markup[1])?
         
         # Create the DOM document
-        # Note: This function has limited support in older browsers!
-        html = document.implementation.createHTMLDocument ""
+        # Note: These functions have limited support in older browsers!
+        return null unless (ref = document.implementation)?
+        html = ref.createHTMLDocument?("") or ref.createDocument?(null, 'html', null)
+        
+        # Give up if nothing was created
+        return null unless html?
         
         # Insert the markup into the document
         html.documentElement.innerHTML = markup
