@@ -26,13 +26,14 @@ LYT.player =
   nextButton: null
   previousButton: null
   
+  playAttemptCount: 0 
+  
   init: ->
     log.message 'Player: starting initialization'
     # Initialize jplayer and set ready True when ready
     @el = jQuery("#jplayer")
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
-    
     @progressionMode = @PROGRESSION_MODES.MP3
     
     jplayer = @el.jPlayer
@@ -95,7 +96,7 @@ LYT.player =
         log.message 'Player: event seeked'
         #if jQuery.jPlayer.platform.iphone
         #  log.message 'Player: this is iphone'
-        #  @playOnIntent()
+        @playOnIntent()
       
       loadeddata: (event) =>
         log.message 'Player: event loaded data'
@@ -145,13 +146,48 @@ LYT.player =
     # Stop playback and loading of media
     @el.jPlayer('stop')
   
+  
+
+  
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
+    
     if @playIntentFlag
+      @playAttemptCount = 0
       log.message 'Player: play intent used'
       @playIntentFlag = false
       @play(@playIntentOffset, false)
       @playIntentOffset = null
+          
+      ###
+      if @getStatus().duration is null
+        #alert(@getStatus().src)
+        
+        if @playAttemptCount <= 9
+          @playAttemptCount += 1
+          
+          # try to trigger seeked event setting currenTime manually    
+          #log.warn "Player: duration (#{@getStatus().duration}) is none trying to force seeked event in 500ms"  
+          
+          #jQuery('#jplayer').data('jPlayer').status.duration = 3000
+          setTimeout(jQuery('#jplayer').data('jPlayer').status.duration = 3000, 500)
+          setTimeout(jQuery('#jplayer').data('jPlayer').status.currentTime = 0.5, 500)
+          log.warn "Duration is #{@getStatus().duration}"
+          
+          #triggerSeekedHack = () =>
+          #  status = @getStatus()
+          #  status.currentTime = 0.5
+          #  #status.duration = 2000
+          #  jQuery.data(@el, 'jPlayer', status)
+          
+          #@el.jPlayer("playHead", 1)
+          
+          log.warn "Player: duration (#{@getStatus().duration}) is none retrying play in 600ms | Tried #{@playAttemptCount} of 10 times"
+          setTimeout(@playOnIntent(), 600)
+          
+      else
+      ###
+        
               
   
   play: (time, setIntent = true) ->
@@ -212,7 +248,9 @@ LYT.player =
     else
       @el.bind $.jPlayer.event.ready, callback
   
-  load: (book, section = null, offset = 0, autoPlay = false) ->
+  load: (book, section = null, offset = 0, autoPlay = true) ->
+    LYT.render.loading()
+    
     #return if book.id is @book?.id
     @book = book
     
@@ -259,17 +297,26 @@ LYT.player =
       
       @el.jPlayer "load"
       @play offset if autoPlay
-    
+      
+      LYT.render.loading(false)
+      
     @section.fail ->
       log.error "Player: Failed to load section #{section}"
   
   
   nextSection: (autoPlay = false) ->
+    #@playlist.
+    
     return null unless @playlist?.hasNextSection()
-    @playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
+    section = @playlist.next()
+    $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}"
+    
+    #@playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
   
   
   previousSection: (autoPlay = false) ->
     return null unless @playlist?.hasPreviousSection()
-    @playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
+    section = @playlist.previous()
+    $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}"
+    #@playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
     
