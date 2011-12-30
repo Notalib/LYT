@@ -153,14 +153,20 @@ LYT.player =
     # Calls play and resets flag if the intent flag was set
     
     if @playIntentFlag
+      @playAttemptCount = 0
+      log.message 'Player: play intent used'
+      @playIntentFlag = false
+      @play(@playIntentOffset, false)
+      @playIntentOffset = null
+          
+      ###
       if @getStatus().duration is null
         #alert(@getStatus().src)
         
         if @playAttemptCount <= 9
           @playAttemptCount += 1
           
-          # try to trigger seeked event setting currenTime manually
-        
+          # try to trigger seeked event setting currenTime manually    
           #log.warn "Player: duration (#{@getStatus().duration}) is none trying to force seeked event in 500ms"  
           
           #jQuery('#jplayer').data('jPlayer').status.duration = 3000
@@ -180,11 +186,8 @@ LYT.player =
           setTimeout(@playOnIntent(), 600)
           
       else
-        @playAttemptCount = 0
-        log.message 'Player: play intent used'
-        @playIntentFlag = false
-        @play(@playIntentOffset, false)
-        @playIntentOffset = null
+      ###
+        
               
   
   play: (time, setIntent = true) ->
