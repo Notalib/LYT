@@ -2,7 +2,9 @@
 
 class LYT.Playlist
   
-  constructor: (@sections, @resources, initialSectionId = null) ->
+  constructor: (@book, initialSectionId = null) ->
+    @sections  = @book.nccDocument.sections
+    
     deferred = jQuery.Deferred()
     deferred.promise this
     current = @setCurrentSection initialSectionId

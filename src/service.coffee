@@ -287,8 +287,24 @@ LYT.service = do ->
   bookmarksSupported: ->
     operations.GET_BOOKMARKS and operations.SET_BOOKMARKS
   
+  # TODO: Temporarily store and fetch bookmarks locally
   getBookmarks: (id) ->
-    withLogOn -> LYT.rpc("getBookmarks", id)
+    deferred = jQuery.Deferred()
+    bookmarks = LYT.cache.read "bookmarks", id
+    
+    deferred.resolve bookmarks or null
+    
+    # TODO: Implement this properly
+    # withLogOn -> LYT.rpc("getBookmarks", id)
+  
+  setBookmarks: (bookId, bookmarks) ->
+    deferred = jQuery.Deferred()
+    LYT.cache.write "bookmarks", bookId, bookmarks
+    
+    deferred.resolve()
+    
+    # TODO: Implement this properly
+    # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
   
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS

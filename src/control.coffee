@@ -115,13 +115,17 @@ LYT.control =
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
   
-      section = params.section or 0
+      section = params.section or null
       offset = params.offset or 0
-  
+      
       LYT.Book.load(params.book)
         .done (book) ->        
-          LYT.render.bookPlayer book, $(page)        
-          LYT.player.load book, section, offset       
+          LYT.render.bookPlayer book, $(page)
+          if not section and offset is 0 and book.lastmark?
+            section = book.lastmark.section
+            offset  = book.lastmark.offset
+            # TODO: Set correct URL
+          LYT.player.load book, section, offset
           ###
           $("#book-play").bind "swiperight", ->
               LYT.player.nextSection()

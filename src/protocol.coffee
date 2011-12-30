@@ -232,8 +232,20 @@ LYT.protocol =
   
   
   setBookmarks:
-    request: (bookmarkSet) ->
-      bookmarkSet
+    request: (bookmarks) ->
+      data =
+        bookmarkSet:
+          title:
+            text: bookmarks.book.title
+          uid:   bookmarks.book.id
+      
+      if bookmarks.lastmark?
+        data.bookmarkSet.lastmark =
+          ncxRef: bookmarks.lastmark.ncxRef
+          uri:    bookmarks.lastmark.uri
+          timeOffset: bookmarks.lastmark.timeOffset
+      
+      data
       
     response: ($xml) ->
       throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"

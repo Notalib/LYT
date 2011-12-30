@@ -137,18 +137,20 @@ class LYT.Book
         # Get the total time
         @totalTime = metadata.totalTime?.content or ""
         
-        resolve()
+        getBookmarks()
+        #resolve()
     
     
     getBookmarks = =>
-      @lastMark  = null
+      @lastmark  = null
       @bookmarks = []
       
       # Resolve and return early if bookmarks aren't supported
-      unless LYT.service.bookmarksSupported()
-        resolve()
-        return
+      # unless LYT.service.bookmarksSupported()
+      #   resolve()
+      #   return
       
+      log.message "Book: Getting bookmarks"
       process = LYT.service.getBookmarks(@id)
       
       # TODO: Currently, failing to get the bookmarks will "fail" the
@@ -157,9 +159,14 @@ class LYT.Book
       # should be loaded lazily, when required?
       process.fail -> deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
       
-      process.done (set) ->
-        @lastMark = set.lastmark
-        @bookmarks = set.bookmarks
+      process.done (data) =>
+        if not data?
+          data = 
+            lastmark:  null
+            bookmarks: []
+        {@lastmark, @bookmarks} = data
+        if @lastmark?
+          log.message "Book: Lastmark: ", @lastmark.section, @lastmark.offset
         resolve()
     
     # Kick the whole process off
@@ -175,5 +182,14 @@ class LYT.Book
     if @_playlist?
       @_playlist.setCurrentSection initialSection
       return @_playlist 
-    @_playlist = new LYT.Playlist @nccDocument.sections, @resources, initialSection
+    @_playlist = new LYT.Playlist this, initialSection
   
+  setLastmark: (section, offset = 0) ->
+    @lastmark =
+      section: section
+      offset:  offset
+    
+    LYT.service.setBookmarks @id, {
+      lastmark:  @lastmark
+      bookmarks: @bookmarks
+    }

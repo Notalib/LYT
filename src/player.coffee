@@ -26,7 +26,9 @@ LYT.player =
   nextButton: null
   previousButton: null
   
-  playAttemptCount: 0 
+  playAttemptCount: 0
+  
+  lastBookmark: null
   
   init: ->
     log.message 'Player: starting initialization'
@@ -226,6 +228,9 @@ LYT.player =
     return if @media? and @media.start <= @time < @media.end
     @media = @section.mediaAtOffset @time
     
+    if @media and not @getStatus()?.paused
+      @updateLastMark()
+    
     log.warn "Player: failed to get media segment for offset #{@time}" unless @media?
     
     @renderTranscript()
@@ -320,3 +325,12 @@ LYT.player =
     $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}"
     #@playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
     
+  
+  updateLastMark: (force = false) ->
+    return unless @book? and @section?
+    now = (new Date).getTime()
+    return unless force or now-lastBookmark > 10000
+    @book.setLastmark @section.id, @getStatus().currentTime
+    lastBookmark = now
+    
+  
