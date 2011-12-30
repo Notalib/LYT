@@ -60,6 +60,45 @@ do ->
   
   # -------
   
+  createHTMLDocument = do ->
+    if typeof document.implementation?.createHTMLDocument is "function"
+      return -> document.implementation.createHTMLDocument ""
+    
+    if XSLTProcessor?
+      return ->
+        processor = new XSLTProcessor();
+        template = [
+          """<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">"""
+          """<xsl:output method="html"/>"""
+          """<xsl:template match="/">"""
+          """<html><head><title>HTML Document</title></head><body/></html>"""
+          """</xsl:template>"""
+          """</xsl:stylesheet>"""
+        ].join("")
+        doc = document.implementation.createDocument "", "foo", null
+        range = doc.createRange()
+        range.selectNodeContents doc.documentElement
+        
+        try
+          doc.documentElement.appendChild range.createContextualFragment(template)
+        catch error
+          return null
+        
+        processor.importStylesheet doc.documentElement.firstChild
+        html = processor.transformToDocument doc
+        return null unless html.body
+        html
+    
+    else if typeof document.implementation?.createDocumentType is "function"
+      doctype = document.implementation.createDocumentType "HTML", "-//W3C//DTD HTML 4.01//EN", "http://www.w3.org/TR/html4/strict.dtd"
+      return ->
+        document.implementation.createDocument "", "HTML", doctype
+    
+    else
+      null
+  
+  # -------
+  
   # This class serves as the parent of the `SMILDocument` and `TextContentDocument` classes.  
   # It is not meant for direct instantiation - instantiate the specific subclasses.
   class LYT.DTBDocument
@@ -85,17 +124,21 @@ do ->
       
       # Internal function to convert raw text to a HTML DOM document
       coerceToHTML = (responseText) =>
+        return null unless createHTMLDocument?
+        
         log.message "DTB: Coercing #{@url} into HTML"
         # Grab everything inside the "root" `<html></html>` element
-        markup = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        try
+          markup = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
+        catch e
+          #log.error "DTB: Failed to coerce markup into HTML"
+          markup = ["", responseText]
         
         # Give up, if nothing was found
         return null unless (markup = markup[1])?
         
         # Create the DOM document
-        # Note: These functions have limited support in older browsers!
-        return null unless (ref = document.implementation)?
-        html = ref.createHTMLDocument?("") or ref.createDocument?(null, 'html', null)
+        html = createHTMLDocument()
         
         # Give up if nothing was created
         return null unless html?
