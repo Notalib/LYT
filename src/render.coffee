@@ -17,9 +17,10 @@ LYT.render = do ->
     if book.id is LYT.player.book?.id?
       nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing" alt="">"""
     
+    
     element = jQuery """
     <li data-book-id="#{book.id}">
-      <a href="##{target}?book=#{book.id}">
+      <a href="##{target}?book=#{book.id}" class="book-play-link">
         <img class="ui-li-icon cover-image" src="#{defaultCover}">
         <h3>#{book.title or "&nbsp;"}</h3>
         <p>#{info or "&nbsp;"}</p>
@@ -27,6 +28,7 @@ LYT.render = do ->
       </a>
     </li>
     """
+    
     
     # Attempt to get the book's cover image
     cover = new Image
@@ -49,16 +51,29 @@ LYT.render = do ->
   setStyle = ->
     log.message 'Render: setting custom style'
     $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
-  
-  
+   
   # ## Public API
   
   init: ->
     log.message 'Render: init'
     setStyle()
   
-  
   setStyle: setStyle
+  
+  loading: (setLoading=true) ->
+    if setLoading
+      log.message 'show loading'
+      $.mobile.showPageLoadingMsg()
+      $(".ui-page-active").fadeTo(500, 0.2)
+      #$('document').click (event) ->
+      #  log.message "someone tried to click something whle we are loading"
+      #  event.preventDefault()
+      #  event.preventDefaultPropagation()
+        
+    else
+      log.message 'hide loading'
+      $.mobile.hidePageLoadingMsg()
+      $(".ui-page-active").fadeTo(500, 1)
   
   
   bookshelf: (books, view, page) ->

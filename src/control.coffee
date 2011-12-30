@@ -18,6 +18,9 @@ LYT.control =
     
   
   bookshelf: (type, match, ui, page, event) ->
+    if type is 'pagehide'
+      #$.mobile.showPageLoadingMsg()
+      log.message 'bookshelf hide'
     if type is 'pageshow'
       log.message "Controller: Action bookshelf"
       content = $(page).children(":jqmData(role=content)")
@@ -28,6 +31,11 @@ LYT.control =
           .done (books) ->
             LYT.render.bookshelf(books, content, page)
             #log.message books
+            
+            #$("#bookshelf-content .book-play-link").click (event) ->
+            #  log.message 'book play link clicked'
+            #  $.mobile.showPageLoadingMsg()
+            
             $("#more-bookshelf-entries").unbind "click"
             if books.nextPage
               $("#more-bookshelf-entries").click (event) ->
@@ -47,7 +55,7 @@ LYT.control =
   
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      $.mobile.showPageLoadingMsg()
+      LYT.render.loading()
       
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
@@ -81,7 +89,7 @@ LYT.control =
   
   bookIndex: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      $.mobile.showPageLoadingMsg()
+      LYT.render.loading()
       
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
@@ -91,7 +99,7 @@ LYT.control =
           .done (book) ->
           
             LYT.render.bookIndex(book, content)
-            $.mobile.hidePageLoadingMsg()
+            LYT.render.loading(false)
           
             #jQuery("#book-index ol l").each ->
             #  #log.message jQuery(@).attr('href')
@@ -99,9 +107,9 @@ LYT.control =
             #  #jQuery(@).attr('href', attr)
   
   bookPlayer: (type, match, ui, page, event) -> 
-    if type is 'pageshow'
-      $.mobile.showPageLoadingMsg()
-        
+    if type is 'pagebeforeshow'
+      LYT.render.loading()
+    if type is 'pageshow'  
       params = LYT.router.getParams(match[1])
   
       header = $(page).children( ":jqmData(role=header)")
@@ -120,8 +128,7 @@ LYT.control =
       
           $("#book-play").bind "swipeleft", ->
               LYT.player.previousSection()
-          ###       
-          $.mobile.hidePageLoadingMsg()
+          ###
       
         .fail () ->
           log.error "Control: Failed to load book ID #{params.book}"
@@ -129,7 +136,7 @@ LYT.control =
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
       loadResults = (term, page = 1) ->
-        $.mobile.showPageLoadingMsg()
+        LYT.render.loading()
         LYT.search.full(term, page)
           .done (results) ->
             $("#more-search-results").unbind "click"
@@ -139,7 +146,7 @@ LYT.control =
               event.stopImmediatePropagation()
           
             LYT.render.searchResults(results, content)
-            $.mobile.hidePageLoadingMsg()
+            LYT.render.loading(false)
     
       if match?[1]
         params = LYT.router.getParams match[1]
@@ -163,7 +170,7 @@ LYT.control =
       $("#search-form").submit (event) ->
         log.message 'you searched'      
         $('#searchterm').blur()
-        $.mobile.showPageLoadingMsg()
+        LYT.render.loading()
       
         term = encodeURI $('#searchterm').val()
         loadResults $('#searchterm').val()
