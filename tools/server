@@ -75,7 +75,7 @@ serve = (request, response, url) ->
     else
       response.redirect "#{url.pathname}/"
   else if stats.isFile()
-    if (file = url.pathname.match /^\/javascript\/(.+?)\.js$/)
+    if (file = url.pathname.match /^\/javascript\/(.+?)\.js$/) and LIVE
       compile request, response, file[1], (err) ->
         response.sendFile url.filename
     else
