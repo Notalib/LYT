@@ -64,6 +64,8 @@ do ->
     if typeof document.implementation?.createHTMLDocument is "function"
       return -> document.implementation.createHTMLDocument ""
     
+    # Firefox does not support `document.implementation.createHTMLDocument()`  
+    # The following work-around is adapted from [this gist](http://gist.github.com/49453)
     if XSLTProcessor?
       return ->
         processor = new XSLTProcessor();
