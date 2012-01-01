@@ -23,35 +23,47 @@
 
 LYT.service = do ->
   
+  # optional service operations  
+  operations =
+    DYNAMIC_MENUS:         no
+    SET_BOOKMARKS:         no
+    GET_BOOKMARKS:         no
+    SERVICE_ANNOUNCEMENTS: no
+    PDTB2_KEY_PROVISION:   no
+  
+  
   # "session" storage  
+  # TODO: Perhaps this and userInfo should move to a separate module?
   session =
     username: null
     password: null
   
   
-  # optional service operations  
-  operations =
-    DYNAMIC_MENUS:         false
-    SET_BOOKMARKS:         false
-    GET_BOOKMARKS:         false
-    SERVICE_ANNOUNCEMENTS: false
-    PDTB2_KEY_PROVISION:   false
+  # User-info
+  userInfo = {}
   
   
+  # Get previously stored username/password
   getCredentials = ->
     unless session? and session.username? and session.password?
       session = LYT.cache.read "session", "credentials"
     session
   
+  # Store the username/password
   setCredentials = (username, password) ->
     session or= {}
     [session.username, session.password] = [username, password]
+    # FIXME: This should respect the automatic log-on option in the user's settings
     LYT.cache.write "session", "credentials", session if session.username? and session.password?
   
+  # Delete the username/password (used when explicitly logging out)
   deleteCredentials = ->
     [session.username, session.password] = [null, null]
     LYT.cache.remove "session", "credentials"
   
+  # Get the memberID from the user-info hash, if present
+  getMemberID = ->
+    userInfo.memberId or null
   
   # The current logon process(es)
   currentLogOnProcess = null
@@ -164,7 +176,8 @@ LYT.service = do ->
           deferred.reject code, message
     
     
-    loggedOn = (userData) ->
+    loggedOn = (info) ->
+      userInfo = info
       LYT.rpc("getServiceAttributes")
         .done(gotServiceAttrs)
         .fail(failed)
@@ -243,7 +256,9 @@ LYT.service = do ->
   # outstanding ajax calls!" when log off is called
   logOff: ->
     LYT.rpc("logOff").always ->
+      # Clean up
       deleteCredentials()
+      userInfo = {}
       emit "logoff"
   
   
