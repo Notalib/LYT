@@ -104,7 +104,12 @@ LYT.protocol =
     
     receive: ($xml, data) ->
       throw "logOnFailed" unless $xml.find("logOnResult").text() is "true"
-      true
+      userData = {}
+      $xml.find("Header").children().each ->
+        key   = @nodeName.slice(0,1).toLowerCase() + @nodeName.slice(1)
+        value = jQuery(this).text()
+        userData[key] = value
+      userData
   
   
   logOff:

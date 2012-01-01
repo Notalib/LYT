@@ -1,11 +1,22 @@
 module "protocol"
 
-asyncTest "logOn", 2, ->
+asyncTest "logOn", 3, ->
   done = createAsyncCounter 2
   
   LYT.rpc("logOn", "test", "test")
     .then (result) ->
-      equal result, true, "logOn should succeed"
+      ok result, "logOn should succeed"
+      deepEqual result, {
+        memberId:  "99999"
+        username:  "test"
+        realname:  "test testerson"
+        email:     "test@example.com"
+        address:   "123 Test st"
+        age:       "99"
+        gender:    "true"
+        teacher:   "0"
+        usergroup: "Z"
+      }, "logOn should return the user's info"
     .always done
   
   requestVariant "fail", ->

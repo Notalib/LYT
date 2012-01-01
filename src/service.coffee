@@ -1,5 +1,10 @@
 # Higher-level functions for interacting with the server
 #
+# This module is a facade or abstraction layer between the
+# controller/model code and the `rpc`/`protocol` functions.
+# As such, it's not a 1-to-1 mapping of the DODP web service
+# (that's `protocol`'s job).
+#
 # The `service` object may emit the following events:
 # 
 # - `logon:rejected` (data: none) - The username/password was rejected, or
@@ -159,7 +164,7 @@ LYT.service = do ->
           deferred.reject code, message
     
     
-    loggedOn = (success) ->
+    loggedOn = (userData) ->
       LYT.rpc("getServiceAttributes")
         .done(gotServiceAttrs)
         .fail(failed)
