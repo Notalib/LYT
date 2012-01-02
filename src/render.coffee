@@ -1,5 +1,9 @@
 # This module handles gui callbacks and various utility functions
 
+
+
+
+
 LYT.render = do ->
   
   # ## Privileged API
@@ -48,34 +52,18 @@ LYT.render = do ->
       "Lydbog"
     else
       "Lydbog med tekst"
+   
+  # ## Public API
   
   setStyle = ->
     log.message 'Render: setting custom style'
     $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
-   
-  # ## Public API
   
   init: ->
     log.message 'Render: init'
     setStyle()
   
   setStyle: setStyle
-  
-  loading: (setLoading=true) ->
-    if setLoading
-      log.message 'show loading'
-      $.mobile.showPageLoadingMsg()
-      $(".ui-page-active").fadeTo(500, 0.2)
-      #$('document').click (event) ->
-      #  log.message "someone tried to click something whle we are loading"
-      #  event.preventDefault()
-      #  event.preventDefaultPropagation()
-        
-    else
-      log.message 'hide loading'
-      $.mobile.hidePageLoadingMsg()
-      $(".ui-page-active").fadeTo(500, 1)
-  
   
   bookshelf: (books, view, page) ->
     #todo: add pagination

@@ -6,7 +6,7 @@ exports.files = [
   "log",
   
   "lyt",
-  
+  "loader",
   "utils",
   "config",
   "cache",
@@ -16,7 +16,7 @@ exports.files = [
   "bookmarks",
   "service",
   "search",
-  
+
   "dtbdocument",
   "smildocument",
   "textcontentdocument",
