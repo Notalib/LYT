@@ -121,7 +121,7 @@ do ->
       
       # Set up some local variables
       dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
-      attempts = LYT.config.dtbDocument?.attempts? or 3
+      attempts = LYT.config.dtbDocument?.attempts or 3
       useForceClose = yes unless LYT.config.dtbDocument?.useForceClose? is no
       
       # Internal function to convert raw text to a HTML DOM document
