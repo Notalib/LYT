@@ -306,29 +306,18 @@ LYT.service = do ->
   bookmarksSupported: ->
     operations.GET_BOOKMARKS and operations.SET_BOOKMARKS
   
-  # TODO: Temporarily store and fetch bookmarks locally
   getBookmarks: (bookId) ->
+    # Use the non-DODP service
     LYT.bookmarks.get getMemberId(), String(bookId)
     
-    # Temporary: Just use local storage
-    #deferred = jQuery.Deferred()
-    #bookmarks = LYT.cache.read "bookmarks", bookId
-    #
-    #deferred.resolve bookmarks or null
-    
-    # TODO: Implement this properly
+    # TODO: Here's the stub for the DODP-service. Implement this properly
     # withLogOn -> LYT.rpc("getBookmarks", id)
   
   setBookmarks: (bookId, bookmarks) ->
+    # Use the non-DODP service
     LYT.bookmarks.set getMemberId(), String(bookId), bookmarks
     
-    # Temporary: Just use local storage
-    #deferred = jQuery.Deferred()
-    #LYT.cache.write "bookmarks", bookId, bookmarks
-    #
-    #deferred.resolve()
-    
-    # TODO: Implement this properly
+    # TODO: Here's the stub for the DODP-service. Implement this properly
     # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
   
   announcementsSupported: ->

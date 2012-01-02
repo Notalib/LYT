@@ -48,13 +48,13 @@ LYT.config =
   search:
     # Full (free text) search options
     full:
-      url: "/CatalogSearch/search.asmx/SearchFlex" # No default - must be present
+      url: "/CatalogSearch/search.asmx/SearchCatalog" # No default - must be present
       pageSize: 10 # Default: 10
     
     # Autocomplete options
     autocomplete:
       # The URL to request results from
-      url: "/CatalogSearch/search.asmx/SearchAutocomplete" # No default - must be present
+      url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
       
       # The options to pass to jQuery UI's `.autocomplete()`
       options:
@@ -66,8 +66,8 @@ LYT.config =
   
   # ### LYT.bookmarks config
   bookmarks:
-    getUrl: "/devcatalogsearch/search.asmx/GetBookmarks" # No default - must be present
-    setUrl: "/devcatalogsearch/search.asmx/SaveBookmarks" # No default - must be present
+    getUrl: "/CatalogSearch/search.asmx/GetBookmarks" # No default - must be present
+    setUrl: "/CatalogSearch/search.asmx/SaveBookmarks" # No default - must be present
   
   # ### LYT.player config
   player:
