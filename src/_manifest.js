@@ -4,23 +4,24 @@ exports.files = [
   "log",
   
   "lyt",
-
-	"utils",
+  
+  "utils",
   "config",
   "cache",
   
   "protocol",
   "rpc",
+  "bookmarks",
   "service",
+  "search",
   
   "dtbdocument",
   "smildocument",
   "textcontentdocument",
   "section",
   "nccdocument",
-	"playlist",
+  "playlist",
   "book",
-  "search",
   
   "settings",
   "bookshelf",
