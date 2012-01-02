@@ -18,9 +18,10 @@ LYT.render = do ->
     info.push getMediaType(book.media) if book.media?
     info = info.join "&nbsp;&nbsp;|&nbsp;&nbsp;"
     
-    if book.id is LYT.player.book?.id?
-      nowPlaying = """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing" alt="">"""
+    playing = LYT.player.getCurrentlyPlaying()
     
+    if String(book.id) is String(playing?.book)
+      nowPlaying = """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing" alt="">"""
     
     element = jQuery """
     <li data-book-id="#{book.id}">
@@ -100,6 +101,13 @@ LYT.render = do ->
     # Set the back button's href
     $("#index-back-button").attr "href", "#book-play?book=#{book.id}"
     
+    playing = LYT.player.getCurrentlyPlaying()
+    isPlaying = (sectionId) ->
+      return false unless playing? and String(book.id) is String(playing?.book)
+      return true if String(playing.section) is String(sectionId)
+      return true if playing.section.indexOf("#{sectionId}.") is 0
+      return false
+    
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
       for item in items
@@ -108,15 +116,15 @@ LYT.render = do ->
         element.attr "data-href", item.id
         
         if item.children.length > 0
-          element.text item.title        
+          element.append "<span>#{item.title}</span>"
         else
-          element.append("""
+          element.append """
             <a href="#book-play?book=#{book.id}&section=#{item.id}"> 
               #{item.title}
-            </a>""")
+            </a>"""
         
-        # if book.id is LYT.player.book?.id and item.id is LYT.player.section?.id
-        #   element.append """<img src="/images/icon/nowplaying.png" alt="" class="book-now-playing">"""
+        if isPlaying item.id
+          element.append """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing">"""
         
         if item.children.length > 0
           nested = jQuery "<ol></ol>"

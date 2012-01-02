@@ -161,9 +161,8 @@ class LYT.Section
       return null
     
     segment = @document.getSegmentByTime offset
-    unless segment?
-      log.warn "Section: Failed to find media for offset #{offset}"
-      return null
+    
+    return null unless segment?
     
     compile segment
   

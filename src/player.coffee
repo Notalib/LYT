@@ -334,4 +334,8 @@ LYT.player =
     @book.setLastmark @section.id, @getStatus().currentTime
     @lastBookmark = now
   
+  getCurrentlyPlaying: ->
+    return null unless @book? and @section?
+    book:    @book.id
+    section: @section.id
 
