@@ -312,7 +312,7 @@ LYT.service = do ->
     
     # Temporary: Just use local storage
     deferred = jQuery.Deferred()
-    bookmarks = LYT.cache.read "bookmarks", id
+    bookmarks = LYT.cache.read "bookmarks", bookId
     
     deferred.resolve bookmarks or null
     
@@ -322,7 +322,7 @@ LYT.service = do ->
   setBookmarks: (bookId, bookmarks) ->
     LYT.bookmarks.get getMemberId(), String(bookId), bookmarks
     
-    Temporary: Just use local storage
+    # Temporary: Just use local storage
     deferred = jQuery.Deferred()
     LYT.cache.write "bookmarks", bookId, bookmarks
     
