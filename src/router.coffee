@@ -38,7 +38,7 @@ $(document).bind "mobileinit", ->
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
    
   $(LYT.service).bind "logon:rejected", () ->
-    # TODO pass this `redirect` url to the login action somehow
+    # TODO: pass this `redirect` url to the login action somehow
     redirect = window.location.hash
     
     $.mobile.changePage "#login"
