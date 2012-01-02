@@ -62,7 +62,7 @@ LYT.service = do ->
     LYT.cache.remove "session", "credentials"
   
   # Get the memberID from the user-info hash, if present
-  getMemberID = ->
+  getMemberId = ->
     userInfo.memberId or null
   
   # The current logon process(es)
@@ -159,7 +159,7 @@ LYT.service = do ->
     session.password = password
     
     # The maximum number of attempts to make
-    attempts = LYT.config.service?.logOnAttempts? or 3
+    attempts = LYT.config.service?.logOnAttempts or 3
     
     # (For readability, the handlers are separated out here)
     
@@ -308,20 +308,24 @@ LYT.service = do ->
     operations.GET_BOOKMARKS and operations.SET_BOOKMARKS
   
   # TODO: Temporarily store and fetch bookmarks locally
-  getBookmarks: (id) ->
-    deferred = jQuery.Deferred()
-    bookmarks = LYT.cache.read "bookmarks", id
+  getBookmarks: (bookId) ->
+    # deferred = jQuery.Deferred()
+    # bookmarks = LYT.cache.read "bookmarks", id
+    # 
+    # deferred.resolve bookmarks or null
     
-    deferred.resolve bookmarks or null
+    LYT.bookmarks.get getMemberId(), String(bookId)
     
     # TODO: Implement this properly
     # withLogOn -> LYT.rpc("getBookmarks", id)
   
   setBookmarks: (bookId, bookmarks) ->
-    deferred = jQuery.Deferred()
-    LYT.cache.write "bookmarks", bookId, bookmarks
+    # deferred = jQuery.Deferred()
+    # LYT.cache.write "bookmarks", bookId, bookmarks
     
-    deferred.resolve()
+    # deferred.resolve()
+    
+    LYT.bookmarks.get getMemberId(), String(bookId), bookmarks
     
     # TODO: Implement this properly
     # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
