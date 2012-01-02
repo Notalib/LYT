@@ -1,6 +1,8 @@
 // The load/concatenation order of the src files
 // Add files all you want, just leave off their extensions
 exports.files = [
+  "jqm.extensions",
+  
   "log",
   
   "lyt",
