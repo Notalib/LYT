@@ -3,7 +3,7 @@ LYT.control =
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       
-      $.mobile.showPageLoadingMsg()
+      LYT.loader.set("Logger ind", "login")
       $("#password").blur()
       
       LYT.service.logOn($("#username").val(), $("#password").val())
@@ -18,23 +18,14 @@ LYT.control =
     
   
   bookshelf: (type, match, ui, page, event) ->
-    if type is 'pagehide'
-      #$.mobile.showPageLoadingMsg()
-      log.message 'bookshelf hide'
     if type is 'pageshow'
-      log.message "Controller: Action bookshelf"
       content = $(page).children(":jqmData(role=content)")
     
       load = (page = 1) ->
-        $.mobile.showPageLoadingMsg()     
+        LYT.loader.set("Henter boghylde", "get_bookshelf")    
         LYT.bookshelf.load(page)
           .done (books) ->
             LYT.render.bookshelf(books, content, page)
-            #log.message books
-            
-            #$("#bookshelf-content .book-play-link").click (event) ->
-            #  log.message 'book play link clicked'
-            #  $.mobile.showPageLoadingMsg()
             
             $("#more-bookshelf-entries").unbind "click"
             if books.nextPage
@@ -46,7 +37,7 @@ LYT.control =
             else
               $("#more-bookshelf-entries").hide()
             
-            $.mobile.hidePageLoadingMsg()
+            LYT.loader.close("get_bookshelf")
           
           .fail (error, msg) ->
             log.message "failed with error #{error} and msg #{msg}"
@@ -55,7 +46,7 @@ LYT.control =
   
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      LYT.render.loading()
+      LYT.loader.set("Henter bog", "get_details")
       
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
@@ -70,7 +61,7 @@ LYT.control =
             event.stopImmediatePropagation()
           
           content.find("#add-to-bookshelf-button").one "click", (event) ->
-            $.mobile.showPageLoadingMsg()
+            LYT.loader.set("Tilføjer bog til boghylde", "add_to_bookshelf")
             # TODO: This is far from perfect: The loading-thing might
             # blink on and off due to the changePage, there's no way
             # of knowing if something's already on the shelf, etc.
@@ -78,18 +69,18 @@ LYT.control =
               .done ->
                 $.mobile.changePage("#bookshelf")
               .always ->
-                $.mobile.hidePageLoadingMsg()
+                LYT.loader.close("add_to_bookshelf")
             event.preventDefault()
             event.stopImmediatePropagation()
           
-          $.mobile.hidePageLoadingMsg()
+          LYT.loader.close("get_details")
         
         .fail (error, msg) ->
           log.message "failed with error #{error} and msg #{msg}"
   
   bookIndex: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      LYT.render.loading()
+      LYT.loader.set("Henter indeks", "get_index")
       
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
@@ -99,16 +90,11 @@ LYT.control =
           .done (book) ->
           
             LYT.render.bookIndex(book, content)
-            LYT.render.loading(false)
-          
-            #jQuery("#book-index ol l").each ->
-            #  #log.message jQuery(@).attr('href')
-            #  #attr = jQuery(@).attr('href') + '?book=15000'
-            #  #jQuery(@).attr('href', attr)
+            LYT.loader.close("get_index")
   
   bookPlayer: (type, match, ui, page, event) -> 
     if type is 'pagebeforeshow'
-      LYT.render.loading()
+      LYT.loader.set("Henter bog", "player")
     if type is 'pageshow'  
       params = LYT.router.getParams(match[1])
   
@@ -126,6 +112,8 @@ LYT.control =
             section = book.lastmark.section
             offset  = book.lastmark.offset
             # TODO: Set correct URL
+            # Maybe just do it this way: $.mobile.changePage("#book-play?book=#{book.id}&section=#{section.id}&offset=#{offset}") ?
+            
           LYT.player.load book, section, offset
           ###
           $("#book-play").bind "swiperight", ->
@@ -141,8 +129,8 @@ LYT.control =
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
       loadResults = (term, page = 1) ->
-        LYT.render.loading()
-        LYT.search.full(term, page)
+        LYT.loader.set "Loading results", "search"
+        LYT.search.full term, page
           .done (results) ->
             $("#more-search-results").unbind "click"
             $("#more-search-results").click (event) ->
@@ -151,7 +139,7 @@ LYT.control =
               event.stopImmediatePropagation()
           
             LYT.render.searchResults(results, content)
-            LYT.render.loading(false)
+            LYT.loading.close "search"
     
       if match?[1]
         params = LYT.router.getParams match[1]

@@ -16,7 +16,7 @@ exports.files = [
   "bookmarks",
   "service",
   "search",
-  
+
   "dtbdocument",
   "smildocument",
   "textcontentdocument",
