@@ -127,10 +127,13 @@ LYT.render = do ->
         element.attr "id", item.id
         element.attr "data-href", item.id
         
-        element.append """
-          <a href="#book-play?book=#{book.id}&section=#{item.id}"> 
-            #{item.title}
-          </a>"""
+        if item.children.length > 0
+          element.append "<span>#{item.title}</span>"
+        else
+          element.append """
+            <a href="#book-play?book=#{book.id}&section=#{item.id}"> 
+              #{item.title}
+            </a>"""
         
         if isPlaying item.id
           element.append """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing">"""
