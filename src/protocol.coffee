@@ -104,12 +104,17 @@ LYT.protocol =
     
     receive: ($xml, data) ->
       throw "logOnFailed" unless $xml.find("logOnResult").text() is "true"
-      userData = {}
-      $xml.find("Header").children().each ->
+      # Note: Can't use the `"Envelope > Header"` syntax for some reason
+      # but `find("Envelope").find("Header")` works...
+      # It's probably because Sizzle has a proble with the XML namespacing
+      header = $xml.find("Envelope").find("Header").first()
+      return {} unless header.length is 1
+      data = {}
+      header.children().each ->
         key   = @nodeName.slice(0,1).toLowerCase() + @nodeName.slice(1)
-        value = jQuery(this).text()
-        userData[key] = value
-      userData
+        value = jQuery.trim jQuery(this).text()
+        data[key] = value
+      data
   
   
   logOff:

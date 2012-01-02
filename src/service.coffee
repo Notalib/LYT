@@ -33,14 +33,15 @@ LYT.service = do ->
   
   
   # "session" storage  
-  # TODO: Perhaps this and userInfo should move to a separate module?
+  # TODO: Perhaps this and userData should move to a separate module?
   session =
     username: null
     password: null
+    memberId: null
   
   
   # User-info
-  userInfo = {}
+  userData = {}
   
   
   # Get previously stored username/password
@@ -50,20 +51,20 @@ LYT.service = do ->
     session
   
   # Store the username/password
-  setCredentials = (username, password) ->
+  setCredentials = (username, password, memberId) ->
     session or= {}
-    [session.username, session.password] = [username, password]
+    [session.username, session.password, session.memberId] = [username, password, memberId]
     # FIXME: This should respect the automatic log-on option in the user's settings
     LYT.cache.write "session", "credentials", session if session.username? and session.password?
   
   # Delete the username/password (used when explicitly logging out)
   deleteCredentials = ->
-    [session.username, session.password] = [null, null]
+    [session.username, session.password, session.memberId] = [null, null, null]
     LYT.cache.remove "session", "credentials"
   
   # Get the memberID from the user-info hash, if present
   getMemberId = ->
-    userInfo.memberId or null
+    session.memberId or getCredentials().memberId or userData.memberId or null
   
   # The current logon process(es)
   currentLogOnProcess = null
@@ -96,7 +97,6 @@ LYT.service = do ->
     # If the call goes through
     success = (args...) ->
       deferred.resolve args...
-    
     
     # If the call fails 
     failure = (code, message) ->
@@ -145,9 +145,7 @@ LYT.service = do ->
     
     deferred = currentLogOnProcess = jQuery.Deferred()
     
-    if username and password
-      setCredentials username, password
-    else
+    unless username and password
       {username, password} = credentials if (credentials = getCredentials())
     
     unless username and password
@@ -176,8 +174,9 @@ LYT.service = do ->
           deferred.reject code, message
     
     
-    loggedOn = (info) ->
-      userInfo = info
+    loggedOn = (data) ->
+      setCredentials username, password, data.memberId
+      jQuery.extend userData, data
       LYT.rpc("getServiceAttributes")
         .done(gotServiceAttrs)
         .fail(failed)
@@ -258,7 +257,7 @@ LYT.service = do ->
     LYT.rpc("logOff").always ->
       # Clean up
       deleteCredentials()
-      userInfo = {}
+      userData = {}
       emit "logoff"
   
   
@@ -309,23 +308,25 @@ LYT.service = do ->
   
   # TODO: Temporarily store and fetch bookmarks locally
   getBookmarks: (bookId) ->
-    # deferred = jQuery.Deferred()
-    # bookmarks = LYT.cache.read "bookmarks", id
-    # 
-    # deferred.resolve bookmarks or null
-    
     LYT.bookmarks.get getMemberId(), String(bookId)
+    
+    # Temporary: Just use local storage
+    deferred = jQuery.Deferred()
+    bookmarks = LYT.cache.read "bookmarks", id
+    
+    deferred.resolve bookmarks or null
     
     # TODO: Implement this properly
     # withLogOn -> LYT.rpc("getBookmarks", id)
   
   setBookmarks: (bookId, bookmarks) ->
-    # deferred = jQuery.Deferred()
-    # LYT.cache.write "bookmarks", bookId, bookmarks
-    
-    # deferred.resolve()
-    
     LYT.bookmarks.get getMemberId(), String(bookId), bookmarks
+    
+    Temporary: Just use local storage
+    deferred = jQuery.Deferred()
+    LYT.cache.write "bookmarks", bookId, bookmarks
+    
+    deferred.resolve()
     
     # TODO: Implement this properly
     # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
