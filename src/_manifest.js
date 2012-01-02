@@ -6,7 +6,7 @@ exports.files = [
   "log",
   
   "lyt",
-  
+  "loader",
   "utils",
   "config",
   "cache",
