@@ -64,6 +64,16 @@ LYT.config =
         # Delay before autocompleting (milliseconds)
         delay:     300 # default: 300
   
+  # ### LYT.bookmarks config
+  bookmarks:
+    getUrl: "/devcatalogsearch/search.asmx/GetBookmarks" # No default - must be present
+    setUrl: "/devcatalogsearch/search.asmx/SetBookmarks" # No default - must be present
+  
+  # ### LYT.player config
+  player:
+    # The minimum time between lastmark updates (milliseconds)
+    lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
+  
   # ### LYT.DTBDocument config
   dtbDocument:
     # Whether to use the `forceclose=true` parameter
