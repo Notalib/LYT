@@ -329,8 +329,9 @@ LYT.player =
   updateLastMark: (force = false) ->
     return unless @book? and @section?
     now = (new Date).getTime()
-    return unless force or now-lastBookmark > (LYT.config.player?.lastmarkUpdateInterval || 10000)
+    interval = LYT.config.player?.lastmarkUpdateInterval or 10000
+    return unless force or not @lastBookmark or now-@lastBookmark > interval
     @book.setLastmark @section.id, @getStatus().currentTime
-    lastBookmark = now
-    
+    @lastBookmark = now
   
+

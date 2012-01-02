@@ -122,6 +122,7 @@ LYT.control =
         .done (book) ->        
           LYT.render.bookPlayer book, $(page)
           if not section and offset is 0 and book.lastmark?
+            log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
             section = book.lastmark.section
             offset  = book.lastmark.offset
             # TODO: Set correct URL

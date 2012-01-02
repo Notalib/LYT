@@ -311,22 +311,22 @@ LYT.service = do ->
     LYT.bookmarks.get getMemberId(), String(bookId)
     
     # Temporary: Just use local storage
-    deferred = jQuery.Deferred()
-    bookmarks = LYT.cache.read "bookmarks", bookId
-    
-    deferred.resolve bookmarks or null
+    #deferred = jQuery.Deferred()
+    #bookmarks = LYT.cache.read "bookmarks", bookId
+    #
+    #deferred.resolve bookmarks or null
     
     # TODO: Implement this properly
     # withLogOn -> LYT.rpc("getBookmarks", id)
   
   setBookmarks: (bookId, bookmarks) ->
-    LYT.bookmarks.get getMemberId(), String(bookId), bookmarks
+    LYT.bookmarks.set getMemberId(), String(bookId), bookmarks
     
     # Temporary: Just use local storage
-    deferred = jQuery.Deferred()
-    LYT.cache.write "bookmarks", bookId, bookmarks
-    
-    deferred.resolve()
+    #deferred = jQuery.Deferred()
+    #LYT.cache.write "bookmarks", bookId, bookmarks
+    #
+    #deferred.resolve()
     
     # TODO: Implement this properly
     # withLogOn -> LYT.rpc("setBookmarks", bookmarks)

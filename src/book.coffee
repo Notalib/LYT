@@ -137,8 +137,7 @@ class LYT.Book
         # Get the total time
         @totalTime = metadata.totalTime?.content or ""
         
-        getBookmarks()
-        #resolve()
+        resolve()
     
     
     getBookmarks = =>
@@ -165,8 +164,6 @@ class LYT.Book
             lastmark:  null
             bookmarks: []
         {@lastmark, @bookmarks} = data
-        if @lastmark?
-          log.message "Book: Lastmark: ", @lastmark.section, @lastmark.offset
         resolve()
     
     # Kick the whole process off

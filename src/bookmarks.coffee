@@ -27,19 +27,19 @@ LYT.bookmarks = do ->
     
     # Set up a success handler to parse the response
     options.success = (data, status, jqHXR) ->
-      log.message "Bookmarks: Got bookmarks for book #{bookId}", data
-      
       marks =
         bookmarks: []
         lastmark:  null
       
       # Go thru each bookmark in the response data
-      for mark in data.bookmarks or []
-        # If the bookmark is marked as "current", it's the lastmark
-        if mark.current
-          marks.lastmark = mark
-        else
-          marks.bookmarks.push mark
+      for mark in data.d or []
+        # Convert offset to float
+        unless isNaN (mark.offset = parseFloat mark.offset)
+          # If the bookmark is marked as "current", it's the lastmark
+          if mark.current
+            marks.lastmark = mark
+          else
+            marks.bookmarks.push mark
       
       deferred.resolve marks
     
@@ -66,19 +66,18 @@ LYT.bookmarks = do ->
     if marks.lastmark?
       data.bookmarks.push {
         current: "true"
-        section: "#{book.lastmark.section}"
-        offset:  "#{book.lastmark.offset}"
+        section: "#{marks.lastmark.section}"
+        offset:  "#{marks.lastmark.offset}"
       }
     
     # Add in all the other bookmarks
     data.bookmarks.push mark for mark in marks.bookmarks or []
     
     # Get (build) the request options
-    options = getAjaxOptions LYT.config.bookmarks.setUrl, request
+    options = getAjaxOptions LYT.config.bookmarks.setUrl, data
     
     # Set up a success handler
     options.success = (data, status, jqHXR) ->
-      log.message "Bookmarks: Set bookmarks for book #{bookId}", data
       deferred.resolve()
     
     # Set up an error handler
