@@ -147,9 +147,9 @@ LYT.player =
   stop: () ->
     # Stop playback and loading of media
     @el.jPlayer('stop')
-  
-  
-
+    
+    
+    
   
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
@@ -254,7 +254,7 @@ LYT.player =
       @el.bind $.jPlayer.event.ready, callback
   
   load: (book, section = null, offset = 0, autoPlay = true) ->
-    LYT.render.loading()
+    LYT.loader.set("Henter bog", "player")
     
     #return if book.id is @book?.id
     @book = book
@@ -303,7 +303,7 @@ LYT.player =
       @el.jPlayer "load"
       @play offset if autoPlay
       
-      LYT.render.loading(false)
+      LYT.loader.close("player")
       
     @section.fail ->
       log.error "Player: Failed to load section #{section}"
