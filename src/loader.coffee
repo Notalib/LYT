@@ -23,13 +23,13 @@ LYT.loader = do ->
     # register new loader with ID, if clearStack is true close all previous loaders
     
     jQuery.mobile.showPageLoadingMsg(msg)
-    if loaders.count is 0
+    if loaders.length is 0
       uiLock()
     
     if clearStack
       loaders = [id]
     else
-      loaders.push(id)  
+      loaders.push id
     
   clear: () ->
     loaders = []
@@ -38,9 +38,10 @@ LYT.loader = do ->
   
   close: (id) ->
     # close loader with id and unlock interface if we all loaders are closed
-    loaders.remove(id)
+    while (index = loaders.indexOf(id)) > -1
+      loaders.splice index, 1
     
-    if loaders.count is 0
+    if loaders.length is 0
       jQuery.mobile.hidePageLoadingMsg()
       uiUnLock()
   
