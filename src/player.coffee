@@ -74,9 +74,11 @@ LYT.player =
           false
                      
       timeupdate: (event) =>
-        if event.jPlayer.status.duration - event.jPlayer.status.currentTime < 2
-          log.warn "Player: media is 2 seconds from ending and we can'ht handle that - skip ahead now"
-          @nextSection true
+        if event.jPlayer.status.duration > 0 and event.jPlayer.status.currentTime > 1
+          timeleft = event.jPlayer.status.duration - event.jPlayer.status.currentTime
+          if timeleft < 2
+            log.warn "Player: media is #{timeleft} seconds from ending and we can'ht handle that - skip ahead now"
+            @nextSection true
           
         @updateHtml(event.jPlayer.status)
       
