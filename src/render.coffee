@@ -34,18 +34,18 @@ LYT.render = do ->
     </li>
     """
     
-    
-    # Attempt to get the book's cover image
-    cover = new Image
-    cover.onload = -> element.find("img.cover-image").attr "src", @src
-    cover.src = getCover book.id
+    loadCover element.find("img.cover-image").attr book.id
     
     return element
   
-  getCover = (id) ->
-    return LYT.render.defaultCover unless id?
-    # TODO: It'd be nice to get this URL cut down a bit. Maybe just an absolute path
+  getCoverSrc = (id) ->
     "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
+  
+  loadCover = (img, id) ->
+    img.attr "src" LYT.render.defaultCover   
+    cover = new Image
+    cover.src = getCoverSrc id
+    cover.onload = -> img.attr "src", @src
   
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
@@ -86,13 +86,17 @@ LYT.render = do ->
   bookPlayer: (book, view) ->
     view.find("#title").text book.title  
     view.find("#author").text book.author
+    loadCover view.find("#currentbook_image img"), book.id
     #view.find("#book_chapter").text section.title
+  
+  bookSection: (section, )
     
   
   bookDetails: (details, view) ->
     view.find("#title").text details.title
     view.find("#author").text details.author
     view.find("#description").text details.description
+    loadCover view.find("img.cover-image"), details.id
     # TODO: totalTime isn't available in getContentMetadata
     # view.find("#totaltime").text details.totalTime
     
