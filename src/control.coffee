@@ -90,9 +90,7 @@ LYT.control =
         
         LYT.loader.register "Loading index", process
   
-  bookPlayer: (type, match, ui, page, event) -> 
-    # if type is 'pagebeforeshow'
-    #   f
+  bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'  
       params = LYT.router.getParams(match[1])
   
@@ -110,7 +108,7 @@ LYT.control =
             section = book.lastmark.section
             offset  = book.lastmark.offset
             
-          LYT.player.load book, section, offset
+          LYT.player.load book, section, offset, false
           ###
           $("#book-play").bind "swiperight", ->
               LYT.player.nextSection()
