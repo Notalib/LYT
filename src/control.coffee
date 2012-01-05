@@ -95,10 +95,9 @@ LYT.control =
             LYT.render.bookIndex(book, content)
             LYT.loader.close("get_index")
   
-  bookPlayer: (type, match, ui, page, event) -> 
-    if type is 'pagebeforeshow'
+  bookPlayer: (type, match, ui, page, event) ->
+    if type is 'pageshow'
       LYT.loader.set("Henter bog", "player")
-    if type is 'pageshow'  
       params = LYT.router.getParams(match[1])
   
       header = $(page).children( ":jqmData(role=header)")
