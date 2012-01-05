@@ -275,7 +275,7 @@ LYT.player =
     #return if book.id is @book?.id
     @book = book
     
-    LYT.loader.register "Loading book", @book
+    #LYT.loader.register "Loading book", @book
     
     log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
     @book.done =>

@@ -89,8 +89,6 @@ LYT.render = do ->
     loadCover view.find("#currentbook_image img"), book.id
     #view.find("#book_chapter").text section.title
   
-  bookSection: (section, )
-    
   
   bookDetails: (details, view) ->
     view.find("#title").text details.title

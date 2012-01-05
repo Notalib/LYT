@@ -102,7 +102,7 @@ LYT.control =
       section = params.section or null
       offset = params.offset or 0
       
-      LYT.Book.load(params.book)
+      process = LYT.Book.load(params.book)
         .done (book) ->        
           LYT.render.bookPlayer book, $(page)
           if not section and offset is 0 and book.lastmark?
@@ -114,13 +114,15 @@ LYT.control =
           ###
           $("#book-play").bind "swiperight", ->
               LYT.player.nextSection()
-      
+          
           $("#book-play").bind "swipeleft", ->
               LYT.player.previousSection()
           ###
-      
+        
         .fail () ->
           log.error "Control: Failed to load book ID #{params.book}"
+      
+      LYT.loader.register "Loading book", process
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
