@@ -80,6 +80,9 @@ LYT.control =
   
   bookIndex: (type, match, ui, page, event) ->
     if type is 'pageshow'
+      
+      return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
+      
       LYT.loader.set("Henter indeks", "get_index")
       
       params = LYT.router.getParams(match[1])
