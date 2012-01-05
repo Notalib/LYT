@@ -7,7 +7,13 @@ LYT.control =
       
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
-          $.mobile.changePage "#bookshelf"
+          log.message ui
+          if ui.prevPage 
+            next = ui.prevPage
+          else
+            next = "#bookshelf"
+          
+          $.mobile.changePage next
         
         .fail ->
           log.message "log on failure"
