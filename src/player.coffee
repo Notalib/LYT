@@ -76,8 +76,7 @@ LYT.player =
           false
                      
       timeupdate: (event) =>
-        #if jQuery.jPlayer.platform.iphone
-        @fakeEnd(event.jPlayer.status)  
+        #@fakeEnd(event.jPlayer.status)  
         @updateHtml(event.jPlayer.status)
       
       loadstart: (event) =>
