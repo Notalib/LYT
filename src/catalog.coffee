@@ -8,12 +8,12 @@ window.SEARCH_GENERAL_ERROR = {}
 
 # --------
 
-# Define the `LYT.search` object
-LYT.search = do ->
+# Define the `LYT.catalog` object
+LYT.catalog = do ->
   
   autocompleteCache = {}
   
-  # Sorting options for the server-side `SearchFlex` function
+  # Sorting options for the server-side function
   SORTING_OPTIONS =
     "new":        1 # default
     "lastmonth":  2
@@ -26,7 +26,7 @@ LYT.search = do ->
     "yeardesc":   9
     "series":     10
   
-  # Fields to be searched by the server-side `SearchFlex` function
+  # Fields to be searched by the server-side function
   FIELD_OPTIONS =
     "freetext": 0 # all fields (default)
     "author":   1
@@ -54,16 +54,16 @@ LYT.search = do ->
   # In case of an error, the deferred will be rejected with the
   # `SEARCH_GENERAL_ERROR` constant, the response status, and
   # the error thrown
-  full = (term, page = 1) ->
+  search = (term, page = 1) ->
     # Get the search params
     params =
-      term:     term
+      term: term
       options:
-        pagesize: LYT.config.search.full.pageSize or 10
+        pagesize: LYT.config.catalog.search.pageSize or 10
         pagenbr:  page
     
     # Get the ajax options
-    options = getAjaxOptions LYT.config.search.full.url, params
+    options = getAjaxOptions LYT.config.catalog.search.url, params
     
     # Create the deferred
     deferred = jQuery.Deferred()
@@ -79,7 +79,7 @@ LYT.search = do ->
     deferred
   
   
-  # Create an AJAX success handler (this could be inside `full`,
+  # Create an AJAX success handler (this could be inside `search`,
   # but has been placed here for clarity)
   createResponseHandler = (deferred, currentPage) ->
     (data, status, jqHXR) ->
@@ -98,7 +98,7 @@ LYT.search = do ->
       # updated with a "number of pages" or "next page available"
       # value
       results.currentPage = currentPage
-      if results.length >= (LYT.config.search.full.pageSize or 10)
+      if results.length >= (LYT.config.catalog.search.pageSize or 10)
         results.nextPage = currentPage + 1
       else
         results.nextPage = false
@@ -106,7 +106,7 @@ LYT.search = do ->
       deferred.resolve results
   
   
-  # Create an AJAX error handler (this could be inside `full`,
+  # Create an AJAX error handler (this could be inside `search`,
   # but has been placed here for clarity)
   createErrorHandler = (deferred) ->
     (jqXHR, status, error) ->
@@ -125,7 +125,7 @@ LYT.search = do ->
   #
   # To listen for autocomplete suggestions, add an event listener:
   #
-  #     jQuery(LYT.search).bind "autocomplete", (event) ->
+  #     jQuery(LYT.catalog).bind "autocomplete", (event) ->
   #       # results are passed as event.data
   # 
   
@@ -138,14 +138,14 @@ LYT.search = do ->
   # Returns an options array for the autocomplete function.
   getAutocompleteOptions = ->
     # Clone the autocomplete options from config
-    setup = jQuery.extend {}, (LYT.config.search.autocomplete.setup or {})
+    setup = jQuery.extend {}, (LYT.config.catalog.autocomplete.setup or {})
     
     # Add the `source` callback
     setup.source = (request, response) ->
       # Create the AJAX options. Since `request` is a simple object containing
       # a single value, called `term`, the request object can be sent directly
       # to the `getAjaxOptions` helper
-      options = getAjaxOptions LYT.config.search.autocomplete.url, request
+      options = getAjaxOptions LYT.config.catalog.autocomplete.url, request
       
       # An internal function to be called when the AJAX call completes
       complete = (results) ->
@@ -159,7 +159,7 @@ LYT.search = do ->
         event = jQuery.Event "autocomplete"
         event.results = results
         #log.message "Search: Emitting autocomplete event"
-        jQuery(LYT.search).trigger event
+        jQuery(LYT.catalog).trigger event
       
       if autocompleteCache[request.term]?
         complete autocompleteCache[request.term]
@@ -180,7 +180,7 @@ LYT.search = do ->
   
   
   # Expose the functions
-  full:                   full
+  search:                 search
   attachAutocomplete:     attachAutocomplete
   getAutocompleteOptions: getAutocompleteOptions
 

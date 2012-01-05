@@ -16,7 +16,7 @@ exports.files = [
   "rpc",
   "bookmarks",
   "service",
-  "search",
+  "catalog",
   
   "dtbdocument",
   "smildocument",

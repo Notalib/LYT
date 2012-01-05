@@ -44,10 +44,10 @@ LYT.config =
     # Number of books to load per page
     pageSize: 5 # default: 5
   
-  # ### LYT.search config
-  search:
+  # ### LYT.catalog config
+  catalog:
     # Full (free text) search options
-    full:
+    search:
       url: "/CatalogSearch/search.asmx/SearchCatalog" # No default - must be present
       pageSize: 10 # Default: 10
     
