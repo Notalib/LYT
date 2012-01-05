@@ -260,10 +260,10 @@ LYT.player =
       @el.bind $.jPlayer.event.ready, callback
   
   load: (book, section = null, offset = 0, autoPlay = true) ->
-    LYT.loader.set("Henter bog", "player")
-    
     #return if book.id is @book?.id
     @book = book
+    
+    LYT.loader.register "Loading book", @book
     
     log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
     @book.done =>
@@ -281,6 +281,8 @@ LYT.player =
   playSection: (section, offset = 0, autoPlay = true) ->
     #return if section is @section
     @section = section
+    
+    LYT.loader.register "Loading book", @section
     
     @section.done =>
       log.message "Player: Playlist current section #{@section.id}"
@@ -308,8 +310,6 @@ LYT.player =
       
       @el.jPlayer "load"
       @play offset if autoPlay
-      
-      LYT.loader.close("player")
       
     @section.fail ->
       log.error "Player: Failed to load section #{section}"
