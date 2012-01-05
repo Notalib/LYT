@@ -214,14 +214,12 @@ LYT.player =
     # Starts playing at time seconds if specified, else from 
     # when media was paused or from the beginning.
     # android, chrome, ipad and firefox uses and intent
-    # safari uses a immediate play
-    
+    # safari uses a immediate play   
     
     if $.jPlayer.platform.iphone
       log.message 'this is play on iphone'
       @pause()
-      
-    
+         
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
