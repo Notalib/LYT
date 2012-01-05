@@ -76,7 +76,7 @@ LYT.player =
           false
                      
       timeupdate: (event) =>
-        #@fakeEnd(event.jPlayer.status)  
+        @fakeEnd(event.jPlayer.status)  
         @updateHtml(event.jPlayer.status)
       
       loadstart: (event) =>
@@ -330,7 +330,7 @@ LYT.player =
     #@playlist.
     
     return null unless @playlist?.hasNextSection()
-    section = @playlist.next()
+    section = @playlist.getNextSection()
     
     #if $.mobile.activePage.attr('id') is 'book-play'
     #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
@@ -339,7 +339,7 @@ LYT.player =
   
   previousSection: (autoPlay = false) ->
     return null unless @playlist?.hasPreviousSection()
-    section = @playlist.previous()
+    section = @playlist.getPreviousSection()
     
     #if $.mobile.activePage.attr('id') is 'book-play'
     #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
