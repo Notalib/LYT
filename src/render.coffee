@@ -42,7 +42,7 @@ LYT.render = do ->
     "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
   
   loadCover = (img, id) ->
-    img.attr "src" LYT.render.defaultCover   
+    img.attr "src", LYT.render.defaultCover   
     cover = new Image
     cover.src = getCoverSrc id
     cover.onload = -> img.attr "src", @src
