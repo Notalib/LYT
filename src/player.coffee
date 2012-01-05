@@ -320,16 +320,20 @@ LYT.player =
     
     return null unless @playlist?.hasNextSection()
     section = @playlist.next()
-    $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}"
     
-    #@playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
-  
+    #if $.mobile.activePage.attr('id') is 'book-play'
+    #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
+    #else
+    @playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
   
   previousSection: (autoPlay = false) ->
     return null unless @playlist?.hasPreviousSection()
     section = @playlist.previous()
-    $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}"
-    #@playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
+    
+    #if $.mobile.activePage.attr('id') is 'book-play'
+    #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
+    #else
+    @playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
     
   
   updateLastMark: (force = false) ->
