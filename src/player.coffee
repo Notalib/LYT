@@ -26,6 +26,8 @@ LYT.player =
   nextButton: null
   previousButton: null
   
+  fakeEndScheduled: false
+  
   playAttemptCount: 0
   
   lastBookmark: null
@@ -74,12 +76,8 @@ LYT.player =
           false
                      
       timeupdate: (event) =>
-        if event.jPlayer.status.duration > 0 and event.jPlayer.status.currentTime > 1
-          timeleft = event.jPlayer.status.duration - event.jPlayer.status.currentTime
-          if timeleft < 0.3 and timeleft > 0
-            log.warn "Player: media is #{timeleft} seconds from ending and we can'ht handle that - skip ahead now"
-            @nextSection true
-          
+        #if jQuery.jPlayer.platform.iphone
+        @fakeEnd(event.jPlayer.status)  
         @updateHtml(event.jPlayer.status)
       
       loadstart: (event) =>
@@ -131,6 +129,20 @@ LYT.player =
       supplied: "mp3"
       solution: 'html, flash'
     
+  fakeEnd: (status) ->
+    return unless status.duration > 0 and status.currentTime > 1
+    timeleft = status.duration - status.currentTime
+    if timeleft < 1 and timeleft > 0
+      #log.message @fakeEndScheduled
+      if @fakeEndScheduled is false
+        @fakeEndScheduled = true
+        log.warn "Player: media is #{timeleft} seconds from ending but we can't handle endings - schedule a fake end just before"      
+        
+        setTimeout (
+          => 
+            @nextSection true
+            @fakeEndScheduled = false ),
+          (timeleft*1000)-50 
     
   pause: ->
     # Pause playback

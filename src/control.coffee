@@ -86,7 +86,7 @@ LYT.control =
   
   bookPlayer: (type, match, ui, page, event) -> 
     # if type is 'pagebeforeshow'
-    #   LYT.loader.set("Henter bog", "player")
+    #   f
     if type is 'pageshow'  
       params = LYT.router.getParams(match[1])
   
