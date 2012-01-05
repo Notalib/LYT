@@ -129,49 +129,47 @@ LYT.control =
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
       loadResults = (term, page = 1) ->
-        LYT.loader.set "Loading results", "search"
-        LYT.search.full term, page
+        LYT.loader.set LYT.i18n("Searching"), "search"
+        LYT.search.full(term, page)
           .done (results) ->
             $("#more-search-results").unbind "click"
             $("#more-search-results").click (event) ->
               loadResults term, results.nextPage if results.nextPage
               event.preventDefault()
               event.stopImmediatePropagation()
-          
+            
             LYT.render.searchResults(results, content)
-            LYT.loading.close "search"
-    
+            LYT.loader.close "search"
+      
       if match?[1]
         params = LYT.router.getParams match[1]
       else
         params = {}
-    
+      
       params.term = jQuery.trim(decodeURI(params.term or "")) or null
-    
+      
       content = $(page).children( ":jqmData(role=content)" )
-    
+      
       LYT.search.attachAutocomplete $('#searchterm')
       $("#searchterm").bind "autocompleteselect", (event, ui) ->
         loadResults ui.item.value
         $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
-        
+      
       # this allows for bookmarkable search terms
       if params.term and $('#searchterm').val() isnt params.term
         $('#searchterm').val params.term
         loadResults params.term
-    
-      $("#search-form").submit (event) ->
-        log.message 'you searched'      
-        $('#searchterm').blur()
-        LYT.render.loading()
       
+      $("#search-form").submit (event) ->
+        $('#searchterm').blur()
+        
         term = encodeURI $('#searchterm').val()
         loadResults $('#searchterm').val()
         $.mobile.changePage "#search?term=#{term}" , transition: "none"
-      
+        
         event.preventDefault()
         event.stopImmediatePropagation()
-      
+        
         #$.mobile.changePage "#search",
         #  allowSamePageTransition: true
         #  type: "get"
