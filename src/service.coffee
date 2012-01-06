@@ -153,9 +153,6 @@ LYT.service = do ->
       deferred.reject()
       return deferred
     
-    session.username = username
-    session.password = password
-    
     # The maximum number of attempts to make
     attempts = LYT.config.service?.logOnAttempts or 3
     
