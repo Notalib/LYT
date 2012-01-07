@@ -2,8 +2,8 @@
 #
 # This module is a facade or abstraction layer between the
 # controller/model code and the `rpc`/`protocol` functions.
-# As such, it's not a 1-to-1 mapping of the DODP web service
-# (that's `protocol`'s job).
+# As such, it's **not** a 1-to-1 mapping of the DODP web
+# service (that's `protocol`'s job).
 #
 # The `service` object may emit the following events:
 # 
@@ -22,6 +22,7 @@
 # ---------------
 
 LYT.service = do ->
+  # # Privileged API
   
   # optional service operations  
   operations =
@@ -135,10 +136,10 @@ LYT.service = do ->
     
     deferred
   
-  # Perform the logOn handshake:
-  # logOn -> getServiceAttributes -> setReadingSystemAttributes
+  # Perform the logOn handshake:  
+  # `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
   logOn = (username, password) ->
-    # Check for pending logon processes
+    # Check for and return any pending logon processes
     return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state() is "pending"
     
     currentRefreshSessionProcess.reject() if currentRefreshSessionProcess? and currentRefreshSessionProcess.state() is "pending"
@@ -158,7 +159,7 @@ LYT.service = do ->
     
     # (For readability, the handlers are separated out here)
     
-    # FIXME: Flesh out error handling
+    # TODO: Flesh out error handling
     failed = (code, message) ->
       if code is RPC_UNEXPECTED_RESPONSE_ERROR
         emit "logon:rejected"
