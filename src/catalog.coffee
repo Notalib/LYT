@@ -194,6 +194,33 @@ LYT.catalog = do ->
     deferred
   
   
+  getDetails = (bookId) ->
+    deferred = jQuery.Deferred()
+    
+    data = itemid: String( bookId )
+    url  = LYT.config.catalog.details.url
+    
+    options = getAjaxOptions url, data
+    
+    # Perform the request
+    jQuery.ajax(options)
+      # On success, extract the results and pass them on
+      .done (data) ->
+        if not data.d? or data.d.length isnt 1
+          deferred.reject()
+          return
+        
+        info = data.d.pop()
+        info.id = info.itemid
+        
+        deferred.resolve info
+      
+      # On fail, reject the deferred
+      .fail ->
+        deferred.reject()
+    
+    deferred
+  
   # ## Public API
   
   SORTING_OPTIONS:        SORTING_OPTIONS
@@ -202,4 +229,5 @@ LYT.catalog = do ->
   attachAutocomplete:     attachAutocomplete
   getAutocompleteOptions: getAutocompleteOptions
   getSuggestions:         getSuggestions
+  getDetails:             getDetails
 

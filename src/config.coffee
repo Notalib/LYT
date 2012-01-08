@@ -66,6 +66,9 @@ LYT.config =
     
     suggestions:
       url: "/CatalogSearch/search.asmx/GetPushItems"
+    
+    details:
+      url: "/CatalogSearch/search.asmx/GetItemById"
   
   # ### LYT.bookmarks config
   bookmarks:
