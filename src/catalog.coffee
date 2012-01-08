@@ -83,16 +83,8 @@ LYT.catalog = do ->
   # but has been placed here for clarity)
   createResponseHandler = (deferred, currentPage) ->
     (data, status, jqHXR) ->
-      results = []
-      if data.d? and data.d.length > 0 and not (/noresults/i).test data.d[0].results
-        results = (for item in data.d
-          {
-            id:     item.itemid
-            title:  item.title
-            author: item.author
-            media:  item.media
-          }
-        )
+      results = data.d or []
+      item.id = item.itemid for item in results
       
       # TODO: Temporary "solution", until the server response gets
       # updated with a "number of pages" or "next page available"
@@ -172,15 +164,40 @@ LYT.catalog = do ->
           results = data.d or []
           autocompleteCache[request.term] = results
           complete results
-        # On fail, just call `complete`
-        .fail complete
+        # On fail, just call `complete` (i.e. fail silently)
+        .fail -> complete []
     
     # Return the setup object
     setup
   
+  getRecommendations = ->
+    deferred = jQuery.Deferred()
+    
+    data = memberid: String( LYT.session.getMemberId() )
+    url  = LYT.config.catalog.recommendations.url
+    
+    options = getAjaxOptions url, data
+    
+    # Perform the request
+    jQuery.ajax(options)
+      # On success, extract the results and pass them on
+      .done (data) ->
+        results = data.d or []
+        item.id = item.itemid for item in results
+        
+        deferred.resolve results
+      
+      # On fail, reject the deferred
+      .fail ->
+        deferred.reject()
+    
+    deferred
+  
+  # ## Public API
   
   # Expose the functions
   search:                 search
   attachAutocomplete:     attachAutocomplete
   getAutocompleteOptions: getAutocompleteOptions
+  getRecommendations:     getRecommendations
 
