@@ -54,9 +54,7 @@ LYT.catalog = do ->
   # In case of an error, the deferred will be rejected with the
   # `SEARCH_GENERAL_ERROR` constant, the response status, and
   # the error thrown
-  search = (term, page = 1, params = {}) ->
-    
-    getNextPage = -> search term, page+1
+  search = (term, page = 1, params = {}, pageSize = null) ->
     
     # AJAX success handler
     success = (data, status, jqHXR) ->
@@ -68,7 +66,7 @@ LYT.catalog = do ->
       # value
       results.currentPage = page
       if results.length >= (LYT.config.catalog.search.pageSize or 10)
-        results.loadNextPage = -> search term, page+1, params
+        results.loadNextPage = -> search term, page+1, params, pageSize
       else
         results.loadNextPage = null
       
@@ -89,7 +87,7 @@ LYT.catalog = do ->
     data =
       term: term
       options:
-        pagesize: LYT.config.catalog.search.pageSize or 10
+        pagesize: pageSize or LYT.config.catalog.search.pageSize or 10
         pagenbr:  page
     
     jQuery.extend data.options, params
@@ -171,11 +169,12 @@ LYT.catalog = do ->
     # Return the setup object
     setup
   
-  getRecommendations = ->
+  # Get book suggestions
+  getSuggestions = ->
     deferred = jQuery.Deferred()
     
     data = memberid: String( LYT.session.getMemberId() )
-    url  = LYT.config.catalog.recommendations.url
+    url  = LYT.config.catalog.suggestions.url
     
     options = getAjaxOptions url, data
     
@@ -194,11 +193,13 @@ LYT.catalog = do ->
     
     deferred
   
+  
   # ## Public API
   
-  # Expose the functions
+  SORTING_OPTIONS:        SORTING_OPTIONS
+  FIELD_OPTIONS:          FIELD_OPTIONS
   search:                 search
   attachAutocomplete:     attachAutocomplete
   getAutocompleteOptions: getAutocompleteOptions
-  getRecommendations:     getRecommendations
+  getSuggestions:         getSuggestions
 

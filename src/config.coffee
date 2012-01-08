@@ -64,7 +64,7 @@ LYT.config =
         # Delay before autocompleting (milliseconds)
         delay:     300 # default: 300
     
-    recommendations:
+    suggestions:
       url: "/CatalogSearch/search.asmx/GetPushItems"
   
   # ### LYT.bookmarks config
