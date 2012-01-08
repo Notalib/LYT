@@ -13,22 +13,23 @@ option "-c", "--concat", "Concatenate src/ files before compiling"
 
 # ---------------- Tasks
 
+task "app", "same as `cake html src sass`", (options) ->
+  invoke task for task in ["src", "html", "sass"]
+
 
 task "src", "compile src/ into build/javascript", (options) ->
   compileSrc options
 
+
 task "html", "compile html/ into build/index.html", (options) ->
-  style options
   sync "#{ROOT}/assets/", "#{DEST}/"
   console.log "synced assets/ -> build/"
   html options
 
 
-task "css", "sync css/ to build/css DEPRECATED", (options) ->
-  css options
+task "sass", "compile sass/ into build/css", (options) ->
+  style options
 
-task "style", "compile sass/ to build/css", (options) ->
-    style options
 
 task "docs", "run Docco on the files in src/", (options) ->
   exec "mkdir -p '#{DEST}'", (err) ->
@@ -118,7 +119,7 @@ css = ->
 # Compile sass to css
 style = (options) ->
   sass options, -> 
-    console.log "compiled sass -> build/css"
+    console.log "compiled sass/ -> build/css"
 
 
 # Build the html
@@ -137,7 +138,7 @@ html = (options) ->
       pages = pages.replace /^/mg, leading
       template = template.replace /<!--\s*body\s*-->/i, pages
       fs.writeFileSync "#{DEST}/index.html", template, "utf8"
-      console.log "wrote build/index.html"
+      console.log "compiled html/ -> build/index.html"
 
 
 # ---------------- Helpers/utils
@@ -146,9 +147,8 @@ html = (options) ->
 
 sass = (options, callback) ->
   exec "sass --update sass:build/css", (err, stdout) ->
-    console.log err if err?
-    console.log stdout if stdout?
-    callback?() if not err?
+    throw err if err?
+    callback?()
     
 
 # Compile CoffeeScript file(s)
