@@ -181,7 +181,7 @@ LYT.control =
   
   
   settings: (type, match, ui, page, event) ->
-    style = LYT.settings.get('textStyle')
+    style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
     
     $("#style-settings").find("input").each ->
       name = $(this).attr 'name'

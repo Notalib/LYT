@@ -1,36 +1,52 @@
 # This module sets and retrieves user specific settings
-LYT.settings =
+LYT.settings = do ->
   
-  # default settings
-  data: {
+  # Default settings  
+  # TODO: How much of this is actually used?
+  defaults =
+    textPresentation: "full" 
+    readSpeed:        "1.0"
+    textMode:         1
     textStyle:
-      'font-size': "14px"
+      'font-size':        "14px"
       'background-color': "transparent"
-      'color': "#000000"
-      'font-family': "Helvetica"
-    textPresentation: "full"
-    readSpeed: "1.0"
-    textMode: 1 # phrasemode = 1, All text = 2
-  }
-  
-  init: () ->
-    log.message 'Settings: init'
-    @load()
+      'color':            "#000000"
+      'font-family':      "Helvetica"
+    # phrasemode: 1
+    # All text:   2
   
   # Load settings if they are set in localstorage
-  load: ->
-    data = LYT.cache.read("lyt","settings")   
-    unless data is null
-      @data = data
+  settings = jQuery.extend {}, defaults, LYT.cache.read("lyt","settings") or {}
+  
+  # Save the settings in local storage
+  save = ->
+    LYT.cache.write "lyt", "settings", settings
+  
+  # Emit a "value changed" event
+  emit = (key, newValue, previousValue)->
+    event = jQuery.Event "changed"
+    event.key           = key
+    event.newValue      = newValue
+    event.previousValue = previousValue
+    jQuery(LYT.settings).trigger event
+  
+  # ## Public API
   
   get: (key) -> 
-    #todo: key not found error
-    return @data[key]
+    # TODO: key not found error
+    settings[key]
   
   set: (key, value) ->
-    @data[key] = value
-    @save()
+    prev = settings[key]
+    if value isnt prev
+      settings[key] = value
+      save()
+      emit key, value, prev
   
-  save: ->
-    LYT.cache.write("lyt", "settings", @data)
-    
+  save: save
+  
+  reset: ->
+    settings = jQuery.extend {}, defaults
+    save()
+  
+
