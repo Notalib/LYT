@@ -55,14 +55,9 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
         
-      process = LYT.Book.getDetails(params.book)
+      process = LYT.catalog.getDetails(params.book)
         .done (details) ->
           LYT.render.bookDetails(details, content)
-          
-          content.find("#play-button").click (event) ->
-            $.mobile.changePage("#book-play?book=#{params.book}")
-            event.preventDefault()
-            event.stopImmediatePropagation()
           
           content.find("#add-to-bookshelf-button").one "click", (event) ->
             # TODO: This is far from perfect: There's no way

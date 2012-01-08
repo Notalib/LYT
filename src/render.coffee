@@ -94,10 +94,13 @@ LYT.render = do ->
   bookDetails: (details, view) ->
     view.find("#title").text details.title
     view.find("#author").text details.author
-    view.find("#description").text details.description
+    view.find("#description").text details.teaser
+    view.find("#narrator").text details.speaker
     loadCover view.find("img.cover-image"), details.id
     # TODO: totalTime isn't available in getContentMetadata
     # view.find("#totaltime").text details.totalTime
+    
+    view.find("#play-button").attr "href", "#book-play?book=#{details.id}"
     
   
   bookIndex: (book, view) ->  
