@@ -18,6 +18,7 @@ exports.files = [
   "bookmarks",
   "service",
   "catalog",
+  "lists",
   
   "dtbdocument",
   "smildocument",

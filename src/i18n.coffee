@@ -13,6 +13,11 @@ LYT.i18n = do ->
     "Loading index":            "Indlæser indholdsfortegnelse"
     "Searching":                "Søger"
     "Loading book":             "Indlæser bog"
+    "Suggestions":              "Nota anbefaler"
+    "Lastest books":            "Nyeste bøger"
+    "Most popular":             "Top 10 bøger"
+    "Most popular - Kids":      "Top 10 - børn & unge"
+    "Most popular - Adults":    "Top 10 - voksne"
   
   # The i18n function. Returns either the "translated"
   # string, or - if no translation was found - the
