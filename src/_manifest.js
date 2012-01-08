@@ -10,6 +10,7 @@ exports.files = [
   "loader",
   "utils",
   "config",
+  "session",
   "cache",
   
   "protocol",

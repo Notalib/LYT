@@ -32,41 +32,6 @@ LYT.service = do ->
     SERVICE_ANNOUNCEMENTS: no
     PDTB2_KEY_PROVISION:   no
   
-  
-  # "session" storage  
-  # TODO: Perhaps this and userData should move to a separate module?
-  session =
-    username: null
-    password: null
-    memberId: null
-  
-  
-  # User-info
-  userData = {}
-  
-  
-  # Get previously stored username/password
-  getCredentials = ->
-    unless session? and session.username? and session.password?
-      session = LYT.cache.read "session", "credentials"
-    session
-  
-  # Store the username/password
-  setCredentials = (username, password, memberId) ->
-    session or= {}
-    [session.username, session.password, session.memberId] = [username, password, memberId]
-    # FIXME: This should respect the automatic log-on option in the user's settings
-    LYT.cache.write "session", "credentials", session if session.username? and session.password?
-  
-  # Delete the username/password (used when explicitly logging out)
-  deleteCredentials = ->
-    [session.username, session.password, session.memberId] = [null, null, null]
-    LYT.cache.remove "session", "credentials"
-  
-  # Get the memberID from the user-info hash, if present
-  getMemberId = ->
-    session.memberId or getCredentials().memberId or userData.memberId or null
-  
   # The current logon process(es)
   currentLogOnProcess = null
   currentRefreshSessionProcess = null
@@ -147,7 +112,7 @@ LYT.service = do ->
     deferred = currentLogOnProcess = jQuery.Deferred()
     
     unless username and password
-      {username, password} = credentials if (credentials = getCredentials())
+      {username, password} = credentials if (credentials = LYT.session.getCredentials())
     
     unless username and password
       emit "logon:rejected"
@@ -173,8 +138,8 @@ LYT.service = do ->
     
     
     loggedOn = (data) ->
-      setCredentials username, password, data.memberId
-      jQuery.extend userData, data
+      LYT.session.setCredentials username, password
+      LYT.session.setInfo data
       LYT.rpc("getServiceAttributes")
         .done(gotServiceAttrs)
         .fail(failed)
@@ -230,7 +195,7 @@ LYT.service = do ->
     
     fail = -> deferred.reject()
     
-    {username, password} = credentials if (credentials = getCredentials())
+    {username, password} = credentials if (credentials = LYT.session.getCredentials())
     unless username and password
       fail()
       return deferred
@@ -254,8 +219,7 @@ LYT.service = do ->
   logOff: ->
     LYT.rpc("logOff").always ->
       # Clean up
-      deleteCredentials()
-      userData = {}
+      LYT.session.clear()
       emit "logoff"
   
   
@@ -306,14 +270,14 @@ LYT.service = do ->
   
   getBookmarks: (bookId) ->
     # Use the non-DODP service
-    LYT.bookmarks.get getMemberId(), String(bookId)
+    LYT.bookmarks.get LYT.session.getMemberId(), String(bookId)
     
     # TODO: Here's the stub for the DODP-service. Implement this properly
     # withLogOn -> LYT.rpc("getBookmarks", id)
   
   setBookmarks: (bookId, bookmarks) ->
     # Use the non-DODP service
-    LYT.bookmarks.set getMemberId(), String(bookId), bookmarks
+    LYT.bookmarks.set LYT.session.getMemberId(), String(bookId), bookmarks
     
     # TODO: Here's the stub for the DODP-service. Implement this properly
     # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
