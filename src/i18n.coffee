@@ -14,7 +14,7 @@ LYT.i18n = do ->
     "Searching":                "Søger"
     "Loading book":             "Indlæser bog"
     "Suggestions":              "Nota anbefaler"
-    "Lastest books":            "Nyeste bøger"
+    "Latest books":             "Nyeste bøger"
     "Most popular":             "Top 10 bøger"
     "Most popular - Kids":      "Top 10 - børn & unge"
     "Most popular - Adults":    "Top 10 - voksne"
