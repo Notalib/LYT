@@ -155,6 +155,9 @@ LYT.control =
       if params.term and $('#searchterm').val() isnt params.term
         $('#searchterm').val params.term
         handleResults LYT.catalog.search(params.term)
+      else
+        # TODO: Simple, rough implementation
+        LYT.render.catalogLists handleResults, content
       
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
@@ -165,18 +168,6 @@ LYT.control =
         
         event.preventDefault()
         event.stopImmediatePropagation()
-        
-        #$.mobile.changePage "#search",
-        #  allowSamePageTransition: true
-        #  type: "get"
-        #  data: $("form#search-form").serialize()
-      
-        #$.mobile.changePage("#{page}?term=#{$('#searchterm').val()}")
-      
-        #LYT.search.full()
-        #  .done (results) ->
-        #    LYT.render.searchResults(results, content)
-        #    $.mobile.hidePageLoadingMsg()
       
   
   

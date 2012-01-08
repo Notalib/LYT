@@ -159,3 +159,18 @@ LYT.render = do ->
     
     list.listview('refresh')
   
+  # TODO: Simple, rough implementation
+  catalogLists: (callback, view) ->
+    list = view.find "ul"
+    list.empty()
+    
+    for query in LYT.lists
+      listItem = jQuery """<li><h3><a href="#">#{LYT.i18n query.title}</a></h3></li>"""
+      listItem.find("a").click (event) ->
+        callback query.callback()
+        event.preventDefault()
+        event.stopImmediatePropagation()
+      
+      list.append listItem
+    
+    list.listview('refresh')
