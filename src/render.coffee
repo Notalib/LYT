@@ -152,7 +152,7 @@ LYT.render = do ->
     
     list.append bookListItem("book-details", result) for result in results
     
-    if results.nextPage
+    if results.loadNextPage?
       $("#more-search-results").show()
     else
       $("#more-search-results").hide()

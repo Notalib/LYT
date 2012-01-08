@@ -124,18 +124,18 @@ LYT.control =
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      loadResults = (term, page = 1) ->
-        process = LYT.catalog.search(term, page)
-          .done (results) ->
-            $("#more-search-results").unbind "click"
-            $("#more-search-results").click (event) ->
-              loadResults term, results.nextPage if results.nextPage
-              event.preventDefault()
-              event.stopImmediatePropagation()
-            
-            LYT.render.searchResults(results, content)
-        
+      
+      handleResults = (process) ->
         LYT.loader.register "Searching", process
+        process.done (results) ->
+          $("#more-search-results").unbind "click"
+          $("#more-search-results").click (event) ->
+            handleResults results.loadNextPage() if results.loadNextPage?
+            event.preventDefault()
+            event.stopImmediatePropagation()
+          
+          LYT.render.searchResults results, content
+      
       
       if match?[1]
         params = LYT.router.getParams match[1]
@@ -148,19 +148,19 @@ LYT.control =
       
       LYT.catalog.attachAutocomplete $('#searchterm')
       $("#searchterm").bind "autocompleteselect", (event, ui) ->
-        loadResults ui.item.value
+        handleResults LYT.catalog.search(ui.item.value)
         $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
       
       # this allows for bookmarkable search terms
       if params.term and $('#searchterm').val() isnt params.term
         $('#searchterm').val params.term
-        loadResults params.term
+        handleResults LYT.catalog.search(params.term)
       
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
         
         term = encodeURI $('#searchterm').val()
-        loadResults $('#searchterm').val()
+        handleResults LYT.catalog.search($('#searchterm').val())
         $.mobile.changePage "#search?term=#{term}" , transition: "none"
         
         event.preventDefault()

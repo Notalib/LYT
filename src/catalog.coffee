@@ -54,60 +54,61 @@ LYT.catalog = do ->
   # In case of an error, the deferred will be rejected with the
   # `SEARCH_GENERAL_ERROR` constant, the response status, and
   # the error thrown
-  search = (term, page = 1) ->
-    # Get the search params
-    params =
-      term: term
-      options:
-        pagesize: LYT.config.catalog.search.pageSize or 10
-        pagenbr:  page
+  search = (term, page = 1, params = {}) ->
     
-    # Get the ajax options
-    options = getAjaxOptions LYT.config.catalog.search.url, params
+    getNextPage = -> search term, page+1
     
-    # Create the deferred
-    deferred = jQuery.Deferred()
-    
-    # Add the `success` and `error` handlers
-    options.success = createResponseHandler deferred, page
-    options.error   = createErrorHandler deferred
-    
-    # Perform the request
-    jQuery.ajax options
-    
-    # Return the deferred
-    deferred
-  
-  
-  # Create an AJAX success handler (this could be inside `search`,
-  # but has been placed here for clarity)
-  createResponseHandler = (deferred, currentPage) ->
-    (data, status, jqHXR) ->
+    # AJAX success handler
+    success = (data, status, jqHXR) ->
       results = data.d or []
       item.id = item.itemid for item in results
       
       # TODO: Temporary "solution", until the server response gets
       # updated with a "number of pages" or "next page available"
       # value
-      results.currentPage = currentPage
+      results.currentPage = page
       if results.length >= (LYT.config.catalog.search.pageSize or 10)
-        results.nextPage = currentPage + 1
+        results.loadNextPage = -> search term, page+1, params
       else
-        results.nextPage = false
+        results.loadNextPage = null
       
       deferred.resolve results
-  
-  
-  # Create an AJAX error handler (this could be inside `search`,
-  # but has been placed here for clarity)
-  createErrorHandler = (deferred) ->
-    (jqXHR, status, error) ->
+    
+    
+    # AJAX error handler
+    error = (jqXHR, status, error) ->
       if status is 404
         # HTTP 404 could mean "no results", so handle that here
         deferred.resolve []
       else
         # An error ocurred
         deferred.reject SEARCH_GENERAL_ERROR, status, error
+    
+    
+    # Get the search params
+    data =
+      term: term
+      options:
+        pagesize: LYT.config.catalog.search.pageSize or 10
+        pagenbr:  page
+    
+    jQuery.extend data.options, params
+    
+    # Get the ajax options
+    options = getAjaxOptions LYT.config.catalog.search.url, data
+    
+    # Create the deferred
+    deferred = jQuery.Deferred()
+    
+    # Add the `success` and `error` handlers
+    options.success = success
+    options.error   = error
+    
+    # Perform the request
+    jQuery.ajax options
+    
+    # Return the deferred
+    deferred
   
   
   # ---------------
