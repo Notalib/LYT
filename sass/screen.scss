@@ -29,15 +29,24 @@
 	input {
 		width: 80%;
 		margin: 0 auto;
+		border: 2px solid #555555;
+		
 	}
 		
 	#username {
-		@include border-radius(3px, 3px, 0, 0);	
+		@include border-bottom-radius(0);
+		border-bottom-width: 1px;	
 	}
 	
 	#password {
-		@include border-radius(0, 0, 3px, 3px);
+		@include border-top-radius(0);
+		border-top-width: 0;
+		@include box-shadow(rgba(255, 255, 255, 0.7) 0 2px 0px);
 	}
+	#submit {width: 80%;
+			border: 2px solid #555555;
+			@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
+			background-color: #8cbbe2;}
 }
 
 img.nota-full {
