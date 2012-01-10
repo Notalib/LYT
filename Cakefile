@@ -109,16 +109,14 @@ compileSrc = (options, outdir) ->
 
 # Sync the css dir to build DEPRECATED
 css = ->
-  console.log "This function is deprecated and will be removed, write your stylesheets in sass and use `cake style` ."
-  return
   exec "mkdir -p '#{DEST}'", (err) ->
     throw err if err?
-    sync "#{ROOT}/css/", "#{DEST}/css"
-    console.log "synced css/ -> build/css/"
+    sync "#{ROOT}/assets/css/", "#{DEST}/css/lib"
+    console.log "synced assets/css/ -> build/css/lib/"
 
 # Compile sass to css
 style = (options) ->
-  sass options, -> 
+  compass options, -> 
     console.log "compiled sass/ -> build/css"
 
 
@@ -144,6 +142,13 @@ html = (options) ->
 # ---------------- Helpers/utils
 
 # Compile Sass file(s)
+
+
+compass = (options, callback) ->
+  exec "compass compile --sass-dir sass --css-dir build/css", (err, stdout) ->
+    console.log err if err?
+    console.log stdout if stdout?
+    callback?() if not err?
 
 sass = (options, callback) ->
   exec "sass --update sass:build/css", (err, stdout) ->

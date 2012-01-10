@@ -28,6 +28,8 @@ LYT.player =
   
   fakeEndScheduled: false
   
+  _iBug: false
+  
   playAttemptCount: 0
   
   lastBookmark: null
@@ -76,7 +78,7 @@ LYT.player =
           false
                      
       timeupdate: (event) =>
-        @fakeEnd(event.jPlayer.status)  
+        #@fakeEnd(event.jPlayer.status)  
         @updateHtml(event.jPlayer.status)
       
       loadstart: (event) =>
@@ -89,9 +91,25 @@ LYT.player =
         @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
-      ended: (event) =>
-        if @autoProgression
-          @nextSection true
+      ended: (event) =>       
+        if not @isIOS()
+          if @autoProgression
+            @nextSection true  
+      
+      pause: (event) =>
+        status = event.jPlayer.status
+        return unless @isIOS()
+        if @_iBug
+          log.warn 'we are ibug'
+          #@el.jPlayer('load')
+          
+        else if status.duration > 0 and jQuery.jPlayer.convertTime(status.duration) is not 'NaN' and jQuery.jPlayer.convertTime(status.duration) is not '00:00' and (status.currentTime is 0 or status.currentTime is status.duration)	
+          log.warn 'set ibug'
+          @_iBug = true
+          if @autoProgression
+            @nextSection true
+          
+          
       
       canplaythrough: (event) =>
         log.message 'Player: event can play through'
@@ -166,7 +184,11 @@ LYT.player =
     @el.jPlayer('stop')
     
     
-    
+  isIOS: () ->
+    if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
+      return true
+    else
+      return false
   
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
@@ -214,14 +236,12 @@ LYT.player =
     # Starts playing at time seconds if specified, else from 
     # when media was paused or from the beginning.
     # android, chrome, ipad and firefox uses and intent
-    # safari uses a immediate play
-    
+    # safari uses a immediate play   
     
     if $.jPlayer.platform.iphone
       log.message 'this is play on iphone'
       @pause()
-      
-    
+         
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true

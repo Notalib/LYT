@@ -1,6 +1,54 @@
 @import "partials/base";
 @import "partials/jplayer";
 
+#login, #settings, #profile {
+	background: #c0c0c0 url(../images/bg_pattern.png) repeat;}
+
+
+/* Login page */
+#login { 
+	h1 {
+		text-indent: -9000px;
+		background: transparent url(../images/logo.png) no-repeat; 
+		width: 235px;
+		height: 126px;
+		text-align: center;
+		margin: 0 auto;
+	}
+	.ui-content{
+		max-width: 320px;
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	#loginwrapper {
+		padding: 12px;
+	}
+	
+	
+	input {
+		width: 80%;
+		margin: 0 auto;
+		border: 2px solid #555555;
+		
+	}
+		
+	#username {
+		@include border-bottom-radius(0);
+		border-bottom-width: 1px;	
+	}
+	
+	#password {
+		@include border-top-radius(0);
+		border-top-width: 0;
+		@include box-shadow(rgba(255, 255, 255, 0.7) 0 2px 0px);
+	}
+	#submit {width: 80%;
+			border: 2px solid #555555;
+			@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
+			background-color: #8cbbe2;}
+}
+
 img.nota-full {
   max-height: 120px;
 }
