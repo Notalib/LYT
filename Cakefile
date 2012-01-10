@@ -144,6 +144,13 @@ html = (options) ->
 
 # Compile Sass file(s)
 
+
+compass = (options, callback) ->
+  exec "compass compile", (err, stdout) ->
+    console.log err if err?
+    console.log stdout if stdout?
+    callback?() if not err?
+
 sass = (options, callback) ->
   exec "sass --update sass:build/css", (err, stdout) ->
     console.log err if err?
