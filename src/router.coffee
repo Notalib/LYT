@@ -5,7 +5,6 @@ $(document).ready ->
   if not LYT.player.ready
     LYT.player.init()
   
-  LYT.settings.init()
   LYT.render.init()
 
 $(document).bind "mobileinit", ->

@@ -54,68 +54,59 @@ LYT.catalog = do ->
   # In case of an error, the deferred will be rejected with the
   # `SEARCH_GENERAL_ERROR` constant, the response status, and
   # the error thrown
-  search = (term, page = 1) ->
-    # Get the search params
-    params =
-      term: term
-      options:
-        pagesize: LYT.config.catalog.search.pageSize or 10
-        pagenbr:  page
+  search = (term, page = 1, params = {}, pageSize = null) ->
     
-    # Get the ajax options
-    options = getAjaxOptions LYT.config.catalog.search.url, params
-    
-    # Create the deferred
-    deferred = jQuery.Deferred()
-    
-    # Add the `success` and `error` handlers
-    options.success = createResponseHandler deferred, page
-    options.error   = createErrorHandler deferred
-    
-    # Perform the request
-    jQuery.ajax options
-    
-    # Return the deferred
-    deferred
-  
-  
-  # Create an AJAX success handler (this could be inside `search`,
-  # but has been placed here for clarity)
-  createResponseHandler = (deferred, currentPage) ->
-    (data, status, jqHXR) ->
-      results = []
-      if data.d? and data.d.length > 0 and not (/noresults/i).test data.d[0].results
-        results = (for item in data.d
-          {
-            id:     item.itemid
-            title:  item.title
-            author: item.author
-            media:  item.media
-          }
-        )
+    # AJAX success handler
+    success = (data, status, jqHXR) ->
+      results = data.d or []
+      item.id = item.itemid for item in results
       
       # TODO: Temporary "solution", until the server response gets
       # updated with a "number of pages" or "next page available"
       # value
-      results.currentPage = currentPage
+      results.currentPage = page
       if results.length >= (LYT.config.catalog.search.pageSize or 10)
-        results.nextPage = currentPage + 1
+        results.loadNextPage = -> search term, page+1, params, pageSize
       else
-        results.nextPage = false
+        results.loadNextPage = null
       
       deferred.resolve results
-  
-  
-  # Create an AJAX error handler (this could be inside `search`,
-  # but has been placed here for clarity)
-  createErrorHandler = (deferred) ->
-    (jqXHR, status, error) ->
+    
+    
+    # AJAX error handler
+    error = (jqXHR, status, error) ->
       if status is 404
         # HTTP 404 could mean "no results", so handle that here
         deferred.resolve []
       else
         # An error ocurred
         deferred.reject SEARCH_GENERAL_ERROR, status, error
+    
+    
+    # Get the search params
+    data =
+      term: term
+      options:
+        pagesize: pageSize or LYT.config.catalog.search.pageSize or 10
+        pagenbr:  page
+    
+    jQuery.extend data.options, params
+    
+    # Get the ajax options
+    options = getAjaxOptions LYT.config.catalog.search.url, data
+    
+    # Create the deferred
+    deferred = jQuery.Deferred()
+    
+    # Add the `success` and `error` handlers
+    options.success = success
+    options.error   = error
+    
+    # Perform the request
+    jQuery.ajax options
+    
+    # Return the deferred
+    deferred
   
   
   # ---------------
@@ -172,15 +163,71 @@ LYT.catalog = do ->
           results = data.d or []
           autocompleteCache[request.term] = results
           complete results
-        # On fail, just call `complete`
-        .fail complete
+        # On fail, just call `complete` (i.e. fail silently)
+        .fail -> complete []
     
     # Return the setup object
     setup
   
+  # Get book suggestions
+  getSuggestions = ->
+    deferred = jQuery.Deferred()
+    
+    data = memberid: String( LYT.session.getMemberId() )
+    url  = LYT.config.catalog.suggestions.url
+    
+    options = getAjaxOptions url, data
+    
+    # Perform the request
+    jQuery.ajax(options)
+      # On success, extract the results and pass them on
+      .done (data) ->
+        results = data.d or []
+        item.id = item.itemid for item in results
+        
+        deferred.resolve results
+      
+      # On fail, reject the deferred
+      .fail ->
+        deferred.reject()
+    
+    deferred
   
-  # Expose the functions
+  
+  getDetails = (bookId) ->
+    deferred = jQuery.Deferred()
+    
+    data = itemid: String( bookId )
+    url  = LYT.config.catalog.details.url
+    
+    options = getAjaxOptions url, data
+    
+    # Perform the request
+    jQuery.ajax(options)
+      # On success, extract the results and pass them on
+      .done (data) ->
+        if not data.d? or data.d.length isnt 1
+          deferred.reject()
+          return
+        
+        info = data.d.pop()
+        info.id = info.itemid
+        
+        deferred.resolve info
+      
+      # On fail, reject the deferred
+      .fail ->
+        deferred.reject()
+    
+    deferred
+  
+  # ## Public API
+  
+  SORTING_OPTIONS:        SORTING_OPTIONS
+  FIELD_OPTIONS:          FIELD_OPTIONS
   search:                 search
   attachAutocomplete:     attachAutocomplete
   getAutocompleteOptions: getAutocompleteOptions
+  getSuggestions:         getSuggestions
+  getDetails:             getDetails
 

@@ -10,6 +10,7 @@ exports.files = [
   "loader",
   "utils",
   "config",
+  "session",
   "cache",
   
   "protocol",
@@ -17,6 +18,7 @@ exports.files = [
   "bookmarks",
   "service",
   "catalog",
+  "lists",
   
   "dtbdocument",
   "smildocument",

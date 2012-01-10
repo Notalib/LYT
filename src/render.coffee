@@ -94,10 +94,13 @@ LYT.render = do ->
   bookDetails: (details, view) ->
     view.find("#title").text details.title
     view.find("#author").text details.author
-    view.find("#description").text details.description
+    view.find("#description").text details.teaser
+    view.find("#narrator").text details.speaker
     loadCover view.find("img.cover-image"), details.id
     # TODO: totalTime isn't available in getContentMetadata
     # view.find("#totaltime").text details.totalTime
+    
+    view.find("#play-button").attr "href", "#book-play?book=#{details.id}"
     
   
   bookIndex: (book, view) ->  
@@ -152,10 +155,25 @@ LYT.render = do ->
     
     list.append bookListItem("book-details", result) for result in results
     
-    if results.nextPage
+    if results.loadNextPage?
       $("#more-search-results").show()
     else
       $("#more-search-results").hide()
     
     list.listview('refresh')
   
+  # TODO: Simple, rough implementation
+  catalogLists: (callback, view) ->
+    list = view.find "ul"
+    list.empty()
+    
+    for query in LYT.lists
+      listItem = jQuery """<li><h3><a href="#">#{LYT.i18n query.title}</a></h3></li>"""
+      listItem.find("a").click (event) ->
+        callback query.callback()
+        event.preventDefault()
+        event.stopImmediatePropagation()
+      
+      list.append listItem
+    
+    list.listview('refresh')
