@@ -43,10 +43,9 @@ task "docs", "run Docco on the files in src/", (options) ->
 task "demo", "compile the demo page (also compiles src/)", (options) ->
   options.concat = false
   invoke "src"
-  find "#{ROOT}/demo", "*.coffee", (err, files) ->
-    throw err if err?
-    brew files, o: "#{DEST}/demo", j: "demo", ->
-      console.log "compiled build/demo/demo.js"
+  files = walkSync "#{ROOT}/demo", /\.coffee$/i
+  brew files, o: "#{DEST}/demo", j: "demo", ->
+    console.log "compiled build/demo/demo.js"
   sync "#{ROOT}/demo/demo.html", "#{DEST}/"
   console.log "synced demo/demo.html -> build/demo.html"
 
@@ -66,10 +65,9 @@ task "tests", "compile the tests (also compiles src/)", (options) ->
   sync "#{ROOT}/test/fixtures/", "#{DEST}/test/fixtures"
   console.log "synced test/fixtures/ -> build/test/fixtures/"
   
-  find "#{ROOT}/test/src", "*.coffee", (err, files) ->
-    throw err if err?
-    brew files, {o: "#{DEST}/test", j: "suite"}, ->
-      console.log "compiled test/src/ -> build/test/suite.js"
+  files = walkSync "#{ROOT}/test/src", /\.coffee$/i
+  brew files, {o: "#{DEST}/test", j: "suite"}, ->
+    console.log "compiled test/src/ -> build/test/suite.js"
 
 
 task "lint:html", "validate build/index.html", (options) ->
@@ -79,14 +77,13 @@ task "lint:html", "validate build/index.html", (options) ->
 
 task "lint:css", "validate css/nota.css", (options) ->
   w3c = require "./tools/support/w3c"
-  find "#{DEST}/css", "*.css", (err, files) ->
-    throw err if err?
-    iterator = ->
-      return if files.length is 0
-      file = files.pop()
-      console.log "Validating #{fs.path.basename file}"
-      w3c.validateCSS file, iterator
-    iterator()
+  files = walkSync "#{DEST}/css", /\.css$/i
+  iterator = ->
+    return if files.length is 0
+    file = files.pop()
+    console.log "Validating #{fs.path.basename file}"
+    w3c.validateCSS file, iterator
+  iterator()
 
 
 
@@ -126,17 +123,16 @@ html = (options) ->
   leading = template.match(/^([ \t]*)<!--\s*body\s*-->/mi)?[1]
   throw "No placeholder found in index.html" unless leading?
   template = insertScriptTags options, template
-  find "#{ROOT}/html/pages", "*.html", (err, files) ->
-    throw err if err?
-    readFiles files, (pages) ->
-      for file, index in pages
-        basename = fs.path.basename file.file
-        pages[index] = "<!-- #{basename} -->\n#{file.contents}\n<!-- end #{basename} -->"
-      pages = pages.join "\n\n"
-      pages = pages.replace /^/mg, leading
-      template = template.replace /<!--\s*body\s*-->/i, pages
-      fs.writeFileSync "#{DEST}/index.html", template, "utf8"
-      console.log "compiled html/ -> build/index.html"
+  files = walkSync "#{ROOT}/html/pages", /\.html$/i
+  readFiles files, (pages) ->
+    for file, index in pages
+      basename = fs.path.basename file.file
+      pages[index] = "<!-- #{basename} -->\n#{file.contents}\n<!-- end #{basename} -->"
+    pages = pages.join "\n\n"
+    pages = pages.replace /^/mg, leading
+    template = template.replace /<!--\s*body\s*-->/i, pages
+    fs.writeFileSync "#{DEST}/index.html", template, "utf8"
+    console.log "compiled html/ -> build/index.html"
 
 
 # ---------------- Helpers/utils
@@ -203,11 +199,15 @@ readFiles = (files, callback) ->
       --pending or callback files
 
 
-# Find files in a given `dir` by a pattern (see the manpage for `find`)
-find = (dir, filter, callback) ->
-  exec "find '#{dir}' -name '#{filter}'", (err, stdout, stderr) ->
-    if err? or stderr
-      callback (err or stdout), null
-    else
-      callback null, (file for file in stdout.split("\n") when file)
+# Find files in a given `dir` by a regexp pattern
+walkSync = (directory, pattern = /.*/) ->
+  found = []
+  items = fs.readdirSync directory
+  for item in items
+    item = fs.path.join directory, item
+    if fs.statSync(item).isDirectory()
+      found = found.concat walkSync(item, pattern)
+    else if pattern.test item
+      found.push item
+  found
 
