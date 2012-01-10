@@ -1,8 +1,60 @@
 @import "partials/base";
 @import "partials/jplayer";
+.ui-header {
+	background: #c0c0c0 url(../images/bg_pattern_black.png) repeat;
+	border-top: 2px solid #72716e;
+	border-bottom: 2px solid #000;
+	height: 2.6875em;
+	.ui-title {
+		font-size: 18px;
+		color:#fff;
+	}
+}
+
+.ui-page {
+	background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;
+}
 
 #login, #settings, #profile {
-	background: #c0c0c0 url(../images/bg_pattern.png) repeat;}
+	&.ui-page{background: #c0c0c0 url(../images/bg_pattern.png) repeat;}
+}
+
+
+/* remove gradients from listviews */
+.ui-listview li {
+	&, &:hover, &.ui-btn-hover {
+		background-image: none;
+	}
+}
+
+/* bookshelf */
+
+#bookshelf-content {
+	ul {
+		li {
+			img {
+				height: 100%;
+				margin: 0;
+				width: auto;
+			}
+			
+			border-top: 1px solid #fff;
+			border-bottom: 1px solid #888888;
+			height: 56px;
+			background-color: #ebebeb;
+		
+			
+			&:hover {
+				background-color: #ebebeb;	
+			}
+			&.ui-btn-down-c {
+				background-color: #8cbbe2;
+			}
+				
+		}
+	}
+}
+
 
 
 /* Login page */
