@@ -118,7 +118,7 @@ css = ->
 
 # Compile sass to css
 style = (options) ->
-  sass options, -> 
+  compass options, -> 
     console.log "compiled sass/ -> build/css"
 
 
@@ -147,7 +147,7 @@ html = (options) ->
 
 
 compass = (options, callback) ->
-  exec "compass compile", (err, stdout) ->
+  exec "compass compile --sass-dir sass --css-dir build/css", (err, stdout) ->
     console.log err if err?
     console.log stdout if stdout?
     callback?() if not err?
