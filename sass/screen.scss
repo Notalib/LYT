@@ -1,6 +1,45 @@
 @import "partials/base";
 @import "partials/jplayer";
 
+#login, #settings, #profile {
+	background: #c0c0c0 url(../images/bg_pattern.png) repeat;}
+
+
+/* Login page */
+#login { 
+	h1 {
+		text-indent: -9000px;
+		background: transparent url(../images/logo.png) no-repeat; 
+		width: 235px;
+		height: 126px;
+		text-align: center;
+		margin: 0 auto;
+	}
+	.ui-content{
+		max-width: 320px;
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	#loginwrapper {
+		padding: 12px;
+	}
+	
+	
+	input {
+		width: 80%;
+		margin: 0 auto;
+	}
+		
+	#username {
+		@include border-radius(3px, 3px, 0, 0);	
+	}
+	
+	#password {
+		@include border-radius(0, 0, 3px, 3px);
+	}
+}
+
 img.nota-full {
   max-height: 120px;
 }
