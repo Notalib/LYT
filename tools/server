@@ -10,7 +10,7 @@ optparse = require "./support/node_modules/optparse"
 
 opts = new optparse.OptionParser [
   ["-p", "--proxy", "Act as a proxy for RPC calls"]
-  ["-l", "--live",  "JIT-compile changed src/ files"]
+  # ["-l", "--live",  "JIT-compile changed src/ files"]
   ["-h", "--help",  "Show this help"]
 ]
 opts.banner = "Usage: tools/server [options]"
