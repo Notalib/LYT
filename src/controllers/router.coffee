@@ -1,7 +1,7 @@
-# Requires `/common`
-# Requires `control`
-# Requires `player`
-# Requires `/view/render`
+# Requires `/common`  
+# Requires `control`  
+# Requires `player`  
+# Requires `/view/render`  
 
 # -------------------
 

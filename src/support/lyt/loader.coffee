@@ -1,6 +1,6 @@
-# Requires `/common`
-# Requires `/support/jqm/jqm.extensions`
-# Requires `i18n`
+# Requires `/common`  
+# Requires `/support/jqm/jqm.extensions`  
+# Requires `i18n`  
 
 # -------------------
 

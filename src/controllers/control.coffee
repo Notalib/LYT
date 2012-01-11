@@ -1,13 +1,13 @@
-# Requires `/common`
-# Requires `/support/lyt/loader`
-# Requires `/models/book/book`
-# Requires `/models/member/bookshelf`
-# Requires `/models/member/settings`
-# Requires `/models/service/service`
-# Requires `/models/service/catalog`
-# Requires `/models/service/lists`
-# Requires `/view/render`
-# Requires `player`
+# Requires `/common`  
+# Requires `/support/lyt/loader`  
+# Requires `/models/book/book`  
+# Requires `/models/member/bookshelf`  
+# Requires `/models/member/settings`  
+# Requires `/models/service/service`  
+# Requires `/models/service/catalog`  
+# Requires `/models/service/lists`  
+# Requires `/view/render`  
+# Requires `player`  
 
 # -------------------
 

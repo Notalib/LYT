@@ -1,7 +1,7 @@
-# Requires `/common`
-# Requires `/models/member/session`
-# Requires `/models/member/bookmarks`
-# Requires `dodp/rpc`
+# Requires `/common`  
+# Requires `/models/member/session`  
+# Requires `/models/member/bookmarks`  
+# Requires `dodp/rpc`  
 
 # -------------------
 

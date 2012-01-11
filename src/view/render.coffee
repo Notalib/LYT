@@ -1,7 +1,7 @@
-# Requires `/common`
-# Requires `/controllers/player`
-# Requires `/models/member/settings`
-# Requires `/models/service/lists`
+# Requires `/common`  
+# Requires `/controllers/player`  
+# Requires `/models/member/settings`  
+# Requires `/models/service/lists`  
 
 # -------------------
 
