@@ -35,7 +35,8 @@ task "sass", "compile sass/ into build/css", (options) ->
 task "docs", "run Docco on the files in src/", (options) ->
   exec "mkdir -p '#{DEST}'", (err) ->
     throw err if err?
-    docs = fs.path.relative DEST, "#{ROOT}/src/*.coffee"
+    files = walkSync "#{ROOT}/src", /\.coffee$/i
+    docs = ("'#{fs.path.relative DEST, file}'" for file in files).join " "
     exec "cd '#{DEST}'; docco #{docs}", (err, stdout, stderr) ->
       if err? then throw err
       else console.log "docco'ed src/ -> /build/docs/"
