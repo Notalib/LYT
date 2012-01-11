@@ -1,3 +1,11 @@
+# Requires `/common`
+# Requires `textcontentdocument`
+# Requires `smildocument`
+
+# -------------------
+
+# This class models a "section" of a book - e.g. a chapter
+
 class LYT.Section
   constructor: (heading, @resources) ->
     @_deferred = jQuery.Deferred()

@@ -1,6 +1,12 @@
+# Requires `/common`
+# Requires `textcontentdocument`
+# Requires `section`
+
+# -------------------
+
 do ->
   
-  # Class to model an NCC document
+  # This class models a Daisy Navigation Control Center document
   class LYT.NCCDocument extends LYT.TextContentDocument
     constructor: (url, resources) ->
       super url, (deferred) =>

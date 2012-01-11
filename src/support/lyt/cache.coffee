@@ -1,44 +1,20 @@
+# Requires `/common`
+
+# -------------------
+
+# This module provides a simple API for the browser's `localStorage` object
+#
+# Objects are stored under a namespace and an ID. The namespace is intended
+# to collect similar objects, whereas the ID is unique within the given
+# namespace.
+# 
+# The objects are stored as JSON strings along with a timestamp. Should the
+# `localStorage` object run out of space, other objects in the namespace
+# will be deleted from oldest to newest until there's room.
+
 LYT.cache = do =>
   
-  read = (prefix, id) ->
-    return null unless window.localStorage?
-    log.message "Cache: Reading '#{prefix}/#{id}'"
-    cache = getCache "#{prefix}/#{id}"
-    cache?.data or null
-  
-  write = (prefix, id, data) ->
-    return null unless window.localStorage?
-    log.message "Cache: Writing '#{prefix}/#{id}'"
-    removeCache "#{prefix}/#{id}"
-    
-    if typeof data isnt "object"
-      data = String data
-    
-    cache =
-      type:      typeof data
-      data:      data
-      timestamp: getTimestamp()
-    
-    success = false
-    until success
-      try
-        # FIXME: Check that the JSON-object is available on all targeted platforms and/or use jQuery's options
-        localStorage.setItem "#{prefix}/#{id}", JSON.stringify(cache)
-        success = true
-      catch error
-        if error is QUOTA_EXCEEDED_ERR
-          removeOldest prefix
-        else
-          break
-    
-    success 
-  
-  remove = (prefix, id) ->
-    return null unless window.localStorage?
-    log.message "Cache: Deleting '#{prefix}/#{id}'"
-    removeCache "#{prefix}/#{id}"
-  
-  # ----------
+  # ## Privileged API
   
   getCache = (key) ->
     return null unless window.localStorage?
@@ -69,7 +45,49 @@ LYT.cache = do =>
     
     if oldestKey then removeCache key
   
-  read:   read
-  write:  write
-  remove: remove
+  # --------------------
+  
+  # ## Public API
+  
+  # Retrieve the object with the given namspace (prefix) and ID
+  read: (prefix, id) ->
+    return null unless window.localStorage?
+    log.message "Cache: Reading '#{prefix}/#{id}'"
+    cache = getCache "#{prefix}/#{id}"
+    cache?.data or null
+  
+  # Store an object under the given namspace (prefix) and ID
+  write: (prefix, id, data) ->
+    return null unless window.localStorage?
+    log.message "Cache: Writing '#{prefix}/#{id}'"
+    removeCache "#{prefix}/#{id}"
+    
+    if typeof data isnt "object"
+      data = String data
+    
+    cache =
+      type:      typeof data
+      data:      data
+      timestamp: getTimestamp()
+    
+    success = false
+    until success
+      try
+        # FIXME: Check that the JSON-object is available on all targeted platforms  
+        # Otherwise it's available as a script from json.org
+        localStorage.setItem "#{prefix}/#{id}", JSON.stringify(cache)
+        success = true
+      catch error
+        if error is QUOTA_EXCEEDED_ERR
+          removeOldest prefix
+        else
+          break
+    
+    success 
+  
+  # Delete the given object from `localStorage`
+  remove: (prefix, id) ->
+    return null unless window.localStorage?
+    log.message "Cache: Deleting '#{prefix}/#{id}'"
+    removeCache "#{prefix}/#{id}"
   

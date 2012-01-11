@@ -1,3 +1,8 @@
+# Requires `/common`
+# Requires `/models/service/service`
+
+# -------------------
+
 # This module models the bookshelf (i.e. the
 # `MemberCatalog`; the list of issued content)
 

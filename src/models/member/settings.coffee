@@ -1,4 +1,10 @@
+# Requires `/common`
+# Requires `/support/lyt/cache`
+
+# -------------------
+
 # This module sets and retrieves user specific settings
+
 LYT.settings = do ->
   
   # Default settings  

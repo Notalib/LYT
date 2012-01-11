@@ -1,3 +1,9 @@
+# Requires `/common`
+# Requires `/support/lyt/utils`
+# Requires `protocol`
+
+# -------------------
+
 # This function performs a remote procedure call from the `protocol` module
 # 
 # E.g.

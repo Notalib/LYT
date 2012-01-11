@@ -1,3 +1,8 @@
+# Requires `/common`
+# Requires `/support/lyt/cache`
+
+# -------------------
+
 # This module keeps track of the user's info and credentials
 
 LYT.session = do ->

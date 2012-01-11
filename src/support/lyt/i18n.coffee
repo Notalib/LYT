@@ -1,3 +1,7 @@
+# Requires `/lyt`
+
+# -------------------
+
 # This module contains localized strings  
 # (Note: OK, so it's not really i18n-like, since it's
 # just a dictionary, but "i18n" is short and sweet)

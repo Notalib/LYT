@@ -1,3 +1,7 @@
+# Requires `catalog`
+
+# -------------------
+
 # This module contains "canned" searches such as Top 10 lists
 
 LYT.lists = do ->

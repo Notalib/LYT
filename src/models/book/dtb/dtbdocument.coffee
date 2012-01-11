@@ -1,3 +1,7 @@
+# Requires `/common`
+
+# -------------------
+
 # This file contains the `LYT.DTBDocument` class, which forms the basis for other classes.
 # It is not meant for direct instantiation.
 

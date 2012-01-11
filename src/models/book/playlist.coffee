@@ -1,3 +1,7 @@
+# Requires `/common`
+
+# -------------------
+
 # This class models a "playlist" of book sections
 
 class LYT.Playlist

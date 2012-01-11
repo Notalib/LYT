@@ -1,3 +1,10 @@
+# Requires `/common`
+# Requires `/models/member/session`
+# Requires `/models/member/bookmarks`
+# Requires `dodp/rpc`
+
+# -------------------
+
 # Higher-level functions for interacting with the server
 #
 # This module is a facade or abstraction layer between the

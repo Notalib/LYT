@@ -1,3 +1,9 @@
+# Requires `/common`
+# Requires `/support/jqm/jqm.extensions`
+# Requires `i18n`
+
+# -------------------
+
 # This module keeps track of who is trying to load what and animates the interface appropriately
 
 LYT.loader = do ->

@@ -1,3 +1,8 @@
+# Requires `/lyt`
+# Requires `/support/globals/log`
+
+# -------------------
+
 # This file contains various configuration options for different parts of the app
 
 # ## The level of logging:  

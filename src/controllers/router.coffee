@@ -1,10 +1,16 @@
+# Requires `/common`
+# Requires `control`
+# Requires `player`
+# Requires `/view/render`
+
+# -------------------
+
 # This module serves as a router to the rest of the application and contains url entrypoints and event listeners
 
+# -------------------
 
 $(document).ready ->
-  if not LYT.player.ready
-    LYT.player.init()
-  
+  LYT.player.init() if not LYT.player.ready
   LYT.render.init()
 
 $(document).bind "mobileinit", ->

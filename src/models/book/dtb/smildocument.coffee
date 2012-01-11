@@ -1,3 +1,9 @@
+# Requires `/common`
+# Requires `/support/lyt/utils`
+# Requires `dtbdocument`
+
+# -------------------
+
 do ->
   
   # Class to model a SMIL document

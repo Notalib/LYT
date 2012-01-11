@@ -1,3 +1,11 @@
+# Requires `/common`
+# Requires `/support/lyt/utils`
+# Requires `/models/service/service`
+# Requires `playlist`
+# Requires `dtb/nccdocument`
+
+# -------------------
+
 # This class models a book for the purposes of playback.
 
 window.BOOK_ISSUE_CONTENT_ERROR        = {}

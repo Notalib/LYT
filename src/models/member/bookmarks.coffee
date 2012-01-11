@@ -1,3 +1,7 @@
+# Requires `/common`
+
+# -------------------
+
 # This module fetches/stores bookmarks using the **non**-DODP web service
 
 LYT.bookmarks = do ->

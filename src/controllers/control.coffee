@@ -1,4 +1,19 @@
-# This module Controller
+# Requires `/common`
+# Requires `/support/lyt/loader`
+# Requires `/models/book/book`
+# Requires `/models/member/bookshelf`
+# Requires `/models/member/settings`
+# Requires `/models/service/service`
+# Requires `/models/service/catalog`
+# Requires `/models/service/lists`
+# Requires `/view/render`
+# Requires `player`
+
+# -------------------
+
+# This is the main controller for the app. It handles most of the business-logic
+# involved in displaying the requested pages
+
 LYT.control =    
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->

@@ -1,3 +1,7 @@
+# Requires `/lyt`
+
+# -------------------
+
 LYT.utils =
   
   # Convert seconds to a timecode string, e.g.

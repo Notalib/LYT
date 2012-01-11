@@ -1,5 +1,10 @@
-# This module handles playback of current media and timing of transcript updates
-# todo: provide a visual cue on the next and previous section buttons if there are no next or previous section.
+# Requires `/common`
+# Requires `/support/lyt/loader`
+
+# -------------------
+
+# This module handles playback of current media and timing of transcript updates  
+# TODO: provide a visual cue on the next and previous section buttons if there are no next or previous section.
 
 LYT.player = 
   SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" # FIXME: dixie chicks as we test, replace with silent mp3 when moving to production

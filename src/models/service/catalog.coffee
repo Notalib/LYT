@@ -1,3 +1,8 @@
+# Requires `/common`
+# Requires `/models/member/session`
+
+# -------------------
+
 # This module handles searching and search-suggestions
 
 # --------

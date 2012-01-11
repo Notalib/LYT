@@ -1,8 +1,11 @@
+# Requires `/common`
+# Requires `/controllers/player`
+# Requires `/models/member/settings`
+# Requires `/models/service/lists`
+
+# -------------------
+
 # This module handles gui callbacks and various utility functions
-
-
-
-
 
 LYT.render = do ->
   
@@ -42,7 +45,7 @@ LYT.render = do ->
     "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
   
   loadCover = (img, id) ->
-    img.attr "src", LYT.render.defaultCover
+    img.attr "src", defaultCover
     
     cover = new Image
     cover.onload = -> img.attr "src", getCoverSrc(id)
@@ -53,18 +56,18 @@ LYT.render = do ->
       "Lydbog"
     else
       "Lydbog med tekst"
-   
-  # ## Public API
   
-  setStyle = ->
-    log.message 'Render: setting custom style'
-    $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
+  # ---------------------------
+  
+  # ## Public API
   
   init: ->
     log.message 'Render: init'
-    setStyle()
+    @setStyle()
   
-  setStyle: setStyle
+  setStyle: ->
+    log.message 'Render: setting custom style'
+    $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
   
   bookshelf: (books, view, page) ->
     #todo: add pagination
