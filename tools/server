@@ -75,11 +75,7 @@ serve = (request, response, url) ->
     else
       response.redirect "#{url.pathname}/"
   else if stats.isFile()
-    if (file = url.pathname.match /^\/javascript\/(.+?)\.js$/) and LIVE
-      compile request, response, file[1], (err) ->
-        response.sendFile url.filename
-    else
-      response.sendFile url.filename
+    response.sendFile url.filename
   else
     throw "Unreadable path"
 
@@ -106,29 +102,6 @@ indexDirectory = (path, response) ->
       </html>
       """
     response.end()
-
-
-# Compile a src/*.coffee file
-compiled = {}
-compile = (request, reponse, file, callback) ->
-  path = "#{SRCDIR}/#{file}.coffee"
-  try
-    stats = fs.lstatSync path
-    timestamp = stats.mtime.getTime()
-    if (compiled[file] or 0) >= timestamp
-      callback "unchanged"
-      return
-  catch error
-    callback error
-    return
-  console.log "Compiling src/#{file}.coffee ..."
-  exec "coffee -c -o '#{ROOT}/javascript' #{path}", (err, stdout, stderr) ->
-    if err? or stderr
-      console.log err or stderr
-      callback err or stderr
-    else
-      compiled[file] = timestamp
-      callback null
 
 
 # Guess a MIME-type based on filename extension
