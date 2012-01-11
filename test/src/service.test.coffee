@@ -1,3 +1,5 @@
+# Requires `/models/service/service`
+
 module "service"
 
 asyncTest "logOn", 3, ->

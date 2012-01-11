@@ -1,3 +1,5 @@
+# Requires `/support/lyt/cache`
+
 module "cache"
 
 test "writing and reading", ->

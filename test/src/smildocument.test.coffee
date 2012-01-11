@@ -1,3 +1,5 @@
+# Requires `/models/book/dtb/smildocument`
+
 module "SMILDocument"
 
 asyncTest "Basics", 6, ->

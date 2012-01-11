@@ -1,3 +1,5 @@
+# Requires `/models/service/dodp/rpc`
+
 module "protocol"
 
 asyncTest "logOn", 3, ->

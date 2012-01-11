@@ -1,3 +1,5 @@
+# Requires `/models/book/book`
+
 module "Book"
 
 asyncTest "Basics", 4, ->
