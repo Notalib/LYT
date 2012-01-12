@@ -2,8 +2,8 @@
 @import "partials/jplayer";
 .ui-header {
 	background: #c0c0c0 url(../images/bg_pattern_black.png) repeat;
-	border-top: 2px solid #72716e;
-	border-bottom: 2px solid #000;
+	border-top: 1px solid #72716e;
+	border-bottom: 1px solid #000;
 	height: 2.6875em;
 	.ui-title {
 		font-size: 18px;
@@ -81,7 +81,7 @@
 	input {
 		width: 80%;
 		margin: 0 auto;
-		border: 2px solid #555555;
+		border: 2px solid #636363;
 		
 	}
 		
@@ -95,10 +95,13 @@
 		border-top-width: 0;
 		@include box-shadow(rgba(255, 255, 255, 0.7) 0 2px 0px);
 	}
-	#submit {width: 80%;
-			border: 2px solid #555555;
+	
+	#submit {
+			width: 80%;
+			border: 2px solid #636363;
 			@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
-			background-color: #8cbbe2;}
+			background-color: #8cbbe2;
+	}
 }
 
 img.nota-full {
