@@ -175,7 +175,6 @@ LYT.render = do ->
           callback query.callback()
           event.preventDefault()
           event.stopImmediatePropagation()
-      
-      list.append listItem
+        list.append listItem
     
     list.listview('refresh')
