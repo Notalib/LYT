@@ -171,7 +171,7 @@ html = (options) ->
   throw "No placeholder found in index.html" unless leading?
   
   grind "#{ROOT}/src", walkSync("#{ROOT}/src", /\.coffee$/i), (list) ->
-    files = [CONCAT_NAME] if options.concat
+    list = [CONCAT_NAME] if options.concat
     
     list = ("javascript/#{file}.js" for file in list)
     template = insertScriptTags list, template
