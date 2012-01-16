@@ -46,24 +46,9 @@ task "tests", "compile the tests (also compiles src/)", (options) ->
   exec "mkdir -p '#{DEST}/test'", (err) ->
     throw err if err?
     compileTests()
-    
-  # exec "mkdir -p '#{DEST}/test'", (err) ->
-  #   throw err if err?
-  #   fs.readFile "#{ROOT}/test/index.html", "utf8", (err, html) ->
-  #     throw err if err?
-  #     options.files = (require "./test/src/_manifest.js").files
-  #     html = insertScriptTags options, html, null, "#{DEST}/test/"
-  #     fs.writeFileSync "#{DEST}/test/index.html", html, "utf8"
-  #     console.log "wrote build/test/index.html"
-  # 
-  # invoke "src"
   
   sync "#{ROOT}/test/fixtures/", "#{DEST}/test/fixtures"
   console.log "synced test/fixtures/ -> build/test/fixtures/"
-  # 
-  # files = walkSync "#{ROOT}/test/src", /\.coffee$/i
-  # brew files, {o: "#{DEST}/test", j: "suite"}, ->
-  #   console.log "compiled test/src/ -> build/test/suite.js"
 
 
 task "lint:html", "validate build/index.html", (options) ->
