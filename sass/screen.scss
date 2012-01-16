@@ -37,6 +37,17 @@
 				margin: 0;
 				width: auto;
 			}
+			.ui-icon {
+			background: none;
+			}
+			.ui-btn {
+			border: none;
+			background: none;
+			box-shadow: none;
+			}
+			.remove-book {
+			border-left: 1px solid $listbordercolor;
+			}
 			.ui-icon-list-delete {
 			background-image: url(../images/icons/delete-list-icn.png);
 			}
