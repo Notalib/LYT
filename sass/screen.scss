@@ -9,6 +9,13 @@
 		font-size: 18px;
 		color:#fff;
 	}
+	.ui-btn {
+    font-size: 18px;
+    height: 30px;
+    &.ui-btn-icon-notext {
+    width: 60px;
+    }
+  }
 }
 
 .ui-page {
