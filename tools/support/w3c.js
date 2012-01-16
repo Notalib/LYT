@@ -1,3 +1,11 @@
+/* A simple Node.js modeule for validating HTML and CSS through
+ * W3C's validation services
+ * Copyright (c) 2011 Daniel Høier Øhrgaard, Stimulacrum
+ * 
+ * MIT license
+ * 
+ */
+
 (function() {
   var multipartRequest, w3validation;
   var __hasProp = Object.prototype.hasOwnProperty;

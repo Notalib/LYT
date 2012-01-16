@@ -1,3 +1,5 @@
+# Requires `/support/lyt/utils`
+
 module "rpc"
 
 test "should raise on non-string rpc names", ->
