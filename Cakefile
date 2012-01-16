@@ -42,16 +42,6 @@ task "docs", "run Docco on the files in src/", (options) ->
       else console.log "docco'ed src/ -> /build/docs/"
 
 
-task "demo", "compile the demo page (also compiles src/)", (options) ->
-  options.concat = false
-  invoke "src"
-  files = walkSync "#{ROOT}/demo", /\.coffee$/i
-  brew files, o: "#{DEST}/demo", j: "demo", ->
-    console.log "compiled build/demo/demo.js"
-  sync "#{ROOT}/demo/demo.html", "#{DEST}/"
-  console.log "synced demo/demo.html -> build/demo.html"
-
-
 task "tests", "compile the tests (also compiles src/)", (options) ->
   exec "mkdir -p '#{DEST}/test'", (err) ->
     throw err if err?
