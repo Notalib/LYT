@@ -29,3 +29,17 @@ Kommandoer der skal skrives i terminalen er markeret med et '$' tegn.
 Deploy:
 1. Log på ftp (hvis du ikke er på det interne netværk skal du logge på vpn først)
 2. Synkroniser indholdet af build mappen med projektets mappe på serveren
+
+
+
+# 
+
+
+Sass/css guide
+
+Ram et id:
+#mitid {
+    color: red;
+}
+
+Ram et 
