@@ -37,6 +37,9 @@
 				margin: 0;
 				width: auto;
 			}
+			.ui-icon-list-delete {
+			background-image: url(../images/icons/delete-list-icn.png);
+			}
 			
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
@@ -97,10 +100,10 @@
 	}
 	
 	#submit {
-			width: 80%;
-			border: 2px solid #636363;
-			@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
-			background-color: #8cbbe2;
+		width: 80%;
+		border: 2px solid #636363;
+		@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
+		background-color: #8cbbe2;
 	}
 }
 
