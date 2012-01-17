@@ -33,17 +33,17 @@ task "sass", "compile sass/ into build/css", (options) ->
 
 
 task "docs", "run Docco on the files in src/", (options) ->
-  exec "mkdir -p '#{DEST}'", (err) ->
+  exec "mkdir -p \"#{DEST}\"", (err) ->
     throw err if err?
     files = walkSync "#{ROOT}/src", /\.coffee$/i
-    docs = ("'#{fs.path.relative DEST, file}'" for file in files).join " "
-    exec "cd '#{DEST}'; docco #{docs}", (err, stdout, stderr) ->
+    docs = ("\"#{fs.path.relative DEST, file}\"" for file in files).join " "
+    exec "cd \"#{DEST}\"; docco #{docs}", (err, stdout, stderr) ->
       if err? then throw err
       else console.log "docco'ed src/ -> /build/docs/"
 
 
 task "tests", "compile the tests (also compiles src/)", (options) ->
-  exec "mkdir -p '#{DEST}/test'", (err) ->
+  exec "mkdir -p \"#{DEST}/test\"", (err) ->
     throw err if err?
     compileTests()
   
@@ -128,7 +128,7 @@ compileTests = (callback) ->
 
 # Sync the css dir to build DEPRECATED
 css = ->
-  exec "mkdir -p '#{DEST}'", (err) ->
+  exec "mkdir -p \"#{DEST}\"", (err) ->
     throw err if err?
     sync "#{ROOT}/assets/css/", "#{DEST}/css/lib"
     console.log "synced assets/css/ -> build/css/lib/"
@@ -169,7 +169,7 @@ html = (options) ->
 
 
 compass = (options, callback) ->
-  exec "compass compile --sass-dir '#{ROOT}/sass' --css-dir '#{DEST}/css'", (err, stdout) ->
+  exec "compass compile --sass-dir \"#{ROOT}/sass\" --css-dir \"#{DEST}/css\"", (err, stdout) ->
     console.log err if err?
     console.log stdout if stdout?
     callback?() if not err?
@@ -189,13 +189,13 @@ grind = (loadpath, files, callback) ->
 
 # Compile CoffeeScript file(s)
 brew = (files, options, callback) ->
-  files = "#{files.join "' '"}" if files instanceof Array
+  files = "#{files.join '" "'}" if files instanceof Array
   args = ""
   for own key, value of options
     args += "-#{key} "
-    args += "'#{value}' " if typeof value is "string"
+    args += "\"#{value}\" " if typeof value is "string"
   
-  exec "coffee -c #{args} '#{files}'", (err, stdout, stderr) ->
+  exec "coffee -c #{args} \"#{files}\"", (err, stdout, stderr) ->
     console.log err if err?
     console.log stderr if stderr
     callback?() if not err? and not stderr
@@ -203,7 +203,7 @@ brew = (files, options, callback) ->
 
 # Sync file and folders (recursively) using `rsync` 
 sync = (from, to) ->
-  exec "rsync -ur '#{from}' '#{to}'"
+  exec "rsync -ur \"#{from}\" \"#{to}\""
 
 
 # Insert script tags
