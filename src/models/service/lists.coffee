@@ -12,6 +12,7 @@ LYT.lists = do ->
     -> LYT.catalog.search term, 1, params, 10
   
   [
+    { title: "Suggestions",           callback: LYT.catalog.getSuggestions }
     { title: "Latest books",          callback: list() }
     { title: "Most popular",          callback: list(sort: LYT.catalog.SORTING_OPTIONS.last3month) }
     { title: "Most popular - Kids",   callback: list("publikum=unge",   sort: LYT.catalog.SORTING_OPTIONS.last3month) }
