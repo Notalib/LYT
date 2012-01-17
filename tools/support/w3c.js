@@ -126,6 +126,7 @@
         string = string.trim().replace(/^([\s\S]*)\((http[^\)]+)\)([\s\S]*)$/g, "$1$3\n$2");
         string = string.trim().replace(/\s\s+/g, ' ');
         string = string.trim().replace(/\s+:/g, ':');
+        string = string.replace(/&#39;/, "'");
         return string = string.trim().replace(/\s*:\s*$/g, '');
       };
       parse = function(type, string) {
@@ -149,9 +150,9 @@
     request = w3validation("http://jigsaw.w3.org/css-validator/validator", receiver);
     request.addFile("file", path, "text/css", "utf-8");
     request.addParams({
-      profile: "mobile",
+      profile: "css3",
       usermedium: "all",
-      warning: "2"
+      warning: "1"
     });
     request.end();
     return console.log("Contacting jigsaw.w3c.org ...");
