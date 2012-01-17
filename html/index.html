@@ -21,7 +21,7 @@
 	<link rel="stylesheet" type="text/css" href="css/jqm_theme.css">
 	<link rel="stylesheet" type="text/css" href="css/screen.css">
 	
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile.structure-1.0.min.css" />
 	
 	<!-- JavaScript libraries -->
 	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
@@ -48,13 +48,13 @@
 	
 	
 	<div data-role="page" id="bookshelf">
-    	<header data-role="header">
-    		<a data-role="button" href="#search" data-icon="search" data-theme="b">Søg</a>
+    	<header data-role="header" data-theme="b">
+    		<a data-role="button" href="#search" data-iconpos="notext" data-icon="search" data-iconshadow="false">Søg</a>
 	    		<h1>Mine bøger</h1>	
     		<a data-role="button" href="#profile" data-icon="gear" data-iconpos="notext">Profil</a>
     	</header>
     	<div data-role="content" id="bookshelf-content">
-    		<ul data-role="listview" data-split-icon="delete" data-split-theme="d">
+    		<ul data-role="listview" data-split-icon="list-delete" data-split-theme="a">
     		</ul>
     		<div data-role="fieldcontain">
     			<a data-inline="true" id="more-bookshelf-entries" href="" data-role="button">Se flere bøger</a>

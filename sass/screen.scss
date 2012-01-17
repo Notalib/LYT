@@ -9,6 +9,13 @@
 		font-size: 18px;
 		color:#fff;
 	}
+	.ui-btn {
+    font-size: 18px;
+    height: 30px;
+    &.ui-btn-icon-notext {
+    width: 60px;
+    }
+  }
 }
 
 .ui-page {
@@ -36,6 +43,20 @@
 				height: 100%;
 				margin: 0;
 				width: auto;
+			}
+			.ui-icon {
+			background: none;
+			}
+			.ui-btn {
+			border: none;
+			background: none;
+			box-shadow: none;
+			}
+			.remove-book {
+			border-left: 1px solid $listbordercolor;
+			}
+			.ui-icon-list-delete {
+			background-image: url(../images/icons/delete-list-icn.png);
 			}
 			
 			border-top: 1px solid #fff;
@@ -97,10 +118,10 @@
 	}
 	
 	#submit {
-			width: 80%;
-			border: 2px solid #636363;
-			@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
-			background-color: #8cbbe2;
+		width: 80%;
+		border: 2px solid #636363;
+		@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
+		background-color: #8cbbe2;
 	}
 }
 
