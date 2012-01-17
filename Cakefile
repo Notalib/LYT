@@ -33,7 +33,7 @@ task "sass", "compile sass/ into build/css", (options) ->
 
 
 task "docs", "run Docco on the files in src/", (options) ->
-  exec "mkdir -p \"#{DEST}\"", (err) ->
+  exec "mkdir \"#{DEST}\"", (err) ->
     throw err if err?
     files = walkSync "#{ROOT}/src", /\.coffee$/i
     docs = ("\"#{fs.path.relative DEST, file}\"" for file in files).join " "
@@ -43,7 +43,7 @@ task "docs", "run Docco on the files in src/", (options) ->
 
 
 task "tests", "compile the tests (also compiles src/)", (options) ->
-  exec "mkdir -p \"#{DEST}/test\"", (err) ->
+  exec "mkdir \"#{DEST}/test\"", (err) ->
     throw err if err?
     compileTests()
   
@@ -128,7 +128,7 @@ compileTests = (callback) ->
 
 # Sync the css dir to build DEPRECATED
 css = ->
-  exec "mkdir -p \"#{DEST}\"", (err) ->
+  exec "mkdir \"#{DEST}\"", (err) ->
     throw err if err?
     sync "#{ROOT}/assets/css/", "#{DEST}/css/lib"
     console.log "synced assets/css/ -> build/css/lib/"
