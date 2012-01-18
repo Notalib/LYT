@@ -76,6 +76,39 @@
 	}
 }
 
+/* search page*/
+#searchresult {
+	li {
+			img {
+				height: auto;
+				margin: 0;
+				width: auto;
+			}
+			.ui-icon {
+			background: none;
+			}
+			.ui-btn {
+			border: none;
+			background: none;
+			box-shadow: none;
+			}
+			
+			border-top: 1px solid #fff;
+			border-bottom: 1px solid #888888;
+			height: 45px;
+			background-color: #ebebeb;
+		
+			
+			&:hover {
+				background-color: #ebebeb;	
+			}
+			&.ui-btn-down-c {
+				background-color: #8cbbe2;
+			}
+				
+		}
+}
+
 
 
 /* Login page */
@@ -196,7 +229,8 @@ img.nota-full {
 }
 
 #search-form {
-  margin:5px;
+  margin: -3px 50px -3px -3px;
+  height: 65px; 
 }
 
 #submenu {
