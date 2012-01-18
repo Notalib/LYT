@@ -143,6 +143,10 @@ do ->
     @writeHead code, "Location": location
     @end()
   
+  http.ServerResponse::ok = ->
+    @writeHead 200
+    @end()
+  
   http.ServerResponse::send = (contentType, data) ->
     [contentType, data] = ["text/plain", contentType] if arguments.length < 2
     @writeHead 200, "Content-Type": contentType
@@ -191,6 +195,31 @@ responders =
       console.log "Content: #{url.query.file}"
       contentType = if path.match /\.x?html?$/ then "application/xhtml+xml; charset=utf-8" else null
       response.sendFile path, contentType
+  
+
+# Add a few more responders to emulate CatalogSearch
+do ->
+  base = "/CatalogSearch/search.asmx"
+  functions = [
+    "SearchCatalog"
+    "Autocomplete"
+    "GetPushItems"
+    "GetItemById"
+    "GetBookmarks"
+    "SaveBookmarks"
+  ]
+  
+  addResponder = (func) ->
+    url = "#{base}/#{func}"
+    responders[url] = (request, response, url) ->
+      console.log "CatalogSearch: #{func}"
+      path = "#{ROOT}/test/fixtures/catalogsearch/#{func}.json"
+      if fs.path.existsSync path
+        response.sendFile path, "application/json; charset=utf-8"
+      else
+        response.ok()
+  
+  addResponder func for func in functions
 
 
 # --------------------------------------------
