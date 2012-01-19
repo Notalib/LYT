@@ -22,11 +22,6 @@
    @include box-shadow(none);
    @include text-shadow(none);
    }
-html body .ui-btn-down-a {
-   @include box-shadow(none);
-   @include text-shadow(none);
-   background-color: #8cbbe2;
-   }
 
 .ui-page {
 	background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;
@@ -36,6 +31,9 @@ html body .ui-btn-down-a {
 	&.ui-page{background: #c0c0c0 url(../images/bg_pattern.png) repeat;}
 }
 
+.ui-content {
+  background: transparent;
+  }
 
 /* remove gradients from listviews */
 .ui-listview li {
@@ -45,28 +43,7 @@ html body .ui-btn-down-a {
 }
 
 /* bookshelf */
-.ui-icon-lyt-gear {
-  background-image: url(../images/icons/settings_menu_icn_18.png)
-  }
-  
-.ui-icon-lyt-search {
-  background-image: url(../images/icons/search_menu_icn_18.png)
-  }
 
-.ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear']  {
-    .ui-btn-inner {
-      padding: 5px 0 0 21px;
-    }
-  }
-  
-  &[data-icon='lyt-search'] {
-    @include background-image(linear-gradient(#8cbbe2, #4c95d1));
-  }
-  
-  
-  
-}
 
 #bookshelf-content {
 	ul {
@@ -93,10 +70,6 @@ html body .ui-btn-down-a {
 			height: 58px;
 			}
 			
-			.ui-icon {
-			background: none;
-			}
-			
 			.ui-btn {
 			border: none;
 			background: none;
@@ -108,9 +81,6 @@ html body .ui-btn-down-a {
 			.remove-book {
 			border-left: 1px solid $listbordercolor;
 			}
-			.ui-icon-list-delete {
-			background-image: url(../images/icons/delete-list-icn.png);
-			}
 			
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
@@ -121,7 +91,7 @@ html body .ui-btn-down-a {
 			&:hover {
 				background-color: #ebebeb;	
 			}
-			&.ui-btn-down-c {
+			&.ui-btn-down-a {
 				background-color: #8cbbe2;
 			}
 				
@@ -292,4 +262,65 @@ img.nota-full {
 #submenu {
   float:right;
   margin-right:15px;
+}
+
+
+
+/* Custom Icons */
+
+
+.book-now-playing {
+    height: 18px;
+    width: 18px;
+    position: absolute;
+    right: 50px;
+    top:13px;
+    left: auto;
+    background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
+  }
+
+.ui-icon-lyt-gear {
+  background-image: url(../images/icons/settings_menu_icn_18.png)
+  }
+  
+.ui-icon-lyt-search {
+  background-image: url(../images/icons/search_menu_icn_18.png)
+  }
+
+.ui-btn-icon-notext {
+  &[data-icon='lyt-search'], &[data-icon='lyt-gear']  {
+    .ui-btn-inner {
+      padding: 5px 0 0 21px;
+    }
+  }
+  
+  &[data-icon='lyt-search'] {
+    @include background-image(linear-gradient(#8cbbe2, #4c95d1));
+  } 
+  
+}
+
+.ui-icon-list-delete {
+  background-image: url(../images/icons/delete-list-icn.png);
+}
+
+/* Media query for high resolution icons for devices width a device pixel ratio above 2. */
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+	 .ui-icon-list-delete {
+			background-image: url(../images/icons/delete-list-icn_36.png);
+      background-size: 18px 18px;
+   }
+   .ui-icon-lyt-search {
+      background-image: url(../images/icons/search_menu_icn_36.png);
+      background-size: 18px 18px;
+   }
+   .ui-icon-lyt-gear {
+    background-image: url(../images/icons/settings_menu_icn_36.png);
+    background-size: 18px 18px;
+  }
+  .book-now-playing {
+    background-image: url(../images/icons/nowplaying_36.png);
+    background-size: 18px 18px;
+  }
 }
