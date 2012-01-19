@@ -18,6 +18,15 @@
   }
 }
 
+.ui-btn-active {
+   @include box-shadow(none);
+   @include text-shadow(none);
+   }
+.ui-btn-down {
+   @include box-shadow(none);
+   @include text-shadow(none);
+   }
+
 .ui-page {
 	background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;
 }
