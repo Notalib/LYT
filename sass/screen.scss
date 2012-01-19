@@ -55,6 +55,18 @@
 			.ui-icon {
 			background: none;
 			}
+			.ui-li-icon {
+      height: 58px;
+      max-width: 50px;
+      left: 0px;
+      top: .0em;
+			}
+			.ui-li-thumb {
+      height: 58px;
+      max-width: 50px;
+      left: 0px;
+      top: .0em;
+			}
 			.ui-btn {
 			border: none;
 			background: none;
@@ -69,7 +81,7 @@
 			
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
-			/*height: 56px;*/
+			height: 58px;
 			background-color: #ebebeb;
 		
 			
@@ -106,6 +118,7 @@
 			
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
+			height: 43px;
 			background-color: #ebebeb;
 			
 			&:hover {
