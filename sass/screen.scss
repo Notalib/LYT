@@ -22,9 +22,10 @@
    @include box-shadow(none);
    @include text-shadow(none);
    }
-.ui-btn-down {
+.ui-btn-down-a {
    @include box-shadow(none);
    @include text-shadow(none);
+   background-color:#8cbbe2;
    }
 
 .ui-page {
