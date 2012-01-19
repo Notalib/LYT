@@ -30,6 +30,15 @@ To run a local webserver for testing purposes, issue the following (again from t
 
 This will start a (very simple) webserver that listens on http://127.0.0.1:7357, so you can check things out in a browser.
 
+_Note:_ If you're using Windows' DOS prompt, you'll have to explicitly invoke the `coffee` command, i.e. `coffee tools/server`
+
+The test server also serves test fixtures (i.e. simulated responses) for use with the QUnit test suite. To compile the test suite run: 
+
+    $ cake tests
+    $ tools/server
+
+And then go to http://127.0.0.1:7357/test in your browser.
+
 To see what else the server can do:
 
     $ tools/server -h

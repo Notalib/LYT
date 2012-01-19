@@ -1,64 +1,111 @@
 fs      = require "fs"
 fs.path = require "path"
-{exec, spawn} = require "child_process"
-{concat} = require "./tools/support/concat"
 
-ROOT = fs.path.resolve __dirname
-DEST = "#{ROOT}/build"
+# # Configuration
 
-CONCAT_NAME = "nota"
+config =
+  concatName: "lyt"     # Name of concatenated script, when using the --concat option
+  coffee:     "coffee"  # Path to CoffeeScript compiler (if not in PATH)
+  docco:      "docco"   # Path to docco (if not in PATH)
+  compass:    "compass" # Path to compass (if not in PATH)
 
-# ---------------- Options
+# --------------------------------------
 
-option "-c", "--concat", "Concatenate src/ files before compiling"
+# # Options/Switches
 
-# ---------------- Tasks
+option "-c", "--concat",  "Concatenate CoffeeScript before compiling"
+option "-v", "--verbose", "Be more talkative"
 
-task "app", "same as `cake html src sass`", (options) ->
-  invoke task for task in ["src", "html", "sass"]
+# --------------------------------------
 
+# # Tasks
 
-task "src", "compile src/ into build/javascript", (options) ->
-  compileSrc options
+task "app", "Same as `cake assets src html sass`", (options) ->
+  invoke task for task in ["assets", "src", "html", "sass"]
 
+task "assets", "Sync assets to build", (options) ->
+  sync "assets", "build", (copied) -> boast "synced", "assets", "build"
 
-task "html", "compile html/ into build/index.html", (options) ->
-  sync "#{ROOT}/assets/", "#{DEST}/"
-  console.log "synced assets/ -> build/"
-  html options
-
-
-task "sass", "compile sass/ into build/css", (options) ->
-  style options
-
-
-task "docs", "run Docco on the files in src/", (options) ->
-  exec "mkdir -p '#{DEST}'", (err) ->
-    throw err if err?
-    files = walkSync "#{ROOT}/src", /\.coffee$/i
-    docs = ("'#{fs.path.relative DEST, file}'" for file in files).join " "
-    exec "cd '#{DEST}'; docco #{docs}", (err, stdout, stderr) ->
-      if err? then throw err
-      else console.log "docco'ed src/ -> /build/docs/"
+task "src", "Compile CoffeeScript source", (options) ->
+  cleanDir "build/javascript"
+  files = coffee.grind "src"
+  coffee.brew files, "src", "build/javascript", options.concat, ->
+    boast "compiled", "src", "build/javascript"
 
 
-task "tests", "compile the tests (also compiles src/)", (options) ->
-  exec "mkdir -p '#{DEST}/test'", (err) ->
-    throw err if err?
-    compileTests()
+task "html", "Build HTML", (options) ->
+  createDir "build"
   
-  sync "#{ROOT}/test/fixtures/", "#{DEST}/test/fixtures"
-  console.log "synced test/fixtures/ -> build/test/fixtures/"
+  template = html.readFile "html/index.html"
+  
+  pages = glob "html/pages", /\.html$/i
+  body  = (html.readFile page for page in pages).join "\n\n"
+  template = html.interpolate template, body, "body"
+  
+  if options.concat
+    scripts = html.scriptTags "javascript/#{config.concatName}.js"
+  else
+    scripts = coffee.grind "src"
+    scripts = coffee.filter scripts, "src", "javascript"
+    scripts = html.scriptTags scripts
+  
+  template = html.interpolate template, scripts, "scripts"
+  
+  fs.writeFile "build/index.html", template, (err) ->
+    throw err if err?
+    boast "rendered", "html", "build/index.html"
 
 
-task "lint:html", "validate build/index.html", (options) ->
+task "sass", "Compile SASS source", (options) ->
+  createDir "build/css"
+  sass.compile "sass", "build/css", ->
+    boast "compiled", "sass", "build/css"
+
+
+task "docs", "Run Docco on src/*.coffee", (options) ->
+  cleanDir "build/docs"
+  files = glob "src", /\.coffee$/i
+  docco.parse files, "build", ->
+    index = docco.index "build/docs"
+    fs.writeFileSync "build/docs/index.html", index
+    boast "docco'd", "src", "build/docs"
+
+
+task "tests", "Compile the test suite", (options) ->
+  cleanDir "build/test/javascript"
+  files = coffee.grind "test/src", "src"
+  coffee.brew files, ".", "build/test/javascript", false, ->
+    boast "compiled", "test/src", "build/test/javascript"
+    template = html.readFile "test/index.html"
+    scripts = coffee.filter files, ".", "javascript"
+    scripts = html.scriptTags scripts
+    template = html.interpolate template, scripts, "scripts"
+    fs.writeFile "build/test/index.html", template, (err) ->
+      throw err if err?
+      boast "rendered", "test/index.html", "build/test/index.html"
+      sync "test/fixtures", "build/test/fixtures", (copied) ->
+        boast "synced", "test/fixtures", "build/test/fixtures"
+
+
+task "clean", "Remove the build dir", ->
+  removeDir "build"
+  boast "removed", "build"
+
+
+task "lint:html", "Validate build/index.html", ->
+  w3c = require "./tools/support/w3c.js"
+  unless fs.path.existsSync "build/index.html"
+    console.error "Error: Can't find build/index.html. Try running `cake html` first"
+    process.exit 1
+  w3c.validateHTML fs.path.resolve("build/index.html")
+
+
+task "lint:css", "Validate build/css/*.css", (options) ->
   w3c = require "./tools/support/w3c"
-  w3c.validateHTML "#{DEST}/index.html"
-
-
-task "lint:css", "validate css/nota.css", (options) ->
-  w3c = require "./tools/support/w3c"
-  files = walkSync "#{DEST}/css", /\.css$/i
+  try
+    files = glob "build/css", /\.css$/i
+  catch e
+    console.error "Error: Nothing to lint. Try running `cake sass` first"
   iterator = ->
     return if files.length is 0
     file = files.pop()
@@ -67,173 +114,284 @@ task "lint:css", "validate css/nota.css", (options) ->
   iterator()
 
 
+# --------------------------------------
 
-# ---------------- Higher-level stuff
+# # CoffeeScript Support
 
-compileSrc = (options, outdir, callback) ->
-  [outdir, callback] = [null, outdir] if arguments.length is 2
-  srcdir = "#{ROOT}/src"
-  outdir or= "#{DEST}/javascript/"
-  files = walkSync srcdir, /\.coffee$/i
-  concat srcdir, files, (order, result) ->
-    if options.concat
-      compilerOptions =
-        j: CONCAT_NAME
-        o: outdir
-      brew order, compilerOptions, ->
-        console.log "compiled src/ -> #{fs.path.relative ROOT, outdir}"
-        callback? "javascript/#{CONCAT_NAME}.js"
-    else
-      compilerOptions = {}
-      pending = files.length
-      paths = []
-      for file in order
-        relative = fs.path.relative srcdir, file
-        paths.push relative.replace(/\.coffee$/i, '')
-        compilerOptions.o = fs.path.dirname fs.path.join(outdir, relative)
-        brew file, compilerOptions, ->
-          pending--
-          if pending <= 0
-            console.log("compiled src/ -> #{fs.path.relative ROOT, outdir}")
-            callback? paths
-
-
-compileTests = (callback) ->
-  src = (callback) ->
-    srcdir  = "#{ROOT}/src"
-    testsrc = "#{ROOT}/test/src"
-    outdir  = "#{DEST}/test/javascript/"
-    files = walkSync testsrc, /\.coffee$/i
-    concat srcdir, files, (list) ->
-      pending = list.length
-      paths = []
-      compilerOptions = {}
-      for file in list
-        relative = fs.path.relative ROOT, file
-        paths.push relative.replace(/\.coffee$/i, '')
-        compilerOptions.o = fs.path.dirname fs.path.join(outdir, relative)
-        brew file, compilerOptions, ->
-          pending--
-          if pending <= 0
-            console.log("compiled test/src/ and src/ -> #{fs.path.relative ROOT, outdir}")
-            callback? paths
+coffee = do ->
+  # ### Privileged methods
+  # -----------------
+  {exec} = require "child_process"
   
-  src (paths) ->
-    paths = ("javascript/#{path}.js" for path in paths)
-    readFiles ["#{ROOT}/test/index.html"], (template) ->
-      template = insertScriptTags paths, template.pop().contents
-      fs.writeFileSync "#{DEST}/test/index.html", template, "utf8"
-      console.log "compiled test/index.html -> build/test/index.html"
-
-
-# Sync the css dir to build DEPRECATED
-css = ->
-  exec "mkdir -p '#{DEST}'", (err) ->
-    throw err if err?
-    sync "#{ROOT}/assets/css/", "#{DEST}/css/lib"
-    console.log "synced assets/css/ -> build/css/lib/"
-
-# Compile sass to css
-style = (options) ->
-  compass options, -> 
-    console.log "compiled sass/ -> build/css"
-
-
-# Build the html
-html = (options) ->
-  template = fs.readFileSync "#{ROOT}/html/index.html", "utf8"
-  leading = template.match(/^([ \t]*)<!--\s*body\s*-->/mi)?[1]
-  throw "No placeholder found in index.html" unless leading?
+  # Group files by their directory
+  group = (files, base) ->
+    grouped = {}
+    for file in files
+      dir = fs.path.relative base, fs.path.dirname(file)
+      grouped[dir] or= []
+      grouped[dir].push file
+    grouped
   
-  grind "#{ROOT}/src", walkSync("#{ROOT}/src", /\.coffee$/i), (list) ->
-    list = [CONCAT_NAME] if options.concat
-    
-    list = ("javascript/#{file}.js" for file in list)
-    template = insertScriptTags list, template
-  
-    files = walkSync "#{ROOT}/html/pages", /\.html$/i
-    readFiles files, (pages) ->
-      for file, index in pages
-        basename = fs.path.basename file.file
-        pages[index] = "<!-- #{basename} -->\n#{file.contents}\n<!-- end #{basename} -->"
-      pages = pages.join "\n\n"
-      pages = pages.replace /^/mg, leading
-      template = template.replace /<!--\s*body\s*-->/i, pages
-      fs.writeFileSync "#{DEST}/index.html", template, "utf8"
-      console.log "compiled html/ -> build/index.html"
-
-
-# ---------------- Helpers/utils
-
-# Compile Sass file(s)
-
-
-compass = (options, callback) ->
-  exec "compass compile --sass-dir '#{ROOT}/sass' --css-dir '#{DEST}/css'", (err, stdout) ->
-    console.log err if err?
-    console.log stdout if stdout?
-    callback?() if not err?
-
-sass = (options, callback) ->
-  exec "sass --update sass:build/css", (err, stdout) ->
-    throw err if err?
-    callback?()
-
-
-# Get relative filepaths
-grind = (loadpath, files, callback) ->
-  concat "#{ROOT}/src", walkSync("#{ROOT}/src", /\.coffee$/i), (list) ->
-    list = (fs.path.relative(loadpath, file).replace(/\.coffee+$/i, "") for file in list)
-    callback list
-
-
-# Compile CoffeeScript file(s)
-brew = (files, options, callback) ->
-  files = "#{files.join "' '"}" if files instanceof Array
-  args = ""
-  for own key, value of options
-    args += "-#{key} "
-    args += "'#{value}' " if typeof value is "string"
-  
-  exec "coffee -c #{args} '#{files}'", (err, stdout, stderr) ->
-    console.log err if err?
-    console.log stderr if stderr
-    callback?() if not err? and not stderr
-
-
-# Sync file and folders (recursively) using `rsync` 
-sync = (from, to) ->
-  exec "rsync -ur '#{from}' '#{to}'"
-
-
-# Insert script tags
-insertScriptTags = (files, html) ->
-  timestamp = (new Date).getTime()
-  html.replace /^([ \t]*)<!--\s*scripts\s*-->/mi, (line, leading) ->
-    ("""#{leading}<script src="#{file}?#{timestamp}"></script>""" for file in files).join "\n"
-
-
-# Read `files`
-readFiles = (files, callback) ->
-  pending = files.length
-  files = files.slice 0
-  callback files unless pending > 0
-  for file, index in files
-    do (file, index) -> fs.readFile file, "utf8", (err, contents) ->
+  # Compile some CoffeeScript files
+  compile = (files, output, concat, callback) ->
+    cmd = "#{config.coffee} --compile"
+    cmd = "#{cmd} --join #{q concat}" if concat
+    files = q(files).join " "
+    exec "#{cmd} --output #{q output} #{files}", (err, stdout, stderr) ->
       throw err if err?
-      files[index] = file: file, contents: contents
-      --pending or callback files
+      console.log stderr if stderr
+      callback()
+  
+  # ### Public methods
+  # ---------------
+  
+  # Return a list of files in their concatenation order
+  grind: (directory, loadpaths) ->
+    {grind} = require "./tools/support/grinder.js"
+    directory = directory
+    loadpaths or= directory
+    files = glob directory, /\.coffee$/i
+    grind loadpaths, files
+  
+  # Compile some CoffeeScript files
+  brew: (files, base, output, concat, callback) ->
+    base   = base
+    output = output
+    
+    throw "No files to compile" unless files.length
+    
+    if concat
+      compile files, output, config.concatName, callback
+    else
+      pending = 0
+      for dir, files of group(files, base)
+        pending++
+        dir = fs.path.join output, dir
+        compile files, dir, false, ->
+          --pending or callback()
+  
+  # Kinda hard to explain
+  filter: (files, base, relpath = "") ->
+    {join, relative} = fs.path
+    base = base
+    files = (join relpath, relative(base, file) for file in files)
+    (file.replace /\.coffee$/i, ".js" for file in files)
 
 
-# Find files in a given `dir` by a regexp pattern
-walkSync = (directory, pattern = /.*/) ->
-  found = []
-  items = fs.readdirSync directory
-  for item in items
-    item = fs.path.join directory, item
-    if fs.statSync(item).isDirectory()
-      found = found.concat walkSync(item, pattern)
-    else if pattern.test item
-      found.push item
-  found
+# --------------------------------------
+
+# # HTML Support
+
+html = do ->
+  # Read a file into memory
+  readFile: (path) ->
+    path = resolve path
+    fs.readFileSync path, "utf8"
+  
+  # Replace a placeholder in the template with the given string
+  interpolate: (template, string, placeholder) ->
+    pattern = new RegExp "^([ \\t]*)<!--\\s*#{placeholder}\\s*-->", "mi"
+    template.replace pattern, (line, lead) ->
+      string.replace /^/mg, lead
+  
+  # Generate script tags for the given urls
+  scriptTags: (urls) ->
+    urls = [urls] if typeof urls is "string"
+    ("""<script src="#{url}"></script>""" for url in urls).join "\n" 
+  
+
+# --------------------------------------
+
+# # SASS Support
+
+sass = do ->
+  # Compile SASS files in the given dir using compass
+  compile: (dir, output, callback) ->
+    {exec} = require "child_process"
+    exec "#{config.compass} compile --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
+      fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
+      console.log stderr if stderr
+      callback?()
+
+# --------------------------------------
+
+# # Docco Support
+
+docco = do ->
+  # Run the docco command on some files
+  parse: (files, output, callback) ->
+    {exec} = require "child_process"
+    files = ("#{q resolve(file)}" for file in files).join " "
+    exec "#{config.docco} #{files}", cwd: resolve(output), (err, stdout, stderr) ->
+      fatal err, config.compass, "You may need to install docco via npm. See http://jashkenas.github.com/docco/" if err?
+      callback?()
+  
+  # Create an index.html file to go with the docco'd html files
+  index: (dir, relpath = "") ->
+    {join, basename} = fs.path
+    links = (for file in glob dir, /\.html$/i
+      file = join relpath, basename(file)
+      """\t\t<a href="#{file}">#{file.replace /\.html$/, ""}</a>"""
+    )
+    "<html>\n\t<body>\n#{links.join "\n"}\n\t</body>\n</html>"
+    
+
+# --------------------------------------
+
+# # Low-Level Support
+
+# Brag to the user about something you just did
+boast = (verb, from, to) ->
+  padR = (string, length) ->
+    string = "#{string} " while string.length < length
+    string
+  
+  padL = (string, length) ->
+    string = " #{string}" while string.length < length
+    string
+  
+  msg = "#{padL verb, 10}  #{from}"
+  msg = "#{padR msg, 30} -> #{to}" if to
+  console.log msg
+
+
+# Is the verbose option set?
+isVerbose = ->
+  args = process.argv
+  args.indexOf("-v") isnt -1 or args.indexOf("--verbose") isnt -1
+
+
+# Quote a string so it can be used in a terminal
+q = (string) ->
+  if typeof string is "string"
+    string = string.replace /\n/, '\\n'
+    string = string.replace /\r/, '\\r'
+    return string if /^\s*".*"\s*$/.test string
+    "\"#{string}\""
+  else
+    q item for item in string
+
+
+# Report an fatal error
+fatal = (err, command, message) ->
+  cmdError = /command failed/i.test err.message
+  if cmdError
+    console.error "Error: Could not run command `#{command}`"
+    console.error message if message
+    unless isVerbose()
+      console.error "Run the cake task again with the -v/--verbose option, to see error details"
+  throw err if isVerbose() or not cmdError
+  process.exit 1
+
+
+# A simple file synchronizer (like rsync)
+# Only syncs file that don't exist or are out of date in the destination
+sync = (from, to, callback) ->
+  {dirname, relative, join, existsSync} = require "path"
+  {lstatSync, createReadStream, createWriteStream} = require "fs"
+  
+  files = glob from, /^[^.]/i
+  directories = {}
+  
+  for file in files
+    dir = dirname(file)
+    dir = join to, relative(from, dir)
+    directories[dir] or= true
+  
+  createDir dir for own dir of directories
+  
+  queue = (for file in files
+    dest = join to, relative(from, file)
+    file: file
+    dest: dest
+  )
+  
+  copy = (op, callback) ->
+    # Only copy if dest file is missing or older than source
+    if existsSync(op.dest)
+      willCopy = lstatSync(op.file).mtime.getTime() > lstatSync(op.dest).mtime.getTime()
+    else
+      willCopy = yes
+    
+    if willCopy
+      stream = createReadStream op.file
+      stream.pipe createWriteStream(op.dest, flags: "w")
+      stream.on "end", -> callback true
+    else
+      callback false
+  
+  copied = 0
+  next = (didCopy = false) ->
+    copied++ if didCopy
+    if queue.length is 0
+      callback? copied
+      return
+    copy queue.pop(), next
+  
+  next()
+
+
+# Cross-platform function for resolving a path
+resolve = (relativePath) ->
+  segments = relativePath.split /\+/
+  segments.unshift fs.path.resolve(__dirname) unless /^(\/|[a-z]:\\)/i.test relativePath
+  fs.path.join segments...
+
+
+# Recursively create directories as needed
+createDir = (path) ->
+  return if fs.path.existsSync path
+  segments = path.split /\/|[\\]/
+  path = ""
+  created = false
+  until segments.length is 0
+    path = fs.path.join path, segments.shift()
+    continue if fs.path.existsSync path
+    fs.mkdir path
+    created = true
+  boast "mkdir", path
+
+
+# Remove a directory (whether it's empty or not) in the CWD
+removeDir = (path) ->
+  if /^\./.test fs.path.relative(__dirname, path)
+    console.error "Error: Won't remove directories outside of the project"
+    process.exit 1
+  return unless fs.path.existsSync path
+  cleanDir path
+  fs.rmdirSync path
+
+
+# Create or empty the directory specified by `path`
+cleanDir = (path) ->
+  path = path
+  unless fs.path.existsSync(path)
+    createDir path
+    return
+  files = fs.readdirSync path
+  for file in files
+    file = fs.path.join path, file
+    if fs.lstatSync(file).isDirectory()
+      removeDir file
+    else
+      fs.unlinkSync file
+
+
+# Gather all regular files in the given directory and it's sub-directories
+walk = (directory) ->
+  directory = resolve directory
+  files = []
+  for file in fs.readdirSync directory
+    file = fs.path.join directory, file
+    stats = fs.lstatSync file
+    if stats.isDirectory()
+      files = files.concat walk(file)
+    else if stats.isFile()
+      files.push file
+  files
+
+
+# Same as `walk` but the the files filtered by a regular expression
+glob = (directory, pattern) ->
+  (file for file in walk(directory) when pattern.test fs.path.basename(file))
 
