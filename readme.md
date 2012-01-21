@@ -6,10 +6,11 @@ Inline docs written for [Docco](http://jashkenas.github.com/docco/)
 Tests built with [QUnit](http://docs.jquery.com/QUnit)
 
 ## Development
+You'll need a few things [so check out these instructions](/Notalib/LYT/wiki/Prerequisites).
+
+Also, [read the style guide](/Notalib/LYT/wiki/Style-Guide).
 
 ### Building
-
-First, [read the style guide](/Notalib/LYT/wiki/Style-Guide).
 
 To compile the app, issue the following from the repo's root:
 
