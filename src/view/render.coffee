@@ -24,12 +24,14 @@ LYT.render = do ->
     playing = LYT.player.getCurrentlyPlaying()
     
     if String(book.id) is String(playing?.book)
-      nowPlaying = """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing" alt="">"""
+      nowPlaying = """<div class="book-now-playing"></div>"""
     
     element = jQuery """
     <li data-book-id="#{book.id}">
       <a href="##{target}?book=#{book.id}" class="book-play-link">
-        <img class="ui-li-icon cover-image" src="#{defaultCover}">
+        <div class="cover-image-frame">
+          <img class="ui-li-icon cover-image" src="#{defaultCover}">
+        </div>
         <h3>#{book.title or "&nbsp;"}</h3>
         <p>#{info or "&nbsp;"}</p>
         #{nowPlaying or ""}
