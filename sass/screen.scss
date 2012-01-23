@@ -101,7 +101,7 @@
 
 /* search page */
 .ui-input-search {
-      height: 43px;
+      height: 33px;
 }
 #searchresult {
 	li {
@@ -110,6 +110,8 @@
 				max-height: none;
 				margin: 0;
 				width: auto;
+				left: 0px;
+				top: 0px;
 			}
 			.book-play-link {
 			padding-left: 45px;
@@ -129,7 +131,7 @@
 			position: absolute;
 			top: 0;
 			left: 0;
-			height: 58px;
+			height: 43px;
 			}
 
 			border-top: 1px solid #fff;
