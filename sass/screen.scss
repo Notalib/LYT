@@ -111,6 +111,10 @@
 				margin: 0;
 				width: auto;
 			}
+			.book-play-link {
+			padding-left: 45px;
+			padding-top: 0.2em;
+			}
 			.ui-icon {
 			background: none;
 			}
@@ -119,7 +123,15 @@
 			background: none;
 			@include box-shadow(none);
 			}
-			
+			.cover-image-frame {
+			width: 37px;
+			overflow: hidden;
+			position: absolute;
+			top: 0;
+			left: 0;
+			height: 58px;
+			}
+
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
 			height: 43px;
@@ -134,7 +146,6 @@
 				
 		}
 }
-
 
 
 /* Login page */
@@ -255,8 +266,8 @@ img.nota-full {
 }
 
 #search-form {
-  margin: -5px 70px -5px -5px;
-  height: 65px; 
+  margin: -8px 65px -5px -5px;
+  height: 60px;
 }
 
 #submenu {
