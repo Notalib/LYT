@@ -82,6 +82,7 @@
 			border-left: 1px solid $listbordercolor;
 			}
 			
+			
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
 			height: 58px;
@@ -114,7 +115,7 @@
 				top: 0px;
 			}
 			.book-play-link {
-			padding-left: 45px;
+			padding-left: 38px;
 			padding-top: 0.2em;
 			}
 			.ui-icon {
@@ -133,6 +134,15 @@
 			left: 0;
 			height: 43px;
 			}
+			.ui-li-heading {
+			font-size: 14px;
+			font-weight: bold;
+			margin: 0;
+			}
+      .ui-li-desc{
+      font-size: 12px;
+      margin: .2em 0;
+      }
 
 			border-top: 1px solid #fff;
 			border-bottom: 1px solid #888888;
