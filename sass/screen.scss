@@ -109,26 +109,34 @@
   background-color: #292929;
   /*border-top: 1px solid #000;*/
   height: 44px;
-  font-size: 14px;
+  font-size: 12px;
   padding: 0;
+  }
+  
+#book-play_menu {
+  background-color: 000;
   }
 
 #author {
-  font-size: 14px;
-  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: normal;
+  color: #cbcbcb;
   text-align: center;
   }
 #title {
-  font-size: 14px;
-  font-style: normal;
-  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: normal;
+  color: #cbcbcb;
   text-align: center;
   }
-#player-chapter-title{
-  font-size: 14px;
+.player-chapter-title{
+  font-size: 12px;
+  font-weight: normal;
+  text-align: center;
+  display: inline-block;
   }
 .ui-body-a, .ui-dialog, .ui-overlay-a {
-  color: #e0e0e0;
+  color: #cbcbcb;
   text-shadow: none;
   padding: 0;
   }
