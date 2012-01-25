@@ -28,7 +28,7 @@
 }
 
 #login, #settings, #profile {
-	&.ui-page{background: #c0c0c0 url(../images/bg_pattern.png) repeat;}
+	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;}
 }
 
 .ui-content {
@@ -99,6 +99,55 @@
 		}
 	}
 }
+
+/*player*/
+#book-play {
+  background-color: #292929;
+  }
+#book-middle-menu {
+  background-color: #292929;
+  border-top: 1px solid #000;
+  height: 44px;
+  }
+
+#author {
+  font-size: 14px;
+  color: #ebebeb;
+  text-align: center;
+  }
+#title {
+  font-size: 14px;
+  font-style: normal;
+  color: #ebebeb;
+  text-align: center;
+  }
+  .ui-body-a, .ui-dialog, .ui-overlay-a {
+  color: #ebebeb;
+  text-shadow: none;
+  }
+#duration{
+  font-size: 14px;
+  }
+#jp_container_1 {
+  background-color: #292929;
+  }
+.jp-seek-bar {
+  height: 3px;
+  background: #464646;
+  }
+.jp-progress {
+  height: 3px;
+  background: #000;
+  top: 10px;
+  }
+
+.jp-play-bar {
+  height: 3px;
+  background: #8cbbe2;
+  }
+.jp-audio {
+  padding-top: 15px;
+  }
 
 /* search page */
 .ui-input-search {
