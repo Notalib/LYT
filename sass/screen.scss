@@ -112,17 +112,17 @@
 
 #author {
   font-size: 14px;
-  color: #ebebeb;
+  color: #e0e0e0;
   text-align: center;
   }
 #title {
   font-size: 14px;
   font-style: normal;
-  color: #ebebeb;
+  color: #e0e0e0;
   text-align: center;
   }
   .ui-body-a, .ui-dialog, .ui-overlay-a {
-  color: #ebebeb;
+  color: #e0e0e0;
   text-shadow: none;
   }
 #duration{
@@ -147,6 +147,10 @@
   }
 .jp-audio {
   padding-top: 15px;
+  }
+  
+#book-capter-menu {
+  background-color: #292929;
   }
 
 /* search page */
