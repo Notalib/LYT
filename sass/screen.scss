@@ -101,13 +101,16 @@
 }
 
 /*player*/
+
 #book-play {
-  background-color: #292929;
+  background: #fff;
   }
 #book-middle-menu {
   background-color: #292929;
-  border-top: 1px solid #000;
+  /*border-top: 1px solid #000;*/
   height: 44px;
+  font-size: 14px;
+  padding: 0;
   }
 
 #author {
@@ -121,15 +124,19 @@
   color: #e0e0e0;
   text-align: center;
   }
-  .ui-body-a, .ui-dialog, .ui-overlay-a {
+#player-chapter-title{
+  font-size: 14px;
+  }
+.ui-body-a, .ui-dialog, .ui-overlay-a {
   color: #e0e0e0;
   text-shadow: none;
-  }
-#duration{
-  font-size: 14px;
+  padding: 0;
   }
 #jp_container_1 {
   background-color: #292929;
+  }
+#currentbook_image {
+  height: 46px;
   }
 .jp-seek-bar {
   height: 3px;
