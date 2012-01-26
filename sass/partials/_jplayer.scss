@@ -6,10 +6,10 @@
   overflow: hidden;
   background-color: #000;
   position: absolute;
-  bottom: 7px;
+  bottom: 22px;
   height: 3px; 
-  left: 15px;
-  right: 15px; }
+  left: 0;
+  right: 0; }
 
 .jp-seek-bar {
   background: #464646;
@@ -58,17 +58,14 @@
 
 
 #title {
-  font-size: 12px;
+  margin-top: 3px;
+  font-size: 14px;
   font-weight: normal;
-  color: #cbcbcb;
   text-align: center;
   }
   
 #author {
-    font-size: 12px;
     font-weight: normal;
-    color: #cbcbcb;
-    text-align: center;
 }
 
 
@@ -76,26 +73,36 @@
   height: 45px;
   @include clearfix;
  
- h1, h2 {
+ h1, h2, span {
    text-shadow: none;
    margin: 0;
+   color: #cbcbcb;
  }
  
 .info {
+  position: relative;
+  height: 45px;
   margin-left: 39px;
+  margin-right: 10px;
  }
 }
 
-.jp-time-holder {
- 
+.jp-time-holder { 
+  
+  span {
+    text-shadow: none;
+  }
+}
+
+#book-chapter-menu {
+  margin-top: 10px;
+  font-size: 10px;
 }
 
 #player-chapter-title h2 {
   font-size: 12px;
   font-weight: normal;
   text-align: center;
-  display: inline-block;
-  margin: 0;
   }
 
 #jp_container_1 {
@@ -108,10 +115,6 @@
   float: left;
   }
   
-#book-capter-menu {
-  background-color: #292929;
-  }
-
 
 
 
