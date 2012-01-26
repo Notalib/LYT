@@ -2,3 +2,34 @@
 @import "compass/utilities/general/clearfix";
 
 $listbordercolor: #888888;
+$darkbuttoncolor: #464646;
+
+$highlightcolor: #8cbbe2;
+
+/* Actions buttons */
+@mixin action-button($color:#8cbbe2, $theme:c) {
+
+  .ui-btn-hidden {
+    border: none;
+  } 
+  .ui-btn-inner {
+    border: 2px solid lighten($color, 8%);
+  }
+  
+  .ui-btn {
+    background-image: none;
+		border: 2px solid #636363;
+ 		
+		@include text-shadow(-1px -1px 0px darken($color, 30%));
+		background-color: $color;
+		
+		.ui-btn-text {
+      color: #fff;
+    }
+  }
+  
+  .ui-btn-down-#{$theme} {
+    background-color: lighten($color, 8%);
+  }
+
+}

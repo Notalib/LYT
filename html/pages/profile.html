@@ -2,27 +2,51 @@
 
 	<header data-role="header" data-theme="b">
 		<a data-icon="" href="#bookshelf" data-role="button" data-inline="true">Mine bøger</a>
-		<h1>Min profil</h1>
+		<h1>Indstillinger</h1>
 	</header>
   
   <div data-role="content" data-theme="c">
+	 
+	 <div id="login-section">
+	 
+	 <p id="logged-in-as">
+	   Du er logget ind som: <span id="current-user-name">Jens Jensen</span>
+	 </p>
+	 
+	 
 	 <div data-role="fieldcontain">
-		<fieldset data-role="controlgroup" id="remember" data-type="horizontal">
-			<legend>Husk login</legend>
+     <fieldset data-role="controlgroup">
+	     <legend>Log ind automatisk ved hvert besøg:</legend>
+	     <input type="checkbox" name="checkbox-1" id="checkbox-1" class="custom" />
+	     <label for="checkbox-1">Log ind automatisk</label>
+     </fieldset>
+   </div>
+	 
 
-			<input type="radio" name="radio-choice-4" id="radio-choice-20" value="1">
-			<label for="radio-choice-20">husk</label>
+   <div data-role="fieldcontain" id="log-off-button-wrapper">
+				<a id="log-off" href="" data-role="button">Log af nu</a>
+   </div>	
+   
+   </div
+   
+   
+   <div id="support-section"
+   
+   <h2>Support</h2>
+   
+   <ul data-role="listview" data-inset="true">
+    <li class="help">
+    
+    <a href="#help">Hjælp</a></li>
+    <li class="contact">
+      <a href="#contact">
+        Kontakt E17 Support</a></li>
+   </ul>
+   
+      <a id="about-button" href="" data-role="button">Om Nota og E17</a>
+   
+   </div>
+   
 
-			<input type="radio" name="radio-choice-4" id="radio-choice-21" value="0">
-			<label for="radio-choice-21">glem</label>
-		</fieldset>
-		
-		<div data-role="fieldcontain">
-			<div data-role="fieldcontain">
-				<a data-inline="true" id="log-off" href="" data-role="button">Log af nu</a>
-			</div>
-		</div>	
-	 </div>
-	</div>
-	
+ </div>	
 </div>

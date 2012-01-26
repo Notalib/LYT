@@ -1,5 +1,21 @@
 @import "partials/base";
 @import "partials/jplayer";
+
+/* button adjustments */
+
+.ui-header .ui-btn-left {
+  top: 6px;
+}
+
+#submenu {
+  margin: 6px 10px 0 0;
+  float: right;
+  .ui-btn {
+    width: 65px;
+  }
+}
+
+
 .ui-header {
 	background: #c0c0c0 url(../images/bg_pattern_black.png) repeat;
 	border-top: 1px solid #72716e;
@@ -182,7 +198,6 @@
 	
 	
 	input {
-		width: 80%;
 		margin: 0 auto;
 		border: 2px solid #636363;
 		
@@ -190,22 +205,25 @@
 		
 	#username {
 		@include border-bottom-radius(0);
-		border-bottom-width: 1px;	
+		border-bottom-width: 1px;
+		width: 90%;
 	}
 	
 	#password {
 		@include border-top-radius(0);
 		border-top-width: 0;
 		@include box-shadow(rgba(255, 255, 255, 0.7) 0 2px 0px);
+		width: 90%;
 	}
 	
-	#submit {
-		width: 80%;
-		border: 2px solid #636363;
-		@include box-shadow(rgba(255, 255, 255, 0.7) 2px inset);
-		background-color: #8cbbe2;
-	}
 }
+
+
+#login-button-wrapper {
+  @include action-button();
+}
+
+
 
 img.nota-full {
   max-height: 120px;
@@ -278,12 +296,6 @@ img.nota-full {
   height: 60px;
 }
 
-#submenu {
-  float:right;
-  margin-right:15px;
-}
-
-
 
 /* Custom Icons */
 
@@ -298,12 +310,53 @@ img.nota-full {
     background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
   }
 
+
+
+#book-play-menu {
+ .ui-btn {
+    border-color: #000;
+    border-top: none;
+  }
+ 
+ 
+ .ui-btn-down-a {
+  background: $highlightcolor !important;
+ }
+ 
+ .ui-btn-up-a, .ui-btn-hover-a {
+   background: $darkbuttoncolor;
+   
+ }
+ 
+ .ui-icon {
+    width: 25px;
+    @include border-radius(0, 0);
+  }
+}
+
+
+.ui-icon-lyt-play {
+  background-image: url(../images/icons/play_btn_18.png);
+}
+
+.ui-icon-lyt-rewind {
+  background-image: url(../images/icons/back_btn_18.png);
+}
+
+.ui-icon-lyt-forward {
+  background-image: url(../images/icons/forward_btn_18.png);
+}
+
+.ui-icon-lyt-pause {
+  background-image: url(../images/icons/pause_btn_18.png);
+}
+
 .ui-icon-lyt-gear {
-  background-image: url(../images/icons/settings_menu_icn_18.png)
+  background-image: url(../images/icons/settings_menu_icn_18.png);
   }
   
 .ui-icon-lyt-search {
-  background-image: url(../images/icons/search_menu_icn_18.png)
+  background-image: url(../images/icons/search_menu_icn_18.png);
   }
 
 .ui-btn-icon-notext {
@@ -343,3 +396,8 @@ img.nota-full {
     background-size: 18px 18px;
   }
 }
+
+
+
+
+
