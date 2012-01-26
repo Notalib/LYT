@@ -1,28 +1,27 @@
 .jp-audio {
   position: relative;
-  padding-top: 42px;
 }
 
 .jp-progress {
   overflow: hidden;
-  background-color: rgb(200, 200, 200);
+  background-color: #000;
   position: absolute;
-  top: 22px;
-  height: 15px; 
+  bottom: 7px;
+  height: 3px; 
   left: 15px;
   right: 15px; }
 
 .jp-seek-bar {
-  background: rgb(180, 180, 180);
+  background: #464646;
   width: 0px;
   height: 100%;
   cursor: pointer; }
     
 .jp-play-bar {
-  background: rgb(40, 40, 40);
+  background: #8cbbe2;
   width: 0px;
   height: 100%; }
-    
+
 .jp-seeking-bg {
   background: url("../images/player/jplayer.blue.monday.seeking.gif");
 }
@@ -42,4 +41,77 @@
 #player-chapter-title {
   text-align: center;
 }
+
+#book-play {
+  background: #fff;
+  }
+#book-middle-menu {
+  background-color: #292929;
+  /*border-top: 1px solid #000;*/
+  height: 44px;
+  font-size: 13px;
+  padding: 0;
+  }
+
+
+
+
+
+#title {
+  font-size: 12px;
+  font-weight: normal;
+  color: #cbcbcb;
+  text-align: center;
+  }
+  
+#author {
+    font-size: 12px;
+    font-weight: normal;
+    color: #cbcbcb;
+    text-align: center;
+}
+
+
+#player-info {
+  height: 45px;
+  @include clearfix;
+ 
+ h1, h2 {
+   text-shadow: none;
+   margin: 0;
+ }
+ 
+.info {
+  margin-left: 39px;
+ }
+}
+
+.jp-time-holder {
+ 
+}
+
+#player-chapter-title h2 {
+  font-size: 12px;
+  font-weight: normal;
+  text-align: center;
+  display: inline-block;
+  margin: 0;
+  }
+
+#jp_container_1 {
+  background-color: #292929;
+  }
+  
+#currentbook_image {
+  width: 29px;
+  margin: 0;
+  float: left;
+  }
+  
+#book-capter-menu {
+  background-color: #292929;
+  }
+
+
+
 
