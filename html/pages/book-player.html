@@ -8,64 +8,63 @@
 			<a href="#settings" data-role="button"><img src="images/icons/book_settings_icn_18.png" alt="Indstillinger"></a>
 		</div>
 	</div>
-	<div class="ui-grid-a ui-bar" id="book-middle-menu">
+	
+	<div id="jp_container_1" class="jp-audio">	
 		<figure class="ui-block-a" id="currentbook_image">
 			<img height="45" src="/images/icons/default-cover.png" alt="">
 		</figure>
-		<div class="ui-block-b">
+		
+		<div id="player-info">
 			<header>
 				<hgroup>
 					<h1 id="title">Title</h1>
 					<h2 id="author">Author</h2>
 				</hgroup>
 			</header>
-			<p>Længde i alt: <span id="book-duration"></span></p>
+	
+	
+		    <div class="jp-time-holder" id="book-chapter-menu">
+    			<div class="ui-block-a" id="player-current-time">
+    				<span class="jp-current-time">-</span>
+    			</div>
+    			<div class="ui-block-b" id="player-chapter-title">
+    				<h2>Kapitel</h2>
+    			</div>
+    			<div class="ui-block-b" id="player-duration">
+    				<span class="jp-duration">-</span>
+    			</div>
+    		</div>
+		
+		    <div class="jp-progress">
+    			<div class="jp-seek-bar">
+    				<div class="jp-play-bar"></div>
+    			</div>
+    		</div>
+    	
+    	</div>
+
+		<div data-role="navbar" id="book-play-menu">
+			<ul class="jp-controls">
+				<li><a href=""	class="previous-section" tabindex="1" title="rewind"><img height="20" alt="Forrige kapitel" src="/images/player/rewind.png"></a></li>
+
+				<li><a href=""	class="jp-play" tabindex="1" title="afspil"><img height="20" alt="Afspil" src="/images/player/play.png"></a>
+					<a href=""	class="jp-pause" tabindex="1" title="pause"><img height="20" alt="Pause" src="/images/player/pause.png"></a>
+				</li>
+
+				<li><a href=""	class="next-section" tabindex="1" title="forward"><img height="20" alt="Næste kapitel" src="/images/player/forward.png"></a></li>
+			</ul>
 		</div>
-	</div>
 
-	<div id="jp_container_1" class="jp-audio">
-		<div class="jp-interface">
-			<div class="jp-progress">
-				<div class="jp-seek-bar">
-					<div class="jp-play-bar"></div>
-				</div>
-			</div>
-
-			<div class="ui-grid-b ui-bar jp-time-holder" id="book-chapter-menu">
-				<div class="ui-block-a" id="player-current-time">
-					<span class="jp-current-time">-</span>
-				</div>
-				<div class="ui-block-b" id="player-chapter-title">
-					<h2>Kapitel</h2>
-				</div>
-				<div class="ui-block-b" id="player-duration">
-					<span class="jp-duration">-</span>
-				</div>
-			</div>
-
-			<div data-role="navbar" id="book-play-menu">
-				<ul class="jp-controls">
-					<li><a href=""	class="previous-section" tabindex="1" title="rewind"><img height="20" alt="Forrige kapitel" src="/images/player/rewind.png"></a></li>
-
-					<li><a href=""	class="jp-play" tabindex="1" title="afspil"><img height="20" alt="Afspil" src="/images/player/play.png"></a>
-						<a href=""	class="jp-pause" tabindex="1" title="pause"><img height="20" alt="Pause" src="/images/player/pause.png"></a>
-					</li>
-
-					<li><a href=""	class="next-section" tabindex="1" title="forward"><img height="20" alt="Næste kapitel" src="/images/player/forward.png"></a></li>
-				</ul>
-			</div>
-
-			<div class="jp-no-solution" style="display: none;">
-				<span>Update Required</span>
-				To play the media you will need to either update your browser to a recent version or update your
-				<a target="_blank" href="http://get.adobe.com/flashplayer/">Flash plugin</a>.
-			</div>
+		<div class="jp-no-solution" style="display: none;">
+			<span>Update Required</span>
+			To play the media you will need to either update your browser to a recent version or update your
+			<a target="_blank" href="http://get.adobe.com/flashplayer/">Flash plugin</a>.
 		</div>
+		
 	</div>
 
 	<div data-role="content" id="book-text-content">
 	</div>
-
 
 	<footer data-role="footer" data-theme=""></footer>
 
