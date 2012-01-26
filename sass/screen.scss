@@ -129,6 +129,12 @@
   color: #cbcbcb;
   text-align: center;
   }
+#player-info {
+.info {
+  margin-left: 39px;
+  }
+}
+
 #player-chapter-title h2 {
   font-size: 12px;
   font-weight: normal;
@@ -144,7 +150,8 @@
   background-color: #292929;
   }
 #currentbook_image {
-  height: 46px;
+  width: 29px;
+  margin: 0;
   }
 .jp-seek-bar {
   height: 3px;
