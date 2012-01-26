@@ -24,7 +24,7 @@ LYT.render = do ->
     playing = LYT.player.getCurrentlyPlaying()
     
     if String(book.id) is String(playing?.book)
-      nowPlaying = """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing" alt="">"""
+      nowPlaying = """<div class="book-now-playing"></div>"""
     
     element = jQuery """
     <li data-book-id="#{book.id}">
