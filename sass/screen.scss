@@ -258,12 +258,11 @@ img.nota-full {
 
 #book-text-content {
   min-height: 500px;
-  
   img {
     width: 100%;
     height: auto;
   }
-  
+
   h1 a,
   h2 a {
     text-decoration: none;
@@ -337,19 +336,19 @@ img.nota-full {
 
 .ui-icon-lyt-play {
   background-image: url(../images/icons/play_btn_18.png);
-}
+  }
 
 .ui-icon-lyt-rewind {
   background-image: url(../images/icons/back_btn_18.png);
-}
+  }
 
 .ui-icon-lyt-forward {
   background-image: url(../images/icons/forward_btn_18.png);
-}
+  }
 
 .ui-icon-lyt-pause {
   background-image: url(../images/icons/pause_btn_18.png);
-}
+  }
 
 .ui-icon-lyt-gear {
   background-image: url(../images/icons/settings_menu_icn_18.png);
@@ -369,7 +368,6 @@ img.nota-full {
   &[data-icon='lyt-search'] {
     @include background-image(linear-gradient(#8cbbe2, #4c95d1));
   } 
-  
 }
 
 .ui-icon-list-delete {
@@ -395,8 +393,23 @@ img.nota-full {
     background-image: url(../images/icons/nowplaying_36.png);
     background-size: 18px 18px;
   }
+  .ui-icon-lyt-play {
+    background-image: url(../images/icons/play_btn_36.png);
+    background-size: 18px 18px;
+  }
+  .ui-icon-lyt-rewind {
+    background-image: url(../images/icons/back_btn_36.png);
+    background-size: 18px 18px;
+    }
+  .ui-icon-lyt-forward {
+    background-image: url(../images/icons/forward_btn_36.png);
+    background-size: 18px 18px;
+  }
+  .ui-icon-lyt-pause {
+    background-image: url(../images/icons/pause_btn_36.png);
+    background-size: 18px 18px;
+  }
 }
-
 
 
 
