@@ -94,12 +94,12 @@ LYT.player =
         
         log.message "only for safari laptop"
         @updateHtml(event.jPlayer.status)
-        @playOnIntent()
+        #@playOnIntent()
       
       ended: (event) =>       
-        if not @isIOS()
-          if @autoProgression
-            @nextSection true  
+        
+        if @autoProgression
+          @nextSection true  
       
       pause: (event) =>
         status = event.jPlayer.status
@@ -124,19 +124,27 @@ LYT.player =
         log.message 'Player: event seeked'
         #if jQuery.jPlayer.platform.iphone
         #  log.message 'Player: this is iphone'
-        @playOnIntent()
-      
+        #@playOnIntent()
+
+      loadedmetadata: (event)=>
+       if isNaN( event.jPlayer.status.duration )
+          #alert event.jPlayer.status.duration
+          @el.jPlayer "setMedia", {mp3: @media.audio}
+          @el.jPlayer "load"
+        else
+          #alert event.jPlayer.status.duration
+
       loadeddata: (event) =>
         log.message 'Player: event loaded data'
-        @playOnIntent()
+        #@playOnIntent()
       
       canplay: (event) =>
         log.message 'Player: event can play'
-        @playOnIntent()
+        #@playOnIntent()
       
       progress: (event) =>
         log.message 'Player: event progress'
-        @playOnIntent()
+        #@playOnIntent()
       
       error: (event) =>
         switch event.jPlayer.error.type
