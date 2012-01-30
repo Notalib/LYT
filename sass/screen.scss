@@ -6,12 +6,12 @@
 .ui-header .ui-btn-left {
   top: 6px;
 }
-
+  
 #submenu {
   margin: 6px 10px 0 0;
   float: right;
   .ui-btn {
-    width: 65px;
+    width: 65px; 
   }
 }
 
@@ -30,6 +30,7 @@
     height: 30px;
     &.ui-btn-icon-notext {
     width: 60px;
+    font-family: "Arial";
     }
   }
 }
@@ -59,7 +60,6 @@
 }
 
 /* bookshelf */
-
 
 #bookshelf-content {
 	ul {
