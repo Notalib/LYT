@@ -349,6 +349,18 @@ img.nota-full {
 .ui-icon-lyt-pause {
   background-image: url(../images/icons/pause_btn_18.png);
   }
+  
+.ui-icon-book-index {
+  background-image: url(../images/icons/index_icn_18.png);
+  }
+    
+.ui-icon-add-bookmark {
+  background-image: url(../images/icons/add_bookmark_icn_18.png);
+  }
+  
+.ui-icon-book-settings {
+  background-image: url(../images/icons/book_settings_icn_18.png);
+  }
 
 .ui-icon-lyt-gear {
   background-image: url(../images/icons/settings_menu_icn_18.png);
@@ -359,7 +371,7 @@ img.nota-full {
   }
 
 .ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear']  {
+  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='add-bookmark'], &[data-icon='book-settings'] {
     .ui-btn-inner {
       padding: 5px 0 0 21px;
     }
@@ -380,34 +392,46 @@ img.nota-full {
 	 .ui-icon-list-delete {
 			background-image: url(../images/icons/delete-list-icn_36.png);
       background-size: 18px 18px;
-   }
+  }
    .ui-icon-lyt-search {
       background-image: url(../images/icons/search_menu_icn_36.png);
       background-size: 18px 18px;
-   }
+  }
    .ui-icon-lyt-gear {
     background-image: url(../images/icons/settings_menu_icn_36.png);
     background-size: 18px 18px;
   }
-  .book-now-playing {
+    .book-now-playing {
     background-image: url(../images/icons/nowplaying_36.png);
     background-size: 18px 18px;
   }
-  .ui-icon-lyt-play {
+   .ui-icon-book-index {
+    background-image: url(../images/icons/index_icn_36.png);
+    background-size: 25px 18px;
+  } 
+    .ui-icon-add-bookmark {
+    background-image: url(../images/icons/add_bookmark_icn_36.png);
+    background-size: 25px 18px;
+  }
+  .ui-icon-book-settings {
+    background-image: url(../images/icons/book_settings_icn_36.png);
+    background-size: 25px 18px;
+  }
+    .ui-icon-lyt-play {
     background-image: url(../images/icons/play_btn_36.png);
-    background-size: 18px 18px;
+    background-size: 25px 18px;
   }
-  .ui-icon-lyt-rewind {
+    .ui-icon-lyt-rewind {
     background-image: url(../images/icons/back_btn_36.png);
-    background-size: 18px 18px;
-    }
-  .ui-icon-lyt-forward {
-    background-image: url(../images/icons/forward_btn_36.png);
-    background-size: 18px 18px;
+    background-size: 25px 18px;
   }
-  .ui-icon-lyt-pause {
+    .ui-icon-lyt-forward {
+    background-image: url(../images/icons/forward_btn_36.png);
+    background-size: 25px 18px;
+  }
+    .ui-icon-lyt-pause {
     background-image: url(../images/icons/pause_btn_36.png);
-    background-size: 18px 18px;
+    background-size: 25px 18px;
   }
 }
 
