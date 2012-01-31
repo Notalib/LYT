@@ -11,10 +11,14 @@
   margin: 6px 10px 0 0;
   float: right;
   .ui-btn {
-    width: 65px; 
-  }
+    width: 65px;
+    background: none;
+    }
+  .ui-icon { 
+    width: 30px; 
+		@include border-radius(0, 0);
+		}
 }
-
 
 .ui-header {
 	background: #c0c0c0 url(../images/bg_pattern_black.png) repeat;
@@ -175,6 +179,29 @@
 		}
 }
 
+/* Book details */
+#book-details
+ {
+  .ui-content{
+  max-width: 500px;
+  text-align: center;
+  padding: 5px;
+  }
+  #description{
+  font-size: 14px;
+  text-align: left;
+  margin: 5px;
+  font-style: normal;
+  }
+  .cover-image{
+  margin: 5px;
+  }
+  #title{
+  font-size: 20 px;
+  font-weight: bold;
+  text-align: left;
+  }
+} 
 
 /* Login page */
 #login { 
@@ -415,7 +442,7 @@ img.nota-full {
   }
   .ui-icon-book-settings {
     background-image: url(../images/icons/book_settings_icn_36.png);
-    background-size: 25px 18px;
+    background-size: 30px 18px;
   }
     .ui-icon-lyt-play {
     background-image: url(../images/icons/play_btn_36.png);
