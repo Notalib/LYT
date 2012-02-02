@@ -236,15 +236,11 @@
   }
 }
 #add-to-bookshelf-button {
-  @include action-button();
+  @include action-button(#8cbbe2, a);
   }
   
 #play-button {
-    .ui-btn-inner {
-    color:#fff;
-    background-color: #8cbbe2;
-    }
-  @include action-button();
+  @include action-button(#8cbbe2, a);
   }
 
 
