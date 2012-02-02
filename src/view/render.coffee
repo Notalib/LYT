@@ -64,6 +64,7 @@ LYT.render = do ->
       $(this).simpledialog({
         'mode' : 'bool',
         'prompt' : 'Vil du fjerne denne bog?',
+        'subTitle' : 'fjern bogen ' + book.title
         'useModal': true,
         'buttons' : {
           'OK': 
