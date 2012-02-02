@@ -35,7 +35,7 @@ LYT.player =
   
   _iBug: false
   
-  playAttemptCount: 0
+  playAttemptCount: 3
   
   lastBookmark: null
   
@@ -118,21 +118,24 @@ LYT.player =
       
       canplaythrough: (event) =>
         log.message 'Player: event can play through'
-        @playOnIntent()
+        #@playOnIntent()
       
       seeked: (event) =>
         log.message 'Player: event seeked'
         #if jQuery.jPlayer.platform.iphone
         #  log.message 'Player: this is iphone'
-        #@playOnIntent()
+        @playOnIntent()
 
       loadedmetadata: (event)=>
+
        if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
           @el.jPlayer "setMedia", {mp3: @media.audio}
           @el.jPlayer "load"
         else
-          #alert event.jPlayer.status.duration
+          #alert "hej"
+        
+          
 
       loadeddata: (event) =>
         log.message 'Player: event loaded data'
@@ -140,7 +143,7 @@ LYT.player =
       
       canplay: (event) =>
         log.message 'Player: event can play'
-        #@playOnIntent()
+        @playOnIntent()
       
       progress: (event) =>
         log.message 'Player: event progress'
@@ -205,9 +208,9 @@ LYT.player =
   
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
-    
-    if @playIntentFlag
-      @playAttemptCount = 0
+    #alert @playIntentFlag 
+    #if @playIntentFlag
+      #@playAttemptCount = 0
       log.message 'Player: play intent used'
       @playIntentFlag = false
       @play(@playIntentOffset, false)
@@ -341,6 +344,9 @@ LYT.player =
       
       if @media?
         @el.jPlayer "setMedia", {mp3: @media.audio}
+        #@playAttemptCount = 3
+        #alert playAttemptCount
+
       else
         # If no media was found, check whether the section has a single,
         # unambiguous MP3 file, we can load instead

@@ -6,7 +6,18 @@
 	</div>
 	<div data-role="content" class="search-top ui-bar-b" data-theme="a">
 		<form action="#" method="get" id ="search-form">
-			<input type="search" name="term" id="searchterm" placeholder="Titel, forfatter eller genre" title="Titel, forfatter eller genre">
+		
+			<fieldset class="ui-grid-a">
+				<div class="ui-block-a">
+					<input data-theme="d" type="search" name="term" id="searchterm" placeholder="Titel, forfatter eller genre" title="Titel, forfatter eller genre">
+				</div>
+				<div class="ui-block-b">
+					
+						<input data-inline="true" type="submit" data-theme="b" name="search-submit" id="search-submit" value="søg">
+					
+				</div>
+			</fieldset>
+		
 		</form>
 		<div class="ui-bar-c">
 			<ul id="searchresult" data-role="listview">

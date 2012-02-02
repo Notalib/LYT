@@ -58,6 +58,30 @@ LYT.render = do ->
       "Lydbog"
     else
       "Lydbog med tekst"
+
+  atachClickEvent = (aElement, book, list) ->
+    aElement.click (event) ->
+      $(this).simpledialog({
+        'mode' : 'bool',
+        'prompt' : 'Vil du fjerne denne bog?',
+        'useModal': true,
+        'buttons' : {
+          'OK': 
+            click: (event) -> 
+              LYT.bookshelf.remove(book.id).done -> list.remove()
+          ,
+          'Cancel': 
+            click: (event)->
+            icon: "delete",
+            theme: "c"
+          ,
+            
+      
+        }
+      })
+      #alert book.id
+      #LYT.bookshelf.remove(book.id).done -> list.remove()
+
   
   # ---------------------------
   
@@ -79,10 +103,9 @@ LYT.render = do ->
     # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
       li = bookListItem "book-play", book
-      removeLink = jQuery """<a href="" title="Slet bog" class="remove-book"></a>"""
-      removeLink.click (event) ->
-        LYT.bookshelf.remove(book.id).done -> li.remove()
-      
+      removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
+      atachClickEvent removeLink,book,li
+        
       li.append removeLink
       list.append li
     
