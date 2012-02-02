@@ -7,7 +7,7 @@ $darkbuttoncolor: #464646;
 $highlightcolor: #8cbbe2;
 
 /* Actions buttons */
-@mixin action-button($color:#8cbbe2, $theme:c) {
+@mixin action-button($color:$highlightcolor, $theme:c) {
 
   .ui-btn-hidden {
     border: none;

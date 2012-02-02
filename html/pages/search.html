@@ -5,28 +5,30 @@
 		<h1>Søg</h1>
 	</div>
 	<div data-role="content" class="search-top ui-bar-b" data-theme="a">
-		<form action="#" method="get" id ="search-form">
 		
-			<fieldset class="ui-grid-a">
-				<div class="ui-block-a">
-					<input data-theme="d" type="search" name="term" id="searchterm" placeholder="Titel, forfatter eller genre" title="Titel, forfatter eller genre">
-				</div>
-				<div class="ui-block-b">
-					
-						<input data-inline="true" type="submit" data-theme="b" name="search-submit" id="search-submit" value="søg">
-					
-				</div>
-			</fieldset>
+		<div id="search-form-wrapper">
+    		<form action="#" method="get" id="search-form">	
+    			<fieldset class="ui-grid-a">
+    				
+    				  <label for="term" class="ui-hidden-accessible">Søg:</label>
+    					<input type="search" name="term" id="searchterm" placeholder="Titel, forfatter eller genre" title="Titel, forfatter eller genre">
+              
+              <div id="search-icon-btn">
+                  <input data-inline="true" type="submit" name="search-submit" id="search-submit" data-iconpos="notext" data-icon="lyt-search-main" data-iconshadow="false" value="søg">
+              </div>
+    					
+    			</fieldset>
+    		</form>
+		</div>
 		
-		</form>
-		<div class="ui-bar-c">
+		<div class="ui-bar-c" id="searchresult-wrapper">
 			<ul id="searchresult" data-role="listview">
-				<li><h3>Nyeste bøger</h3></li>
-				<li><h3>Top 10 alle</h3></li>
-				<li><h3>Top 10 børn og unge</h3></li>
-				<li><h3>Top 10 voksne</h3></li>
-				<li><h3>Top 10 krimi</h3></li>
-				<li><h3>Top 10 fantasy</h3></li>
+				<li><a href=""><h3>Nyeste bøger</h3></a></li>
+				<li><a href=""><h3>Top 10 alle</h3></a></li>
+				<li><a href=""><h3>Top 10 børn og unge</h3></a></li>
+				<li><a href=""><h3>Top 10 voksne</h3></a></li>
+				<li><a href=""><h3>Top 10 krimi</h3></a></li>
+				<li><a href=""><h3>Top 10 fantasy</h3></a></li>
 			</ul>
 		</div>
 		<div data-role="fieldcontain">

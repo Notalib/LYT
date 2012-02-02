@@ -133,9 +133,111 @@
 
 
 /* search page */
-.ui-input-search {
-      height: 33px;
+
+#search-form-wrapper {
+  position: relative;
+  background: $highlightcolor;
+  margin: -15px -15px 0 -15px;
+  height: 60px;
+  @include clearfix();
+  
+   .ui-input-search {
+          height: 41px;
+          padding: 0 8px;
+          margin-right: 60px;
+          border: 1px solid #3b73b3; 
+    }
+         
+    .ui-icon-searchfield::after {
+          background-image: none;
+    }
+
+  
+  
+  #search-icon-btn {
+      position: absolute;
+      right: 7px;
+      top: 0;
+      width: 50px;
+                 
+       .ui-btn {
+          width: 50px;
+          height: 41px;
+          margin: 7px 0 0 0;
+          border: 1px solid  #3b73b3;
+          background-image: none;
+          background-color: darken($highlightcolor, 16%);
+          @include box-shadow(none);
+          
+        }
+        
+        .ui-icon {
+          width: 25px;
+          height: 25px;
+        }
+        
+        .ui-btn-inner {
+          padding: 5px 0 0 11px;
+          height: 32px;
+          border: 2px solid $highlightcolor;
+        } 
+        
+        .ui-btn-down-b {
+          background-color: lighten($highlightcolor, 16%);
+        }
+        
+  }
+  
+  .ui-input-clear {
+    background-image: none;
+    background: transparent;
+    border: none;
+    margin: 0; /*-11px 5px 0 0;*/
+    @include box-shadow(none);
+    
+    .ui-icon-shadow {
+      @include box-shadow(none);
+      background-image: none;
+    }
+    
+    .ui-icon {
+      background-image: url(../images/icons/delete-list-icn.png);
+      background-position: 0;
+      width: 18px;
+      height: 18px;
+      @include border-radius(0);
+    }
+
+    .ui-btn-inner {
+      border: none;
+      padding: 0;
+    }
+  }
+  
 }
+
+#search-form {
+  padding: 7px 5px;
+}
+
+#searchresult {
+    margin: -1px -16px 0 -16px;
+    
+    .ui-li {
+      height: 60px;
+      padding: 0;
+    }
+    
+}
+
+#searchterm {
+    line-height: 2;
+}
+
+
+#searchresult-wrapper {
+}
+
 #searchresult {
 	li {
 			img {
@@ -147,33 +249,30 @@
 				top: 0px;
 			}
 			.book-play-link {
-			padding-left: 38px;
-			padding-top: 0.2em;
-			}
-			.ui-icon {
-			background: none;
+			  padding-left: 38px;
+			  padding-top: 0.2em;
 			}
 			.ui-btn {
-			border: none;
-			background: none;
-			@include box-shadow(none);
+			  border: none;
+			  background: none;
+			  @include box-shadow(none);
 			}
 			.cover-image-frame {
-			width: 37px;
-			overflow: hidden;
-			position: absolute;
-			top: 0;
-			left: 0;
-			height: 43px;
+			  width: 37px;
+			  overflow: hidden;
+			  position: absolute;
+			  top: 0;
+			  left: 0;
+			  height: 43px;
 			}
 			.ui-li-heading {
-			font-size: 14px;
-			font-weight: bold;
-			margin: 0;
+			  font-size: 14px;
+			  font-weight: bold;
+			  margin: 0;
 			}
       .ui-li-desc{
-      font-size: 12px;
-      margin: .2em 0;
+        font-size: 12px;
+        margin: .2em 0;
       }
 
 			border-top: 1px solid #fff;
@@ -197,6 +296,7 @@
   max-width: 500px;
   padding: 10px;
   text-shadow: none;
+  margin: 0 auto;
   }
   .ui-bar-c {
   border: 2px solid #fff;
@@ -240,7 +340,7 @@
   }
   
 #play-button {
-  @include action-button(#8cbbe2, a);
+  @include action-button(#a2bd30, a);
   }
 
 
@@ -305,6 +405,8 @@ img.nota-full {
   max-width: 25px;
 }
 
+
+/*
 #NccRootElement a::before,
 #searchresult .ui-li-static::before {
   list-style: none;
@@ -313,7 +415,7 @@ img.nota-full {
   list-style-image: none;
   counter-increment: none;
   content: none;
-}
+}*/
 
 .ui-content .ui-listview {
   margin: 0px;
@@ -357,11 +459,6 @@ img.nota-full {
 
 .ui-li-static {
   font-size: inherit;
-}
-
-#search-form {
-  margin: -8px 65px -5px -5px;
-  height: 60px;
 }
 
 
@@ -437,6 +534,10 @@ img.nota-full {
   
 .ui-icon-lyt-search {
   background-image: url(../images/icons/search_menu_icn_18.png);
+  }
+
+.ui-icon-lyt-search-main {
+  background-image: url(../images/icons/search_icn_25.png);
   }
 
 .ui-btn-icon-notext {
