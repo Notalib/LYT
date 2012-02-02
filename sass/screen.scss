@@ -120,6 +120,18 @@
 	}
 }
 
+/* profile page */
+#profile{
+  .ui-content {
+  max-width: 500px;
+  }
+  #log-off-button-wrapper{
+  @include action-button();
+  }
+}
+
+
+
 /* search page */
 .ui-input-search {
       height: 33px;
@@ -185,7 +197,6 @@
   max-width: 500px;
   padding: 10px;
   text-shadow: none;
-  margin: 10px;
   }
   .ui-bar-c {
   border: 2px solid #fff;
@@ -197,14 +208,14 @@
   margin-left: 10px;
   }
   #title{
-  font-size: 1.2em;
+  font-size: 1.3em;
   font-weight: bold;
   text-align: left;
   margin-left: 10px;
   margin-top: 10px;
   }
   #author {
-  font-size: 1.2em;
+  font-size: 1.3em;
   font-weight: normal;
   text-align: left;
   margin-left: 10px;
@@ -227,7 +238,12 @@
 #add-to-bookshelf-button {
   @include action-button();
   }
+  
 #play-button {
+    .ui-btn-inner {
+    color:#fff;
+    background-color: #8cbbe2;
+    }
   @include action-button();
   }
 
