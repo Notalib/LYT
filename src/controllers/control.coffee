@@ -23,11 +23,10 @@ LYT.control =
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
           log.message ui
-          if ui.prevPage 
-            next = ui.prevPage
+          if ui.prevPage
+            next ='#'+ui.prevPage[0].id
           else
             next = "#bookshelf"
-          
           $.mobile.changePage next
         
         .fail ->
