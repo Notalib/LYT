@@ -35,7 +35,7 @@ LYT.player =
   
   _iBug: false
   
-  playAttemptCount: 3
+  playAttemptCount: 10
   
   lastBookmark: null
   
@@ -127,13 +127,20 @@ LYT.player =
         @playOnIntent()
 
       loadedmetadata: (event)=>
-
-       if isNaN( event.jPlayer.status.duration )
+      
+        if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
-          @el.jPlayer "setMedia", {mp3: @media.audio}
-          @el.jPlayer "load"
+          if(@getStatus().src == @media.audio && @playAttemptCount > 0 )
+            @el.jPlayer "setMedia", {mp3: @media.audio}
+            @el.jPlayer "load"
+            @playAttemptCount = @playAttemptCount - 1 
+            log.message @playAttemptCount
+          else
+            @playAttemptCount = 10
+            
         else
           #alert "hej"
+        
         
           
 
