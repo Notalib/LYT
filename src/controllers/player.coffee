@@ -135,11 +135,8 @@ LYT.player =
             @el.jPlayer "load"
             @playAttemptCount = @playAttemptCount - 1 
             log.message @playAttemptCount
-          else
-            @playAttemptCount = 10
-            
         else
-          #alert "hej"
+         @playAttemptCount = 10 #alert "hej"
         
         
           
