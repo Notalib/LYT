@@ -110,8 +110,8 @@ LYT.catalog = do ->
     # Perform the request
     jQuery.ajax options
     
-    # Return the deferred
-    deferred
+    # Return the deferred's promise
+    deferred.promise()
   
   
   # ---------------
@@ -196,7 +196,7 @@ LYT.catalog = do ->
       .fail ->
         deferred.reject()
     
-    deferred
+    deferred.promise()
   
   
   getDetails = (bookId) ->
@@ -224,7 +224,7 @@ LYT.catalog = do ->
       .fail ->
         deferred.reject()
     
-    deferred
+    deferred.promise()
   
   # ## Public API
   

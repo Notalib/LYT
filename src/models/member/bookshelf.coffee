@@ -43,7 +43,7 @@ LYT.bookshelf =
     response.fail (args...) ->
       deferred.reject args...
     
-    deferred
+    deferred.promise()
   
   
   # Add (issue) a book to the shelf by its ID

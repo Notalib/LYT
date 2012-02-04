@@ -53,7 +53,7 @@ LYT.bookmarks = do ->
       deferred.reject()
     
     jQuery.ajax options
-    deferred
+    deferred.promise()
   
   
   # Set a book's bookmarks
@@ -90,5 +90,5 @@ LYT.bookmarks = do ->
       deferred.reject()
     
     jQuery.ajax options
-    deferred
+    deferred.promise()
   

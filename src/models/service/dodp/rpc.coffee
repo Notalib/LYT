@@ -76,6 +76,11 @@ LYT.rpc = do ->
   # Error-handler-factory-function-and-I-like-hyphens
   createErrorHandler = (deferred, successHandler) ->
     (jqXHR, status, error) ->
+      # A status 500 by default invokes this error handler,
+      # but if there's responseXML the response should
+      # instead be handled by the success handler, since
+      # it will parse the response (which contains fault
+      # codes etc), and handle it appropriately.
       if jqXHR.status is 500 and jqXHR.responseXML?
         successHandler jqXHR.responseXML, jqXHR.status, jqXHR
         return
@@ -181,6 +186,6 @@ LYT.rpc = do ->
     # Perform the request
     jQuery.ajax options
     
-    # Return the deferred
-    deferred
+    # Return the deferred's promise
+    deferred.promise()
 

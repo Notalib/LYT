@@ -106,7 +106,7 @@ LYT.service = do ->
       else
         failure code, message
     
-    deferred
+    deferred.promise()
   
   # Perform the logOn handshake:  
   # `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
@@ -124,7 +124,7 @@ LYT.service = do ->
     unless username and password
       emit "logon:rejected"
       deferred.reject()
-      return deferred
+      return deferred.promise()
     
     # The maximum number of attempts to make
     attempts = LYT.config.service?.logOnAttempts or 3
@@ -184,7 +184,7 @@ LYT.service = do ->
     # Kick it off
     attemptLogOn()
     
-    return deferred
+    return deferred.promise()
   
   # -------
   # # Public API
@@ -205,7 +205,7 @@ LYT.service = do ->
     {username, password} = credentials if (credentials = LYT.session.getCredentials())
     unless username and password
       fail()
-      return deferred
+      return deferred.promise()
     
     loggedOn = ->
       LYT.rpc("getServiceAttributes").then gotServiceAttrs, fail
@@ -218,7 +218,7 @@ LYT.service = do ->
     
     LYT.rpc("logOn", username, password).then loggedOn, fail
     
-    deferred
+    deferred.promise()
   
   # TODO: Can logOff fail? If so, what to do? Very zen!  
   # Also, there should probably be some global "cancel all
@@ -267,7 +267,7 @@ LYT.service = do ->
     
     response.fail (err, message) -> deferred.reject err, message
     
-    deferred
+    deferred.promise()
   
   # -------
   # ## Optional operations

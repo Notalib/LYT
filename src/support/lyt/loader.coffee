@@ -26,20 +26,20 @@ LYT.loader = do ->
   
   # ## Public API
   
-  # Register a Deferred. When the Deferred finishes,
+  # Register a Promise. When the Promise finishes,
   # it'll close its loading message.  
   # There are 2 ways to call this method:
   # 
-  #     LYT.loader.register deferredObj
+  #     LYT.loader.register promiseObj
   # 
   # which uses the default message, or:
   # 
-  #     LYT.loader.register message, deferredObj
-  register: (message, deferred) ->
-    [message, deferred] = [defaultMessage, message] if arguments.length is 1
-    return unless deferred.state() is "pending"
-    @set message, deferred, false
-    deferred.always => @close deferred
+  #     LYT.loader.register message, promiseObj
+  register: (message, promise) ->
+    [message, promise] = [defaultMessage, promise] if arguments.length is 1
+    return unless promise.state() is "pending"
+    @set message, promise, false
+    promise.always => @close promise
   
   # Set a custom loading message
   set: (message, id, clearStack = true) ->

@@ -26,9 +26,12 @@ class LYT.Book
   # "Class"/"static" method for retrieving a
   # book's metadata  
   # Note: Results are cached in memory
+  #
+  # DEPRECATED: Use `catalog.getDetails()` instead
   this.getDetails = do ->
     loaded = {}
     (id) ->
+      log.warn "Book.getDetails is deprecated. Use catalog.getDetails() instead"
       deferred = jQuery.Deferred()
       if loaded[id]?
         deferred.resolve loaded[id]
@@ -42,7 +45,7 @@ class LYT.Book
         .fail (args...) ->
           deferred.reject args...
       
-      deferred
+      deferred.promise()
   
   
   # The constructor takes one argument; the ID of the book.  
