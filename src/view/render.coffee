@@ -178,7 +178,7 @@ LYT.render = do ->
   
   searchResults: (results, view) ->
     list = view.find "ul"
-    list.empty() if results.currentPage is 1
+    list.empty() if results.currentPage is 1 or results.currentPage is undefined
     
     list.append bookListItem("book-details", result) for result in results
     

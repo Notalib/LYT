@@ -167,7 +167,7 @@ LYT.control =
       else
         # TODO: Simple, rough implementation
         LYT.render.catalogLists handleResults, content
-      
+        
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
         

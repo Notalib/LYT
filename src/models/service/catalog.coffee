@@ -74,7 +74,7 @@ LYT.catalog = do ->
         results.loadNextPage = -> search term, page+1, params, pageSize
       else
         results.loadNextPage = null
-      
+
       deferred.resolve results
     
     
@@ -189,7 +189,6 @@ LYT.catalog = do ->
       .done (data) ->
         results = data.d or []
         item.id = item.itemid for item in results
-        
         deferred.resolve results
       
       # On fail, reject the deferred
