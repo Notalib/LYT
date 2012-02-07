@@ -28,6 +28,12 @@ $(document).bind "mobileinit", ->
     "#settings":
       handler: "settings"
       events: "s"
+    "#support":
+      handler: "support"
+      events: "s"
+    "#about":
+      handler: "about"
+      events: "s"
     "#search([?].*)?":
       handler: "search"
       events: "bs,s"

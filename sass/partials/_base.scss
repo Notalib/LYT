@@ -20,7 +20,7 @@ $highlightcolor: #8cbbe2;
     background-image: none;
     border: 2px solid #636363;
 
-    @include text-shadow(-1px -1px 0px darken($color, 30%));
+    @include text-shadow(0 -1px 0 darken($color, 30%));
     background-color: $color;
     
     .ui-btn-text {

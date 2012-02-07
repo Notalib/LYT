@@ -5,48 +5,37 @@
 		<h1>Indstillinger</h1>
 	</header>
   
-  <div data-role="content" data-theme="c">
-	 
-	 <div id="login-section">
-	 
-	 <p id="logged-in-as">
-	   Du er logget ind som: <span id="current-user-name">Jens Jensen</span>
-	 </p>
-	 
-	 
-	 <div data-role="fieldcontain">
-     <fieldset data-role="controlgroup">
-	     <legend>Log ind automatisk ved hvert besøg:</legend>
-	     <input type="checkbox" name="checkbox-1" id="checkbox-1" class="custom" />
-	     <label for="checkbox-1">Log ind automatisk</label>
-     </fieldset>
-   </div>
+  <div data-role="content" data-theme="c">	 
+	 <div id="login-section"> 
+	   <h2 id="logged-in-as">
+	     Du er logget ind som: <span id="current-user-name">Jens Jensen</span>
+	   </h2>
 	 
 
-   <div data-role="fieldcontain" id="log-off-button-wrapper">
+     <div data-role="fieldcontain" id="log-off-button-wrapper">
+        <p>Dit login bliver husket til næste gang du besøger siden. Det er husket indtil du logger ud altid. </p>
 				<a id="log-off" href="" data-role="button">Log af nu</a>
-   </div>	
+     </div>	
+   </div>
    
-   </div
+   <hr>
    
+   <div id="support-section"> 
+     <h2>Support</h2>
    
-   <div id="support-section"
-   
-   <h2>Support</h2>
-   
-   <ul data-role="listview" data-inset="true">
-    <li class="help">
-    
-    <a href="#help">Hjælp</a></li>
-    <li class="contact">
-      <a href="#contact">
-        Kontakt E17 Support</a></li>
-   </ul>
-   
-      <a id="about-button" href="" data-role="button">Om Nota og E17</a>
-   
+     <ul data-role="listview" data-inset="true">
+        <li class="support">
+          <a href="#support">Support</a>
+        </li>
+        <li class="about">
+          <a href="#about">Om Nota og E17</a>
+        </li>
+        
+      </ul>
+
    </div>
    
 
- </div>	
-</div>
+ </div><!-- close content -->
+ 	
+</div><!-- close page -->

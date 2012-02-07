@@ -139,9 +139,72 @@
   text-shadow: none;
   margin: 0 auto;
   }
-  #log-off-button-wrapper{
-  @include action-button();
+  
+  
+  .ui-content {
+  
+  
+  .ui-field-contain {
+      padding: 0;
+      margin: 0;
   }
+  
+  h2 {
+    color: #636363;
+    @include text-shadow(#ebebeb 0 2px 0);
+    font-weight: 500;
+    color: #00415c;
+    font-size: 20px;
+    
+  }
+  
+  #logged-in-as {
+    
+    background: transparent url(../images/icons/settings_profile_icn_25.png) no-repeat 0 50%;
+    
+    text-align: center;
+    #current-user-name {
+      display: block;
+      color: black;
+      
+    }
+    
+  }
+  
+  
+  hr {
+    margin-top: 20px;
+    border-top: 1px solid #636363;
+    background: #ebebeb; 
+    height: 1px;
+    border-width: 1px 0 0 0;
+  }
+  
+  #support-section {
+    
+  }
+  
+  .ui-checkbox .ui-btn {
+      height: 45px;
+      .ui-btn-inner {
+          padding: 0.8em 45px;
+      }
+      .ui-icon {
+          top: 1.35em;
+      }
+  }
+  
+  .ui-btn, .ui-btn-up-c {
+    border-color: #636363;
+  }
+  
+  
+  #log-off-button-wrapper{
+      @include action-button(#c1001f, a);
+  }
+  
+  }
+  
 }
 
 
@@ -333,6 +396,7 @@
   font-weight: normal;
   text-align: left;
   margin-left: 10px;
+  margin-top: 2px;
   color: #464646;
   }
   #description {
