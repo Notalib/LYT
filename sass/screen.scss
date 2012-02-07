@@ -1,6 +1,17 @@
 @import "partials/base";
 @import "partials/jplayer";
 
+
+/* assorted jqm fixes */
+.ui-bar-c {
+ border: none;
+}
+
+.ui-icon-shadow {
+ @include box-shadow(none);
+}
+
+
 /* button adjustments */
 
 .ui-header .ui-btn-left {
@@ -124,6 +135,9 @@
 #profile{
   .ui-content {
   max-width: 500px;
+  padding: 10px;
+  text-shadow: none;
+  margin: 0 auto;
   }
   #log-off-button-wrapper{
   @include action-button();
@@ -477,6 +491,11 @@ img.nota-full {
 
 
 
+.ui-icon.ui-icon-arrow-r {
+  background: transparent url(../images/icons/arrow_icn_18.png) no-repeat 0 50%;
+}
+
+
 #book-play-menu {
  .ui-btn {
     border-color: #000;
@@ -602,6 +621,10 @@ img.nota-full {
     .ui-icon-lyt-pause {
     background-image: url(../images/icons/pause_btn_36.png);
     background-size: 25px 18px;
+  }
+  .ui-icon-lyt-search-main {
+    background-image: url(../images/icons/search_icn_50.png);
+    background-size: 25px 25px;
   }
 }
 
