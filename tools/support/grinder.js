@@ -1,3 +1,10 @@
+/* A simple CoffeeScript dependency manager and concatenator
+ * Copyright (c) 2011 Daniel Høier Øhrgaard, Stimulacrum
+ * 
+ * MIT license
+ * 
+ */
+
 (function() {
   var exec, fs, path;
 
