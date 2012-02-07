@@ -234,7 +234,6 @@ do ->
         }
       
       load()
-      deferred
     
     
     # Parse and return the metadata as an array

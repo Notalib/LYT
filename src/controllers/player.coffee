@@ -28,8 +28,6 @@ LYT.player =
   autoProgression: true 
   toggleAutoProgression: null
   progressionMode: null
-  nextButton: null
-  previousButton: null
   
   fakeEndScheduled: false
   
