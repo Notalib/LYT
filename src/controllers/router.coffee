@@ -9,12 +9,14 @@
 
 # -------------------
 
+LYT.var =
+  next: null # store nextpage 
+
 $(document).ready ->
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
 
 $(document).bind "mobileinit", ->
-
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
@@ -50,8 +52,7 @@ $(document).bind "mobileinit", ->
    
   $(LYT.service).bind "logon:rejected", () ->
     # TODO: pass this `redirect` url to the login action somehow
-    redirect = window.location.hash
-    
+    LYT.var.next = window.location.hash
     $.mobile.changePage "#login"
   
   $(LYT.service).bind "logoff", ->
