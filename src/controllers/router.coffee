@@ -51,11 +51,13 @@ $(document).bind "mobileinit", ->
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
    
   $(LYT.service).bind "logon:rejected", () ->
-    # TODO: pass this `redirect` url to the login action somehow
     LYT.var.next = window.location.hash
+    
     $.mobile.changePage "#login"
   
   $(LYT.service).bind "logoff", ->
+    LYT.player.clear() if LYT.player.ready
+    
     $.mobile.changePage "#login"
   
   $("[data-role=page]").live "pageshow", (event, ui) ->

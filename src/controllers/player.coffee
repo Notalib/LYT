@@ -201,6 +201,8 @@ LYT.player =
     # Stop playback and loading of media
     @el.jPlayer('stop')
     
+  clear: () ->
+    @el.jPlayer('clearMedia')
     
   isIOS: () ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
