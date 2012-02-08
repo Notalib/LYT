@@ -45,7 +45,7 @@
     height: 30px;
     &.ui-btn-icon-notext {
     width: 60px;
-    font-family: "Arial";
+    font-family: "Arial"; 
     }
   }
 }
@@ -139,7 +139,13 @@
   text-shadow: none;
   margin: 0 auto;
   }
-  
+   .ui-bar-c {
+  border: 2px solid #fff;
+  background-color: #ebebeb;
+  font-size: 12px;
+  text-shadow: none;
+  padding: 0 8px;
+  }
   
   .ui-content {
   
@@ -153,7 +159,7 @@
     color: #636363;
     @include text-shadow(#ebebeb 0 2px 0);
     font-weight: 500;
-    color: #00415c;
+    /*color: #00415c;*/
     font-size: 20px;
     
   }
@@ -464,6 +470,15 @@
 	
 }
 
+/* about */
+#about {
+.ui-bar-c {
+  border: 2px solid #fff;
+  background-color: #ebebeb;
+  font-size: 13px;
+  text-shadow: none;
+  }
+}
 
 #login-button-wrapper {
   @include action-button();
