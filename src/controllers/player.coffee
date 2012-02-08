@@ -86,13 +86,15 @@ LYT.player =
       
       loadstart: (event) =>
         log.message 'Player: load start'
+        LYT.loader.set('Loading data', 'metadata')
         
         return if jQuery.jPlayer.platform.android
+        return if $.jPlayer.platform.iphone
         return unless jQuery.browser.webkit    
         
         log.message "only for safari laptop"
         @updateHtml(event.jPlayer.status)
-        #@playOnIntent()
+        @playOnIntent()
       
       ended: (event) =>       
         
@@ -111,37 +113,51 @@ LYT.player =
           @_iBug = true
           if @autoProgression
             @nextSection true
-          
-          
-      
+                   
       seeked: (event) =>
         log.message 'Player: event seeked'
+        LYT.loader.close('metadata')
         @playOnIntent()
 
-      loadedmetadata: (event)=>
-      
+      loadedmetadata: (event) =>
+        log.message 'Player: loaded metadata'
+        LYT.loader.set('Loading data', 'metadata')
         if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
-          if(@getStatus().src == @media.audio && @playAttemptCount > 0 )
+          if(@getStatus().src == @media.audio && @playAttemptCount < LYT.config.player.playAttemptLimit )
             @el.jPlayer "setMedia", {mp3: @media.audio}
             @el.jPlayer "load"
-            @playAttemptCount = @playAttemptCount - 1 
+            @playAttemptCount = @playAttemptCount + 1 
             log.message @playAttemptCount
         else
-         @playAttemptCount = 10 #alert "hej"
+         LYT.loader.close('metadata')
+         @playAttemptCount = 0
         
       
       canplay: (event) =>
         log.message 'Player: event can play'
+        LYT.loader.close('metadata')
         @playOnIntent()
+      
+      canplaythrough: (event) =>
+        log.message 'Player: event can play through'
+        LYT.loader.close('metadata')
+        #@playOnIntent()
+      
+      progress: (event) =>
+        log.message 'Player: event progress'
+        LYT.loader.close('metadata')
+        #@playOnIntent()
       
       error: (event) =>
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message 'jPlayer: url error'
-            # try again before reporting error to user
+            #TODO: this is usually because something is wrong with the session or the internet connection, 
+            # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION
             log.message 'jPlayer: no solution error, you need to install flash or update your browser.'
+            #TODO: send people to a link where they can download flash or update their browser
       
       
       swfPath: "./lib/jPlayer/"

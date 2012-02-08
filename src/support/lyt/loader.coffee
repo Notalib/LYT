@@ -53,7 +53,7 @@ LYT.loader = do ->
   
   # Close a loading message
   close: (id) ->
-    # close loader with id and unlock interface if we all loaders are closed
+    # close loader with id and unlock interface if all loaders are closed
     loaders.splice index, 1 while (index = loaders.indexOf id) isnt -1
     
     if loaders.length is 0

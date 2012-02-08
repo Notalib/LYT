@@ -84,7 +84,7 @@ LYT.config =
   player:
     # The minimum time between lastmark updates (milliseconds)
     lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
-  
+    playAttemptLimit: 10
   # ### LYT.DTBDocument config
   dtbDocument:
     # Whether to use the `forceclose=true` parameter
