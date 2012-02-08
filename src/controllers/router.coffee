@@ -20,13 +20,13 @@ $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
-      events: "bs,s"
+      events: "s"
     "#book-play([?].*)?":
       handler: "bookPlayer"
-      events: "bs,s"
+      events: "s"
     "#book-index([?].*)?":
       handler: "bookIndex"
-      events: "bs,s"
+      events: "s"
     "#settings":
       handler: "settings"
       events: "s"
@@ -38,7 +38,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#search([?].*)?":
       handler: "search"
-      events: "bs,s"
+      events: "s"
     "#login":
       handler: "login"
       events: "s"
