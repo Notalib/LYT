@@ -213,7 +213,28 @@
   
 }
 
+/* About page */
+#about {
+ .ui-bar-c {
+  border: 2px solid #fff;
+  background-color: #ebebeb;
+  font-size: 13px;
+  text-shadow: none;
+  padding: 0 8px;
+  }
+  
+  h2 {
+    color: #636363;
+    font-weight: 500;
+    /*color: #00415c;*/
+    font-size: 20px;
+  }
+  
+  #text-field {
+    font-style: normal;
+  }
 
+}
 
 /* search page */
 
@@ -468,16 +489,6 @@
 		width: 90%;
 	}
 	
-}
-
-/* about */
-#about {
-.ui-bar-c {
-  border: 2px solid #fff;
-  background-color: #ebebeb;
-  font-size: 13px;
-  text-shadow: none;
-  }
 }
 
 #login-button-wrapper {
