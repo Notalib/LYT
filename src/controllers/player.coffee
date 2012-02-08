@@ -114,14 +114,8 @@ LYT.player =
           
           
       
-      canplaythrough: (event) =>
-        log.message 'Player: event can play through'
-        #@playOnIntent()
-      
       seeked: (event) =>
         log.message 'Player: event seeked'
-        #if jQuery.jPlayer.platform.iphone
-        #  log.message 'Player: this is iphone'
         @playOnIntent()
 
       loadedmetadata: (event)=>
@@ -136,20 +130,10 @@ LYT.player =
         else
          @playAttemptCount = 10 #alert "hej"
         
-        
-          
-
-      loadeddata: (event) =>
-        log.message 'Player: event loaded data'
-        #@playOnIntent()
       
       canplay: (event) =>
         log.message 'Player: event can play'
         @playOnIntent()
-      
-      progress: (event) =>
-        log.message 'Player: event progress'
-        #@playOnIntent()
       
       error: (event) =>
         switch event.jPlayer.error.type
@@ -388,7 +372,6 @@ LYT.player =
     #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
     #else
     @playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
-    
   
   updateLastMark: (force = false) ->
     return unless @book? and @section?
