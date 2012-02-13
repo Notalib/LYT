@@ -36,7 +36,8 @@
 	border-top: 1px solid #72716e;
 	border-bottom: 1px solid #000;
 	height: 2.6875em;
-	.ui-title {
+	
+	h1.ui-title {
 		font-size: 18px !important;
 		color:#fff;
 		@include text-shadow(#000 0 -1px 0);
@@ -465,14 +466,14 @@
   margin-left: 10px;
   }
   
-  #title{
+  #details-book-title{
   font-size: 1.3em;
   font-weight: bold;
   text-align: left;
   margin: 10px 10px 0 10px;
   }
   
-  #author {
+  #details-book-author {
   font-size: 1.3em;
   font-weight: normal;
   text-align: left;
@@ -483,21 +484,21 @@
   margin-left: 10px;
   }
   
-  #description {
+  #details-book-description {
   margin-top: 0;
   font-weight: normal;
   text-align: left;
   }
   
-  #type {
+  #details-book-type {
   }
   
-  #totaltime {
+  #details-book-totaltime {
   font-weight: normal;
   color: #464646;
   }
   
-  #narrator {
+  #details-book-narrator {
   font-weight: normal;
   color: #464646;
   }
@@ -506,7 +507,7 @@
   @include action-button(#8cbbe2, a);
   }
   
-#play-button {
+#details-play-button {
   @include action-button(#a2bd30, a);
   }
 

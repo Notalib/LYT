@@ -100,14 +100,29 @@ LYT.control =
         LYT.loader.register "Loading index", process
   
   bookPlayer: (type, match, ui, page, event) ->
-    if type is 'pageshow'  
+    if type is 'pageshow'
+      
       params = LYT.router.getParams(match[1])
-  
-      header = $(page).children( ":jqmData(role=header)")
-      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
-  
       section = params.section or null
       offset = params.offset or 0
+      
+      # if book and section is the same as what is currently playing don't do anything new here
+      
+      if LYT.player.book 
+      
+      if LYT.player.book.id is params.book
+        alert "this book is already playing"
+        if not section? or not LYT.player.section?
+          return
+        else if section is LYT.player.section.id
+          return
+        else
+          alert "you are trying to get a new section continue as normal"
+        
+      header = $(page).children( ":jqmData(role=header)")
+      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
+      
+      
       
       process = LYT.Book.load(params.book)
         .done (book) ->        

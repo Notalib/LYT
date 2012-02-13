@@ -63,6 +63,7 @@
   height: 14px;
   overflow: hidden;
   z-index: 0;
+  font-weight: normal;
   
   position: absolute;
   left: 40px;
@@ -129,7 +130,7 @@
   float: left;
   }
   
-  #title {
+#player-info h1 {
     position: absolute;
     width: 100%;
     top: 4px;
@@ -141,6 +142,6 @@
     text-align: center;
     text-shadow: none;
     color: #cbcbcb;
-    }
+}
 
 
