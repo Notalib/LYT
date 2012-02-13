@@ -63,6 +63,7 @@
   height: 14px;
   overflow: hidden;
   z-index: 0;
+  font-weight: normal;
   
   position: absolute;
   left: 40px;
@@ -129,7 +130,7 @@
   float: left;
   }
   
-#player-book-title {
+#player-info h1 {
     position: absolute;
     width: 100%;
     top: 4px;

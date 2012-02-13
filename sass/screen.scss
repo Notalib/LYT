@@ -36,7 +36,8 @@
 	border-top: 1px solid #72716e;
 	border-bottom: 1px solid #000;
 	height: 2.6875em;
-	.ui-title {
+	
+	h1.ui-title {
 		font-size: 18px !important;
 		color:#fff;
 		@include text-shadow(#000 0 -1px 0);
