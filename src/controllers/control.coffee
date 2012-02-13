@@ -108,16 +108,15 @@ LYT.control =
       
       # if book and section is the same as what is currently playing don't do anything new here
       
-      if LYT.player.book 
-      
-      if LYT.player.book.id is params.book
-        alert "this book is already playing"
-        if not section? or not LYT.player.section?
-          return
-        else if section is LYT.player.section.id
-          return
-        else
-          alert "you are trying to get a new section continue as normal"
+      if LYT.player.book?    
+        if LYT.player.book.id is params.book
+          alert "this book is already playing"
+          if not section? or not LYT.player.section?
+            return
+          else if section is LYT.player.section.id
+            return
+          else
+            alert "you are trying to get a new section continue as normal"
         
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
