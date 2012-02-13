@@ -110,18 +110,18 @@ LYT.control =
       
       if LYT.player.book?    
         if LYT.player.book.id is params.book
-          alert "this book is already playing"
+          # this book is already playing maybe we should not change anything
           if not section? or not LYT.player.section?
+            # section is either not defined in url or in book 
             return
           else if section is LYT.player.section.id
+            # section is the same as already playing don't chaneg anything
             return
           else
-            alert "you are trying to get a new section continue as normal"
+           # this is a new section - load it
         
       header = $(page).children( ":jqmData(role=header)")
-      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
-      
-      
+      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
       process = LYT.Book.load(params.book)
         .done (book) ->        
