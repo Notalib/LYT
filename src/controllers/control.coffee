@@ -129,9 +129,10 @@ LYT.control =
         .fail () ->
           log.error "Control: Failed to load book ID #{params.book}"
           
-          if LYT.session.getCredentials()?
+          #if LYT.session.getCredentials()?
             # Hack to fix books not loading when being redirected directly from login page
-            window.location.reload()
+            #
+            # window.location.reload()
             # TODO: raise dialog only on last attempt and when logged in limit reloads to a certain amount of attempts
             # this code can currently go into an indefinte loop
             
@@ -185,7 +186,6 @@ LYT.control =
         event.preventDefault()
         event.stopImmediatePropagation()
       
-  
   
   settings: (type, match, ui, page, event) ->
     style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})

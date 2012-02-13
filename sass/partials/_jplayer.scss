@@ -6,7 +6,7 @@
   overflow: hidden;
   background-color: #000;
   position: absolute;
-  bottom: 22px;
+  top: 22px;
   height: 3px; 
   left: 0;
   right: 0; }
@@ -32,14 +32,29 @@
  
 #player-duration {
   text-align: right;
+  right: 0;
+  position: absolute;
+  top: 0;
 }
 
 #player-current-time {
   text-align: left;
+  left: 0;
+  position: absolute;
+  top: 0;
 }
 
-#player-chapter-title {
+#player-chapter-title h2 {
   text-align: center;
+  width: 100%;
+  color: #cbcbcb;
+  text-overflow: ellipsis;  
+  text-shadow: none;
+  font-size: 11px;
+  line-height: 14px;
+  height: 14px;
+  overflow: hidden;
+
 }
 
 #book-play {
@@ -52,17 +67,6 @@
   font-size: 13px;
   padding: 0;
   }
-
-
-
-
-
-#title {
-  margin-top: 3px;
-  font-size: 14px;
-  font-weight: normal;
-  text-align: center;
-  }
   
 #author {
     font-weight: normal;
@@ -74,7 +78,6 @@
   @include clearfix;
  
  h1, h2, span {
-   text-shadow: none;
    margin: 0;
    color: #cbcbcb;
  }
@@ -88,22 +91,18 @@
 }
 
 .jp-time-holder { 
-  
   span {
     text-shadow: none;
   }
 }
 
 #book-chapter-menu {
-  margin-top: 10px;
   font-size: 10px;
+  position: absolute;
+  bottom: 0;
+  height: 17px;
+  width: 100%;
 }
-
-#player-chapter-title h2 {
-  font-size: 12px;
-  font-weight: normal;
-  text-align: center;
-  }
 
 #jp_container_1 {
   background-color: #292929;
@@ -115,6 +114,18 @@
   float: left;
   }
   
-
+  #title {
+    position: absolute;
+    width: 100%;
+    top: 4px;
+    font-size: 13px;
+    line-height: 13px;
+    height: 18px;
+    font-weight: normal;
+    text-overflow: ellipsis;
+    text-align: center;
+    text-shadow: none;
+    color: #cbcbcb;
+    }
 
 

@@ -355,7 +355,7 @@ LYT.player =
     
     @section.done =>
       log.message "Player: Playlist current section #{@section.id}"
-      jQuery("#player-chapter-title").text section.title
+      jQuery("#player-chapter-title h2").text section.title
       
       # Preload the next/prev sections
       @playlist.getNextSection() if @playlist.hasNextSection()
