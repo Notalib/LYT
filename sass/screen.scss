@@ -356,7 +356,7 @@
     }
     
     .ui-icon {
-      background-image: url(../images/icons/delete-list-icn.png);
+      background-image: url(../images/icons/delete_icn_16.png);
       background-position: 0;
       width: 16px;
       height: 16px;
@@ -725,15 +725,15 @@ img.nota-full {
 }
 
 .ui-icon-list-delete {
-  background-image: url(../images/icons/delete-list-icn.png);
+  background-image: url(../images/icons/delete_icn_16.png);
 }
 
 /* Media query for high resolution icons for devices width a device pixel ratio above 2. */
 
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
 	 .ui-icon-list-delete {
-			background-image: url(../images/icons/delete-list-icn_36.png);
-      background-size: 18px 18px;
+			background-image: url(../images/icons/delete_icn_34.png);
+      background-size: 16px 16px;
   }
    .ui-icon-lyt-search {
       background-image: url(../images/icons/search_menu_icn_36.png);
@@ -779,7 +779,7 @@ img.nota-full {
     background-image: url(../images/icons/search_icn_50.png);
     background-size: 25px 25px;
   }
-  ui-icon-arrow-r {
+  .ui-icon.ui-icon-arrow-r {
     background-image: url(../images/icons/arrow_icn_34.png);
     background-size: 16px 16px;
   }
