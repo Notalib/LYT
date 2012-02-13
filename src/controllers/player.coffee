@@ -35,7 +35,7 @@ LYT.player =
   
   playAttemptCount: 0
   gotDuration : false
-  IOSFirstPlay : true
+  
   
   lastBookmark: null
   
@@ -88,20 +88,20 @@ LYT.player =
       
       loadstart: (event) =>
         log.message 'Player: load start'
-
+        
         if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
-          if !@IOSFirstPlay
+          if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-play')
             # IOS will not AutoPlay...
             LYT.loader.set('Loading sound', 'metadata') 
 
-        else if(@playAttemptCount < 1)
+        else if(@playAttemptCount < 1 and $.mobile.activePage[0].id is 'book-play')
           #Only make the loading sign the first time...
           LYT.loader.set('Loading sound', 'metadata') 
         
         return if $.jPlayer.platform.android
 
         if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
-          @IOSFirstPlay = false;
+          LYT.config.player.IOSFirstPlay = false;
           return 
         
         

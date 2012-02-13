@@ -131,7 +131,20 @@ LYT.control =
           
           if LYT.session.getCredentials()?
             # Hack to fix books not loading when being redirected directly from login page
-            window.location.reload()
+            if $.mobile.prevPage[0].id is 'login'
+              window.location.reload()
+            else
+              $(this).simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Hentnings fejl!',
+                'subTitle' : 'Kunne ikke hente bogen #{params.book}'
+                'useModal': true,
+                'buttons' : {
+                  'OK':{}
+                  icon: "delete",
+                  theme: "c"
+                            }
+              })
             # TODO: raise dialog only on last attempt and when logged in limit reloads to a certain amount of attempts
             # this code can currently go into an indefinte loop
             
