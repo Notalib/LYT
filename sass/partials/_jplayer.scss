@@ -37,6 +37,13 @@
   top: 0;
 }
 
+#player-duration, #player-current-time {
+  span {
+    background: #292929;
+    z-index: 200;
+  }
+}
+
 #player-current-time {
   text-align: left;
   left: 0;
@@ -54,6 +61,7 @@
   line-height: 14px;
   height: 14px;
   overflow: hidden;
+  z-index: 0;
 
 }
 
