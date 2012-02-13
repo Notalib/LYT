@@ -35,6 +35,7 @@ LYT.player =
   
   playAttemptCount: 0
   gotDuration : false
+  IOSFirstPlay : true
   
   lastBookmark: null
   
@@ -88,17 +89,25 @@ LYT.player =
       loadstart: (event) =>
         log.message 'Player: load start'
 
-        
-        
-        return if $.jPlayer.platform.android
-        return if $.jPlayer.platform.iphone
-        return if $.jPlayer.platform.ipad
-        return if $.jPlayer.platform.iPod
-        return unless jQuery.browser.webkit
-        
-        if(@playAttemptCount < 1)
+        if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
+          if !@IOSFirstPlay
+            # IOS will not AutoPlay...
+            LYT.loader.set('Loading sound', 'metadata') 
+
+        else if(@playAttemptCount < 1)
           #Only make the loading sign the first time...
           LYT.loader.set('Loading sound', 'metadata') 
+        
+        return if $.jPlayer.platform.android
+
+        if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
+          @IOSFirstPlay = false;
+          return 
+        
+        
+        return unless jQuery.browser.webkit
+        
+        
         
         log.message "only for safari laptop"
         @updateHtml(event.jPlayer.status)
@@ -130,10 +139,6 @@ LYT.player =
       loadedmetadata: (event) =>
         log.message 'Player: loaded metadata'
         
-        if(@playAttemptCount < 1)
-          #Only make the loading sign the first time...
-          LYT.loader.set('Loading sound', 'metadata')
-
         if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
           if(@getStatus().src == @media.audio && @playAttemptCount < LYT.config.player.playAttemptLimit )
