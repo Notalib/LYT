@@ -11,6 +11,7 @@ LYT.i18n = do ->
   # The strings themselves, as a hash
   strings =
     "Loading":                  "Indlæser"
+    "Loading sound":            "Henter lyd"
     "Logging in":               "Logger ind"
     "Loading bookshelf":        "Indlæser boghylde"
     "Adding book to bookshelf": "Tilføjer bog til boghylde"

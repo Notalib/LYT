@@ -88,14 +88,17 @@ LYT.player =
       loadstart: (event) =>
         log.message 'Player: load start'
 
-        if(@playAttemptCount < 1)
-          #Only make the loading sign the first time...
-          LYT.loader.set('Loading data', 'metadata')
         
-        return if jQuery.jPlayer.platform.android
+        
+        return if $.jPlayer.platform.android
         return if $.jPlayer.platform.iphone
         return if $.jPlayer.platform.ipad
-        return unless jQuery.browser.webkit    
+        return if $.jPlayer.platform.iPod
+        return unless jQuery.browser.webkit
+        
+        if(@playAttemptCount < 1)
+          #Only make the loading sign the first time...
+          LYT.loader.set('Loading sound', 'metadata') 
         
         log.message "only for safari laptop"
         @updateHtml(event.jPlayer.status)
@@ -126,7 +129,11 @@ LYT.player =
 
       loadedmetadata: (event) =>
         log.message 'Player: loaded metadata'
-        #LYT.loader.set('Loading data', 'metadata')
+        
+        if(@playAttemptCount < 1)
+          #Only make the loading sign the first time...
+          LYT.loader.set('Loading sound', 'metadata')
+
         if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
           if(@getStatus().src == @media.audio && @playAttemptCount < LYT.config.player.playAttemptLimit )
