@@ -39,6 +39,8 @@
 	.ui-title {
 		font-size: 18px;
 		color:#fff;
+		@include text-shadow(#000 0 1px 0);
+		
 	}
 	.ui-btn {
     font-size: 18px;
@@ -356,8 +358,8 @@
     .ui-icon {
       background-image: url(../images/icons/delete-list-icn.png);
       background-position: 0;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       @include border-radius(0);
     }
 
@@ -640,11 +642,6 @@ img.nota-full {
 
 
 
-.ui-icon.ui-icon-arrow-r {
-  background: transparent url(../images/icons/arrow_icn_18.png) no-repeat 0 50%;
-}
-
-
 #book-play-menu {
  .ui-btn {
     border-color: #000;
@@ -667,6 +664,11 @@ img.nota-full {
   }
 }
 
+
+.ui-icon.ui-icon-arrow-r {
+  background: transparent url(../images/icons/arrow_icn_18.png) no-repeat 0 50%;
+  background-size: 16px 16px;
+}
 
 .ui-icon-lyt-play {
   background-image: url(../images/icons/play_btn_18.png);
