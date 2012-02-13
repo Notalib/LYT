@@ -51,9 +51,10 @@
   top: 0;
 }
 
-#player-chapter-title h2 {
+#player-chapter-title {
+  
+  h2 {
   text-align: center;
-  width: 100%;
   color: #cbcbcb;
   text-overflow: ellipsis;  
   text-shadow: none;
@@ -62,6 +63,12 @@
   height: 14px;
   overflow: hidden;
   z-index: 0;
+  
+  position: absolute;
+  left: 40px;
+  right: 40px;
+  
+  }
 
 }
 
