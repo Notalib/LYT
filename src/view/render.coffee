@@ -116,6 +116,7 @@ LYT.render = do ->
   bookPlayer: (book, view) ->
     view.find("#player-book-title").text book.title
     view.find("#player-book-author").text book.author
+    
     loadCover view.find("#currentbook_image img"), book.id
     #view.find("#book_chapter").text section.title
   
