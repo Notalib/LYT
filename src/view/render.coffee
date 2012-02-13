@@ -114,19 +114,20 @@ LYT.render = do ->
   
   
   bookPlayer: (book, view) ->
-    view.find("#title").text book.title  
-    view.find("#author").text book.author
+    view.find("#player-book-title").text book.title
+    view.find("#player-book-author").text book.author
+    
     loadCover view.find("#currentbook_image img"), book.id
     #view.find("#book_chapter").text section.title
   
   
   bookDetails: (details, view) ->
-    view.find("#title").text details.title
-    view.find("#author").text details.author
-    view.find("#description").text details.teaser
-    view.find("#narrator").text details.speaker
-    view.find("#totaltime").text "#{details.playtime}:00"
-    view.find("#play-button").attr "href", "#book-play?book=#{details.id}"
+    view.find("#details-book-title").text details.title
+    view.find("#details-book-author").text details.author
+    view.find("#details-book-description").text details.teaser
+    view.find("#details-book-narrator").text details.speaker
+    view.find("#details-book-totaltime").text "#{details.playtime}:00"
+    view.find("#details-play-button").attr "href", "#book-play?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
     
   

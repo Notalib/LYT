@@ -100,14 +100,28 @@ LYT.control =
         LYT.loader.register "Loading index", process
   
   bookPlayer: (type, match, ui, page, event) ->
-    if type is 'pageshow'  
+    if type is 'pageshow'
+      
       params = LYT.router.getParams(match[1])
-  
-      header = $(page).children( ":jqmData(role=header)")
-      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""
-  
       section = params.section or null
       offset = params.offset or 0
+      
+      # if book and section is the same as what is currently playing don't do anything new here
+      
+      if LYT.player.book?    
+        if LYT.player.book.id is params.book
+          # this book is already playing maybe we should not change anything
+          if not section? or not LYT.player.section?
+            # section is either not defined in url or in book 
+            return
+          else if section is LYT.player.section.id
+            # section is the same as already playing don't chaneg anything
+            return
+          else
+           # this is a new section - load it
+        
+      header = $(page).children( ":jqmData(role=header)")
+      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
       process = LYT.Book.load(params.book)
         .done (book) ->        
@@ -129,24 +143,24 @@ LYT.control =
         .fail () ->
           log.error "Control: Failed to load book ID #{params.book}"
           
-          if LYT.session.getCredentials()?
-            # Hack to fix books not loading when being redirected directly from login page
-            if $.mobile.prevPage[0].id is 'login'
-              window.location.reload()
-            else
-              $(this).simpledialog({
-                'mode' : 'bool',
-                'prompt' : 'Hentnings fejl!',
-                'subTitle' : 'Kunne ikke hente bogen #{params.book}'
-                'useModal': true,
-                'buttons' : {
-                  'OK':{}
-                  icon: "delete",
-                  theme: "c"
-                            }
-              })
-            # TODO: raise dialog only on last attempt and when logged in limit reloads to a certain amount of attempts
-            # this code can currently go into an indefinte loop
+          #if LYT.session.getCredentials()?
+          # Hack to fix books not loading when being redirected directly from login page
+          if $.mobile.prevPage[0].id is 'login'
+            window.location.reload()
+          else
+            $(this).simpledialog({
+              'mode' : 'bool',
+              'prompt' : 'Hentnings fejl!',
+              'subTitle' : 'Kunne ikke hente bogen #{params.book}'
+              'useModal': true,
+              'buttons' : {
+                'OK':{
+                }
+                icon: "delete",
+                theme: "c"
+              }
+            })
+
             
       
       LYT.loader.register "Loading book", process
@@ -198,7 +212,6 @@ LYT.control =
         event.preventDefault()
         event.stopImmediatePropagation()
       
-  
   
   settings: (type, match, ui, page, event) ->
     style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
