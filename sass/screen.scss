@@ -215,6 +215,43 @@
   
 }
 
+/* Settings page */
+#settings {
+  .ui-content {
+  max-width: 500px;
+  padding: 10px;
+  text-shadow: none;
+  margin: 0 auto;
+  }
+  .ui-bar-c {
+  border: 2px solid #fff;
+  background-color: #ebebeb;
+  font-size: 12px;
+  text-shadow: none;
+  padding: 0 8px;
+  }
+  #textarea-example {
+  width: 100%;
+  max-width: 500px;
+  height: 250px;
+  margin:0;
+  }
+  #settings-input {
+  }
+  .ui-content {
+  max-width: 500px;
+  padding: 10px;
+  text-shadow: none;
+  margin: 0 auto;
+  }
+  .ui-controlgroup-controls {
+  width: 100%;
+  margin: 0;
+  max-width: 500px;
+  }
+}
+
+
 /* About page */
 #about {
  .ui-content {
