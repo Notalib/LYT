@@ -14,7 +14,9 @@
 # This is the main controller for the app. It handles most of the business-logic
 # involved in displaying the requested pages
 
-LYT.control =    
+LYT.control = 
+
+  
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       
@@ -30,8 +32,9 @@ LYT.control =
           $.mobile.changePage LYT.var.next
         
         .fail ->
-          log.message "log on failure"
-      
+         log.message "log on failure"
+ 
+        
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
@@ -145,21 +148,20 @@ LYT.control =
           
           #if LYT.session.getCredentials()?
           # Hack to fix books not loading when being redirected directly from login page
-          if $.mobile.prevPage[0].id is 'login'
+          log.message ui.prevPage[0]
+          if ui.prevPage[0]? and  ui.prevPage[0].id is 'login'
             window.location.reload()
           else
-            $(this).simpledialog({
-              'mode' : 'bool',
-              'prompt' : 'Hentnings fejl!',
-              'subTitle' : 'Kunne ikke hente bogen #{params.book}'
-              'useModal': true,
-              'buttons' : {
-                'OK':{
-                }
-                icon: "delete",
-                theme: "c"
-              }
-            })
+             response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
+             if(response)
+              window.location.reload()
+             else
+              $.mobile.changePage "#bookshelf"
+
+            
+            
+            
+            
 
             
       
