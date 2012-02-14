@@ -141,11 +141,15 @@ LYT.player =
         
         if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
-          if(@getStatus().src == @media.audio && @playAttemptCount < LYT.config.player.playAttemptLimit )
+          if(@getStatus().src == @media.audio && @playAttemptCount <= LYT.config.player.playAttemptLimit )
             @el.jPlayer "setMedia", {mp3: @media.audio}
             @el.jPlayer "load"
             @playAttemptCount = @playAttemptCount + 1 
             log.message @playAttemptCount
+          else if ( @playAttemptCount > LYT.config.player.playAttemptLimit)
+            @gotDuration = true
+            #faking that we got the duration - we don´t but need to play the file now...
+            
         else
          @gotDuration = true
          @playAttemptCount = 0
