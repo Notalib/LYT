@@ -570,8 +570,8 @@
 	h1 {
 		text-indent: -9000px;
 		background: transparent url(../images/logo.png) no-repeat; 
-		width: 235px;
-		height: 126px;
+		width: 150px;
+		height: 100px;
 		text-align: center;
 		margin: 0 auto;
 	}
@@ -615,6 +615,12 @@
 
 img.nota-full {
   max-height: 120px;
+}
+
+#about{
+  .ui-link{
+  text-decoration: none;
+  }  
 }
 
 .ui-content {
@@ -829,21 +835,25 @@ img.nota-full {
     background-image: url(../images/icons/pause_btn_36.png);
     background-size: 25px 18px;
   }
-  .ui-icon-lyt-search-main {
+    .ui-icon-lyt-search-main {
     background-image: url(../images/icons/search_icn_50.png);
     background-size: 25px 25px;
   }
-  .ui-icon.ui-icon-arrow-r {
+    .ui-icon.ui-icon-arrow-r {
     background-image: url(../images/icons/arrow_icn_34.png);
     background-size: 16px 16px;
   }
-  .ui-icon.ui-icon-arrow-r {
+    .ui-icon.ui-icon-arrow-r {
     background-image: url(../images/icons/arrow_icn_34.png);
     background-size: 16px 16px;
   }
-  #logged-in-as {
+    .logged-in-as {
     background-image: url(../images/icons/settings_profile_icn_72.png);
     background-size: 36px 36px;
+  }
+    img.nota-full {
+    background-image: url(../images/logo_hires.png);
+    background-size: 150px 75px;
   }
 }
 
