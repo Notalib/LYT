@@ -26,8 +26,9 @@ LYT.control =
         .done ->
           # log.message ui
           
-          unless LYT.var.next
+          if (LYT.var.next is "#login" or LYT.var.next == null)
             LYT.var.next = "#bookshelf"
+          
              
           $.mobile.changePage LYT.var.next
         
