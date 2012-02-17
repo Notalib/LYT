@@ -107,9 +107,6 @@ LYT.player =
         
         return unless jQuery.browser.webkit
         
-        
-        
-        log.message "only for safari laptop"
         @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
@@ -155,14 +152,14 @@ LYT.player =
          @playAttemptCount = 0
          #LYT.loader.close('metadata')
          
-         
-        
       
       canplay: (event) =>
         log.message 'Player: event can play'
         if @gotDuration
           @gotDuration = false
+          
           @playOnIntent()
+          
           LYT.loader.close('metadata')
 
       
@@ -206,9 +203,12 @@ LYT.player =
             @fakeEndScheduled = false ),
           (timeleft*1000)-50 
     
-  pause: ->
+  pause: (time) ->
     # Pause playback
-    @el.jPlayer('pause')
+    if time?
+      @el.jPlayer('pause', time)
+    else
+      @el.jPlayer('pause')
   
   getStatus: ->
     # Be cautious only read from status
@@ -241,55 +241,19 @@ LYT.player =
   
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
-    #alert @playIntentFlag 
-    #if @playIntentFlag
+    
+    if @playIntentFlag
       #@playAttemptCount = 0
-      log.message 'Player: play intent used'
+      log.message 'Player: play intent used offset is #{@playIntentOffset}'
       @playIntentFlag = false
       @play(@playIntentOffset, false)
       @playIntentOffset = null
-          
-      ###
-      if @getStatus().duration is null
-        #alert(@getStatus().src)
-        
-        if @playAttemptCount <= 9
-          @playAttemptCount += 1
-          
-          # try to trigger seeked event setting currenTime manually    
-          #log.warn "Player: duration (#{@getStatus().duration}) is none trying to force seeked event in 500ms"  
-          
-          #jQuery('#jplayer').data('jPlayer').status.duration = 3000
-          setTimeout(jQuery('#jplayer').data('jPlayer').status.duration = 3000, 500)
-          setTimeout(jQuery('#jplayer').data('jPlayer').status.currentTime = 0.5, 500)
-          log.warn "Duration is #{@getStatus().duration}"
-          
-          #triggerSeekedHack = () =>
-          #  status = @getStatus()
-          #  status.currentTime = 0.5
-          #  #status.duration = 2000
-          #  jQuery.data(@el, 'jPlayer', status)
-          
-          #@el.jPlayer("playHead", 1)
-          
-          log.warn "Player: duration (#{@getStatus().duration}) is none retrying play in 600ms | Tried #{@playAttemptCount} of 10 times"
-          setTimeout(@playOnIntent(), 600)
-          
-      else
-      ###
-        
-              
   
   play: (time, setIntent = true) ->
     # Start or resume playing if media is loaded
-    # Starts playing at time seconds if specified, else from 
-    # when media was paused or from the beginning.
-    # android, chrome, ipad and firefox uses and intent
-    # safari uses a immediate play   
+    # Starts playing at time seconds if specified, else from
     
-    if $.jPlayer.platform.iphone
-      log.message 'this is play on iphone'
-      @pause()
+    @pause(time)
          
     if setIntent
       log.message 'Player: play intent flag set'
@@ -298,13 +262,9 @@ LYT.player =
       
     else
       log.message 'Player: Play'
-      if not time?
-        @el.jPlayer('play')
-      else
-        @el.jPlayer('play', time)
+      @el.jPlayer('play')
         
       
-  
   updateHtml: (status) ->
     # Continously update player rendering for current time of section
     return unless @book?
@@ -391,9 +351,13 @@ LYT.player =
           log.error "Player: Couldn't determine MP3 file"
           return
         @el.jPlayer "setMedia", {mp3: mp3s.pop()}
-      
+        
       @el.jPlayer "load"
-      @play offset if autoPlay
+        
+      if autoPlay
+        @play offset
+      else
+        @pause offset
       
     @section.fail ->
       log.error "Player: Failed to load section #{section}"

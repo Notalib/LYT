@@ -124,7 +124,7 @@ LYT.service = do ->
     
     unless username and password
       emit "logon:rejected"
-      deferred.reject currentLogOnProcess
+      deferred.reject
       return deferred.promise()
     
     # The maximum number of attempts to make

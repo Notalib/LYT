@@ -26,15 +26,13 @@ LYT.control =
         .done ->
           # log.message ui
           
-          if (LYT.var.next is "#login" or LYT.var.next?)
+          if not LYT.var.next? or LYT.var.next is "#login"
             LYT.var.next = "#bookshelf"
           
-             
           $.mobile.changePage LYT.var.next
         
-        .fail (currentLogOnProcess) ->
+        .fail ->
          log.message "log on failure"
-         log.message currentLogOnProcess.results
  
         
       LYT.loader.register "Logging in", process
@@ -109,7 +107,7 @@ LYT.control =
       
       params = LYT.router.getParams(match[1])
       section = params.section or null
-      offset = params.offset or 0
+      offset = Number(params.offset) or 0
       guest = params.guest or null
 
 
@@ -132,6 +130,7 @@ LYT.control =
             # section is the same as already playing don't chaneg anything
             return
           else
+           # check for same offset here ...
            # this is a new section - load it
       
       LYT.player.clear()
@@ -171,12 +170,6 @@ LYT.control =
               window.location.reload()
              else
               $.mobile.changePage "#bookshelf"
-
-            
-            
-            
-            
-
             
       
       LYT.loader.register "Loading book", process
