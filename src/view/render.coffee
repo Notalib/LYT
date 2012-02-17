@@ -207,3 +207,6 @@ LYT.render = do ->
         list.append listItem
     
     list.listview('refresh')
+    
+  profile: () ->
+    $("#current-user-name").text LYT.session.getInfo().realname

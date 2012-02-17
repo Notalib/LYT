@@ -265,7 +265,10 @@ LYT.control =
       LYT.render.setStyle()
   
   profile: (type, match, ui, page, event) ->
-    $("#log-off").click (event) ->
-      LYT.service.logOff()
+    if type is 'pageshow'
+      LYT.render.profile()
+      
+      $("#log-off").click (event) ->
+        LYT.service.logOff()
     
   
