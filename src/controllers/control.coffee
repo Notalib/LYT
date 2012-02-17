@@ -26,14 +26,15 @@ LYT.control =
         .done ->
           # log.message ui
           
-          if (LYT.var.next is "#login" or LYT.var.next == null)
+          if (LYT.var.next is "#login" or LYT.var.next?)
             LYT.var.next = "#bookshelf"
           
              
           $.mobile.changePage LYT.var.next
         
-        .fail ->
+        .fail (currentLogOnProcess) ->
          log.message "log on failure"
+         log.message currentLogOnProcess.results
  
         
       LYT.loader.register "Logging in", process
@@ -109,6 +110,15 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       section = params.section or null
       offset = params.offset or 0
+      guest = params.guest or null
+
+
+      if guest?
+         process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
+
+         log.message LYT.config.service.guestUser
+         return $.mobile.changePage "#book-play?book=#{params.book}"
+        
       
       # if book and section is the same as what is currently playing don't do anything new here
       

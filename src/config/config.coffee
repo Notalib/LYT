@@ -43,6 +43,8 @@ LYT.config =
     # the username/password, `service` won't stupidly
     # try the same combo X more times.
     logOnAttempts: 3 # default: 3
+    guestUser: "guest"
+    guestLogin: "guest"
   
   # ### LYT.bookshelf module config
   bookshelf:
