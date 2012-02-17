@@ -133,7 +133,10 @@ LYT.control =
             return
           else
            # this is a new section - load it
-        
+      
+      LYT.player.clear()
+      LYT.render.clearBookPlayer()
+       
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       

@@ -112,22 +112,24 @@ LYT.render = do ->
     
     list.listview('refresh')
   
+  clearBookPlayer: (view) ->
+    $("#book-text-content").empty()
+    $("#currentbook_image img").attr "src", defaultCover
+    $("#player-info h1, #player-chapter-title").hide()
   
   bookPlayer: (book, view) ->
-    view.find("#player-book-title").text book.title
-    view.find("#player-book-author").text book.author
-    
-    loadCover view.find("#currentbook_image img"), book.id
-    #view.find("#book_chapter").text section.title
-  
+    $("#player-book-title").text book.title
+    $("#player-book-author").text book.author
+    $("#player-info h1, #player-chapter-title").show()    
+    loadCover $("#currentbook_image img"), book.id
   
   bookDetails: (details, view) ->
-    view.find("#details-book-title").text details.title
-    view.find("#details-book-author").text details.author
-    view.find("#details-book-description").text details.teaser
-    view.find("#details-book-narrator").text details.speaker
-    view.find("#details-book-totaltime").text "#{details.playtime}:00"
-    view.find("#details-play-button").attr "href", "#book-play?book=#{details.id}"
+    $("#details-book-title").text details.title
+    $("#details-book-author").text details.author
+    $("#details-book-description").text details.teaser
+    $("#details-book-narrator").text details.speaker
+    $("#details-book-totaltime").text "#{details.playtime}:00"
+    $("#details-play-button").attr "href", "#book-play?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
     
   

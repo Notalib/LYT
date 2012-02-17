@@ -56,7 +56,7 @@ $(document).bind "mobileinit", ->
     $.mobile.changePage "#login"
   
   $(LYT.service).bind "logoff", ->
-    LYT.player.clear() if LYT.player.ready
+    LYT.player.clear()
     
     $.mobile.changePage "#login"
   
