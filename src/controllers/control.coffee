@@ -183,7 +183,6 @@ LYT.control =
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      
       handleResults = (process) ->
         LYT.loader.register "Searching", process
         process.done (results) ->
@@ -194,12 +193,16 @@ LYT.control =
             event.stopImmediatePropagation()
           
           LYT.render.searchResults results, content
-      
-      
+         
       if match?[1]
         params = LYT.router.getParams match[1]
+        LYT.var.searchTerm = params
       else
-        params = {}
+        if LYT.var.searchTerm?
+          params = LYT.var.searchTerm
+          handleResults LYT.catalog.search(params.term)
+        else
+          params = {}
       
       params.term = jQuery.trim(decodeURI(params.term or "")) or null
       
