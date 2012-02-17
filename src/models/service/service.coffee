@@ -50,6 +50,7 @@ LYT.service = do ->
     jQuery.extend obj, data
     log.message "Service: Emitting #{event} event"
     jQuery(LYT.service).trigger obj
+
   
   
   # Emit an error event
@@ -123,7 +124,7 @@ LYT.service = do ->
     
     unless username and password
       emit "logon:rejected"
-      deferred.reject()
+      deferred.reject currentLogOnProcess
       return deferred.promise()
     
     # The maximum number of attempts to make

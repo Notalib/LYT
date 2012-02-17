@@ -14,7 +14,9 @@
 # This is the main controller for the app. It handles most of the business-logic
 # involved in displaying the requested pages
 
-LYT.control =    
+LYT.control = 
+
+  
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       
@@ -24,14 +26,17 @@ LYT.control =
         .done ->
           # log.message ui
           
-          unless LYT.var.next
+          if (LYT.var.next is "#login" or LYT.var.next?)
             LYT.var.next = "#bookshelf"
+          
              
           $.mobile.changePage LYT.var.next
         
-        .fail ->
-          log.message "log on failure"
-      
+        .fail (currentLogOnProcess) ->
+         log.message "log on failure"
+         log.message currentLogOnProcess.results
+ 
+        
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
@@ -105,6 +110,15 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       section = params.section or null
       offset = params.offset or 0
+      guest = params.guest or null
+
+
+      if guest?
+         process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
+
+         log.message LYT.config.service.guestUser
+         return $.mobile.changePage "#book-play?book=#{params.book}"
+        
       
       # if book and section is the same as what is currently playing don't do anything new here
       
@@ -144,11 +158,22 @@ LYT.control =
           log.error "Control: Failed to load book ID #{params.book}"
           
           #if LYT.session.getCredentials()?
-            # Hack to fix books not loading when being redirected directly from login page
-            #
-            # window.location.reload()
-            # TODO: raise dialog only on last attempt and when logged in limit reloads to a certain amount of attempts
-            # this code can currently go into an indefinte loop
+          # Hack to fix books not loading when being redirected directly from login page
+          log.message ui.prevPage[0]
+          if ui.prevPage[0]? and  ui.prevPage[0].id is 'login'
+            window.location.reload()
+          else
+             response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
+             if(response)
+              window.location.reload()
+             else
+              $.mobile.changePage "#bookshelf"
+
+            
+            
+            
+            
+
             
       
       LYT.loader.register "Loading book", process
