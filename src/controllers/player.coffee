@@ -83,7 +83,7 @@ LYT.player =
           false
                      
       timeupdate: (event) =>
-        #@fakeEnd(event.jPlayer.status)  
+        #@fakeEnd(event.jPlayer.status) 
         @updateHtml(event.jPlayer.status)
       
       loadstart: (event) =>
@@ -270,7 +270,7 @@ LYT.player =
     return unless @book?
     
     @time = status.currentTime
-    
+    @updateLastMark()
     return if @media? and @media.start <= @time < @media.end
     @media = @section.mediaAtOffset @time
     
