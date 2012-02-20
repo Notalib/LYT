@@ -115,7 +115,8 @@ LYT.control =
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
 
          log.message LYT.config.service.guestUser
-         return $.mobile.changePage "#book-play?book=#{params.book}"
+
+         return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
         
       
       # if book and section is the same as what is currently playing don't do anything new here
