@@ -61,25 +61,40 @@ LYT.render = do ->
 
   atachClickEvent = (aElement, book, list) ->
     aElement.click (event) ->
-      $(this).simpledialog({
-        'mode' : 'bool',
-        'prompt' : 'Vil du fjerne denne bog?',
-        'subTitle' : 'fjern bogen ' + book.title
-        'useModal': true,
-        'buttons' : {
-          'OK': 
-            click: (event) -> 
-              LYT.bookshelf.remove(book.id).done -> list.remove()
-          ,
-          'Cancel': 
-            click: (event)->
-            icon: "delete",
-            theme: "c"
-          ,
+      if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+        $(this).simpledialog({
+          'mode' : 'bool',
+          'prompt' : 'Du er logget på som gæst!',
+          'subTitle' : '...og kan derfor ikke slette bøger.'
+          'useModal': true,
+          'buttons' : {
+            'OK': 
+              click: (event) ->
+              icon: "delete",
+              theme: "c"
+            ,  
+          }
+        }) 
+      else
+        $(this).simpledialog({
+          'mode' : 'bool',
+          'prompt' : 'Vil du fjerne denne bog?',
+          'subTitle' : 'fjern bogen ' + book.title
+          'useModal': true,
+          'buttons' : {
+            'OK': 
+              click: (event) -> 
+                LYT.bookshelf.remove(book.id).done -> list.remove()
+            ,
+            'Cancel': 
+              click: (event)->
+              icon: "delete",
+              theme: "c"
+            ,
             
       
-        }
-      })
+          }
+        })
       #alert book.id
       #LYT.bookshelf.remove(book.id).done -> list.remove()
 
