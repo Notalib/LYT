@@ -71,18 +71,35 @@ LYT.control =
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
-        
+      
       process = LYT.catalog.getDetails(params.book)
         .done (details) ->
           LYT.render.bookDetails(details, content)
           
-          content.find("#add-to-bookshelf-button").one "click", (event) ->
+          content.find("#add-to-bookshelf-button").bind "click", (event) ->
             # TODO: This is far from perfect: There's no way
             # of knowing if something's already on the shelf
-            LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
-            
-            event.preventDefault()
-            event.stopImmediatePropagation()
+            if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+              $(this).simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Du er logget på som gæst!',
+                'subTitle' : '...og kan derfor ikke tilføje bøger.'
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'OK': 
+                    click: (event) ->
+                    icon: "info",
+                    theme: "c"
+                  ,  
+                }
+              })
+
+            else
+              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
+              $(this).unbind event 
+              event.preventDefault()
+              event.stopImmediatePropagation()
         
         .fail (error, msg) ->
           log.message "failed with error #{error} and msg #{msg}"

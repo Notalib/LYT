@@ -70,7 +70,7 @@ LYT.render = do ->
           'buttons' : {
             'OK': 
               click: (event) ->
-              icon: "delete",
+              icon: "info",
               theme: "c"
             ,  
           }
@@ -138,7 +138,14 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()    
     loadCover $("#currentbook_image img"), book.id
   
-  bookDetails: (details, view) ->
+  bookDetails: (details, view) -> 
+    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+      $("#add-to-bookshelf-button").hide()
+      $("#details-play-button").hide()
+    else
+      $("#add-to-bookshelf-button").show()
+      $("#details-play-button").show() 
+
     $("#details-book-title").text details.title
     $("#details-book-author").text details.author
     $("#details-book-description").text details.teaser
@@ -146,6 +153,7 @@ LYT.render = do ->
     $("#details-book-totaltime").text "#{details.playtime}:00"
     $("#details-play-button").attr "href", "#book-play?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
+    
     
   
   bookIndex: (book, view) ->  
