@@ -62,7 +62,8 @@ $(document).bind "mobileinit", ->
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
    
   $(LYT.service).bind "logon:rejected", () ->
-    LYT.var.next = window.location.hash
+    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+    log.message 'her er' + LYT.var.next
     
     $.mobile.changePage "#login"
   

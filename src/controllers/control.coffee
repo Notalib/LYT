@@ -18,13 +18,19 @@ LYT.control =
 
   
   login: (type, match, ui, page, event) ->
+
+    if(LYT.var.next is "")
+      window.location.reload()
+    else 
+      log.message LYT.var.next
+
     $("#login-form").submit (event) ->
       
       $("#password").blur()
       
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
-          # log.message ui
+          log.message 'logon done'
           
           if not LYT.var.next? or LYT.var.next is "#login"
             LYT.var.next = "#bookshelf"
@@ -132,7 +138,6 @@ LYT.control =
 
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-
          return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
         
       
