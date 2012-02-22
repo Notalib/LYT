@@ -66,8 +66,10 @@ LYT.control =
         LYT.loader.register "Loading bookshelf", process
         
       load()
-  
+
   bookDetails: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      LYT.render.hideOrShowButtons()
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
