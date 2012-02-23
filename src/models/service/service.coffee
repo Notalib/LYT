@@ -113,18 +113,21 @@ LYT.service = do ->
   # `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
   logOn = (username, password) ->
     # Check for and return any pending logon processes
+  
+    log.message currentLogOnProcess
+
     return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state() is "pending"
     
     currentRefreshSessionProcess.reject() if currentRefreshSessionProcess? and currentRefreshSessionProcess.state() is "pending"
     
     deferred = currentLogOnProcess = jQuery.Deferred()
-    
+
     unless username and password
       {username, password} = credentials if (credentials = LYT.session.getCredentials())
     
     unless username and password
       emit "logon:rejected"
-      deferred.reject
+      deferred.reject()
       return deferred.promise()
     
     # The maximum number of attempts to make

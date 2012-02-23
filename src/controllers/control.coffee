@@ -19,10 +19,7 @@ LYT.control =
   
   login: (type, match, ui, page, event) ->
 
-    if(LYT.var.next is "")
-      window.location.reload()
-    else 
-      log.message LYT.var.next
+    log.message LYT.var.next
 
     $("#login-form").submit (event) ->
       
@@ -32,13 +29,13 @@ LYT.control =
         .done ->
           log.message 'logon done'
           
-          if not LYT.var.next? or LYT.var.next is "#login"
+          if not LYT.var.next? or LYT.var.next is "#login" or LYT.var.next is ""
             LYT.var.next = "#bookshelf"
           
           $.mobile.changePage LYT.var.next
         
         .fail ->
-         log.message "log on failure"
+        log.message "log on failure"
  
         
       LYT.loader.register "Logging in", process
