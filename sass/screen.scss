@@ -250,6 +250,13 @@
   width: auto;
   }
   
+  hr {
+    margin-top: 20px;
+    border-top: 1px solid #636363;
+    background: #ebebeb; 
+    height: 1px;
+    border-width: 1px 0 0 0;
+  }
 }
 
 
@@ -531,8 +538,11 @@
   margin: 2px 10px 10px 10px;
   color: #464646;
   }
-   .ui-block-b{
+  .ui-block-b{
   margin-left: 10px;
+  margin-right: 10px;
+  float: initial;
+  width: auto;
   }
   
   #details-book-description {
@@ -673,7 +683,7 @@ img.nota-full {
 
 #book-middle-menu .ui-block-a,
 #book-details .ui-block-a {
-  width: 30%;
+  /*width: 30%;*/
   max-width: 82px;
   margin-right: 5px;
   overflow: hidden;
@@ -681,7 +691,7 @@ img.nota-full {
 
 #book-middle-menu .ui-block-b,
 #book-details .ui-block-b {
-  width: 68%;
+  /*width: 68%;*/
 }
 
 #book-details-content h2 {
