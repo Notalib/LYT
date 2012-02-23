@@ -63,9 +63,8 @@ $(document).bind "mobileinit", ->
    
   $(LYT.service).bind "logon:rejected", () ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
-    log.message 'her er' + LYT.var.next
-    
-    $.mobile.changePage "#login"
+    unless LYT.var.next is "#login" 
+      $.mobile.changePage "#login"
   
   $(LYT.service).bind "logoff", ->
     LYT.player.clear()
