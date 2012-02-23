@@ -18,13 +18,19 @@ LYT.control =
 
   
   login: (type, match, ui, page, event) ->
+
+    if(LYT.var.next is "")
+      window.location.reload()
+    else 
+      log.message LYT.var.next
+
     $("#login-form").submit (event) ->
       
       $("#password").blur()
       
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
-          # log.message ui
+          log.message 'logon done'
           
           if not LYT.var.next? or LYT.var.next is "#login"
             LYT.var.next = "#bookshelf"
@@ -66,23 +72,42 @@ LYT.control =
         LYT.loader.register "Loading bookshelf", process
         
       load()
-  
+
   bookDetails: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      LYT.render.hideOrShowButtons()
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
-        
+      
       process = LYT.catalog.getDetails(params.book)
         .done (details) ->
           LYT.render.bookDetails(details, content)
           
-          content.find("#add-to-bookshelf-button").one "click", (event) ->
+          content.find("#add-to-bookshelf-button").bind "click", (event) ->
             # TODO: This is far from perfect: There's no way
             # of knowing if something's already on the shelf
-            LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
-            
-            event.preventDefault()
-            event.stopImmediatePropagation()
+            if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+              $(this).simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Du er logget på som gæst!',
+                'subTitle' : '...og kan derfor ikke tilføje bøger.'
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'OK': 
+                    click: (event) ->
+                    icon: "info",
+                    theme: "c"
+                  ,  
+                }
+              })
+
+            else
+              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
+              $(this).unbind event 
+              event.preventDefault()
+              event.stopImmediatePropagation()
         
         .fail (error, msg) ->
           log.message "failed with error #{error} and msg #{msg}"
@@ -111,15 +136,12 @@ LYT.control =
       guest = params.guest or null
 
 
-      if guest?
+      if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-
-         log.message LYT.config.service.guestUser
-         return $.mobile.changePage "#book-play?book=#{params.book}"
+         return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
         
       
       # if book and section is the same as what is currently playing don't do anything new here
-      
       if LYT.player.book?    
         if LYT.player.book.id is params.book
           # this book is already playing maybe we should not change anything

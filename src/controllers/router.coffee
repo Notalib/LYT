@@ -7,6 +7,16 @@
 
 # This module serves as a router to the rest of the application and contains url entrypoints and event listeners
 
+
+#     bc  => pagebeforecreate
+#     c   => pagecreate
+#     i   => pageinit
+#     bs  => pagebeforeshow
+#     s   => pageshow
+#     bh  => pagebeforehide
+#     h   => pagehide
+#     rm  => pageremove
+
 # -------------------
 
 LYT.var =
@@ -21,7 +31,7 @@ $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
       handler: "bookDetails"
-      events: "s"
+      events: "s,bs" #
     "#book-play([?].*)?":
       handler: "bookPlayer"
       events: "s"
@@ -52,7 +62,8 @@ $(document).bind "mobileinit", ->
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
    
   $(LYT.service).bind "logon:rejected", () ->
-    LYT.var.next = window.location.hash
+    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+    log.message 'her er' + LYT.var.next
     
     $.mobile.changePage "#login"
   

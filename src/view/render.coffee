@@ -61,25 +61,40 @@ LYT.render = do ->
 
   atachClickEvent = (aElement, book, list) ->
     aElement.click (event) ->
-      $(this).simpledialog({
-        'mode' : 'bool',
-        'prompt' : 'Vil du fjerne denne bog?',
-        'subTitle' : 'fjern bogen ' + book.title
-        'useModal': true,
-        'buttons' : {
-          'OK': 
-            click: (event) -> 
-              LYT.bookshelf.remove(book.id).done -> list.remove()
-          ,
-          'Cancel': 
-            click: (event)->
-            icon: "delete",
-            theme: "c"
-          ,
+      if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+        $(this).simpledialog({
+          'mode' : 'bool',
+          'prompt' : 'Du er logget på som gæst!',
+          'subTitle' : '...og kan derfor ikke slette bøger.'
+          'useModal': true,
+          'buttons' : {
+            'OK': 
+              click: (event) ->
+              icon: "info",
+              theme: "c"
+            ,  
+          }
+        }) 
+      else
+        $(this).simpledialog({
+          'mode' : 'bool',
+          'prompt' : 'Vil du fjerne denne bog?',
+          'subTitle' : 'fjern bogen ' + book.title
+          'useModal': true,
+          'buttons' : {
+            'OK': 
+              click: (event) -> 
+                LYT.bookshelf.remove(book.id).done -> list.remove()
+            ,
+            'Cancel': 
+              click: (event)->
+              icon: "delete",
+              theme: "c"
+            ,
             
       
-        }
-      })
+          }
+        })
       #alert book.id
       #LYT.bookshelf.remove(book.id).done -> list.remove()
 
@@ -111,6 +126,14 @@ LYT.render = do ->
       list.append li
     
     list.listview('refresh')
+
+  hideOrShowButtons: ->
+    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+      $("#add-to-bookshelf-button").hide()
+      $("#details-play-button").hide()
+    else
+      $("#add-to-bookshelf-button").show()
+      $("#details-play-button").show() 
   
   clearBookPlayer: (view) ->
     $("#book-text-content").empty()
@@ -123,7 +146,7 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()    
     loadCover $("#currentbook_image img"), book.id
   
-  bookDetails: (details, view) ->
+  bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
     $("#details-book-author").text details.author
     $("#details-book-description").text details.teaser
@@ -131,6 +154,7 @@ LYT.render = do ->
     $("#details-book-totaltime").text "#{details.playtime}:00"
     $("#details-play-button").attr "href", "#book-play?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
+    
     
   
   bookIndex: (book, view) ->  
@@ -209,4 +233,7 @@ LYT.render = do ->
     list.listview('refresh')
     
   profile: () ->
-    $("#current-user-name").text LYT.session.getInfo().realname
+    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+      $("#current-user-name").text 'gæst'
+    else 
+      $("#current-user-name").text LYT.session.getInfo().realname
