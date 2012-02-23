@@ -588,6 +588,34 @@
   color: #464646;
   }
 }
+
+#more-bookshelf-entries {
+  display: block;
+  margin: 0 -15px;
+  padding: 0;
+  background: rgba(212, 235, 255, 0.6);
+  text-align: left;
+  
+  @include border-radius(0);
+  
+  
+  
+  .ui-btn-inner {
+    border: none;
+    @include border-radius(0);
+  }
+  
+  .ui-btn-text {
+    @include text-shadow(0 1px 0 white);    
+    color: #464646;
+    font-weight: normal;
+  }
+  
+  //@include box-shadow(inset 0 0 4px #ebebeb);
+  
+  border: none;
+}
+
 #add-to-bookshelf-button {
   @include action-button(#8cbbe2, a);
   }
