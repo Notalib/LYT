@@ -9,12 +9,18 @@
 
 .ui-content .ui-field-contain {
   padding: 0 !important;
+  margin: 0 !important;
 }
 
 #bookshelf-content {
 .ui-li, .ui-li.ui-field-contain {
   border-top: none;
 }
+
+.ui-listview {
+  margin-bottom: 0;
+}
+
 }
 
 .ui-icon-shadow {
@@ -595,7 +601,7 @@
   padding: 0;
   background: rgba(212, 235, 255, 0.6);
   text-align: left;
-  
+  padding: 12px;
   @include border-radius(0);
   
   
