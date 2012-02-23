@@ -223,7 +223,7 @@ LYT.render = do ->
     
     for query in LYT.lists
       do (query) ->
-        listItem = jQuery """<li><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
+        listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
           event.preventDefault()
