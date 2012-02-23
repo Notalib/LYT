@@ -130,7 +130,6 @@ LYT.control =
             # section is the same as already playing don't chaneg anything
             return
           else
-           # check for same offset here ...
            # this is a new section - load it
       
       LYT.player.clear()
