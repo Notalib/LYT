@@ -66,6 +66,8 @@ LYT.render = do ->
           'mode' : 'bool',
           'prompt' : 'Du er logget på som gæst!',
           'subTitle' : '...og kan derfor ikke slette bøger.'
+          'animate': false,
+          'useDialogForceFalse': true,
           'useModal': true,
           'buttons' : {
             'OK': 
@@ -79,7 +81,9 @@ LYT.render = do ->
         $(this).simpledialog({
           'mode' : 'bool',
           'prompt' : 'Vil du fjerne denne bog?',
-          'subTitle' : 'fjern bogen ' + book.title
+          'subTitle' : 'fjern bogen ' + book.title,
+          'animate': false,
+          'useDialogForceFalse': true,
           'useModal': true,
           'buttons' : {
             'OK': 

@@ -31,6 +31,7 @@ LYT.control =
         
         .fail ->
         log.message "log on failure"
+        alert 'hej'
  
         
       LYT.loader.register "Logging in", process
@@ -84,6 +85,8 @@ LYT.control =
                 'mode' : 'bool',
                 'prompt' : 'Du er logget på som gæst!',
                 'subTitle' : '...og kan derfor ikke tilføje bøger.'
+                'animate': false,
+                'useDialogForceFalse': true,
                 'allowReopen': true,
                 'useModal': true,
                 'buttons' : {
