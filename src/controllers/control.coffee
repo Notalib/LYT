@@ -18,13 +18,8 @@ LYT.control =
 
   
   login: (type, match, ui, page, event) ->
-
-    log.message LYT.var.next
-
     $("#login-form").submit (event) ->
-      
       $("#password").blur()
-      
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
           log.message 'logon done'
@@ -179,15 +174,17 @@ LYT.control =
           
           #if LYT.session.getCredentials()?
           # Hack to fix books not loading when being redirected directly from login page
-          log.message ui.prevPage[0]
-          if ui.prevPage[0]? and  ui.prevPage[0].id is 'login'
-            window.location.reload()
-          else
-             response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
-             if(response)
+          
+          
+          if LYT.session.getCredentials()?
+            if LYT.var.next? and  ui.prevPage[0].id is 'login'
               window.location.reload()
-             else
-              $.mobile.changePage "#bookshelf"
+            else
+              response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
+              if(response)
+                window.location.reload()
+              else
+                $.mobile.changePage "#bookshelf"
             
       
       LYT.loader.register "Loading book", process
