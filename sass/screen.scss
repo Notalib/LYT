@@ -153,6 +153,31 @@
 	}
 }
 
+#more-bookshelf-entries {
+  display: block;
+  margin: 0 -15px;
+  padding: 0;
+  background: rgba(212, 235, 255, 0.6);
+  text-align: left;
+  padding: 12px;
+  @include border-radius(0);
+  
+  .ui-btn-inner {
+    border: none;
+    @include border-radius(0);
+  }
+  
+  .ui-btn-text {
+    @include text-shadow(0 1px 0 white);    
+    color: #464646;
+    font-weight: normal;
+  }
+  
+  //@include box-shadow(inset 0 0 4px #ebebeb);
+  
+  border: none;
+}
+
 /* profile page */
 #profile{
   .ui-content {
@@ -536,6 +561,32 @@
 		}
 }
 
+#more-search-results {
+  display: block;
+  margin: 0 -15px;
+  padding: 0;
+  background: rgba(212, 235, 255, 0.6);
+  text-align: left;
+  padding: 12px;
+  @include border-radius(0);
+  
+  .ui-btn-inner {
+    border: none;
+    @include border-radius(0);
+  }
+  
+  .ui-btn-text {
+    @include text-shadow(0 1px 0 white);    
+    color: #464646;
+    font-weight: normal;
+  }
+  
+  //@include box-shadow(inset 0 0 4px #ebebeb);
+  
+  border: none;
+}
+
+
 /* Book details */
 #book-details {
   .ui-content {
@@ -599,7 +650,7 @@
   }
 }
 
-#more-bookshelf-entries {
+/*#more-bookshelf-entries {
   display: block;
   margin: 0 -15px;
   padding: 0;
@@ -607,8 +658,6 @@
   text-align: left;
   padding: 12px;
   @include border-radius(0);
-  
-  
   
   .ui-btn-inner {
     border: none;
@@ -624,7 +673,7 @@
   //@include box-shadow(inset 0 0 4px #ebebeb);
   
   border: none;
-}
+}*/
 
 #add-to-bookshelf-button {
   @include action-button(#8cbbe2, a);
@@ -879,7 +928,7 @@ img.nota-full {
     background-image: url(../images/icons/add_bookmark_icn_36.png);
     background-size: 25px 18px;
   }
-  .ui-icon-book-settings {
+    .ui-icon-book-settings {
     background-image: url(../images/icons/book_settings_icn_36.png);
     background-size: 30px 18px;
   }
@@ -919,6 +968,10 @@ img.nota-full {
     background-image: url(../images/logo_hires.png);
     background-size: 150px 75px;
   }
+    #bookshelf-content {
+    background-image: url(../images/icons/empty_bookshelf_hires.png);
+    background-size: 240px 40px;
+    }
 }
 
 
