@@ -20,9 +20,11 @@ LYT.control =
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       $("#password").blur()
+    
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
           log.message 'logon done'
+
           
           if not LYT.var.next? or LYT.var.next is "#login" or LYT.var.next is ""
             LYT.var.next = "#bookshelf"
@@ -30,9 +32,26 @@ LYT.control =
           $.mobile.changePage LYT.var.next
         
         .fail ->
-        log.message "log on failure"
-        alert 'hej'
+          log.message "log on failure"
+          $("#login-form").simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Log ind fejl!',
+                'subTitle' : 'Forkert brugernavn eller kodeord.'
+                'animate': false,
+                'useDialogForceFalse': true,
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'OK': 
+                    click: (event) ->
+                    icon: "info",
+                    theme: "c"
+                  ,  
+                }
+          })
+          
  
+       
         
       LYT.loader.register "Logging in", process
       
@@ -130,7 +149,6 @@ LYT.control =
       offset = Number(params.offset) or 0
       guest = params.guest or null
 
-
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
          return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
@@ -177,12 +195,11 @@ LYT.control =
           
           #if LYT.session.getCredentials()?
           # Hack to fix books not loading when being redirected directly from login page
-          
-          
           if LYT.session.getCredentials()?
             if LYT.var.next? and  ui.prevPage[0].id is 'login'
               window.location.reload()
             else
+              
               response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
               if(response)
                 window.location.reload()

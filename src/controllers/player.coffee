@@ -110,8 +110,7 @@ LYT.player =
         @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
-      ended: (event) =>       
-        
+      ended: (event) =>
         if @autoProgression
           @nextSection true  
       
@@ -157,6 +156,7 @@ LYT.player =
         log.message 'Player: event can play'
         if @gotDuration
           @gotDuration = false
+          @pause(@playIntentOffset)
           
           @playOnIntent()
           
@@ -205,9 +205,12 @@ LYT.player =
     
   pause: (time) ->
     # Pause playback
+    log.message "pause at " + time 
     if time?
+      @playIntentOffset = time
       @el.jPlayer('pause', time)
     else
+      @playIntentOffset = null
       @el.jPlayer('pause')
   
   getStatus: ->
@@ -252,9 +255,12 @@ LYT.player =
   play: (time, setIntent = true) ->
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from
+    #if time is not ""
+      #@pause(time)
     
-    @pause(time)
-         
+    log.message "  her er time" + time
+    log.message "  her er setIntent" + setIntent
+
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
