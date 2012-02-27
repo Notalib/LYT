@@ -95,6 +95,10 @@
 /* bookshelf */
 
 #bookshelf-content {
+	background: transparent url(../images/icons/empty_bookshelf.png) no-repeat;
+	background-position: left top;
+	min-height: 40px;
+			
 	ul {
 		li {
 			img {
