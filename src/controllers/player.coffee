@@ -101,7 +101,7 @@ LYT.player =
         return if $.jPlayer.platform.android
 
         if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
-          LYT.config.player.IOSFirstPlay = false;
+          
           return 
         
         
@@ -156,21 +156,45 @@ LYT.player =
         log.message 'Player: event can play'
         if @gotDuration
           @gotDuration = false
-          @pause(@playIntentOffset)
-          
-          @playOnIntent()
-          
-          LYT.loader.close('metadata')
+          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
+          #@pause(@playIntentOffset)
+          if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
+            
+            if LYT.config.player.IOSFirstPlay
+              log.message "hej first 1"
+              @pause()
+          else
+            @playOnIntent()
+            LYT.loader.close('metadata')
+            
 
       
       canplaythrough: (event) =>
         log.message 'Player: event can play through'
-        LYT.loader.close('metadata')
+        if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
+          log.message @isIOS()
+          if LYT.config.player.IOSFirstPlay
+            LYT.config.player.IOSFirstPlay = false;
+            @el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
+            @el.data('jPlayer').htmlElement.audio.play()
+          else
+            @pause(@playIntentOffset)
+
+            @playOnIntent()
+            LYT.loader.close('metadata')  
+         
+        else if LYT.config.player.IOSFirstPlay and @isIOS()
+          LYT.config.player.IOSFirstPlay = false;
+
+        
+        #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
+        #log.message @el.data('jPlayer').htmlElement.audio.currentTime
+        #LYT.loader.close('metadata')
         #@playOnIntent()
       
       progress: (event) =>
         log.message 'Player: event progress'
-        LYT.loader.close('metadata')
+        #LYT.loader.close('metadata')
         #@playOnIntent()
       
       error: (event) =>
@@ -205,12 +229,13 @@ LYT.player =
     
   pause: (time) ->
     # Pause playback
-    log.message "pause at " + time 
+    log.message "pause at " + time
+
     if time?
       @playIntentOffset = time
       @el.jPlayer('pause', time)
     else
-      @playIntentOffset = null
+      #@playIntentOffset = null
       @el.jPlayer('pause')
   
   getStatus: ->
