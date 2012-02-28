@@ -227,7 +227,7 @@
   
   hr {
     margin-top: 20px;
-    border-top: 1px solid #636363;
+    border-top: 1px solid #4c95d1;
     background: #ebebeb; 
     height: 1px;
     border-width: 1px 0 0 0;
@@ -308,7 +308,7 @@
   
   hr {
     margin-top: 20px;
-    border-top: 1px solid #636363;
+    border-top: 1px solid #4c95d1;
     background: #ebebeb; 
     height: 1px;
     border-width: 1px 0 0 0;
@@ -386,7 +386,7 @@
   hr {
     margin: 8px 0;
     padding: 0;
-    border-top: 1px solid #636363;
+    border-top: 1px solid #4c95d1;
     background: #fff; 
     height: 1px;
     border-width: 1px 0 0 0;
@@ -508,6 +508,13 @@
 
 #searchresult-wrapper {
 }
+
+#list_item_1 {
+  .ui-btn-text {
+  background-image: transparent url(../images/icons/recommend_icn_25.png) no-repeat;
+  }
+}
+
 
 #searchresult {
 	li {
@@ -649,31 +656,6 @@
   color: #464646;
   }
 }
-
-/*#more-bookshelf-entries {
-  display: block;
-  margin: 0 -15px;
-  padding: 0;
-  background: rgba(212, 235, 255, 0.6);
-  text-align: left;
-  padding: 12px;
-  @include border-radius(0);
-  
-  .ui-btn-inner {
-    border: none;
-    @include border-radius(0);
-  }
-  
-  .ui-btn-text {
-    @include text-shadow(0 1px 0 white);    
-    color: #464646;
-    font-weight: normal;
-  }
-  
-  //@include box-shadow(inset 0 0 4px #ebebeb);
-  
-  border: none;
-}*/
 
 #add-to-bookshelf-button {
   @include action-button(#8cbbe2, a);
@@ -869,6 +851,10 @@ img.nota-full {
   background-image: url(../images/icons/add_bookmark_icn_18.png);
   }
   
+.ui-icon-share {
+  background-image: url(../images/icons/share_icn_18.png);
+  }
+  
 .ui-icon-book-settings {
   background-image: url(../images/icons/book_settings_icn_18.png);
   }
@@ -886,7 +872,7 @@ img.nota-full {
   }
 
 .ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='add-bookmark'], &[data-icon='book-settings'] {
+  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='add-bookmark'], &[data-icon='book-settings'], &[data-icon='share'] {
     .ui-btn-inner {
       padding: 5px 0 0 21px;
     }
@@ -927,6 +913,10 @@ img.nota-full {
     .ui-icon-add-bookmark {
     background-image: url(../images/icons/add_bookmark_icn_36.png);
     background-size: 25px 18px;
+  }
+    .ui-icon-share {
+    background-image: url(../images/icons/share_icn_36.png);
+    background-size: 23px 18px;
   }
     .ui-icon-book-settings {
     background-image: url(../images/icons/book_settings_icn_36.png);
