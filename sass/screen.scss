@@ -84,6 +84,17 @@
   background: transparent;
   position: relative;
 }
+#book-play-menu{
+  .ui-block-a {
+    width: 33%;
+  }
+  .ui-block-b {
+    width: 34%;
+  }
+  .ui-block-c {
+    width: 33%;
+  }
+}
 
 /* remove gradients from listviews */
 .ui-listview li {
