@@ -161,7 +161,6 @@ LYT.player =
           if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
             
             if LYT.config.player.IOSFirstPlay
-              log.message "hej first 1"
               @pause()
           else
             @playOnIntent()

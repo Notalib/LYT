@@ -147,7 +147,7 @@ LYT.render = do ->
   bookPlayer: (book, view) ->
     $("#player-book-title").text book.title
     $("#player-book-author").text book.author
-    $("#player-info h1, #player-chapter-title").show()    
+    $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
   
   bookDetails: (details, view) -> 
