@@ -143,6 +143,8 @@ LYT.control =
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
+
+    
       
       params = LYT.router.getParams(match[1])
       section = params.section or null
@@ -169,7 +171,7 @@ LYT.control =
       
       LYT.player.clear()
       LYT.render.clearBookPlayer()
-       
+        
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
@@ -199,12 +201,37 @@ LYT.control =
             if LYT.var.next? and  ui.prevPage[0].id is 'login'
               window.location.reload()
             else
+            $("#submenu").simpledialog({
+              'mode' : 'bool',
+              'prompt' : 'Der er opstået en fejl!',
+              'subTitle' : 'kunne ikke hente bogen.'
+              'animate': false,
+              'useDialogForceFalse': true,
+              'allowReopen': true,
+              'useModal': true,
+              'buttons' : {
+                'Prøv igen': 
+                  click: (event) ->
+                    window.location.reload()
+                  icon: "refresh",
+                  theme: "c"
+                ,
+                'Anuller': 
+                  click: (event) ->
+                    $.mobile.changePage "#bookshelf"
+                  icon: "delete",
+                  theme: "c"
+                ,
+                   
+              }
               
-              response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
-              if(response)
-                window.location.reload()
-              else
-                $.mobile.changePage "#bookshelf"
+            })
+            #$("#submenu").trigger('simpledialog', {'method': 'open'})              
+              #response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
+             # if(response)
+              #  window.location.reload()
+              #else
+             #   $.mobile.changePage "#bookshelf"
             
       
       LYT.loader.register "Loading book", process
