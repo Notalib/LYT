@@ -325,5 +325,7 @@ LYT.control =
       
       $("#log-off").click (event) ->
         LYT.service.logOff()
-    
-  
+        
+  share:(type, match, ui, page, event) ->
+    if type is 'pageshow'
+      alert "pick"  

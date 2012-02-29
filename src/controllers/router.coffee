@@ -47,6 +47,9 @@ $(document).bind "mobileinit", ->
     "#about":
       handler: "about"
       events: "s"
+    "#share":
+      handler: "share"
+      events: "s"
     "#search([?].*)?":
       handler: "search"
       events: "s"
