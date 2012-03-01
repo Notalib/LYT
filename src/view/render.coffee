@@ -226,6 +226,7 @@ LYT.render = do ->
   catalogLists: (callback, view) ->
     list = view.find "ul"
     list.empty()
+    
     for query in LYT.lists
       do (query) ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
@@ -239,7 +240,7 @@ LYT.render = do ->
   catalogListsDirectlink: (callback, view, param) ->
     list = view.find "ul"
     list.empty()
-    log.message param
+
     for query in LYT.lists
       if query.id is param
         callback query.callback()

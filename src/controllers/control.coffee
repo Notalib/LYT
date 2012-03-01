@@ -279,6 +279,10 @@ LYT.control =
       #Direct link to lists
         switch list
           when 'anbe' then list = "list_item_1"
+          when 'ny' then list = "list_item_2"
+          when 'top' then list = "list_item_3"
+          when 'topu' then list = "list_item_4"
+          when 'topv' then list = "list_item_5"
           else
             LYT.render.catalogLists handleResults, content  
 
