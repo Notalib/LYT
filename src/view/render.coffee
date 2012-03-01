@@ -90,10 +90,14 @@ LYT.render = do ->
               click: (event) -> 
                 LYT.bookshelf.remove(book.id).done -> list.remove()
               ,
+              id: "ok-btn"
+              ,
               theme: "c"
             ,
             'Anuller': 
               click: (event)->
+              ,
+              id: "cancel-btn"
               ,
               theme: "c"
             ,
@@ -226,7 +230,7 @@ LYT.render = do ->
   catalogLists: (callback, view) ->
     list = view.find "ul"
     list.empty()
-    
+
     for query in LYT.lists
       do (query) ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
