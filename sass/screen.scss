@@ -521,8 +521,42 @@
 }
 
 #list_item_1 {
-  .ui-btn-text {
-  background-image: transparent url(../images/icons/recommend_icn_25.png) no-repeat;
+ background: transparent url(../images/icons/recommend_icn_25.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#list_item_2 {
+ background: transparent url(../images/icons/new_icn_25.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#list_item_3 {
+ background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
+  h3 {
+    padding-left: 28px;
+    padding-top: 8px;
+  }
+}
+
+#list_item_4 {
+ background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#list_item_5 {
+ background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
   }
 }
 
@@ -961,7 +995,7 @@ img.nota-full {
     background-image: url(../images/icons/arrow_icn_34.png);
     background-size: 16px 16px;
   }
-    .logged-in-as {
+    #logged-in-as {
     background-image: url(../images/icons/settings_profile_icn_72.png);
     background-size: 36px 36px;
   }
@@ -972,6 +1006,26 @@ img.nota-full {
     #bookshelf-content {
     background-image: url(../images/icons/empty_bookshelf_hires.png);
     background-size: 240px 40px;
+    }
+    #list_item_1 {
+    background-image: url(../images/icons/recommend_icn_50.png);
+    background-size: 25px 25px;
+    }
+    #list_item_2 {
+    background-image: url(../images/icons/new_icn_50.png);
+    background-size: 25px 25px;
+    }
+    #list_item_3 {
+    background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
+    }
+    #list_item_4 {
+    background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
+    }
+    #list_item_5 {
+    background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
     }
 }
 
