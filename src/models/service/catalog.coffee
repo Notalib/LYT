@@ -179,9 +179,12 @@ LYT.catalog = do ->
     deferred = jQuery.Deferred()
     
     data = memberid: String( LYT.session.getMemberId() )
-
     url  = LYT.config.catalog.suggestions.url
     
+    
+    if data.memberid == 'undefined' or not url? 
+      deferred.reject()
+
     options = getAjaxOptions url, data
     
     # Perform the request
