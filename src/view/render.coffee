@@ -86,7 +86,7 @@ LYT.render = do ->
           'useDialogForceFalse': true,
           'useModal': true,
           'buttons' : {
-            'OK': 
+            'Fjern': 
               click: (event) -> 
                 LYT.bookshelf.remove(book.id).done -> list.remove()
               ,
@@ -94,7 +94,7 @@ LYT.render = do ->
               ,
               theme: "c"
             ,
-            'Anuller': 
+            'Annuller': 
               click: (event)->
               ,
               id: "cancel-btn"
