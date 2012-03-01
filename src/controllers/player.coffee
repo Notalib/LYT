@@ -200,6 +200,32 @@ LYT.player =
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message 'jPlayer: url error'
+            $("#submenu").simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Der er opstået en fejl!',
+                'subTitle' : 'kunne ikke hente bogen.'
+                'animate': false,
+                'useDialogForceFalse': true,
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'Prøv igen': 
+                    click: (event) ->
+                      window.location.reload()
+                    ,
+                    theme: "c"
+                  ,
+                  'Anuller': 
+                    click: (event) ->
+                      $.mobile.changePage "#bookshelf"
+                    ,
+                    theme: "c"
+                  ,
+                   
+                }
+              
+            })
+            #reopen the dialog...
             #TODO: this is usually because something is wrong with the session or the internet connection, 
             # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION

@@ -72,7 +72,7 @@ LYT.render = do ->
           'buttons' : {
             'OK': 
               click: (event) ->
-              icon: "info",
+              ,
               theme: "c"
             ,  
           }
@@ -81,7 +81,7 @@ LYT.render = do ->
         $(this).simpledialog({
           'mode' : 'bool',
           'prompt' : 'Vil du fjerne denne bog?',
-          'subTitle' : 'fjern bogen ' + book.title,
+          'subTitle' : book.title,
           'animate': false,
           'useDialogForceFalse': true,
           'useModal': true,
@@ -89,10 +89,16 @@ LYT.render = do ->
             'OK': 
               click: (event) -> 
                 LYT.bookshelf.remove(book.id).done -> list.remove()
+              ,
+              id: "ok-btn"
+              ,
+              theme: "c"
             ,
-            'Cancel': 
+            'Anuller': 
               click: (event)->
-              icon: "delete",
+              ,
+              id: "cancel-btn"
+              ,
               theme: "c"
             ,
             
@@ -224,7 +230,7 @@ LYT.render = do ->
   catalogLists: (callback, view) ->
     list = view.find "ul"
     list.empty()
-    
+
     for query in LYT.lists
       do (query) ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
@@ -232,9 +238,22 @@ LYT.render = do ->
           callback query.callback()
           event.preventDefault()
           event.stopImmediatePropagation()
-        list.append listItem
-    
+        list.append listItem   
     list.listview('refresh')
+  
+  catalogListsDirectlink: (callback, view, param) ->
+    list = view.find "ul"
+    list.empty()
+
+    for query in LYT.lists
+      if query.id is param
+        callback query.callback()
+        event.preventDefault()
+        event.stopImmediatePropagation()
+    list.listview('refresh')    
+
+
+    
     
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
