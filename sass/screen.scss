@@ -831,14 +831,24 @@ img.nota-full {
 /* Pop-up menu */
 
 .ui-simpledialog-container {
-  .ui-btn-inner {
-    color:#fff;
-    background-color: #8CBBE2;
-    border: solid 2px #adceea;
-    
+  #ok-btn {
+    .ui-btn-inner {
+      color:#fff;
+      background-color: #C1001F;
+      border: solid 2px #EA0026;
+      text-shadow: 0 -1px 0 #000;
     }
+  }
+  #cancel-btn {
+    .ui-btn-inner {
+      color:#fff;
+      background-color: #7c7c7c;
+      border: solid 2px #aaaaaa;
+      text-shadow: 0 -1px 0 #000;
+    }
+  }    
   .ui-btn {
-    border:solid 2px #464646;
+    border:solid 2px #636363;
     }
 }
 
