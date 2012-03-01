@@ -73,11 +73,11 @@
    }
 
 .ui-page {
-	background: #b5d6f1 url(../images/bg_pattern_blue.png) repeat;
+	background: #b5d6f1 url(../images/bg_pattern_blue_2.png) repeat;
 }
 
 #login, #settings, #profile {
-	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;}
+	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue_2.png) repeat;}
 }
 
 .ui-content {
@@ -215,16 +215,16 @@
   
   h2 {
     color: #636363;
-    @include text-shadow(#ebebeb 0 2px 0);
+    /*@include text-shadow(#ebebeb 0 2px 0);*/
     font-weight: 500;
     /*color: #00415c;*/
-    font-size: 18px;
+    font-size: 16px;
     
   }
   
   #logged-in-as {
     
-    background: transparent url(../images/icons/settings_profile_icn_36.png) no-repeat 0 50%;
+    background: transparent url(../images/icons/settings_profile_icn_32.png) no-repeat 0 50%;
     
     text-align: center;
     #current-user-name {
@@ -323,6 +323,12 @@
     background: #ebebeb; 
     height: 1px;
     border-width: 1px 0 0 0;
+  }
+  .ui-radio {
+    .ui-content{
+    background-color: none;
+    border: solid 1px
+    }
   }
 }
 
@@ -1019,8 +1025,8 @@ img.nota-full {
     background-size: 16px 16px;
   }
     #logged-in-as {
-    background-image: url(../images/icons/settings_profile_icn_72.png);
-    background-size: 36px 36px;
+    background-image: transparent url(../images/icons/settings_profile_icn_64.png) no-repeat 0 50%;
+    background-size: 32px 32px;
   }
     img.nota-full {
     background-image: url(../images/logo_hires.png);
@@ -1029,23 +1035,23 @@ img.nota-full {
     #bookshelf-content {
     background-image: url(../images/icons/empty_bookshelf_hires.png);
     background-size: 240px 40px;
-    }
+  }
     #list_item_1 {
     background-image: url(../images/icons/recommend_icn_50.png);
     background-size: 25px 25px;
-    }
+  }
     #list_item_2 {
     background-image: url(../images/icons/new_icn_50.png);
     background-size: 25px 25px;
-    }
+  }
     #list_item_3 {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
-    }
+  }
     #list_item_4 {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
-    }
+  }
     #list_item_5 {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
