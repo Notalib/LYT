@@ -44,7 +44,7 @@ LYT.control =
                 'buttons' : {
                   'OK': 
                     click: (event) ->
-                    icon: "info",
+                    ,
                     theme: "c"
                   ,  
                 }
@@ -111,7 +111,7 @@ LYT.control =
                 'buttons' : {
                   'OK': 
                     click: (event) ->
-                    icon: "info",
+                    ,
                     theme: "c"
                   ,  
                 }
@@ -201,31 +201,31 @@ LYT.control =
             if LYT.var.next? and  ui.prevPage[0].id is 'login'
               window.location.reload()
             else
-            $("#submenu").simpledialog({
-              'mode' : 'bool',
-              'prompt' : 'Der er opstået en fejl!',
-              'subTitle' : 'kunne ikke hente bogen.'
-              'animate': false,
-              'useDialogForceFalse': true,
-              'allowReopen': true,
-              'useModal': true,
-              'buttons' : {
-                'Prøv igen': 
-                  click: (event) ->
-                    window.location.reload()
-                  icon: "refresh",
-                  theme: "c"
-                ,
-                'Anuller': 
-                  click: (event) ->
-                    $.mobile.changePage "#bookshelf"
-                  icon: "delete",
-                  theme: "c"
-                ,
+              $("#submenu").simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Der er opstået en fejl!',
+                'subTitle' : 'kunne ikke hente bogen.'
+                'animate': false,
+                'useDialogForceFalse': true,
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'Prøv igen': 
+                    click: (event) ->
+                      window.location.reload()
+                    icon: "refresh",
+                    theme: "c"
+                  ,
+                  'Anuller': 
+                    click: (event) ->
+                      $.mobile.changePage "#bookshelf"
+                    icon: "delete",
+                    theme: "c"
+                  ,
                    
-              }
+                }
               
-            })
+              })
             #$("#submenu").trigger('simpledialog', {'method': 'open'})              
               #response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
              # if(response)
@@ -258,23 +258,35 @@ LYT.control =
           handleResults LYT.catalog.search(params.term)
         else
           params = {}
-      
+
+      #search?list=???
+      list = params.list or null  
+
       params.term = jQuery.trim(decodeURI(params.term or "")) or null
       
       content = $(page).children( ":jqmData(role=content)" )
-      
+
       LYT.catalog.attachAutocomplete $('#searchterm')
       $("#searchterm").bind "autocompleteselect", (event, ui) ->
         handleResults LYT.catalog.search(ui.item.value)
         $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
       
-      # this allows for bookmarkable search terms
+      # this allows for bookmarkable/direct search terms
       if params.term and $('#searchterm').val() isnt params.term
         $('#searchterm').val params.term
         handleResults LYT.catalog.search(params.term)
+      else if list?
+      #Direct link to lists
+        switch list
+          when 'anbe' then list = "list_item_1"
+          else
+            LYT.render.catalogLists handleResults, content  
+
+        LYT.render.catalogListsDirectlink handleResults, content, list
       else
         # TODO: Simple, rough implementation
         LYT.render.catalogLists handleResults, content
+
         
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
