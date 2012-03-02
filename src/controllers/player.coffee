@@ -326,12 +326,14 @@ LYT.player =
     return unless @book?
     
     @time = status.currentTime
-    @updateLastMark()
+    if(LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
+      @updateLastMark()
     return if @media? and @media.start <= @time < @media.end
     @media = @section.mediaAtOffset @time
     
     if @media and not @getStatus()?.paused
-      @updateLastMark()
+      if(LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
+        @updateLastMark()
     
     log.warn "Player: failed to get media segment for offset #{@time}" unless @media?
     
@@ -444,6 +446,9 @@ LYT.player =
     now = (new Date).getTime()
     interval = LYT.config.player?.lastmarkUpdateInterval or 10000
     return unless force or not @lastBookmark or now-@lastBookmark > interval
+    if @getStatus().currentTime is 0
+      return
+    log.message "bookmark" + @getStatus().currentTime
     @book.setLastmark @section.id, @getStatus().currentTime
     @lastBookmark = now
   

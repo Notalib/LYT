@@ -150,6 +150,7 @@ LYT.control =
       section = params.section or null
       offset = Number(params.offset) or 0
       guest = params.guest or null
+      list = params.list or null
 
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
@@ -178,12 +179,17 @@ LYT.control =
       process = LYT.Book.load(params.book)
         .done (book) ->        
           LYT.render.bookPlayer book, $(page)
+          #no section or offset from link 
           if not section and offset is 0 and book.lastmark?
             log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
             section = book.lastmark.section
             offset  = book.lastmark.offset
-            
-          LYT.player.load book, section, offset, false
+          if list?
+            LYT.player.load book, section, offset, true #autoplay  
+          else
+            LYT.player.load book, section, offset, false #no autoplay
+
+          
           ###
           $("#book-play").bind "swiperight", ->
               LYT.player.nextSection()
@@ -198,7 +204,7 @@ LYT.control =
           #if LYT.session.getCredentials()?
           # Hack to fix books not loading when being redirected directly from login page
           if LYT.session.getCredentials()?
-            if LYT.var.next? and  ui.prevPage[0].id is 'login'
+            if LYT.var.next? and ui.prevPage[0]?.id is 'login'
               window.location.reload()
             else
               $("#submenu").simpledialog({
