@@ -172,9 +172,9 @@ LYT.render = do ->
         img.height(vspace)
         img.width('auto')
       
-      #else if img.width() > view.width()
-      #  img.width('100%')
-      #  img.height('auto')
+      if img.width() > view.width()
+        img.width('100%')
+        img.height('auto')
       
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
@@ -256,6 +256,7 @@ LYT.render = do ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
+          LYT.var.callback = query
           event.preventDefault()
           event.stopImmediatePropagation()
         list.append listItem   

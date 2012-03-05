@@ -261,6 +261,7 @@ LYT.control =
         LYT.var.searchTerm = params
       else
         if LYT.var.searchTerm?
+          log.message LYT.var.searchTerm
           params = LYT.var.searchTerm
           handleResults LYT.catalog.search(params.term)
         else
@@ -294,6 +295,8 @@ LYT.control =
             LYT.render.catalogLists handleResults, content  
 
         LYT.render.catalogListsDirectlink handleResults, content, list
+      else if LYT.var.callback?
+        
       else
         # TODO: Simple, rough implementation
         LYT.render.catalogLists handleResults, content
@@ -351,4 +354,6 @@ LYT.control =
         
   share:(type, match, ui, page, event) ->
     if type is 'pageshow'
-      alert "pick"  
+      alert "pick"
+
+       
