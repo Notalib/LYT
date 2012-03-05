@@ -150,7 +150,7 @@ LYT.control =
       section = params.section or null
       offset = Number(params.offset) or 0
       guest = params.guest or null
-      list = params.list or null
+      autoplay = params.autoplay or false
 
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
@@ -184,7 +184,8 @@ LYT.control =
             log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
             section = book.lastmark.section
             offset  = book.lastmark.offset
-          if list?
+          log.message autoplay
+          if autoplay is "true"
             LYT.player.load book, section, offset, true #autoplay  
           else
             LYT.player.load book, section, offset, false #no autoplay

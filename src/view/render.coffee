@@ -189,7 +189,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a href="#book-play?book=#{book.id}&section=#{item.id}&list=true"> 
+            <a href="#book-play?book=#{book.id}&section=#{item.id}&autoplay=true"> 
               #{item.title}
             </a>"""
         
