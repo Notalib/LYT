@@ -354,6 +354,5 @@ LYT.control =
         
   share:(type, match, ui, page, event) ->
     if type is 'pageshow'
-      alert "pick"
 
        
