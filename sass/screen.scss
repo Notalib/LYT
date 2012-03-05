@@ -73,7 +73,7 @@
    }
 
 .ui-page {
-	background: #b5d6f1 url(../images/bg_pattern_blue.png) repeat;
+  background: #b5d6f1 url(../images/bg_pattern_blue.png) repeat;
 }
 
 #login, #settings, #profile {
@@ -858,13 +858,16 @@ img.nota-full {
 
 
 #book-text-content {
-  min-height: 500px;
+  position: absolute;
+  top: 130px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  
   img {
-    max-width: 100%;
     max-height: 100%;
-    margin: -10px;
   }
-
+  
   h1 a,
   h2 a {
     text-decoration: none;
@@ -1103,7 +1106,3 @@ img.nota-full {
     background-size: 25px 25px;
     }
 }
-
-
-
-

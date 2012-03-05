@@ -156,6 +156,32 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
   
+  textContent: (media) ->
+    view = $("#book-text-content")
+    view.html media.html
+    
+    view.find("img").each ->
+      img = $(this)
+      if img.height() > view.height()
+        img.css
+          'height': '100%'
+          'width': 'auto'
+      
+      else if img.width() > view.width()
+        img.css
+          'width': '100%'
+          'height': 'auto'
+      
+      
+      #log.message view.height()
+      #log.message view.width()
+      #log.message $(this).height()
+      #log.message $(this).width()
+      
+      #$(this).aeImageResize
+      #  height: view.height 
+      #  width: view.width
+      
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
     $("#details-book-author").text details.author
@@ -250,8 +276,7 @@ LYT.render = do ->
         callback query.callback()
         event.preventDefault()
         event.stopImmediatePropagation()
-    list.listview('refresh')    
-
+    list.listview('refresh')
 
     
     
