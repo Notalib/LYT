@@ -170,8 +170,8 @@ class LYT.Book
       process.fail -> 
       #deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
         marks =
-        lastmark:  null
-        bookmarks: []
+          lastmark:  null
+          bookmarks: []
 
         {@lastmark, @bookmarks} = marks
         resolve()
