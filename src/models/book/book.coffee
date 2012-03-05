@@ -164,10 +164,17 @@ class LYT.Book
       process = LYT.service.getBookmarks(@id)
       
       # TODO: Currently, failing to get the bookmarks will "fail" the
-      # the entire book loading-process... perhaps the system should
+      # the entire book loading-process..(NOT). perhaps the system should
       # be more lenient, and allow bookmarks to fail? Or perhaps they
       # should be loaded lazily, when required?
-      process.fail -> deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
+      process.fail -> 
+      #deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
+        marks =
+        lastmark:  null
+        bookmarks: []
+
+        {@lastmark, @bookmarks} = marks
+        resolve()
       
       process.done (data) =>
         if not data?

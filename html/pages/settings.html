@@ -5,44 +5,46 @@
 		<h1>Indstillinger</h1>		
 	</div>
 
+  <div id="textarea-example">
+		      <div class="inner">Der var så dejligt ude på landet; det var sommer, kornet stod gult, havren grøn, høet var rejst i stakke nede i de grønne enge, og der gik storken på sine lange, røde ben og snakkede ægyptisk, for det sprog havde han lært af sin moder. Rundt om ager og eng var der store skove, og midt i skovene dybe søer; jo, der var rigtignok dejligt derude på landet! Midt i solskinnet lå der en gammel herregård med dybe kanaler rundt om, og fra muren og ned til vandet voksede store skræppeblade, der var så høje, at små børn kunne stå oprejste under de største; der var lige så vildsomt derinde, som i den tykkeste skov, og her lå en and på sin rede; hun skulle ruge sine små ællinger ud, men nu var hun næsten ked af det, fordi det varede så længe, og hun sjælden fik visit; de andre ænder holdt mere af at svømme om i kanalerne, end at løbe op og sidde under et skræppeblad for at snadre med hende.</div>
+  </div>
+
 	<div data-role="content" id="style-settings" data-theme="c">
-		<div data-role="fieldcontain">
-			<label for="textarea-example">Teksteksempel</label>
-			<textarea readonly cols="4" rows="8" name="textarea" id="textarea-example">Der var så dejligt ude på landet; det var sommer, kornet stod gult, havren grøn, høet var rejst i stakke nede i de grønne enge, og der gik storken på sine lange, røde ben og snakkede ægyptisk, for det sprog havde han lært af sin moder. Rundt om ager og eng var der store skove, og midt i skovene dybe søer; jo, der var rigtignok dejligt derude på landet! Midt i solskinnet lå der en gammel herregård med dybe kanaler rundt om, og fra muren og ned til vandet voksede store skræppeblade, der var så høje, at små børn kunne stå oprejste under de største; der var lige så vildsomt derinde, som i den tykkeste skov, og her lå en and på sin rede; hun skulle ruge sine små ællinger ud, men nu var hun næsten ked af det, fordi det varede så længe, og hun sjælden fik visit; de andre ænder holdt mere af at svømme om i kanalerne, end at løbe op og sidde under et skræppeblad for at snadre med hende.</textarea>  
-		</div>
-  <div id="settings-input">
-		<div data-role="fieldcontain">
-			<fieldset data-role="controlgroup" id="font-size" data-type="horizontal">
-				<legend>Tekststørrelse</legend>
+    <div id="settings-input">
+		  <div data-role="fieldcontain">
+			  <fieldset data-role="controlgroup" id="font-size" data-type="horizontal">
+				  <legend>Tekststørrelse</legend>
+				  <input type="radio" name="font-size" id="font-size-1" value="12px">
+				  <label for="font-size-1"><span style="font-size:10px">A</span></label>
 
-				<input type="radio" name="font-size" id="font-size-1" value="12px">
-				<label for="font-size-1"><span style="font-size:10px">A</span></label>
+				  <input type="radio" name="font-size" id="font-size-2" value="16px">
+				  <label for="font-size-2"><span style="font-size:12px">A</span></label>
 
-				<input type="radio" name="font-size" id="font-size-2" value="16px">
-				<label for="font-size-2"><span style="font-size:12px">A</span></label>
+				  <input type="radio" name="font-size" id="font-size-3" value="20px">
+				  <label for="font-size-3"><span style="font-size:14px">A</span></label>
 
-				<input type="radio" name="font-size" id="font-size-3" value="20px">
-				<label for="font-size-3"><span style="font-size:14px">A</span></label>
-
-				<input type="radio" name="font-size" id="font-size-4" value="24px">
-				<label for="font-size-4"><span style="font-size:16px">A</span></label>
-				
-			</fieldset>
-		</div>	    
-
-		<div data-role="fieldcontain">
+				  <input type="radio" name="font-size" id="font-size-4" value="24px">
+				  <label for="font-size-4"><span style="font-size:16px">A</span></label>
+			  </fieldset>
+		 </div>	    
+     <hr>
+		 
+		 
+		 <div data-role="fieldcontain">
 			<fieldset data-role="controlgroup" id="font-family">
 				<legend>Skrifttype</legend>
-				<input type="radio" name="font-family" id="font-family-1" value="Georgia">
-				<label for="font-family-1">Georgia</label>
+				
+				<input type="radio" name="font-family" id="font-family-1" value="Georgia, serif">
+				<label style="font-family:Georgia, serif;" for="font-family-1">Klassisk</label>
 
-				<input type="radio" name="font-family" id="font-family-2" value="Helvetica">
-				<label for="font-family-2">Helvetica</label>
+				<input type="radio" name="font-family" id="font-family-2" value="Helvetica, sans-serif">
+				<label style="font-family:Helvetica, sans-serif;" for="font-family-2">Moderne</label>
 				
 			</fieldset>
-		</div>	    
-
-		<div data-role="fieldcontain">
+		 </div>	    
+     <hr>
+		 
+		 <div data-role="fieldcontain">
 			<fieldset data-role="controlgroup" id="marking-color">
 				<legend>Markeringsfarve</legend>
 				<input type="radio" name="marking-color" id="radio-choice-g" value="#fff;#000000">
@@ -56,9 +58,9 @@
 
 				<input type="radio" name="marking-color" id="radio-choice-j" value="#ffffff;#0000ff">
 				<label for="radio-choice-j">Hvid på Blå</label>
-			</fieldset>
-			</div>
-		</div>
-	</div>
-	
+			 </fieldset>
+		 </div>
+		
+   </div>
+   
 </div>

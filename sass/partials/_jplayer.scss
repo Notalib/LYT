@@ -96,6 +96,9 @@
  h1, h2, span {
    margin: 0;
    color: #cbcbcb;
+   
+   text-overflow: ellipsis;
+   white-space: nowrap;
  }
  
 .info {

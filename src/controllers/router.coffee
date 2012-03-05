@@ -47,6 +47,9 @@ $(document).bind "mobileinit", ->
     "#about":
       handler: "about"
       events: "s"
+    "#share":
+      handler: "share"
+      events: "s"
     "#search([?].*)?":
       handler: "search"
       events: "s"
@@ -60,17 +63,27 @@ $(document).bind "mobileinit", ->
       handler: "bookshelf"
       events: "s"
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
-   
+ 
+ 
+ #logon rejected from  LYT.service....  
   $(LYT.service).bind "logon:rejected", () ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
-    log.message 'her er' + LYT.var.next
-    
-    $.mobile.changePage "#login"
-  
+    unless LYT.var.next is "#login" 
+      $.mobile.changePage "#login"   
+
   $(LYT.service).bind "logoff", ->
     LYT.player.clear()
     
     $.mobile.changePage "#login"
+
+#logon rejected from  LYT.catalog....
+
+  $(LYT.catalog).bind "logon:rejected", () ->
+    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+    unless LYT.var.next is "#login" 
+      $.mobile.changePage "#login"
+      
+       
   
   $("[data-role=page]").live "pageshow", (event, ui) ->
     _gaq.push [ "_trackPageview", event.target.id ]

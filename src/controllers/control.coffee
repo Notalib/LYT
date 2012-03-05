@@ -18,28 +18,40 @@ LYT.control =
 
   
   login: (type, match, ui, page, event) ->
-
-    if(LYT.var.next is "")
-      window.location.reload()
-    else 
-      log.message LYT.var.next
-
     $("#login-form").submit (event) ->
-      
       $("#password").blur()
-      
+    
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
           log.message 'logon done'
+
           
-          if not LYT.var.next? or LYT.var.next is "#login"
+          if not LYT.var.next? or LYT.var.next is "#login" or LYT.var.next is ""
             LYT.var.next = "#bookshelf"
           
           $.mobile.changePage LYT.var.next
         
         .fail ->
-         log.message "log on failure"
+          log.message "log on failure"
+          $("#login-form").simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Log ind fejl!',
+                'subTitle' : 'Forkert brugernavn eller kodeord.'
+                'animate': false,
+                'useDialogForceFalse': true,
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'OK': 
+                    click: (event) ->
+                    ,
+                    theme: "c"
+                  ,  
+                }
+          })
+          
  
+       
         
       LYT.loader.register "Logging in", process
       
@@ -92,12 +104,14 @@ LYT.control =
                 'mode' : 'bool',
                 'prompt' : 'Du er logget på som gæst!',
                 'subTitle' : '...og kan derfor ikke tilføje bøger.'
+                'animate': false,
+                'useDialogForceFalse': true,
                 'allowReopen': true,
                 'useModal': true,
                 'buttons' : {
                   'OK': 
                     click: (event) ->
-                    icon: "info",
+                    ,
                     theme: "c"
                   ,  
                 }
@@ -129,12 +143,14 @@ LYT.control =
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
+
+    
       
       params = LYT.router.getParams(match[1])
       section = params.section or null
       offset = Number(params.offset) or 0
       guest = params.guest or null
-
+      autoplay = params.autoplay or false
 
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
@@ -156,19 +172,25 @@ LYT.control =
       
       LYT.player.clear()
       LYT.render.clearBookPlayer()
-       
+        
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
       process = LYT.Book.load(params.book)
         .done (book) ->        
           LYT.render.bookPlayer book, $(page)
+          #no section or offset from link 
           if not section and offset is 0 and book.lastmark?
             log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
             section = book.lastmark.section
             offset  = book.lastmark.offset
-            
-          LYT.player.load book, section, offset, false
+          log.message autoplay
+          if autoplay is "true"
+            LYT.player.load book, section, offset, true #autoplay  
+          else
+            LYT.player.load book, section, offset, false #no autoplay
+
+          
           ###
           $("#book-play").bind "swiperight", ->
               LYT.player.nextSection()
@@ -182,15 +204,41 @@ LYT.control =
           
           #if LYT.session.getCredentials()?
           # Hack to fix books not loading when being redirected directly from login page
-          log.message ui.prevPage[0]
-          if ui.prevPage[0]? and  ui.prevPage[0].id is 'login'
-            window.location.reload()
-          else
-             response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
-             if(response)
+          if LYT.session.getCredentials()?
+            if LYT.var.next? and ui.prevPage[0]?.id is 'login'
               window.location.reload()
-             else
-              $.mobile.changePage "#bookshelf"
+            else
+              $("#submenu").simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Der er opstået en fejl!',
+                'subTitle' : 'kunne ikke hente bogen.'
+                'animate': false,
+                'useDialogForceFalse': true,
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'Prøv igen': 
+                    click: (event) ->
+                      window.location.reload()
+                    icon: "refresh",
+                    theme: "c"
+                  ,
+                  'Anuller': 
+                    click: (event) ->
+                      $.mobile.changePage "#bookshelf"
+                    icon: "delete",
+                    theme: "c"
+                  ,
+                   
+                }
+              
+              })
+            #$("#submenu").trigger('simpledialog', {'method': 'open'})              
+              #response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
+             # if(response)
+              #  window.location.reload()
+              #else
+             #   $.mobile.changePage "#bookshelf"
             
       
       LYT.loader.register "Loading book", process
@@ -217,23 +265,39 @@ LYT.control =
           handleResults LYT.catalog.search(params.term)
         else
           params = {}
-      
+
+      #search?list=???
+      list = params.list or null  
+
       params.term = jQuery.trim(decodeURI(params.term or "")) or null
       
       content = $(page).children( ":jqmData(role=content)" )
-      
+
       LYT.catalog.attachAutocomplete $('#searchterm')
       $("#searchterm").bind "autocompleteselect", (event, ui) ->
         handleResults LYT.catalog.search(ui.item.value)
         $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
       
-      # this allows for bookmarkable search terms
+      # this allows for bookmarkable/direct search terms
       if params.term and $('#searchterm').val() isnt params.term
         $('#searchterm').val params.term
         handleResults LYT.catalog.search(params.term)
+      else if list?
+      #Direct link to lists
+        switch list
+          when 'anbe' then list = "list_item_1"
+          when 'ny' then list = "list_item_2"
+          when 'top' then list = "list_item_3"
+          when 'topu' then list = "list_item_4"
+          when 'topv' then list = "list_item_5"
+          else
+            LYT.render.catalogLists handleResults, content  
+
+        LYT.render.catalogListsDirectlink handleResults, content, list
       else
         # TODO: Simple, rough implementation
         LYT.render.catalogLists handleResults, content
+
         
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
@@ -284,5 +348,7 @@ LYT.control =
       
       $("#log-off").click (event) ->
         LYT.service.logOff()
-    
-  
+        
+  share:(type, match, ui, page, event) ->
+    if type is 'pageshow'
+      alert "pick"  

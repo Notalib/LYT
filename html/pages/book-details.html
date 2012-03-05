@@ -3,6 +3,8 @@
 	<header data-role="header" data-theme="b">
 		<a data-icon="" href="#search" data-role="button">Søgning</a>		
 		<h1>Bog</h1>
+    <a href="#bookshelf" data-direction="reverse" class="ui-btn-right">Mine bøger</a>
+		
 	</header>
 
 	<div data-role="content" data-theme="a">
@@ -11,17 +13,18 @@
 				<h1 id="details-book-title"></h1>
 				<h2 id="details-book-author"></h2>
 			</header>
-			<div class="ui-grid-a">
-				<figure class="ui-block-a">
-					<img height="110" src="/images/icons/default-cover.png" alt="" class="cover-image">
-				</figure>
-				<div class="ui-block-b">
-					<p id="details-book-description"></p>
-					<p id="details-book-type"></p>
-					<p>Længde: <span id="details-book-totaltime"></span></p>
-					<p>Indlæst af: <span id="details-book-narrator"></span></p>
-					<p id="series"></p>
-				</div>
+			<div class="content">
+				  <figure class="">
+					   <img height="110" src="/images/icons/default-cover.png" alt="" class="cover-image">
+				  </figure>
+					
+					<div class="details">
+					  <p id="details-book-description"></p>
+					  <p id="details-book-type"></p>
+					  <p>Længde: <span id="details-book-totaltime"></span></p>
+					  <p>Indlæst af: <span id="details-book-narrator"></span></p>
+					  <p id="series"></p>
+			    </div>
 			</div>
 		</div>
 		<div>

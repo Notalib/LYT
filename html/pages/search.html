@@ -1,7 +1,7 @@
 <div data-role="page" id="search">
 	
 	<div data-role="header" data-theme="b">
-		<a href="#bookshelf" data-direction="reverse">Mine bøger</a>
+		<a href="#bookshelf" data-direction="reverse" class="ui-btn-right">Mine bøger</a>
 		<h1>Søg</h1>
 	</div>
 	<div data-role="content" class="search-top ui-bar-b" data-theme="a">
@@ -11,7 +11,7 @@
     			<fieldset class="ui-grid-a">
     				
     				  <label for="term" class="ui-hidden-accessible">Søg:</label>
-    					<input type="search" name="term" id="searchterm" placeholder="Titel, forfatter eller genre" title="Titel, forfatter eller genre">
+    					<input type="search" name="term" id="searchterm" placeholder="Søg på titel, forfatter eller genre" title="Søg på titel, forfatter eller genre">
               
               <div id="search-icon-btn">
                   <input data-inline="true" type="submit" name="search-submit" id="search-submit" data-iconpos="notext" data-icon="lyt-search-main" data-iconshadow="false" value="søg">
@@ -23,12 +23,6 @@
 		
 		<div class="ui-bar-c" id="searchresult-wrapper">
 			<ul id="searchresult" data-role="listview">
-				<li><a href=""><h3>Nyeste bøger</h3></a></li>
-				<li><a href=""><h3>Top 10 alle</h3></a></li>
-				<li><a href=""><h3>Top 10 børn og unge</h3></a></li>
-				<li><a href=""><h3>Top 10 voksne</h3></a></li>
-				<li><a href=""><h3>Top 10 krimi</h3></a></li>
-				<li><a href=""><h3>Top 10 fantasy</h3></a></li>
 			</ul>
 		</div>
 		<div data-role="fieldcontain">

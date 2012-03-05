@@ -17,7 +17,7 @@ LYT.settings = do ->
       'font-size':        "14px"
       'background-color': "transparent"
       'color':            "#000000"
-      'font-family':      "Helvetica"
+      'font-family':      "Georgia, sans-serif"
     # phrasemode: 1
     # All text:   2
   

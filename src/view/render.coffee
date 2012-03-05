@@ -66,11 +66,13 @@ LYT.render = do ->
           'mode' : 'bool',
           'prompt' : 'Du er logget på som gæst!',
           'subTitle' : '...og kan derfor ikke slette bøger.'
+          'animate': false,
+          'useDialogForceFalse': true,
           'useModal': true,
           'buttons' : {
             'OK': 
               click: (event) ->
-              icon: "info",
+              ,
               theme: "c"
             ,  
           }
@@ -79,16 +81,24 @@ LYT.render = do ->
         $(this).simpledialog({
           'mode' : 'bool',
           'prompt' : 'Vil du fjerne denne bog?',
-          'subTitle' : 'fjern bogen ' + book.title
+          'subTitle' : book.title,
+          'animate': false,
+          'useDialogForceFalse': true,
           'useModal': true,
           'buttons' : {
-            'OK': 
+            'Fjern': 
               click: (event) -> 
                 LYT.bookshelf.remove(book.id).done -> list.remove()
+              ,
+              id: "ok-btn"
+              ,
+              theme: "c"
             ,
-            'Cancel': 
+            'Annuller': 
               click: (event)->
-              icon: "delete",
+              ,
+              id: "cancel-btn"
+              ,
               theme: "c"
             ,
             
@@ -143,7 +153,7 @@ LYT.render = do ->
   bookPlayer: (book, view) ->
     $("#player-book-title").text book.title
     $("#player-book-author").text book.author
-    $("#player-info h1, #player-chapter-title").show()    
+    $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
   
   bookDetails: (details, view) -> 
@@ -179,7 +189,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a href="#book-play?book=#{book.id}&section=#{item.id}"> 
+            <a href="#book-play?book=#{book.id}&section=#{item.id}&autoplay=true"> 
               #{item.title}
             </a>"""
         
@@ -220,17 +230,30 @@ LYT.render = do ->
   catalogLists: (callback, view) ->
     list = view.find "ul"
     list.empty()
-    
+
     for query in LYT.lists
       do (query) ->
-        listItem = jQuery """<li><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
+        listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
           event.preventDefault()
           event.stopImmediatePropagation()
-        list.append listItem
-    
+        list.append listItem   
     list.listview('refresh')
+  
+  catalogListsDirectlink: (callback, view, param) ->
+    list = view.find "ul"
+    list.empty()
+
+    for query in LYT.lists
+      if query.id is param
+        callback query.callback()
+        event.preventDefault()
+        event.stopImmediatePropagation()
+    list.listview('refresh')    
+
+
+    
     
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)

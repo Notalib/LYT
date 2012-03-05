@@ -101,7 +101,7 @@ LYT.player =
         return if $.jPlayer.platform.android
 
         if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
-          LYT.config.player.IOSFirstPlay = false;
+          
           return 
         
         
@@ -110,8 +110,7 @@ LYT.player =
         @updateHtml(event.jPlayer.status)
         @playOnIntent()
       
-      ended: (event) =>       
-        
+      ended: (event) =>
         if @autoProgression
           @nextSection true  
       
@@ -157,26 +156,76 @@ LYT.player =
         log.message 'Player: event can play'
         if @gotDuration
           @gotDuration = false
-          
-          @playOnIntent()
-          
-          LYT.loader.close('metadata')
+          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
+          #@pause(@playIntentOffset)
+          if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
+            
+            if LYT.config.player.IOSFirstPlay
+              @pause()
+          else
+            @playOnIntent()
+            LYT.loader.close('metadata')
+            
 
       
       canplaythrough: (event) =>
         log.message 'Player: event can play through'
-        LYT.loader.close('metadata')
+        if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
+          log.message @isIOS()
+          if LYT.config.player.IOSFirstPlay
+            LYT.config.player.IOSFirstPlay = false;
+            @el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
+            @el.data('jPlayer').htmlElement.audio.play()
+          else
+            @pause(@playIntentOffset)
+
+            @playOnIntent()
+            LYT.loader.close('metadata')  
+         
+        else if LYT.config.player.IOSFirstPlay and @isIOS()
+          LYT.config.player.IOSFirstPlay = false;
+
+        
+        #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
+        #log.message @el.data('jPlayer').htmlElement.audio.currentTime
+        #LYT.loader.close('metadata')
         #@playOnIntent()
       
       progress: (event) =>
         log.message 'Player: event progress'
-        LYT.loader.close('metadata')
+        #LYT.loader.close('metadata')
         #@playOnIntent()
       
       error: (event) =>
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message 'jPlayer: url error'
+            $("#submenu").simpledialog({
+                'mode' : 'bool',
+                'prompt' : 'Der er opstået en fejl!',
+                'subTitle' : 'kunne ikke hente bogen.'
+                'animate': false,
+                'useDialogForceFalse': true,
+                'allowReopen': true,
+                'useModal': true,
+                'buttons' : {
+                  'Prøv igen': 
+                    click: (event) ->
+                      window.location.reload()
+                    ,
+                    theme: "c"
+                  ,
+                  'Anuller': 
+                    click: (event) ->
+                      $.mobile.changePage "#bookshelf"
+                    ,
+                    theme: "c"
+                  ,
+                   
+                }
+              
+            })
+            #reopen the dialog...
             #TODO: this is usually because something is wrong with the session or the internet connection, 
             # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION
@@ -205,9 +254,13 @@ LYT.player =
     
   pause: (time) ->
     # Pause playback
+    log.message "pause at " + time
+
     if time?
+      @playIntentOffset = time
       @el.jPlayer('pause', time)
     else
+      #@playIntentOffset = null
       @el.jPlayer('pause')
   
   getStatus: ->
@@ -252,9 +305,12 @@ LYT.player =
   play: (time, setIntent = true) ->
     # Start or resume playing if media is loaded
     # Starts playing at time seconds if specified, else from
+    #if time is not ""
+      #@pause(time)
     
-    @pause(time)
-         
+    log.message "  her er time" + time
+    log.message "  her er setIntent" + setIntent
+
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
@@ -270,12 +326,14 @@ LYT.player =
     return unless @book?
     
     @time = status.currentTime
-    @updateLastMark()
+    if(LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
+      @updateLastMark()
     return if @media? and @media.start <= @time < @media.end
     @media = @section.mediaAtOffset @time
     
     if @media and not @getStatus()?.paused
-      @updateLastMark()
+      if(LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
+        @updateLastMark()
     
     log.warn "Player: failed to get media segment for offset #{@time}" unless @media?
     
@@ -388,6 +446,9 @@ LYT.player =
     now = (new Date).getTime()
     interval = LYT.config.player?.lastmarkUpdateInterval or 10000
     return unless force or not @lastBookmark or now-@lastBookmark > interval
+    if @getStatus().currentTime is 0
+      return
+    log.message "bookmark" + @getStatus().currentTime
     @book.setLastmark @section.id, @getStatus().currentTime
     @lastBookmark = now
   

@@ -41,6 +41,15 @@ LYT.catalog = do ->
     "teaser":   5
     "series":   6
   
+
+
+  emit = (event, data = {}) ->
+    obj = jQuery.Event event
+    delete data.type if data.hasOwnProperty "type"
+    jQuery.extend obj, data
+    log.message "catalog: Emitting #{event} event"
+    jQuery(LYT.catalog).trigger obj
+
   # Internal helper to build the AJAX options.  
   # Takes to 2 arguments: The URL to call, and
   # and the data (as an object) to send
@@ -181,6 +190,16 @@ LYT.catalog = do ->
     data = memberid: String( LYT.session.getMemberId() )
     url  = LYT.config.catalog.suggestions.url
     
+    
+    if data.memberid == 'undefined'
+      emit "logon:rejected" 
+      deferred.reject()
+      return deferred.promise()
+    if not url? 
+      log.message "LYT.config.catalog.suggestions.url is empty"
+      deferred.reject()
+      return deferred.promise() 
+
     options = getAjaxOptions url, data
     
     # Perform the request

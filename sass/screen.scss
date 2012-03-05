@@ -7,13 +7,28 @@
  border: none;
 }
 
+.ui-content .ui-field-contain {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#bookshelf-content {
+.ui-li, .ui-li.ui-field-contain {
+  border-top: none;
+}
+
+.ui-listview {
+  margin-bottom: 0;
+}
+
+}
+
 .ui-icon-shadow {
  @include box-shadow(none);
 }
 
 
 /* button adjustments */
-
 .ui-header .ui-btn-left {
   top: 6px;
 }
@@ -28,7 +43,7 @@
   .ui-icon { 
     width: 30px; 
 		@include border-radius(0, 0);
-		}
+  }
 }
 
 .ui-header {
@@ -58,16 +73,28 @@
    }
 
 .ui-page {
-	background: #b5d6f1 url(../images/bg_pattern_blue.png) repeat;
+	background: #b5d6f1 url(../images/bg_pattern_blue_2.png) repeat;
 }
 
 #login, #settings, #profile {
-	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;}
+	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue_2.png) repeat;}
 }
 
 .ui-content {
   background: transparent;
+  position: relative;
+}
+#book-play-menu{
+  .ui-block-a {
+    width: 33%;
   }
+  .ui-block-b {
+    width: 34%;
+  }
+  .ui-block-c {
+    width: 33%;
+  }
+}
 
 /* remove gradients from listviews */
 .ui-listview li {
@@ -79,6 +106,10 @@
 /* bookshelf */
 
 #bookshelf-content {
+	background: transparent url(../images/icons/empty_bookshelf.png) no-repeat;
+	background-position: left top;
+	min-height: 40px;
+			
 	ul {
 		li {
 			img {
@@ -133,6 +164,31 @@
 	}
 }
 
+#more-bookshelf-entries {
+  display: block;
+  margin: 0 -15px;
+  padding: 0;
+  background: rgba(212, 235, 255, 0.6);
+  text-align: left;
+  padding: 12px;
+  @include border-radius(0);
+  
+  .ui-btn-inner {
+    border: none;
+    @include border-radius(0);
+  }
+  
+  .ui-btn-text {
+    @include text-shadow(0 1px 0 white);    
+    color: #464646;
+    font-weight: normal;
+  }
+  
+  //@include box-shadow(inset 0 0 4px #ebebeb);
+  
+  border: none;
+}
+
 /* profile page */
 #profile{
   .ui-content {
@@ -159,16 +215,16 @@
   
   h2 {
     color: #636363;
-    @include text-shadow(#ebebeb 0 2px 0);
+    /*@include text-shadow(#ebebeb 0 2px 0);*/
     font-weight: 500;
     /*color: #00415c;*/
-    font-size: 18px;
+    font-size: 16px;
     
   }
   
   #logged-in-as {
     
-    background: transparent url(../images/icons/settings_profile_icn_36.png) no-repeat 0 50%;
+    background: transparent url(../images/icons/settings_profile_icn_32.png) no-repeat 0 50%;
     
     text-align: center;
     #current-user-name {
@@ -182,7 +238,7 @@
   
   hr {
     margin-top: 20px;
-    border-top: 1px solid #636363;
+    border-top: 1px solid #4c95d1;
     background: #ebebeb; 
     height: 1px;
     border-width: 1px 0 0 0;
@@ -207,7 +263,7 @@
   }
   
   
-  #log-off-button-wrapper{
+  #log-off-button-wrapper {
       @include action-button(#c1001f, a);
   }
   
@@ -215,22 +271,32 @@
   
 }
 
+  #textarea-example {
+    width: 100%;
+    overflow: hidden;
+    padding: 16px 0;
+    border-bottom: solid 1px #d4ebff;
+    //@include box-shadow(inset 0 0 14px black);
+    
+    div.inner {
+      max-width: 500px;
+      height: 96px;
+      text-overflow: clip clip;
+      overflow: hidden;      
+      padding: 0 12px;
+      margin: 0 auto;
+    }
+  }
+
 /* Settings page */
 #settings {
   .ui-content {
-  /*max-width: 500px;*/
   padding: 10px;
   text-shadow: none;
   }
   
-  #textarea-example {
-  width: 100%;
-  height: 100px;
-  margin:0 -15px 0 -15px;
-  }
-  
   #settings-input {
-  width: 100%;
+    width: 100%;
   max-width: 500px;
   margin: 0 auto;
   }
@@ -245,11 +311,25 @@
   }
   
   .ui-controlgroup-label {
-  display: block;
-  text-align: center;
-  width: auto;
+     color: #464646;
+     font-weight: bold; 
+     text-shadow: 0 1px 0 white;
+     display: block;
   }
   
+  hr {
+    margin-top: 20px;
+    border-top: 1px solid #4c95d1;
+    background: #ebebeb; 
+    height: 1px;
+    border-width: 1px 0 0 0;
+  }
+  .ui-radio {
+    .ui-content{
+    background-color: none;
+    border: solid 1px
+    }
+  }
 }
 
 
@@ -323,7 +403,7 @@
   hr {
     margin: 8px 0;
     padding: 0;
-    border-top: 1px solid #636363;
+    border-top: 1px solid #4c95d1;
     background: #fff; 
     height: 1px;
     border-width: 1px 0 0 0;
@@ -446,6 +526,47 @@
 #searchresult-wrapper {
 }
 
+#list_item_1 {
+ background: transparent url(../images/icons/recommend_icn_25.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#list_item_2 {
+ background: transparent url(../images/icons/new_icn_25.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#list_item_3 {
+ background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
+  h3 {
+    padding-left: 28px;
+    padding-top: 8px;
+  }
+}
+
+#list_item_4 {
+ background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#list_item_5 {
+ background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+
 #searchresult {
 	li {
 			img {
@@ -498,6 +619,32 @@
 		}
 }
 
+#more-search-results {
+  display: block;
+  margin: 0 -15px;
+  padding: 0;
+  background: rgba(212, 235, 255, 0.6);
+  text-align: left;
+  padding: 12px;
+  @include border-radius(0);
+  
+  .ui-btn-inner {
+    border: none;
+    @include border-radius(0);
+  }
+  
+  .ui-btn-text {
+    @include text-shadow(0 1px 0 white);    
+    color: #464646;
+    font-weight: normal;
+  }
+  
+  //@include box-shadow(inset 0 0 4px #ebebeb);
+  
+  border: none;
+}
+
+
 /* Book details */
 #book-details {
   .ui-content {
@@ -511,10 +658,6 @@
   background-color: #ebebeb;
   font-size: 13px;
   text-shadow: none;
-  }
-  
-  .cover-image{
-  margin-left: 10px;
   }
   
   #details-book-title{
@@ -531,8 +674,18 @@
   margin: 2px 10px 10px 10px;
   color: #464646;
   }
-   .ui-block-b{
-  margin-left: 10px;
+  
+  .content {
+    margin-left: 10px;
+    @include clearfix;
+    figure {
+      float: left;
+      margin: 0;
+    }
+    .details {
+      padding-left: 97px;
+      margin-right: 10px;
+    }
   }
   
   #details-book-description {
@@ -554,6 +707,7 @@
   color: #464646;
   }
 }
+
 #add-to-bookshelf-button {
   @include action-button(#8cbbe2, a);
   }
@@ -651,10 +805,11 @@ img.nota-full {
   margin: 0px;
 }
 
-#book-text-content,
-#textarea-example {
+#book-text-content, #textarea-example {
   text-shadow: none;
 }
+
+
 
 #book-text-content {
   min-height: 500px;
@@ -671,19 +826,6 @@ img.nota-full {
 }
 
 
-#book-middle-menu .ui-block-a,
-#book-details .ui-block-a {
-  width: 30%;
-  max-width: 82px;
-  margin-right: 5px;
-  overflow: hidden;
-}
-
-#book-middle-menu .ui-block-b,
-#book-details .ui-block-b {
-  width: 68%;
-}
-
 #book-details-content h2 {
   margin-top: 0px;
 }
@@ -692,6 +834,29 @@ img.nota-full {
   font-size: inherit;
 }
 
+/* Pop-up menu */
+
+.ui-simpledialog-container {
+  #ok-btn {
+    .ui-btn-inner {
+      color:#fff;
+      background-color: #C1001F;
+      border: solid 2px #EA0026;
+      text-shadow: 0 -1px 0 #000;
+    }
+  }
+  #cancel-btn {
+    .ui-btn-inner {
+      color:#fff;
+      background-color: #7c7c7c;
+      border: solid 2px #aaaaaa;
+      text-shadow: 0 -1px 0 #000;
+    }
+  }    
+  .ui-btn {
+    border:solid 2px #636363;
+    }
+}
 
 /* Custom Icons */
 
@@ -760,6 +925,10 @@ img.nota-full {
   background-image: url(../images/icons/add_bookmark_icn_18.png);
   }
   
+.ui-icon-share {
+  background-image: url(../images/icons/share_icn_18.png);
+  }
+  
 .ui-icon-book-settings {
   background-image: url(../images/icons/book_settings_icn_18.png);
   }
@@ -777,7 +946,7 @@ img.nota-full {
   }
 
 .ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='add-bookmark'], &[data-icon='book-settings'] {
+  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='add-bookmark'], &[data-icon='book-settings'], &[data-icon='share'] {
     .ui-btn-inner {
       padding: 5px 0 0 21px;
     }
@@ -819,7 +988,11 @@ img.nota-full {
     background-image: url(../images/icons/add_bookmark_icn_36.png);
     background-size: 25px 18px;
   }
-  .ui-icon-book-settings {
+    .ui-icon-share {
+    background-image: url(../images/icons/share_icn_36.png);
+    background-size: 23px 18px;
+  }
+    .ui-icon-book-settings {
     background-image: url(../images/icons/book_settings_icn_36.png);
     background-size: 30px 18px;
   }
@@ -851,14 +1024,38 @@ img.nota-full {
     background-image: url(../images/icons/arrow_icn_34.png);
     background-size: 16px 16px;
   }
-    .logged-in-as {
-    background-image: url(../images/icons/settings_profile_icn_72.png);
-    background-size: 36px 36px;
+    #logged-in-as {
+    background-image: transparent url(../images/icons/settings_profile_icn_64.png) no-repeat 0 50%;
+    background-size: 32px 32px;
   }
     img.nota-full {
     background-image: url(../images/logo_hires.png);
     background-size: 150px 75px;
   }
+    #bookshelf-content {
+    background-image: url(../images/icons/empty_bookshelf_hires.png);
+    background-size: 240px 40px;
+  }
+    #list_item_1 {
+    background-image: url(../images/icons/recommend_icn_50.png);
+    background-size: 25px 25px;
+  }
+    #list_item_2 {
+    background-image: url(../images/icons/new_icn_50.png);
+    background-size: 25px 25px;
+  }
+    #list_item_3 {
+    background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
+  }
+    #list_item_4 {
+    background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
+  }
+    #list_item_5 {
+    background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
+    }
 }
 
 
