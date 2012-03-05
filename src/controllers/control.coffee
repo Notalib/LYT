@@ -361,6 +361,10 @@ LYT.control =
         $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
         
         $("#share-link-textarea").html LYT.player.getCurrentlyPlayingUrl()
+        $("#share-link-textarea").click -> 
+          $(this).focus()
+          $(this).select()
+          $(this).setSelectionRange(0, 9999)
         
       else
         history.back()

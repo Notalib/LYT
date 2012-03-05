@@ -84,9 +84,7 @@ $(document).bind "mobileinit", ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
     unless LYT.var.next is "#login" 
       $.mobile.changePage "#login"
-      
-       
-  
+        
   $("[data-role=page]").live "pageshow", (event, ui) ->
     _gaq.push [ "_trackPageview", event.target.id ]
   
