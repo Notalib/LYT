@@ -157,11 +157,30 @@ LYT.render = do ->
     loadCover $("#currentbook_image img"), book.id
   
   textContent: (media) ->
-    view = jQuery("#book-text-content")
+    view = $("#book-text-content")
     view.html media.html
     
     view.find("img").each ->
-      $(this).aeImageResize({ height: view.height, width: view.width });
+      img = $(this)
+      if img.height() > view.height()
+        img.css
+          'height': '100%'
+          'width': 'auto'
+      
+      else if img.width() > view.width()
+        img.css
+          'width': '100%'
+          'height': 'auto'
+      
+      
+      #log.message view.height()
+      #log.message view.width()
+      #log.message $(this).height()
+      #log.message $(this).width()
+      
+      #$(this).aeImageResize
+      #  height: view.height 
+      #  width: view.width
       
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title

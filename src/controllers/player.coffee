@@ -343,7 +343,8 @@ LYT.player =
   renderTranscript: () ->
     if @media?
       LYT.render.textContent(@media)
-      
+      return
+    
     # If there's no media, show nothing
     jQuery("#book-text-content").empty()
   
