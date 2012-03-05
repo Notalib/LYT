@@ -96,6 +96,7 @@
   }
 }
 
+
 /* remove gradients from listviews */
 .ui-listview li {
 	&, &:hover, &.ui-btn-hover {
@@ -190,7 +191,7 @@
 }
 
 /* profile page */
-#profile{
+#profile {
   .ui-content {
   max-width: 500px;
   padding: 10px;
@@ -223,16 +224,13 @@
   }
   
   #logged-in-as {
-    
     background: transparent url(../images/icons/settings_profile_icn_32.png) no-repeat 0 50%;
-    
     text-align: center;
     #current-user-name {
       display: block;
       color: black;
       
-    }
-    
+    }  
   }
   
   
@@ -310,7 +308,7 @@
     font-size: 18px;
   }
   
-  #text-field {
+  .text-field {
     font-style: normal;
     .ui-link {
     color: black;
@@ -342,7 +340,7 @@
   }
   
   #settings-input {
-    width: 100%;
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
   }
@@ -370,11 +368,9 @@
     height: 1px;
     border-width: 1px 0 0 0;
   }
-  .ui-radio {
-    .ui-content{
-    background-color: none;
-    border: solid 1px
-    }
+  .ui-controlgroup .ui-checkbox label, .ui-controlgroup .ui-radio label {
+    background-image: none;
+    border-color: #636363;
   }
 }
 
@@ -402,7 +398,7 @@
     font-size: 18px;
   }
   
-  #text-field {
+  .text-field {
     font-style: normal;
   }
   
@@ -778,8 +774,7 @@
 
 /* Book index page */
 
-#book-index {
- .section-now-playing {
+.section-now-playing {
    height: 18px;
    width: 18px;
    position: absolute;
@@ -788,7 +783,6 @@
    left: auto;
    background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
    }
-}
 
 /* Login page */
 #login { 
