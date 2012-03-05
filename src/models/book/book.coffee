@@ -20,7 +20,27 @@ class LYT.Book
   # Note: Instances are cached in memory
   this.load = do ->
     loaded = {}
-    (id) -> loaded[id] or (loaded[id] = new LYT.Book id)
+    
+    (id, initialSection = null, offset = 0) ->
+      deferred = jQuery.Deferred()
+      
+      loaded[id] or (loaded[id] = new LYT.Book id)
+      
+      # Book is loaded; load its playlist
+      loaded[id].done (book) -> 
+        
+        # Check for lastmark
+        if not initialSection? and offset is 0 and book.lastmark?
+          initialSection = book.lastmark.section
+        
+        # Load the playlist (ignore playlist-load-errors -
+        # they'll be caught elsewhere)
+        book.getPlaylist(initialSection).always -> deferred.resolve book
+      
+      # Book failed
+      loaded[id].fail -> deferred.reject loaded[id]
+      
+      deferred.promise()
   
   
   # "Class"/"static" method for retrieving a
