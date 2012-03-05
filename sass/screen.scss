@@ -860,12 +860,21 @@ img.nota-full {
 #book-text-content {
   padding: 10px;
   margin: 0;
+  text-align: center;
   
   p {
-    margin: 0;    
+    margin: 0;
+    text-align: left;  
   }
   
-  img {
+  h1, h2, h3 {
+    text-align: left;
+  }
+  
+  
+  img, .image {
+    margin: 0 auto;
+    text-align: center;
   }
   
   h1 a,
