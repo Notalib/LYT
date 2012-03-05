@@ -73,11 +73,11 @@
    }
 
 .ui-page {
-	background: #b5d6f1 url(../images/bg_pattern_blue_2.png) repeat;
+	background: #b5d6f1 url(../images/bg_pattern_blue.png) repeat;
 }
 
 #login, #settings, #profile {
-	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue_2.png) repeat;}
+	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;}
 }
 
 .ui-content {
@@ -403,7 +403,7 @@
   hr {
     margin: 8px 0;
     padding: 0;
-    border-top: 1px solid #4c95d1;
+    border-top: 1px solid #636363;
     background: #fff; 
     height: 1px;
     border-width: 1px 0 0 0;
