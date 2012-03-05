@@ -176,6 +176,9 @@ LYT.render = do ->
         img.width('100%')
         img.height('auto')
       
+      img.click ->
+        img.toggleClass('zoom')
+      
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
     $("#details-book-author").text details.author
@@ -184,7 +187,6 @@ LYT.render = do ->
     $("#details-book-totaltime").text "#{details.playtime}:00"
     $("#details-play-button").attr "href", "#book-play?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
-    
     
   
   bookIndex: (book, view) ->  
@@ -272,7 +274,6 @@ LYT.render = do ->
         event.stopImmediatePropagation()
     list.listview('refresh')
 
-    
     
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)

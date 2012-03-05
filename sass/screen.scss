@@ -875,6 +875,10 @@ img.nota-full {
   img, .image {
     margin: 0 auto;
     text-align: center;
+    &.zoom {
+      width: auto !important;
+      height: auto !important;
+    }
   }
   
   h1 a,
