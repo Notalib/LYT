@@ -48,6 +48,20 @@ do ->
         section.id = number
         numberSections section.children, number
     
+    removeMetaSections = (sections, collector) ->
+      blacklisted = (section) ->
+        (return true if section[type] is value) for value, type of LYT.config.nccDocument.metaSections
+        false
+      
+      index = sections.length
+      until --index <= -1
+        section = sections[index]
+        if blacklisted section
+          collector.unshift section
+          sections.splice index, 1
+        else
+          removeMetaSections section.children, collector
+    
     # Create an array to hold the structured data
     structure = []
     # Find all headings as a plain array
@@ -57,6 +71,11 @@ do ->
     level     = parseInt headings[0].tagName.slice(1), 10
     # Get all consecutive headings of that level
     getConsecutive headings, level, structure
+    
+    # Send meta-information to the end of the structure
+    metaSections = []
+    removeMetaSections structure, metaSections         # Extract sections
+    structure.push section for section in metaSections # Append to the end
     
     # Number sections
     numberSections structure
