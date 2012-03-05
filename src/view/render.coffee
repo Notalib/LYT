@@ -172,9 +172,9 @@ LYT.render = do ->
         img.height(vspace)
         img.width('auto')
       
-      #else if img.width() > view.width()
-      #  img.width('100%')
-      #  img.height('auto')
+      if img.width() > view.width()
+        img.width('100%')
+        img.height('auto')
       
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
