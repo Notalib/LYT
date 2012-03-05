@@ -88,9 +88,20 @@ LYT.config =
     lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
     playAttemptLimit: 10
     IOSFirstPlay : true
+  
   # ### LYT.DTBDocument config
   dtbDocument:
     # Whether to use the `forceclose=true` parameter
     useForceClose: yes # Default: yes
     # Number of attempts to make when fetching a file
     attempts:      3   # Default: 3
+  
+  # ### LYT.NCCDocument config
+  nccDocument:
+    metaSections:
+      # Note: the format is "attribute value": "attribute type"
+      "dbbintro": "class" # elements whose `class` attribute is "dbbintro"
+      "GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
+      "GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
+      "GFLAP":    "ref"   # elements whose `ID` attribute is "GFLAP"
+  
