@@ -812,14 +812,14 @@ img.nota-full {
 
 
 #book-text-content {
-  position: absolute;
-  top: 130px;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  padding: 10px;
+  margin: 0;
+  
+  p {
+    margin: 0;    
+  }
   
   img {
-    max-height: 100%;
   }
   
   h1 a,
