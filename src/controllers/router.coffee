@@ -22,6 +22,7 @@
 LYT.var =
   next: null # store nextpage 
   searchTerm: null # store last search term
+  callback: null #last callback function
 
 $(document).ready ->
   LYT.player.init() if not LYT.player.ready
