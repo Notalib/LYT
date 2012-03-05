@@ -216,7 +216,7 @@ LYT.render = do ->
             </a>"""
         
         if isPlaying item.id
-          element.append """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing">"""
+          element.append """<div class="section-now-playing"></div>"""
         
         if item.children.length > 0
           nested = jQuery "<ol></ol>"
@@ -258,6 +258,7 @@ LYT.render = do ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
+          LYT.var.callback = query
           event.preventDefault()
           event.stopImmediatePropagation()
         list.append listItem   
