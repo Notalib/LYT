@@ -10,10 +10,9 @@
 	   <h2>Del bog</h2> 
 	   <div class="text-field">
 
-	     <div data-role="fieldcontain">
-         	<label for="share-link-textarea">Del et direkte link til bogen ved at markere og herefter kopiere linket herunder:</label>
-         	<textarea cols="40" rows="8" name="share-link-textarea" id="share-link-textarea"></textarea>
-         </div>
+         	<p>Del et direkte link til bogen ved at markere og herefter kopiere linket herunder:</p>
+         	<textarea cols="40" rows="8" onclick="this.focus();this.select()" readonly="readonly" 
+         	name="share-link-textarea" id="share-link-textarea"></textarea>
 	     
 	     <hr>
 	   </div>
