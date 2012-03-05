@@ -149,8 +149,11 @@ do ->
         # Give up if nothing was created
         return null unless html?
         
+        pseudo = html.createElement "div"
+        
         # Insert the markup into the document
-        html.documentElement.innerHTML = markup
+        html.documentElement.appendChild pseudo
+        pseudo.innerHTML = markup
         
         # Wrap it with jQuery and return it
         jQuery html

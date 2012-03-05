@@ -883,6 +883,8 @@ img.nota-full {
   margin: 0;
   text-align: center;
   
+  overflow-x: scroll;
+  
   p {
     margin: 0;
     text-align: left;  
@@ -896,6 +898,10 @@ img.nota-full {
   img, .image {
     margin: 0 auto;
     text-align: center;
+    &.zoom {
+      width: auto !important;
+      height: auto !important;
+    }
   }
   
   h1 a,

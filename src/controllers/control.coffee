@@ -354,6 +354,13 @@ LYT.control =
         
   share:(type, match, ui, page, event) ->
     if type is 'pageshow'
-      alert "pick"
+      
+      if LYT.player.getCurrentlyPlaying()?
+        subject = "Link til bog på E17"
+        body = "Hør #{LYT.player.book.title} her #{LYT.player.getCurrentlyPlayingUrl()}"
+        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
+      else
+        history.back()
+        # todo: better error handling here
 
        

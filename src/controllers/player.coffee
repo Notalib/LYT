@@ -454,4 +454,22 @@ LYT.player =
     return null unless @book? and @section?
     book:    @book.id
     section: @section.id
-
+    
+  getCurrentlyPlayingUrl: (absolute=true, resolution='book') ->
+    # Returns the url of the currently playing book
+    # Accepts a resolution a string that is either 'book', 'section' or 'offset'
+    # Defaults to 'book'
+    # If absolute is true it returns the full url with domain
+    
+    return null unless @book? and @section?
+    
+    url = "#book-play?book=#{@book.id}"
+    if resolution in ['section', 'offset']
+      url = url + "&section=#{@section.id}"  
+      if resolution is 'offset' and @time?
+        url = url + "&offset=#{@time}"
+    
+    if absolute  
+      return document.baseURI + url
+    
+    return url
