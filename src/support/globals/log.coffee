@@ -13,27 +13,40 @@
   # Logging level: 3 or higher
   message: (messages...) ->
     return unless log.level > 2
-    console.log? messages...
+    if console.log?.apply?
+      console.log.apply console, messages 
+    else
+      console.log? messages
   
   # Error-checking alias for `console.error()` (falls back to `console.log`)  
   # Logging level: 1 or higher
   error: (messages...) ->
     return unless log.level > 0
     method = console.error or console.log
-    method?.apply console, messages
+    if method?.apply?
+      method.apply console, messages
+    else
+      method? messages
   
   # Error-checking alias for `console.warn()` (falls back to `console.log`)  
   # Logging level: 2 or higher
   warn: (messages...) ->
     return unless log.level > 1
     method = console.warn or console.log
-    method?.apply console, messages
+    if method?.apply?
+      method.apply console, messages
+    else
+      method? messages
   
   # Error-checking alias for `console.info()` (falls back to `console.log`)  
   # Logging level: 3 or higher
   info: (messages...) ->
     return unless log.level > 2
-    (console.info or @message).apply console, messages
+    method = (console.info or @message)
+    if method?.apply?
+      method.apply console, messages
+    else
+      method? messages
   
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
   # than `console.group()`. If neither function exists, it'll fake it with `log.message`
@@ -60,8 +73,10 @@
   errorGroup: (title = "", messages...) ->
     return unless log.level > 0
     method = console.groupCollapsed or console.group
-    if method?
-      method.call console, title
+    if console.groupCollapsed?
+      console.groupCollapsed title
+    else if console.group?
+      console.group title
     else
       @error "=== #{title} ==="
     
@@ -73,7 +88,10 @@
   # Logging level: 1 or higher
   closeGroup: ->
     return unless log.level > 0
-    (console.groupEnd or @message)?.call console, "=== *** ==="
+    if console.groupEnd?
+      console.groupEnd "=== *** ==="
+    else
+      @message "=== *** ==="
   
   # Error-checking alias for `console.trace`  
   # Logging level: 1 or higher
