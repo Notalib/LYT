@@ -120,6 +120,8 @@ LYT.render = do ->
   setStyle: ->
     log.message 'Render: setting custom style'
     $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
+    $('#book-play').css
+      'background-color': $("#book-text-content").css('background-color')
   
   bookshelf: (books, view, page) ->
     #todo: add pagination
@@ -162,25 +164,17 @@ LYT.render = do ->
     
     view.find("img").each ->
       img = $(this)
-      if img.height() > view.height()
-        img.css
-          'height': '100%'
-          'width': 'auto'
+        
+      vspace = ($(window).height() - 150)
+      log.message vspace
       
-      else if img.width() > view.width()
-        img.css
-          'width': '100%'
-          'height': 'auto'
+      if img.height() > vspace
+        img.height(vspace)
+        img.width('auto')
       
-      
-      #log.message view.height()
-      #log.message view.width()
-      #log.message $(this).height()
-      #log.message $(this).width()
-      
-      #$(this).aeImageResize
-      #  height: view.height 
-      #  width: view.width
+      if img.width() > view.width()
+        img.width('100%')
+        img.height('auto')
       
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
@@ -262,6 +256,7 @@ LYT.render = do ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
+          LYT.var.callback = query
           event.preventDefault()
           event.stopImmediatePropagation()
         list.append listItem   

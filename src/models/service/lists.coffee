@@ -10,7 +10,8 @@ LYT.lists = do ->
   list = (term = "", params = {}) ->
     [term, params] = ["", term] if arguments.length is 1
     -> LYT.catalog.search term, 1, params, 10
-  
+
+    
   [
     { id: "list_item_1", title: "Suggestions",           callback: LYT.catalog.getSuggestions }
     { id: "list_item_2", title: "Latest books",          callback: list() }
