@@ -176,7 +176,7 @@ LYT.control =
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
-      process = LYT.Book.load(params.book)
+      process = LYT.Book.load(params.book, section, offset)
         .done (book) ->        
           LYT.render.bookPlayer book, $(page)
           #no section or offset from link 
