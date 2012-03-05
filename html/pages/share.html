@@ -8,14 +8,20 @@
 	<div data-role="content" data-theme="a">
 	 <div class="ui-bar-c">
 	   <h2>Del bog</h2> 
-	   <div id="text-field">
-	     <p> Del et direkte link til bogen ved at markere og herefter kopiere linket herunder.</p>
+	   <div class="text-field">
+
+	     <div data-role="fieldcontain">
+         	<label for="share-link-textarea">Del et direkte link til bogen ved at markere og herefter kopiere linket herunder:</label>
+         	<textarea cols="40" rows="8" name="share-link-textarea" id="share-link-textarea"></textarea>
+         </div>
+	     
 	     <hr>
 	   </div>
 	   <h2>Mail link</h2>
-	   <div id="text-field">
+	   <div class="text-field">
 	     <p>Tryk på knappen herunder for at sende en mail med link til bogen.</p>
 	   </div>
+	   
 	 </div>
 	 <div data-role="fieldcontain" id="mail-button-wrapper">
 				<a id="email-bookmark" href="" rel="external" data-role="button">Del bog</a>

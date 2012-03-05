@@ -359,6 +359,9 @@ LYT.control =
         subject = "Link til bog på E17"
         body = "Hør #{LYT.player.book.title} her #{LYT.player.getCurrentlyPlayingUrl()}"
         $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
+        
+        $("#share-link-textarea").html LYT.player.getCurrentlyPlayingUrl()
+        
       else
         history.back()
         # todo: better error handling here
