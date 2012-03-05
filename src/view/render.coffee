@@ -165,7 +165,7 @@ LYT.render = do ->
     view.find("img").each ->
       img = $(this)
         
-      vspace = ($(window).height() - 150)
+      vspace = ($(window).height() - 20)
       log.message vspace
       
       if img.height() > vspace
