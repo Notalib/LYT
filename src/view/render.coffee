@@ -214,7 +214,7 @@ LYT.render = do ->
             </a>"""
         
         if isPlaying item.id
-          element.append """<img src="/images/icons/nowplaying.png" alt="" class="book-now-playing">"""
+          element.append """<div class="section-now-playing"></div>"""
         
         if item.children.length > 0
           nested = jQuery "<ol></ol>"
