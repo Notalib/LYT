@@ -120,6 +120,8 @@ LYT.render = do ->
   setStyle: ->
     log.message 'Render: setting custom style'
     $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
+    $('#book-play').css
+      'background-color': $("#book-text-content").css('background-color')
   
   bookshelf: (books, view, page) ->
     #todo: add pagination
@@ -156,6 +158,24 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
   
+  textContent: (media) ->
+    view = $("#book-text-content")
+    view.html media.html
+    
+    view.find("img").each ->
+      img = $(this)
+        
+      vspace = ($(window).height() - 150)
+      log.message vspace
+      
+      if img.height() > vspace
+        img.height(vspace)
+        img.width('auto')
+      
+      if img.width() > view.width()
+        img.width('100%')
+        img.height('auto')
+      
   bookDetails: (details, view) -> 
     $("#details-book-title").text details.title
     $("#details-book-author").text details.author
@@ -251,8 +271,7 @@ LYT.render = do ->
         callback query.callback()
         event.preventDefault()
         event.stopImmediatePropagation()
-    list.listview('refresh')    
-
+    list.listview('refresh')
 
     
     

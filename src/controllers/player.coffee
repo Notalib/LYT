@@ -342,9 +342,7 @@ LYT.player =
   
   renderTranscript: () ->
     if @media?
-      jQuery("#book-text-content").html @media.html
-      # TODO: Possibly add "onload" handlers to images in the HTML
-      # and pause the playback until they're all there?
+      LYT.render.textContent(@media)
       return
     
     # If there's no media, show nothing

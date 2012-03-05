@@ -73,11 +73,11 @@
    }
 
 .ui-page {
-	background: #b5d6f1 url(../images/bg_pattern_blue_2.png) repeat;
+  background: #b5d6f1 url(../images/bg_pattern_blue.png) repeat;
 }
 
 #login, #settings, #profile {
-	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue_2.png) repeat;}
+	&.ui-page{background: #c0c0c0 url(../images/bg_pattern_blue.png) repeat;}
 }
 
 .ui-content {
@@ -288,6 +288,38 @@
     }
   }
 
+/* Share page */
+#share {
+  .ui-content {
+  max-width: 500px;
+  padding: 10px;
+  text-shadow: none;
+  margin: 0 auto;
+  }
+ .ui-bar-c {
+  border: 2px solid #fff;
+  background-color: #ebebeb;
+  font-size: 13px;
+  text-shadow: none;
+  padding: 0 8px;
+  }
+  
+  h2 {
+    color: #636363;
+    font-weight: 500;
+    font-size: 18px;
+  }
+  
+  #text-field {
+    font-style: normal;
+    .ui-link {
+    color: black;
+    }
+  }
+}
+
+
+
 /* Settings page */
 #settings {
   .ui-content {
@@ -400,10 +432,24 @@
     }
   }
   
+.videowrapper {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	padding-top: 25px;
+	height: 0;
+}
+.videowrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+  
   hr {
     margin: 8px 0;
     padding: 0;
-    border-top: 1px solid #4c95d1;
+    border-top: 1px solid #636363;
     background: #fff; 
     height: 1px;
     border-width: 1px 0 0 0;
@@ -812,13 +858,25 @@ img.nota-full {
 
 
 #book-text-content {
-  min-height: 500px;
-  img {
-    max-width: 100%;
-    max-height: 100%;
-    margin: -10px;
+  padding: 10px;
+  margin: 0;
+  text-align: center;
+  
+  p {
+    margin: 0;
+    text-align: left;  
   }
-
+  
+  h1, h2, h3 {
+    text-align: left;
+  }
+  
+  
+  img, .image {
+    margin: 0 auto;
+    text-align: center;
+  }
+  
   h1 a,
   h2 a {
     text-decoration: none;
@@ -1057,7 +1115,3 @@ img.nota-full {
     background-size: 25px 25px;
     }
 }
-
-
-
-
