@@ -233,6 +233,13 @@ LYT.render = do ->
     mapper(list, book.nccDocument.structure)
     
     list.listview('refresh')
+
+  search:(page)->
+    $("#listshow-btn").click (event) ->
+      LYT.var.callback = null
+      content = $(page).children(":jqmData(role=content)")
+      @catalogLists handleResults, content
+
   
   
   searchResults: (results, view) ->
@@ -258,7 +265,7 @@ LYT.render = do ->
         listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
-          LYT.var.callback = query
+          LYT.var.callback = true
           event.preventDefault()
           event.stopImmediatePropagation()
         list.append listItem   

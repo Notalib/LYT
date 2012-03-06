@@ -245,6 +245,13 @@ LYT.control =
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
+      $("#listshow-btn").click (event) ->
+        LYT.var.callback = null
+        content = $(page).children(":jqmData(role=content)")
+        LYT.render.catalogLists handleResults, content
+        $('#listshow-btn').hide()
+        $('#more-search-results').hide()
+        
       handleResults = (process) ->
         LYT.loader.register "Searching", process
         process.done (results) ->
@@ -253,7 +260,10 @@ LYT.control =
             handleResults results.loadNextPage() if results.loadNextPage?
             event.preventDefault()
             event.stopImmediatePropagation()
+          
           LYT.render.searchResults results, content
+          $('#listshow-btn').show()
+          $('#more-search-results').show()
          
       if match?[1]
         params = LYT.router.getParams match[1]
