@@ -253,7 +253,6 @@ LYT.control =
             handleResults results.loadNextPage() if results.loadNextPage?
             event.preventDefault()
             event.stopImmediatePropagation()
-          
           LYT.render.searchResults results, content
          
       if match?[1]
@@ -298,7 +297,9 @@ LYT.control =
       else if LYT.var.callback?
         
       else
-        # TODO: Simple, rough implementation
+        # TODO: Simple, rough implementation - show lists....
+        $('#listshow-btn').hide()
+        $('#more-search-results').hide()
         LYT.render.catalogLists handleResults, content
 
         
