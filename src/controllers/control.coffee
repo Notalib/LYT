@@ -251,7 +251,7 @@ LYT.control =
         LYT.render.catalogLists handleResults, content
         $('#listshow-btn').hide()
         $('#more-search-results').hide()
-        
+
       handleResults = (process) ->
         LYT.loader.register "Searching", process
         process.done (results) ->
@@ -381,4 +381,5 @@ LYT.control =
         history.back()
         # todo: better error handling here
 
-       
+  anbefal: (type)->
+    $.mobile.changePage("#search?list=anbe")

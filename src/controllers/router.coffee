@@ -63,6 +63,10 @@ $(document).bind "mobileinit", ->
     "#bookshelf":
       handler: "bookshelf"
       events: "s"
+    "#anbe":
+      handler: "anbefal"
+      events: "bc"
+
 
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
  
