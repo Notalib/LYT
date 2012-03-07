@@ -366,19 +366,28 @@ LYT.control =
   share:(type, match, ui, page, event) ->
     if type is 'pageshow'
       
-      if LYT.player.getCurrentlyPlaying()?
+      if LYT.player.getCurrentlyPlaying()?#if no book and no section
         subject = "Link til bog på E17"
-        body = "Hør #{LYT.player.book.title} her #{LYT.player.getCurrentlyPlayingUrl()}"
-        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
+        if LYT.player.isIOS()#nice html... 
+          body = "Hør #{LYT.player.book.title} ved at følge dette link: <a href='#{LYT.player.getCurrentlyPlayingUrl(true,'offset')}'>#{LYT.player.book.title}</a>"
+        else
+          body = "Hør #{LYT.player.book.title} ved at følge dette link: #{LYT.player.getCurrentlyPlayingUrl(true,'offset')}"
+          # body...
         
-        $("#share-link-textarea").html LYT.player.getCurrentlyPlayingUrl()
+        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
+        
+        $("#share-link-textarea").text LYT.player.getCurrentlyPlayingUrl(true,'offset')
         $("#share-link-textarea").click -> 
-          $(this).focus()
-          $(this).select()
-          $(this).setSelectionRange(0, 9999)
+          this.focus()
+          if LYT.player.isIOS()
+            this.selectionStart=0;
+            this.selectionEnd= this.value.length;
+          else
+            this.select()  
+          
         
       else
-        history.back()
+        history.back() #back to last page....
         # todo: better error handling here
 
   anbefal: (type)->

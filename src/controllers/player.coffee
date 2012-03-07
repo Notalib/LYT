@@ -469,7 +469,10 @@ LYT.player =
       if resolution is 'offset' and @time?
         url = url + "&offset=#{@time}"
     
-    if absolute  
-      return document.baseURI + url
+    if absolute
+      if document.baseURI?
+        return document.baseURI + url
+      else
+        return window.location.hostname+'/'+ url 
     
     return url

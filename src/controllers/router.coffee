@@ -63,7 +63,7 @@ $(document).bind "mobileinit", ->
     "#bookshelf":
       handler: "bookshelf"
       events: "s"
-    "#anbe":
+    "#anbefalinger":
       handler: "anbefal"
       events: "bc"
 
