@@ -165,11 +165,10 @@ do ->
         
         # Wrap it with jQuery and return it
         
-        $(html).find('head').append($(html).find('meta'))
-        $(html).find("meta[http-equiv='content-type']").attr('content','application/xhtml+xml; charset=UTF-8')
+        #$(html).find('head').append($(html).find('meta'))
+        #$(html).find("meta[http-equiv='content-type']").attr('content','application/xhtml+xml; charset=ISO-8859-1')
 
-       #log.message $(html).find("meta[http-equiv='content-type']")
-        #log.message $(html).find('head')
+     
         
         jQuery html
       
@@ -183,6 +182,7 @@ do ->
         # it shouldn't be necessary...
         if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
           @source = coerceToHTML jqXHR.responseText
+          
         else
           @source = jQuery document
         
@@ -245,7 +245,7 @@ do ->
         request = jQuery.ajax {
           url:      url
           beforeSend: (xhr)->
-            #xhr.overrideMimeType("text/html;charset=utf-8");#this is what you recive...
+            #xhr.overrideMimeType("text/html; charset=ISO-8859-1");#this is what you recive...
           
           #contentType: "text/xml; charset=utf-8"#this is the charset, and content type you sent to the server...
           dataType: dataType # TODO: It should be fine to just put "xml" here... but it ain't

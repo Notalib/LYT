@@ -44,7 +44,7 @@ LYT.render = do ->
     return element
   
   getCoverSrc = (id) ->
-    "http://www.e17.dk/sites/default/files/bookcovercache/#{id}_h80.jpg"
+    "http://bookcover.e17.dk/#{id}_h80.jpg"
   
   loadCover = (img, id) ->
     img.attr "src", defaultCover
@@ -233,14 +233,7 @@ LYT.render = do ->
     mapper(list, book.nccDocument.structure)
     
     list.listview('refresh')
-
-  search:(page)->
-    $("#listshow-btn").click (event) ->
-      LYT.var.callback = null
-      content = $(page).children(":jqmData(role=content)")
-      @catalogLists handleResults, content
-
-  
+ 
   
   searchResults: (results, view) ->
     list = view.find "ul"
@@ -253,6 +246,7 @@ LYT.render = do ->
     else
       $("#more-search-results").hide()
     
+    $('#listshow-btn').show()#show button list 
     list.listview('refresh')
   
   # TODO: Simple, rough implementation
@@ -270,6 +264,7 @@ LYT.render = do ->
           event.stopImmediatePropagation()
         list.append listItem   
     list.listview('refresh')
+    
   
   catalogListsDirectlink: (callback, view, param) ->
     list = view.find "ul"
