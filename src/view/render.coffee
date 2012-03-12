@@ -246,6 +246,7 @@ LYT.render = do ->
     else
       $("#more-search-results").hide()
     
+    $('#listshow-btn').show()#show button list 
     list.listview('refresh')
   
   # TODO: Simple, rough implementation
@@ -263,6 +264,7 @@ LYT.render = do ->
           event.stopImmediatePropagation()
         list.append listItem   
     list.listview('refresh')
+    
   
   catalogListsDirectlink: (callback, view, param) ->
     list = view.find "ul"
