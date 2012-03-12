@@ -262,6 +262,7 @@ LYT.control =
             event.stopImmediatePropagation()
           
           LYT.render.searchResults results, content
+          log.message content 
           $('#listshow-btn').show()
           $('#more-search-results').show()
          
