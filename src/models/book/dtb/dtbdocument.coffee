@@ -66,7 +66,10 @@ do ->
   
   createHTMLDocument = do ->
     if typeof document.implementation?.createHTMLDocument is "function"
-      return -> document.implementation.createHTMLDocument ""
+      return ->
+        doc = document.implementation.createHTMLDocument ""
+        doc.characterSet="utf-8";
+        return doc
     
     # Firefox does not support `document.implementation.createHTMLDocument()`  
     # The following work-around is adapted from [this gist](http://gist.github.com/49453)
@@ -82,6 +85,7 @@ do ->
           """</xsl:stylesheet>"""
         ].join("")
         doc = document.implementation.createDocument "", "foo", null
+        doc.characterSet="utf-8";
         range = doc.createRange()
         range.selectNodeContents doc.documentElement
         
@@ -98,7 +102,9 @@ do ->
     else if typeof document.implementation?.createDocumentType is "function"
       doctype = document.implementation.createDocumentType "HTML", "-//W3C//DTD HTML 4.01//EN", "http://www.w3.org/TR/html4/strict.dtd"
       return ->
-        document.implementation.createDocument "", "HTML", doctype
+        doc = document.implementation.createDocument "", "HTML", doctype
+        doc.characterSet="utf-8";
+        return doc
     
     else
       null
@@ -146,16 +152,25 @@ do ->
         # Create the DOM document
         html = createHTMLDocument()
         
+        
         # Give up if nothing was created
         return null unless html?
         
         pseudo = html.createElement "div"
         
-        # Insert the markup into the document
-        html.documentElement.appendChild pseudo
+        # Insert the markup into the document 
         pseudo.innerHTML = markup
+        html.documentElement.getElementsByTagName('body')?[0].appendChild pseudo
+        
         
         # Wrap it with jQuery and return it
+        
+        $(html).find('head').append($(html).find('meta'))
+        $(html).find("meta[http-equiv='content-type']").attr('content','application/xhtml+xml; charset=UTF-8')
+
+       #log.message $(html).find("meta[http-equiv='content-type']")
+        #log.message $(html).find('head')
+        
         jQuery html
       
       
@@ -170,6 +185,7 @@ do ->
           @source = coerceToHTML jqXHR.responseText
         else
           @source = jQuery document
+        
         resolve()
       
       
@@ -228,6 +244,10 @@ do ->
         log.message "DTB: Getting: #{@url} (#{attempts} attempts left) #{forceCloseMsg}"
         request = jQuery.ajax {
           url:      url
+          beforeSend: (xhr)->
+            #xhr.overrideMimeType("text/html;charset=utf-8");#this is what you recive...
+          
+          #contentType: "text/xml; charset=utf-8"#this is the charset, and content type you sent to the server...
           dataType: dataType # TODO: It should be fine to just put "xml" here... but it ain't
           async:    yes
           cache:    yes

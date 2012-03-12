@@ -387,8 +387,8 @@ LYT.control =
           
         
       else
-        history.back() #back to last page....
-        # todo: better error handling here
+        $.mobile.changePage("#bookshelf") #no book go to bookshelf
+        
 
   anbefal: (type)->
     $.mobile.changePage("#search?list=anbe")
