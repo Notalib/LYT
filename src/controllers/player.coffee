@@ -22,7 +22,7 @@ LYT.player =
   playlist: null # reference to an instance of LYT.Playlist
   nextButton: null
   previousButton: null
-  playIntentOffset: null
+  playIntentOffset: 0
   playIntentFlag: false
   
   autoProgression: true 
@@ -34,10 +34,10 @@ LYT.player =
   _iBug: false
   
   playAttemptCount: 0
-  gotDuration : false
+  gotDuration : null
   
   
-  lastBookmark: null
+  lastBookmark: (new Date).getTime()
   
   init: ->
     log.message 'Player: starting initialization'
@@ -134,9 +134,9 @@ LYT.player =
 
       loadedmetadata: (event) =>
         log.message 'Player: loaded metadata'
-        
         if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
+          @gotDuration = false
           if(@getStatus().src == @media.audio && @playAttemptCount <= LYT.config.player.playAttemptLimit )
             @el.jPlayer "setMedia", {mp3: @media.audio}
             @el.jPlayer "load"
@@ -165,7 +165,8 @@ LYT.player =
           else
             @playOnIntent()
             LYT.loader.close('metadata')
-            
+        if(!@gotDuration?)
+          LYT.loader.close('metadata')#windows phone 7
 
       
       canplaythrough: (event) =>
@@ -192,7 +193,7 @@ LYT.player =
         #@playOnIntent()
       
       progress: (event) =>
-        log.message 'Player: event progress'
+        #log.message 'Player: event progress'
         #LYT.loader.close('metadata')
         #@playOnIntent()
       
@@ -308,9 +309,6 @@ LYT.player =
     #if time is not ""
       #@pause(time)
     
-    log.message "  her er time" + time
-    log.message "  her er setIntent" + setIntent
-
     if setIntent
       log.message 'Player: play intent flag set'
       @playIntentFlag = true
@@ -430,7 +428,6 @@ LYT.player =
     #else
     @playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
   
-  previousSection: (autoPlay = false) ->
     return null unless @playlist?.hasPreviousSection()
     section = @playlist.getPreviousSection()
     
@@ -444,8 +441,9 @@ LYT.player =
     now = (new Date).getTime()
     interval = LYT.config.player?.lastmarkUpdateInterval or 10000
     return unless force or not @lastBookmark or now-@lastBookmark > interval
-    if @getStatus().currentTime is 0
+    if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
       return
+    log.message "bookmark from " +  @playIntentOffset
     log.message "bookmark" + @getStatus().currentTime
     @book.setLastmark @section.id, @getStatus().currentTime
     @lastBookmark = now
