@@ -161,6 +161,8 @@ LYT.render = do ->
   textContent: (media) ->
     view = $("#book-text-content")
     view.html media.html
+    if(LYT.player.isIOS() or $.jPlayer.platform.android?)
+      view.css('overflow-x','scroll')
     
     view.find("img").each ->
       img = $(this)
@@ -264,7 +266,7 @@ LYT.render = do ->
           event.stopImmediatePropagation()
         list.append listItem   
     list.listview('refresh')
-    
+
   
   catalogListsDirectlink: (callback, view, param) ->
     list = view.find "ul"
