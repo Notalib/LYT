@@ -157,6 +157,11 @@ LYT.render = do ->
     $("#player-book-author").text book.author
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
+
+
+  bookEnd: () ->
+    view = $("#book-text-content")
+    view.html "Her slutter bogen"
   
   textContent: (media) ->
     view = $("#book-text-content")

@@ -419,7 +419,9 @@ LYT.player =
   
   nextSection: (autoPlay = false) ->
     #@playlist.
-    
+    if @playlist?.hasNextSection() is false
+      LYT.render.bookEnd()
+
     return null unless @playlist?.hasNextSection()
     section = @playlist.getNextSection()
     
@@ -443,8 +445,6 @@ LYT.player =
     return unless force or not @lastBookmark or now-@lastBookmark > interval
     if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
       return
-    log.message "bookmark from " +  @playIntentOffset
-    log.message "bookmark" + @getStatus().currentTime
     @book.setLastmark @section.id, @getStatus().currentTime
     @lastBookmark = now
   
