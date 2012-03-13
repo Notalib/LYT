@@ -391,6 +391,7 @@
   font-size: 13px;
   text-shadow: none;
   padding: 0 8px;
+  padding-bottom: 8px;
   }
   
   h2 {
@@ -428,6 +429,7 @@
   font-size: 13px;
   text-shadow: none;
   padding: 0 8px;
+  padding-bottom: 8px;
   }
   
   h2 {
@@ -951,9 +953,9 @@ img.nota-full {
     height: 18px;
     width: 18px;
     position: absolute;
-    right: 50px;
+    right: 60px;
     top:20px;
-    left: auto;
+    /*left: auto;*/
     background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
   }
 
