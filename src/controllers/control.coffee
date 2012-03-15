@@ -245,7 +245,7 @@ LYT.control =
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
-
+      #LYT.google.GetAutoCompleteURL("hary")
 
       $("#listshow-btn").click (event) ->
         LYT.var.callback = null
@@ -286,6 +286,7 @@ LYT.control =
       content = $(page).children( ":jqmData(role=content)" )
 
       LYT.catalog.attachAutocomplete $('#searchterm')
+      # selecting the item from the autocompleteselect list....
       $("#searchterm").bind "autocompleteselect", (event, ui) ->
         handleResults LYT.catalog.search(ui.item.value)
         $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"

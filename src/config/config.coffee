@@ -50,6 +50,13 @@ LYT.config =
   bookshelf:
     # Number of books to load per page
     pageSize: 5 # default: 5
+
+  #
+  google:
+    # Autocomplete options
+    autocomplete:
+      # The URL to request results from
+      url: "http://suggestqueries.google.com/complete/search?output=firefox&client=firefox&hl=dk&q="
   
   # ### LYT.catalog config
   catalog:
