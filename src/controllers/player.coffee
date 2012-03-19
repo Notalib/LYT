@@ -431,7 +431,7 @@ LYT.player =
     #else
     @playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
 
-  PreviousSection:(autoPlay = false) ->
+  previousSection:(autoPlay = false) ->
 
     return null unless @playlist?.hasPreviousSection()
     section = @playlist.getPreviousSection()

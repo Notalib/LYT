@@ -245,7 +245,7 @@ LYT.control =
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      #LYT.google.GetAutoCompleteURL("hary")
+      
 
       $("#listshow-btn").click (event) ->
         LYT.var.callback = null
@@ -318,7 +318,7 @@ LYT.control =
         
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
-        
+        LYT.google.DoAutoComplete($('#searchterm').val())
         term = encodeURI $('#searchterm').val()
         handleResults LYT.catalog.search($('#searchterm').val())
         $.mobile.changePage "#search?term=#{term}" , transition: "none"
