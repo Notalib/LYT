@@ -42,6 +42,17 @@ LYT.render = do ->
     loadCover element.find("img.cover-image"), book.id
     
     return element
+
+  didYouMeanItem = (item) ->
+    element = jQuery """
+    <li>
+      <a href="" class="">
+        <h3>#{item or "&nbsp;"}</h3>
+      </a>
+    </li>
+    """
+    return element
+
   
   getCoverSrc = (id) ->
     "http://bookcover.e17.dk/#{id}_h80.jpg"
@@ -157,10 +168,17 @@ LYT.render = do ->
     $("#player-book-author").text book.author
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
+
+
+  bookEnd: () ->
+    view = $("#book-text-content")
+    view.html "Her slutter bogen"
   
   textContent: (media) ->
     view = $("#book-text-content")
     view.html media.html
+    if(LYT.player.isIOS() or $.jPlayer.platform.android?)
+      view.css('overflow-x','scroll')
     
     view.find("img").each ->
       img = $(this)
@@ -264,18 +282,35 @@ LYT.render = do ->
           event.stopImmediatePropagation()
         list.append listItem   
     list.listview('refresh')
-    
+
   
   catalogListsDirectlink: (callback, view, param) ->
     list = view.find "ul"
     list.empty()
-
+    
     for query in LYT.lists
       if query.id is param
         callback query.callback()
         event.preventDefault()
         event.stopImmediatePropagation()
     list.listview('refresh')
+
+  showDidYouMean: (results, view) ->
+    list = view.find "ul"
+    list.empty()
+
+    list.append jQuery """<li data-role="list-divider" role="heading">Mente du?</li>"""
+
+
+    for item in results
+      listItem = didYouMeanItem(item)
+      listItem.find("a").click (event) ->
+        $.mobile.changePage "#search?term=#{encodeURI item}" , transition: "none"
+      list.append listItem  
+
+      
+    $('#listshow-btn').show()#show button list 
+    list.listview('refresh')  
 
     
   profile: () ->
