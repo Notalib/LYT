@@ -318,11 +318,16 @@ LYT.control =
         
       $("#search-form").submit (event) ->
         $('#searchterm').blur()
-        LYT.google.DoAutoComplete($('#searchterm').val())
+        #autoGoogle = LYT.google.DoAutoComplete($('#searchterm').val())
+          #.done (jsonResults)->
+            #LYT.render.showDidYouMean jsonResults, content
+
+          #.fail ->
+            
         term = encodeURI $('#searchterm').val()
         handleResults LYT.catalog.search($('#searchterm').val())
         $.mobile.changePage "#search?term=#{term}" , transition: "none"
-        
+            
         event.preventDefault()
         event.stopImmediatePropagation()
       

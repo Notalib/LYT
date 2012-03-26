@@ -95,8 +95,8 @@ $(document).bind "mobileinit", ->
 #Lyt service error handling (events)    
   
   $(LYT.service).bind "error:rpc", () ->
-    alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
+    #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
     #todo: apologize on behalf of the server
   $(LYT.service).bind "error:service", () ->
-    alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
+    #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
   

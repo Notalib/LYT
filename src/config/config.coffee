@@ -56,7 +56,7 @@ LYT.config =
     # Autocomplete options
     autocomplete:
       # The URL to request results from
-      url: "http://suggestqueries.google.com/complete/search?output=firefox&client=firefox&hl=dk&q="
+      url: "http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q="
   
   # ### LYT.catalog config
   catalog:

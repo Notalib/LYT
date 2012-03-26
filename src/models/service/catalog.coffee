@@ -215,7 +215,27 @@ LYT.catalog = do ->
         deferred.reject()
     
     deferred.promise()
-  
+  # Get autocomplete surgestions...direct...
+  getAutoComplete = (term) ->
+    deferred = jQuery.Deferred()
+
+    data = term: String(term)
+    url = LYT.config.catalog.autocomplete.url
+
+    options = getAjaxOptions url, data
+
+    jQuery.ajax(options)
+      .done (data) ->
+        results = data.d or []
+        deferred.resolve results
+        
+      .fail ->
+        deferred.reject()
+
+
+    deferred.promise()
+
+
   
   getDetails = (bookId) ->
     deferred = jQuery.Deferred()
@@ -253,4 +273,5 @@ LYT.catalog = do ->
   getAutocompleteOptions: getAutocompleteOptions
   getSuggestions:         getSuggestions
   getDetails:             getDetails
+  getAutoComplete:        getAutoComplete
 
