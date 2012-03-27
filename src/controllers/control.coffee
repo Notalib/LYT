@@ -345,7 +345,8 @@ LYT.control =
             $(this).attr("checked", true).checkboxradio("refresh");
         when 'marking-color'
           colors = val.split(';')
-          if style['background-color'] is colors[0] and style['color'] is colors[1]
+          if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
+            #log.message 'her'
             $(this).attr("checked", true).checkboxradio("refresh");
             
     $("#style-settings input").change (event) ->

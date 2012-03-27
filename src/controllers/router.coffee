@@ -82,6 +82,13 @@ $(document).bind "mobileinit", ->
     
     $.mobile.changePage "#login"
 
+ #logon rejected from  LYT.session....  
+  $(LYT.session).bind "logon:rejected", () ->
+    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+    unless LYT.var.next is "#login" 
+      $.mobile.changePage "#login"   
+
+
 #logon rejected from  LYT.catalog....
 
   $(LYT.catalog).bind "logon:rejected", () ->

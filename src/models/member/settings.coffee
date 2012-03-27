@@ -14,10 +14,10 @@ LYT.settings = do ->
     readSpeed:        "1.0"
     textMode:         1
     textStyle:
-      'font-size':        "14px"
-      'background-color': "transparent"
+      'font-size':        "16px"
+      'background-color': "#fff"
       'color':            "#000000"
-      'font-family':      "Georgia, sans-serif"
+      'font-family':      "Helvetica, sans-serif"
     # phrasemode: 1
     # All text:   2
   
