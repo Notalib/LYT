@@ -416,7 +416,17 @@
     height: 1px;
     border-width: 1px 0 0 0;
     }
+ #nota-logo {
+  background: transparent url(../images/nota-logo.png) no-repeat;
+  background-position: left;
+  margin-left: 8px;
+  max-width: 500px;
+  height: 67px;
+  }
 
+  #mail-button-wrapper {
+      @include action-button(#8cbbe2, a);
+    }
 }
 
 /* Support page */
@@ -442,7 +452,7 @@
     font-size: 18px;
   }
   
-  #text-field {
+  .text-field {
     font-style: normal;
     .ui-link {
     color: black;
@@ -1136,6 +1146,12 @@ img.nota-full {
     background-image: url(../images/icons/empty_bookshelf_hires.png);
     background-size: 240px 40px;
   }
+  
+    #nota-logo {
+    background-image: url(../images/nota-logo-hires.png);
+    background-size: 200px 67px;
+  }  
+
     #list_item_1 {
     background-image: url(../images/icons/recommend_icn_50.png);
     background-size: 25px 25px;
