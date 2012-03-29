@@ -945,9 +945,17 @@ img.nota-full {
       text-shadow: 0 -1px 0 #000;
     }
   }    
+  
   .ui-btn {
     border:solid 2px #636363;
     }
+}
+
+.ui-simpledialog-controls {
+  .ui-btn-inner {
+  background-color: #8cbbe2;
+  }
+  
 }
 
 /* Custom Icons */
