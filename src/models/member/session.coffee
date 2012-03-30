@@ -25,7 +25,8 @@ LYT.session = do ->
   getCredentials: ->
     credentials or= LYT.cache.read "session", "credentials"
     if credentials is null
-      emit "logon:rejected" #emiting a logon event from service...
+      #emit "logon:rejected" #emiting a logon event from service...kun hvis ikke gæst..hmmm
+      return credentials
     else
       return credentials
 

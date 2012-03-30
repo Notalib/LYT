@@ -374,7 +374,7 @@ LYT.control =
         
   share:(type, match, ui, page, event) ->
     if type is 'pageshow'
-      
+      #log.message LYT.player.book
       if LYT.player.getCurrentlyPlaying()?#if no book and no section
         subject = "Link til bog på E17"
         if LYT.player.isIOS()#nice html... 
