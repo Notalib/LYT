@@ -216,7 +216,7 @@ LYT.player =
                     ,
                     theme: "c"
                   ,
-                  'Anuller': 
+                  'Annuller': 
                     click: (event) ->
                       $.mobile.changePage "#bookshelf"
                     ,

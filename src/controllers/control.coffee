@@ -223,7 +223,7 @@ LYT.control =
                     icon: "refresh",
                     theme: "c"
                   ,
-                  'Anuller': 
+                  'Annuller': 
                     click: (event) ->
                       $.mobile.changePage "#bookshelf"
                     icon: "delete",
