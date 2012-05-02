@@ -144,7 +144,6 @@ LYT.control =
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
 
-    
       
       params = LYT.router.getParams(match[1])
       section = params.section or null
@@ -152,9 +151,14 @@ LYT.control =
       guest = params.guest or null
       autoplay = params.autoplay or false
 
+      # okay, not logged in and not guest -> #login
+      if LYT.session.getCredentials() is null and guest is null
+        return $.mobile.changePage "#login"
+
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-         return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
+           .done ->
+             return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
         
       
       # if book and section is the same as what is currently playing don't do anything new here
@@ -401,3 +405,8 @@ LYT.control =
 
   anbefal: (type)->
     $.mobile.changePage("#search?list=anbe")
+
+  guest: (type)->
+    process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
+      .done ->
+        return $.mobile.changePage("#bookshelf")

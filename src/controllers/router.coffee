@@ -65,7 +65,10 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#anbefalinger":
       handler: "anbefal"
-      events: "bc"
+      events: "bc,bs"
+    "#guest":
+      handler: "guest"
+      events: "bc,bs"
 
 
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
@@ -79,7 +82,6 @@ $(document).bind "mobileinit", ->
 
   $(LYT.service).bind "logoff", ->
     LYT.player.clear()
-    
     $.mobile.changePage "#login"
 
  #logon rejected from  LYT.session....  
