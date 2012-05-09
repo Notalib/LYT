@@ -221,7 +221,8 @@ $(document).bind("mobileinit",function(){
 					}
 					if (handleFn){
 						try { handleFn(e.type,res,ui,page); bHandled = true;
-						}catch(err){ debug(err); }
+						}catch(err){ debug("each" + err); }//debug("in each" + err +" handle " + handleFn ); }
+						 //handel broken handlers
 					}
 				}
 			});
@@ -230,7 +231,7 @@ $(document).bind("mobileinit",function(){
 				if (typeof(this.conf.defaultHandler) == "function") {
 					try {
 						this.conf.defaultHandler(e.type, ui, page);
-					} catch(err) { debug(err); }
+					} catch(err) { debug("default" + err); }
 				}
 			}
 		},

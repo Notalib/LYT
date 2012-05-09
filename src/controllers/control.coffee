@@ -129,6 +129,19 @@ LYT.control =
       LYT.loader.register "Loading book", process
   
   bookIndex: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
+      
+      params = LYT.router.getParams(match[1])
+      content = $(page).children( ":jqmData(role=content)" )
+      
+      #log.message ui.prevPage[0]?.id
+
+      if ui.prevPage[0]?.id is 'book-play'
+        LYT.render.ClearIndex(content)
+        #log.message 'clear-index'
+
+
     if type is 'pageshow'
       return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
       
@@ -151,9 +164,8 @@ LYT.control =
       guest = params.guest or null
       autoplay = params.autoplay or false
 
-      # okay, not logged in and not guest -> #login
-      if LYT.session.getCredentials() is null and guest is null
-        return $.mobile.changePage "#login"
+      if guest is null and LYT.session.getCredentials() is null and LYT.var.next? #logged off
+         window.location.reload()
 
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
@@ -163,8 +175,8 @@ LYT.control =
       
       # if book and section is the same as what is currently playing don't do anything new here
       if LYT.player.book?    
-        if LYT.player.book.id is params.book
-          # this book is already playing maybe we should not change anything
+        if LYT.player.book.id is params.book and LYT.session.getCredentials() isnt null
+          # this book is already playing maybe we should not change anything unless logedoff
           if not section? or not LYT.player.section?
             # section is either not defined in url or in book 
             return

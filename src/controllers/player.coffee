@@ -324,13 +324,13 @@ LYT.player =
     return unless @book?
     
     @time = status.currentTime
-    if(LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
+    if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
       @updateLastMark()
     return if @media? and @media.start <= @time < @media.end
     @media = @section.mediaAtOffset @time
     
     if @media and not @getStatus()?.paused
-      if(LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
+      if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
         @updateLastMark()
     
     log.warn "Player: failed to get media segment for offset #{@time}" unless @media?

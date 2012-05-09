@@ -8,9 +8,9 @@
 # This module serves as a router to the rest of the application and contains url entrypoints and event listeners
 
 
-#     bc  => pagebeforecreate
-#     c   => pagecreate
-#     i   => pageinit
+#     bc  => pagebeforecreate 1 time event
+#     c   => pagecreate 1 time event
+#     i   => pageinit     
 #     bs  => pagebeforeshow
 #     s   => pageshow
 #     bh  => pagebeforehide
@@ -38,7 +38,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#book-index([?].*)?":
       handler: "bookIndex"
-      events: "s"
+      events: "bs,s"
     "#settings":
       handler: "settings"
       events: "s"
@@ -65,10 +65,10 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#anbefalinger":
       handler: "anbefal"
-      events: "bc,bs"
+      events: "s"
     "#guest":
       handler: "guest"
-      events: "bc,bs"
+      events: "s"
 
 
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
