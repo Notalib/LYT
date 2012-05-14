@@ -69,7 +69,6 @@ LYT.cache = do =>
       type:      typeof data
       data:      data
       timestamp: getTimestamp()
-    
     success = false
     until success
       try

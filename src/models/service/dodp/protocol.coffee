@@ -101,13 +101,15 @@ LYT.protocol =
     request: (username, password) ->
       username: username
       password: password
-    
-    receive: ($xml, data) ->
+    #$xml, data, status, xhr
+    receive: ($xml, data, status, xhr) ->
       throw "logOnFailed" unless $xml.find("logOnResult").text() is "true"
       # Note: Can't use the `"Envelope > Header"` syntax for some reason
       # but `find("Envelope").find("Header")` works...
-      # It's probably because Sizzle has a proble with the XML namespacing
-      header = $xml.find("Envelope").find("Header").first()
+      # It's probably because Sizzle has a proble with the XML namespacing...and IE and firefox...so use ->$xml.find("s\\:Envelope, Envelope").find("s\\:Header, Header").first()
+      #header = $xml.find("Envelope").find("Header").first()(old code)
+      header = $xml.find("s\\:Envelope, Envelope").find("s\\:Header, Header").first()
+
       return {} unless header.length is 1
       data = {}
       header.children().each ->
