@@ -193,7 +193,8 @@ LYT.control =
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
       process = LYT.Book.load(params.book, section, offset)
-        .done (book) ->        
+        .done (book) -> 
+          
           LYT.render.bookPlayer book, $(page)
           #no section or offset from link 
           if not section and offset is 0 and book.lastmark?
