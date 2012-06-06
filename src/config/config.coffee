@@ -12,7 +12,7 @@
 #     3 = Errors, warnings, and messages (default)
 #
 # FIXME: Quick hack to lessen the logging on mobile devices
-log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 2 else 3
+log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 3 else 3
 
 # ## Central system configuration
 LYT.config =
@@ -108,16 +108,16 @@ LYT.config =
     metaSections:
       # Note: the format is "attribute value": "attribute type"
       "dbbintro":        "class" # elements whose `class` attribute is "dbbintro"
-      "dbbcopyright":    "class" # elements whose `class` attribute is "dbbcopyright"
-      "rearcover":       "class" # elements whose `class` attribute is "rearcover"
-      "summary":         "class" # elements whose `class` attribute is "summary"
-      "rightflap":       "class" # elements whose `class` attribute is "rightflap"
-      "leftflap":        "class" # elements whose `class` attribute is "leftflap"
-      "extract":         "class" # elements whose `class` attribute is "extract"
-      "authorbiography": "class" # elements whose `class` attribute is "authorbiography"
-      "title":           "class" # elements whose `class` attribute is "title"
+      #"dbbcopyright":    "class" # elements whose `class` attribute is "dbbcopyright"
+      #"rearcover":       "class" # elements whose `class` attribute is "rearcover"
+      #"summary":         "class" # elements whose `class` attribute is "summary"
+      #"rightflap":       "class" # elements whose `class` attribute is "rightflap"
+      #"leftflap":        "class" # elements whose `class` attribute is "leftflap"
+      #"extract":         "class" # elements whose `class` attribute is "extract"
+      #"authorbiography": "class" # elements whose `class` attribute is "authorbiography"
+      #"title":           "class" # elements whose `class` attribute is "title"
       
-      "GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
-      "GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
-      "GFLAP":    "ref"   # elements whose `ID` attribute is "GFLAP"
+      #"GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
+      #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
+      #"GFLAP":    "ref"   # elements whose `ID` attribute is "GFLAP"
   

@@ -157,15 +157,29 @@ do ->
         return null unless html?
         
         pseudo = html.createElement "div"
+
         
-        # Insert the markup into the document 
+
+        # Android innerHTML takes out <head></head>...so cheat...
+        markup = markup.replace(/head/g,"<body>")
+
         pseudo.innerHTML = markup
+
+        log.message pseudo.innerHTML
+
         html.documentElement.getElementsByTagName('body')?[0].appendChild pseudo
+
+        
+        
         
         
         # Wrap it with jQuery and return it
         
+
         #$(html).find('head').append($(html).find('meta'))
+       
+
+
         #$(html).find("meta[http-equiv='content-type']").attr('content','application/xhtml+xml; charset=ISO-8859-1')
 
      
@@ -181,8 +195,7 @@ do ->
         # _all_ html-type documents are forcibly sent through `coerceToHTML` even though
         # it shouldn't be necessary...
         if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
-          @source = coerceToHTML jqXHR.responseText
-          
+          @source = coerceToHTML jqXHR.responseText  
         else
           @source = jQuery document
         
@@ -264,6 +277,7 @@ do ->
       return {} unless @source?
       
       # Return cached metadata, if available
+
       return @_metadata if @_metadata?
       
       # Find the `meta` elements matching the given name-attribute values.
@@ -271,7 +285,7 @@ do ->
       findNodes = (values) =>
         values = [values] unless values instanceof Array
         nodes  = []
-        selectors = ("meta[name='#{value}']" for value in values).join(", ")
+        selectors = ("meta[name*='#{value}']" for value in values).join(", ")
         @source.find(selectors).each ->
           node = jQuery this
           nodes.push {
@@ -279,11 +293,16 @@ do ->
             scheme:  node.attr("scheme") or null
           }
         
+        
+
         return null if nodes.length is 0
         return nodes
       
-      xml = @source.find("head").first()
+      xml = @source.find("meta")
+
       @_metadata = {}
+
+      
       
       for own name, values of METADATA_NAMES.singular
         found = findNodes values
@@ -293,6 +312,7 @@ do ->
         found = findNodes values
         @_metadata[name] = found if found?
       
+
       @_metadata
     
   
