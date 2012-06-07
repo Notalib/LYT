@@ -68,7 +68,6 @@ do ->
     if typeof document.implementation?.createHTMLDocument is "function"
       return ->
         doc = document.implementation.createHTMLDocument ""
-        doc.characterSet="utf-8";
         return doc
     
     # Firefox does not support `document.implementation.createHTMLDocument()`  
@@ -85,7 +84,6 @@ do ->
           """</xsl:stylesheet>"""
         ].join("")
         doc = document.implementation.createDocument "", "foo", null
-        doc.characterSet="utf-8";
         range = doc.createRange()
         range.selectNodeContents doc.documentElement
         
@@ -103,7 +101,6 @@ do ->
       doctype = document.implementation.createDocumentType "HTML", "-//W3C//DTD HTML 4.01//EN", "http://www.w3.org/TR/html4/strict.dtd"
       return ->
         doc = document.implementation.createDocument "", "HTML", doctype
-        doc.characterSet="utf-8";
         return doc
     
     else
@@ -157,32 +154,12 @@ do ->
         return null unless html?
         
         pseudo = html.createElement "div"
-
         
-
         # Android innerHTML takes out <head></head>...so cheat...
-        markup = markup.replace(/head/g,"<body>")
-
+        markup = markup.replace /<\/?head[^>]*>/gi, ""
+        
         pseudo.innerHTML = markup
-
-        log.message pseudo.innerHTML
-
         html.documentElement.getElementsByTagName('body')?[0].appendChild pseudo
-
-        
-        
-        
-        
-        # Wrap it with jQuery and return it
-        
-
-        #$(html).find('head').append($(html).find('meta'))
-       
-
-
-        #$(html).find("meta[http-equiv='content-type']").attr('content','application/xhtml+xml; charset=ISO-8859-1')
-
-     
         
         jQuery html
       
