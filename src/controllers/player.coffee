@@ -31,6 +31,8 @@ LYT.player =
   
   fakeEndScheduled: false
   
+  preloadImagesCount: 3
+  
   _iBug: false
   
   playAttemptCount: 0
@@ -330,6 +332,7 @@ LYT.player =
     @media = @section.mediaAtOffset @time
     
     if @media and not @getStatus()?.paused
+      @preloadImages @media
       if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
         @updateLastMark()
     
@@ -371,8 +374,21 @@ LYT.player =
         @playlist.fail =>
           log.error "Player: Failed to get playlist"
   
+  # Preload images - stay a few steps ahead of the 
+  preloadImages: (media) ->
+    preloadCounter = 0
+    preload = (media) ->
+      unless media.images?
+        media.images = true
+        $(media.html) if media.html? # jQuery'ing the html automatically starts loading included images
+      
+      preloadCounter++
+      preload media.getNext() if media.hasNext() and preloadCounter < @preloadImagesCount
+    
+    preload media
   
   playSection: (section, offset = 0, autoPlay = true) ->
+    
     #return if section is @section
     @section = section
     
@@ -394,6 +410,10 @@ LYT.player =
         @el.jPlayer "setMedia", {mp3: @media.audio}
         #@playAttemptCount = 3
         #alert playAttemptCount
+        
+        # Start loading images
+        @preloadImages @media
+          
 
       else
         # If no media was found, check whether the section has a single,
