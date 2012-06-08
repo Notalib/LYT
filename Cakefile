@@ -227,7 +227,7 @@ docco = do ->
     {exec} = require "child_process"
     files = ("#{q resolve(file)}" for file in files).join " "
     exec "#{config.docco} #{files}", cwd: resolve(output), (err, stdout, stderr) ->
-      fatal err, config.compass, "You may need to install docco via npm. See http://jashkenas.github.com/docco/" if err?
+      fatal err, config.docco, "You may need to install docco via npm. See http://jashkenas.github.com/docco/" if err?
       callback?()
   
   # Create an index.html file to go with the docco'd html files
