@@ -157,8 +157,6 @@ class LYT.Book
         obj.document = @nccDocument = document
         
         metadata = @nccDocument.getMetadata()
-
-        #console.log metadata.
         
         # Get the author(s)
         creators = metadata.creator or []
