@@ -39,6 +39,7 @@ task "html", "Build HTML", (options) ->
   template = html.readFile "html/index.html"
   
   pages = glob "html/pages", /\.html$/i
+  pages.sort()
   body  = (html.readFile page for page in pages).join "\n\n"
   template = html.interpolate template, body, "body"
   
