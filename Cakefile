@@ -40,7 +40,10 @@ task "html", "Build HTML", (options) ->
   
   pages = glob "html/pages", /\.html$/i
   pages.sort()
-  body  = (html.readFile page for page in pages).join "\n\n"
+  body = (for page in pages
+    path = "pages/#{fs.path.basename page}"
+    content = "<!-- Begin file: #{path} -->\n#{html.readFile page}\n<!-- End file: #{path} -->"
+  ).join "\n\n"
   template = html.interpolate template, body, "body"
   
   if options.concat
