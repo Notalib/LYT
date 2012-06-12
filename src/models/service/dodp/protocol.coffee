@@ -258,10 +258,11 @@ LYT.protocol =
           timeOffset: bookmarks.lastmark.timeOffset
       
       data
-      
-    response: ($xml) ->
+
+    receive: ($xml) ->
       throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"
       true
+
     
   
 
