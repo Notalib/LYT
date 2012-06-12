@@ -31,7 +31,8 @@ LYT.player =
   
   fakeEndScheduled: false
   
-  preloadImagesCount: 3
+  # Number of segments to preload
+  segmentLookahead: 3
   
   _iBug: false
   
@@ -332,7 +333,7 @@ LYT.player =
     @media = @section.mediaAtOffset @time
     
     if @media and not @getStatus()?.paused
-      @preloadImages @media
+      @preloadSegments @media
       if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
         @updateLastMark()
     
@@ -374,18 +375,12 @@ LYT.player =
         @playlist.fail =>
           log.error "Player: Failed to get playlist"
   
-  # Preload images - stay a few steps ahead of the 
-  preloadImages: (media) ->
-    preloadCounter = 0
-    preload = (media) ->
-      unless media.images?
-        media.images = true
-        $(media.html) if media.html? # jQuery'ing the html automatically starts loading included images
-      
-      preloadCounter++
-      preload media.getNext() if media.hasNext() and preloadCounter < @preloadImagesCount
-    
-    preload media
+  # Preload segments - stay a few steps ahead of playback  
+  # This will preload any images contained in the segments
+  preloadSegments: (segment) ->
+    preloadCounter = @segmentLookahead
+    while preloadCounter--
+      segment = segment.getNext() if segment.hasNext()
   
   playSection: (section, offset = 0, autoPlay = true) ->
     
@@ -404,6 +399,9 @@ LYT.player =
       
       # Get the media obj
       @media = @section.mediaAtOffset offset
+      
+      # TODO: Wait for `@media.done()` before proceeding to play
+      
       @renderTranscript()
       
       if @media?
@@ -412,7 +410,7 @@ LYT.player =
         #alert playAttemptCount
         
         # Start loading images
-        @preloadImages @media
+        @preloadSegments @media
           
 
       else
