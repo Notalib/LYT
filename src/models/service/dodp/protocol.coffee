@@ -157,9 +157,13 @@ LYT.protocol =
   
   markAnnouncementsAsRead:
     # TODO: Can you send an array or list of IDs instead? If you can, it could reduce the number of calls/requests
-    request: (id) ->
+    request: (ids) ->
       read:
         item: id
+
+    receive: ($xml, data) ->
+      throw "markAnnouncementsAsRead failed" unless $xml.find("markAnnouncementsAsReadResult").text() is "true"
+      true    
     
   
   getContentList:

@@ -183,6 +183,13 @@ LYT.render = do ->
     loadCover $("#currentbook_image img"), book.id
 
 
+  ShowAnnouncements: (announcements) ->
+    for announcement in announcements
+      alert announcement
+
+    log.message "announcements done"
+
+
   bookEnd: () ->
     view = $("#book-text-content")
     view.html "Her slutter bogen"

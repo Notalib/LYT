@@ -165,7 +165,7 @@ LYT.service = do ->
     
     
     readingSystemAttrsSet = ->
-      deferred.resolve()
+      deferred.resolve()# returning that logon is Ok.
       
       if LYT.service.announcementsSupported()
         LYT.rpc("getServiceAnnouncements")
@@ -173,8 +173,10 @@ LYT.service = do ->
           # Fail silently
           .fail -> # noop
     
-    # FIXME: Not implemented
+    # Calling GUI to show announcements
     gotServiceAnnouncements = (announcements) ->
+      LYT.render.ShowAnnouncements(announcements)
+
     
     
     attemptLogOn = ->
@@ -295,5 +297,9 @@ LYT.service = do ->
   
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS
+
+
+  markAnnouncementsAsRead: (AnnouncementsIDS) ->
+    withLogOn -> LYT.rpc("markAnnouncementsAsRead", AnnouncementsIDS)
   
 
