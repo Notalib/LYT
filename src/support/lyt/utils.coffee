@@ -37,11 +37,18 @@ LYT.utils =
     # able to call itself regardless of its name "on the outside"
     toXML = (hash) ->
       xml = ""
-      
+
+      # Handling of namespaces could be done here by initializing a string
+      # containing the necessary declarations that can be inserted in append()
+
       # Append XML-strings by recursively calling `toXML`
       # on the data
       append = (nodeName, data) ->
-        xml += "<ns1:#{nodeName}>#{toXML data}</ns1:#{nodeName}>"
+        nsid = 'ns1:'
+        if nodeName.indexOf(':') > -1
+          nsid = ''
+        
+        xml += "<#{nsid}#{nodeName}>#{toXML data}</#{nsid}#{nodeName}>"
       
       switch typeof hash
         when "string", "number", "boolean"

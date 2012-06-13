@@ -283,17 +283,17 @@ LYT.service = do ->
   
   getBookmarks: (bookId) ->
     # Use the non-DODP service
-    LYT.bookmarks.get LYT.session.getMemberId(), String(bookId)
+    # LYT.bookmarks.get LYT.session.getMemberId(), String(bookId)
     
     # TODO: Here's the stub for the DODP-service. Implement this properly
-    # withLogOn -> LYT.rpc("getBookmarks", id)
+    withLogOn -> LYT.rpc("getBookmarks", bookId)
   
   setBookmarks: (bookId, bookmarks) ->
     # Use the non-DODP service
-    LYT.bookmarks.set LYT.session.getMemberId(), String(bookId), bookmarks
+    # LYT.bookmarks.set LYT.session.getMemberId(), String(bookId), bookmarks
     
     # TODO: Here's the stub for the DODP-service. Implement this properly
-    # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
+    withLogOn -> LYT.rpc("setBookmarks", bookId, bookmarks)
   
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS

@@ -233,33 +233,52 @@ LYT.protocol =
     receive: ($xml) ->
       parse = (element) ->
         ncxRef:     element.find("ncxRef").text()
-        uri:        element.find("URI").text()
+        URI:        element.find("URI").text()
         timeOffset: element.find("timeOffset").text()
         note:       element.find("note > text").text()
-      bookmarkSet = bookmarks: [], book: {}
-      bookmarkSet.book.id    = $xml.find("bookmarkSet > uid").text()
-      bookmarkSet.book.title = $xml.find("bookmarkSet > title > text").text()
-      # TODO: extract title > audio, too?
-      lastmark = $xml.find("bookmarkSet > lastmark").first()
-      bookmarkSet.lastmark = parse lastmark if lastmark.length
+        
+      bookmarks =
+        bookmarks: [],
+        book:
+          id: $xml.find("bookmarkSet > uid").text()
+          title:
+            text: $xml.find("bookmarkSet > title > text").text()
+            audio: $xml.find("bookmarkSet > title > audio").text()
       $xml.find("bookmarkSet > bookmark").each ->
-        bookmarkSet.bookmarks.push parse(jQuery(this))
-      bookmarkSet
+        bookmarks.bookmarks.push parse(jQuery(this))
+      lastmark = $xml.find("bookmarkSet > lastmark").first()
+      bookmarks.lastmark = parse lastmark if lastmark.length
+      
+      bookmarks
   
   
   setBookmarks:
     request: (bookmarks) ->
+
+      setnamespace = (ns, obj) ->
+        if typeof obj == "object"
+          if obj instanceof Array
+            return obj.map (value) -> setnamespace(ns, value)
+          else 
+            newObj = {}
+            for key, value of obj
+              newObj[ns + ':' + key] = setnamespace(ns, value)
+            return newObj
+        else
+          return obj
+                
+      throw "setBookmarks failed - you have to provide a book property with an id" unless bookmarks.book? and bookmarks.book.id?
       data =
+        contentID: bookmarks.book.id,
         bookmarkSet:
-          title:
-            text: bookmarks.book.title
-          uid:   bookmarks.book.id
-      
+          title: bookmarks.book.title, 
+          uid: bookmarks.book.id,
+          bookmark: bookmarks.bookmarks
+       
       if bookmarks.lastmark?
-        data.bookmarkSet.lastmark =
-          ncxRef: bookmarks.lastmark.ncxRef
-          uri:    bookmarks.lastmark.uri
-          timeOffset: bookmarks.lastmark.timeOffset
+        data.bookmarkSet.lastmark = bookmarks.lastmark
+      
+      data.bookmarkSet = setnamespace 'ns2', data.bookmarkSet
       
       data
 
