@@ -186,7 +186,7 @@ LYT.service = do ->
     
     # Calling GUI to show announcements
     gotServiceAnnouncements = (announcements) ->
-      #LYT.render.ShowAnnouncements(announcements)
+      LYT.render.ShowAnnouncements(announcements)
 
     attemptLogOn = ->
       --attempts
@@ -305,7 +305,6 @@ LYT.service = do ->
     # withLogOn -> LYT.rpc("setBookmarks", bookmarks)
   
   announcementsSupported: ->
-    log.message operations
     operations.SERVICE_ANNOUNCEMENTS
 
 

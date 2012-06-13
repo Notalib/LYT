@@ -185,11 +185,11 @@ LYT.render = do ->
 
 
   ShowAnnouncements: (announcements) ->
-    for announcement in announcements
-      if announcement.text?
-        alert announcement.text #Stops processing of javascript (alert)...
+    #for announcement in announcements
+     # if announcement.text?
+       # alert announcement.text #Stops processing of javascript (alert)...
 
-    LYT.service.markAnnouncementsAsRead(announcements)
+    #LYT.service.markAnnouncementsAsRead(announcements)
 
 
   bookEnd: () ->
