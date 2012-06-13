@@ -1,6 +1,5 @@
 # Requires `/common`  
 # Requires `/models/member/session`  
-# Requires `/models/member/bookmarks`  
 # Requires `dodp/rpc`  
 
 # -------------------
@@ -282,18 +281,12 @@ LYT.service = do ->
     operations.GET_BOOKMARKS and operations.SET_BOOKMARKS
   
   getBookmarks: (bookId) ->
-    # Use the non-DODP service
-    # LYT.bookmarks.get LYT.session.getMemberId(), String(bookId)
-    
-    # TODO: Here's the stub for the DODP-service. Implement this properly
     withLogOn -> LYT.rpc("getBookmarks", bookId)
   
-  setBookmarks: (bookId, bookmarks) ->
-    # Use the non-DODP service
-    # LYT.bookmarks.set LYT.session.getMemberId(), String(bookId), bookmarks
-    
-    # TODO: Here's the stub for the DODP-service. Implement this properly
-    withLogOn -> LYT.rpc("setBookmarks", bookId, bookmarks)
+  setBookmarks: (bookmarks) ->
+    console.log('setBookmarks:')
+    console.log(bookmarks)
+    withLogOn -> LYT.rpc("setBookmarks", bookmarks)
   
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS

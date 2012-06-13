@@ -84,11 +84,6 @@ LYT.config =
     details:
       url: "/CatalogSearch/search.asmx/GetItemById"
   
-  # ### LYT.bookmarks config
-  bookmarks:
-    getUrl: "/CatalogSearch/search.asmx/GetBookmarks" # No default - must be present
-    setUrl: "/CatalogSearch/search.asmx/SaveBookmarks" # No default - must be present
-  
   # ### LYT.player config
   player:
     # The minimum time between lastmark updates (milliseconds)
