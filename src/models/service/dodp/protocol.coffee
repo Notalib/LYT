@@ -251,7 +251,7 @@ LYT.protocol =
       
       bookmarks
   
-  
+  # FIXME: lastmark may be placed after the bookmarks in bookmarkSet as the specification dictates. This is caused by XML serializer (util.toXML)
   setBookmarks:
     request: (bookmarks) ->
 
