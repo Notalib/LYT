@@ -2,7 +2,8 @@
 build
 docs
 compiled/
-
+*~
 node_modules/
 .sass-cache/
 npm-debug.log
+DEADJOE
