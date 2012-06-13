@@ -220,9 +220,10 @@ class LYT.Book
     @_playlist = new LYT.Playlist this, initialSection
   
   setLastmark: (section, offset = 0) ->
+  	date = new Date(offset * 1000)
     @lastmark =
       section: section
-      offset:  offset
+      timeOffset:  "#{date.getHours()}:#{date.getMinutes()}.#{date.getSeconds()}"
     
     LYT.service.setBookmarks
       book:

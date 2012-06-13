@@ -363,7 +363,7 @@ LYT.player =
     
     #LYT.loader.register "Loading book", @book
     
-    log.message "Player: Loading book #{book.id}, setion #{section}, offset: #{offset}"
+    log.message "Player: Loading book #{book.id}, section #{section}, offset: #{offset}"
     @book.done =>
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
