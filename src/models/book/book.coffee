@@ -224,7 +224,9 @@ class LYT.Book
       section: section
       offset:  offset
     
-    LYT.service.setBookmarks @id, {
+    LYT.service.setBookmarks
+      book:
+        id: @id
+        title: @title
       lastmark:  @lastmark
       bookmarks: @bookmarks
-    }
