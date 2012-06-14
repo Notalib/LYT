@@ -21,7 +21,7 @@
 # - `error:service` (data: `{code: [DODP_* error constant]}`) - The server barfed
 #    (see [rpc.coffee](rpc.html) for error constants)
 #
-# Events are emitted and can be observed via jQuery. Example:
+# Events are emitted and can be observed via jQuery. Example: 
 #
 #     jQuery(LYT.service).bind "logon:rejected", ->
 #       # go to the log-in page
@@ -42,6 +42,17 @@ LYT.service = do ->
   # The current logon process(es)
   currentLogOnProcess = null
   currentRefreshSessionProcess = null
+
+  #Initilize serviceAttributes with values when we are logged in but user reloads scripts.....
+  LYT.rpc("getServiceAttributes")
+    .done (ops) ->
+      operations[op] = false for op of operations
+      operations[op] = true for op in ops
+
+    .fail () ->
+      #noop wait for other operations to fail...
+
+
   
   # Emit an event
   emit = (event, data = {}) ->
@@ -165,7 +176,7 @@ LYT.service = do ->
     
     
     readingSystemAttrsSet = ->
-      deferred.resolve()
+      deferred.resolve()# returning that logon is Ok.
       
       if LYT.service.announcementsSupported()
         LYT.rpc("getServiceAnnouncements")
@@ -173,10 +184,10 @@ LYT.service = do ->
           # Fail silently
           .fail -> # noop
     
-    # FIXME: Not implemented
+    # Calling GUI to show announcements
     gotServiceAnnouncements = (announcements) ->
-    
-    
+      LYT.render.ShowAnnouncements(announcements)
+
     attemptLogOn = ->
       --attempts
       log.message "Service: Attempting log-on (#{attempts} attempt(s) left)"
@@ -295,5 +306,26 @@ LYT.service = do ->
   
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS
+
+
+  markAnnouncementsAsRead: (AnnouncementsIDS) ->
+    withLogOn -> LYT.rpc("markAnnouncementsAsRead", AnnouncementsIDS)
+
+  getAnnouncements: ->
+    if LYT.service.announcementsSupported()
+
+      deferred = jQuery.Deferred()
+
+      
+      response =  withLogOn -> LYT.rpc("getServiceAnnouncements")
+      response.done (announcements) ->
+        LYT.render.ShowAnnouncements(announcements)
+        deferred.resolve()
+
+        
+      response.fail (err, message) -> deferred.reject err, message
+
+
+      deferred.promise()
   
 

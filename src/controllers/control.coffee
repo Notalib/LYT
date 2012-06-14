@@ -62,7 +62,7 @@ LYT.control =
   bookshelf: (type, match, ui, page, event) ->
     if type is 'pageshow'
       content = $(page).children(":jqmData(role=content)")
-    
+
       load = (page = 1) ->
         process = LYT.bookshelf.load(page)
           .done (books) ->
@@ -156,8 +156,6 @@ LYT.control =
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
-
-      
       params = LYT.router.getParams(match[1])
       section = params.section or null
       offset = Number(params.offset) or 0
@@ -206,6 +204,10 @@ LYT.control =
             LYT.player.load book, section, offset, true #autoplay  
           else
             LYT.player.load book, section, offset, false #no autoplay
+
+          #see if there are any announcements....each time we loaded a new book.....
+        
+          LYT.service.getAnnouncements()
 
           
           ###
@@ -259,6 +261,7 @@ LYT.control =
             
       
       LYT.loader.register "Loading book", process
+
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'

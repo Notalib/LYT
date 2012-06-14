@@ -12,7 +12,7 @@
 #     3 = Errors, warnings, and messages (default)
 #
 # FIXME: Quick hack to lessen the logging on mobile devices
-log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 3 else 3
+log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 2 else 3
 
 # ## Central system configuration
 LYT.config =

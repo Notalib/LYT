@@ -155,6 +155,7 @@ LYT.render = do ->
     
     list.listview('refresh')
 
+
   hideOrShowButtons: ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
       $("#add-to-bookshelf-button").hide()
@@ -181,6 +182,14 @@ LYT.render = do ->
     $("#player-book-author").text book.author
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
+
+
+  ShowAnnouncements: (announcements) ->
+    #for announcement in announcements
+     # if announcement.text?
+       # alert announcement.text #Stops processing of javascript (alert)...
+
+    #LYT.service.markAnnouncementsAsRead(announcements)
 
 
   bookEnd: () ->
