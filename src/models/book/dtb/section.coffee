@@ -20,7 +20,11 @@ class LYT.Section
     # Get the anchor element of the heading, and its attributes
     anchor = heading.find("a:first")
     @title = jQuery.trim anchor.text()
-    @url   = anchor.attr "href"
+    # The [NCC](http://www.daisy.org/z3986/specifications/daisy20.php#5.0%20NAVIGATION%20CONTROL%20CENTER%20%28NCC%29)
+    # standard dictates that all references should point to a specific par or
+    # seq id in the SMIL file. Since the section class represents the entire
+    # SMIL file, we remove the id reference from the url.
+    @url   = (anchor.attr "href").split('#')[0]
     # Create an array to collect any sub-headings
     @children = []
     # The SMIL document (not loaded initially)
@@ -72,6 +76,11 @@ class LYT.Section
       urls.push url if url
     urls
   
+  getSegmentById: (id) ->
+  	rawSegment = @document.getSegmentById id
+  	return null unless rawSegment?
+  	@segments[rawSegment.index] or= new LYT.Segment this, rawSegment
+  
   # Retrieves the media (text and audio) at a given point
   # in time (seconds, relative to the section).
   # Both arguments are optional. If no arguments are given, 
@@ -86,7 +95,6 @@ class LYT.Section
     rawSegment = @document.getSegmentByTime offset
     return null unless rawSegment?
     @segments[rawSegment.index] or= new LYT.Segment this, rawSegment
-  
   
   # Flattens the structure from this section and "downwards"
   flatten: ->

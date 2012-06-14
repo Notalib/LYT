@@ -219,11 +219,19 @@ class LYT.Book
       return @_playlist 
     @_playlist = new LYT.Playlist this, initialSection
   
-  setLastmark: (section, offset = 0) ->
-  	date = new Date(offset * 1000)
+  setLastmark: (segment, offset = 0) ->
+    hours = Math.floor(offset / 3600).toString()
+    minutes = Math.floor((offset - hours*3600) / 60).toString()
+    seconds = Math.floor(offset - hours * 3600 - minutes * 60).toFixed(2)
+    hours   = '0' + hours   if hours.length == 1
+    minutes = '0' + minutes if minutes.length == 1
+    seconds = '0' + seconds if seconds < 10
     @lastmark =
-      section: section
-      timeOffset:  "#{date.getHours()}:#{date.getMinutes()}.#{date.getSeconds()}"
+      URL:        segment.url()
+      timeOffset: "#{hours}:#{minutes}:#{seconds}"
+      
+      # TODO: The server doesn't support npt format, though it is required
+      #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
     
     LYT.service.setBookmarks
       book:

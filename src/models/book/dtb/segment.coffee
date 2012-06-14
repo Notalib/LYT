@@ -67,6 +67,10 @@ class LYT.Segment
         jQuery.when.apply(null, queue).then -> deferred.resolve()
         deferred.promise()
       
+    @url = -> "#{section.url}##{@id}"
+    
+    @section = -> section
+    
     @ready = -> deferred.state() isnt "pending"
     
     rawSegments = section.document.segments

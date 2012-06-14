@@ -463,10 +463,10 @@ LYT.player =
     return unless @book? and @section?
     now = (new Date).getTime()
     interval = LYT.config.player?.lastmarkUpdateInterval or 10000
-    return unless force or not @lastBookmark or now-@lastBookmark > interval
+    return unless force or not @lastBookmark or now - @lastBookmark > interval
     if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
       return
-    @book.setLastmark @section.id, @getStatus().currentTime
+    @book.setLastmark @media, @getStatus().currentTime
     @lastBookmark = now
   
   getCurrentlyPlaying: ->

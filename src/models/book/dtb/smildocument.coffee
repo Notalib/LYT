@@ -15,6 +15,14 @@ do ->
         @segments    = parseMainSeqNode mainSequence
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
     
+    # Caveat emptor: returns raw segments
+    getSegmentById: (id) ->
+    	for segment, index in @segments
+    	  return segment if segment.id == id
+    	
+    	return null
+    	
+    # Caveat emptor: returns raw segments
     getSegmentByTime: (offset = 0) ->
       offset = 0 if offset < 0
       for segment, index in @segments
