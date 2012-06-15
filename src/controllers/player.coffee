@@ -60,15 +60,19 @@ LYT.player =
         $.jPlayer.timeFormat.showHour = true
         
         # TODO: Disable next/prev buttons if there are not next/prev sections?
-        jumpTo = (@media) =>
-          # Use Math.ceil() to prevent jPlayer from approximating to a slightly
-          # earlier point in time, which will cause the wrong media-object to be
-          # loaded
-          if @getStatus()?.paused
-            @el.jPlayer "pause", Math.ceil(@media.start)
-          else
-            @el.jPlayer "play", Math.ceil(@media.start)
+        jumpTo = (target) =>
+          @media = target
           @renderTranscript()
+          target.always =>
+            return unless @media is target
+            
+            # Use `Math.ceil()` to prevent jPlayer from approximating to a slightly
+            # earlier point in time, which will cause the wrong segment-object to be
+            # loaded
+            if @getStatus()?.paused
+              @el.jPlayer "pause", Math.ceil(@media.start)
+            else
+              @el.jPlayer "play", Math.ceil(@media.start)
           
         
         @nextButton.click =>
@@ -400,19 +404,14 @@ LYT.player =
       # Get the media obj
       @media = @section.mediaAtOffset offset
       
-      # TODO: Wait for `@media.done()` before proceeding to play
-      
       @renderTranscript()
       
       if @media?
-        @el.jPlayer "setMedia", {mp3: @media.audio}
-        #@playAttemptCount = 3
-        #alert playAttemptCount
-        
-        # Start loading images
-        @preloadSegments @media
-          
-
+        # TODO: Handle segment-load failures
+        @media.always =>
+          @el.jPlayer "setMedia", {mp3: @media.audio}
+          # Start preloading the next segments
+          @preloadSegments @media
       else
         # If no media was found, check whether the section has a single,
         # unambiguous MP3 file, we can load instead
@@ -423,13 +422,16 @@ LYT.player =
           log.error "Player: Couldn't determine MP3 file"
           return
         @el.jPlayer "setMedia", {mp3: mp3s.pop()}
-        
+      
+      # Load the mp3 that was set above
       @el.jPlayer "load"
-        
-      if autoPlay
-        @play offset
-      else
-        @pause offset
+      
+      # TODO: Handle segment-load failures
+      @media.always =>
+        if autoPlay
+          @play offset
+        else
+          @pause offset
       
     @section.fail ->
       log.error "Player: Failed to load section #{section}"

@@ -381,7 +381,7 @@ cleanDir = (path) ->
       fs.unlinkSync file
 
 
-# Gather all regular files in the given directory and it's sub-directories
+# Gather all regular files in the given directory and its sub-directories
 walk = (directory) ->
   directory = resolve directory
   files = []

@@ -6,8 +6,11 @@
 # A Segment instance as a Deferred. It resolves when all
 # images contained in the transcript have been loaded (by
 # calling the `preload` method), or if there were no images
-# to load. Currently, there's no failed state; whether images
-# load or not, the Segment should (sooner or later) resolve.
+# to load.
+# 
+# CHANGED: The segment instance will now reject its promise
+# if it fails to load an image (before, it resolved no
+# matter what)
 # 
 # A Segment instance has the following properties:
 #
@@ -58,10 +61,9 @@ class LYT.Segment
           tmp.onload  = ->
             log.message "Preloaded image #{src}"
             load.resolve()
-          # Absorb failures
           tmp.onerror = ->
             log.error "Failed to preload image #{src}"
-            load.resolve()
+            load.reject()
         
         # When all images have loaded (or failed)...
         jQuery.when.apply(null, queue).then -> deferred.resolve()

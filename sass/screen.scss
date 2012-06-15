@@ -334,8 +334,6 @@
 
 }
 
-
-
 /* Settings page */
 #settings {
   .ui-content {
@@ -488,6 +486,51 @@
       
 }
 
+/* Redirect page */
+#redirect {
+ .ui-content {
+  max-width: 500px;
+  padding: 10px;
+  text-shadow: none;
+  margin: 0 auto;
+  }
+ 
+ .ui-bar-c {
+  border: 2px solid #fff;
+  background-color: #ebebeb;
+  font-size: 13px;
+  text-shadow: none;
+  padding: 0 8px;
+  padding-bottom: 8px;
+  }
+  
+  h2 {
+    color: #636363;
+    font-weight: 500;
+    font-size: 18px;
+  }
+  
+  .text-field {
+    font-style: normal;
+  }
+  
+  hr {
+    margin: 8px 0;
+    padding: 0;
+    border-top: 1px solid #636363;
+    background: #fff; 
+    height: 1px;
+    border-width: 1px 0 0 0;
+    }
+
+  #e17-button-wrapper {
+      @include action-button(#8cbbe2, a);
+    }
+    
+  #e17-mobil-button-wrapper {
+      @include action-button(#8cbbe2, a);
+    }
+}
 
 
 /* Search page */
