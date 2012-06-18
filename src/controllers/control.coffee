@@ -197,13 +197,13 @@ LYT.control =
           #no section or offset from link 
           if not section and offset is 0 and book.lastmark?
             log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
-            section = book.lastmark.section
+            url     = book.lastmark.URL
             offset  = book.lastmark.offset
           log.message autoplay
           if autoplay is "true"
-            LYT.player.load book, section, offset, true #autoplay  
+            LYT.player.load book, url, offset, true #autoplay  
           else
-            LYT.player.load book, section, offset, false #no autoplay
+            LYT.player.load book, url, offset, false #no autoplay
 
           #see if there are any announcements....each time we loaded a new book.....
         

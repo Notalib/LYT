@@ -34,40 +34,44 @@
 
 class LYT.Segment
   constructor: (section, data) ->
-    # Set up a promise
+    # Set up deferred load of images
     deferred = jQuery.Deferred()
     deferred.promise this
     # Images still to be loaded
     queuedImages = []
-    # Declare `preload` here to set its scope
-    preload = null
     
+    # Declare `load` here to set its scope
+    @load = null
     # closure to avoid scope pollution
     do =>
       # Preload any images in the transcript (i.e. html)
-      preload = ->
+      load = ->
         # Skip if already finished
         return deferred.promise() if deferred.state() is "resolved"
         queue = []
-        # Load all images
-        while queuedImages.length
-          src = queuedImages.shift()
-          # Use Deferreds to set up a `when` trigger
-          load = jQuery.Deferred()
-          queue.push load.promise()
-          # 1998 called; they want their preloading technique back
-          tmp = new Image
-          tmp.src = src
-          tmp.onload  = ->
-            log.message "Preloaded image #{src}"
-            load.resolve()
-          tmp.onerror = ->
-            log.error "Failed to preload image #{src}"
-            load.reject()
+        if queuedImages.length
+          # Load all images
+          while queuedImages.length
+            src = queuedImages.shift()
+            # Use Deferreds to set up a `when` trigger
+            load = jQuery.Deferred()
+            queue.push load.promise()
+            # 1998 called; they want their preloading technique back
+            tmp = new Image
+            tmp.onload  = ->
+              log.message "Preloaded image #{src}"
+              load.resolve()
+            tmp.onerror = ->
+              log.error "Failed to preload image #{src}"
+              load.reject()
+            tmp.src = src
+            # When all images have loaded (or failed)...
+            jQuery.when.apply(null, queue).then -> deferred.resolve()
+          else
+          	# Resolve right away if there are no images
+          	deferred.resolve()
         
-        # When all images have loaded (or failed)...
-        jQuery.when.apply(null, queue).then -> deferred.resolve()
-        deferred.promise()
+        return deferred.promise()
       
     @url = -> "#{section.url}##{@id}"
     
@@ -149,9 +153,3 @@ class LYT.Segment
     @html   = element?.html()
     @images = findImageUrls element
     queuedImages = @images.slice 0
-    
-    # Resolve right away if there are no images
-    if queuedImages.length
-      preload()
-    else
-      deferred.resolve()

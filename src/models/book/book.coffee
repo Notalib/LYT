@@ -21,7 +21,7 @@ class LYT.Book
   this.load = do ->
     loaded = {}
     
-    (id, initialSection = null, offset = 0) ->
+    (id, initialSegmentURL = null, offset = 0) ->
       deferred = jQuery.Deferred()
       
       loaded[id] or (loaded[id] = new LYT.Book id)
@@ -30,12 +30,12 @@ class LYT.Book
       loaded[id].done (book) -> 
         
         # Check for lastmark
-        if not initialSection? and offset is 0 and book.lastmark?
-          initialSection = book.lastmark.section
+        if not initialSegmentURL? and offset is 0 and book.lastmark?
+          initialSegmentURL = book.lastmark.url
         
         # Load the playlist (ignore playlist-load-errors -
         # they'll be caught elsewhere)
-        book.getPlaylist(initialSection).always -> deferred.resolve book
+        book.getPlaylist(initialSegmentURL).always -> deferred.resolve book
       
       # Book failed
       loaded[id].fail -> deferred.reject loaded[id]
@@ -170,7 +170,7 @@ class LYT.Book
         
         resolve()
     
-    
+
     getBookmarks = =>
       @lastmark  = null
       @bookmarks = []
@@ -212,12 +212,12 @@ class LYT.Book
   # Gets the book's metadata (as stated in the NCC document)
   getMetadata: ->
     @nccDocument?.getMetadata() or null
-  
-  getPlaylist: (initialSection = null) ->
+  	
+  getPlaylist: (segmentURL = null) ->
     if @_playlist?
-      @_playlist.setCurrentSection initialSection
+      @_playlist.setCurrentSegment segmentURL
       return @_playlist 
-    @_playlist = new LYT.Playlist this, initialSection
+    @_playlist = new LYT.Playlist this, segmentURL
   
   setLastmark: (segment, offset = 0) ->
     hours = Math.floor(offset / 3600).toString()

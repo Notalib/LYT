@@ -74,20 +74,13 @@ LYT.player =
             else
               @el.jPlayer "play", Math.ceil(@media.start)
           
-        
         @nextButton.click =>
-          if @media?.hasNext()
-            jumpTo @media.getNext()
-          else
-            @nextSection()
-          false
-        
+        	if @playlist.hasNextSegment()
+        		jumpto @playlist.getNextSegment()
+        		
         @previousButton.click =>
-          if @media?.hasPrevious()
-            jumpTo @media.getPrevious()
-          else
-            @previousSection()
-          false
+          if @playlist.hasPreviousSegment()
+            jumpto @playlist.getPreviousSegment()
                      
       timeupdate: (event) =>
         #@fakeEnd(event.jPlayer.status) 
@@ -334,7 +327,7 @@ LYT.player =
     if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
       @updateLastMark()
     return if @media? and @media.start <= @time < @media.end
-    @media = @section.mediaAtOffset @time
+    @media = @player.currentSection().segmentAtOffset @time
     
     if @media and not @getStatus()?.paused
       @preloadSegments @media
@@ -361,20 +354,21 @@ LYT.player =
     else
       @el.bind $.jPlayer.event.ready, callback
   
-  load: (book, section = null, offset = 0, autoPlay = true) ->
+  # url: url pointing to section or segment
+  load: (book, url = null, offset = 0, autoPlay = true) ->
     #return if book.id is @book?.id
     @book = book
     
     #LYT.loader.register "Loading book", @book
     
-    log.message "Player: Loading book #{book.id}, section #{section}, offset: #{offset}"
+    log.message "Player: Loading book #{book.id}, section #{url}, offset: #{offset}"
     @book.done =>
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
-        @playlist = book.getPlaylist section
+        @playlist = book.getPlaylist url
         
         @playlist.done =>
-          @playSection @playlist.getCurrentSection(), offset, autoPlay
+          @playSection @playlist.currentSection, offset, autoPlay
         
         @playlist.fail =>
           log.error "Player: Failed to get playlist"
@@ -396,13 +390,14 @@ LYT.player =
     @section.done =>
       log.message "Player: Playlist current section #{@section.id}"
       jQuery("#player-chapter-title h2").text section.title
-      
-      # Preload the next/prev sections
-      @playlist.getNextSection() if @playlist.hasNextSection()
-      @playlist.getPreviousSection() if @playlist.hasPreviousSection()
-      
+
+# FIXME: Preloading disabled for now - maybe we need to move this to the Playlist class      
+#      # Preload the next/prev sections
+#      @playlist.getNextSection() if @playlist.hasNextSection()
+#      @playlist.getPreviousSection() if @playlist.hasPreviousSection()
+
       # Get the media obj
-      @media = @section.mediaAtOffset offset
+      @media = @section.segmentAtOffset offset
       
       @renderTranscript()
       
@@ -438,28 +433,16 @@ LYT.player =
   
   
   nextSection: (autoPlay = false) ->
-    #@playlist.
-    if @playlist?.hasNextSection() is false
+    return null unless @playlist?
+    if @playlist.hasNextSection() is false
       LYT.render.bookEnd()
-
-    return null unless @playlist?.hasNextSection()
-    section = @playlist.getNextSection()
-    log.message section
-    
-    #if $.mobile.activePage.attr('id') is 'book-play'
-    #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
-    #else
-    @playSection @playlist.next(), 0, (autoPlay or @getStatus()?.paused is false)
+    section = @playlist.nextSection()
+    @playSection section 0, (autoPlay or @getStatus()?.paused is false)
 
   previousSection:(autoPlay = false) ->
-
     return null unless @playlist?.hasPreviousSection()
-    section = @playlist.getPreviousSection()
-    
-    #if $.mobile.activePage.attr('id') is 'book-play'
-    #  $.mobile.changePage "#book-play?book=#{@book.id}&section=#{section.id}", {transition: 'none'}
-    #else
-    @playSection @playlist.previous(), 0, (autoPlay or @getStatus()?.paused is false)
+    section = @playlist.previousSection()
+    @playSection section, 0, (autoPlay or @getStatus()?.paused is false)
   
   updateLastMark: (force = false) ->
     return unless @book? and @section?

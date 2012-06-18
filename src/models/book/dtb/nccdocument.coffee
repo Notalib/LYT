@@ -12,6 +12,23 @@ do ->
       super url, (deferred) =>
         @structure = parseStructure @source, resources
         @sections  = flattenStructure @structure
+        linkSections @sections
+
+    firstSection: -> @sections[0]
+
+    getSectionByURL: (url) ->
+      baseUrl = url.split('#')[0]
+      for segment, index in @sections
+        if segment.url is baseUrl
+        	return segment.load() or null
+        	
+      return null
+
+    getSegmentByURL: (url) ->
+      id = url.split('#')[1]
+      # TODO: If no id is provided, should we default to the first segment?
+      return null if id is null
+      return @getSectionByURL(url)?.getSegmentById(id)
   
   # -------
   
@@ -89,6 +106,15 @@ do ->
       flat.push section
       flat = flat.concat flattenStructure(section.children)
     flat
+
+  # Initializes previous and next attributes on section objects  
+  linkSections = (sections) ->
+    last = null
+    for section in sections
+      if last?
+        section.previous = last
+        last.next        = section
+
     
   
 

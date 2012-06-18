@@ -6,63 +6,95 @@
 
 class LYT.Playlist
   
-  constructor: (@book, initialSectionId = null) ->
-    @sections  = @book.nccDocument.sections
+  constructor: (@book, initialSegmentURL = null) ->
+    @nccDocument = @book.nccDocument
     
     deferred = jQuery.Deferred()
     deferred.promise this
-    current = @setCurrentSection initialSectionId
-    unless current
-      log.error "Playlist: Failed to find initial section"
+    currentSegment = @setCurrentSegment initialSegmentURL
+
+    unless currentSegment
+      log.error "Playlist: Failed to find initial segment"
       deferred.reject this
       return
     
     current.done =>
-      log.message "Playlist: Loaded initial section"
+      log.message "Playlist: Loaded initial segment"
       deferred.resolve this
     
     current.fail =>
-      log.error "Playlist: Failed to load initial section"
+      log.error "Playlist: Failed to load initial segment"
       deferred.reject this
   
-  hasNextSection: ->
-    @currentIndex < @sections.length-1
+    hasNextSegment: -> @currentSegment.hasNext() or hasNextSection()
+
+    hasPreviousSegment: -> @currentSegment.hasPrevious() or hasPreviousSection()
   
-  hasPreviousSection: ->
-    @currentIndex > 0
+    hasNextSection: -> @currentSection.next?
   
-  getNextSection: ->
-    return null unless @hasNextSection()
-    index = @currentIndex + 1
-    @sections[index].load()
+    hasPreviousSection: -> @currentSection.previous?
   
-  getPreviousSection: ->
-    return null unless @hasPreviousSection()
-    index = @currentIndex - 1
-    @sections[index].load()
+    loadCurrentSection: ->
+      if @currentSection?
+        @currentSegment = null
+        return @currentSection.load()
+      else
+        return null
+
+    rewind: ->
+      @currentSegment = @nccDocument.firstSegment()
+      @currentSection = @currentSegment.section
+      return @currentSegment
+
+  	nextSection: ->
+      @currentSection = @currentSection.next()
+      return @loadCurrentSection
   
-  getCurrentSection: ->
-    @sections[@currentIndex]?.load() or null
+    previousSection: ->
+      @currentSection = @currentSection.previous()
+      return @loadCurrentSection
+      
+    nextSegment: ->
+      if @currentSegment.hasNext()
+        @currentSegment = @currentSegment.getNext()
+        return @currentSegment
+      else
+        if @currentSection.hasNext()
+          @currentSegment = @nextSection.firstSegment()
+          return @currentSegment
+        else
+          return null
+      
+    previousSegment: ->
+      if @currentSegment.hasPrevious()
+        @currentSegment = @currentSegment.getPrevious()
+        return @currentSegment
+      else
+        if @currentSection.hasPrevious()
+          @currentSegment = @previousSection.lastSegment()
+          return @currentSegment
+        else
+          return null
   
-  next: ->
-    return null unless @hasNextSection()
-    @currentIndex++
-    @getCurrentSection()
-  
-  previous: ->
-    return null unless @hasPreviousSection()
-    @currentIndex--
-    @getCurrentSection()
-  
-  setCurrentSection: (id = null) ->
-    if !!id
-      for section, index in @sections
-        if section.id is id
-          @currentIndex = index
-          return @getCurrentSection()
-      log.warn "Playlist: Couldn't find section #{id}"
-    
-    @currentIndex = 0
-    @getCurrentSection()
+    # Will rewind to start if no url is provided    
+    setCurrentSection: (url) ->
+    	if url?
+        @currentSection = @nccDocument.getSectionByURL(url)
+        @currentSegment = @currentSection?.firstSegment()
+      else
+      	@currentSection = @nccDocument.firstSegment().section
+      
+      log.warn "Playlist: Couldn't find section" unless @currentSection?
+
+    # Will rewind to start if no url is provided    
+    setCurrentSegment: (url) ->
+    	if url?
+        @currentSegment = @nccDocument.getSegmentByURL(url)
+      else
+        @currentSegment = @nccDocument.firstSegment()
+      if @currentSegment?
+        @currentSection = @currentSegment.section
+      else
+      	log.warn "Playlist: Couldn't find segment"
 
 

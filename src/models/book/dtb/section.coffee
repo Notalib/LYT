@@ -76,6 +76,16 @@ class LYT.Section
       urls.push url if url
     urls
   
+  
+  hasNext: -> @next?
+  
+  hasPrevious: -> @previous?
+  
+  # Problem: the segments below are data segments
+  firstSegment: -> @segments[0]
+  
+  lastSegment: -> @segments[@segments.length - 1]
+  
   getSegmentById: (id) ->
   	rawSegment = @document.getSegmentById id
   	return null unless rawSegment?
@@ -91,7 +101,7 @@ class LYT.Section
   # TODO: There's a lot of unnecessary data-duplication going
   # on between the various models... that should probably
   # be alleviated somehow
-  mediaAtOffset: (offset = 0) ->
+  segmentAtOffset: (offset = 0) ->
     rawSegment = @document.getSegmentByTime offset
     return null unless rawSegment?
     @segments[rawSegment.index] or= new LYT.Segment this, rawSegment
@@ -101,4 +111,3 @@ class LYT.Section
     flat = [this]
     flat = flat.concat child.flatten() for child in @children
     flat
-  
