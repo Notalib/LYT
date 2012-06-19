@@ -87,7 +87,11 @@ LYT.control =
 
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
-      LYT.render.hideOrShowButtons()
+      params = LYT.router.getParams(match[1])
+      process = LYT.catalog.getDetails(params.book)
+        .done (details) ->
+          LYT.render.hideOrShowButtons(details)
+
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
@@ -292,7 +296,6 @@ LYT.control =
         LYT.var.searchTerm = params
       else
         if LYT.var.searchTerm?
-          log.message LYT.var.searchTerm
           params = LYT.var.searchTerm
           handleResults LYT.catalog.search(params.term)
         else
@@ -366,7 +369,6 @@ LYT.control =
         when 'marking-color'
           colors = val.split(';')
           if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
-            #log.message 'her'
             $(this).attr("checked", true).checkboxradio("refresh");
             
     $("#style-settings input").change (event) ->

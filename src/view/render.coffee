@@ -156,13 +156,17 @@ LYT.render = do ->
     list.listview('refresh')
 
 
-  hideOrShowButtons: ->
-    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
+  hideOrShowButtons: (details) ->
+    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      $("#add-to-bookshelf-button").show()
-      $("#details-play-button").show() 
+      if details.state is LYT.config.book.states.Undervejs
+        $("#add-to-bookshelf-button").hide()
+        $("#details-play-button").hide() 
+      else  
+        $("#add-to-bookshelf-button").show()
+        $("#details-play-button").show() 
   
   clearBookPlayer: (view) ->
     $("#book-text-content").empty()
@@ -219,7 +223,7 @@ LYT.render = do ->
       img.click ->
         img.toggleClass('zoom')
       
-  bookDetails: (details, view) -> 
+  bookDetails: (details, view) ->
     $("#details-book-title").text details.title
     $("#details-book-author").text details.author
     $("#details-book-description").text details.teaser

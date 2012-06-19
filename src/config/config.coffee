@@ -46,6 +46,15 @@ LYT.config =
     guestUser: "guest"
     guestLogin: "guest"
   
+  # ### LYT.book module config
+
+  book:
+    states:
+      Ny: "Ny"
+      Undervejs : "Undervejs"
+      Ehverv : "Ehverv"
+
+      
   # ### LYT.bookshelf module config
   bookshelf:
     # Number of books to load per page
