@@ -69,6 +69,9 @@ $(document).bind "mobileinit", ->
     "#guest":
       handler: "guest"
       events: "s"
+    "#redirect":
+      handler : "redirect"
+      events: "s"
 
 
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
