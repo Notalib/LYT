@@ -53,7 +53,6 @@ LYT.config =
       Ny: "Ny"
       Undervejs : "Undervejs"
       Ehverv : "Ehverv"
-
       
   # ### LYT.bookshelf module config
   bookshelf:
@@ -104,6 +103,17 @@ LYT.config =
     lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
     playAttemptLimit: 10
     IOSFirstPlay : true
+    readSpeed:
+      slow :        "0.5"
+      normal_slow : "0.8"
+      normal :      "1"
+      normal_fast : "1.5"
+      fast :        "2"
+      fast_extra:   "2.5"
+      fast_ultra:   "3"
+      ultra_fast:   "4"
+
+
   
   # ### LYT.DTBDocument config
   dtbDocument:

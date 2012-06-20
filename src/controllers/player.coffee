@@ -38,6 +38,7 @@ LYT.player =
   
   playAttemptCount: 0
   gotDuration : null
+  playBackRate : 1 #Default playBackRate for audio element....
   
   
   lastBookmark: (new Date).getTime()
@@ -211,7 +212,7 @@ LYT.player =
             $("#submenu").simpledialog({
                 'mode' : 'bool',
                 'prompt' : 'Der er opstået en fejl!',
-                'subTitle' : 'kunne ikke hente bogen.'
+                'subTitle' : 'kunne ikke hente lydfilen.'
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
@@ -284,7 +285,18 @@ LYT.player =
       
       @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
-  
+
+  setPlayBackRate: (speed) ->
+    if @el.data('jPlayer').htmlElement.audio?
+      if @el.data('jPlayer').htmlElement.audio.playbackRate?
+        @el.data('jPlayer').htmlElement.audio.playbackRate = speed
+
+  isPlayBackRateSurpported: ->
+    if @el.data('jPlayer').htmlElement.audio.playbackRate?
+      return true
+    else
+      return false
+
   stop: () ->
     if @ready?
       @el.jPlayer('stop')

@@ -41,7 +41,7 @@ $(document).bind "mobileinit", ->
       events: "bs,s"
     "#settings":
       handler: "settings"
-      events: "s"
+      events: "s,bs"
     "#support":
       handler: "support"
       events: "s"

@@ -155,6 +155,9 @@ LYT.render = do ->
     
     list.listview('refresh')
 
+  hideplayBackRate: () ->
+      $("#playBackRate").hide()
+
 
   hideOrShowButtons: (details) ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
