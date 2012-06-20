@@ -3,98 +3,66 @@
 # -------------------
 
 # This class models a "playlist" of book sections
+# Responsible for navigation in- and load of segments (and their sections)
 
 class LYT.Playlist
   
-  constructor: (@book, initialSegmentURL = null) ->
-    @nccDocument = @book.nccDocument
-    
+  # TODO Handle preloading
+  
+  constructor: (@book) ->
+    # Make the playlist a promise waiting for the ncc document to load
     deferred = jQuery.Deferred()
     deferred.promise this
-    currentSegment = @setCurrentSegment initialSegmentURL
+    @nccDocument = @book.nccDocument
+    @nccDocument.pipe () -> deferred.resolve()
+    this
 
-    unless currentSegment
-      log.error "Playlist: Failed to find initial segment"
-      deferred.reject this
-      return
-    
-    current.done =>
-      log.message "Playlist: Loaded initial segment"
-      deferred.resolve this
-    
-    current.fail =>
-      log.error "Playlist: Failed to load initial segment"
-      deferred.reject this
-  
-    hasNextSegment: -> @currentSegment.hasNext() or hasNextSection()
+  currentSection: -> @currentSegment.section
 
-    hasPreviousSegment: -> @currentSegment.hasPrevious() or hasPreviousSection()
-  
-    hasNextSection: -> @currentSection.next?
-  
-    hasPreviousSection: -> @currentSection.previous?
-  
-    loadCurrentSection: ->
-      if @currentSection?
-        @currentSegment = null
-        return @currentSection.load()
+  hasNextSegment: -> @currentSegment?.hasNext() or hasNextSection()
+
+  hasPreviousSegment: -> @currentSegment?.hasPrevious() or hasPreviousSection()
+
+  hasNextSection: -> @currentSection()?.next?
+
+  hasPreviousSection: -> @currentSection()?.previous?
+
+  load: (segment) ->
+    @currentSegment = segment
+    segment
+
+  rewind: -> @load @nccDocument.firstSegment()
+
+  nextSection: -> @load @currentSection().next()
+
+  previousSection: -> @load @currentSection().previous()
+    
+  nextSegment: ->
+    if @currentSegment.hasNext()
+      return @load @currentSection(), @currentSegment.next
+    else
+      if @currentSection().hasNext()
+        return @load @currentSection().next.firstSegment()
+      else
+        return null
+    
+  previousSegment: ->
+    if @currentSegment.hasPrevious()
+      return @load @currentSection(), @currentSegment.previous
+    else
+      if @currentSection().hasPrevious()
+        return @load @currentSection().previous.firstSegment()
       else
         return null
 
-    rewind: ->
-      @currentSegment = @nccDocument.firstSegment()
-      @currentSection = @currentSegment.section
-      return @currentSegment
+  # Will rewind to start if no url is provided
+  segmentByURL: (url) ->
+    if url?
+      if segment = @nccDocument.getSegmentByURL(url)
+        return @load segment
+    else
+      return @rewind()
 
-  	nextSection: ->
-      @currentSection = @currentSection.next()
-      return @loadCurrentSection
-  
-    previousSection: ->
-      @currentSection = @currentSection.previous()
-      return @loadCurrentSection
-      
-    nextSegment: ->
-      if @currentSegment.hasNext()
-        @currentSegment = @currentSegment.getNext()
-        return @currentSegment
-      else
-        if @currentSection.hasNext()
-          @currentSegment = @nextSection.firstSegment()
-          return @currentSegment
-        else
-          return null
-      
-    previousSegment: ->
-      if @currentSegment.hasPrevious()
-        @currentSegment = @currentSegment.getPrevious()
-        return @currentSegment
-      else
-        if @currentSection.hasPrevious()
-          @currentSegment = @previousSection.lastSegment()
-          return @currentSegment
-        else
-          return null
-  
-    # Will rewind to start if no url is provided    
-    setCurrentSection: (url) ->
-    	if url?
-        @currentSection = @nccDocument.getSectionByURL(url)
-        @currentSegment = @currentSection?.firstSegment()
-      else
-      	@currentSection = @nccDocument.firstSegment().section
-      
-      log.warn "Playlist: Couldn't find section" unless @currentSection?
-
-    # Will rewind to start if no url is provided    
-    setCurrentSegment: (url) ->
-    	if url?
-        @currentSegment = @nccDocument.getSegmentByURL(url)
-      else
-        @currentSegment = @nccDocument.firstSegment()
-      if @currentSegment?
-        @currentSection = @currentSegment.section
-      else
-      	log.warn "Playlist: Couldn't find segment"
-
-
+  segmentAtOffset: (offset = 0) ->
+    if segment = @nccDocument.getSegmentAtOffset(offset)
+      return @load segment

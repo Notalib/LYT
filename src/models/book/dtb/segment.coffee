@@ -35,121 +35,109 @@
 class LYT.Segment
   constructor: (section, data) ->
     # Set up deferred load of images
-    deferred = jQuery.Deferred()
-    deferred.promise this
-    # Images still to be loaded
-    queuedImages = []
-    
-    # Declare `load` here to set its scope
-    @load = null
-    # closure to avoid scope pollution
-    do =>
-      # Preload any images in the transcript (i.e. html)
-      load = ->
-        # Skip if already finished
-        return deferred.promise() if deferred.state() is "resolved"
-        queue = []
-        if queuedImages.length
-          # Load all images
-          while queuedImages.length
-            src = queuedImages.shift()
-            # Use Deferreds to set up a `when` trigger
-            load = jQuery.Deferred()
-            queue.push load.promise()
-            # 1998 called; they want their preloading technique back
-            tmp = new Image
-            tmp.onload  = ->
-              log.message "Preloaded image #{src}"
-              load.resolve()
-            tmp.onerror = ->
-              log.error "Failed to preload image #{src}"
-              load.reject()
-            tmp.src = src
-            # When all images have loaded (or failed)...
-            jQuery.when.apply(null, queue).then -> deferred.resolve()
-          else
-          	# Resolve right away if there are no images
-          	deferred.resolve()
-        
-        return deferred.promise()
-      
-    @url = -> "#{section.url}##{@id}"
-    
-    @section = -> section
-    
-    @ready = -> deferred.state() isnt "pending"
-    
-    rawSegments = section.document.segments
-    cachedSegment = section.segments
-    
-    @hasNext = -> @index < rawSegments.length - 1
-    
-    @hasPrevious = -> @index > 0
-    
-    @getNext = ->
-      return null unless @hasNext()
-      section.segments[@index + 1] or= new LYT.Segment section, rawSegments[@index + 1]
-    
-    @getPrevious = ->
-      return null unless @hasPrevious()
-      section.segments[@index - 1] or= new LYT.Segment section, rawSegments[@index - 1]
-    
-    # Get a resource by its local URL
-    getResource = (resource) ->
-      return null unless resource?
-      section.resources[resource]
-    
-    # Get the absolute URL for a relative URL
-    resolveRelativeUrl = (relative) ->
-      getResource(relative)?.url or null
-    
-    # Remove links.  
-    # This will fall apart on nested links, I think.
-    # Then again, nested links are very illegal anyway
-    removeLinks = (element) ->
-      return null if not element? or element.length is 0
-      element.find("a").each ->
-        item = jQuery this
-        item.replaceWith item.html()
-      element
-    
-    # Fix relative links in `src` attrs
-    absolutizeSrcUrls = (element) ->
-      return null if not element? or element.length is 0
-      element.find("*[src]").each ->
-        item = jQuery this
-        return if item.data("relative")?
-        item.attr "src", "#{resolveRelativeUrl item.attr("src")}"
-        item.data "relative", "yes" # Mark as already-processed
-      element
-    
-    # Find images in the HTML
-    findImageUrls = (element) ->
-      return [] if not element? or element.length is 0
-      jQuery.map element.find("img"), (img) -> img.src
+    @_deferred = jQuery.Deferred()
+    @_deferred.promise this
     
     # Add properties
-    @id     = data.id
-    @index  = data.index
-    @start  = data.start
-    @end    = data.end
-    @audio  = getResource(data.audio.src)?.url
-    @text   = null
-    @html   = null
-    @images = []
+    @id      = data.id
+    @index   = data.index
+    @start   = data.start
+    @end     = data.end
+    @section = section
+    # Will be initialized in the load() method
+    @text    = null
+    @html    = null
+    @images  = []
+    @audio   = []
+    @data    = data
     
+  # Loads all resources
+  load: ->
+    # Skip if already finished
+    return @_deferred.promise() if @_deferred.state() is "resolved"
+
     # Parse transcript content
-    [contentUrl, contentId] = data.text.src.split "#"
+    [contentUrl, contentId] = @data.text.src.split "#"
+    unless resource = @section.resources[contentUrl]
+      log.error "Segment: no absolute URL for content #{contentUrl}"
+      @_deferred.reject()
+      return @_deferred.promise()
+    else
+      resource.document = new LYT.TextContentDocument resource.url
+      _this = this
+      resource.document.done ->
+        element = resource.document.getContentById contentId
+        _this.removeLinks element
+        _this.absolutizeSrcUrls element
+        _this.text   = jQuery.trim element?.text() or ""
+        _this.html   = element?.html()
+        _this.images = _this.findImageUrls element
+
+        queue = []
+        for src in _this.images
+          # Use Deferreds to set up a `when` trigger
+          load = jQuery.Deferred()
+          queue.push load.promise()
+          # 1998 called; they want their preloading technique back
+          tmp = new Image
+          tmp.onload  = ->
+            log.message "Preloaded image #{src}"
+            load.resolve()
+          tmp.onerror = ->
+            log.error "Failed to preload image #{src}"
+            load.reject()
+          tmp.src = src
+
+        # When all images have loaded (or failed)...
+        jQuery.when.apply(null, queue).then ->
+          _this.audio = _this.getResource(_this.data.audio.src)?.url
+          _this._deferred.resolve(_this)
     
-    # TODO: Check calling sequence - no use checking for "resolved" if it already is
-    # and no way to re-call the constructor if it isn't resolved, so it's rather pointless
-    if not contentId or getResource(contentUrl)?.document?.state() isnt "resolved"
-      throw "SMIL file not loaded"
-      
-    element = getResource(contentUrl).document.getContentById contentId
-    removeLinks element
-    absolutizeSrcUrls element
-    @text   = jQuery.trim element?.text() or ""
-    @html   = element?.html()
-    @images = findImageUrls element
-    queuedImages = @images.slice 0
+    return @_deferred.promise()
+    
+
+  url: -> "#{@section.url}##{@id}"
+  
+  ready: -> @_deferred.state() isnt "pending"
+  
+  hasNext: -> @next?
+  
+  hasPrevious: -> @previous?
+  
+  getNext: -> @next
+  
+  getPrevious: -> @previous
+  
+  # Get a resource by its local URL
+  getResource: (resource) ->
+    return null unless resource?
+    @section.resources[resource]
+  
+  # Get the absolute URL for a relative URL
+  resolveRelativeUrl: (relative) ->
+    @getResource(relative)?.url or null
+  
+  # Remove links.  
+  # This will fall apart on nested links, I think.
+  # Then again, nested links are very illegal anyway
+  removeLinks: (element) ->
+    return null if not element? or element.length is 0
+    element.find("a").each ->
+      item = jQuery this
+      item.replaceWith item.html()
+    element
+  
+  # Fix relative links in `src` attrs
+  absolutizeSrcUrls: (element) ->
+    return null if not element? or element.length is 0
+    element.find("*[src]").each ->
+      item = jQuery this
+      return if item.data("relative")?
+      item.attr "src", "#{@resolveRelativeUrl item.attr("src")}"
+      item.data "relative", "yes" # Mark as already-processed
+    element
+  
+  # Find images in the HTML
+  findImageUrls: (element) ->
+    return [] if not element? or element.length is 0
+    jQuery.map element.find("img"), (img) -> img.src

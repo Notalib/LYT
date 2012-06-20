@@ -8,11 +8,11 @@ do ->
   
   # Class to model a SMIL document
   class LYT.SMILDocument extends LYT.DTBDocument
-    constructor: (url) ->
+    constructor: (section, url) ->
       super url, (deferred) =>
         mainSequence = @source.find("body > seq:first")
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
-        @segments    = parseMainSeqNode mainSequence
+        @segments    = parseMainSeqNode section, mainSequence
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
     
     # Caveat emptor: returns raw segments
@@ -23,19 +23,12 @@ do ->
     	return null
     	
     # Caveat emptor: returns raw segments
-    getSegmentByTime: (offset = 0) ->
+    getSegmentAtOffset: (offset = 0) ->
       offset = 0 if offset < 0
       for segment, index in @segments
         return segment if segment.start <= offset < segment.end
       
       return null
-    
-    getTextContentReferences: ->
-      urls = []
-      for segment in @segments when segment.text?
-        url = segment.text.src.replace /#.*$/, ""
-        urls.push url if urls.indexOf(url) is -1
-      urls
     
     getAudioReferences: ->
       urls = []
@@ -49,16 +42,21 @@ do ->
   # ## Privileged
   
   # Parse the main `<seq>` element's `<par>`s (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
-  parseMainSeqNode = (sequence) ->
+  parseMainSeqNode = (section, sequence) ->
     clips = []
     sequence.children("par").each ->
-      clips = clips.concat parseParNode(jQuery(this))
-    clip.index = index for clip, index in clips
+      clips = clips.concat parseParNode(section, jQuery(this))
+    previous = null
+    for clip, index in clips
+      clip.index = index
+      clip.previous = previous
+      previous?.next = clip
+      clips[index] = new LYT.Segment section, clip
     clips
   
   
   # Parse a `<par>` node
-  parseParNode = (par) ->
+  parseParNode = (section, par) ->
     # Find the `text` node, and parse it separately
     text = parseTextNode par.find("text:first")
     
@@ -70,6 +68,7 @@ do ->
       start: parseNPT audio.attr("clip-begin")
       end:   parseNPT audio.attr("clip-end")
       text:  text
+      section: section
       audio:
         id:  audio.attr "id"
         src: audio.attr "src"

@@ -14,22 +14,84 @@ do ->
         @sections  = flattenStructure @structure
         linkSections @sections
 
-    firstSection: -> @sections[0]
+    # The section getters below returns promises that wait for the section
+    # resources to load.
+
+    # Helper function for section getters
+    # Return a promise that ensures that resources for both this object
+    # and the section are loaded.
+    _getSection: (getter) ->
+      this.pipe (document) ->
+        section.load() if section = getter(document.sections)
+        console.log 'Returning section from _getSection:'
+        console.log section
+        section
+
+    firstSection: -> @_getSection (sections) -> sections[0]
 
     getSectionByURL: (url) ->
       baseUrl = url.split('#')[0]
-      for segment, index in @sections
-        if segment.url is baseUrl
-        	return segment.load() or null
-        	
-      return null
+      @_getSection (sections) ->
+        for section, index in sections
+          return section if section.url is baseUrl
 
+    # The segment getters below should not try waiting for resources to load
+    # since this is the responsibility of the Section class as they are
+    # sub-components of this class.
+
+    firstSegment: -> 
+      section = @firstSection()
+      section.pipe (section) ->
+        console.log section
+        return section.firstSegment()
+    
     getSegmentByURL: (url) ->
       id = url.split('#')[1]
-      # TODO: If no id is provided, should we default to the first segment?
-      return null if id is null
-      return @getSectionByURL(url)?.getSegmentById(id)
-  
+      if section = @getSectionByURL(url)
+        if id?
+          return section.getSegmentById(id)
+        else
+          return section.firstSegment()
+      throw 'getSegmentByURL called without any URL'
+    
+#    firstSegment: -> 
+#      deferred = jQuery.Deferred()
+#      if section = @firstSection()?
+#        section.done ->
+#          section.firstSegment().done ->
+#            deferred.resolve section.firstSegment()
+#          section.firstSegment().fail ->
+#            deferred.reject()
+#        section.fail ->
+#          deferred.reject()
+#      else
+#        deferred.reject 'No section'
+#      deferred.promise()
+
+#    getSegmentByURL: (url) ->
+#      id = url.split('#')[1]
+#      if section = @getSectionByURL(url)
+#        if id?
+#          deferred = jQuery.Deferred()
+#          section.done ->
+#            segment = section.getSegmentById(id)
+#            segment.done ->
+#              deferred.resolve segment
+#            segment.fail ->
+#              deferred.reject 'Unable to loads egment with provided id'
+#          return deferred
+#        else
+#          return section.firstSegment()
+#      throw 'getSegmentByURL called without any URL'
+
+    # FIXME: This method has to take loading into account
+    getSegmentByOffset: (offset) ->
+      if offset?
+        for section in @sections
+          return segment if segment = section.getSegmentAtOffset(offset)
+      else
+        throw 'getSegmentByOffset called without an offset'
+
   # -------
   
   # ## Privileged

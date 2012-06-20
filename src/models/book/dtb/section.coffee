@@ -29,35 +29,16 @@ class LYT.Section
     @children = []
     # The SMIL document (not loaded initially)
     @document = null
-    # The section's segments
-    @segments = []
-    # The current segment-index
-    @currentIndex = false
   
   load: ->
+    console.log("Section: load(\"#{@url}\") called")
     return this if @document?
-    
+
     file = @url.replace /#.*$/, ""
     url  = @resources[file]?.url
-    @document = new LYT.SMILDocument url
+    @document = new LYT.SMILDocument this, url
     
-    # SMIL document loaded for this section
-    @document.done =>
-      textContentDocuments = @document.getTextContentReferences()
-      for file, index in textContentDocuments
-        unless @resources[file]
-          log.error "Section: No absolute URL for file #{file}"
-          @_deferred.reject()
-          return
-        
-        unless @resources[file].document?
-          @resources[file].document = new LYT.TextContentDocument @resources[file].url
-          textContentDocuments[index] = @resources[file].document
-        
-      jQuery.when.apply(null, textContentDocuments)
-        .then => @_deferred.resolve(this)
-        .fail => @_deferred.reject(this)
-    
+    @document.done => @_deferred.resolve(this)    
     @document.fail =>
       log.error "Section: Failed to load SMIL-file #{@url.replace /#.*$/, ""}"
       @_deferred.reject()
@@ -76,35 +57,45 @@ class LYT.Section
       urls.push url if url
     urls
   
-  
   hasNext: -> @next?
   
   hasPrevious: -> @previous?
   
-  # Problem: the segments below are data segments
-  firstSegment: -> @segments[0]
-  
-  lastSegment: -> @segments[@segments.length - 1]
+  # Since segments are sub-components of this class, we ensure that loading
+  # is complete before returning them.
+
+  # Helper function for segment getters
+  # Return a promise that ensures that resources for both this object
+  # and the segment are loaded.
+  _getSegment: (getter) ->
+    this.pipe (section) ->
+      console.log section
+      segment.load() if segment = getter(section.document.segments)
+      segment
+
+  firstSegment: -> @_getSegment (segments) -> segments[0]
+
+  lastSegment: -> @_getSegment (segments) -> segments[segments.length - 1]
   
   getSegmentById: (id) ->
-  	rawSegment = @document.getSegmentById id
-  	return null unless rawSegment?
-  	@segments[rawSegment.index] or= new LYT.Segment this, rawSegment
+    @_getSegment (segments) ->
+      for segment in segments
+        return segment if segment.id is id
   
   # Retrieves the media (text and audio) at a given point
   # in time (seconds, relative to the section).
   # Both arguments are optional. If no arguments are given, 
   # the first section's first text & audio will be loaded.  
-  # If no matching media is found, `null` will be propagated.  
+  # If no matching media is found, `null` will be propagated.
   #
   # CHANGED: Now caches and returns `LYT.Segment` instances  
   # TODO: There's a lot of unnecessary data-duplication going
   # on between the various models... that should probably
   # be alleviated somehow
-  segmentAtOffset: (offset = 0) ->
-    rawSegment = @document.getSegmentByTime offset
-    return null unless rawSegment?
-    @segments[rawSegment.index] or= new LYT.Segment this, rawSegment
+  segmentAtOffset: (offset = 0) -> 
+    @_getSegment (segments) ->
+      for segment in segments
+        return segment if segment.start <= offset < segment.end
   
   # Flattens the structure from this section and "downwards"
   flatten: ->
