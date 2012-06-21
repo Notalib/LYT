@@ -293,8 +293,6 @@ LYT.service = do ->
     withLogOn -> LYT.rpc("getBookmarks", bookId)
   
   setBookmarks: (bookmarks) ->
-    console.log('setBookmarks:')
-    console.log(bookmarks)
     withLogOn -> LYT.rpc("setBookmarks", bookmarks)
   
   announcementsSupported: ->
@@ -308,16 +306,13 @@ LYT.service = do ->
     if LYT.service.announcementsSupported()
 
       deferred = jQuery.Deferred()
-
       
       response =  withLogOn -> LYT.rpc("getServiceAnnouncements")
       response.done (announcements) ->
         LYT.render.ShowAnnouncements(announcements)
         deferred.resolve()
-
         
       response.fail (err, message) -> deferred.reject err, message
-
 
       deferred.promise()
   

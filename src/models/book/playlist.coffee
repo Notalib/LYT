@@ -7,8 +7,6 @@
 
 class LYT.Playlist
   
-  # TODO Handle preloading
-  
   constructor: (@book) ->
     # Make the playlist a promise waiting for the ncc document to load
     deferred = jQuery.Deferred()
@@ -63,6 +61,6 @@ class LYT.Playlist
     else
       return @rewind()
 
-  segmentAtOffset: (offset = 0) ->
-    if segment = @nccDocument.getSegmentAtOffset(offset)
+  segmentByOffset: (offset = 0) ->
+    if segment = @nccDocument.getSegmentByOffset(offset)
       return @load segment

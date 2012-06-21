@@ -54,44 +54,48 @@ class LYT.Segment
   # Loads all resources
   load: ->
     # Skip if already finished
-    return @_deferred.promise() if @_deferred.state() is "resolved"
+    return this if @state() is "resolved"
 
-    # Parse transcript content
-    [contentUrl, contentId] = @data.text.src.split "#"
-    unless resource = @section.resources[contentUrl]
-      log.error "Segment: no absolute URL for content #{contentUrl}"
-      @_deferred.reject()
-      return @_deferred.promise()
-    else
-      resource.document = new LYT.TextContentDocument resource.url
-      _this = this
-      resource.document.done ->
-        element = resource.document.getContentById contentId
-        _this.removeLinks element
-        _this.absolutizeSrcUrls element
-        _this.text   = jQuery.trim element?.text() or ""
-        _this.html   = element?.html()
-        _this.images = _this.findImageUrls element
-
-        queue = []
-        for src in _this.images
-          # Use Deferreds to set up a `when` trigger
-          load = jQuery.Deferred()
-          queue.push load.promise()
-          # 1998 called; they want their preloading technique back
-          tmp = new Image
-          tmp.onload  = ->
-            log.message "Preloaded image #{src}"
-            load.resolve()
-          tmp.onerror = ->
-            log.error "Failed to preload image #{src}"
-            load.reject()
-          tmp.src = src
-
-        # When all images have loaded (or failed)...
-        jQuery.when.apply(null, queue).then ->
-          _this.audio = _this.getResource(_this.data.audio.src)?.url
-          _this._deferred.resolve(_this)
+    # First make sure that the section we belong to has finished loading
+    @section.done =>
+      log.message "Segment: loading #{@url()}"
+      # Parse transcript content
+      [contentUrl, contentId] = @data.text.src.split "#"
+      unless resource = @section.resources[contentUrl]
+        log.error "Segment: no absolute URL for content #{contentUrl}"
+        @_deferred.reject()
+        return @_deferred.promise()
+      else
+        resource.document = new LYT.TextContentDocument resource.url
+        # FIXME: Use fat arrow syntax to preserve `this`
+        _this = this
+        resource.document.done ->
+          element = resource.document.getContentById contentId
+          _this.removeLinks element
+          _this.absolutizeSrcUrls element
+          _this.text   = jQuery.trim element?.text() or ""
+          _this.html   = element?.html()
+          _this.images = _this.findImageUrls element
+  
+          queue = []
+          for src in _this.images
+            # Use Deferreds to set up a `when` trigger
+            load = jQuery.Deferred()
+            queue.push load.promise()
+            # 1998 called; they want their preloading technique back
+            tmp = new Image
+            tmp.onload  = ->
+              log.message "Preloaded image #{src}"
+              load.resolve()
+            tmp.onerror = ->
+              log.error "Failed to preload image #{src}"
+              load.reject()
+            tmp.src = src
+  
+          # When all images have loaded (or failed)...
+          jQuery.when.apply(null, queue).then ->
+            _this.audio = _this.getResource(_this.data.audio.src)?.url
+            _this._deferred.resolve(_this)
     
     return @_deferred.promise()
     
@@ -107,7 +111,15 @@ class LYT.Segment
   getNext: -> @next
   
   getPrevious: -> @previous
-  
+
+  # Will load this segment and the next preloadCount segments  
+  preloadNext: (preloadCount = 3) ->
+    # FIXME: avoid trying to preload more than once
+    log.message "Segment: preloadNext(#{preloadCount})"
+    this.load()
+    if preloadCount > 0
+      this.done (segment) -> segment.next?.preloadNext(preloadCount - 1)
+
   # Get a resource by its local URL
   getResource: (resource) ->
     return null unless resource?

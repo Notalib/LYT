@@ -31,8 +31,9 @@ class LYT.Section
     @document = null
   
   load: ->
-    console.log("Section: load(\"#{@url}\") called")
-    return this if @document?
+    return this if @state() is "resolved"
+
+    log.message("Section: loading(\"#{@url}\")")
 
     file = @url.replace /#.*$/, ""
     url  = @resources[file]?.url
@@ -69,7 +70,6 @@ class LYT.Section
   # and the segment are loaded.
   _getSegment: (getter) ->
     this.pipe (section) ->
-      console.log section
       segment.load() if segment = getter(section.document.segments)
       segment
 
@@ -92,7 +92,7 @@ class LYT.Section
   # TODO: There's a lot of unnecessary data-duplication going
   # on between the various models... that should probably
   # be alleviated somehow
-  segmentAtOffset: (offset = 0) -> 
+  getSegmentByOffset: (offset = 0) -> 
     @_getSegment (segments) ->
       for segment in segments
         return segment if segment.start <= offset < segment.end

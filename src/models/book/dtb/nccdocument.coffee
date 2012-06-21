@@ -23,8 +23,6 @@ do ->
     _getSection: (getter) ->
       this.pipe (document) ->
         section.load() if section = getter(document.sections)
-        console.log 'Returning section from _getSection:'
-        console.log section
         section
 
     firstSection: -> @_getSection (sections) -> sections[0]
@@ -39,10 +37,13 @@ do ->
     # since this is the responsibility of the Section class as they are
     # sub-components of this class.
 
+#STILL PROBLEMS HERE: not returning segments
+#Possible solution in client code: document.firstSegment().done (segment) -> ...
+#That should work
     firstSegment: -> 
       section = @firstSection()
+      # FIXME: The pipe below shouldn't be necessary
       section.pipe (section) ->
-        console.log section
         return section.firstSegment()
     
     getSegmentByURL: (url) ->
@@ -88,7 +89,7 @@ do ->
     getSegmentByOffset: (offset) ->
       if offset?
         for section in @sections
-          return segment if segment = section.getSegmentAtOffset(offset)
+          return segment if segment = section.getSegmentByOffset(offset)
       else
         throw 'getSegmentByOffset called without an offset'
 

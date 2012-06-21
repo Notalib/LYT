@@ -17,11 +17,11 @@ do ->
     
     # Caveat emptor: returns raw segments
     getSegmentById: (id) ->
-    	for segment, index in @segments
-    	  return segment if segment.id == id
-    	
-    	return null
-    	
+      for segment, index in @segments
+        return segment if segment.id == id
+      
+      return null
+      
     # Caveat emptor: returns raw segments
     getSegmentAtOffset: (offset = 0) ->
       offset = 0 if offset < 0
@@ -48,23 +48,34 @@ do ->
       clips = clips.concat parseParNode(section, jQuery(this))
     previous = null
     for clip, index in clips
+      clip = new LYT.Segment section, clip
       clip.index = index
       clip.previous = previous
       previous?.next = clip
-      clips[index] = new LYT.Segment section, clip
+      clips[index] = clip
+      previous = clip
     clips
   
   
   # Parse a `<par>` node
+  idCounter = 1
   parseParNode = (section, par) ->
     # Find the `text` node, and parse it separately
     text = parseTextNode par.find("text:first")
     
+    # TODO: This function has to be rewritten so it can take the following
+    # into account when collapsing clips into one:
+    #  - Changing source file
+    #  - Changing id
+    #  - Non-adjacent clips (i.e. some parts of an audio file that should
+    #    be skipped)
+    #  - Changing text
+
     # Find all nested `audio` nodes
     clips = par.find("> audio, seq > audio").map ->
       audio = jQuery this
       
-      id:    par.attr "id"
+      id:    par.attr("id")
       start: parseNPT audio.attr("clip-begin")
       end:   parseNPT audio.attr("clip-end")
       text:  text
@@ -77,12 +88,10 @@ do ->
     clips.sort (a, b) -> a.start - b.start
     
     # Collapse audio references into 1
-    if clips.length > 1
-      clip = clips[0]
-      clip.end = clips[clips.length-1].end
-      return [clip]
-    
-    clips
+    clip = clips[0]
+    clip.end = clips[clips.length-1].end
+    clip.id or= "!auto_#{idCounter++}"
+    return [clip]
   
   
   parseTextNode = (text) ->

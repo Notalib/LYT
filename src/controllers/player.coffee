@@ -40,7 +40,7 @@ LYT.player =
   
   lastBookmark: (new Date).getTime()
   
-  segment: -> @playlist.currentSegment()
+  segment: -> @playlist.currentSegment
   
   section: -> @playlist.currentSection()
   
@@ -140,7 +140,7 @@ LYT.player =
           #alert event.jPlayer.status.duration
           @gotDuration = false
           if(@getStatus().src == @segment().audio && @playAttemptCount <= LYT.config.player.playAttemptLimit )
-            @el.jPlayer "setMedia", {mp3: @media.audio}
+            @el.jPlayer "setMedia", {mp3: @segment().audio}
             @el.jPlayer "load"
             @playAttemptCount = @playAttemptCount + 1 
             log.message @playAttemptCount
@@ -332,7 +332,7 @@ LYT.player =
     @load(@playlist.segmentAtOffset @time)
     
     if @segment() and not @getStatus()?.paused
-      @preloadSegments @segment()
+      @segment().done @preloadSegments
       if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
         @updateLastMark()
     
@@ -377,16 +377,14 @@ LYT.player =
         segment.fail =>
           log.error "Player: Failed to get playlist"
   
-  # Preload segments - stay a few steps ahead of playback  
+  # Preload segments - stay a few steps ahead of playback
   # This will preload any images contained in the segments
-  preloadSegments: (segment) ->
-    preloadCounter = @segmentLookahead
-    while preloadCounter--
-      segment = segment.getNext() if segment.hasNext()
-  
+  # TODO: More elegant use of segmentLookahead config value
+  preloadSegments: (segment) => segment.preloadNext(LYT.player.segmentLookahead)
+      
   playSection: (section, offset = 0, autoPlay = true) ->
     
-    @playlist.load section.firstSegment()
+    section = @playlist.rewind() unless section?
     
     LYT.loader.register "Loading book", section
     
@@ -395,16 +393,16 @@ LYT.player =
       jQuery("#player-chapter-title h2").text section.title
 
       # Get the media obj
-      @playlist.segmentAtOffset offset
+      @playlist.segmentByOffset offset
       
       @renderTranscript()
       
       if @segment()?
         # TODO: Handle segment-load failures
         @segment().always =>
-          @el.jPlayer "setMedia", {mp3: @media.audio}
+          @el.jPlayer "setMedia", {mp3: @segment().audio}
           # Start preloading the next segments
-          @preloadSegments @segment()
+          @segment().done @preloadSegments
       else
         # If no media was found, check whether the section has a single,
         # unambiguous MP3 file, we can load instead
@@ -446,9 +444,9 @@ LYT.player =
       if @segment()?
         # TODO: Handle segment-load failures
         @segment().always =>
-          @el.jPlayer "setMedia", {mp3: @media.audio}
+          @el.jPlayer "setMedia", {mp3: @segment().audio}
           # Start preloading the next segments
-          @preloadSegments @segment()
+          @segment().done @preloadSegments
       else
         # If no media was found, check whether the section has a single,
         # unambiguous MP3 file, we can load instead
@@ -495,7 +493,7 @@ LYT.player =
     return unless force or not @lastBookmark or now - @lastBookmark > interval
     if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
       return
-    @book.setLastmark @media, @getStatus().currentTime
+    @book.setLastmark @segment(), @getStatus().currentTime
     @lastBookmark = now
   
   getCurrentlyPlaying: ->
