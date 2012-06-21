@@ -368,14 +368,10 @@ LYT.player =
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
         @playlist = @book.playlist
-        
-        segment = @playlist.segmentByURL url
-        
-        segment.done =>
-          @playSection @playlist.currentSection(), offset, autoPlay
-        
-        segment.fail =>
-          log.error "Player: Failed to get playlist"
+        @playlist.done (playlist) =>
+          segment = if url then playlist.segmentByURL url else playlist.rewind()
+          segment.done => @playSection playlist.currentSection(), offset, autoPlay
+          segment.fail => log.error "Player: Failed to get playlist"
   
   # Preload segments - stay a few steps ahead of playback
   # This will preload any images contained in the segments
