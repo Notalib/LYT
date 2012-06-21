@@ -28,32 +28,33 @@ class LYT.Playlist
   hasPreviousSection: -> @currentSection()?.previous?
 
   load: (segment) ->
-    segment.done (segment) => @currentSegment = segment
+    segment.done (segment) =>
+    	if segment?
+        @currentSegment = segment
     segment
 
   rewind: -> @load @nccDocument.firstSegment()
 
-  nextSection: -> @load @currentSection().next()
+  nextSection: ->
+    @currentSection().next.load()
+    @load @currentSection().next.firstSegment()
 
-  previousSection: -> @load @currentSection().previous()
+  previousSection: ->
+    @currentSection().previous.load()
+    @load @currentSection().previous.firstSegment()
     
   nextSegment: ->
     if @currentSegment.hasNext()
-      return @load @currentSection(), @currentSegment.next
+      return @load @currentSegment.next
     else
-      if @currentSection().hasNext()
-        return @load @currentSection().next.firstSegment()
-      else
-        return null
+    	return @nextSection()
     
   previousSegment: ->
     if @currentSegment.hasPrevious()
-      return @load @currentSection(), @currentSegment.previous
+      return @load @currentSegment.previous
     else
-      if @currentSection().hasPrevious()
-        return @load @currentSection().previous.firstSegment()
-      else
-        return null
+      @currentSection().previous.load()
+      @load @currentSection().previous.lastSegment()
 
   # Will rewind to start if no url is provided
   segmentByURL: (url) ->
@@ -64,5 +65,5 @@ class LYT.Playlist
       return @rewind()
 
   segmentByOffset: (offset = 0) ->
-    if segment = @nccDocument.getSegmentByOffset(offset)
+    if segment = @currentSection().getSegmentByOffset(offset)
       return @load segment

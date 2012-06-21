@@ -4,6 +4,13 @@
 
 # -------------------
 
+#    getTextContentReferences: ->
+#      urls = []
+#      for segment in @segments when segment.text?
+#        url = segment.text.src.replace /#.*$/, ""
+#        urls.push url if urls.indexOf(url) is -1
+#      urls
+
 do ->
   
   # Class to model a SMIL document
@@ -14,7 +21,7 @@ do ->
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @segments    = parseMainSeqNode section, mainSequence
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
-    
+
     # Caveat emptor: returns raw segments
     getSegmentById: (id) ->
       for segment, index in @segments

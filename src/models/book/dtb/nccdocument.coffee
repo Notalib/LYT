@@ -85,14 +85,6 @@ do ->
 #          return section.firstSegment()
 #      throw 'getSegmentByURL called without any URL'
 
-    # FIXME: This method has to take loading into account
-    getSegmentByOffset: (offset) ->
-      if offset?
-        for section in @sections
-          return segment if segment = section.getSegmentByOffset(offset)
-      else
-        throw 'getSegmentByOffset called without an offset'
-
   # -------
   
   # ## Privileged
@@ -172,11 +164,11 @@ do ->
 
   # Initializes previous and next attributes on section objects  
   linkSections = (sections) ->
-    last = null
+    previous = null
     for section in sections
-      if last?
-        section.previous = last
-        last.next        = section
+      section.previous = previous
+      previous?.next = section
+      previous = section
 
     
   

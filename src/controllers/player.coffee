@@ -44,6 +44,21 @@ LYT.player =
   
   section: -> @playlist.currentSection()
   
+  playSegment: (segment) ->
+    throw 'Player: playSegment called with no segment' unless segment?
+    segment.done (segment) =>
+      @renderTranscript(segment)
+      segment.preloadNext()
+      if @currentAudio != segment.audio
+        @el.jPlayer "setMedia", {mp3: segment.audio}
+        @el.jPlayer "load"
+        @currentAudio = segment.audio
+        
+      if @getStatus()?.paused
+        @el.jPlayer "pause", Math.ceil(segment.start)
+      else
+        @el.jPlayer "play", Math.ceil(segment.start)
+
   init: ->
     log.message 'Player: starting initialization'
     # Initialize jplayer and set ready True when ready
@@ -51,7 +66,8 @@ LYT.player =
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
     @progressionMode = @PROGRESSION_MODES.MP3
-    
+    @currentAudio = ''
+         
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
@@ -63,26 +79,32 @@ LYT.player =
         
         # TODO: Disable next/prev buttons if there are not next/prev sections?
         jumpTo = (target) =>
-          @playlist.load(target)
-          @renderTranscript()
-          target.always =>
-            return unless @segment() is target
-            
-            # Use `Math.ceil()` to prevent jPlayer from approximating to a slightly
-            # earlier point in time, which will cause the wrong segment-object to be
-            # loaded
-            if @getStatus()?.paused
-              @el.jPlayer "pause", Math.ceil(@segment().start)
-            else
-              @el.jPlayer "play", Math.ceil(@segment().start)
-          
+          @renderTranscript(target)
+#          target.done (segment) =>
+          console.log 'Load done...'
+#          return unless @segment() is target
+          # Use `Math.ceil()` to prevent jPlayer from approximating to a slightly
+          # earlier point in time, which will cause the wrong segment-object to be
+          # loaded
+          if @getStatus()?.paused
+            @el.jPlayer "pause", Math.ceil(target.start)
+          else
+            @el.jPlayer "play", Math.ceil(target.start)
+
         @nextButton.click =>
-          if @playlist.hasNextSegment()
-            jumpto @playlist.getNextSegment()
+          log.message 'Player: next'
+          if segment = @playlist.nextSegment()
+            @playSegment segment
+          else
+            log.message 'Player: skipping to next section'
+            throw 'stop here'
+            @nextSection()
             
         @previousButton.click =>
-          if @playlist.hasPreviousSegment()
-            jumpto @playlist.getPreviousSegment()
+          log.message 'Player: prev'
+          if @playlist.hasPreviousSection()
+            log.message 'Player: skip to prev'
+            jumpTo @playlist.previousSection()
                      
       timeupdate: (event) =>
         #@fakeEnd(event.jPlayer.status) 
@@ -326,28 +348,25 @@ LYT.player =
     return unless @book?
     
     @time = status.currentTime
-    if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
-      @updateLastMark()
+    @updateLastMark()
     return if @segment()? and @segment().start <= @time < @segment().end
-    @load(@playlist.segmentAtOffset @time)
+
+    segment = @playlist.segmentByOffset @time
+    if segment and not @getStatus()?.paused
+      segment.done @preloadSegments
+      @updateLastMark()
     
-    if @segment() and not @getStatus()?.paused
-      @segment().done @preloadSegments
-      if(LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin)
-        @updateLastMark()
+    log.warn "Player: failed to get media segment for offset #{@time}" unless segment?
     
-    log.warn "Player: failed to get media segment for offset #{@time}" unless @segment()?
-    
-    @renderTranscript()
+    @renderTranscript(@segment())
   
   
-  renderTranscript: () ->
-    if @segment()?
+  renderTranscript: (segment) ->
+    if segment?
       LYT.render.textContent(@segment())
-      return
-    
-    # If there's no media, show nothing
-    jQuery("#book-text-content").empty()
+    else
+      # If there's no media, show nothing
+      jQuery("#book-text-content").empty()
   
   
   whenReady: (callback) ->
@@ -370,8 +389,11 @@ LYT.player =
         @playlist = @book.playlist
         @playlist.done (playlist) =>
           segment = if url then playlist.segmentByURL url else playlist.rewind()
-          segment.done => @playSection playlist.currentSection(), offset, autoPlay
-          segment.fail => log.error "Player: Failed to get playlist"
+          if segment?
+            segment.done => @playSection playlist.currentSection(), offset, autoPlay
+            segment.fail => log.error "Player: failed to load segment"
+          else
+            log.error "Player: failed to get segment promise"
   
   # Preload segments - stay a few steps ahead of playback
   # This will preload any images contained in the segments
@@ -391,28 +413,10 @@ LYT.player =
       # Get the media obj
       @playlist.segmentByOffset offset
       
-      @renderTranscript()
-      
-      if @segment()?
-        # TODO: Handle segment-load failures
-        @segment().always =>
-          @el.jPlayer "setMedia", {mp3: @segment().audio}
-          # Start preloading the next segments
-          @segment().done @preloadSegments
-      else
-        # If no media was found, check whether the section has a single,
-        # unambiguous MP3 file, we can load instead
-        log.warn "Player: failed to get media"
-        mp3s = @segment().getAudioUrls()
-        if mp3s.length isnt 1
-          # No media, no MP3: Just give up...
-          log.error "Player: Couldn't determine MP3 file"
-          return
-        @el.jPlayer "setMedia", {mp3: mp3s.pop()}
-      
-      # Load the mp3 that was set above
-      @el.jPlayer "load"
-      
+      @renderTranscript(@segment())
+
+      @playSegment(@segment())
+
       # TODO: Handle segment-load failures
       @segment().always =>
         if autoPlay
@@ -423,51 +427,6 @@ LYT.player =
     section.fail ->
       log.error "Player: Failed to load section #{section}"
 
-  # TODO Rename this method
-  playCurrent: (autoPlay = true) ->
-    
-    LYT.loader.register "Loading book", section
-    
-    @section()?.done =>
-      log.message "Player: Playlist current section #{@section.id}"
-      jQuery("#player-chapter-title h2").text section.title
-
-      # Get the media obj
-      @playlist.segmentAtOffset offset
-      
-      @renderTranscript()
-      
-      if @segment()?
-        # TODO: Handle segment-load failures
-        @segment().always =>
-          @el.jPlayer "setMedia", {mp3: @segment().audio}
-          # Start preloading the next segments
-          @segment().done @preloadSegments
-      else
-        # If no media was found, check whether the section has a single,
-        # unambiguous MP3 file, we can load instead
-        log.warn "Player: failed to get media"
-        mp3s = @segment().getAudioUrls()
-        if mp3s.length isnt 1
-          # No media, no MP3: Just give up...
-          log.error "Player: Couldn't determine MP3 file"
-          return
-        @el.jPlayer "setMedia", {mp3: mp3s.pop()}
-      
-      # Load the mp3 that was set above
-      @el.jPlayer "load"
-      
-      # TODO: Handle segment-load failures
-      @segment().always =>
-        if autoPlay
-          @play offset
-        else
-          @pause offset
-      
-    @section()?.fail ->
-      log.error "Player: Failed to load section #{section}"
-  
-  
   nextSection: (autoPlay = false) ->
     return null unless @playlist?
     if @playlist.hasNextSection() is false
@@ -483,6 +442,7 @@ LYT.player =
     @playSection section, 0, (autoPlay or @getStatus()?.paused is false)
   
   updateLastMark: (force = false) ->
+    return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
     return unless @book? and @section?
     now = (new Date).getTime()
     interval = LYT.config.player?.lastmarkUpdateInterval or 10000

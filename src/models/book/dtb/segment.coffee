@@ -67,18 +67,18 @@ class LYT.Segment
         return @_deferred.promise()
       else
         resource.document = new LYT.TextContentDocument resource.url
-        # FIXME: Use fat arrow syntax to preserve `this`
-        _this = this
-        resource.document.done ->
+        resource.document.done =>
           element = resource.document.getContentById contentId
-          _this.removeLinks element
-          _this.absolutizeSrcUrls element
-          _this.text   = jQuery.trim element?.text() or ""
-          _this.html   = element?.html()
-          _this.images = _this.findImageUrls element
-  
+          @removeLinks element
+          @absolutizeSrcUrls element
+          @text   = jQuery.trim element?.text() or ""
+          @html   = element?.html()
+          @images = @findImageUrls element
+          
           queue = []
-          for src in _this.images
+          log.message "Preloading images:"
+          console.log @images
+          for src in @images
             # Use Deferreds to set up a `when` trigger
             load = jQuery.Deferred()
             queue.push load.promise()
@@ -93,9 +93,9 @@ class LYT.Segment
             tmp.src = src
   
           # When all images have loaded (or failed)...
-          jQuery.when.apply(null, queue).then ->
-            _this.audio = _this.getResource(_this.data.audio.src)?.url
-            _this._deferred.resolve(_this)
+          jQuery.when.apply(null, queue).then =>
+            @audio = @getResource(@data.audio.src)?.url
+            @_deferred.resolve(this)
     
     return @_deferred.promise()
     
@@ -127,6 +127,7 @@ class LYT.Segment
   
   # Get the absolute URL for a relative URL
   resolveRelativeUrl: (relative) ->
+    console.log "Segment: resolve url: #{relative} -> #{@getResource(relative)?.url}"
     @getResource(relative)?.url or null
   
   # Remove links.  
@@ -134,16 +135,16 @@ class LYT.Segment
   # Then again, nested links are very illegal anyway
   removeLinks: (element) ->
     return null if not element? or element.length is 0
-    element.find("a").each ->
-      item = jQuery this
+    element.find("a").each (index, item) ->
+      item = jQuery item
       item.replaceWith item.html()
     element
   
   # Fix relative links in `src` attrs
-  absolutizeSrcUrls: (element) ->
+  absolutizeSrcUrls: (element) =>
     return null if not element? or element.length is 0
-    element.find("*[src]").each ->
-      item = jQuery this
+    element.find("*[src]").each (index, item) =>
+      item = jQuery item
       return if item.data("relative")?
       item.attr "src", "#{@resolveRelativeUrl item.attr("src")}"
       item.data "relative", "yes" # Mark as already-processed
