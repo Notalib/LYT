@@ -71,7 +71,7 @@ class LYT.Section
   _getSegment: (getter) ->
     this.pipe (section) ->
       segment.load() if segment = getter(section.document.segments)
-      console.log "Section:" + if segment? then " returning segment #{segment.url()}" else " not returning any segment"
+      log.message "Section:" + if segment? then " returning segment #{segment.url()}" else " not returning any segment"
       segment
 
   firstSegment: -> @_getSegment (segments) -> segments[0]

@@ -66,7 +66,7 @@ class LYT.Segment
         @_deferred.reject()
         return @_deferred.promise()
       else
-        resource.document = new LYT.TextContentDocument resource.url
+        resource.document or= new LYT.TextContentDocument resource.url
         resource.document.done =>
           element = resource.document.getContentById contentId
           @removeLinks element
@@ -76,29 +76,23 @@ class LYT.Segment
           @images = @findImageUrls element
           
           queue = []
-          log.message "Preloading images:"
-          console.log @images
           for src in @images
             # Use Deferreds to set up a `when` trigger
             load = jQuery.Deferred()
             queue.push load.promise()
             # 1998 called; they want their preloading technique back
             tmp = new Image
-            tmp.onload  = ->
-              log.message "Preloaded image #{src}"
-              load.resolve()
-            tmp.onerror = ->
-              log.error "Failed to preload image #{src}"
-              load.reject()
+            tmp.onload  = -> load.resolve()
+            tmp.onerror = -> load.reject()
             tmp.src = src
   
           # When all images have loaded (or failed)...
           jQuery.when.apply(null, queue).then =>
             @audio = @getResource(@data.audio.src)?.url
+            log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, @images
             @_deferred.resolve(this)
     
     return @_deferred.promise()
-    
 
   url: -> "#{@section.url}##{@id}"
   
@@ -114,8 +108,6 @@ class LYT.Segment
 
   # Will load this segment and the next preloadCount segments  
   preloadNext: (preloadCount = 3) ->
-    # FIXME: avoid trying to preload more than once
-    log.message "Segment: preloadNext(#{preloadCount})"
     this.load()
     if preloadCount > 0
       this.done (segment) -> segment.next?.preloadNext(preloadCount - 1)
