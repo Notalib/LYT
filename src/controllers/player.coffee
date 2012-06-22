@@ -96,15 +96,14 @@ LYT.player =
           if segment = @playlist.nextSegment()
             @playSegment segment
           else
-            log.message 'Player: skipping to next section'
-            throw 'stop here'
-            @nextSection()
+          	log.message 'Player: next clicked, but there is no next segment'
             
         @previousButton.click =>
           log.message 'Player: prev'
-          if @playlist.hasPreviousSection()
-            log.message 'Player: skip to prev'
-            jumpTo @playlist.previousSection()
+          if segment = @playlist.previousSegment()
+            @playSegment segment
+          else
+            log.message 'Player: previous clicked, but there is no previous segment'
                      
       timeupdate: (event) =>
         #@fakeEnd(event.jPlayer.status) 
