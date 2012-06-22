@@ -206,7 +206,7 @@ LYT.render = do ->
       img = $(this)
         
       vspace = ($(window).height() - 20)
-      log.message vspace
+      log.message "render: textContent: vspace: #{vspace}"
       
       if img.height() > vspace
         img.height(vspace)

@@ -72,6 +72,7 @@ class LYT.Section
     this.pipe (section) ->
       segment.load() if segment = getter(section.document.segments)
       log.message "Section:" + if segment? then " returning segment #{segment.url()}" else " not returning any segment"
+      throw 'die' unless segment?
       segment
 
   firstSegment: -> @_getSegment (segments) -> segments[0]

@@ -135,8 +135,6 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
       
-      #log.message ui.prevPage[0]?.id
-
       if ui.prevPage[0]?.id is 'book-play'
         LYT.render.ClearIndex(content)
         #log.message 'clear-index'
@@ -199,7 +197,7 @@ LYT.control =
             log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
             url     = book.lastmark.URL
             offset  = book.lastmark.offset
-          log.message autoplay
+
           if autoplay is "true"
             LYT.player.load book, url, offset, true #autoplay  
           else
@@ -292,7 +290,7 @@ LYT.control =
         LYT.var.searchTerm = params
       else
         if LYT.var.searchTerm?
-          log.message LYT.var.searchTerm
+          log.message "control.search: #{LYT.var.searchTerm}"
           params = LYT.var.searchTerm
           handleResults LYT.catalog.search(params.term)
         else
@@ -394,7 +392,7 @@ LYT.control =
         
   share:(type, match, ui, page, event) ->
     if type is 'pageshow'
-      #log.message LYT.player.book
+      log.message "control.share: #{LYT.player.book}"
       if LYT.player.getCurrentlyPlaying()?#if no book and no section
         subject = "Link til bog på E17"
         if LYT.player.isIOS()#nice html... 

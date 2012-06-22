@@ -12,16 +12,14 @@ class LYT.Playlist
     deferred = jQuery.Deferred()
     deferred.promise this
     @nccDocument = @book.nccDocument
-    @nccDocument.pipe () =>
-      console.log this
-      deferred.resolve(this)
+    @nccDocument.pipe () => deferred.resolve(this)
     this
 
   currentSection: -> @currentSegment?.section
 
-  hasNextSegment: -> @currentSegment?.hasNext() or hasNextSection()
+  hasNextSegment: -> @currentSegment?.hasNext() or @hasNextSection()
 
-  hasPreviousSegment: -> @currentSegment?.hasPrevious() or hasPreviousSection()
+  hasPreviousSegment: -> @currentSegment?.hasPrevious() or @hasPreviousSection()
 
   hasNextSection: -> @currentSection()?.next?
 

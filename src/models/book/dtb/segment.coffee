@@ -118,9 +118,7 @@ class LYT.Segment
     @section.resources[resource]
   
   # Get the absolute URL for a relative URL
-  resolveRelativeUrl: (relative) ->
-    console.log "Segment: resolve url: #{relative} -> #{@getResource(relative)?.url}"
-    @getResource(relative)?.url or null
+  resolveRelativeUrl: (relative) -> @getResource(relative)?.url or null
   
   # Remove links.  
   # This will fall apart on nested links, I think.
