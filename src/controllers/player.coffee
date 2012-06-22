@@ -77,20 +77,6 @@ LYT.player =
         
         $.jPlayer.timeFormat.showHour = true
         
-        # TODO: Disable next/prev buttons if there are not next/prev sections?
-        jumpTo = (target) =>
-          @renderTranscript(target)
-#          target.done (segment) =>
-          console.log 'Load done...'
-#          return unless @segment() is target
-          # Use `Math.ceil()` to prevent jPlayer from approximating to a slightly
-          # earlier point in time, which will cause the wrong segment-object to be
-          # loaded
-          if @getStatus()?.paused
-            @el.jPlayer "pause", Math.ceil(target.start)
-          else
-            @el.jPlayer "play", Math.ceil(target.start)
-
         @nextButton.click =>
           log.message 'Player: next'
           if segment = @playlist.nextSegment()
@@ -104,7 +90,7 @@ LYT.player =
             @playSegment segment
           else
             log.message 'Player: previous clicked, but there is no previous segment'
-                     
+      
       timeupdate: (event) =>
         #@fakeEnd(event.jPlayer.status) 
         @updateHtml(event.jPlayer.status)
@@ -123,10 +109,7 @@ LYT.player =
         
         return if $.jPlayer.platform.android
 
-        if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
-          
-          return 
-        
+        return if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
         
         return unless jQuery.browser.webkit
         
@@ -352,7 +335,7 @@ LYT.player =
 
     segment = @playlist.segmentByOffset @time
     if segment and not @getStatus()?.paused
-      segment.done @preloadSegments
+      segment.done (segment) => segment.preloadNext()
       @updateLastMark()
     
     log.warn "Player: failed to get media segment for offset #{@time}" unless segment?
@@ -394,10 +377,7 @@ LYT.player =
           else
             log.error "Player: failed to get segment promise"
   
-  # Preload segments - stay a few steps ahead of playback
-  # This will preload any images contained in the segments
   # TODO: More elegant use of segmentLookahead config value
-  preloadSegments: (segment) => segment.preloadNext(LYT.player.segmentLookahead)
       
   playSection: (section, offset = 0, autoPlay = true) ->
     
@@ -431,9 +411,9 @@ LYT.player =
     if @playlist.hasNextSection() is false
       LYT.render.bookEnd()
       return null
-    @playlist.nextSection()
-    @play
-    @playSection @playlist.currentSection(), 0, (autoPlay or @getStatus()?.paused is false)
+    @playSegment @playlist.nextSection()
+#    @play
+#    @playSection @playlist.currentSection(), 0, (autoPlay or @getStatus()?.paused is false)
 
   previousSection:(autoPlay = false) ->
     return null unless @playlist?.hasPreviousSection()
