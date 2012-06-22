@@ -87,7 +87,11 @@ LYT.control =
 
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
-      LYT.render.hideOrShowButtons()
+      params = LYT.router.getParams(match[1])
+      process = LYT.catalog.getDetails(params.book)
+        .done (details) ->
+          LYT.render.hideOrShowButtons(details)
+
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
@@ -342,37 +346,59 @@ LYT.control =
       
   
   settings: (type, match, ui, page, event) ->
-    style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
-    
-    $("#style-settings").find("input").each ->
-      name = $(this).attr 'name'
-      val = $(this).val()
+    if type is 'pagebeforeshow'
+      if not LYT.player.isPlayBackRateSurpported()
+        LYT.render.hideplayBackRate()
+
+    if type is 'pageshow'
+      style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
       
-      switch name
-        when 'font-size', 'font-family'
-          if val is style[name]
-            $(this).attr("checked", true).checkboxradio("refresh");
-        when 'marking-color'
-          colors = val.split(';')
-          if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
-            #log.message 'her'
-            $(this).attr("checked", true).checkboxradio("refresh");
-            
-    $("#style-settings input").change (event) ->
-      target = $(event.target)
-      name = target.attr 'name'
-      val = target.val()
-      
-      switch name
-        when 'font-size', 'font-family'
-          style[name] = val
-        when 'marking-color'
-          colors = val.split(';')
-          style['background-color'] = colors[0]
-          style['color'] = colors[1]
-      
-      LYT.settings.set('textStyle', style)
-      LYT.render.setStyle()
+      $("#style-settings").find("input").each ->
+        name = $(this).attr 'name'
+        val = $(this).val()
+        
+        #setting the GUI
+        switch name 
+          when 'font-size', 'font-family'
+            if val is style[name]
+              $(this).attr("checked", true).checkboxradio("refresh");
+          when 'marking-color'
+            colors = val.split(';')
+            if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
+              $(this).attr("checked", true).checkboxradio("refresh");
+       #Saving th GUI       
+      $("#style-settings input").change (event) ->
+        target = $(event.target)
+        name = target.attr 'name'
+        val = target.val()
+        
+        switch name
+          when 'font-size', 'font-family'
+            style[name] = val
+          when 'marking-color'
+            colors = val.split(';')
+            style['background-color'] = colors[0]
+            style['color'] = colors[1]
+          when 'playBack-Rate'
+            switch val
+              when  '1'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.slow
+                LYT.player.setPlayBackRate()
+              when  '2'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.normal_slow
+                LYT.player.setPlayBackRate()
+              when  '3'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.normal
+                LYT.player.setPlayBackRate()
+              when  '4'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.fast
+                LYT.player.setPlayBackRate()
+              when  '5'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.fast_ultra
+                LYT.player.setPlayBackRate()
+                
+        LYT.settings.set('textStyle', style)
+        LYT.render.setStyle()
   
   profile: (type, match, ui, page, event) ->
     if type is 'pageshow'

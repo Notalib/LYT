@@ -12,7 +12,7 @@
 #     3 = Errors, warnings, and messages (default)
 #
 # FIXME: Quick hack to lessen the logging on mobile devices
-log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 2 else 3
+log.level = if /android.+mobile|blackberry|iemobile|ip(hone|ad|od)/i.test (navigator.userAgent or navigator.vendor) then 3 else 3
 
 # ## Central system configuration
 LYT.config =
@@ -46,6 +46,14 @@ LYT.config =
     guestUser: "guest"
     guestLogin: "guest"
   
+  # ### LYT.book module config
+
+  book:
+    states:
+      Ny: "Ny"
+      Undervejs : "Undervejs"
+      Ehverv : "Ehverv"
+      
   # ### LYT.bookshelf module config
   bookshelf:
     # Number of books to load per page
@@ -90,6 +98,17 @@ LYT.config =
     lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
     playAttemptLimit: 10
     IOSFirstPlay : true
+    readSpeed:
+      slow :        0.5
+      normal_slow : 0.8
+      normal :      1
+      normal_fast : 1.5
+      fast :        2
+      fast_extra:   2.5
+      fast_ultra:   3
+      ultra_fast:   4
+
+
   
   # ### LYT.DTBDocument config
   dtbDocument:

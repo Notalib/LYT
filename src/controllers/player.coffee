@@ -36,6 +36,7 @@ LYT.player =
   
   playAttemptCount: 0
   gotDuration : null
+  playBackRate : 1 #Default playBackRate for audio element....
   
   
   lastBookmark: (new Date).getTime()
@@ -76,7 +77,7 @@ LYT.player =
       
       loadstart: (event) =>
         log.message 'Player: load start'
-        
+        @setPlayBackRate()
         if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
           if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-play')
             # IOS will not AutoPlay...
@@ -187,7 +188,7 @@ LYT.player =
             $("#submenu").simpledialog({
                 'mode' : 'bool',
                 'prompt' : 'Der er opstået en fejl!',
-                'subTitle' : 'kunne ikke hente bogen.'
+                'subTitle' : 'kunne ikke hente lydfilen.'
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
@@ -260,7 +261,21 @@ LYT.player =
       
       @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
-  
+
+  setPlayBackRate: () ->
+    if @el.data('jPlayer').htmlElement.audio?
+      if @el.data('jPlayer').htmlElement.audio.playbackRate?
+        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+        log.message @el.data('jPlayer').htmlElement.audio.playbackRate
+        log.message @playBackRate
+
+  isPlayBackRateSurpported: ->
+    if @el.data('jPlayer').htmlElement.audio.playbackRate?
+      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      return true
+    else
+      return false
+
   stop: () ->
     if @ready?
       @el.jPlayer('stop')

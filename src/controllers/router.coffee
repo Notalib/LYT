@@ -41,7 +41,7 @@ $(document).bind "mobileinit", ->
       events: "bs,s"
     "#settings":
       handler: "settings"
-      events: "s"
+      events: "s,bs"
     "#support":
       handler: "support"
       events: "s"
@@ -68,6 +68,9 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#guest":
       handler: "guest"
+      events: "s"
+    "#redirect":
+      handler : "redirect"
       events: "s"
 
 
