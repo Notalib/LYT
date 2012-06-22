@@ -96,7 +96,7 @@ LYT.player =
       
       loadstart: (event) =>
         log.message 'Player: load start'
-        
+        @setPlayBackRate()
         if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
           if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-play')
             # IOS will not AutoPlay...
@@ -286,13 +286,16 @@ LYT.player =
       @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
 
-  setPlayBackRate: (speed) ->
+  setPlayBackRate: () ->
     if @el.data('jPlayer').htmlElement.audio?
       if @el.data('jPlayer').htmlElement.audio.playbackRate?
-        @el.data('jPlayer').htmlElement.audio.playbackRate = speed
+        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+        log.message @el.data('jPlayer').htmlElement.audio.playbackRate
+        log.message @playBackRate
 
   isPlayBackRateSurpported: ->
     if @el.data('jPlayer').htmlElement.audio.playbackRate?
+      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
       return true
     else
       return false

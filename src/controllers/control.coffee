@@ -390,8 +390,23 @@ LYT.control =
             style['background-color'] = colors[0]
             style['color'] = colors[1]
           when 'playBack-Rate'
-            log.message 'rate'  
-        
+            switch val
+              when  '1'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.slow
+                LYT.player.setPlayBackRate()
+              when  '2'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.normal_slow
+                LYT.player.setPlayBackRate()
+              when  '3'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.normal
+                LYT.player.setPlayBackRate()
+              when  '4'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.fast
+                LYT.player.setPlayBackRate()
+              when  '5'
+                LYT.player.playBackRate = LYT.config.player.readSpeed.fast_ultra
+                LYT.player.setPlayBackRate()
+                
         LYT.settings.set('textStyle', style)
         LYT.render.setStyle()
   
