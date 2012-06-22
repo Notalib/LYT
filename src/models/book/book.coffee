@@ -21,6 +21,7 @@ class LYT.Book
   this.load = do ->
     loaded = {}
     
+    # TODO: Remove initialSegmentULR and offset - this should be handled by the player
     (id, initialSegmentURL, offset = 0) ->
       deferred = jQuery.Deferred()
       
@@ -34,6 +35,7 @@ class LYT.Book
         
         # Load the playlist (ignore playlist-load-errors -
         # they'll be caught elsewhere)
+        # TODO: Consider using or= to cache the old playlist
         book.playlist = new LYT.Playlist book
         book.playlist.fail ->
           deferred.reject book
@@ -44,7 +46,9 @@ class LYT.Book
           else
             promise = book.playlist.rewind() 
           promise.fail -> deferred.reject book
-          promise.done -> deferred.resolve book
+          promise.done ->
+            log.message "Book: loaded book with id #{book.id} using segment #{initialSegmentURL}"
+            deferred.resolve book
         
       # Book failed
       loaded[id].fail -> deferred.reject loaded[id]

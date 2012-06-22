@@ -27,7 +27,7 @@ do ->
 
     firstSection: -> @_getSection (sections) -> sections[0]
 
-    getSectionByURL: (url) ->
+    getSectionByURL: (url) =>
       baseUrl = url.split('#')[0]
       @_getSection (sections) ->
         for section, index in sections
@@ -50,9 +50,9 @@ do ->
       id = url.split('#')[1]
       if section = @getSectionByURL(url)
         if id?
-          return section.getSegmentById(id)
+          return section.pipe (section) -> section.getSegmentById(id)
         else
-          return section.firstSegment()
+          return section.pipe (section) -> section.firstSegment()
       throw 'getSegmentByURL called without any URL'
     
 #    firstSegment: -> 

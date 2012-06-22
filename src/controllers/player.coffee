@@ -347,12 +347,12 @@ LYT.player =
       @whenReady =>
         @playlist = @book.playlist
         @playlist.done (playlist) =>
-          segment = if url then playlist.segmentByURL url else playlist.rewind()
-          if segment?
-            segment.done => @playSection playlist.currentSection(), offset, autoPlay
-            segment.fail => log.error "Player: failed to load segment"
-          else
-            log.error "Player: failed to get segment promise"
+        	# TODO: Handle if the provided url doesn't return anything
+        	if url? and playlist.segmentByURL url
+        	  @playSegment @segment(), autoPlay
+        	else
+            @playSegment playlist.rewind(), autoPlay
+          @currentSegment?.fail -> "Player: failed to load segment"
   
   # TODO: More elegant use of segmentLookahead config value
 

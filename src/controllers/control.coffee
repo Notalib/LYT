@@ -146,6 +146,7 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
       
+      console.log 'her'
       if params.book
         process = LYT.Book.load(params.book).done (book) ->
           LYT.render.bookIndex(book, content)
@@ -155,7 +156,8 @@ LYT.control =
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
-      section = params.section or null
+      segmentUrl = params.section or null
+      segmentUrl += "##{params.segment}" if params.segment
       offset = Number(params.offset) or 0
       guest = params.guest or null
       autoplay = params.autoplay or false
@@ -164,23 +166,11 @@ LYT.control =
          window.location.reload()
 
       if guest? and LYT.session.getCredentials() is null
-         process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-           .done ->
-             return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&offset=#{params.offset}"
+         process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin).done ->
+           return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&segment=#{params.segment}&offset=#{params.offset}"
         
-      
-      # if book and section is the same as what is currently playing don't do anything new here
-      if LYT.player.book?    
-        if LYT.player.book.id is params.book and LYT.session.getCredentials() isnt null
-          # this book is already playing maybe we should not change anything unless logedoff
-          if not section? or not LYT.player.section?
-            # section is either not defined in url or in book 
-            return
-          else if section is LYT.player.section.id
-            # section is the same as already playing don't chaneg anything
-            return
-          else
-           # this is a new section - load it
+      return unless LYT.session.getCredentials()?
+	    return unless LYT.player.book? is params.book and LYT.player.segment()?.url is segmentUrl
       
       LYT.player.clear()
       LYT.render.clearBookPlayer()
@@ -188,20 +178,21 @@ LYT.control =
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
-      process = LYT.Book.load(params.book, section, offset)
-        .done (book) -> 
-          
+      process = LYT.Book.load(params.book, segmentUrl, offset)
+      	.done (book) -> 
           LYT.render.bookPlayer book, $(page)
-          #no section or offset from link 
-          if not section and offset is 0 and book.lastmark?
+          # FIXME: Move bookmark stuff to the book class
+          #no section or offset from link
+          if not segmentUrl and offset is 0 and book.lastmark?
             log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
-            url     = book.lastmark.URL
-            offset  = book.lastmark.offset
+            segmentUrl = book.lastmark.URL
+            offset     = book.lastmark.offset
 
+          # FIXME: don't load the book all over once again
           if autoplay is "true"
-            LYT.player.load book, url, offset, true #autoplay  
+            LYT.player.load book, segmentUrl, offset, true #autoplay  
           else
-            LYT.player.load book, url, offset, false #no autoplay
+            LYT.player.load book, segmentUrl, offset, false #no autoplay
 
           #see if there are any announcements....each time we loaded a new book.....
         
