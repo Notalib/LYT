@@ -37,9 +37,6 @@ do ->
     # since this is the responsibility of the Section class as they are
     # sub-components of this class.
 
-#STILL PROBLEMS HERE: not returning segments
-#Possible solution in client code: document.firstSegment().done (segment) -> ...
-#That should work
     firstSegment: -> 
       section = @firstSection()
       # FIXME: The pipe below shouldn't be necessary
@@ -55,36 +52,6 @@ do ->
           return section.pipe (section) -> section.firstSegment()
       throw 'getSegmentByURL called without any URL'
     
-#    firstSegment: -> 
-#      deferred = jQuery.Deferred()
-#      if section = @firstSection()?
-#        section.done ->
-#          section.firstSegment().done ->
-#            deferred.resolve section.firstSegment()
-#          section.firstSegment().fail ->
-#            deferred.reject()
-#        section.fail ->
-#          deferred.reject()
-#      else
-#        deferred.reject 'No section'
-#      deferred.promise()
-
-#    getSegmentByURL: (url) ->
-#      id = url.split('#')[1]
-#      if section = @getSectionByURL(url)
-#        if id?
-#          deferred = jQuery.Deferred()
-#          section.done ->
-#            segment = section.getSegmentById(id)
-#            segment.done ->
-#              deferred.resolve segment
-#            segment.fail ->
-#              deferred.reject 'Unable to loads egment with provided id'
-#          return deferred
-#        else
-#          return section.firstSegment()
-#      throw 'getSegmentByURL called without any URL'
-
   # -------
   
   # ## Privileged
@@ -169,8 +136,3 @@ do ->
       section.previous = previous
       previous?.next = section
       previous = section
-
-    
-  
-
-
