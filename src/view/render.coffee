@@ -245,7 +245,6 @@ LYT.render = do ->
     isPlaying = (sectionId) ->
       return false unless playing? and String(book.id) is String(playing?.book)
       return true if String(playing.section) is String(sectionId)
-      return true if playing.section.indexOf("#{sectionId}.") is 0
       return false
     
     # Recursively builds nested ordered lists from an array of items
@@ -259,7 +258,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a href="#book-play?book=#{book.id}&section=#{item.id}&autoplay=true"> 
+            <a href="#book-play?book=#{book.id}&section=#{item.url}&autoplay=true"> 
               #{item.title}
             </a>"""
         
@@ -279,6 +278,8 @@ LYT.render = do ->
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
     list.attr "id", "NccRootElement"
+    # FIXME: We should be using the playlist here - any reference to NCC- or
+    # SMIL documents from this class is not good design.
     mapper(list, book.nccDocument.structure)
     
     list.listview('refresh')

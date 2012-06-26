@@ -7,6 +7,10 @@
 do ->
   
   # This class models a Daisy Navigation Control Center document
+  # FIXME: Don't carry the @sections array around. @structure should be used.
+  #        At the same time, the flattenStructure procedure can be replaced by
+  #        an extension of the getConsecutive procedure that does the linking
+  #        handled by flattenStructure followed by linkSections.
   class LYT.NCCDocument extends LYT.TextContentDocument
     constructor: (url, resources) ->
       super url, (deferred) =>
