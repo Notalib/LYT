@@ -150,7 +150,6 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       content = $(page).children( ":jqmData(role=content)" )
       
-      console.log 'her'
       if params.book
         process = LYT.Book.load(params.book).done (book) ->
           LYT.render.bookIndex(book, content)
