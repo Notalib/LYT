@@ -393,7 +393,7 @@ LYT.player =
     LYT.loader.register "Loading book", section
     
     section.done =>
-      log.message "Player: Playlist current section #{@section.id}"
+      log.message "Player: Playlist current section #{@section().id}"
       jQuery("#player-chapter-title h2").text section.title
 
       # Get the media obj
@@ -426,7 +426,7 @@ LYT.player =
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
-    return unless @book? and @section?
+    return unless @book? and @section()?
     now = (new Date).getTime()
     interval = LYT.config.player?.lastmarkUpdateInterval or 10000
     return unless force or not @lastBookmark or now - @lastBookmark > interval
@@ -436,9 +436,10 @@ LYT.player =
     @lastBookmark = now
   
   getCurrentlyPlaying: ->
-    return null unless @book? and @section?
+    return null unless @book? and @section()?
     book:    @book.id
-    section: @section.id
+    section: @section()?.url
+    segment: @segment()?.id
     
   getCurrentlyPlayingUrl: (absolute=true, resolution='book') ->
     # Returns the url of the currently playing book
@@ -446,11 +447,11 @@ LYT.player =
     # Defaults to 'book'
     # If absolute is true it returns the full url with domain
     
-    return null unless @book? and @section?
+    return null unless @book? and @section()?
     
     url = "#book-play?book=#{@book.id}"
     if resolution in ['section', 'offset']
-      url = url + "&section=#{@section.id}"  
+      url = url + "&section=#{@section().id}"  
       if resolution is 'offset' and @time?
         url = url + "&offset=#{@time}"
     
