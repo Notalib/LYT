@@ -64,9 +64,12 @@ do ->
     # element. Each higher level (i.e. `H4`) heading encountered along the way will be
     # collected recursively.  
     # Returns the number of headings collected.
+    # FIXME: Doesn't take changes in level with more than one into account, e.g. from h1 to h3.
     getConsecutive = (headings, level, collector) ->
       # Loop through the `headings` array
-      for heading, index in headings
+      index = 0
+      while headings.length > index
+        heading = headings[index]
         # Return the current index if the heading isn't the given level
         return index if heading.tagName.toLowerCase() isnt "h#{level}"
         # Create a section object
@@ -76,6 +79,7 @@ do ->
         index += getConsecutive headings.slice(index+1), level+1, section.children
         # Add the section to the collector array
         collector.push section
+        index++
       
       # If the loop ran to the end of the `headings` array, return the array's length
       return headings.length
