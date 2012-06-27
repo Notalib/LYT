@@ -343,7 +343,7 @@ LYT.player =
   
   renderTranscript: (segment) ->
     if segment?
-      LYT.render.textContent(@segment())
+      segment.done (segment) -> LYT.render.textContent(segment)
     else
       # If there's no media, show nothing
       jQuery("#book-text-content").empty()
@@ -450,16 +450,17 @@ LYT.player =
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
     return unless @book? and @section()?
-    now = (new Date).getTime()
-    interval = LYT.config.player?.lastmarkUpdateInterval or 10000
-    return unless force or not @lastBookmark or now - @lastBookmark > interval
-    if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
-      return
-    @book.setLastmark @segment(), @getStatus().currentTime
-    @lastBookmark = now
+    @segment().done (segment) =>
+      now = (new Date).getTime()
+      interval = LYT.config.player?.lastmarkUpdateInterval or 10000
+      return unless force or not @lastBookmark or now - @lastBookmark > interval
+      if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
+        return
+      @book.setLastmark segment, @getStatus().currentTime
+      @lastBookmark = now
   
   getCurrentlyPlaying: ->
-    return null unless @book? and @section()?
+    return null unless @book? and @section()?.state() is "resolved"
     book:    @book.id
     section: @section()?.url
     segment: @segment()?.id
@@ -470,8 +471,9 @@ LYT.player =
     # Defaults to 'book'
     # If absolute is true it returns the full url with domain
     
-    return null unless @book? and @section()?
+    return null unless @book? and @section()?.state() is "resolved"
     
+    # FIXME: Don't return urls that only the controllers should know about
     url = "#book-play?book=#{@book.id}"
     if resolution in ['section', 'offset']
       url = url + "&section=#{@section().id}"  
