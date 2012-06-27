@@ -54,7 +54,9 @@ class LYT.Segment
   # Loads all resources
   load: ->
     # Skip if already finished
-    return this if @state() is "resolved"
+    return this if @loading? or @state() is "resolved"
+    @loading = true
+    this.always => this.loading = false
 
     # First make sure that the section we belong to has finished loading
     @section.done =>

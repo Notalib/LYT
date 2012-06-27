@@ -32,6 +32,8 @@ class LYT.Section
   
   load: ->
     return this if @state() is "resolved"
+    @loading = true
+    this.always => this.loading = false
 
     log.message("Section: loading(\"#{@url}\")")
 
