@@ -367,22 +367,11 @@ LYT.control =
             style['background-color'] = colors[0]
             style['color'] = colors[1]
           when 'playBack-Rate'
-            switch val
-              when  '1'
-                LYT.player.playBackRate = LYT.config.player.readSpeed.slow
-                LYT.player.setPlayBackRate()
-              when  '2'
-                LYT.player.playBackRate = LYT.config.player.readSpeed.normal_slow
-                LYT.player.setPlayBackRate()
-              when  '3'
-                LYT.player.playBackRate = LYT.config.player.readSpeed.normal
-                LYT.player.setPlayBackRate()
-              when  '4'
-                LYT.player.playBackRate = LYT.config.player.readSpeed.fast
-                LYT.player.setPlayBackRate()
-              when  '5'
-                LYT.player.playBackRate = LYT.config.player.readSpeed.fast_ultra
-                LYT.player.setPlayBackRate()
+          	speed_lookup = ['slow', 'normal_slow', 'normal', 'fast', 'fast_ultra']
+          	if speed_key = speed_lookup[val - 1]
+          	  LYT.player.setPlayBackRate(LYT.config.player.readSpeed[speed_key])
+          	else
+          	  log.error "Control: setting playback rate to #{val} failed"
                 
         LYT.settings.set('textStyle', style)
         LYT.render.setStyle()

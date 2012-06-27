@@ -362,7 +362,7 @@ LYT.player =
       @book = book
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
-      	if not url? and book.lastmark?
+        if not url? and book.lastmark?
           url    = book.lastmark.URI
           offset = book.lastmark.offset
           log.message "Player: resuming from lastmark #{url}, offset #{offset}"
@@ -371,7 +371,7 @@ LYT.player =
           deferred.reject()
           log.error "Player: failed to find segment"
 
-	      doneHandler = (segment) =>
+        doneHandler = (segment) =>
           deferred.resolve @book
           segment.load()
           @playSegment segment, autoPlay
@@ -422,22 +422,15 @@ LYT.player =
       # Get the media obj
       @playlist().segmentByOffset offset
       
-      @renderTranscript(@segment())
+      @renderTranscript @segment()
 
-      @playSegment(@segment())
-
-      # TODO: Handle segment-load failures
-      @segment().always =>
-        if autoPlay
-          @play offset
-        else
-          @pause offset
+      @playSegment @segment(), autoPlay
       
     section.fail ->
       log.error "Player: Failed to load section #{section}"
 
   nextSegment: (autoPlay = false) ->
-  	# FIXME: We shouldn't accept a call to nextSegment if the playlist isn't there
+    # FIXME: We shouldn't accept a call to nextSegment if the playlist isn't there
     return null unless @playlist()?
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
