@@ -277,10 +277,9 @@ LYT.player =
   # TODO: Don't set the playback rate here
   isPlayBackRateSurpported: ->
     if @el.data('jPlayer').htmlElement.audio.playbackRate?
-      if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod or $.jPlayer.platform.android or /Windows Phone/i.test(navigator.userAgent))
-        return false
-      else
-        return true
+      return false if $.jPlayer.platform[platform] for platform in ['iphone', 'ipad', 'iPod', 'android']
+      return false if /Windows Phone/i.test(navigator.userAgent)
+      return true
     else
       return false
   
