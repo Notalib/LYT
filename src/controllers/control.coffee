@@ -181,21 +181,9 @@ LYT.control =
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
-      process = LYT.Book.load(params.book, segmentUrl, offset)
+      process = LYT.player.load(params.book)
       	.done (book) -> 
           LYT.render.bookPlayer book, $(page)
-          # FIXME: Move bookmark stuff to the book class
-          #no section or offset from link
-          if not segmentUrl and offset is 0 and book.lastmark?
-            log.message "Found lastmark. Resuming play at section #{book.lastmark.section} and offset #{book.lastmark.offset}"
-            segmentUrl = book.lastmark.URL
-            offset     = book.lastmark.offset
-
-          # FIXME: don't load the book all over once again
-          if autoplay is "true"
-            LYT.player.load book, segmentUrl, offset, true #autoplay  
-          else
-            LYT.player.load book, segmentUrl, offset, false #no autoplay
 
           #see if there are any announcements....each time we loaded a new book.....
         

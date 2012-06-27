@@ -17,12 +17,12 @@ LYT.player =
   
   time: ""
   book: null #reference to an instance of book class
-  playlist: null # reference to an instance of LYT.Playlist
+  playlist: -> @book?.playlist
   nextButton: null
   previousButton: null
   playIntentOffset: 0
   playIntentFlag: false
-  
+
   autoProgression: true 
   toggleAutoProgression: null
   progressionMode: null
@@ -41,9 +41,9 @@ LYT.player =
   
   lastBookmark: (new Date).getTime()
   
-  segment: -> @playlist.currentSegment
+  segment: -> @playlist().currentSegment
   
-  section: -> @playlist.currentSection()
+  section: -> @playlist().currentSection()
   
   init: ->
     log.message 'Player: starting initialization'
@@ -325,7 +325,7 @@ LYT.player =
     @updateLastMark()
     return if @segment()? and @segment().start <= @time < @segment().end
 
-    segment = @playlist.segmentByOffset @time
+    segment = @playlist().segmentByOffset @time
     if segment and not @getStatus()?.paused
       segment.done (segment) => segment.preloadNext()
       @updateLastMark()
@@ -352,22 +352,45 @@ LYT.player =
   # url: url pointing to section or segment
   load: (book, url = null, offset = 0, autoPlay = true) ->
     #return if book.id is @book?.id
-    @book = book
+    deferred = jQuery.Deferred()
+    load = LYT.Book.load book
     
     #LYT.loader.register "Loading book", @book
     
-    log.message "Player: Loading book #{book.id}, section #{url}, offset: #{offset}"
-    @book.done =>
+    log.message "Player: Loading book #{book}, segment #{url}, offset: #{offset}, autoPlay #{autoPlay}"
+    load.done (book) =>
+      @book = book
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
-        @playlist = @book.playlist
-        @playlist.done (playlist) =>
-        	# TODO: Handle if the provided url doesn't return anything
-        	if url? and playlist.segmentByURL url
-        	  @playSegment @segment(), autoPlay
-        	else
-            @playSegment playlist.rewind(), autoPlay
-          @currentSegment?.fail -> "Player: failed to load segment"
+      	if not url? and book.lastmark?
+          url    = book.lastmark.URI
+          offset = book.lastmark.offset
+          log.message "Player: resuming from lastmark #{url}, offset #{offset}"
+
+        failHandler = () =>
+          deferred.reject()
+          log.error "Player: failed to find segment"
+
+	      doneHandler = (segment) =>
+          deferred.resolve @book
+          segment.load()
+          @playSegment segment, autoPlay
+          log.message "Player: found segment #{segment.url()} - playing"
+
+        if url?
+          promise = @playlist().segmentByURL url
+          promise.done doneHandler
+          promise.fail =>
+            log.error "Player: failed to load url #{url} - rewinding to start"
+            promise = @playlist().rewind()
+            promise.done doneHandler
+            promise.fail failHandler
+        else
+          promise = @playlist().rewind()
+          promise.done doneHandler
+          promise.fail failHandler
+        
+    deferred.promise()
   
   # TODO: More elegant use of segmentLookahead config value
 
@@ -388,7 +411,7 @@ LYT.player =
 
   playSection: (section, offset = 0, autoPlay = true) ->
     
-    section = @playlist.rewind() unless section?
+    section = @playlist().rewind() unless section?
     
     LYT.loader.register "Loading book", section
     
@@ -397,7 +420,7 @@ LYT.player =
       jQuery("#player-chapter-title h2").text section.title
 
       # Get the media obj
-      @playlist.segmentByOffset offset
+      @playlist().segmentByOffset offset
       
       @renderTranscript(@segment())
 
@@ -414,15 +437,16 @@ LYT.player =
       log.error "Player: Failed to load section #{section}"
 
   nextSegment: (autoPlay = false) ->
-    return null unless @playlist?
-    if @playlist.hasNextSegment() is false
+  	# FIXME: We shouldn't accept a call to nextSegment if the playlist isn't there
+    return null unless @playlist()?
+    if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
       return null
-    @playSegment @playlist.nextSegment(), autoPlay
+    @playSegment @playlist().nextSegment(), autoPlay
 
   previousSegment: (autoPlay = false) ->
-    return null unless @playlist?.hasPreviousSegment()
-    @playSegment @playlist.previousSegment(), autoPlay
+    return null unless @playlist()?.hasPreviousSegment()
+    @playSegment @playlist().previousSegment(), autoPlay
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
