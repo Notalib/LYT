@@ -17,6 +17,7 @@ do ->
         @structure = parseStructure @source, resources
         @sections  = flattenStructure @structure
         linkSections @sections
+        section.nccDocument = this for section in @sections
 
     # The section getters below returns promises that wait for the section
     # resources to load.

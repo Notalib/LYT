@@ -40,7 +40,7 @@ class LYT.Section
     file = @url.replace /#.*$/, ""
     url  = @resources[file]?.url
     @document = new LYT.SMILDocument this, url
-    
+
     @document.done => @_deferred.resolve(this)    
     @document.fail =>
       log.error "Section: Failed to load SMIL-file #{@url.replace /#.*$/, ""}"

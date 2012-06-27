@@ -72,6 +72,9 @@ $(document).bind "mobileinit", ->
     "#redirect":
       handler : "redirect"
       events: "s"
+    "#bookmark":
+      handler: "bookmark"
+      events: "s"
 
 
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'

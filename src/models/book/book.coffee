@@ -171,6 +171,8 @@ class LYT.Book
         # Get the total time
         @totalTime = metadata.totalTime?.content or ""
         
+        ncc.book = this
+        
         resolve()
     
 
@@ -216,23 +218,34 @@ class LYT.Book
   getMetadata: ->
     @nccDocument?.getMetadata() or null
 
-  setLastmark: (segment, offset = 0) ->
+  segmentToBookmark: (segment, offset = 0) ->
+    # TODO: The server doesn't support npt format, though it is required
+    #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
     hours = Math.floor(offset / 3600).toString()
     minutes = Math.floor((offset - hours*3600) / 60).toString()
     seconds = Math.floor(offset - hours * 3600 - minutes * 60).toFixed(2)
     hours   = '0' + hours   if hours.length == 1
     minutes = '0' + minutes if minutes.length == 1
     seconds = '0' + seconds if seconds < 10
-    @lastmark =
-      URI:        segment.url()
-      timeOffset: "#{hours}:#{minutes}:#{seconds}"
-      
-      # TODO: The server doesn't support npt format, though it is required
-      #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
     
+    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: "#{segment.section.title} - #{segment.start}"
+
+  saveBookmarks: ->
     LYT.service.setBookmarks
       book:
-        id: @id
-        title: @title
+        id:      @id
+        title:   @title
       lastmark:  @lastmark
       bookmarks: @bookmarks
+
+  # TODO: Don't add any bookmarks already in the list
+  # TODO: Sort bookmarks in chronological order
+  # TODO: Add remove bookmark method
+  addBookmark: (segment, offset = 0) ->
+    @bookmarks.push @segmentToBookmark segment
+    @saveBookmarks()
+    
+  setLastmark: (segment, offset = 0) ->
+    @lastmark = @segmentToBookmark segment
+    @saveBookmarks()
+      

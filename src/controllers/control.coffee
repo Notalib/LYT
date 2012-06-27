@@ -383,12 +383,12 @@ LYT.control =
       $("#log-off").click (event) ->
         LYT.service.logOff()
         
-  share:(type, match, ui, page, event) ->
+  share: (type, match, ui, page, event) ->
     if type is 'pageshow'
       log.message "control.share: #{LYT.player.book}"
-      if LYT.player.getCurrentlyPlaying()?#if no book and no section
+      if LYT.player.getCurrentlyPlaying()? #if no book and no section
         subject = "Link til bog på E17"
-        if LYT.player.isIOS()#nice html... 
+        if LYT.player.isIOS() #nice html... 
           body = "Hør #{LYT.player.book.title} ved at følge dette link: <a href='#{LYT.player.getCurrentlyPlayingUrl(true,'offset')}'>#{LYT.player.book.title}</a>"
         else
           body = "Hør #{LYT.player.book.title} ved at følge dette link: #{LYT.player.getCurrentlyPlayingUrl(true,'offset')}"
@@ -404,8 +404,6 @@ LYT.control =
             this.selectionEnd= this.value.length;
           else
             this.select()  
-          
-        
       else
         $.mobile.changePage("#bookshelf") #no book go to bookshelf
         
@@ -417,3 +415,9 @@ LYT.control =
     process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
       .done ->
         return $.mobile.changePage("#bookshelf")
+
+  bookmark: -> 
+    if segment = LYT.player.segment()
+      LYT.loader.register 'Bookmarking...', LYT.player.book.addBookmark segment
+      console.log 'control: bookmark'
+      
