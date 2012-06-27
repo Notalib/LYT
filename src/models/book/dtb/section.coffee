@@ -69,11 +69,13 @@ class LYT.Section
   # Return a promise that ensures that resources for both this object
   # and the segment are loaded.
   _getSegment: (getter) ->
-    this.pipe (section) ->
-      segment.load() if segment = getter(section.document.segments)
-      log.message "Section:" + if segment? then " returning segment #{segment.url()}" else " not returning any segment"
-      throw 'die' unless segment?
-      segment
+    deferred = jQuery.Deferred()
+    this.done (section) ->
+      if segment = getter(section.document.segments)
+        deferred.resolve(segment)
+      else
+        deferred.reject()
+    deferred.promise()
 
   firstSegment: -> @_getSegment (segments) -> segments[0]
 
