@@ -40,17 +40,17 @@ do ->
     # The segment getters below should not try waiting for resources to load
     # since this is the responsibility of the Section class as they are
     # sub-components of this class.
+    # TODO: The pipes used below may not be necessary, since 
 
     firstSegment: -> 
       section = @firstSection()
-      # FIXME: The pipe below shouldn't be necessary
       section.pipe (section) ->
         return section.firstSegment()
     
     getSegmentByURL: (url) ->
       id = url.split('#')[1]
       if section = @getSectionByURL(url)
-        if id?
+        if id? and id isnt ""
           return section.pipe (section) -> section.getSegmentById(id)
         else
           return section.pipe (section) -> section.firstSegment()
@@ -88,6 +88,8 @@ do ->
       # If the loop ran to the end of the `headings` array, return the array's length
       return headings.length
     
+    # TODO: See if we can remove this, since all sections are being addressed
+    # using URLs
     numberSections = (sections, prefix = "") ->
       prefix = "#{prefix}." if prefix
       for section, index in sections

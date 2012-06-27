@@ -37,18 +37,8 @@ class LYT.Book
         # they'll be caught elsewhere)
         # TODO: Consider using or= to cache the old playlist
         book.playlist = new LYT.Playlist book
-        book.playlist.fail ->
-          deferred.reject book
-        book.playlist.done ->
-          promise
-          if initialSegmentURL?
-            promise = book.playlist.segmentByURL initialSegmentURL
-          else
-            promise = book.playlist.rewind() 
-          promise.fail -> deferred.reject book
-          promise.done ->
-            log.message "Book: loaded book with id #{book.id} using segment #{initialSegmentURL}"
-            deferred.resolve book
+        book.playlist.fail -> deferred.reject book
+        book.playlist.done -> deferred.resolve book
         
       # Book failed
       loaded[id].fail -> deferred.reject loaded[id]
@@ -234,7 +224,7 @@ class LYT.Book
     minutes = '0' + minutes if minutes.length == 1
     seconds = '0' + seconds if seconds < 10
     @lastmark =
-      URL:        segment.url()
+      URI:        segment.url()
       timeOffset: "#{hours}:#{minutes}:#{seconds}"
       
       # TODO: The server doesn't support npt format, though it is required
