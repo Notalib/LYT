@@ -22,12 +22,14 @@ do ->
         @segments    = parseMainSeqNode section, mainSequence
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
 
+    # Caveat emptor: returns raw segments
     getSegmentById: (id) ->
       for segment, index in @segments
         return segment if segment.id == id
       
       return null
       
+    # Caveat emptor: returns raw segments
     getSegmentAtOffset: (offset = 0) ->
       offset = 0 if offset < 0
       for segment, index in @segments
@@ -63,6 +65,7 @@ do ->
   
   
   # Parse a `<par>` node
+  idCounter = 1
   parseParNode = (section, par) ->
     # Find the `text` node, and parse it separately
     text = parseTextNode par.find("text:first")
@@ -94,6 +97,7 @@ do ->
     # Collapse audio references into 1
     clip = clips[0]
     clip.end = clips[clips.length-1].end
+    clip.id or= "!auto_#{idCounter++}"
     return [clip]
   
   
