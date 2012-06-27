@@ -110,7 +110,9 @@ class LYT.Segment
   preloadNext: (preloadCount = 3) ->
     this.load()
     if preloadCount > 0
-      this.done (segment) -> segment.next?.preloadNext(preloadCount - 1)
+      this.done (segment) ->
+      	next = segment.next or segment.section.next?.firstSegment()
+      	next?.preloadNext(preloadCount - 1)
 
   # Get a resource by its local URL
   getResource: (resource) ->
