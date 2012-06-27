@@ -261,21 +261,27 @@ LYT.player =
       
       @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
       @play(0)
-
-  setPlayBackRate: () ->
+  
+  # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
+  #       If it isn't available, there is no reason to try using it.
+  setPlayBackRate: (playBackRate) ->
+    if playBackRate?
+      @playBackRate = playBackRate
     if @el.data('jPlayer').htmlElement.audio?
       if @el.data('jPlayer').htmlElement.audio.playbackRate?
         @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-        log.message @el.data('jPlayer').htmlElement.audio.playbackRate
-        log.message @playBackRate
-
+        log.message "Player: setPlayBackRate: #{@playBackRate}"
+        return
+    log.message "Player: setPlayBackRate: unable to set playback rate"
+  
+  # TODO: Don't set the playback rate here
   isPlayBackRateSurpported: ->
     if @el.data('jPlayer').htmlElement.audio.playbackRate?
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
       return true
     else
       return false
-
+  
   stop: () ->
     if @ready?
       @el.jPlayer('stop')
