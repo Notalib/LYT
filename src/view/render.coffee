@@ -209,6 +209,7 @@ LYT.render = do ->
     if(LYT.player.isIOS() or $.jPlayer.platform.android?)
       view.css('overflow-x','scroll')
     
+    # TODO: Filter out any images that have already been processed
     view.find("img").each ->
       img = $(this)
         
