@@ -38,7 +38,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#book-index([?].*)?":
       handler: "bookIndex"
-      events: "bs,s"
+      events: "s"
     "#settings":
       handler: "settings"
       events: "s,bs"

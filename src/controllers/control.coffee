@@ -138,17 +138,10 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
 
-    switch type
-	    when 'pagebeforeshow'
-        if ui.prevPage[0]?.id is 'book-play'
-          LYT.render.ClearIndex(content)
-          #log.message 'clear-index'
-
-      when 'pageshow'
-        if params.book
-          promise = LYT.Book.load(params.book).done (book) ->
-            LYT.render.bookIndex(book, content)
-          LYT.loader.register "Loading index", promise
+    promise = LYT.Book.load(params.book).done (book) ->
+      LYT.render.bookIndex(book, content)
+    LYT.loader.register "Loading index", promise
+        
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
