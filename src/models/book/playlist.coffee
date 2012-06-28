@@ -64,5 +64,7 @@ class LYT.Playlist
       return @rewind()
 
   segmentByOffset: (offset = 0) ->
-    if segment = @currentSection().getSegmentByOffset(offset)
+    if segment = @currentSection()?.getSegmentByOffset(offset)
       return @load segment
+    else
+      log.error "Playlist: segmentByOffset called with offset #{offset} - unable to find any segment"
