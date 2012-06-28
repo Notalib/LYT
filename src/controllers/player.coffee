@@ -332,6 +332,9 @@ LYT.player =
     @updateLastMark()
     return if @segment()? and @segment().start <= @time < @segment().end
 
+    # FIXME: updating segments like this isn't safe, since the current section
+    #        may be missing or wrong. See the Playlist class for more info.
+    #        We should ensure that the right section is loaded first.
     segment = @playlist().segmentByOffset @time
     if segment and not @getStatus()?.paused
       segment.done (segment) => segment.preloadNext()
