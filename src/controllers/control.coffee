@@ -133,28 +133,22 @@ LYT.control =
       LYT.loader.register "Loading book", process
   
   bookIndex: (type, match, ui, page, event) ->
-    if type is 'pagebeforeshow'
-      return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
-      
-      params = LYT.router.getParams(match[1])
-      content = $(page).children( ":jqmData(role=content)" )
-      
-      if ui.prevPage[0]?.id is 'book-play'
-        LYT.render.ClearIndex(content)
-        #log.message 'clear-index'
+    return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
+    
+    params = LYT.router.getParams(match[1])
+    content = $(page).children( ":jqmData(role=content)" )
 
+    switch type
+	    when 'pagebeforeshow'
+        if ui.prevPage[0]?.id is 'book-play'
+          LYT.render.ClearIndex(content)
+          #log.message 'clear-index'
 
-    if type is 'pageshow'
-      return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
-      
-      params = LYT.router.getParams(match[1])
-      content = $(page).children( ":jqmData(role=content)" )
-      
-      if params.book
-        process = LYT.Book.load(params.book).done (book) ->
-          LYT.render.bookIndex(book, content)
-        
-        LYT.loader.register "Loading index", process
+      when 'pageshow'
+        if params.book
+          promise = LYT.Book.load(params.book).done (book) ->
+            LYT.render.bookIndex(book, content)
+          LYT.loader.register "Loading index", promise
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
@@ -190,6 +184,11 @@ LYT.control =
         
           LYT.service.getAnnouncements()
 
+          $("#bookmark-add-button").unbind "click"
+          $("#bookmark-add-button").click (event) ->
+            if segment = LYT.player.segment()
+              LYT.player.book.addBookmark segment
+              segment.done -> $("#book-index-button").effect("highlight", {color: '#ffffff'}, 500)
           
           ###
           $("#book-play").bind "swiperight", ->
@@ -416,9 +415,3 @@ LYT.control =
     process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
       .done ->
         return $.mobile.changePage("#bookshelf")
-
-  bookmark: -> 
-    if segment = LYT.player.segment()
-      LYT.loader.register 'Bookmarking...', LYT.player.book.addBookmark segment
-      console.log 'control: bookmark'
-      
