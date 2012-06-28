@@ -12,7 +12,8 @@ class LYT.Playlist
     deferred = jQuery.Deferred()
     deferred.promise this
     @nccDocument = @book.nccDocument
-    @nccDocument.pipe () => deferred.resolve(this)
+    @nccDocument.done => deferred.resolve this
+    @nccDocument.fail => deferred.reject()
     this
 
   currentSection: -> @currentSegment?.section

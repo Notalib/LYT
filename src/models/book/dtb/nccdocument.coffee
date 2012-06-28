@@ -26,9 +26,15 @@ do ->
     # Return a promise that ensures that resources for both this object
     # and the section are loaded.
     _getSection: (getter) ->
-      this.pipe (document) ->
-        section.load() if section = getter(document.sections)
-        section
+      deferred = jQuery.Deferred()
+      this.done (document) ->
+        if section = getter document.sections
+          section.load()
+          section.done -> deferred.resolve section
+          section.fail -> deferred.reject()
+        else
+          deferred.reject()
+      deferred.promise()
 
     firstSection: -> @_getSection (sections) -> sections[0]
 
@@ -38,24 +44,37 @@ do ->
         for section, index in sections
           return section if section.url is baseUrl
 
-    # The segment getters below should not try waiting for resources to load
-    # since this is the responsibility of the Section class as they are
-    # sub-components of this class.
-    # TODO: The pipes used below may not be necessary, since 
+    # The segment getters below can be greatly simplified by writing a generic
+    # fault-pipe that resembles the pipe() method on jQuery.Deferred(), except
+    # letting the pipe fail if nothing is returned by a provided getter
+    # function.
 
     firstSegment: -> 
       section = @firstSection()
-      section.pipe (section) ->
-        return section.firstSegment()
-    
+      deferred = jQuery.Deferred()
+      section.done (section) ->
+        segment = section.firstSegment()
+        segment.done (segment) -> deferred.resolve(segment)
+        segment.fail -> deferred.reject()
+      section.fail -> deferred.reject()
+      deferred.promise()
+          
     getSegmentByURL: (url) ->
       id = url.split('#')[1]
       if section = @getSectionByURL(url)
-        if id? and id isnt ""
-          return section.pipe (section) -> section.getSegmentById(id)
-        else
-          return section.pipe (section) -> section.firstSegment()
-      throw 'getSegmentByURL called without any URL'
+        deferred = jQuery.Deferred()
+        section.done (section) ->
+          segment
+          if id? and id isnt ""
+            segment = section.getSegmentById(id)
+          else
+            segment = section.firstSegment()
+          segment.done (segment) -> deferred.resolve(segment)
+          segment.fail -> deferred.reject()
+        section.fail -> deferred.reject()
+        return deferred.promise()
+      else
+        log.error 'getSegmentByURL failed with url #{url}'
     
   # -------
   

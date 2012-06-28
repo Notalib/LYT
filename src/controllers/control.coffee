@@ -173,7 +173,8 @@ LYT.control =
            return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&segment=#{params.segment}&offset=#{params.offset}"
         
       return unless LYT.session.getCredentials()?
-	    return unless LYT.player.book? is params.book and LYT.player.segment()?.url is segmentUrl
+      # This doesn't make any sense:
+	    # return unless LYT.player.book? is params.book and LYT.player.segment()?.url is segmentUrl
       
       LYT.player.clear()
       LYT.render.clearBookPlayer()
@@ -181,7 +182,7 @@ LYT.control =
       header = $(page).children( ":jqmData(role=header)")
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
-      process = LYT.player.load(params.book)
+      process = LYT.player.load(params.book, segmentUrl, offset, true)
       	.done (book) -> 
           LYT.render.bookPlayer book, $(page)
 

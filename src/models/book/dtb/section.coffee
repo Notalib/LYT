@@ -73,12 +73,10 @@ class LYT.Section
   _getSegment: (getter) ->
     deferred = jQuery.Deferred()
     this.done (section) ->
-      if segment = getter(section.document.segments)
-      	segment.load()
-      	segment.done ->
-          deferred.resolve(segment)
-        segment.fail ->
-          deferred.reject()
+      if segment = getter section.document.segments
+        segment.load()
+        segment.done -> deferred.resolve segment
+        segment.fail -> deferred.reject()
       else
         deferred.reject()
     deferred.promise()
