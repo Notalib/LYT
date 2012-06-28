@@ -188,10 +188,7 @@ class LYT.Book
       log.message "Book: Getting bookmarks"
       process = LYT.service.getBookmarks(@id)
       
-      # TODO: Currently, failing to get the bookmarks will "fail" the
-      # the entire book loading-process..(NOT). perhaps the system should
-      # be more lenient, and allow bookmarks to fail? Or perhaps they
-      # should be loaded lazily, when required?
+      # TODO: perhaps bookmarks should be loaded lazily, when required?
       process.fail -> 
       #deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
         marks =
@@ -221,14 +218,14 @@ class LYT.Book
   segmentToBookmark: (segment, offset = 0) ->
     # TODO: The server doesn't support npt format, though it is required
     #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
-    hours = Math.floor(offset / 3600).toString()
+    hours   = Math.floor(offset / 3600).toString()
     minutes = Math.floor((offset - hours*3600) / 60).toString()
     seconds = Math.floor(offset - hours * 3600 - minutes * 60).toFixed(2)
     hours   = '0' + hours   if hours.length == 1
     minutes = '0' + minutes if minutes.length == 1
     seconds = '0' + seconds if seconds < 10
     
-    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: "#{segment.section.title} - #{segment.start}"
+    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: {text: "#{segment.section.title} - #{segment.start}"}
 
   saveBookmarks: ->
     LYT.service.setBookmarks
@@ -242,7 +239,36 @@ class LYT.Book
   # TODO: Sort bookmarks in chronological order
   # TODO: Add remove bookmark method
   addBookmark: (segment, offset = 0) ->
+    @bookmarks or= []
     @bookmarks.push @segmentToBookmark segment
+    
+    # We need the offsets parsed to seconds here, so first
+    # they are all added and at the end, we remove them again.
+    # TODO: Write class representing bookmarks(!)
+    
+    offsetParser = (timeOffset) ->
+      values = (timeOffset.match /\d+/g).map (s) -> parseInt(s)
+      values[0] * 3600 + values[1] * 60 + values[2]
+
+    temp = {}
+    for bookmark in @bookmarks
+      bookmark.offset = offsetParser(bookmark.timeOffset)
+      temp[bookmark.URI] or= []
+      i = 0
+      while i < temp[bookmark.URI]
+        saved = temp[bookmark.URI][i]
+        if bookmark.offset - 2 < saved.offset < bookmark.offset + 2
+          break
+        i++
+      temp[bookmark.URI][i] = bookmark
+
+    delete bookmark.offset for bookmark in @bookmarks
+    
+    @bookmarks = []
+    @bookmarks = @bookmarks.concat segment_marks for uri, segment_marks of temp
+    # TODO: Sort using chronographical order
+    @bookmarks = @bookmarks.sort (a, b) -> a.note.text > b.note.text
+
     @saveBookmarks()
     
   setLastmark: (segment, offset = 0) ->
