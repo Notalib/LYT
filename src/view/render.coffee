@@ -206,12 +206,15 @@ LYT.render = do ->
   textContent: (media) ->
     view = $("#book-text-content")
     view.html media.html
+    console.log media
     if(LYT.player.isIOS() or $.jPlayer.platform.android?)
       view.css('overflow-x','scroll')
     
-    # TODO: Filter out any images that have already been processed
     view.find("img").each ->
       img = $(this)
+
+      next if img.data("vspace-processed")? == "yes"
+      img.data "vspace-processed", "yes" # Mark as already-processed
         
       vspace = ($(window).height() - 20)
       log.message "render: textContent: vspace: #{vspace}"
@@ -224,8 +227,7 @@ LYT.render = do ->
         img.width('100%')
         img.height('auto')
       
-      img.click ->
-        img.toggleClass('zoom')
+      img.click -> img.toggleClass('zoom')
       
   bookDetails: (details, view) ->
     $("#details-book-title").text details.title

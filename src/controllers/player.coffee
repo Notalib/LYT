@@ -335,13 +335,12 @@ LYT.player =
     #        may be missing or wrong. See the Playlist class for more info.
     #        We should ensure that the right section is loaded first.
     segment = @playlist().segmentByOffset @time
-    if segment and not @getStatus()?.paused
-      segment.done (segment) => segment.preloadNext()
-      @updateLastMark()
-    
-    log.warn "Player: failed to get media segment for offset #{@time}" unless segment?
-    
-    @renderTranscript(@segment())
+    unless @getStatus()?.paused
+      segment.done (segment) =>
+        log.group "Player: updateHtml: time: #{@time}, rendering next segment #{segment.url()}", segment
+        segment.preloadNext()
+        @updateLastMark()
+        @renderTranscript segment
   
   
   renderTranscript: (segment) ->
