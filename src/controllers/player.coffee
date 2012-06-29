@@ -65,11 +65,11 @@ LYT.player =
         
         @nextButton.click =>
           log.message 'Player: next'
-          @nextSegment()
+          @nextSegment @autoProgression
             
         @previousButton.click =>
           log.message 'Player: prev'
-          @previousSegment()
+          @previousSegment @autoProgression
       
       timeupdate: (event) =>
         #@fakeEnd(event.jPlayer.status) 
@@ -439,7 +439,7 @@ LYT.player =
       log.error "Player: Failed to load section #{section}"
 
   nextSegment: (autoPlay = false) ->
-    # FIXME: We shouldn't accept a call to nextSegment if the playlist isn't there
+    # FIXME: We shouldn't throw an error on a call to nextSegment if the playlist isn't there
     return null unless @playlist()?
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
