@@ -51,31 +51,35 @@ do ->
     # function.
 
     firstSegment: -> 
-      section = @firstSection()
       deferred = jQuery.Deferred()
-      section.done (section) ->
-        segment = section.firstSegment()
-        segment.done (segment) -> deferred.resolve(segment)
-        segment.fail -> deferred.reject()
-      section.fail -> deferred.reject()
+      this.done (document) ->
+        section = document.firstSection()
+        section.fail -> deferred.reject()
+        section.done (section) ->
+          segment = section.firstSegment()
+          segment.done (segment) -> deferred.resolve(segment)
+          segment.fail -> deferred.reject()
+      this.fail -> deferred.reject()
       deferred.promise()
           
     getSegmentByURL: (url) ->
-      id = url.split('#')[1]
-      if section = @getSectionByURL(url)
-        deferred = jQuery.Deferred()
-        section.done (section) ->
-          segment
-          if id? and id isnt ""
-            segment = section.getSegmentById(id)
-          else
-            segment = section.firstSegment()
-          segment.done (segment) -> deferred.resolve(segment)
-          segment.fail -> deferred.reject()
-        section.fail -> deferred.reject()
-        return deferred.promise()
-      else
-        log.error 'getSegmentByURL failed with url #{url}'
+      deferred = jQuery.Deferred()
+      deferred.fail -> log.error 'getSegmentByURL failed with url #{url}'
+      this.done (document) ->
+        id = url.split('#')[1]
+        if section = document.getSectionByURL(url)
+          section.fail -> deferred.reject()
+          section.done (section) ->
+            segment
+            if id? and id isnt ""
+              segment = section.getSegmentById(id)
+            else
+              segment = section.firstSegment()
+            segment.done (segment) -> deferred.resolve(segment)
+            segment.fail -> deferred.reject()
+      this.fail -> deferred.reject()
+      return deferred.promise()
+      
     
   # -------
   
