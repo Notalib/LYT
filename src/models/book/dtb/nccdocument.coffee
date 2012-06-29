@@ -27,6 +27,7 @@ do ->
     # and the section are loaded.
     _getSection: (getter) ->
       deferred = jQuery.Deferred()
+      this.fail -> deferred.reject()
       this.done (document) ->
         if section = getter document.sections
           section.load()
@@ -34,7 +35,6 @@ do ->
           section.fail -> deferred.reject()
         else
           deferred.reject()
-      this.fail -> deferred.reject()
       deferred.promise()
 
     firstSection: -> @_getSection (sections) -> sections[0]
@@ -52,6 +52,7 @@ do ->
 
     firstSegment: -> 
       deferred = jQuery.Deferred()
+      this.fail -> deferred.reject()
       this.done (document) ->
         section = document.firstSection()
         section.fail -> deferred.reject()
@@ -59,12 +60,12 @@ do ->
           segment = section.firstSegment()
           segment.done (segment) -> deferred.resolve(segment)
           segment.fail -> deferred.reject()
-      this.fail -> deferred.reject()
       deferred.promise()
           
     getSegmentByURL: (url) ->
       deferred = jQuery.Deferred()
       deferred.fail -> log.error 'getSegmentByURL failed with url #{url}'
+      this.fail -> deferred.reject()
       this.done (document) ->
         id = url.split('#')[1]
         if section = document.getSectionByURL(url)
@@ -77,7 +78,6 @@ do ->
               segment = section.firstSegment()
             segment.done (segment) -> deferred.resolve(segment)
             segment.fail -> deferred.reject()
-      this.fail -> deferred.reject()
       return deferred.promise()
       
     

@@ -72,6 +72,7 @@ class LYT.Section
   # and the segment are loaded.
   _getSegment: (getter) ->
     deferred = jQuery.Deferred()
+    this.fail -> deferred.reject()
     this.done (section) ->
       if segment = getter section.document.segments
         segment.load()
@@ -79,7 +80,6 @@ class LYT.Section
         segment.fail -> deferred.reject()
       else
         deferred.reject()
-    this.fail -> deferred.reject()
     deferred.promise()
 
   firstSegment: -> @_getSegment (segments) -> segments[0]
