@@ -1080,7 +1080,7 @@ img.nota-full {
   background-image: url(../images/icons/index_icn_18.png);
   }
     
-.ui-icon-add-bookmark {
+.ui-icon-bookmark-add {
   background-image: url(../images/icons/add_bookmark_icn_18.png);
   }
   
@@ -1105,7 +1105,7 @@ img.nota-full {
   }
 
 .ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='add-bookmark'], &[data-icon='book-settings'], &[data-icon='share'] {
+  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='bookmark-add'], &[data-icon='book-settings'], &[data-icon='share'] {
     .ui-btn-inner {
       padding: 5px 0 0 21px;
     }
@@ -1143,7 +1143,7 @@ img.nota-full {
     background-image: url(../images/icons/index_icn_36.png);
     background-size: 25px 18px;
   } 
-    .ui-icon-add-bookmark {
+    .ui-icon-bookmark-add {
     background-image: url(../images/icons/add_bookmark_icn_36.png);
     background-size: 25px 18px;
   }

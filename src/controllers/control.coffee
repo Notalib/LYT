@@ -134,14 +134,30 @@ LYT.control =
   
   bookIndex: (type, match, ui, page, event) ->
     return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
-    
+    console.log 'control: bookIndex'
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
 
-    promise = LYT.Book.load(params.book).done (book) ->
-      LYT.render.bookIndex(book, content)
-    LYT.loader.register "Loading index", promise
-        
+    activate = (active, inactive, handler) ->
+      $(active).unbind "click"
+      $(active).css 'background-color', '#ffffff'
+      $(inactive).css 'background-color', ""
+      $(inactive).unbind "click"
+      $(inactive).click (event) -> handler(event)
+
+    renderBookmarks = ->
+      activate "#bookmark-list-button", "#book-toc-button", renderIndex
+      promise = LYT.Book.load params.book
+      promise.done (book) -> LYT.render.bookmarks book, content
+      LYT.loader.register "Loading bookmarks", promise
+
+	    renderIndex = ->
+      activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
+      promise = LYT.Book.load params.book
+      promise.done (book) -> LYT.render.bookIndex book, content
+      LYT.loader.register "Loading index", promise
+
+    renderIndex()
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'

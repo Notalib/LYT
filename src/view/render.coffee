@@ -278,7 +278,36 @@ LYT.render = do ->
     list.listview('refresh')
  
   
-  searchResults: (results, view) ->
+  bookmarks: (book, view) ->  
+    # Set the back button's href
+
+    $("#index-back-button").attr "href", "#book-play?book=#{book.id}"
+
+        
+    # Create an uordered list wrapper for the list
+    view.children("ol").listview('childPages').remove()
+    list = view.children("ol").empty()
+    list.attr "data-title", book.title
+    list.attr "data-author", book.author
+    list.attr "data-totalTime", book.totalTime
+    list.attr "id", "NccRootElement"
+
+    for item in book.bookmarks
+      element = jQuery "<li></li>" 
+      element.attr "id", item.id
+      element.attr "data-href", item.id
+      [baseUrl, id] = item.URI.split('#')
+      element.append """
+        <a href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&autoplay=true"> 
+          #{item.note.text}
+        </a>"""
+      
+      list.append element
+
+    list.listview('refresh')
+ 
+
+	  searchResults: (results, view) ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
     

@@ -16,6 +16,7 @@ LYT.i18n = do ->
     "Loading bookshelf":        "Indlæser boghylde"
     "Adding book to bookshelf": "Tilføjer bog til boghylde"
     "Loading index":            "Indlæser indholdsfortegnelse"
+    "Loading bookmarks":        "Indlæser bogmærker"
     "Searching":                "Søger"
     "Loading book":             "Indlæser bog"
     "Suggestions":              "Vi anbefaler"
