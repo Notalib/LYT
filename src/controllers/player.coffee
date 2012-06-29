@@ -145,7 +145,6 @@ LYT.player =
           #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
           #@pause(@playIntentOffset)
           if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
-            
             if LYT.config.player.IOSFirstPlay
               @pause()
           else

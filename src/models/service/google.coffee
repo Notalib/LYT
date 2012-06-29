@@ -38,7 +38,7 @@ LYT.google = do ->
       log.message 'error from google autocomplete'+e
       deferred.reject()
 
-  DoAutoComplete : (term)->
+  DoAutoComplete: (term)->
     deferred = jQuery.Deferred()
 
     jQuery.getScript(LYT.config.google.autocomplete.url + "#{term}&callback=LYT.google.GotValues")

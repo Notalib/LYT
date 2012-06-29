@@ -328,6 +328,7 @@ LYT.render = do ->
     
     $('#listshow-btn').show()#show button list 
     list.listview('refresh')
+
   
   # TODO: Simple, rough implementation
   catalogLists: (callback, view) ->
