@@ -34,6 +34,7 @@ do ->
           section.fail -> deferred.reject()
         else
           deferred.reject()
+      this.fail -> deferred.reject()
       deferred.promise()
 
     firstSection: -> @_getSection (sections) -> sections[0]

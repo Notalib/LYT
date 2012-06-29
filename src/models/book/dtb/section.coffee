@@ -79,6 +79,7 @@ class LYT.Section
         segment.fail -> deferred.reject()
       else
         deferred.reject()
+    this.fail -> deferred.reject()
     deferred.promise()
 
   firstSegment: -> @_getSegment (segments) -> segments[0]
