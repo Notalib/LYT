@@ -72,9 +72,15 @@ LYT.player =
           @previousSegment @autoProgression
       
       timeupdate: (event) =>
-        #@fakeEnd(event.jPlayer.status) 
-        @updateHtml(event.jPlayer.status)
-      
+        #@fakeEnd(event.jPlayer.status)
+        status = event.jPlayer.status
+        @time = status.currentTime
+        if @segment()? and @segment().end < status.currentTime
+          next = @playlist().nextSegment()
+          next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
+          next.done => @updateHtml status
+          # FIXME: If we are more than one segment behind, pause the player
+        
       loadstart: (event) =>
         log.message 'Player: load start'
         @setPlayBackRate()
@@ -116,7 +122,11 @@ LYT.player =
       seeked: (event) =>
         log.message 'Player: event seeked'
         LYT.loader.close('metadata')
-        @playOnIntent()
+        @time = event.jPlayer.status.currentTime
+        segment = @playlist().segmentByOffset @time
+        segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
+        segment.done => @updateHtml(event.jPlayer.status)
+#        @playOnIntent()
 
       loadedmetadata: (event) =>
         log.message 'Player: loaded metadata'
@@ -324,23 +334,22 @@ LYT.player =
         
       
   updateHtml: (status) ->
-    # Continously update player rendering for current time of section
-    return unless @book?
+    # Update player rendering for current time of section
     
-    @time = status.currentTime
-    @updateLastMark()
-    return if @segment()? and @segment().start <= @time < @segment().end
+    # Don't try to render non-existing segments or a segment that we have just
+    # rendered
+    return if not @segment()? or @segment() == @render
+    @render = @segment()
 
-    # FIXME: updating segments like this isn't safe, since the current section
-    #        may be missing or wrong. See the Playlist class for more info.
-    #        We should ensure that the right section is loaded first.
-    segment = @playlist().segmentByOffset @time
-    unless @getStatus()?.paused
-      segment.done (segment) =>
-        log.group "Player: updateHtml: time: #{@time}, rendering next segment #{segment.url()}", segment
-        segment.preloadNext()
-        @updateLastMark()
-        @renderTranscript segment
+    # FIXME: Don't call updateLastMark() here - it's not obvious
+    @updateLastMark()
+
+    @segment().done (segment) => 
+      log.group "Player: updateHtml: time: #{@time}, rendering segment #{segment.url()}", segment
+      segment.preloadNext()
+      # FIXME: Don't call updateLastMark() here - it's not obvious
+      @updateLastMark()
+      @renderTranscript segment
   
   
   renderTranscript: (segment) ->

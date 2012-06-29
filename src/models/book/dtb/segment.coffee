@@ -32,7 +32,10 @@
 # 
 # Additionally, it has the methods added via `Deferred#promise`
 
+
 class LYT.Segment
+  # Number of segments to preload
+  
   constructor: (section, data) ->
     # Set up deferred load of images
     @_deferred = jQuery.Deferred()
@@ -57,6 +60,7 @@ class LYT.Segment
     return this if @loading? or @state() is "resolved"
     @loading = true
     this.always => this.loading = false
+    this.fail => log.error "Segment: failed loading segment #{this.url()}"
 
     # First make sure that the section we belong to has finished loading
     @section.done =>
@@ -66,7 +70,6 @@ class LYT.Segment
       unless resource = @section.resources[contentUrl]
         log.error "Segment: no absolute URL for content #{contentUrl}"
         @_deferred.reject()
-        return @_deferred.promise()
       else
         resource.document or= new LYT.TextContentDocument resource.url
         resource.document.done =>
@@ -89,10 +92,12 @@ class LYT.Segment
             tmp.src = src
   
           # When all images have loaded (or failed)...
-          jQuery.when.apply(null, queue).then =>
-            @audio = @getResource(@data.audio.src)?.url
-            log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, @images
-            @_deferred.resolve(this)
+          jQuery.when.apply(null, queue)
+            .done =>
+              @audio = @getResource(@data.audio.src)?.url
+              log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, @images
+              @_deferred.resolve(this)
+            .fail => @_deferred.reject()
     
     return @_deferred.promise()
 
@@ -109,7 +114,7 @@ class LYT.Segment
   getPrevious: -> @previous
 
   # Will load this segment and the next preloadCount segments  
-  preloadNext: (preloadCount = 3) ->
+  preloadNext: (preloadCount = 10) ->
     this.load()
     if preloadCount > 0
       this.done (segment) ->
