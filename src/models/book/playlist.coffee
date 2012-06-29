@@ -28,7 +28,7 @@ class LYT.Playlist
 
   load: (segment) ->
     segment.done (segment) =>
-    	if segment?
+      if segment?
         @currentSegment = segment
     segment
 
@@ -46,7 +46,7 @@ class LYT.Playlist
     if @currentSegment.hasNext()
       return @load @currentSegment.next
     else
-    	return @nextSection()
+      return @nextSection()
     
   previousSegment: ->
     if @currentSegment.hasPrevious()

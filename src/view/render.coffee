@@ -315,7 +315,7 @@ LYT.render = do ->
     list.listview('refresh')
  
 
-	  searchResults: (results, view) ->
+  searchResults: (results, view) ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
     

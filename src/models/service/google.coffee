@@ -7,7 +7,7 @@ LYT.google = do ->
   jQuery(LYT.catalog).bind "autocomplete", (event) ->
     countNotaAutoComplete = event.results.length #length of results
 
-  GotValues : (jason)->
+  GotValues: (jason)->
     try
         #jsonResults results from google....
       jsonResults = []
@@ -39,14 +39,14 @@ LYT.google = do ->
       deferred.reject()
 
   DoAutoComplete : (term)->
-  	deferred = jQuery.Deferred()
+    deferred = jQuery.Deferred()
 
-  	jQuery.getScript(LYT.config.google.autocomplete.url + "#{term}&callback=LYT.google.GotValues")
-  	  .fail ->
+    jQuery.getScript(LYT.config.google.autocomplete.url + "#{term}&callback=LYT.google.GotValues")
+      .fail ->
         deferred.reject()
         log.message 'error from google autocomplete link'
 
-  	deferred.promise() #return deffered to listen on....
+    deferred.promise() #return deffered to listen on....
 
   #http://suggestqueries.google.com/complete/search?hl=en&ds=yt&json=t&jsonp=callbackfunction&q=orange+county+ca
   #http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q=
