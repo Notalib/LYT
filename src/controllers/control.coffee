@@ -138,26 +138,35 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
 
-    activate = (active, inactive, handler) ->
-      $(active).unbind "click"
-      $(active).css 'background-color', '#ffffff'
-      $(inactive).css 'background-color', ""
-      $(inactive).unbind "click"
-      $(inactive).click (event) -> handler(event)
+    switch type
+      when 'pagebeforeshow'
+        # Remove any previously generated index (may be from another book)
+        if ui.prevPage[0]?.id is 'book-play'
+          LYT.render.ClearIndex(content)
+          #log.message 'clear-index'
 
-    renderBookmarks = ->
-      activate "#bookmark-list-button", "#book-toc-button", renderIndex
-      promise = LYT.Book.load params.book
-      promise.done (book) -> LYT.render.bookmarks book, content
-      LYT.loader.register "Loading bookmarks", promise
+      when 'pageshow'
+        activate = (active, inactive, handler) ->
+          $(active).unbind "click"
+          $(active).css 'background-color', '#ffffff'
+          $(inactive).css 'background-color', ""
+          $(inactive).unbind "click"
+          $(inactive).click (event) -> handler(event)
+    
+        renderBookmarks = ->
+          activate "#bookmark-list-button", "#book-toc-button", renderIndex
+          promise = LYT.Book.load params.book
+          promise.done (book) -> LYT.render.bookmarks book, content
+          LYT.loader.register "Loading bookmarks", promise
+    
+        renderIndex = ->
+          activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
+          promise = LYT.Book.load params.book
+          promise.done (book) -> LYT.render.bookIndex book, content
+          LYT.loader.register "Loading index", promise
+    
+        renderIndex()
 
-	    renderIndex = ->
-      activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
-      promise = LYT.Book.load params.book
-      promise.done (book) -> LYT.render.bookIndex book, content
-      LYT.loader.register "Loading index", promise
-
-    renderIndex()
   
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
@@ -177,7 +186,7 @@ LYT.control =
         
       return unless LYT.session.getCredentials()?
       # This doesn't make any sense:
-	    # return unless LYT.player.book? is params.book and LYT.player.segment()?.url is segmentUrl
+      # return unless LYT.player.book? is params.book and LYT.player.segment()?.url is segmentUrl
       
       LYT.player.clear()
       LYT.render.clearBookPlayer()
@@ -186,7 +195,7 @@ LYT.control =
       $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
       
       process = LYT.player.load(params.book, segmentUrl, offset, true)
-      	.done (book) -> 
+        .done (book) -> 
           LYT.render.bookPlayer book, $(page)
 
           #see if there are any announcements....each time we loaded a new book.....
@@ -376,11 +385,11 @@ LYT.control =
             style['background-color'] = colors[0]
             style['color'] = colors[1]
           when 'playBack-Rate'
-          	speed_lookup = ['slow', 'normal_slow', 'normal', 'fast', 'fast_ultra']
-          	if speed_key = speed_lookup[val - 1]
-          	  LYT.player.setPlayBackRate(LYT.config.player.readSpeed[speed_key])
-          	else
-          	  log.error "Control: setting playback rate to #{val} failed"
+            speed_lookup = ['slow', 'normal_slow', 'normal', 'fast', 'fast_ultra']
+            if speed_key = speed_lookup[val - 1]
+              LYT.player.setPlayBackRate(LYT.config.player.readSpeed[speed_key])
+            else
+              log.error "Control: setting playback rate to #{val} failed"
                 
         LYT.settings.set('textStyle', style)
         LYT.render.setStyle()
