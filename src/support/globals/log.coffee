@@ -8,6 +8,13 @@
   #     2 = Errors & warnings
   #     3 = Errors, warnings, and messages (everything)
   level: 3
+
+  getAjaxOptions = (url, data) ->
+    dataType:    "json"
+    type:        "POST"
+    contentType: "application/json; charset=utf-8"
+    data:        JSON.stringify data
+    url:         url
   
   # Error-checking alias for `console.log()`  
   # Logging level: 3 or higher
@@ -98,4 +105,30 @@
   trace: ->
     return unless log.level > 0
     console.trace?()
+
+
+  #sourceClient ip adress of client, errorMessage , priority ( 1 = Error, 2 = warning , 3 = information), userId
+  errorToServer: (sourceClient, errorMessage, priority, userId) ->
+    serverRequestData = {}
+    serverRequestData.sourceClient = String(sourceClient)
+    serverRequestData.errorMessage = String(errorMessage)
+    serverRequestData.priority     = priority
+    serverRequestData.userId       = userId
+
+    deferred = jQuery.Deferred()
+    url  = LYT.config.mobileMessage.LogError.url
+    options = getAjaxOptions url, serverRequestData
+
+    # Perform the request
+    jQuery.ajax(options)
+      # On success, extract the results and pass them on
+      .done (data) ->
+        #Making a javascript object...
+        JSONResult = data.d
+        deferred.resolve JSONResult
+      # On fail, reject the deferred
+      .fail ->
+        deferred.reject()
+
+    deferred.promise()
   

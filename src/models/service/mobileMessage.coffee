@@ -26,7 +26,7 @@ LYT.mobileMessage = do ->
 
   getAjaxOptions = (url, data) ->
     dataType:    "json"
-    type:        "GET"
+    type:        "POST"
     contentType: "application/json; charset=utf-8"
     data:        JSON.stringify data
     url:         url
@@ -41,8 +41,8 @@ LYT.mobileMessage = do ->
       # On success, extract the results and pass them on
       .done (data) ->
       	#Making a javascript object...
-        JSONResult = $.parseJSON(data) 
-        deferred.resolve JSONResult.d
+        JSONResult = data.d
+        deferred.resolve JSONResult
       # On fail, reject the deferred
       .fail ->
         deferred.reject()
@@ -65,8 +65,8 @@ LYT.mobileMessage = do ->
       # On success, extract the results and pass them on
       .done (data) ->
       	#Making a javascript object...
-        JSONResult = $.parseJSON(data) 
-        deferred.resolve JSONResult.d
+        JSONResult = data.d
+        deferred.resolve JSONResult
       # On fail, reject the deferred
       .fail ->
         deferred.reject()

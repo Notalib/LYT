@@ -65,6 +65,9 @@ LYT.config =
       url: "/mobileMessage/MobileMessage.svc/GetVersion"
     NotifyMe:
       url: "/mobileMessage/MobileMessage.svc/NotifyMe"
+    LogError:
+      url: "/mobileMessage/MobileMessage.svc/LogError"
+        
 
 
   # ### LYT.google config
