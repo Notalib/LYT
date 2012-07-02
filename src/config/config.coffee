@@ -59,7 +59,15 @@ LYT.config =
     # Number of books to load per page
     pageSize: 5 # default: 5
 
-  #
+
+  mobileMessage:
+    GetVersion:
+      url: "/mobileMessage/MobileMessage.svc/GetVersion"
+    NotifyMe:
+      url: "/mobileMessage/MobileMessage.svc/NotifyMe"
+
+
+  # ### LYT.google config
   google:
     # Autocomplete options
     autocomplete:
