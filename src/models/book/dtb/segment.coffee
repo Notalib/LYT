@@ -66,45 +66,15 @@ class LYT.Segment
     @section.done =>
       log.message "Segment: loading #{@url()}"
       # Parse transcript content
-      [contentUrl, contentId] = @data.text.src.split "#"
-      unless resource = @section.resources[contentUrl]
+      [@contentUrl, @contentId] = @data.text.src.split "#"
+      unless resource = @section.resources[@contentUrl]
         log.error "Segment: no absolute URL for content #{contentUrl}"
         @_deferred.reject()
       else
         resource.document or= new LYT.TextContentDocument resource.url
-        resource.document.done =>
-          source = resource.document.source
-          element = jQuery source.get(0).createElement("DIV")
-          element.append source.find("##{contentId}").first().clone()
-          sibling = element.next()
-          until sibling.length is 0 or sibling.attr "id"
-            element.append sibling.clone()
-            sibling = sibling.next()
-    
-          @removeLinks element
-          @resolveSrcUrls element
-          @text   = jQuery.trim element?.text() or ""
-          @html   = element?.html()
-          @images = @findImageUrls element
-          
-          queue = []
-          for src in @images
-            # Use Deferreds to set up a `when` trigger
-            load = jQuery.Deferred()
-            queue.push load.promise()
-            # 1998 called; they want their preloading technique back
-            tmp = new Image
-            tmp.onload  = -> load.resolve()
-            tmp.onerror = -> load.reject()
-            tmp.src = src
-  
-          # When all images have loaded (or failed)...
-          jQuery.when.apply(null, queue)
-            .done =>
-              @audio = @getResource(@data.audio.src)?.url
-              log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, @images
-              @_deferred.resolve(this)
-            .fail => @_deferred.reject()
+        promise = resource.document.pipe (document) => @parseContent document
+        promise.done => @_deferred.resolve this
+        promise.fail => @_deferred.reject()
     
     return @_deferred.promise()
 
@@ -130,6 +100,42 @@ class LYT.Segment
         else if segment.section.next
           segment.section.next.firstSegment().done (next) ->
             next.preloadNext(preloadCount - 1)
+
+  parseContent: (document) ->
+    source = document.source
+    element = jQuery source.get(0).createElement("DIV")
+    element.append source.find("##{@contentId}").first().clone()
+    sibling = element.next()
+    until sibling.length is 0 or sibling.attr "id"
+      element.append sibling.clone()
+      sibling = sibling.next()
+
+    @removeLinks element
+    @resolveSrcUrls element
+    @text   = jQuery.trim element?.text() or ""
+    @html   = element?.html()
+    @images = @findImageUrls element
+    
+    queue = []
+    for src in @images
+      # Use Deferreds to set up a `when` trigger
+      load = jQuery.Deferred()
+      queue.push load.promise()
+      # 1998 called; they want their preloading technique back
+      tmp = new Image
+      tmp.onload  = -> load.resolve()
+      tmp.onerror = -> load.reject()
+      tmp.src = src
+
+    # When all images have loaded (or failed)...
+    jQuery.when.apply(null, queue)
+      .done =>
+        @audio = @getResource(@data.audio.src)?.url
+        log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, @images
+        return this
+      .fail =>
+        return jQuery.Deferred().reject()
+  
 
   # Get a resource by its local URL
   getResource: (resource) ->
