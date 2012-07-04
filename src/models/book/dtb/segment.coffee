@@ -73,9 +73,16 @@ class LYT.Segment
       else
         resource.document or= new LYT.TextContentDocument resource.url
         resource.document.done =>
-          element = resource.document.getContentById contentId
+          source = resource.document.source
+          element = jQuery source.get(0).createElement("DIV")
+          element.append source.find("##{contentId}").first().clone()
+          sibling = element.next()
+          until sibling.length is 0 or sibling.attr "id"
+            element.append sibling.clone()
+            sibling = sibling.next()
+    
           @removeLinks element
-          @absolutizeSrcUrls element
+          @resolveSrcUrls element
           @text   = jQuery.trim element?.text() or ""
           @html   = element?.html()
           @images = @findImageUrls element
@@ -143,7 +150,7 @@ class LYT.Segment
     element
   
   # Fix relative links in `src` attrs
-  absolutizeSrcUrls: (element) =>
+  resolveSrcUrls: (element) =>
     return null if not element? or element.length is 0
     element.find("*[src]").each (index, item) =>
       item = jQuery item
