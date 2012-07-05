@@ -50,8 +50,7 @@ class LYT.Segment
     # Will be initialized in the load() method
     @text    = null
     @html    = null
-    @images  = []
-    @audio   = []
+    @audio   = @section.resources[data.audio.src]?.url
     @data    = data
     
   # Loads all resources
@@ -63,18 +62,20 @@ class LYT.Segment
     this.fail => log.error "Segment: failed loading segment #{this.url()}"
 
     # First make sure that the section we belong to has finished loading
-    @section.done =>
+    @section.done (section) =>
       log.message "Segment: loading #{@url()}"
       # Parse transcript content
       [@contentUrl, @contentId] = @data.text.src.split "#"
-      unless resource = @section.resources[@contentUrl]
-        log.error "Segment: no absolute URL for content #{contentUrl}"
+      unless resource = section.resources[@contentUrl]
+        log.error "Segment: no absolute URL for content #{@contentUrl}"
         @_deferred.reject()
       else
         resource.document or= new LYT.TextContentDocument resource.url
         promise = resource.document.pipe (document) => @parseContent document
         promise.done => @_deferred.resolve this
-        promise.fail => @_deferred.reject()
+        promise.fail =>
+          log.error "Unable to get TextContentDocument for #{resource.url}"
+          @_deferred.reject()
     
     return @_deferred.promise()
 
@@ -101,6 +102,9 @@ class LYT.Segment
           segment.section.next.firstSegment().done (next) ->
             next.preloadNext(preloadCount - 1)
 
+  # Parse content document and extract segment data
+  # Used in pipe, so should return this (the segment itself) or a failed
+  # promise in order to reject processing.
   parseContent: (document) ->
     source = document.source
     element = jQuery source.get(0).createElement("DIV")
@@ -110,62 +114,53 @@ class LYT.Segment
       element.append sibling.clone()
       sibling = sibling.next()
 
-    @removeLinks element
-    @resolveSrcUrls element
-    @text   = jQuery.trim element?.text() or ""
-    @html   = element?.html()
-    @images = @findImageUrls element
-    
-    queue = []
-    for src in @images
-      # Use Deferreds to set up a `when` trigger
-      load = jQuery.Deferred()
-      queue.push load.promise()
-      # 1998 called; they want their preloading technique back
-      tmp = new Image
-      tmp.onload  = -> load.resolve()
-      tmp.onerror = -> load.reject()
-      tmp.src = src
-
-    # When all images have loaded (or failed)...
-    jQuery.when.apply(null, queue)
-      .done =>
-        @audio = @getResource(@data.audio.src)?.url
-        log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, @images
-        return this
-      .fail =>
-        return jQuery.Deferred().reject()
-  
-
-  # Get a resource by its local URL
-  getResource: (resource) ->
-    return null unless resource?
-    @section.resources[resource]
-  
-  # Get the absolute URL for a relative URL
-  resolveRelativeUrl: (relative) -> @getResource(relative)?.url or null
-  
-  # Remove links.  
-  # This will fall apart on nested links, I think.
-  # Then again, nested links are very illegal anyway
-  removeLinks: (element) ->
-    return null if not element? or element.length is 0
+    # Remove links.  
+    # This will fall apart on nested links, I think.
+    # Then again, nested links are very illegal anyway
     element.find("a").each (index, item) ->
       item = jQuery item
       item.replaceWith item.html()
-    element
-  
-  # Fix relative links in `src` attrs
-  resolveSrcUrls: (element) =>
-    return null if not element? or element.length is 0
+
+    # Fix relative links in `src` attrs
     element.find("*[src]").each (index, item) =>
       item = jQuery item
       return if item.data("relative")?
-      item.attr "src", "#{@resolveRelativeUrl item.attr("src")}"
+      item.attr "src", @section.resources[item.attr("src")]?.url
       item.data "relative", "yes" # Mark as already-processed
-    element
-  
-  # Find images in the HTML
-  findImageUrls: (element) ->
-    return [] if not element? or element.length is 0
-    jQuery.map element.find("img"), (img) -> img.src
+
+    @text   = jQuery.trim element?.text() or ""
+    @html   = element?.html()
+
+    # Find images in the HTML and set up preloading
+    images = []
+    jQuery.each element.find("img"), (i, img) ->
+      images.push
+        src: img.src
+        attempts: 3
+        deferred: jQuery.Deferred()
+
+    console.log images
+
+    # Use Deferreds to set up a `when` trigger
+    # 1998 called; they want their preloading technique back
+    loadImage = (image) ->
+      console.log "Segment: parseContent: preloading image #{image.src}"
+      tmp = new Image
+      tmp.onload  = -> image.deferred.resolve()
+      tmp.onerror = ->
+        if image.attempts-- > 0
+          log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left"
+          loadImage image
+        else
+          log.error "Segment: parseContent: unable to preload image #{image.src}"
+          image.deferred.reject()
+      tmp.src = image.src
+    loadImage image for image in images
+
+    # When all images have loaded (or failed)...
+    jQuery.when.apply(null, jQuery.map images, (image) -> image.deferred)
+      .done =>
+        log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, images
+        return this
+      .fail =>
+        return jQuery.Deferred().reject()
