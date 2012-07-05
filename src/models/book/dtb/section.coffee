@@ -90,6 +90,11 @@ class LYT.Section
     @_getSegment (segments) ->
       for segment in segments
         return segment if segment.id is id
+
+  getSegmentsByAudio: (audio) ->
+    if this.state() isnt 'resolved'
+      throw "Section: getSegmentsByAudio only works on resolved sections"
+    jQuery.grep @document.segments, (segment) -> segment.audio is audio
   
   # Retrieves the media (text and audio) at a given point
   # in time (seconds, relative to the section).

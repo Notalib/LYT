@@ -76,23 +76,17 @@ LYT.player =
         #@fakeEnd(event.jPlayer.status)
         status = event.jPlayer.status
         @time = status.currentTime
-        if @segment()? and @segment().end < status.currentTime
-          # FIXME: This doesn't work across section boundaries
-          if @segment().next?
-            # FIXME: Using @timeLoading doesn't work across section boundaries
-            if @timeLoading?
-              if @timeLoading.end < status.currentTime
-                # FIXME: We have moved past the end of the next segment - what to do?
-                log.message "Player: timeupdate: pausing due to missing segment load"
-                @el.jPlayer 'pause', @getStatus().currentTime + 1
-            else
-              next = @playlist().nextSegment()
-              log.message "Player: timeupdate: (#{status.currentTime}s) move forward from segment #{@segment().url()}: [#{@segment().start}, #{@segment().end}] to #{next.url()}: [#{next.start}, #{next.end}]"
-              @timeLoading = next
-              next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
-              next.done => @updateHtml status
-              next.always => @timeLoading = null
-              # FIXME: If we are more than one segment behind, pause the player
+        @loadingNext or= false
+        if status.src != @segment().audio or @segment().end < @time and not @loadingNext
+          log.message "Player: timeupdate: queue for offset #{@time}"
+          @loadingNext = true
+          next = @playlist().segmentByAudioOffset status.src, @time
+          next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
+          next.done (next) =>
+            log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
+            @updateHtml status
+          next.always => @loadingNext = false
+          # FIXME: If we are more than one segment behind, pause the player
                     
       loadstart: (event) =>
         log.message 'Player: load start'
@@ -136,7 +130,7 @@ LYT.player =
         log.message 'Player: event seeked'
         LYT.loader.close('metadata')
         @time = event.jPlayer.status.currentTime
-        segment = @playlist().segmentByOffset @time
+        segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
         segment.done => @updateHtml(event.jPlayer.status)
 #        @playOnIntent()
@@ -445,12 +439,12 @@ LYT.player =
     
     LYT.loader.register "Loading book", section
     
-    section.done =>
+    section.done (section) =>
       log.message "Player: Playlist current section #{@section().id}"
       jQuery("#player-chapter-title h2").text section.title
 
       # Get the media obj
-      @playlist().segmentByOffset offset
+      @playlist().segmentBySectionOffset section, offset
       
       @renderTranscript @segment()
 

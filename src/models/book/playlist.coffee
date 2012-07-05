@@ -63,8 +63,34 @@ class LYT.Playlist
     else
       return @rewind()
 
-  segmentByOffset: (offset = 0) ->
-    if segment = @currentSection()?.getSegmentByOffset(offset)
-      return @load segment
-    else
-      log.error "Playlist: segmentByOffset called with offset #{offset} - unable to find any segment"
+  segmentByAudioOffset: (audio, offset = 0) ->
+    promise = @_segmentsByAudio audio
+    promise.pipe (segments) =>
+      for segment in segments
+        return @load segment if segment.start <= offset < segment.end
+
+  _segmentsByAudio: (audio) ->
+    getters = [
+      () => @currentSection()
+      () => @currentSection().next
+      () => @currentSection().previous
+    ]
+    iterator = () -> getters.shift().apply()
+
+    searchNext = () ->
+      if section = iterator()
+        section.load()
+        return section.pipe (section) ->
+          segments = section.getSegmentsByAudio audio
+          if segments.length > 0
+            return segments
+          else
+            return searchNext()
+      else
+        return jQuery.Deferred().reject()
+     
+    searchNext()
+
+  segmentBySectionOffset: (section, offset = 0) ->
+    @load section.pipe (section) -> return section.getSegmentByOffset offset
+
