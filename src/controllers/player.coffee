@@ -139,9 +139,7 @@ LYT.player =
         @time = event.jPlayer.status.currentTime
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
-        segment.done (segment) =>
-          console.log 'Segment done' 
-          @updateHtml segment
+        segment.done (segment) => @updateHtml segment
 #        @playOnIntent()
 
       loadedmetadata: (event) =>

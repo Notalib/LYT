@@ -228,7 +228,6 @@ LYT.render = do ->
   textContent: (media) ->
     view = $("#book-text-content")
     view.html media.html
-    console.log media
     if(LYT.player.isIOS() or $.jPlayer.platform.android?)
       view.css('overflow-x','scroll')
     

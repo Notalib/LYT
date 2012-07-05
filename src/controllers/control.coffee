@@ -134,7 +134,6 @@ LYT.control =
   
   bookIndex: (type, match, ui, page, event) ->
     return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
-    console.log 'control: bookIndex'
     params = LYT.router.getParams(match[1])
     content = $(page).children( ":jqmData(role=content)" )
 
