@@ -72,15 +72,28 @@ LYT.player =
           @previousSegment @autoProgression
       
       timeupdate: (event) =>
+        # Move one segment forward if no longer in the interval of the current segment
         #@fakeEnd(event.jPlayer.status)
         status = event.jPlayer.status
         @time = status.currentTime
         if @segment()? and @segment().end < status.currentTime
-          next = @playlist().nextSegment()
-          next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
-          next.done => @updateHtml status
-          # FIXME: If we are more than one segment behind, pause the player
-        
+          # FIXME: This doesn't work across section boundaries
+          if @segment().next?
+            # FIXME: Using @timeLoading doesn't work across section boundaries
+            if @timeLoading?
+              if @timeLoading.end < status.currentTime
+                # FIXME: We have moved past the end of the next segment - what to do?
+                log.message "Player: timeupdate: pausing due to missing segment load"
+                @el.jPlayer 'pause', @getStatus().currentTime + 1
+            else
+              next = @playlist().nextSegment()
+              log.message "Player: timeupdate: (#{status.currentTime}s) move forward from segment #{@segment().url()}: [#{@segment().start}, #{@segment().end}] to #{next.url()}: [#{next.start}, #{next.end}]"
+              @timeLoading = next
+              next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
+              next.done => @updateHtml status
+              next.always => @timeLoading = null
+              # FIXME: If we are more than one segment behind, pause the player
+                    
       loadstart: (event) =>
         log.message 'Player: load start'
         @setPlayBackRate()
