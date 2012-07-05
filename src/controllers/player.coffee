@@ -57,6 +57,7 @@ LYT.player =
     jplayer = @el.jPlayer
       ready: =>
         @ready = true
+        @timeupdateLock = false
         log.message 'Player: initialization complete'
         #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
         #todo: add a silent state where we do not play on can play   
@@ -76,21 +77,25 @@ LYT.player =
         #@fakeEnd(event.jPlayer.status)
         status = event.jPlayer.status
         @time = status.currentTime
-        @loadingNext or= false
-        if status.src != @segment().audio or @segment().end < @time and not @loadingNext
+        @timeupdateLock or= false
+        if not @segment() or status.src != @segment().audio or @segment().end < @time and not @timeupdateLock
           log.message "Player: timeupdate: queue for offset #{@time}"
-          @loadingNext = true
+          @timeupdateLock = true
           next = @playlist().segmentByAudioOffset status.src, @time
           next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
           next.done (next) =>
-            log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
-            @updateHtml status
-          next.always => @loadingNext = false
+            if next
+              log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
+            else
+              log.message "Player: timeupdate: (#{status.currentTime}s): no current segment"
+            @updateHtml next
+          next.always => @timeupdateLock = false
           # FIXME: If we are more than one segment behind, pause the player
-                    
+
       loadstart: (event) =>
         log.message 'Player: load start'
         @setPlayBackRate()
+        @timeupdateLock = false
         if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
           if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-play')
             # IOS will not AutoPlay...
@@ -106,10 +111,11 @@ LYT.player =
         
         return unless jQuery.browser.webkit
         
-        @updateHtml(event.jPlayer.status)
+        @updateHtml @segment()
         @playOnIntent()
       
       ended: (event) =>
+        @timeupdateLock = false
         if @autoProgression
           @nextSegment true  
       
@@ -128,11 +134,14 @@ LYT.player =
                    
       seeked: (event) =>
         log.message 'Player: event seeked'
+        @timeupdateLock = false
         LYT.loader.close('metadata')
         @time = event.jPlayer.status.currentTime
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
-        segment.done => @updateHtml(event.jPlayer.status)
+        segment.done (segment) =>
+          console.log 'Segment done' 
+          @updateHtml segment
 #        @playOnIntent()
 
       loadedmetadata: (event) =>
@@ -340,23 +349,22 @@ LYT.player =
       @el.jPlayer('play')
         
       
-  updateHtml: (status) ->
+  updateHtml: (segment) ->
     # Update player rendering for current time of section
     
-    # Don't try to render non-existing segments or a segment that we have just
-    # rendered
-    return if not @segment()? or @segment() == @render
-    @render = @segment()
+    if not segment?
+      log.error "Player: updateHtml called with no segment"
+      return
 
+    if segment.state() isnt 'resolved'
+      log.error "Player: updateHtml called with unresolved segment"
+      return
+
+    log.group "Player: updateHtml: time: #{@time}, rendering segment #{segment.url()}", segment
+    @renderTranscript segment
+    segment.preloadNext()
     # FIXME: Don't call updateLastMark() here - it's not obvious
     @updateLastMark()
-
-    @segment().done (segment) => 
-      log.group "Player: updateHtml: time: #{@time}, rendering segment #{segment.url()}", segment
-      segment.preloadNext()
-      # FIXME: Don't call updateLastMark() here - it's not obvious
-      @updateLastMark()
-      @renderTranscript segment
   
   
   renderTranscript: (segment) ->
