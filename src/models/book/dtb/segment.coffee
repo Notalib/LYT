@@ -92,13 +92,13 @@ class LYT.Segment
   getPrevious: -> @previous
 
   # Will load this segment and the next preloadCount segments  
-  preloadNext: (preloadCount = 10) ->
+  preloadNext: (preloadCount = LYT.config.segment.preload.queueSize) ->
     this.load()
     if preloadCount > 0
       this.done (segment) ->
         if next = segment.next
           next.preloadNext(preloadCount - 1)
-        else if segment.section.next
+        else if segment.section.next?
           segment.section.next.firstSegment().done (next) ->
             next.preloadNext(preloadCount - 1)
 
@@ -136,26 +136,34 @@ class LYT.Segment
     jQuery.each element.find("img"), (i, img) ->
       images.push
         src: img.src
-        attempts: 3
+        attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
-
-    console.log images
 
     # Use Deferreds to set up a `when` trigger
     # 1998 called; they want their preloading technique back
     loadImage = (image) ->
-      console.log "Segment: parseContent: preloading image #{image.src}"
-      tmp = new Image
-      tmp.onload  = -> image.deferred.resolve()
-      tmp.onerror = ->
+      # Note that clearing the timeout has to be done as the first thing in
+      # both handlers. We still have a race condition where the timer may
+      # fire just before being cleared.
+      errorHandler = () ->
+        clearTimeout image.timer
         if image.attempts-- > 0
           log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left"
           loadImage image
         else
           log.error "Segment: parseContent: unable to preload image #{image.src}"
           image.deferred.reject()
+      tmp = new Image
+      tmp.onload  = ->
+          clearTimeout image.timer
+          log.message "Segment: parseContent: loaded image #{image.src}"
+        image.deferred.resolve()
+      tmp.onerror = errorHandler
+      image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
       tmp.src = image.src
-    loadImage image for image in images
+    for image in images
+      log.message "Segment: parseContent: initiate preload of image #{image.src}"
+      loadImage image
 
     # When all images have loaded (or failed)...
     jQuery.when.apply(null, jQuery.map images, (image) -> image.deferred)

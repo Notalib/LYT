@@ -97,7 +97,7 @@ LYT.config =
     # The minimum time between lastmark updates (milliseconds)
     lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
     playAttemptLimit: 10
-    IOSFirstPlay:  true
+    IOSFirstPlay: true
     readSpeed:
       slow:         0.5
       normal_slow:  0.8
@@ -108,7 +108,12 @@ LYT.config =
       fast_ultra:   3
       ultra_fast:   4
 
-
+  segment:
+    preload:
+      queueSize: 5
+    imagePreload:
+      timeout: 5000
+      attempts: 3
   
   # ### LYT.DTBDocument config
   dtbDocument:
