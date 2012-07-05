@@ -94,22 +94,17 @@ class LYT.Section
   getSegmentsByAudio: (audio) ->
     if this.state() isnt 'resolved'
       throw "Section: getSegmentsByAudio only works on resolved sections"
-    jQuery.grep @document.segments, (segment) -> segment.audio is audio
+    jQuery.grep @document.segments, (segment) ->
+      if segment.audio is audio
+        segment.load()
+        return true
   
-  # Retrieves the media (text and audio) at a given point
-  # in time (seconds, relative to the section).
-  # Both arguments are optional. If no arguments are given, 
-  # the first section's first text & audio will be loaded.  
-  # If no matching media is found, `null` will be propagated.
-  #
-  # CHANGED: Now caches and returns `LYT.Segment` instances  
-  # TODO: There's a lot of unnecessary data-duplication going
-  # on between the various models... that should probably
-  # be alleviated somehow
   getSegmentByOffset: (offset = 0) -> 
     @_getSegment (segments) ->
       for segment in segments
-        return segment if segment.start <= offset < segment.end
+        if segment.start <= offset < segment.end
+          segment.load()
+          return segment
   
   # Flattens the structure from this section and "downwards"
   flatten: ->
