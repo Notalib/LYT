@@ -155,8 +155,8 @@ class LYT.Segment
           image.deferred.reject()
       tmp = new Image
       tmp.onload  = ->
-          clearTimeout image.timer
-          log.message "Segment: parseContent: loaded image #{image.src}"
+        clearTimeout image.timer
+        log.message "Segment: parseContent: loaded image #{image.src}"
         image.deferred.resolve()
       tmp.onerror = errorHandler
       image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
