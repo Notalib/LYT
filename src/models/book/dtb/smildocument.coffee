@@ -4,13 +4,6 @@
 
 # -------------------
 
-#    getTextContentReferences: ->
-#      urls = []
-#      for segment in @segments when segment.text?
-#        url = segment.text.src.replace /#.*$/, ""
-#        urls.push url if urls.indexOf(url) is -1
-#      urls
-
 do ->
   
   # Class to model a SMIL document
@@ -92,13 +85,16 @@ do ->
     clips = jQuery.makeArray clips
     clips.sort (a, b) -> a.start - b.start
     
-    # Collapse audio references into 1
-    clip = clips[0]
-    clip.end = clips[clips.length-1].end
-    unless clip.id?
-      idCounts[clip.audio.src] or= 1
-      clip.id or= "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
-    return [clip]
+    if clips.length == 0
+      return []
+    else
+      # Collapse audio references into 1
+      clip = clips[0]
+      clip.end = clips[clips.length-1].end
+      unless clip.id?
+        idCounts[clip.audio.src] or= 1
+        clip.id or= "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
+      return [clip]
   
   
   parseTextNode = (text) ->
