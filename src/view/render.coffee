@@ -127,12 +127,15 @@ LYT.render = do ->
   init: ->
     log.message 'Render: init'
     @setStyle()
+    @setVersion()
   
   setStyle: ->
     log.message 'Render: setting custom style'
     $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
     $('#book-play').css
       'background-color': $("#book-text-content").css('background-color')
+      
+  setVersion: -> $('#legal').append("<p>Version #{LYT.VERSION}</p>")
   
   bookshelf: (books, view, page) ->
     #todo: add pagination
