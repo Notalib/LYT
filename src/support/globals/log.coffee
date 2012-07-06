@@ -8,11 +8,21 @@
   #     2 = Errors & warnings
   #     3 = Errors, warnings, and messages (everything)
   level: 3
+  # To filter the log, set this value to a function that returns true for
+  # all items that should appear in the log. If the function throws an
+  # exception, the item will appear in the log.
+  filter: null
   
+  _filter: (type, messages, title) ->
+    try
+      return log.filter type, messages, title
+    return true
+
   # Error-checking alias for `console.log()`  
   # Logging level: 3 or higher
   message: (messages...) ->
     return unless log.level > 2
+    return unless log._filter 'message', messages
     if console.log?.apply?
       console.log.apply console, messages 
     else
@@ -22,6 +32,7 @@
   # Logging level: 1 or higher
   error: (messages...) ->
     return unless log.level > 0
+    return unless log._filter 'error', messages
     method = console.error or console.log
     if method?.apply?
       method.apply console, messages
@@ -32,6 +43,7 @@
   # Logging level: 2 or higher
   warn: (messages...) ->
     return unless log.level > 1
+    return unless log._filter 'warn', messages
     method = console.warn or console.log
     if method?.apply?
       method.apply console, messages
@@ -42,6 +54,7 @@
   # Logging level: 3 or higher
   info: (messages...) ->
     return unless log.level > 2
+    return unless log._filter 'info', messages
     method = (console.info or @message)
     if method?.apply?
       method.apply console, messages
@@ -58,6 +71,7 @@
   # Logging level: 3 or higher
   group: (title = "", messages...) ->
     return unless log.level > 2
+    return unless log._filter 'group', messages, title
     method = console.groupCollapsed or console.group
     if method?
       method.call console, title
@@ -72,6 +86,7 @@
   # Logging level: 1 or higher and messages will be logged as errors
   errorGroup: (title = "", messages...) ->
     return unless log.level > 0
+    return unless log._filter 'errorGroup', messages, title
     method = console.groupCollapsed or console.group
     if console.groupCollapsed?
       console.groupCollapsed title
@@ -96,6 +111,7 @@
   # Error-checking alias for `console.trace`  
   # Logging level: 1 or higher
   trace: ->
+    return unless log._filter 'trace', messages, title
     return unless log.level > 0
     console.trace?()
   
