@@ -273,8 +273,9 @@ LYT.service = do ->
     
     response.done (list) ->
       for item in list
-        # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.  
+        # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
         # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
+        # See issue #17 on Github
         [item.author, item.title] = item.label?.split("$") or ["", ""]
         delete item.label
       deferred.resolve list
