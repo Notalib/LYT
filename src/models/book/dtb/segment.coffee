@@ -132,15 +132,15 @@ class LYT.Segment
     @html   = element?.html()
 
     # Find images in the HTML and set up preloading
+    # Use Deferreds to set up a `when` trigger
     images = []
     jQuery.each element.find("img"), (i, img) ->
       images.push
         src: img.src
+        element: img
         attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
 
-    # Use Deferreds to set up a `when` trigger
-    # 1998 called; they want their preloading technique back
     loadImage = (image) ->
       # Note that clearing the timeout has to be done as the first thing in
       # both handlers. We still have a race condition where the timer may
@@ -153,13 +153,16 @@ class LYT.Segment
         else
           log.error "Segment: parseContent: unable to preload image #{image.src}"
           image.deferred.reject()
-      tmp = new Image
-      tmp.onload  = ->
+      doneHandler = () ->
         clearTimeout image.timer
         log.message "Segment: parseContent: loaded image #{image.src}"
         image.deferred.resolve()
-      tmp.onerror = errorHandler
+      # Set timeout, so we can retry again if the load stalls
       image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
+      # 1998 called; they want their preloading technique back
+      tmp = new Image
+      tmp.onload  = doneHandler
+      tmp.onerror = errorHandler
       tmp.src = image.src
     for image in images
       log.message "Segment: parseContent: initiate preload of image #{image.src}"
