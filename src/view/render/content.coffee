@@ -10,25 +10,30 @@ LYT.render.content = do ->
   _focusEasing   = 'easeInOutQuint'
   _focusDuration = 2000
   
+  # Getter and setter
   focusEasing = (easing...) ->
     _focusEasing = easing[0] if easing.length > 0
     _focusEasing
 
+  # Getter and setter
   focusDuration = (duration...) ->
     _focusDuration = duration[0] if duration.length > 0
     _focusDuration
 
+  # Return how much vertical space that is available
   vspace = ->
     result = $(window).height()
     $('#book-text-content').prevAll().each (i, e) ->
       result -= $(e).height()
     return result
     
+  # Return how much horizontal space that is available
   hspace = -> $(window).width()
 
   # Given an image and an area of the image, return how the image
   # should be translated in cordinates relative to its containing div.
-  # New width and height is returned as well
+  # New width and height is returned as well.
+  # The object returned contains css attributes that will do the translation.
   translate = (image, area) ->
     result = {}
     view = image.parent()
@@ -44,21 +49,26 @@ LYT.render.content = do ->
     height: Math.floor(image[0].naturalHeight * scale)
     top: Math.floor(- area.tl.y * scale)
     left: Math.floor((image[0].naturalWidth/2 - area.tl.x - area.width/2)*scale)
-  
+
+  # Move straight to focus area without any effects  
   focusImage = (image, area) ->
     nextFocus = translate image, area
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.data 'LYT-focus', nextFocus
-    image.css 'width', nextFocus.width
-    image.css 'height', nextFocus.height
-    image.css 'top', nextFocus.top
-    image.css 'left', nextFocus.left
-    
-  panZoomImage = (image, area) ->
+    image.css nextFocus
+  
+  # Move to focus area with effects specified in focusDuration() and focusEasing()
+  panZoomImage = (segment, image, area) ->
     nextFocus = translate image, area
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.animate nextFocus, focusDuration(), focusEasing(), () ->
       image.data 'LYT-focus', nextFocus
+      if area.height/area.width > 2 and area.height > vspace() * 2
+        panArea = jQuery.extend {}, area
+        panArea.height = area.width
+        image.animate translate(image, panArea), focusDuration(), focusEasing(), () ->
+          panArea.tl.y = area.height - panArea.height
+          image.animate translate(image, panArea), (segment.end - segment.start)*1000 - 2 * focusDuration(), 'linear'
   
   # Return area object that will focus on the entire image
   wholeImageArea = (image) ->
@@ -71,6 +81,7 @@ LYT.render.content = do ->
         x: image[0].naturalWidth
         y: image[0].naturalHeight
     
+  # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view) ->
     div   = segment.divObj or= jQuery segment.div
     image = segment.imgObj or= jQuery segment.image
@@ -94,10 +105,11 @@ LYT.render.content = do ->
         x: left + div.width()  #image.naturalWidth
         y: top  + div.height() #image.naturalHeight
     
-    panZoomImage image, area
+    panZoomImage segment, image, area
     
     return true
 
+  # Standard renderer - render everything in the text document
   renderStandard = (segment, view) ->
     segment.dom or= $(document.createElement('div')).html segment.html
     segment.dom.find("img").each ->
