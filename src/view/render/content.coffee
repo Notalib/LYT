@@ -32,25 +32,22 @@ LYT.render.content = do ->
     width: Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
     top: Math.floor(- area.tl.y * scale)
-    left: Math.floor(hspace() / 2 - (area.tl.x + area.width/2) * scale)
+    left: Math.floor((image[0].naturalWidth/2 - area.tl.x - area.width/2)*scale)
   
   focusImage = (image, area) ->
     nextFocus = translate image, area
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.data 'LYT-focus', nextFocus
-    image.width nextFocus.width
-    image.height nextFocus.height
+    image.css 'width', nextFocus.width
+    image.css 'height', nextFocus.height
     image.css 'top', nextFocus.top
-    offset = image.offset()
-    offset.left = nextFocus.left
-    image.offset offset
-    log.group 'content: focusImage: moved to new focus', nextFocus
+    image.css 'left', nextFocus.left
     
   panZoomImage = (image, area) ->
     nextFocus = translate image, area
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.data 'LYT-focus', nextFocus
-    
+  
   # Return area object that will focus on the entire image
   wholeImageArea = (image) ->
       width:  image[0].naturalWidth
