@@ -128,6 +128,7 @@ LYT.render.content = do ->
         img.height 'auto'
       
       img.click -> img.toggleClass('zoom')
+    view.empty().append segment.dom
   
   render = (segment, view) ->
     switch segment.type
