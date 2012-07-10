@@ -70,7 +70,9 @@ class LYT.Segment
         log.error "Segment: no absolute URL for content #{@contentUrl}"
         @_deferred.reject()
       else
-        resource.document or= new LYT.TextContentDocument resource.url
+        unless resource.document
+          resource.document = new LYT.TextContentDocument resource.url
+          resource.document.done (document) -> document.resolveUrls section.resources
         promise = resource.document.pipe (document) => @parseContent document
         promise.done => @_deferred.resolve this
         promise.fail =>
@@ -107,39 +109,52 @@ class LYT.Segment
   # promise in order to reject processing.
   parseContent: (document) ->
     source = document.source
-    element = jQuery source.get(0).createElement("DIV")
-    element.append source.find("##{@contentId}").first().clone()
-    sibling = element.next()
-    until sibling.length is 0 or sibling.attr "id"
-      element.append sibling.clone()
-      sibling = sibling.next()
-
-    # Remove links.  
-    # This will fall apart on nested links, I think.
-    # Then again, nested links are very illegal anyway
-    element.find("a").each (index, item) ->
-      item = jQuery item
-      item.replaceWith item.html()
-
-    # Fix relative links in `src` attrs
-    element.find("*[src]").each (index, item) =>
-      item = jQuery item
-      return if item.data("relative")?
-      item.attr "src", @section.resources[item.attr("src")]?.url
-      item.data "relative", "yes" # Mark as already-processed
-
-    @text   = jQuery.trim element?.text() or ""
-    @html   = element?.html()
-
+    sourceContent = source.find("##{@contentId}")
+    
     # Find images in the HTML and set up preloading
     # Use Deferreds to set up a `when` trigger
     images = []
-    jQuery.each element.find("img"), (i, img) ->
+
+    if sourceContent.parent().hasClass('page') and sourceContent.is('div') and image = sourceContent.parent().children('img')
+      if image.length != 1
+        log.error "Segment: parseContent: can't create reliable cartoon type with multiple or zero images: #{this.url()}"
+      @type  = 'cartoon'
+      # The stuff below simply gets the complete html as a string, as jQuery
+      # doesn't have a method for this
+      @image = image.clone().wrap('<p>').parent().html()
+      @div   = sourceContent.clone().wrap('<p>').parent().html()
       images.push
-        src: img.src
-        element: img
+        src: image[0].src
+        element: image[0]
         attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
+      
+    else
+      element = jQuery source.get(0).createElement("DIV")
+      element.append sourceContent.first().clone()
+      @type = 'standard'
+      sibling = element.next()
+      until sibling.length is 0 or sibling.attr "id"
+        element.append sibling.clone()
+        sibling = sibling.next()
+  
+      # Remove links.  
+      # This will fall apart on nested links, I think.
+      # Then again, nested links are very illegal anyway
+      element.find("a").each (index, item) ->
+        item = jQuery item
+        item.replaceWith item.html()
+  
+      @text = jQuery.trim element?.text() or ""
+      # Assuming that we
+      @html = element?.html()
+
+      jQuery.each element.find("img"), (i, img) ->
+        images.push
+          src: img.src
+          element: img
+          attempts: LYT.config.segment.imagePreload.attempts
+          deferred: jQuery.Deferred()
 
     loadImage = (image) ->
       # Note that clearing the timeout has to be done as the first thing in
