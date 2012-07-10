@@ -175,6 +175,8 @@ LYT.control =
       offset = Number(params.offset) or 0
       guest = params.guest or null
       autoplay = params.autoplay or false
+      LYT.render.content.focusEasing params.focusEasing if params.focusEasing
+      LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
 
       if guest is null and LYT.session.getCredentials() is null and LYT.var.next? #logged off
          window.location.reload()

@@ -7,6 +7,17 @@
 console.log 'Load LYT.render.content'
 LYT.render.content = do ->
   
+  _focusEasing   = 'easeInOutQuint'
+  _focusDuration = 2000
+  
+  focusEasing = (easing...) ->
+    _focusEasing = easing[0] if easing.length > 0
+    _focusEasing
+
+  focusDuration = (duration...) ->
+    _focusDuration = duration[0] if duration.length > 0
+    _focusDuration
+
   vspace = ->
     result = $(window).height()
     $('#book-text-content').prevAll().each (i, e) ->
@@ -46,7 +57,8 @@ LYT.render.content = do ->
   panZoomImage = (image, area) ->
     nextFocus = translate image, area
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
-    image.data 'LYT-focus', nextFocus
+    image.animate nextFocus, focusDuration(), focusEasing(), () ->
+      image.data 'LYT-focus', nextFocus
   
   # Return area object that will focus on the entire image
   wholeImageArea = (image) ->
@@ -82,7 +94,7 @@ LYT.render.content = do ->
         x: left + div.width()  #image.naturalWidth
         y: top  + div.height() #image.naturalHeight
     
-    focusImage image, area
+    panZoomImage image, area
     
     return true
 
@@ -112,4 +124,6 @@ LYT.render.content = do ->
 
 # Public API
 
-  render: render
+  render:        render
+  focusEasing:   focusEasing
+  focusDuration: focusDuration
