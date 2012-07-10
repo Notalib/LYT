@@ -6,6 +6,7 @@
 # -------------------
 
 # This module handles gui callbacks and various utility functions
+console.log 'Load LYT.render'
 
 LYT.render = do ->
   
@@ -206,57 +207,11 @@ LYT.render = do ->
     view = $("#book-text-content")
     view.html "Her slutter bogen"
   
-  singleImage: (image, area) ->
+  textContent: (segment) ->
     view = $("#book-text-content")
-    vspace = ($(window).height() - 20)
-    area or=
-      width: image.naturalWidth
-      height: image.naturalHeight
-      tl:
-        x: 0
-        y: 0
-      br:
-        x: image.naturalWidth
-        y: image.naturalHeight
-    scale = 1;
-    if view.width() < area.width
-      scale = view.width() / area.width
-    else if vspace < area.height
-      scale = vspace / area.height
-    # FIXME: resizing div to fit content in case div is too large
-    image.width  = image.naturalWidth * scale;
-    image.height = image.naturalHeight * scale;
-    jQuery(image).css('position', 'relative').css('left', - area.tl.x * scale).css('top', - area.tl.y * scale)
-  
-  textContent: (media) ->
-    view = $("#book-text-content")
-    view.html media.html
     if(LYT.player.isIOS() or $.jPlayer.platform.android?)
       view.css('overflow-x','scroll')
-    
-    images = view.find("img")
-    if images.length == 1
-      @singleImage images[0]
-    else
-      images.each ->
-        img = $(this)
-  
-        return if img.data("vspace-processed")? == "yes"
-          
-        img.data "vspace-processed", "yes" # Mark as already-processed
-          
-        vspace = ($(window).height() - 20)
-        log.message "render: textContent: vspace: #{vspace}"
-        
-        if img.height() > vspace
-          img.height(vspace)
-          img.width('auto')
-        
-        if img.width() > view.width()
-          img.width('100%')
-          img.height('auto')
-        
-        img.click -> img.toggleClass('zoom')
+    LYT.render.content.render segment, view
       
   bookDetails: (details, view) ->
     $("#details-book-title").text details.title

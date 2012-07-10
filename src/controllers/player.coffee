@@ -403,7 +403,6 @@ LYT.player =
 
         doneHandler = (segment) =>
           deferred.resolve @book
-          segment.load()
           @playSegment segment, autoPlay
           log.message "Player: found segment #{segment.url()} - playing"
 
