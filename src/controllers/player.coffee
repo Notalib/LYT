@@ -275,16 +275,6 @@ LYT.player =
     # Be cautious only read from status
     @el.data('jPlayer').status
   
-  silentPlay: () ->
-      ###
-      IOS does not allow playing audio without a direct connection to a click event
-      we get around this here by starting playback of a silent audio file while 
-      the book media loads.
-      ###
-      
-      @el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
-      @play(0)
-  
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
   setPlayBackRate: (playBackRate) ->
