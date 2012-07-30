@@ -21,7 +21,6 @@ LYT.player =
   nextButton: null
   previousButton: null
   playIntentOffset: 0
-  playIntentFlag: false
 
   autoProgression: true 
   toggleAutoProgression: null
@@ -112,7 +111,6 @@ LYT.player =
         return unless jQuery.browser.webkit
         
         @updateHtml @segment()
-        @playOnIntent()
       
       ended: (event) =>
         @timeupdateLock = false
@@ -140,7 +138,6 @@ LYT.player =
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
         segment.done (segment) => @updateHtml segment
-#        @playOnIntent()
 
       loadedmetadata: (event) =>
         log.message 'Player: loaded metadata'
@@ -172,7 +169,6 @@ LYT.player =
             if LYT.config.player.IOSFirstPlay
               @pause()
           else
-            @playOnIntent()
             LYT.loader.close('metadata')
         if(!@gotDuration?)
           LYT.loader.close('metadata') #windows phone 7
@@ -188,7 +184,6 @@ LYT.player =
           else
             @pause(@playIntentOffset)
 
-            @playOnIntent()
             LYT.loader.close('metadata')  
          
         else if LYT.config.player.IOSFirstPlay and @isIOS()
@@ -197,12 +192,10 @@ LYT.player =
         
         #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
         #LYT.loader.close('metadata')
-        #@playOnIntent()
       
       progress: (event) =>
         #log.message 'Player: event progress'
         #LYT.loader.close('metadata')
-        #@playOnIntent()
       
       error: (event) =>
         switch event.jPlayer.error.type
@@ -311,17 +304,6 @@ LYT.player =
     else
       return false
   
-  
-  playOnIntent: () ->
-    # Calls play and resets flag if the intent flag was set
-    
-    if @playIntentFlag
-      #@playAttemptCount = 0
-      log.message 'Player: play intent used offset is #{@playIntentOffset}'
-      @playIntentFlag = false
-      @play(@playIntentOffset, false)
-      @playIntentOffset = null
-      
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
