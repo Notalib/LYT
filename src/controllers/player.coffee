@@ -311,6 +311,7 @@ LYT.player =
     else
       return false
   
+  
   playOnIntent: () ->
     # Calls play and resets flag if the intent flag was set
     
@@ -320,22 +321,7 @@ LYT.player =
       @playIntentFlag = false
       @play(@playIntentOffset, false)
       @playIntentOffset = null
-  
-  play: (time, setIntent = true) ->
-    # Start or resume playing if media is loaded
-    # Starts playing at time seconds if specified, else from
-    #if time is not ""
-      #@pause(time)
-    
-    if setIntent
-      log.message 'Player: play intent flag set'
-      @playIntentFlag = true
-      @playIntentOffset = time
       
-    else
-      log.message 'Player: Play'
-      @el.jPlayer('play')
-        
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
