@@ -93,6 +93,10 @@ class LYT.Segment
   
   getPrevious: -> @previous
 
+  _status: ->
+    for image in @_images
+      log.message "Segment: image queue: #{image.src}: #{image.deferred.state()}"
+
   # Will load this segment and the next preloadCount segments  
   preloadNext: (preloadCount = LYT.config.segment.preload.queueSize) ->
     this.load()
@@ -184,8 +188,15 @@ class LYT.Segment
       tmp.src = image.src
     
     for image in images
-      log.message "Segment: parseContent: initiate preload of image #{image.src}"
-      loadImage image
+      log.message "Segment: queue image for preload: #{image.src}"
+      unless prevImage?
+        loadImage image
+      else
+        image.deferred.done () ->
+          loadImage image
+      prevImage = image
+
+    @_images = images
 
     # When all images have loaded (or failed)...
     jQuery.when.apply(null, jQuery.map images, (image) -> image.deferred)
