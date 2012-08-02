@@ -110,10 +110,10 @@ LYT.config =
 
   segment:
     preload:
-      queueSize: 5
+      queueSize: 1
     imagePreload:
-      timeout: 5000
-      attempts: 3
+      timeout: 1000000000
+      attempts: 5
   
   # ### LYT.DTBDocument config
   dtbDocument:
