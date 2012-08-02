@@ -372,7 +372,7 @@ LYT.player =
 
         doneHandler = (segment) =>
           deferred.resolve @book
-          @playSegment segment, autoPlay
+          @playSegmentOffset segment, offset, autoPlay
           log.message "Player: found segment #{segment.url()} - playing"
 
         if url?
@@ -380,6 +380,7 @@ LYT.player =
           promise.done doneHandler
           promise.fail =>
             log.error "Player: failed to load url #{url} - rewinding to start"
+            offset = 0
             promise = @playlist().rewind()
             promise.done doneHandler
             promise.fail failHandler
@@ -390,7 +391,9 @@ LYT.player =
         
     deferred.promise()
 
-  playSegment: (segment, autoPlay = true) ->
+  playSegment: (segment, autoPlay = true) -> playSegmentOffset segment, 0, autoPlay
+    
+  playSegmentOffset: (segment, offset = 0, autoPlay = true) -> 
     throw 'Player: playSegment called with no segment' unless segment?
     segment.done (segment) =>
       @renderTranscript segment
@@ -398,11 +401,14 @@ LYT.player =
         @el.jPlayer "setMedia", {mp3: segment.audio}
         @el.jPlayer "load"
         @currentAudio = segment.audio
+
+      offset = segment.end - 1 if offset > segment.end
+      offset = segment.start   if offset < segment.start
         
       if @getStatus()?.paused and not autoPlay
-        @el.jPlayer "pause", Math.ceil(segment.start)
+        @el.jPlayer "pause", offset
       else
-        @el.jPlayer "play", Math.ceil(segment.start)
+        @el.jPlayer "play", offset
 
   playSection: (section, offset = 0, autoPlay = true) ->
     

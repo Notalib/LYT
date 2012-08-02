@@ -292,7 +292,7 @@ LYT.render = do ->
       element.attr "data-href", item.id
       [baseUrl, id] = item.URI.split('#')
       element.append """
-        <a href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&autoplay=true"> 
+        <a href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{item.timeOffset}&autoplay=true"> 
           #{item.note.text}
         </a>"""
       

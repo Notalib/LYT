@@ -215,17 +215,21 @@ class LYT.Book
   getMetadata: ->
     @nccDocument?.getMetadata() or null
 
-  segmentToBookmark: (segment, offset = 0) ->
+  segmentToBookmark: (segment, offset) ->
     # TODO: The server doesn't support npt format, though it is required
     #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
-    hours   = Math.floor(offset / 3600).toString()
-    minutes = Math.floor((offset - hours*3600) / 60).toString()
-    seconds = Math.floor(offset - hours * 3600 - minutes * 60).toFixed(2)
-    hours   = '0' + hours   if hours.length == 1
-    minutes = '0' + minutes if minutes.length == 1
-    seconds = '0' + seconds if seconds < 10
+    offset or= segment.start
+    hours   = Math.floor(offset / 3600)
+    minutes = Math.floor((offset - hours*3600) / 60)
+    seconds = offset - hours * 3600 - minutes * 60
+    hours   = '0' + hours.toString()   if hours < 10
+    minutes = '0' + minutes.toString() if minutes < 10
+    if seconds < 10
+      seconds = '0' + seconds.toFixed(2)
+    else
+      seconds = seconds.toFixed(2)
     
-    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: {text: "#{segment.section.title} - #{segment.start}"}
+    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: {text: "#{segment.section.title} - #{offset.toFixed(2)}"}
 
   saveBookmarks: ->
     LYT.service.setBookmarks
@@ -235,25 +239,22 @@ class LYT.Book
       lastmark:  @lastmark
       bookmarks: @bookmarks
 
-  # TODO: Don't add any bookmarks already in the list
-  # TODO: Sort bookmarks in chronological order
+  # TODO: Sort bookmarks in reverse chronological order
   # TODO: Add remove bookmark method
   addBookmark: (segment, offset = 0) ->
     @bookmarks or= []
-    @bookmarks.push @segmentToBookmark segment
+    @bookmarks.push @segmentToBookmark segment, offset
     
     # We need the offsets parsed to seconds here, so first
     # they are all added and at the end, we remove them again.
     # TODO: Write class representing bookmarks(!)
     
-    offsetParser = (timeOffset) ->
-      values = (timeOffset.match /\d+/g).map (s) -> parseInt(s)
-      values[0] * 3600 + values[1] * 60 + values[2]
-
     temp = {}
     for bookmark in @bookmarks
-      bookmark.offset = offsetParser(bookmark.timeOffset)
+      bookmark.offset = LYT.utils.parseOffset bookmark.timeOffset
       temp[bookmark.URI] or= []
+      # Find an index for this bookmark: either at the end of the array
+      # or at the location of anohter bookmark very close to this one
       i = 0
       while i < temp[bookmark.URI]
         saved = temp[bookmark.URI][i]

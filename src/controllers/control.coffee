@@ -172,7 +172,7 @@ LYT.control =
       params = LYT.router.getParams(match[1])
       segmentUrl = params.section or null
       segmentUrl += "##{params.segment}" if params.segment
-      offset = Number(params.offset) or 0
+      offset = if params.offset then LYT.utils.parseOffset(params.offset) else 0
       guest = params.guest or null
       autoplay = params.autoplay or false
       LYT.render.content.focusEasing params.focusEasing if params.focusEasing
@@ -206,7 +206,7 @@ LYT.control =
           $("#bookmark-add-button").unbind "click"
           $("#bookmark-add-button").click (event) ->
             if segment = LYT.player.segment()
-              LYT.player.book.addBookmark segment
+              LYT.player.book.addBookmark segment, LYT.player.time
               segment.done -> $("#book-index-button").effect("highlight", {color: '#ffffff'}, 500)
           
           ###
