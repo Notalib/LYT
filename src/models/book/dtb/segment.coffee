@@ -3,24 +3,22 @@
 # This class models a "segment" of audio + transcript,
 # i.e. a single "sound clip" and its associated text/html
 #
-# A Segment instance as a Deferred. It resolves when all
+# A Segment instance is a Deferred. It resolves when all
 # images contained in the transcript have been loaded (by
 # calling the `preload` method), or if there were no images
 # to load.
 # 
-# CHANGED: The segment instance will now reject its promise
-# if it fails to load an image (before, it resolved no
-# matter what)
-# 
 # A Segment instance has the following properties:
 #
 # - id:              The id of the <par> element in the SMIL document
+# - index:           (Internal.) Index of this segment in the section
+#                    it belongs to.
 # - start:           The start time, in seconds, relative to the audio
 # - end:             The end time, in seconds, relative to the audio
 # - audio:           The url of the audio file (or null)
 # - html:            The HTML to display (or null)
 # - text:            The text content of the HTML content (or null)
-# - images:          Array of image URLs in the HTML content (if any)
+# - section:         The section this segment belongs to.
 # 
 # And the following methods (not in prototype, mixed-in in constructor):
 #
@@ -41,7 +39,7 @@ class LYT.Segment
     @_deferred = jQuery.Deferred()
     @_deferred.promise this
     
-    # Add properties
+    # Properties initialized in the constructor
     @id      = data.id
     @index   = data.index
     @start   = data.start
@@ -119,10 +117,11 @@ class LYT.Segment
     # Use Deferreds to set up a `when` trigger
     images = []
 
+    # Check if the source document is using whole page cartoon html or not
     if sourceContent.parent().hasClass('page') and sourceContent.is('div') and image = sourceContent.parent().children('img')
+      @type  = 'cartoon' # Cartoon html
       if image.length != 1
         log.error "Segment: parseContent: can't create reliable cartoon type with multiple or zero images: #{this.url()}"
-      @type  = 'cartoon'
       # The stuff below simply gets the complete html as a string, as jQuery
       # doesn't have a method for this
       @image = image.clone().wrap('<p>').parent().html()
@@ -134,9 +133,9 @@ class LYT.Segment
         deferred: jQuery.Deferred()
       
     else
+      @type = 'standard' # Standard html
       element = jQuery source.get(0).createElement("DIV")
       element.append sourceContent.first().clone()
-      @type = 'standard'
       sibling = element.next()
       until sibling.length is 0 or sibling.attr "id"
         element.append sibling.clone()
