@@ -75,8 +75,8 @@ class LYT.Segment
           resource.document.done (document) -> document.resolveUrls section.resources
         promise = resource.document.pipe (document) => @parseContent document
         promise.done => @_deferred.resolve this
-        promise.fail =>
-          log.error "Unable to get TextContentDocument for #{resource.url}"
+        promise.fail (status, error) =>
+          log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
           @_deferred.reject()
     
     return @_deferred.promise()
@@ -156,15 +156,18 @@ class LYT.Segment
           attempts: LYT.config.segment.imagePreload.attempts
           deferred: jQuery.Deferred()
 
-    loadImage = (image) ->
+    loadImage = (image) =>
+      log.message "Segment: #{this.url()}: parseContent: initiate preload of image #{image.src}"
       # Note that clearing the timeout has to be done as the first thing in
       # both handlers. We still have a race condition where the timer may
       # fire just before being cleared.
       errorHandler = () ->
         clearTimeout image.timer
         if image.attempts-- > 0
-          log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left"
-          loadImage image
+          backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50)
+          log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left. Waiting for #{backoff} ms."
+          doLoad  = () -> loadImage image
+          setTimeout doLoad, backoff
         else
           log.error "Segment: parseContent: unable to preload image #{image.src}"
           image.deferred.reject()
@@ -179,6 +182,7 @@ class LYT.Segment
       tmp.onload  = doneHandler
       tmp.onerror = errorHandler
       tmp.src = image.src
+    
     for image in images
       log.message "Segment: parseContent: initiate preload of image #{image.src}"
       loadImage image
