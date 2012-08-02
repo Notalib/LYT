@@ -140,15 +140,15 @@ do ->
         try
           markup = responseText.match /<html[^>]*>([\s\S]+)<\/html>\s*$/i
         catch e
-          #log.error "DTB: Failed to coerce markup into HTML"
-          markup = ["", responseText]
+          log.errorGroup "DTB: Failed to coerce markup into HTML", e, responseText
+          return null
         
         # Give up, if nothing was found
-        return null unless (markup = markup[1])?
+        return null unless markup.length > 0
+        markup = markup[0]
         
         # Create the DOM document
         html = createHTMLDocument()
-        
         
         # Give up if nothing was created
         return null unless html?
