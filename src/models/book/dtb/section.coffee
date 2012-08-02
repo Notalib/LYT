@@ -103,7 +103,6 @@ class LYT.Section
     @_getSegment (segments) ->
       for segment in segments
         if segment.start <= offset < segment.end
-          segment.load()
           return segment
   
   # Flattens the structure from this section and "downwards"
