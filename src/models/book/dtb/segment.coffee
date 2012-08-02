@@ -19,16 +19,23 @@
 # - html:            The HTML to display (or null)
 # - text:            The text content of the HTML content (or null)
 # - section:         The section this segment belongs to.
-# 
+# - type:            Type of this segment. The following two types are
+#                    currently supported:
+#                     - cartoon:  Display one large image.
+#                                 Each segment is an area that the 
+#                                 player should pan and zoom to.
+#                     - standard: Displays the provided content, replacing
+#                                 any previous content.
 # And the following methods (not in prototype, mixed-in in constructor):
 #
-# - preload:         Preloads transcript content (i.e. images). Returns
-#                    a promise (currently, the promise is always
-#                    resolved, regardless of errors)
-# - ready:           Returns a boolean indicating whether the segment
-#                    is ready for display
-# 
-# Additionally, it has the methods added via `Deferred#promise`
+# - preload:         Preloads transcript content (i.e. images).
+# - state:           This is the state of the `Deferred#promise` used to indicate
+#                    if the segment has been loaded yet:
+#                     - pending:  the load() method hasn't been called yet
+#                                 or the segment is currently loading.
+#                     - resolved: the segment has been loaded and can be
+#                                 displayed.
+#                     - rejected: loading the segment has failed.
 
 
 class LYT.Segment
