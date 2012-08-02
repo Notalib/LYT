@@ -25,11 +25,9 @@ LYT.player =
   autoProgression: true 
   toggleAutoProgression: null
   progressionMode: null
+  timeupdateLock: false
   
   fakeEndScheduled: false
-  
-  # Number of segments to preload
-  segmentLookahead: 3
   
   _iBug: false
   
@@ -72,8 +70,6 @@ LYT.player =
           @previousSegment @autoProgression
       
       timeupdate: (event) =>
-        # Move one segment forward if no longer in the interval of the current segment
-        #@fakeEnd(event.jPlayer.status)
         status = event.jPlayer.status
         @time = status.currentTime
         @timeupdateLock or= false
