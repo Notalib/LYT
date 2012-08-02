@@ -255,7 +255,7 @@ LYT.player =
     
   pause: (time) ->
     # Pause playback
-    log.message "pause at " + time
+    log.message "Player: pause: pause at #{time}"
 
     if time?
       @playIntentOffset = time
@@ -378,14 +378,11 @@ LYT.player =
           promise.fail failHandler
         
     deferred.promise()
-  
-  # TODO: More elegant use of segmentLookahead config value
 
   playSegment: (segment, autoPlay = true) ->
     throw 'Player: playSegment called with no segment' unless segment?
     segment.done (segment) =>
-      @renderTranscript(segment)
-      segment.preloadNext()
+      @renderTranscript segment
       if @currentAudio != segment.audio
         @el.jPlayer "setMedia", {mp3: segment.audio}
         @el.jPlayer "load"
