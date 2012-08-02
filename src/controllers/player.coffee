@@ -72,12 +72,28 @@ LYT.player =
       timeupdate: (event) =>
         status = event.jPlayer.status
         @time = status.currentTime
-        @timeupdateLock or= false
-        if not @segment() or status.src != @segment().audio or @segment().end < @time and not @timeupdateLock
+
+        # FIXME: Pause due unloaded segments should be improved with a visual
+        #        notification.
+        # FIXME: Handling of resume when the segment has been loaded can be
+        #        mixed with user interactions, causing an undesired resume
+        #        after the user has clicked pause. 
+
+        # Don't do anything else if we're already moving to a new segment
+        if @timeupdateLock and @_next.state() isnt 'resolved'
+          log.message "Player: timeupdate: timeupdateLock set. Next segment: #{@_next.state()}. Pause until resolved."
+          @pause()
+          @_next.done => @el.jPlayer('play')
+          return
+
+        # Move one segment forward if no current segment or no longer in the
+        # interval of the current segment
+        if not @segment() or status.src != @segment().audio or @segment().end < @time
           log.message "Player: timeupdate: queue for offset #{@time}"
           @timeupdateLock = true
           next = @playlist().segmentByAudioOffset status.src, @time
-          next.fail -> log.error 'Player: timeupdate event: Unable to load next segment.'
+          @_next = next
+          next.fail -> log.errorGroup 'Player: timeupdate event: Unable to load next segment.', next
           next.done (next) =>
             if next
               log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
@@ -85,7 +101,6 @@ LYT.player =
               log.message "Player: timeupdate: (#{status.currentTime}s): no current segment"
             @updateHtml next
           next.always => @timeupdateLock = false
-          # FIXME: If we are more than one segment behind, pause the player
 
       loadstart: (event) =>
         log.message 'Player: load start'
