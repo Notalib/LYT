@@ -41,7 +41,7 @@ class LYT.Section
     url  = @resources[file]?.url
     @document = new LYT.SMILDocument this, url
 
-    @document.done => @_deferred.resolve(this)    
+    @document.done => @_deferred.resolve(this)
     @document.fail =>
       log.error "Section: Failed to load SMIL-file #{@url.replace /#.*$/, ""}"
       @_deferred.reject()
@@ -91,12 +91,11 @@ class LYT.Section
       for segment in segments
         return segment if segment.id is id
 
-  getSegmentsByAudio: (audio) ->
+  getUnloadedSegmentsByAudio: (audio) ->
     if this.state() isnt 'resolved'
       throw "Section: getSegmentsByAudio only works on resolved sections"
     jQuery.grep @document.segments, (segment) ->
       if segment.audio is audio
-        segment.load()
         return true
   
   getSegmentByOffset: (offset = 0) -> 

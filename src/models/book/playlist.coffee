@@ -67,7 +67,9 @@ class LYT.Playlist
     promise = @_segmentsByAudio audio
     promise.pipe (segments) =>
       for segment in segments
-        return @load segment if segment.start <= offset < segment.end
+        if segment.start <= offset < segment.end
+          segment.load()
+          return @load segment 
 
   _segmentsByAudio: (audio) ->
     getters = [
@@ -81,7 +83,7 @@ class LYT.Playlist
       if section = iterator()
         section.load()
         return section.pipe (section) ->
-          segments = section.getSegmentsByAudio audio
+          segments = section.getUnloadedSegmentsByAudio audio
           if segments.length > 0
             return segments
           else
