@@ -6,18 +6,18 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+			<name>org.eclipse.xtext.ui.shared.xtextBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
 			<triggers>full,incremental,</triggers>
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/Cake app.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/Build cakefile.launch</value>
 				</dictionary>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.xtext.ui.shared.xtextBuilder</name>
-			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
@@ -26,16 +26,16 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1343633851459</id>
+			<id>1343896062335</id>
 			<name></name>
-			<type>6</type>
+			<type>22</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-*~</arguments>
 			</matcher>
 		</filter>
 		<filter>
-			<id>1343633851461</id>
+			<id>1343896062337</id>
 			<name></name>
 			<type>6</type>
 			<matcher>
@@ -44,7 +44,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1343633851464</id>
+			<id>1343896062340</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -53,7 +53,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1343633851468</id>
+			<id>1343896062345</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -62,7 +62,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1343633851470</id>
+			<id>1343896062348</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
@@ -71,7 +71,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1343633851472</id>
+			<id>1343896062366</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -80,7 +80,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1343633851478</id>
+			<id>1343896062370</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
