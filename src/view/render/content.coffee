@@ -41,14 +41,20 @@ LYT.render.content = do ->
     scale = 1;
     if view.width() < area.width
       scale = view.width() / area.width
+      # console.log "Width doesn't fit. Scale should be #{scale}"
     else if vspace() < area.height
       scale = vspace() / area.height
+      # console.log "Height doesn't fit. Scale should be #{scale}"
+    # console.log "render.content: translate: scale: #{scale}"
+    # console.log "render.content: translate: display area: #{JSON.stringify area}"
+    # console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
+    # console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
     # return
     width: Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
-    top: Math.floor(- area.tl.y * scale)
-    left: Math.floor((image[0].naturalWidth/2 - area.tl.x - area.width/2)*scale)
+    top: Math.floor(-area.tl.y * scale)
+    left: Math.floor(-area.tl.x * scale)
 
   # Move straight to focus area without any effects  
   focusImage = (image, area) ->
@@ -60,6 +66,7 @@ LYT.render.content = do ->
   # Move to focus area with effects specified in focusDuration() and focusEasing()
   panZoomImage = (segment, image, area) ->
     nextFocus = translate image, area
+    console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.animate nextFocus, focusDuration(), focusEasing(), () ->
       image.data 'LYT-focus', nextFocus
