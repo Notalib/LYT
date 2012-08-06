@@ -254,11 +254,11 @@ LYT.render = do ->
         
         if item.children.length > 0
           nested = jQuery "<ol></ol>"
-          mapper(nested, item.children)
+          mapper nested, item.children
           element.append nested
         list.append element
         
-    # Create an uordered list wrapper for the list
+    # Create an ordered list wrapper for the list
     view.children("ol").listview('childPages').remove()
     list = view.children("ol").empty()
     list.attr "data-title", book.title
