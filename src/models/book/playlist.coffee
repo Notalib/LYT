@@ -35,25 +35,38 @@ class LYT.Playlist
   rewind: -> @load @nccDocument.firstSegment()
 
   nextSection: ->
-    @currentSection().next.load()
-    @load @currentSection().next.firstSegment()
+    # FIXME: loading segments is the responsibility of the section each
+    # each segment belongs to.
+    if @currentSection().next
+      @currentSection().next.load()
+      @load @currentSection().next.firstSegment()
 
   previousSection: ->
+    # FIXME: loading segments is the responsibility of the section each
+    # each segment belongs to.
     @currentSection().previous.load()
     @load @currentSection().previous.firstSegment()
     
   nextSegment: ->
     if @currentSegment.hasNext()
+      # FIXME: loading segments is the responsibility of the section each
+      # each segment belongs to.
+      @currentSegment.next.load()
       return @load @currentSegment.next
     else
       return @nextSection()
     
   previousSegment: ->
     if @currentSegment.hasPrevious()
+      # FIXME: loading segments is the responsibility of the section each
+      # each segment belongs to.
+      @currentSegment.previous.load()
       return @load @currentSegment.previous
     else
-      @currentSection().previous.load()
-      @load @currentSection().previous.lastSegment()
+      if @currentSection().previous
+        @currentSection().previous.load()
+        @currentSection().previous.lastSegment().load()
+        @load @currentSection().previous.lastSegment()
 
   # Will rewind to start if no url is provided
   segmentByURL: (url) ->
@@ -68,6 +81,8 @@ class LYT.Playlist
     promise.pipe (segments) =>
       for segment in segments
         if segment.start <= offset < segment.end
+          # FIXME: loading segments is the responsibility of the section each
+          # each segment belongs to.
           segment.load()
           return @load segment 
 

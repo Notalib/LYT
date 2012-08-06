@@ -77,7 +77,7 @@ LYT.player =
         #        notification.
         # FIXME: Handling of resume when the segment has been loaded can be
         #        mixed with user interactions, causing an undesired resume
-        #        after the user has clicked pause. 
+        #        after the user has clicked pause.
 
         # Don't do anything else if we're already moving to a new segment
         if @timeupdateLock and @_next.state() isnt 'resolved'
@@ -126,9 +126,12 @@ LYT.player =
       ended: (event) =>
         @timeupdateLock = false
         if @autoProgression
-          @nextSegment true  
+          @nextSegment true
+      
+      play: (event) => @autoProgression = true
       
       pause: (event) =>
+        @autoProgression = false
         status = event.jPlayer.status
         return unless @isIOS()
         if @_iBug
@@ -142,6 +145,8 @@ LYT.player =
             @nextSegment true
                    
       seeked: (event) =>
+        # FIXME: If we are seeking to an offset very close to the end of a
+        # segment, skip that segment and load the next in stead
         log.message 'Player: event seeked'
         @timeupdateLock = false
         LYT.loader.close('metadata')
@@ -206,6 +211,8 @@ LYT.player =
       
       progress: (event) =>
         #log.message 'Player: event progress'
+        # To take advantage of this event, calculate how much audio has been
+        # buffered by looking at the audio element owned by jPlayer.
         #LYT.loader.close('metadata')
       
       error: (event) =>
@@ -391,7 +398,7 @@ LYT.player =
         
     deferred.promise()
 
-  playSegment: (segment, autoPlay = true) -> playSegmentOffset segment, 0, autoPlay
+  playSegment: (segment, autoPlay = true) -> @playSegmentOffset segment, 0, autoPlay
     
   playSegmentOffset: (segment, offset = 0, autoPlay = true) -> 
     throw 'Player: playSegment called with no segment' unless segment?
@@ -404,27 +411,26 @@ LYT.player =
 
       offset = segment.end - 1 if offset > segment.end
       offset = segment.start   if offset < segment.start
-        
+      
+      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}"
+
       if @getStatus()?.paused and not autoPlay
         @el.jPlayer "pause", offset
       else
         @el.jPlayer "play", offset
 
+      @updateHtml segment
+
   playSection: (section, offset = 0, autoPlay = true) ->
-    
     section = @playlist().rewind() unless section?
-    
     LYT.loader.register "Loading book", section
     
     section.done (section) =>
       log.message "Player: Playlist current section #{@section().id}"
       jQuery("#player-chapter-title h2").text section.title
-
       # Get the media obj
       @playlist().segmentBySectionOffset section, offset
-      
       @renderTranscript @segment()
-
       @playSegment @segment(), autoPlay
       
     section.fail ->
