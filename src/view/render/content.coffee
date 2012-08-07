@@ -8,7 +8,7 @@ console.log 'Load LYT.render.content'
 LYT.render.content = do ->
   
   _focusEasing   = 'easeInOutQuint'
-  _focusDuration = 2000
+  _focusDuration = 500
   
   # Getter and setter
   focusEasing = (easing...) ->
@@ -39,22 +39,18 @@ LYT.render.content = do ->
     view = image.parent()
 
     scale = 1;
-    if view.width() < area.width
-      scale = view.width() / area.width
-      # console.log "Width doesn't fit. Scale should be #{scale}"
-    else if vspace() < area.height
-      scale = vspace() / area.height
-      # console.log "Height doesn't fit. Scale should be #{scale}"
+    scale = view.width() / area.width if scale > view.width() / area.width
+    scale = vspace() / area.height if scale > vspace() / area.height
     # console.log "render.content: translate: scale: #{scale}"
     # console.log "render.content: translate: display area: #{JSON.stringify area}"
     # console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
     # console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
-    # return
+    centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
     width: Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
     top: Math.floor(-area.tl.y * scale)
-    left: Math.floor(-area.tl.x * scale)
+    left: Math.floor(centering - area.tl.x * scale)
 
   # Move straight to focus area without any effects  
   focusImage = (image, area) ->
@@ -94,8 +90,10 @@ LYT.render.content = do ->
     image = segment.imgObj or= jQuery segment.image
     
     if view.find('img').attr('src') is image.attr('src')
+      # We are already displaying the right image
       image = view.find 'img'
     else
+      # Display new image
       image.css 'position', 'relative'
       view.empty().append image 
     

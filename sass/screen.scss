@@ -946,18 +946,18 @@ img.nota-full {
 
 
 #book-text-content {
-  padding: 10px;
-  margin: 0;
+  margin: 0px;
   text-align: center;
   
   /*overflow-x: scroll;*/
   
   p {
-    margin: 0;
+    margin: 10px;
     text-align: left;  
   }
   
   h1, h2, h3 {
+    margin: 10px;
     text-align: left;
   }
   
