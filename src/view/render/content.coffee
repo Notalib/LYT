@@ -34,6 +34,7 @@ LYT.render.content = do ->
   # should be translated in cordinates relative to its containing div.
   # New width and height is returned as well.
   # The object returned contains css attributes that will do the translation.
+  # FIXME: This function shouldn't depend on the image having a parent.
   translate = (image, area) ->
     result = {}
     view = image.parent()
@@ -94,8 +95,10 @@ LYT.render.content = do ->
       image = view.find 'img'
     else
       # Display new image
+      view.css 'text-align', 'left'
       image.css 'position', 'relative'
       view.empty().append image 
+      focusImage image, wholeImageArea image
     
     left = parseInt (div[0].style.left.match /\d+/)[0]
     top  = parseInt (div[0].style.top.match /\d+/)[0]
@@ -116,6 +119,7 @@ LYT.render.content = do ->
 
   # Standard renderer - render everything in the text document
   renderStandard = (segment, view) ->
+    view.css 'text-align', 'center'
     segment.dom or= $(document.createElement('div')).html segment.html
     segment.dom.find("img").each ->
       img = $(this)
