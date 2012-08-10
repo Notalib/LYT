@@ -120,24 +120,14 @@ LYT.render.content = do ->
   # Standard renderer - render everything in the text document
   renderStandard = (segment, view) ->
     view.css 'text-align', 'center'
-    segment.dom or= $(document.createElement('div')).html segment.html
-    segment.dom.find("img").each ->
-      img = $(this)
-
-      return if img.data("vspace-processed")? == "yes"
-        
-      img.data "vspace-processed", "yes" # Mark as already-processed
-        
-      if img.height() > vspace()
-        img.height vspace()
-        img.width 'auto'
-      
-      if img.width() > view.width()
-        img.width '100%'
-        img.height 'auto'
-      
-      img.click -> img.toggleClass('zoom')
-    view.empty().append segment.dom
+    vspaceLeft = vspace()
+    view.empty()
+    while segment and segment.state() is "resolved" and vspaceLeft > 0
+      segment.dom or= $(document.createElement('div')).html segment.html
+      segment.dom.find("img").each -> $(this).click -> $(this).toggleClass('zoom')
+      view.append segment.dom
+      vspaceLeft -= segment.dom.height()
+      segment = segment.next
   
   render = (segment, view) ->
     switch segment.type
