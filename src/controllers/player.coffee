@@ -80,7 +80,7 @@ LYT.player =
         #        after the user has clicked pause.
 
         # Don't do anything else if we're already moving to a new segment
-        if @timeupdateLock and @_next.state() isnt 'resolved'
+        if @timeupdateLock and @_next and @_next.state() isnt 'resolved'
           log.message "Player: timeupdate: timeupdateLock set. Next segment: #{@_next.state()}. Pause until resolved."
           @pause()
           @_next.done => @el.jPlayer('play')
@@ -97,9 +97,9 @@ LYT.player =
           next.done (next) =>
             if next
               log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
+              @updateHtml next
             else
               log.message "Player: timeupdate: (#{status.currentTime}s): no current segment"
-            @updateHtml next
           next.always => @timeupdateLock = false
 
       loadstart: (event) =>
