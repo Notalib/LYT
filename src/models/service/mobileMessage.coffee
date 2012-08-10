@@ -40,7 +40,7 @@ LYT.mobileMessage = do ->
     jQuery.ajax(options)
       # On success, extract the results and pass them on
       .done (data) ->
-      	#Making a javascript object...
+        #Making a javascript object...
         JSONResult = data.d
         deferred.resolve JSONResult
       # On fail, reject the deferred
@@ -64,7 +64,7 @@ LYT.mobileMessage = do ->
     jQuery.ajax(options)
       # On success, extract the results and pass them on
       .done (data) ->
-      	#Making a javascript object...
+        #Making a javascript object...
         JSONResult = data.d
         deferred.resolve JSONResult
       # On fail, reject the deferred
@@ -73,12 +73,6 @@ LYT.mobileMessage = do ->
 
     deferred.promise()
 
-
-
-
-
-
-
   # ## Public API
   GetVersion:        GetVersion
-  NotifyMe  :        NotifyMe
+  NotifyMe:          NotifyMe
