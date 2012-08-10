@@ -110,7 +110,7 @@ LYT.config =
 
   segment:
     preload:
-      queueSize: 1
+      queueSize: 3
     imagePreload:
       timeout: 1000000000
       attempts: 5
