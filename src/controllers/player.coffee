@@ -346,7 +346,7 @@ LYT.player =
       segment.done (segment) -> LYT.render.textContent segment
     else
       # If there's no media, show nothing
-      jQuery("#book-text-content").empty()
+      LYT.render.textContent null
   
   
   whenReady: (callback) ->

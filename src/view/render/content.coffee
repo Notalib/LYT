@@ -23,7 +23,7 @@ LYT.render.content = do ->
   # Return how much vertical space that is available
   vspace = ->
     result = $(window).height()
-    $('#book-text-content').prevAll().each (i, e) ->
+    $('#book-cartoon-content').prevAll().each (i, e) ->
       result -= $(e).height()
     return result
     
@@ -117,16 +117,18 @@ LYT.render.content = do ->
     
     return true
 
-  # Standard renderer - render everything in the text document
-  renderStandard = (segment, view) ->
+  # Stack renderer - stack segments
+  renderStack = (segment, view) ->
+    view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
     segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
+    
     view.css 'text-align', 'center'
     vspaceLeft = vspace()
-    view.find('div.segmentContainer').each -> $(this).data 'LYT.renderStandard.remove', true
+    view.find('div.segmentContainer').each -> $(this).data 'LYT.renderStack.remove', true
     segment = segment.next if segment.end - segment.start < 0.5
-    while segment and segment.state() is "resolved" and vspaceLeft => 0
-      element = view.find "##{segmentContainerId segment}" 
+    while segment and segment.state() is "resolved" and vspaceLeft >= 0
+      element = view.find "##{segmentContainerId segment}"
       if element.length == 0
         unless element = segment.element
           element = $(document.createElement('div'))
@@ -138,24 +140,67 @@ LYT.render.content = do ->
         element.css 'display', 'none'
         view.append element
 
-      element.data 'LYT.renderStandard.remove', false
+      element.data 'LYT.renderStack.remove', false
       vspaceLeft -= element.height()
       segment = segment.next
 
     view.find('div.segmentContainer').each ->
       element = $(this)
-      if element.data 'LYT.renderStandard.remove'
+      if element.data 'LYT.renderStack.remove'
         element.slideUp 2000, () -> element.detach()
       else if element.css('display') is 'none'
         element.fadeIn 500
+
+  # Plain renderer - render everything in the segment
+  renderPlain = (segment, view) ->
+    view.css 'text-align', 'center'
+    segment.dom or= $(document.createElement('div')).html segment.html
+    segment.dom.find("img").each ->
+      img = $(this)
+
+      return if img.data("vspace-processed")? == "yes"
+        
+      img.data "vspace-processed", "yes" # Mark as already-processed
+        
+      if img.height() > vspace()
+        img.height vspace()
+        img.width 'auto'
+      
+      if img.width() > view.width()
+        img.width '100%'
+        img.height 'auto'
+      
+      img.click -> img.toggleClass('zoom')
+    view.empty().append segment.dom
+
+  selectView = (type) ->
+    result
+    viewTypes = ['stack', 'cartoon', 'plain']
+    for viewType in viewTypes
+      view = $("#book-#{viewType}-content")
+      if viewType is type
+        result = view
+      else
+        view.hide()
+    result?.show()
+    return result
   
-  render = (segment, view) ->
-    switch segment.type
-      when 'cartoon' then renderCartoon segment, view
-      else renderStandard segment, view
+  renderText = (text) -> selectView('plain').html text
+    
+  renderSegment = (segment) ->
+    if segment
+      switch segment.type
+        when 'cartoon'
+          renderCartoon segment, selectView segment.type
+        else
+          renderStack segment, selectView 'stack'
+    else
+      selectView null
+
 
 # Public API
 
-  render:        render
+  renderSegment: renderSegment
+  renderText:    renderText
   focusEasing:   focusEasing
   focusDuration: focusDuration

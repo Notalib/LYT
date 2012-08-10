@@ -938,26 +938,26 @@ img.nota-full {
   margin: 0px;
 }
 
-#book-text-content, #textarea-example {
+#book-cartoon-content, #textarea-example {
   text-shadow: none;
   overflow: hidden;
 }
 
 
 
-#book-text-content {
-  margin: 0px;
+#book-stack-content, #book-plain-content {
+  overflow: auto;
+  text-shadow: none;
+  margin: 10px;
   text-align: center;
   
   /*overflow-x: scroll;*/
   
   p {
-    margin: 10px;
     text-align: left;  
   }
   
   h1, h2, h3 {
-    margin: 10px;
     text-align: left;
   }
   

@@ -132,9 +132,10 @@ LYT.render = do ->
   
   setStyle: ->
     log.message 'Render: setting custom style'
-    $("#textarea-example, #book-text-content").css LYT.settings.get('textStyle')
+    # TODO: Dynamic modification of a CSS class in stead of this
+    $("#textarea-example, #book-stack-content, #book-plain-content").css LYT.settings.get('textStyle')
     $('#book-play').css
-      'background-color': $("#book-text-content").css('background-color')
+      'background-color': $("#book-stack-content").css('background-color')
       
   setVersion: -> $('#legal').append("<p>Version #{LYT.VERSION}</p>")
   
@@ -176,7 +177,7 @@ LYT.render = do ->
         $("#details-play-button").show() 
   
   clearBookPlayer: (view) ->
-    $("#book-text-content").empty()
+    LYT.render.textContent null
     $("#currentbook_image img").attr "src", defaultCover
     $("#player-info h1, #player-chapter-title").hide()
 
@@ -203,15 +204,9 @@ LYT.render = do ->
     #LYT.service.markAnnouncementsAsRead(announcements)
 
 
-  bookEnd: () ->
-    view = $("#book-text-content")
-    view.html "Her slutter bogen"
+  bookEnd: () -> LYT.render.content.renderText 'Her slutter bogen'
   
-  textContent: (segment) ->
-    view = $("#book-text-content")
-    if(LYT.player.isIOS() or $.jPlayer.platform.android?)
-      view.css('overflow-x','scroll')
-    LYT.render.content.render segment, view
+  textContent: (segment) -> LYT.render.content.renderSegment segment
       
   bookDetails: (details, view) ->
     $("#details-book-title").text details.title
