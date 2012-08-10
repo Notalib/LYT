@@ -119,7 +119,8 @@ LYT.render.content = do ->
 
 
   # Stack renderer - stack segments
-  renderStack = (segment, view) ->
+  renderStack = (currentSegment, view) ->
+  
     view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
     segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
@@ -127,6 +128,7 @@ LYT.render.content = do ->
 #    view.css 'text-align', 'center'
 
     vspaceLeft = vspace()
+    segment = currentSegment
     while segment and segment.state() is "resolved" and vspaceLeft >= -500
       element = view.find "##{segmentContainerId segment}"
       if element.length == 0
@@ -143,11 +145,13 @@ LYT.render.content = do ->
       vspaceLeft -= element.height()
       segment = segment.next
 
+    view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
+
     view.find('div.segmentContainer').each ->
       element = $(this)
       if element.css('display') is 'none'
         element.fadeIn 500
-
+    
   # Plain renderer - render everything in the segment
   renderPlain = (segment, view) ->
     view.css 'text-align', 'center'
