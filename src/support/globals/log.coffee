@@ -12,6 +12,13 @@
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
   filter: null
+
+  getAjaxOptions = (url, data) ->
+    dataType:    "json"
+    type:        "POST"
+    contentType: "application/json; charset=utf-8"
+    data:        JSON.stringify data
+    url:         url
   
   _filter: (type, messages, title) ->
     try
@@ -114,4 +121,30 @@
     return unless log._filter 'trace', messages, title
     return unless log.level > 0
     console.trace?()
+
+
+  #sourceClient ip adress of client, errorMessage , priority ( 1 = Error, 2 = warning , 3 = information), userId
+  errorToServer: (sourceClient, errorMessage, priority, userId) ->
+    serverRequestData = {}
+    serverRequestData.sourceClient = String(sourceClient)
+    serverRequestData.errorMessage = String(errorMessage)
+    serverRequestData.priority     = priority
+    serverRequestData.userId       = userId
+
+    deferred = jQuery.Deferred()
+    url  = LYT.config.mobileMessage.LogError.url
+    options = getAjaxOptions url, serverRequestData
+
+    # Perform the request
+    jQuery.ajax(options)
+      # On success, extract the results and pass them on
+      .done (data) ->
+        #Making a javascript object...
+        JSONResult = data.d
+        deferred.resolve JSONResult
+      # On fail, reject the deferred
+      .fail ->
+        deferred.reject()
+
+    deferred.promise()
   
