@@ -119,15 +119,35 @@ LYT.render.content = do ->
 
   # Standard renderer - render everything in the text document
   renderStandard = (segment, view) ->
+
+    segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
     view.css 'text-align', 'center'
     vspaceLeft = vspace()
-    view.empty()
-    while segment and segment.state() is "resolved" and vspaceLeft > 0
-      segment.dom or= $(document.createElement('div')).html segment.html
-      segment.dom.find("img").each -> $(this).click -> $(this).toggleClass('zoom')
-      view.append segment.dom
-      vspaceLeft -= segment.dom.height()
+    view.find('div.segmentContainer').each -> $(this).data 'LYT.renderStandard.remove', true
+    segment = segment.next if segment.end - segment.start < 0.5
+    while segment and segment.state() is "resolved" and vspaceLeft => 0
+      element = view.find "##{segmentContainerId segment}" 
+      if element.length == 0
+        unless element = segment.element
+          element = $(document.createElement('div'))
+          element.attr 'id', segmentContainerId segment
+          element.attr 'class', 'segmentContainer'
+          element.html segment.html
+          element.find("img").each -> $(this).click -> $(this).toggleClass('zoom')
+          segment.element = element
+        element.css 'display', 'none'
+        view.append element
+
+      element.data 'LYT.renderStandard.remove', false
+      vspaceLeft -= element.height()
       segment = segment.next
+
+    view.find('div.segmentContainer').each ->
+      element = $(this)
+      if element.data 'LYT.renderStandard.remove'
+        element.slideUp 2000, () -> element.detach()
+      else if element.css('display') is 'none'
+        element.fadeIn 500
   
   render = (segment, view) ->
     switch segment.type
