@@ -124,11 +124,10 @@ LYT.render.content = do ->
 
     segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
     
-    view.css 'text-align', 'center'
+#    view.css 'text-align', 'center'
+
     vspaceLeft = vspace()
-    view.find('div.segmentContainer').each -> $(this).data 'LYT.renderStack.remove', true
-    segment = segment.next if segment.end - segment.start < 0.5
-    while segment and segment.state() is "resolved" and vspaceLeft >= 0
+    while segment and segment.state() is "resolved" and vspaceLeft >= -500
       element = view.find "##{segmentContainerId segment}"
       if element.length == 0
         unless element = segment.element
@@ -141,15 +140,12 @@ LYT.render.content = do ->
         element.css 'display', 'none'
         view.append element
 
-      element.data 'LYT.renderStack.remove', false
       vspaceLeft -= element.height()
       segment = segment.next
 
     view.find('div.segmentContainer').each ->
       element = $(this)
-      if element.data 'LYT.renderStack.remove'
-        element.slideUp 2000, () -> element.detach()
-      else if element.css('display') is 'none'
+      if element.css('display') is 'none'
         element.fadeIn 500
 
   # Plain renderer - render everything in the segment
