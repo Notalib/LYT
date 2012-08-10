@@ -23,7 +23,7 @@ LYT.render.content = do ->
   # Return how much vertical space that is available
   vspace = ->
     result = $(window).height()
-    $('#book-cartoon-content').prevAll().each (i, e) ->
+    $('#book-content').prevAll().each (i, e) ->
       result -= $(e).height()
     return result
     
@@ -116,6 +116,7 @@ LYT.render.content = do ->
     panZoomImage segment, image, area
     
     return true
+
 
   # Stack renderer - stack segments
   renderStack = (segment, view) ->
