@@ -97,6 +97,27 @@ class LYT.Segment
   getNext: -> @next
   
   getPrevious: -> @previous
+  
+  search: (iterator, filter, onlyOne = true) ->
+    if onlyOne
+      while not found
+        item = iterator()
+        return item if filter item
+    else
+      result = []
+      while item = iterator()
+        result.push item if filter item
+      return result
+
+  searchBackward: (filter, onlyOne) ->
+    current = this
+    iterator = () -> current = current.previous
+    return @search iterator, filter, onlyOne
+
+  searchForward: (filter, onlyOne) ->
+    current = this
+    iterator = () -> current = current.next
+    return @search iterator, filter, onlyOne
 
   _status: ->
     for image in @_images

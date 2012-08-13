@@ -129,13 +129,21 @@ LYT.render.content = do ->
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
       view.data 'LYT-render-book-section', bookSection currentSegment
       view.children().detach()
+      missingSegments = {}
+      missingSegments[missingSegment.id] = missingSegment for missingSegment in segment.section.document.segments
+      missing = $('<div class="missingSegments">⋮</div>').data 'LYT-render-missing-segments', missingSegments
   
     view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
 #    view.css 'text-align', 'center'
 
+    view.('missingSegments').each ->
+      missing = $(this)
+      break if missing.data('LYT-render-missing-segments')[segment.id]
+
     vspaceLeft = vspace()
     segment = currentSegment
+    render = []
     while segment and segment.state() is "resolved" and vspaceLeft >= -500
       # Using getElementById in this loop for performance reasons
       element = $(document.getElementById segmentContainerId segment)
@@ -150,28 +158,25 @@ LYT.render.content = do ->
           segment.element = element
         element.css 'display', 'none'
         
-        # Find a previous segment that has already been rendered
-        prevElement
-        previous = segment
-        while previous = previous.previous and not prevElement = document.getElementById segmentContainerId previous
-          ; # NOP
-          
-        # If we didn't find a previous segment, look for a following segment
-        unless prevElement
-           nextElement
-           nextSegment = segment
-          while nextSegment = nextSegment.next and not nextElement = document.getElementById segmentContainerId nextSegment
-            ; # NOP
-
-       if prevElement
-          $(prevElement).after element
-       else if nextElement
-          $(nextElement).before element
-       else
-          view.append element
+        render.push element
+        delete missing.data('LYT-render-missing-segments')[segment.id]
 
       vspaceLeft -= element.height()
       segment = segment.next
+    
+    before = {}
+    if segment = currentSegment.searchBackwards (s) -> missing.data('LYT-render-missing-segments')[s.id]
+      while segment
+        before[segment.id] = segment
+        segment = segment.previous
+    
+    after = {}
+    if segment = currentSegment.searchForwards (s) -> missing.data('LYT-render-missing-segments')[s.id]
+      while segment
+        after[segment.id] = segment
+        segment = segment.next
+    
+    # use missingSegmentIndex to create a new missingSegment div
 
     view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
 
