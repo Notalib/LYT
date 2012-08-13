@@ -120,6 +120,13 @@ LYT.render.content = do ->
 
   # Stack renderer - stack segments
   renderStack = (currentSegment, view) ->
+    
+    bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:segment.section.url"
+    
+    # Empty view if book or section has changed
+    if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
+      view.data 'LYT-render-book-section', bookSection currentSegment
+      view.children().detach()
   
     view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
@@ -137,7 +144,8 @@ LYT.render.content = do ->
           element.attr 'id', segmentContainerId segment
           element.attr 'class', 'segmentContainer'
           element.html segment.html
-          element.find("img").each -> $(this).click -> $(this).toggleClass('zoom')
+          element.find('img').each -> $(this).click -> $(this).toggleClass('zoom')
+
           segment.element = element
         element.css 'display', 'none'
         view.append element
@@ -156,7 +164,7 @@ LYT.render.content = do ->
   renderPlain = (segment, view) ->
     view.css 'text-align', 'center'
     segment.dom or= $(document.createElement('div')).html segment.html
-    segment.dom.find("img").each ->
+    segment.dom.find('img').each ->
       img = $(this)
 
       return if img.data("vspace-processed")? == "yes"
