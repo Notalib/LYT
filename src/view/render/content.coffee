@@ -122,6 +122,8 @@ LYT.render.content = do ->
   renderStack = (currentSegment, view) ->
     
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:segment.section.url"
+
+    segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
     
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
@@ -130,14 +132,13 @@ LYT.render.content = do ->
   
     view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
-    segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
-    
 #    view.css 'text-align', 'center'
 
     vspaceLeft = vspace()
     segment = currentSegment
     while segment and segment.state() is "resolved" and vspaceLeft >= -500
-      element = view.find "##{segmentContainerId segment}"
+      # Using getElementById in this loop for performance reasons
+      element = $(document.getElementById segmentContainerId segment)
       if element.length == 0
         unless element = segment.element
           element = $(document.createElement('div'))
@@ -148,7 +149,26 @@ LYT.render.content = do ->
 
           segment.element = element
         element.css 'display', 'none'
-        view.append element
+        
+        # Find a previous segment that has already been rendered
+        prevElement
+        previous = segment
+        while previous = previous.previous and not prevElement = document.getElementById segmentContainerId previous
+          ; # NOP
+          
+        # If we didn't find a previous segment, look for a following segment
+        unless prevElement
+           nextElement
+           nextSegment = segment
+          while nextSegment = nextSegment.next and not nextElement = document.getElementById segmentContainerId nextSegment
+            ; # NOP
+
+       if prevElement
+          $(prevElement).after element
+       else if nextElement
+          $(nextElement).before element
+       else
+          view.append element
 
       vspaceLeft -= element.height()
       segment = segment.next
