@@ -100,8 +100,8 @@ class LYT.Segment
   
   search: (iterator, filter, onlyOne = true) ->
     if onlyOne
-      while not found
-        item = iterator()
+      found = false
+      while not found and item = iterator()
         return item if filter item
     else
       result = []

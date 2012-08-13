@@ -959,6 +959,14 @@ img.nota-full {
   bottom: 0px;
 }
 
+.missingSegment {
+  display: none;
+}
+
+.missingSegment:first-child, .segmentContainer + .missingSegment {
+  display: inline;
+}
+
 #book-stack-content, #book-plain-content {
   overflow: auto;
   text-shadow: none;

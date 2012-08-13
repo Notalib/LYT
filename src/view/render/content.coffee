@@ -121,29 +121,25 @@ LYT.render.content = do ->
   # Stack renderer - stack segments
   renderStack = (currentSegment, view) ->
     
-    bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:segment.section.url"
+    bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
 
     segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
+    missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
     
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
       view.data 'LYT-render-book-section', bookSection currentSegment
       view.children().detach()
-      missingSegments = {}
-      missingSegments[missingSegment.id] = missingSegment for missingSegment in segment.section.document.segments
-      missing = $('<div class="missingSegments">⋮</div>').data 'LYT-render-missing-segments', missingSegments
+      view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
   
     view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
-#    view.css 'text-align', 'center'
-
-    view.('missingSegments').each ->
-      missing = $(this)
-      break if missing.data('LYT-render-missing-segments')[segment.id]
+    #    view.css 'text-align', 'center'
 
     vspaceLeft = vspace()
     segment = currentSegment
     render = []
+    renderSegments = {}
     while segment and segment.state() is "resolved" and vspaceLeft >= -500
       # Using getElementById in this loop for performance reasons
       element = $(document.getElementById segmentContainerId segment)
@@ -156,34 +152,19 @@ LYT.render.content = do ->
           element.find('img').each -> $(this).click -> $(this).toggleClass('zoom')
 
           segment.element = element
+          
+        $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
-        
-        render.push element
-        delete missing.data('LYT-render-missing-segments')[segment.id]
 
       vspaceLeft -= element.height()
       segment = segment.next
     
-    before = {}
-    if segment = currentSegment.searchBackwards (s) -> missing.data('LYT-render-missing-segments')[s.id]
-      while segment
-        before[segment.id] = segment
-        segment = segment.previous
-    
-    after = {}
-    if segment = currentSegment.searchForwards (s) -> missing.data('LYT-render-missing-segments')[s.id]
-      while segment
-        after[segment.id] = segment
-        segment = segment.next
-    
-    # use missingSegmentIndex to create a new missingSegment div
-
-    view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
-
     view.find('div.segmentContainer').each ->
       element = $(this)
       if element.css('display') is 'none'
         element.fadeIn 500
+
+    view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
     
   # Plain renderer - render everything in the segment
   renderPlain = (segment, view) ->
