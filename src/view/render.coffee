@@ -350,7 +350,7 @@ LYT.render = do ->
       listItem = didYouMeanItem(item)
       listItem.find("a").click (event) ->
         $.mobile.changePage "#search?term=#{encodeURI item}" , transition: "none"
-      list.append listItem  
+      list.append listItem
 
       
     $('#listshow-btn').show()#show button list 

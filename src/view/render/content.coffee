@@ -136,11 +136,10 @@ LYT.render.content = do ->
 
     #    view.css 'text-align', 'center'
 
-    vspaceLeft = vspace()
     segment = currentSegment
     render = []
     renderSegments = {}
-    while segment and segment.state() is "resolved" and vspaceLeft >= -500
+    while segment and segment.state() is "resolved"
       # Using getElementById in this loop for performance reasons
       element = $(document.getElementById segmentContainerId segment)
       if element.length == 0
@@ -156,7 +155,6 @@ LYT.render.content = do ->
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
 
-      vspaceLeft -= element.height()
       segment = segment.next
     
     view.find('div.segmentContainer').each ->
