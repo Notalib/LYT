@@ -136,6 +136,8 @@ LYT.render.content = do ->
 
     #    view.css 'text-align', 'center'
 
+    view.children().removeClass 'highlight'
+
     segment = currentSegment
     render = []
     renderSegments = {}
@@ -154,6 +156,8 @@ LYT.render.content = do ->
           
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
+
+      element.addClass 'highlight' if segment is currentSegment
 
       segment = segment.next
     
