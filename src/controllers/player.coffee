@@ -131,8 +131,9 @@ LYT.player =
       play: (event) => @autoProgression = true
       
       pause: (event) =>
-        @autoProgression = false
         status = event.jPlayer.status
+        return if status.ended # Drop pause event emitted when media ends
+        @autoProgression = false
         return unless @isIOS()
         if @_iBug
           log.warn 'we are ibug'
