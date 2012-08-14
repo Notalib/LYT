@@ -65,8 +65,8 @@ class LYT.Playlist
     else
       if @currentSection().previous
         @currentSection().previous.load()
-        @currentSection().previous.lastSegment().load()
-        @load @currentSection().previous.lastSegment()
+        @currentSection().previous.pipe (section) =>
+          @load section.lastSegment()
 
   # Will rewind to start if no url is provided
   segmentByURL: (url) ->
