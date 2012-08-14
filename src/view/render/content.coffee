@@ -161,6 +161,16 @@ LYT.render.content = do ->
 
       segment = segment.next
     
+    filler = $('#book-stack-content .filler')
+    unless filler.length > 0
+      $('#book-stack-content').append('<div class="filler"></div>')
+      filler = $('#book-stack-content .filler')
+    
+    fillerHeight = vspace() - $('#book-stack-content').children('.highlight').height()
+    $('#book-stack-content').children('.highlight').nextAll(':visible').each ->
+      fillerHeight -= $(this).height() unless $(this).hasClass('filler')
+    $('#book-stack-content .filler').css('height', fillerHeight )
+    
     view.find('div.segmentContainer').each ->
       element = $(this)
       if element.css('display') is 'none'
