@@ -62,12 +62,34 @@ LYT.player =
         $.jPlayer.timeFormat.showHour = true
         
         @nextButton.click =>
-          log.message 'Player: next'
+          log.message "Player: next: #{@segment().next?.url()}"
           @nextSegment @autoProgression
             
         @previousButton.click =>
-          log.message 'Player: prev'
+          log.message "Player: previous: #{@segment().previous?.url()}"
           @previousSegment @autoProgression
+
+        fastForward = false
+        fastForwardTimeout = null
+        @nextButton.mousedown () =>
+          log.message 'Player: next: mouseDown'
+          startFastForward = =>
+            log.message 'Player: next: start fast forward'
+            fastForward = true
+            forward = () =>
+              deferred = jQuery.Deferred()
+              log.message "Player: fast forward at #{@segment()?.url()}"
+              segment = @nextSegment @autoProgression
+              setTimeout(
+                -> deferred.resolve()
+                50
+              )
+              $.when.apply(window, [deferred, segment]).then -> forward()
+            forward()
+          fastForwardTimeout = setTimeout startFastForward, 500
+        @nextButton.on 'mouseup mouseleave', ->
+          clearTimeout fastForwardTimeout
+          fastForward = false
       
       timeupdate: (event) =>
         status = event.jPlayer.status

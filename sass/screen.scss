@@ -959,6 +959,10 @@ img.nota-full {
   bottom: 0px;
 }
 
+.segmentContainer {
+  overflow: hidden; /* Without this, calling slideUp() on the element, will cause a glitch */
+}
+
 .missingSegment {
   display: none;
 }
@@ -967,12 +971,12 @@ img.nota-full {
   display: inline;
 }
 
-div.highlight {
+div.current {
   font-weight: bold;
 }
 
 #book-stack-content, #book-plain-content {
-  overflow: auto;
+  overflow: hidden;
   text-shadow: none;
   text-align: center;
   

@@ -136,11 +136,7 @@ LYT.render.content = do ->
 
     #    view.css 'text-align', 'center'
 
-    view.children().removeClass 'highlight'
-
     segment = currentSegment
-    render = []
-    renderSegments = {}
     while segment and segment.state() is "resolved"
       # Using getElementById in this loop for performance reasons
       element = $(document.getElementById segmentContainerId segment)
@@ -157,26 +153,36 @@ LYT.render.content = do ->
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
 
-      element.addClass 'highlight' if segment is currentSegment
-
       segment = segment.next
-    
-    filler = $('#book-stack-content .filler')
-    unless filler.length > 0
-      $('#book-stack-content').append('<div class="filler"></div>')
-      filler = $('#book-stack-content .filler')
-    
-    fillerHeight = vspace() - $('#book-stack-content').children('.highlight').height()
-    $('#book-stack-content').children('.highlight').nextAll(':visible').each ->
-      fillerHeight -= $(this).height() unless $(this).hasClass('filler')
-    $('#book-stack-content .filler').css('height', fillerHeight )
-    
-    view.find('div.segmentContainer').each ->
-      element = $(this)
-      if element.css('display') is 'none'
-        element.fadeIn 500
 
-    view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
+    setCurrent = () ->
+      view.children('.current').removeClass 'current'
+      currentSegment.element.addClass 'current'
+      
+    before = currentSegment.element.prevAll(':visible')
+    if before.length > 0
+      before.slideUp 500, 'easeInOutQuad', setCurrent
+    else
+      setCurrent()
+
+    preload = ->
+      totalHeight = currentSegment.element.height()
+      maxHeight = totalHeight
+      currentSegment.element.nextAll('.segmentContainer').each ->
+        height = $(this).height()
+        totalHeight += height
+        maxHeight or= height
+        maxHeight = height if height > maxHeight 
+      segment.preloadNext() if segment and totalHeight - 2*maxHeight < vspace()
+    
+    currentSegment.element.fadeIn(500) if currentSegment.element.is ':hidden'
+    hiddenContainers = currentSegment.element.nextAll('.segmentContainer:hidden')
+    if hiddenContainers.length > 0
+      hiddenContainers.fadeIn 1000, preload
+    else
+      preload()
+    
+#    view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
     
   # Plain renderer - render everything in the segment
   renderPlain = (segment, view) ->
