@@ -77,12 +77,14 @@ LYT.player =
             log.message 'Player: next: start fast forward'
             fastForward = true
             forward = () =>
+              return unless fastForward
               deferred = jQuery.Deferred()
-              log.message "Player: fast forward at #{@segment()?.url()}"
-              segment = @nextSegment @autoProgression
+              log.message "Player: fast forward at #{@segment()?.url()} (#{@segment().state()})"
+              segment = @nextSegment false
+              log.message "Player: fast forward to #{@segment()?.url()} (#{@segment().state()})"
               setTimeout(
                 -> deferred.resolve()
-                50
+                25
               )
               $.when.apply(window, [deferred, segment]).then -> forward()
             forward()
