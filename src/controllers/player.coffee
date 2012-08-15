@@ -174,6 +174,7 @@ LYT.player =
         @timeupdateLock = false
         LYT.loader.close('metadata')
         @time = event.jPlayer.status.currentTime
+        return if @seekedLoadSegmentLock
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
         segment.done (segment) => @updateHtml segment
@@ -184,7 +185,7 @@ LYT.player =
           #alert event.jPlayer.status.duration
           @gotDuration = false
           if(@getStatus().src == @currentAudio && @playAttemptCount <= LYT.config.player.playAttemptLimit )
-            @el.jPlayer "setMedia", {mp3: @segment().audio}
+            @el.jPlayer "setMedia", {mp3: @currentAudio}
             @el.jPlayer "load"
             @playAttemptCount = @playAttemptCount + 1 
             log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
@@ -465,11 +466,17 @@ LYT.player =
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
       return null
-    @playSegment @playlist().nextSegment(), autoPlay
+    @seekedLoadSegmentLock = true
+    segment = @playlist().nextSegment()
+    @playSegment segment, autoPlay
+    segment.always -> @seekedLoadSegmentLock = false
 
   previousSegment: (autoPlay = false) ->
     return null unless @playlist()?.hasPreviousSegment()
-    @playSegment @playlist().previousSegment(), autoPlay
+    @seekedLoadSegmentLock = true
+    segment = @playlist().previousSegment()
+    @playSegment segment, autoPlay
+    segment.always -> @seekedLoadSegmentLock = false
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
