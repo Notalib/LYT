@@ -117,9 +117,10 @@ LYT.render.content = do ->
     
     return true
 
-
   # Stack renderer - stack segments
-  renderStack = (currentSegment, view) ->
+  renderStack = (currentSegment, view, renderDelta) ->
+    
+    timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
 
@@ -155,13 +156,15 @@ LYT.render.content = do ->
 
       segment = segment.next
 
+    view.children('.current').stop true, true
+
     setCurrent = () ->
       view.children('.current').removeClass 'current'
       currentSegment.element.addClass 'current'
       
     before = currentSegment.element.prevAll(':visible')
     if before.length > 0
-      before.slideUp 500, 'easeInOutQuad', setCurrent
+      before.slideUp 500 * timeScale, 'easeInOutQuad', setCurrent
     else
       setCurrent()
 
@@ -175,10 +178,10 @@ LYT.render.content = do ->
         maxHeight = height if height > maxHeight 
       segment.preloadNext() if segment and totalHeight - 2*maxHeight < vspace()
     
-    currentSegment.element.fadeIn(500) if currentSegment.element.is ':hidden'
+    currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'
     hiddenContainers = currentSegment.element.nextAll('.segmentContainer:hidden')
     if hiddenContainers.length > 0
-      hiddenContainers.fadeIn 1000, preload
+      hiddenContainers.fadeIn 1000*timeScale, preload
     else
       preload()
     
@@ -219,17 +222,22 @@ LYT.render.content = do ->
     return result
   
   renderText = (text) -> selectView('plain').html text
-    
+
+  lastRender = null
   renderSegment = (segment) ->
+    now = new Date()
+    renderDelta = now - lastRender if lastRender
+
     if segment
       switch segment.type
         when 'cartoon'
-          renderCartoon segment, selectView segment.type
+          renderCartoon segment, selectView(segment.type), renderDelta
         else
-          renderStack segment, selectView 'stack'
+          renderStack segment, selectView('stack'), renderDelta
     else
-      selectView null
+      selectView null # Clears the content area
 
+    lastRender = now
 
 # Public API
 
