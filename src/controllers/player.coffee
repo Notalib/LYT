@@ -68,30 +68,6 @@ LYT.player =
         @previousButton.click =>
           log.message "Player: previous: #{@segment().previous?.url()}"
           @previousSegment @autoProgression
-
-        fastForward = false
-        fastForwardTimeout = null
-        @nextButton.mousedown () =>
-          log.message 'Player: next: mouseDown'
-          startFastForward = =>
-            log.message 'Player: next: start fast forward'
-            fastForward = true
-            forward = () =>
-              return unless fastForward
-              deferred = jQuery.Deferred()
-              log.message "Player: fast forward at #{@segment()?.url()} (#{@segment().state()})"
-              segment = @nextSegment false
-              log.message "Player: fast forward to #{@segment()?.url()} (#{@segment().state()})"
-              setTimeout(
-                -> deferred.resolve()
-                25
-              )
-              $.when.apply(window, [deferred, segment]).then -> forward()
-            forward()
-          fastForwardTimeout = setTimeout startFastForward, 500
-        @nextButton.on 'mouseup mouseleave', ->
-          clearTimeout fastForwardTimeout
-          fastForward = false
       
       timeupdate: (event) =>
         status = event.jPlayer.status
