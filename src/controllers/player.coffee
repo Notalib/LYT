@@ -447,14 +447,14 @@ LYT.player =
     @seekedLoadSegmentLock = true
     segment = @playlist().nextSegment()
     @playSegment segment, autoPlay
-    segment.always -> @seekedLoadSegmentLock = false
+    segment.always => @seekedLoadSegmentLock = false
 
   previousSegment: (autoPlay = false) ->
     return null unless @playlist()?.hasPreviousSegment()
     @seekedLoadSegmentLock = true
     segment = @playlist().previousSegment()
     @playSegment segment, autoPlay
-    segment.always -> @seekedLoadSegmentLock = false
+    segment.always => @seekedLoadSegmentLock = false
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
