@@ -148,8 +148,6 @@ LYT.player =
             @nextSegment true
                    
       seeked: (event) =>
-        # FIXME: If we are seeking to an offset very close to the end of a
-        # segment, skip that segment and load the next in stead
         @time = event.jPlayer.status.currentTime
         log.message "Player: event seeked to offset #{@time}"
         @timeupdateLock = false
@@ -164,7 +162,7 @@ LYT.player =
         if isNaN( event.jPlayer.status.duration )
           #alert event.jPlayer.status.duration
           @gotDuration = false
-          if(@getStatus().src == @currentAudio && @playAttemptCount <= LYT.config.player.playAttemptLimit )
+          if(@getStatus().src == @currentAudio and @playAttemptCount <= LYT.config.player.playAttemptLimit)
             @el.jPlayer "setMedia", {mp3: @currentAudio}
             @el.jPlayer "load"
             @playAttemptCount = @playAttemptCount + 1 
@@ -456,6 +454,7 @@ LYT.player =
     segment = @playlist().previousSegment()
     @playSegment segment, autoPlay
     segment.always => @seekedLoadSegmentLock = false
+      
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
