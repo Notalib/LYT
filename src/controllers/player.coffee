@@ -444,7 +444,7 @@ LYT.player =
       return null
     @seekedLoadSegmentLock = true
     segment = @playlist().nextSegment()
-    log.message "Player: nextSegment: #{segment.url()}, start #{segment.start}"
+    log.message "Player: nextSegment: " + if segment.state() is "resolved" then "#{segment.url()}, start #{segment.start}" else '(pending)'
     @playSegment segment, autoPlay
     segment.always => @seekedLoadSegmentLock = false
 
