@@ -124,8 +124,10 @@ LYT.player =
         @updateHtml @segment()
       
       ended: (event) =>
+        log.message 'Player: event ended'
         @timeupdateLock = false
         if @autoProgression
+          log.message 'Player: event ended: moving to next segment'
           @nextSegment true
       
       play: (event) => @autoProgression = true
@@ -148,10 +150,10 @@ LYT.player =
       seeked: (event) =>
         # FIXME: If we are seeking to an offset very close to the end of a
         # segment, skip that segment and load the next in stead
-        log.message 'Player: event seeked'
+        @time = event.jPlayer.status.currentTime
+        log.message "Player: event seeked to offset #{@time}"
         @timeupdateLock = false
         LYT.loader.close('metadata')
-        @time = event.jPlayer.status.currentTime
         return if @seekedLoadSegmentLock
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
@@ -336,13 +338,13 @@ LYT.player =
       log.error "Player: updateHtml called with unresolved segment"
       return
 
-    log.group "Player: updateHtml: time: #{@time}, rendering segment #{segment.url()}", segment
+    log.group "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}", segment
     @renderTranscript segment
     segment.preloadNext()
     # FIXME: Don't call updateLastMark() here - it's not obvious
     @updateLastMark()
   
-  
+  # TODO: Factor out this method and replace it by calls to updateHtml
   renderTranscript: (segment) ->
     if segment?
       segment.done (segment) -> LYT.render.textContent segment
@@ -403,9 +405,8 @@ LYT.player =
   playSegment: (segment, autoPlay = true) -> @playSegmentOffset segment, 0, autoPlay
     
   playSegmentOffset: (segment, offset = 0, autoPlay = true) -> 
-    throw 'Player: playSegment called with no segment' unless segment?
+    throw 'Player: playSegmentOffset called with no segment' unless segment?
     segment.done (segment) =>
-      @renderTranscript segment
       if @currentAudio != segment.audio
         @el.jPlayer "setMedia", {mp3: segment.audio}
         @el.jPlayer "load"
@@ -421,6 +422,7 @@ LYT.player =
       else
         @el.jPlayer "play", offset
 
+      $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
 
   playSection: (section, offset = 0, autoPlay = true) ->
@@ -429,11 +431,9 @@ LYT.player =
     
     section.done (section) =>
       log.message "Player: Playlist current section #{@section().id}"
-      jQuery("#player-chapter-title h2").text section.title
       # Get the media obj
       @playlist().segmentBySectionOffset section, offset
-      @renderTranscript @segment()
-      @playSegment @segment(), autoPlay
+      @playSegmentOffset @segment(), offset, autoPlay
       
     section.fail ->
       log.error "Player: Failed to load section #{section}"
@@ -446,6 +446,7 @@ LYT.player =
       return null
     @seekedLoadSegmentLock = true
     segment = @playlist().nextSegment()
+    log.message "Player: nextSegment: #{segment.url()}, start #{segment.start}"
     @playSegment segment, autoPlay
     segment.always => @seekedLoadSegmentLock = false
 
@@ -460,6 +461,7 @@ LYT.player =
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
     return unless @book? and @section()?
     @segment().done (segment) =>
+      # FIXME: Rewrite to only use book time
       now = (new Date).getTime()
       interval = LYT.config.player?.lastmarkUpdateInterval or 10000
       return unless force or not @lastBookmark or now - @lastBookmark > interval

@@ -135,8 +135,6 @@ LYT.render.content = do ->
   
     view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
-    #    view.css 'text-align', 'center'
-
     segment = currentSegment
     while segment and segment.state() is "resolved"
       # Using getElementById in this loop for performance reasons
@@ -156,9 +154,12 @@ LYT.render.content = do ->
 
       segment = segment.next
 
+    # Hide segments that follow missing segments (this would confuse the reader)
+    currentSegment.element.nextAll('.missingSegment ~ .segmentContainer').css 'display', 'none'
+    # Halt all animations
     view.children('.current').stop true, true
 
-    setCurrent = () ->
+    setCurrent = ->
       view.children('.current').removeClass 'current'
       currentSegment.element.addClass 'current'
       
@@ -168,6 +169,8 @@ LYT.render.content = do ->
     else
       setCurrent()
 
+    # Function that calculates the available vertical space and preloads if
+    # there is any space available
     preload = ->
       totalHeight = currentSegment.element.height()
       maxHeight = totalHeight
@@ -179,7 +182,7 @@ LYT.render.content = do ->
       segment.preloadNext() if segment and totalHeight - 2*maxHeight < vspace()
     
     currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'
-    hiddenContainers = currentSegment.element.nextAll('.segmentContainer:hidden')
+    hiddenContainers = currentSegment.element.nextAll('.segmentContainer:hidden').not('.missingSegment ~ .segmentContainer')
     if hiddenContainers.length > 0
       hiddenContainers.fadeIn 1000*timeScale, preload
     else

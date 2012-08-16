@@ -78,15 +78,22 @@ class LYT.Playlist
     else
       return @rewind()
 
-  segmentByAudioOffset: (audio, offset = 0) ->
+  # Get the following segment if we are very close to the end of the current
+  # segment and the following segment starts within the fudge limit.
+  _fudgeFix: (offset, segment, fudge = 0.1) ->
+    segment = segment.next if segment.end - offset < fudge and segment.next and offset - segment.next.start < fudge
+    return segment
+
+  segmentByAudioOffset: (audio, offset = 0, fudge = 0.1) ->
     promise = @_segmentsByAudio audio
     promise.pipe (segments) =>
       for segment in segments
         if segment.start <= offset < segment.end
+          segment = @_fudgeFix offset, segment
           # FIXME: loading segments is the responsibility of the section each
           # each segment belongs to.
           segment.load()
-          return @load segment 
+          return @load segment
 
   _segmentsByAudio: (audio) ->
     getters = [
@@ -94,7 +101,7 @@ class LYT.Playlist
       () => @currentSection().next
       () => @currentSection().previous
     ]
-    iterator = () -> getters.shift().apply()
+    iterator = () -> getters.shift()?.apply()
 
     searchNext = () ->
       if section = iterator()
@@ -111,5 +118,5 @@ class LYT.Playlist
     searchNext()
 
   segmentBySectionOffset: (section, offset = 0) ->
-    @load section.pipe (section) -> return section.getSegmentByOffset offset
+    @load section.pipe (section) -> @_fudgeFix offset, section.getSegmentByOffset offset
 
