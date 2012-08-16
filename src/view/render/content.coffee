@@ -61,16 +61,18 @@ LYT.render.content = do ->
     image.css nextFocus
   
   # Move to focus area with effects specified in focusDuration() and focusEasing()
-  panZoomImage = (segment, image, area) ->
+  panZoomImage = (segment, image, area, renderDelta) ->
+    timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     nextFocus = translate image, area
     console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
-    image.animate nextFocus, focusDuration(), focusEasing(), () ->
+    image.stop true
+    image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
       image.data 'LYT-focus', nextFocus
       if area.height/area.width > 2 and area.height > vspace() * 2
         panArea = jQuery.extend {}, area
         panArea.height = area.width
-        image.animate translate(image, panArea), focusDuration(), focusEasing(), () ->
+        image.animate translate(image, panArea), timeScale*focusDuration(), focusEasing(), () ->
           panArea.tl.y = area.height - panArea.height
           image.animate translate(image, panArea), (segment.end - segment.start)*1000 - 2 * focusDuration(), 'linear'
   
@@ -86,7 +88,7 @@ LYT.render.content = do ->
         y: image[0].naturalHeight
     
   # Render cartoon - a cartoon page with one or more focus areas
-  renderCartoon = (segment, view) ->
+  renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
     image = segment.imgObj or= jQuery segment.image
     
@@ -102,18 +104,18 @@ LYT.render.content = do ->
     
     left = parseInt (div[0].style.left.match /\d+/)[0]
     top  = parseInt (div[0].style.top.match /\d+/)[0]
-    # FIXME: The calculations below are not working as they should (XXX)
+
     area =
-      width:  div.width()  #image.naturalWidth
-      height: div.height() #image.naturalHeight
+      width:  div.width()
+      height: div.height()
       tl:
         x: left
         y: top
       br:
-        x: left + div.width()  #image.naturalWidth
-        y: top  + div.height() #image.naturalHeight
+        x: left + div.width()
+        y: top  + div.height()
     
-    panZoomImage segment, image, area
+    panZoomImage segment, image, area, renderDelta
     
     return true
 
@@ -189,8 +191,7 @@ LYT.render.content = do ->
     else
       preload()
     
-#    view.animate {scrollTop: currentSegment.element.position().top + view.scrollTop()}, 500, 'easeInOutQuad'
-    
+
   # Plain renderer - render everything in the segment
   renderPlain = (segment, view) ->
     view.css 'text-align', 'center'
