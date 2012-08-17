@@ -29,6 +29,9 @@ LYT.player =
   
   fakeEndScheduled: false
   
+  # TODO See if the IOS metadata bug has been fixed here:
+  # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
+  # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
   _iBug: false
   
   playAttemptCount: 0
