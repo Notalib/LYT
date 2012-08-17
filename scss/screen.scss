@@ -67,11 +67,12 @@
 .ui-header .ui-btn-left {
   top: 6px;
 }
-  
+
 #submenu {
-  margin: 6px 10px 0 0;
+  margin: -2px 10px 0 0;
   float: right;
   .ui-btn {
+    height: 28px;
     width: 65px;
     background: none;
   }
@@ -1067,7 +1068,7 @@ div.current {
 }
 
 .ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='bookmark-add'], &[data-icon='book-settings'], &[data-icon='share'] {
+  &[data-icon='lyt-search'], &[data-icon='lyt-gear'], &[data-icon='share'] {
     .ui-btn-inner {
       padding: 5px 0 0 21px;
     }
