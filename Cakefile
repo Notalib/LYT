@@ -20,8 +20,8 @@ option "-v", "--verbose", "Be more talkative"
 
 # # Tasks
 
-task "app", "Same as `cake assets src html sass`", (options) ->
-  invoke task for task in ["assets", "src", "html", "sass"]
+task "app", "Same as `cake assets src html scss`", (options) ->
+  invoke task for task in ["assets", "src", "html", "scss"]
 
 task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
@@ -60,10 +60,10 @@ task "html", "Build HTML", (options) ->
     boast "rendered", "html", "build/index.html"
 
 
-task "sass", "Compile SASS source", (options) ->
+task "scss", "Compile scss source", (options) ->
   createDir "build/css"
-  sass.compile "sass", "build/css", ->
-    boast "compiled", "sass", "build/css"
+  scss.compile "scss", "build/css", ->
+    boast "compiled", "scss", "build/css"
 
 
 task "docs", "Run Docco on src/*.coffee", (options) ->
@@ -109,7 +109,7 @@ task "lint:css", "Validate build/css/*.css", (options) ->
   try
     files = glob "build/css", /\.css$/i
   catch e
-    console.error "Error: Nothing to lint. Try running `cake sass` first"
+    console.error "Error: Nothing to lint. Try running `cake scss` first"
   iterator = ->
     return if files.length is 0
     file = files.pop()
@@ -206,10 +206,10 @@ html = do ->
 
 # --------------------------------------
 
-# # SASS Support
+# # SCSS Support
 
-sass = do ->
-  # Compile SASS files in the given dir using compass
+scss = do ->
+  # Compile scss files in the given dir using compass
   compile: (dir, output, callback) ->
     {exec} = require "child_process"
     exec "#{config.compass} compile --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
