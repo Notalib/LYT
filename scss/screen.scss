@@ -277,17 +277,17 @@
     .ui-checkbox .ui-btn {
       height: 45px;
       .ui-btn-inner {
-          padding: 0.8em 45px;
+        padding: 0.8em 45px;
       }
       .ui-icon {
-          top: 1.35em;
+        top: 1.35em;
       }
     }
     .ui-btn, .ui-btn-up-c {
       border-color: #636363;
     }
     #log-off-button-wrapper {
-        @include action-button(#c1001f, a);
+      @include action-button(#c1001f, a);
     }
   }
 }
@@ -1017,7 +1017,7 @@ div.current {
   }
 }
 
-.ui-icon.ui-icon-arrow-r {
+.ui-icon .ui-icon-arrow-r {
   background: transparent url(../images/icons/arrow_icn_16.png) no-repeat 0 50%;
   background-size: 16px 16px;
 }
