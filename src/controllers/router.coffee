@@ -27,6 +27,20 @@ LYT.var =
 $(document).ready ->
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
+  $('html').on 'click', 'gatrack', ->
+    element = $(this)
+    category = element.parents('div[data-role="page"]').attr('data-title')
+    unless category
+      log.error 'router: gatrack class handler: can not track: no title for page.'
+      return
+    # If there is a label specified, move the text value down to the value
+    label = element.text().trim() or element.attr('title')
+    if element.attr 'data-ga-label'
+      value = label
+      label = element.attr 'data-ga-label'
+    command = ['_trackEvent', category, label]
+    command.push value if value and value isnt ""
+    _gaq.push command
 
 $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
@@ -76,7 +90,7 @@ $(document).bind "mobileinit", ->
    ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
  
  
- #logon rejected from  LYT.service....  
+  #logon rejected from  LYT.service....  
   $(LYT.service).bind "logon:rejected", () ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
     unless LYT.var.next is "#login" 
@@ -86,28 +100,28 @@ $(document).bind "mobileinit", ->
     LYT.player.clear()
     $.mobile.changePage "#login"
 
- #logon rejected from  LYT.session....  
+  #logon rejected from  LYT.session....  
   $(LYT.session).bind "logon:rejected", () ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
     unless LYT.var.next is "#login" 
       $.mobile.changePage "#login"   
 
 
-#logon rejected from  LYT.catalog....
+  #logon rejected from  LYT.catalog....
 
   $(LYT.catalog).bind "logon:rejected", () ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
     unless LYT.var.next is "#login" 
       $.mobile.changePage "#login"
-        
-  $("[data-role=page]").live "pageshow", (event, ui) ->
-    _gaq.push [ "_trackPageview", event.target.id ]
 
-#Lyt service error handling (events)    
+  $("[data-role=page]").live "pageshow", (event, ui) ->
+    _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]
+
+  #Lyt service error handling (events)    
   
   $(LYT.service).bind "error:rpc", () ->
     #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
-    #todo: apologize on behalf of the server
+    #TODO: apologize on behalf of the server
   $(LYT.service).bind "error:service", () ->
     #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
   
