@@ -29,7 +29,7 @@ LYT.render = do ->
     
     element = jQuery """
     <li data-book-id="#{book.id}">
-      <a href="##{target}?book=#{book.id}" class="book-play-link">
+      <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
         <div class="cover-image-frame">
           <img class="ui-li-icon cover-image" src="#{defaultCover}">
         </div>
@@ -240,7 +240,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a href="#book-play?book=#{book.id}&section=#{item.url}&autoplay=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&autoplay=true"> 
               #{item.title}
             </a>"""
         
@@ -287,7 +287,7 @@ LYT.render = do ->
       element.attr "data-href", item.id
       [baseUrl, id] = item.URI.split('#')
       element.append """
-        <a href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{item.timeOffset}&autoplay=true"> 
+        <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{item.timeOffset}&autoplay=true"> 
           #{item.note.text}
         </a>"""
       

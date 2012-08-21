@@ -1,7 +1,8 @@
 # Requires `/common`  
 # Requires `control`  
 # Requires `player`  
-# Requires `/view/render`  
+# Requires `/view/render`
+# Requires `/support/lyt/gatrack`
 
 # -------------------
 
@@ -27,20 +28,7 @@ LYT.var =
 $(document).ready ->
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
-  $('html').on 'click', 'gatrack', ->
-    element = $(this)
-    category = element.parents('div[data-role="page"]').attr('data-title')
-    unless category
-      log.error 'router: gatrack class handler: can not track: no title for page.'
-      return
-    # If there is a label specified, move the text value down to the value
-    label = element.text().trim() or element.attr('title')
-    if element.attr 'data-ga-label'
-      value = label
-      label = element.attr 'data-ga-label'
-    command = ['_trackEvent', category, label]
-    command.push value if value and value isnt ""
-    _gaq.push command
+  LYT.gatrack.init()
 
 $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
