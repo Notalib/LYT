@@ -22,7 +22,6 @@ To see what else you can build, issue `cake` with no arguments:
 
     $ cake
 
-
 ### Test Server
 
 To run a local webserver for testing purposes, issue the following (again from the repo's root):
