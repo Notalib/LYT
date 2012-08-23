@@ -50,7 +50,7 @@ $(document).bind "mobileinit", ->
     "#about":
       handler: "about"
       events: "s"
-    "#share":
+    "#share([?].*)?":
       handler: "share"
       events: "s"
     "#search([?].*)?":
@@ -75,8 +75,40 @@ $(document).bind "mobileinit", ->
       handler : "redirect"
       events: "s"
 
-   ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
- 
+  ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
+  
+  
+  LYT.router.getBookActionUrl = (bookReference, action = 'book-play', absolute=true) ->
+    return null unless bookReference and bookReference.book
+    url = "##{action}?book=#{bookReference.book}"
+    if bookReference.section
+      url += "&section=#{bookReference.section}"
+      if bookReference.segment
+        url += "&segment=#{bookReference.segment}"
+        if bookReference.offset
+          url += "&offset=#{bookReference.offset}"
+    
+    url = if absolute
+      if document.baseURI?
+        document.baseURI + url
+      else
+        window.location.hostname + '/' + url 
+    else
+      url
+    
+    return url
+    
+  
+  LYT.router.getSegmentUrl = (segment, offset, action = 'book-play', resolution='segment', absolute=true) ->
+    reference = {book: segment.section.nccDocument.book.id}
+    unless resolution is 'book'
+      reference.section = segment.section.url
+      unless resolution is 'section'
+        reference.segment = segment.id
+        if offset
+          reference.offset = offset
+          
+    return LYT.router.getBookActionUrl reference, action, absolute
  
   #logon rejected from  LYT.service....  
   $(LYT.service).bind "logon:rejected", () ->
@@ -112,4 +144,3 @@ $(document).bind "mobileinit", ->
     #TODO: apologize on behalf of the server
   $(LYT.service).bind "error:service", () ->
     #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
-  

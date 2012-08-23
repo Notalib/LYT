@@ -469,30 +469,8 @@ LYT.player =
       @lastBookmark = now
   
   getCurrentlyPlaying: ->
-    return null unless @book? and @section()?.state() is "resolved"
+    return null unless @book? and @segment()?.state() is "resolved"
     book:    @book.id
     section: @section()?.url
     segment: @segment()?.id
-    
-  getCurrentlyPlayingUrl: (absolute=true, resolution='book') ->
-    # Returns the url of the currently playing book
-    # Accepts a resolution a string that is either 'book', 'section' or 'offset'
-    # Defaults to 'book'
-    # If absolute is true it returns the full url with domain
-    
-    return null unless @book? and @section()?.state() is "resolved"
-    
-    # FIXME: Don't return urls that only the controllers should know about
-    url = "#book-play?book=#{@book.id}"
-    if resolution in ['section', 'offset']
-      url = url + "&section=#{@section().id}"  
-      if resolution is 'offset' and @time?
-        url = url + "&offset=#{@time}"
-    
-    if absolute
-      if document.baseURI?
-        return document.baseURI + url
-      else
-        return window.location.hostname+'/'+ url 
-    
-    return url
+    offset:  @time

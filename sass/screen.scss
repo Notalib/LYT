@@ -1305,3 +1305,22 @@ $bubble-arrow-height: 10px;
     border-width: 0 7px $bubble-arrow-height 7px;
     border-color: transparent transparent $bubble-background transparent;
 }
+
+.bookmark-actions {
+    background-color: #282828;
+    color: white;
+     
+    .bookmark-share {
+        background-image: url(../images/icons/share_icn_18_white.png);
+        background-size: 22px 18px;
+        background-repeat:no-repeat;
+        background-position:center;
+    }
+    
+    .bookmark-delete {
+        background-image: url(../images/icons/delete_icn_18_white.png);
+        background-size: 18px 18px;
+        background-repeat:no-repeat;
+        background-position:center;
+    }
+}

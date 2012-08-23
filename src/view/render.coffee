@@ -311,22 +311,42 @@ LYT.render = do ->
 #        <p>Broken Bells</p>
 #        </a><a href="#purchase" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
 #      </li>
-      
-    for item in book.bookmarks
-      element = jQuery "<li></li>" 
-      element.attr "id", item.id
-      element.attr "data-href", item.id
-      [baseUrl, id] = item.URI.split('#')
-      element.append """
-        <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{item.timeOffset}&autoplay=true"> 
-          #{item.note.text}
-        </a>"""
+    
+    generateMoreItem = (bookmark, index) ->
       more = $('<a href="#">Mere</a>')
       more.on 'click', ->
-        more.parents('li').after '<li data-theme="b">Test!</li>'
+        listItem = more.parents 'li'
+        list.find('.bookmark-actions').remove()
+        share  = $('<div class="ui-block-a bookmark-share" title="Del">&nbsp;</div>')
+        remove = $('<div class="ui-block-b bookmark-delete" title="Slet">&nbsp;</div>')
+        share.on 'click', ->
+          [section, segment] = bookmark.URI.split '#'
+          reference =
+            book:    book.id
+            section: section
+            segment: segment
+          jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
+        remove.on 'click', ->
+          book.bookmarks.splice index, 1
+          book.saveBookmarks()
+          LYT.render.bookmarks book, view
+        actionsItem = $('<li class="bookmark-actions"><div class="ui-grid-a"></div></li>')
+        actionsItem.find('div').append(share, remove)
+        listItem.after actionsItem
         list.listview('refresh')
-        console.log 'Clicked'
-      element.append more
+      return more
+      
+    for bookmark, index in book.bookmarks
+      element = jQuery "<li></li>" 
+      element.attr "id", bookmark.id
+      element.attr "data-href", bookmark.id
+      [baseUrl, id] = bookmark.URI.split('#')
+      element.append """
+          <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
+            #{bookmark.note.text}
+          </a>
+        """
+      element.append generateMoreItem(bookmark, index)
       
       list.append element
 

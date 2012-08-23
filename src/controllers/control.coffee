@@ -404,29 +404,36 @@ LYT.control =
         
   share: (type, match, ui, page, event) ->
     if type is 'pageshow'
-      log.message "control.share: #{LYT.player.book}"
-      if LYT.player.getCurrentlyPlaying()? #if no book and no section
-        subject = "Link til bog på E17"
-        if LYT.player.isIOS() #nice html... 
-          body = "Hør #{LYT.player.book.title} ved at følge dette link: <a href='#{LYT.player.getCurrentlyPlayingUrl(true,'offset')}'>#{LYT.player.book.title}</a>"
+      params = LYT.router.getParams match[1]
+      if jQuery.isEmptyObject params
+        if segment = LYT.player.segment()
+          params = 
+            title:   segment.section.nccDocument.book.title
+            book:    segment.section.nccDocument.book.id
+            section: segment.section.url
+            segment: segment.id
+            offset:  LYT.player.time 
         else
-          body = "Hør #{LYT.player.book.title} ved at følge dette link: #{LYT.player.getCurrentlyPlayingUrl(true,'offset')}"
-          # body...
-        
-        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
-        
-        $("#share-link-textarea").text LYT.player.getCurrentlyPlayingUrl(true,'offset')
-        $("#share-link-textarea").click -> 
-          this.focus()
-          if LYT.player.isIOS()
-            this.selectionStart=0;
-            this.selectionEnd= this.value.length;
-          else
-            this.select()  
+          $.mobile.changePage("#bookshelf") #no book go to bookshelf
+      url = LYT.router.getBookActionUrl params
+      subject = "Link til bog på E17"
+      if LYT.player.isIOS() #nice html... 
+        body = "Hør #{params.title} ved at følge dette link: <a href='#{url}'>#{params.title}</a>"
       else
-        $.mobile.changePage("#bookshelf") #no book go to bookshelf
+        body = "Hør #{params.title} ved at følge dette link: #{url}"
+        # body...
+      
+      $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
+      
+      $("#share-link-textarea").text url
+      $("#share-link-textarea").click -> 
+        this.focus()
+        if LYT.player.isIOS()
+          this.selectionStart=0;
+          this.selectionEnd= this.value.length;
+        else
+          this.select()  
         
-
   anbefal: (type)->
     $.mobile.changePage("#search?list=anbe")
 
