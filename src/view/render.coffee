@@ -120,10 +120,28 @@ LYT.render = do ->
       #alert book.id
       #LYT.bookshelf.remove(book.id).done -> list.remove()
 
+  bubbleNotification = (element, text, vertOffset, timeout) ->
+    notification = $("<div class=\"bubble-notification\"><div class=\"bubble-notification-arrow\"></div><div class=\"bubble-notification-message\">#{text}</div></div>")
+    # We set visibility to hidden and attach it to body in order to measure the width
+    notification.css 'visibility', 'hidden'
+    $('body').append notification
+    notification.css 'left', element.offset().left - notification.width()/2 + element.width()/2
+    notification.css 'top', element.offset().top + element.height() + vertOffset
+    notification.hide()
+    notification.css 'visibility', ''
+    notification.fadeIn()
+    setTimeout(
+      -> notification.fadeOut(
+        -> notification.remove()
+      ),
+      timeout or 2000
+    )
   
   # ---------------------------
   
   # ## Public API
+  
+  bubbleNotification: bubbleNotification
   
   init: ->
     log.message 'Render: init'
@@ -138,6 +156,8 @@ LYT.render = do ->
       'background-color': $("#book-stack-content").css('background-color')
       
   setVersion: -> $('#legal').append("<p>Version #{LYT.VERSION}</p>")
+  
+  bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), "Bogmærke tilføjet", 5
   
   bookshelf: (books, view, page) ->
     #todo: add pagination
@@ -254,8 +274,9 @@ LYT.render = do ->
         list.append element
         
     # Create an ordered list wrapper for the list
-    view.children("ol").listview('childPages').remove()
-    list = view.children("ol").empty()
+    view.children().remove()
+    list = $('<ol data-role="listview"></ol>').hide()
+    view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
@@ -264,23 +285,33 @@ LYT.render = do ->
     # SMIL documents from this class is not good design.
     mapper(list, book.nccDocument.structure)
     
-    list.listview('refresh')
+    list.parent().trigger('create')
+    list.show()
  
   
   bookmarks: (book, view) ->  
     # Set the back button's href
 
+    # TODO: This shouldn't be set here
     $("#index-back-button").attr "href", "#book-play?book=#{book.id}"
 
-        
-    # Create an uordered list wrapper for the list
-    view.children("ol").listview('childPages').remove()
-    list = view.children("ol").empty()
+    # Create an ordered list wrapper for the list
+    view.children().remove()
+    list = $('<ul data-role="listview" data-split-icon="lyt-more"></ul>').hide()
+    view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
     list.attr "id", "NccRootElement"
 
+#    <ul data-role="listview" data-split-icon="more" data-split-theme="d">
+#      <li><a href="index.html">
+#        <img src="images/album-bb.jpg" />
+#        <h3>Broken Bells</h3>
+#        <p>Broken Bells</p>
+#        </a><a href="#purchase" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
+#      </li>
+      
     for item in book.bookmarks
       element = jQuery "<li></li>" 
       element.attr "id", item.id
@@ -290,10 +321,17 @@ LYT.render = do ->
         <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{item.timeOffset}&autoplay=true"> 
           #{item.note.text}
         </a>"""
+      more = $('<a href="#">Mere</a>')
+      more.on 'click', ->
+        more.parents('li').after '<li data-theme="b">Test!</li>'
+        list.listview('refresh')
+        console.log 'Clicked'
+      element.append more
       
       list.append element
 
-    list.listview('refresh')
+    list.parent().trigger('create')
+    list.show()
  
 
   searchResults: (results, view) ->

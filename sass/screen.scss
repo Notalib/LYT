@@ -62,7 +62,7 @@
     height: 30px;
     &.ui-btn-icon-notext {
     width: 60px;
-    font-family: "Arial"; 
+    font-family: "Arial";
     }
   }
 }
@@ -1110,9 +1110,17 @@ div.current {
 .ui-icon-book-index {
   background-image: url(../images/icons/index_icn_18.png);
   }
+
+.ui-icon-bookmark-list {
+  background-image: url(../images/icons/bookmark_list_icn_18.png);
+  }
     
 .ui-icon-bookmark-add {
   background-image: url(../images/icons/add_bookmark_icn_18.png);
+  }
+
+.ui-icon-lyt-more {
+  background-image: url(../images/icons/more_icn_18.png);
   }
   
 .ui-icon-share {
@@ -1174,8 +1182,16 @@ div.current {
     background-image: url(../images/icons/index_icn_36.png);
     background-size: 25px 18px;
   } 
+   .ui-icon-bookmark-list {
+    background-image: url(../images/icons/bookmark_list_icn_36.png);
+    background-size: 25px 18px;
+  } 
     .ui-icon-bookmark-add {
     background-image: url(../images/icons/add_bookmark_icn_36.png);
+    background-size: 25px 18px;
+  }
+    .ui-icon-lyt-more {
+    background-image: url(../images/icons/more_icn_36.png);
     background-size: 25px 18px;
   }
     .ui-icon-share {
@@ -1252,4 +1268,40 @@ div.current {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
     }
+}
+
+$bubble-background: white;
+$bubble-opacity: 0.8;
+$bubble-arrow-height: 10px;
+
+.bubble-notification {
+    position: absolute;
+}
+
+.bubble-notification-message {
+    opacity: $bubble-opacity;
+    background: $bubble-background;
+    /* Center */
+    margin: 0px auto;
+    top: $bubble-arrow-height;
+
+    padding: 5px 20px;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.bubble-notification-arrow {
+    opacity: $bubble-opacity;
+    /* Center */
+    margin: 0px auto;
+
+    /* Triangle magic begins here */
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+    border-width: 0 7px $bubble-arrow-height 7px;
+    border-color: transparent transparent $bubble-background transparent;
 }

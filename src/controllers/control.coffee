@@ -207,7 +207,7 @@ LYT.control =
           $("#bookmark-add-button").click (event) ->
             if segment = LYT.player.segment()
               LYT.player.book.addBookmark segment, LYT.player.time
-              segment.done -> $("#book-index-button").effect("highlight", {color: '#ffffff'}, 500)
+              LYT.render.bookmarkAddedNotification()
           
           ###
           $("#book-play").bind "swiperight", ->
