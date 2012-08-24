@@ -220,13 +220,12 @@ LYT.control =
         .fail () ->
           log.error "Control: Failed to load book ID #{params.book}"
           
-          #if LYT.session.getCredentials()?
           # Hack to fix books not loading when being redirected directly from login page
           if LYT.session.getCredentials()?
             if LYT.var.next? and ui.prevPage[0]?.id is 'login'
               window.location.reload()
             else
-              $("#submenu").simpledialog({
+              $.mobile.activePage.simpledialog({
                 'mode' : 'bool',
                 'prompt' : 'Der er opstået en fejl!',
                 'subTitle' : 'kunne ikke hente bogen.'

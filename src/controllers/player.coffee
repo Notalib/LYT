@@ -397,7 +397,11 @@ LYT.player =
           promise = @playlist().rewind()
           promise.done doneHandler
           promise.fail failHandler
-        
+    
+    load.fail ->
+      log.error 'Player: failed to load book (reason unknown)'
+      deferred.reject()
+
     deferred.promise()
 
   playSegment: (segment, autoPlay = true) -> @playSegmentOffset segment, 0, autoPlay
