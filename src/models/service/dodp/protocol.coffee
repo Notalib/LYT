@@ -236,7 +236,7 @@ LYT.protocol =
         ncxRef:     element.find("ncxRef").text()
         URI:        element.find("URI").text()
         timeOffset: element.find("timeOffset").text()
-        note:       element.find("note > text").text()
+        note: text: element.find("note > text").text()
         
       bookmarks =
         bookmarks: [],
