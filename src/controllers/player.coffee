@@ -221,7 +221,7 @@ LYT.player =
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message 'jPlayer: url error'
-            $("#submenu").simpledialog({
+            $.mobile.activePage.simpledialog.simpledialog({
                 'mode' : 'bool',
                 'prompt' : 'Der er opstået en fejl!',
                 'subTitle' : 'kunne ikke hente lydfilen.'
