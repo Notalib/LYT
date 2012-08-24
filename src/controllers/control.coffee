@@ -146,10 +146,11 @@ LYT.control =
 
       when 'pageshow'
         activate = (active, inactive, handler) ->
-          $(active).unbind "click"
-          $(active).css 'background-color', '#ffffff'
-          $(inactive).css 'background-color', ""
-          $(inactive).unbind "click"
+          # TODO: We shouldn't have to re-bind every time a page is shown
+          $(active).unbind 'click'
+          $(inactive).unbind 'click'
+          $(active).addClass 'ui-btn-active'
+          $(inactive).removeClass 'ui-btn-active'
           $(inactive).click (event) -> handler(event)
     
         renderBookmarks = ->
@@ -250,12 +251,6 @@ LYT.control =
                 }
               
               })
-            #$("#submenu").trigger('simpledialog', {'method': 'open'})              
-              #response = confirm 'kunne ikke hente bogen, vil du prøve igen?'
-             # if(response)
-              #  window.location.reload()
-              #else
-             #   $.mobile.changePage "#bookshelf"
             
       
       LYT.loader.register "Loading book", process

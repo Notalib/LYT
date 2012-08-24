@@ -44,6 +44,16 @@
     width: 30px; 
 		@include border-radius(0, 0);
   }
+  .ui-btn-active {
+    background-color: white;
+    .ui-icon-bookmark-list {
+        background-image: url(../images/icons/bookmark_list_icn_18_dark.png);
+    }
+  }
+  .ui-icon-bookmark-list {
+    margin-left: 18px;
+    margin-top: 3px;
+  }
 }
 
 .ui-header {
