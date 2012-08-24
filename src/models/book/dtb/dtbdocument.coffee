@@ -191,7 +191,7 @@ do ->
         if jqXHR.status is 403 and attempts > 0
           log.warn "DTB: Access forbidden - refreshing session"
           LYT.service.refreshSession()
-            .done load
+            .done(load)
             .fail ->
               log.errorGroup "DTB: Failed to get #{@url} (status: #{status})", jqXHR, status, error
               deferred.reject status, error
