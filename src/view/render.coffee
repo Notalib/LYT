@@ -297,7 +297,7 @@ LYT.render = do ->
 
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ul data-role="listview" data-split-icon="lyt-more"></ul>').hide()
+    list = $('<ul data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
