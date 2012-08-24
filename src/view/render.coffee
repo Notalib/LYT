@@ -303,14 +303,6 @@ LYT.render = do ->
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
     list.attr "id", "NccRootElement"
-
-#    <ul data-role="listview" data-split-icon="more" data-split-theme="d">
-#      <li><a href="index.html">
-#        <img src="images/album-bb.jpg" />
-#        <h3>Broken Bells</h3>
-#        <p>Broken Bells</p>
-#        </a><a href="#purchase" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
-#      </li>
     
     generateMoreItem = (bookmark, index) ->
       more = $('<a href="#">Mere</a>')
