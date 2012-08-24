@@ -42,7 +42,6 @@ clickHandler = ->
     _gaq.push ['_trackEvent', category, action, label, duration]
 
 init = ->
-  console.log $('.jp-play')
   $('html').on 'click', '.gatrack', clickHandler
   $('.jp-play, .jp-pause').on 'click', clickHandler
 
