@@ -445,6 +445,8 @@ LYT.player =
     return null unless @playlist()?
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
+      delete @book.lastmark
+      @book.saveBookmarks()
       return null
     @seekedLoadSegmentLock = true
     segment = @playlist().nextSegment()
