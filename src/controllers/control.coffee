@@ -15,7 +15,6 @@
 # involved in displaying the requested pages
 
 LYT.control = 
-
   
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->

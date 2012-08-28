@@ -370,7 +370,7 @@ LYT.player =
       @book = book
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
-        if not url? and book.lastmark?
+        if not url and book.lastmark?
           url    = book.lastmark.URI
           offset = book.lastmark.offset
           log.message "Player: resuming from lastmark #{url}, offset #{offset}"
@@ -384,11 +384,14 @@ LYT.player =
           @playSegmentOffset segment, offset, autoPlay
           log.message "Player: found segment #{segment.url()} - playing"
 
-        if url?
+        if url
           promise = @playlist().segmentByURL url
           promise.done doneHandler
           promise.fail =>
-            log.error "Player: failed to load url #{url} - rewinding to start"
+            if url.match /__LYT_auto_/
+              log.message "Player: failed to load #{url} containing auto generated book marks - rewinding to start"
+            else
+              log.error "Player: failed to load url #{url} - rewinding to start"
             offset = 0
             promise = @playlist().rewind()
             promise.done doneHandler

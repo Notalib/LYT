@@ -64,7 +64,7 @@ do ->
           
     getSegmentByURL: (url) ->
       deferred = jQuery.Deferred()
-      deferred.fail -> log.error "getSegmentByURL failed with url #{url}"
+      deferred.fail -> log.message "getSegmentByURL failed with url #{url}"
       this.fail -> deferred.reject()
       this.done (document) ->
         id = url.split('#')[1]
