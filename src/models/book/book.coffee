@@ -21,22 +21,14 @@ class LYT.Book
   this.load = do ->
     loaded = {}
     
-    # TODO: Remove initialSegmentULR and offset - this should be handled by the player
-    (id, initialSegmentURL, offset = 0) ->
+    (id) ->
       deferred = jQuery.Deferred()
       
-      loaded[id] or (loaded[id] = new LYT.Book id)
+      loaded[id] or= new LYT.Book id
       
       # Book is loaded; load its playlist
       loaded[id].done (book) ->
-        # Check for lastmark
-        if not initialSegmentURL? and offset is 0 and book.lastmark?
-          initialSegmentURL = book.lastmark.url
-        
-        # Load the playlist (ignore playlist-load-errors -
-        # they'll be caught elsewhere)
-        # TODO: Consider using or= to cache the old playlist
-        book.playlist = new LYT.Playlist book
+        book.playlist or= new LYT.Playlist book
         book.playlist.fail -> deferred.reject book
         book.playlist.done -> deferred.resolve book
         
