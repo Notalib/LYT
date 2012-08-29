@@ -147,6 +147,7 @@ LYT.render = do ->
     log.message 'Render: init'
     @setStyle()
     @setVersion()
+    $("#bookmark-add-button").on 'click', -> LYT.control.addBookmark()
     ###
     $("#book-player").bind "swiperight", ->
         LYT.player.nextSection()

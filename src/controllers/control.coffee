@@ -211,12 +211,6 @@ LYT.control =
       
         LYT.service.getAnnouncements()
 
-        $("#bookmark-add-button").unbind "click"
-        $("#bookmark-add-button").click (event) ->
-          if segment = LYT.player.segment()
-            LYT.player.book.addBookmark segment, LYT.player.time
-            LYT.render.bookmarkAddedNotification()
-        
         $.mobile.changePage "#book-player?book=#{LYT.player.book.id}"
 
       process.fail ->
@@ -431,3 +425,8 @@ LYT.control =
     process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
       .done ->
         return $.mobile.changePage("#bookshelf")
+
+  addBookmark: ->
+    LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
+    LYT.render.bookmarkAddedNotification()
+  
