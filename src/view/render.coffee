@@ -147,12 +147,19 @@ LYT.render = do ->
     log.message 'Render: init'
     @setStyle()
     @setVersion()
-  
+    ###
+    $("#book-player").bind "swiperight", ->
+        LYT.player.nextSection()
+    
+    $("#book-player").bind "swipeleft", ->
+        LYT.player.previousSection()
+    ###
+
   setStyle: ->
     log.message 'Render: setting custom style'
     # TODO: Dynamic modification of a CSS class in stead of this
     $("#textarea-example, #book-stack-content, #book-plain-content").css LYT.settings.get('textStyle')
-    $('#book-play').css
+    $('#book-player').css
       'background-color': $("#book-stack-content").css('background-color')
       
   setVersion: -> $('#legal').append("<p>Version #{LYT.VERSION}</p>")
@@ -234,15 +241,11 @@ LYT.render = do ->
     $("#details-book-description").text details.teaser
     $("#details-book-narrator").text details.speaker
     $("#details-book-totaltime").text "#{details.playtime}:00"
-    $("#details-play-button").attr "href", "#book-play?book=#{details.id}"
+    $("#details-play-button").attr "href", "#book-player?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
     
   
   bookIndex: (book, view) ->  
-    # Set the back button's href
-
-    $("#index-back-button").attr "href", "#book-play?book=#{book.id}"
-
     playing = LYT.player.getCurrentlyPlaying()
     isPlaying = (sectionId) ->
       return false unless playing? and String(book.id) is String(playing?.book)
@@ -290,11 +293,6 @@ LYT.render = do ->
  
   
   bookmarks: (book, view) ->  
-    # Set the back button's href
-
-    # TODO: This shouldn't be set here
-    $("#index-back-button").attr "href", "#book-play?book=#{book.id}"
-
     # Create an ordered list wrapper for the list
     view.children().remove()
     list = $('<ul data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ul>').hide()

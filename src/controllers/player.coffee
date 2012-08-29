@@ -107,11 +107,11 @@ LYT.player =
         @setPlayBackRate()
         @timeupdateLock = false
         if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
-          if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-play')
+          if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-player')
             # IOS will not AutoPlay...
             LYT.loader.set('Loading sound', 'metadata') 
 
-        else if(@playAttemptCount < 1 and $.mobile.activePage[0].id is 'book-play')
+        else if(@playAttemptCount < 1 and $.mobile.activePage[0].id is 'book-player')
           #Only make the loading sign the first time...
           LYT.loader.set('Loading sound', 'metadata') 
         

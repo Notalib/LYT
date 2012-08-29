@@ -132,16 +132,17 @@ LYT.control =
       LYT.loader.register "Loading book", process
   
   bookIndex: (type, match, ui, page, event) ->
-    return unless match[1] # Hack to avoid eternal pageloading on jqm subpages
     params = LYT.router.getParams(match[1])
+    return if params?['ui-page']
+    bookId = params?.book or LYT.player.book?.id
+    $.mobile.changePage '#bookshelf' unless bookId
     content = $(page).children( ":jqmData(role=content)" )
+    
 
     switch type
       when 'pagebeforeshow'
         # Remove any previously generated index (may be from another book)
-        if ui.prevPage[0]?.id is 'book-play'
-          LYT.render.ClearIndex(content)
-          #log.message 'clear-index'
+        LYT.render.ClearIndex(content)
 
       when 'pageshow'
         activate = (active, inactive, handler) ->
@@ -154,20 +155,27 @@ LYT.control =
     
         renderBookmarks = ->
           activate "#bookmark-list-button", "#book-toc-button", renderIndex
-          promise = LYT.Book.load params.book
+          promise = LYT.Book.load bookId
           promise.done (book) -> LYT.render.bookmarks book, content
           LYT.loader.register "Loading bookmarks", promise
     
         renderIndex = ->
           activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
-          promise = LYT.Book.load params.book
+          promise = LYT.Book.load bookId
           promise.done (book) -> LYT.render.bookIndex book, content
           LYT.loader.register "Loading index", promise
     
         renderIndex()
 
-  
   bookPlayer: (type, match, ui, page, event) ->
+    if type is 'pageshow'
+      params = LYT.router.getParams(match[1])
+      if params?.book and params.book isnt LYT.player?.book?.id
+        $.mobile.changePage "#book-play?book=#{params.book}"
+      else if not LYT.player.book
+        $.mobile.changePage "#bookshelf"
+  
+  bookPlay: (type, match, ui, page, event) ->
     if type is 'pageshow'
       params = LYT.router.getParams(match[1])
       segmentUrl = params.section or null
@@ -183,77 +191,66 @@ LYT.control =
 
       if guest? and LYT.session.getCredentials() is null
          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin).done ->
-           return $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&segment=#{params.segment}&offset=#{params.offset}"
+           $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&segment=#{params.segment}&offset=#{params.offset}"
         
       return unless LYT.session.getCredentials()?
-      # This doesn't make any sense:
-      # return unless LYT.player.book? is params.book and LYT.player.segment()?.url is segmentUrl
       
       LYT.player.clear()
       LYT.render.clearBookPlayer()
         
-      header = $(page).children( ":jqmData(role=header)")
-      $('#book-index-button').attr 'href', """#book-index?book=#{params.book}"""    
+      header = $(page).children(':jqmData(role=header)')
       
-      process = LYT.player.load(params.book, segmentUrl, offset, true)
-        .done (book) -> 
-          LYT.render.bookPlayer book, $(page)
-
-          #see if there are any announcements....each time we loaded a new book.....
-        
-          LYT.service.getAnnouncements()
-
-          $("#bookmark-add-button").unbind "click"
-          $("#bookmark-add-button").click (event) ->
-            if segment = LYT.player.segment()
-              LYT.player.book.addBookmark segment, LYT.player.time
-              LYT.render.bookmarkAddedNotification()
-          
-          ###
-          $("#book-play").bind "swiperight", ->
-              LYT.player.nextSection()
-          
-          $("#book-play").bind "swipeleft", ->
-              LYT.player.previousSection()
-          ###
-        
-        .fail () ->
-          log.error "Control: Failed to load book ID #{params.book}"
-          
-          # Hack to fix books not loading when being redirected directly from login page
-          if LYT.session.getCredentials()?
-            if LYT.var.next? and ui.prevPage[0]?.id is 'login'
-              window.location.reload()
-            else
-              $.mobile.activePage.simpledialog({
-                'mode' : 'bool',
-                'prompt' : 'Der er opstået en fejl!',
-                'subTitle' : 'kunne ikke hente bogen.'
-                'animate': false,
-                'useDialogForceFalse': true,
-                'allowReopen': true,
-                'useModal': true,
-                'buttons' : {
-                  'Prøv igen': 
-                    click: (event) ->
-                      window.location.reload()
-                    icon: "refresh",
-                    theme: "c"
-                  ,
-                  'Annuller': 
-                    click: (event) ->
-                      $.mobile.changePage "#bookshelf"
-                    icon: "delete",
-                    theme: "c"
-                  ,
-                   
-                }
-              
-              })
-            
+      log.message "control: bookPlay: loading book #{params.book}"
       
+      process = LYT.player.load params.book, segmentUrl, offset, true
       LYT.loader.register "Loading book", process
+      process.done (book) ->
+        LYT.render.bookPlayer book, $(page)
 
+        #see if there are any announcements....each time we loaded a new book.....
+      
+        LYT.service.getAnnouncements()
+
+        $("#bookmark-add-button").unbind "click"
+        $("#bookmark-add-button").click (event) ->
+          if segment = LYT.player.segment()
+            LYT.player.book.addBookmark segment, LYT.player.time
+            LYT.render.bookmarkAddedNotification()
+        
+        $.mobile.changePage "#book-player?book=#{LYT.player.book.id}"
+
+      process.fail ->
+        log.error "Control: Failed to load book ID #{params.book}"
+        
+        # Hack to fix books not loading when being redirected directly from login page
+        if LYT.session.getCredentials()?
+          if LYT.var.next? and ui.prevPage[0]?.id is 'login'
+            window.location.reload()
+          else
+            $.mobile.activePage.simpledialog({
+              'mode' : 'bool',
+              'prompt' : 'Der er opstået en fejl!',
+              'subTitle' : 'kunne ikke hente bogen.'
+              'animate': false,
+              'useDialogForceFalse': true,
+              'allowReopen': true,
+              'useModal': true,
+              'buttons' : {
+                'Prøv igen': 
+                  click: (event) ->
+                    window.location.reload()
+                  icon: "refresh",
+                  theme: "c"
+                ,
+                'Annuller': 
+                  click: (event) ->
+                    $.mobile.changePage "#bookshelf"
+                  icon: "delete",
+                  theme: "c"
+                ,
+                 
+              }
+            })
   
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
