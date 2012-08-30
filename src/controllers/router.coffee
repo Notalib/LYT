@@ -43,7 +43,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#book-index([?&].*)?": # Using & because of nested list from jQuery Mobile
       handler: "bookIndex"
-      events: "bs,s"
+      events: "bs"
     "#settings":
       handler: "settings"
       events: "s,bs"

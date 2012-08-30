@@ -139,33 +139,30 @@ LYT.control =
     $.mobile.changePage '#bookshelf' unless bookId
     content = $(page).children ':jqmData(role=content)'
     
-    switch type
-      when 'pagebeforeshow'
-        # Remove any previously generated index (may be from another book)
-        LYT.render.clearContent content
+    # Remove any previously generated index (may be from another book)
+    LYT.render.clearContent content
 
-      when 'pageshow'
-        activate = (active, inactive, handler) ->
-          # TODO: We shouldn't have to re-bind every time a page is shown
-          $(active).unbind 'click'
-          $(inactive).unbind 'click'
-          $(active).addClass 'ui-btn-active'
-          $(inactive).removeClass 'ui-btn-active'
-          $(inactive).click (event) -> handler event
-    
-        renderBookmarks = ->
-          activate "#bookmark-list-button", "#book-toc-button", renderIndex
-          promise = LYT.Book.load bookId
-          promise.done (book) -> LYT.render.bookmarks book, content
-          LYT.loader.register "Loading bookmarks", promise
-    
-        renderIndex = ->
-          activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
-          promise = LYT.Book.load bookId
-          promise.done (book) -> LYT.render.bookIndex book, content
-          LYT.loader.register "Loading index", promise
-    
-        renderIndex()
+    activate = (active, inactive, handler) ->
+      # TODO: We shouldn't have to re-bind every time a page is shown
+      $(active).unbind 'click'
+      $(inactive).unbind 'click'
+      $(active).addClass 'ui-btn-active'
+      $(inactive).removeClass 'ui-btn-active'
+      $(inactive).click (event) -> handler event
+
+    renderBookmarks = ->
+      activate "#bookmark-list-button", "#book-toc-button", renderIndex
+      promise = LYT.Book.load bookId
+      promise.done (book) -> LYT.render.bookmarks book, content
+      LYT.loader.register "Loading bookmarks", promise
+
+    renderIndex = ->
+      activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
+      promise = LYT.Book.load bookId
+      promise.done (book) -> LYT.render.bookIndex book, content
+      LYT.loader.register "Loading index", promise
+
+    renderIndex()
 
   bookPlayer: (type, match, ui, page, event) ->
     if type is 'pageshow'
