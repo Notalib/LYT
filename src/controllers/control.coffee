@@ -131,18 +131,18 @@ LYT.control =
       
       LYT.loader.register "Loading book", process
   
+  # TODO: Move bookmarks list to separate page
   bookIndex: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     return if params?['ui-page']
     bookId = params?.book or LYT.player.book?.id
     $.mobile.changePage '#bookshelf' unless bookId
-    content = $(page).children( ":jqmData(role=content)" )
+    content = $(page).children ':jqmData(role=content)'
     
-
     switch type
       when 'pagebeforeshow'
         # Remove any previously generated index (may be from another book)
-        LYT.render.ClearIndex(content)
+        LYT.render.clearContent content
 
       when 'pageshow'
         activate = (active, inactive, handler) ->
@@ -151,7 +151,7 @@ LYT.control =
           $(inactive).unbind 'click'
           $(active).addClass 'ui-btn-active'
           $(inactive).removeClass 'ui-btn-active'
-          $(inactive).click (event) -> handler(event)
+          $(inactive).click (event) -> handler event
     
         renderBookmarks = ->
           activate "#bookmark-list-button", "#book-toc-button", renderIndex
