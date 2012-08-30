@@ -80,6 +80,7 @@ $(document).bind "mobileinit", ->
 
   ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
   
+  $.mobile.defaultPageTransition = 'fade'
   
   LYT.router.getBookActionUrl = (bookReference, action = 'book-play', absolute=true) ->
     return null unless bookReference and bookReference.book
