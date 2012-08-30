@@ -29,11 +29,13 @@ class LYT.Book
       # Book is loaded; load its playlist
       loaded[id].done (book) ->
         book.playlist or= new LYT.Playlist book
-        book.playlist.fail -> deferred.reject book
+        book.playlist.fail (error) -> deferred.reject error
         book.playlist.done -> deferred.resolve book
         
       # Book failed
-      loaded[id].fail -> deferred.reject loaded[id]
+      loaded[id].fail (error) ->
+        loaded[id] = null
+        deferred.reject error
       
       deferred.promise()
   

@@ -13,7 +13,7 @@ class LYT.Playlist
     deferred.promise this
     @nccDocument = @book.nccDocument
     @nccDocument.done => deferred.resolve this
-    @nccDocument.fail => deferred.reject()
+    @nccDocument.fail (status, error) -> deferred.reject "NCCDocument: #{status}, #{error}"
     this
 
   currentSection: -> @currentSegment?.section

@@ -273,13 +273,13 @@ LYT.player =
             @fakeEndScheduled = false ),
           (timeleft*1000)-50 
     
-  pause: (time) ->
+  pause: (offset) ->
     # Pause playback
-    log.message "Player: pause: pause at #{time}"
+    log.message "Player: pause: pause at offset #{offset}"
 
-    if time?
-      @playIntentOffset = time
-      @el.jPlayer('pause', time)
+    if offset?
+      @playIntentOffset = offset
+      @el.jPlayer('pause', offset)
     else
       #@playIntentOffset = null
       @el.jPlayer('pause')
@@ -312,11 +312,6 @@ LYT.player =
   stop: () ->
     if @ready?
       @el.jPlayer('stop')
-    
-  clear: () ->
-    if @ready?
-      @el.jPlayer('clearMedia')
-      
     
   isIOS: () ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)

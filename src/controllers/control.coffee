@@ -192,7 +192,7 @@ LYT.control =
         
       return unless LYT.session.getCredentials()?
       
-      LYT.player.clear()
+      LYT.player.pause()
       LYT.render.clearBookPlayer()
         
       header = $(page).children(':jqmData(role=header)')
