@@ -150,4 +150,28 @@ Comics:
 
 Bookmarks:
 
-        - Yet to be finished.  
+        - 1: Open a book, place a bookmark in three different chapters. 
+        
+        - 2: Enter the bookmark index, click consecutively on each of the 
+             bookmarks. Do they take you to the correct place in the book?
+             
+        - 3: Whilst playing, doubleclick the bookmark button. Check the 
+             bookmark index: Have you created two bookmarks?
+             
+        - 4: Wait until just before the end of a sound segment, then place a
+             bookmark there. It it placed correctly?
+             
+        - 5: Place a bookmark just at the beginning of a sound segment. Does it work 
+             correctly?
+             
+        - Log out, then back in. Are your bookmarks still there?
+        
+        - Remove your bookmarks. 
+        
+        
+        
+        
+        
+        
+        
+        
