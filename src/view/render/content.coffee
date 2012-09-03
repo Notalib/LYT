@@ -42,12 +42,19 @@ LYT.render.content = do ->
     scale = 1;
     scale = view.width() / area.width if scale > view.width() / area.width
     scale = vspace() / area.height if scale > vspace() / area.height
-    # console.log "render.content: translate: scale: #{scale}"
-    # console.log "render.content: translate: display area: #{JSON.stringify area}"
-    # console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
-    # console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
+#    console.log "render.content: page dimensions: #{$(window).width()}x#{$(window).height()}"
+#    console.log "render.content: translate: scale: #{scale}"
+#    console.log "render.content: translate: display area: #{JSON.stringify area}"
+#    console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
+#    console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
     centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
+    
+# IOS Debugging
+    img = new Image();
+    img.src = image.attr 'src'
+    console.log "width: #{img.width}, height: #{img.height}"
+    
     width: Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
     top: Math.floor(-area.tl.y * scale)
@@ -77,16 +84,27 @@ LYT.render.content = do ->
           image.animate translate(image, panArea), (segment.end - segment.start)*1000 - 2 * focusDuration(), 'linear'
   
   # Return area object that will focus on the entire image
+  # TODO: This method is not cross browser and needs to be rewritten
   wholeImageArea = (image) ->
-      width:  image[0].naturalWidth
-      height: image[0].naturalHeight
-      tl:
-        x: 0
-        y: 0
-      br:
-        x: image[0].naturalWidth
-        y: image[0].naturalHeight
-    
+    width:  image[0].naturalWidth
+    height: image[0].naturalHeight
+    tl:
+      x: 0
+      y: 0
+    br:
+      x: image[0].naturalWidth
+      y: image[0].naturalHeight
+
+  scaleArea = (scale, area) ->
+    width:  scale * area.width
+    height: scale * area.height
+    tl:
+      x: scale * area.tl.x
+      y: scale * area.tl.y
+    br:
+      x: scale * area.br.x
+      y: scale * area.br.y
+
   # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
@@ -105,7 +123,7 @@ LYT.render.content = do ->
     left = parseInt (div[0].style.left.match /\d+/)[0]
     top  = parseInt (div[0].style.top.match /\d+/)[0]
 
-    area =
+    area = scaleArea segment.canvasScale,
       width:  div.width()
       height: div.height()
       tl:
@@ -114,6 +132,8 @@ LYT.render.content = do ->
       br:
         x: left + div.width()
         y: top  + div.height()
+    
+    console.log "Area: #{area.width}x#{area.height}, (#{area.tl.x}, #{area.tl.y})"
     
     panZoomImage segment, image, area, renderDelta
     

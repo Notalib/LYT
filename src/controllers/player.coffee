@@ -159,7 +159,7 @@ LYT.player =
 
       loadedmetadata: (event) =>
         log.message 'Player: loaded metadata'
-        if isNaN( event.jPlayer.status.duration )
+        if isNaN event.jPlayer.status.duration
           #alert event.jPlayer.status.duration
           @gotDuration = false
           if(@getStatus().src == @currentAudio and @playAttemptCount <= LYT.config.player.playAttemptLimit)
