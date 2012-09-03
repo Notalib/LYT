@@ -108,7 +108,6 @@ LYT.config =
     # The minimum time between lastmark updates (milliseconds)
     lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
     playAttemptLimit: 10
-    IOSFirstPlay: true
     readSpeed:
       slow:         0.5
       normal_slow:  0.8

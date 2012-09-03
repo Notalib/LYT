@@ -28,6 +28,7 @@ LYT.player =
   timeupdateLock: false
   
   fakeEndScheduled: false
+  firstPlay: true
   
   _iBug: false
   
@@ -110,7 +111,7 @@ LYT.player =
         @setPlayBackRate()
         @timeupdateLock = false
         if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
-          if (!LYT.config.player.IOSFirstPlay and $.mobile.activePage[0].id is 'book-player')
+          if (!@firstPlay and $.mobile.activePage[0].id is 'book-player')
             # IOS will not AutoPlay...
             LYT.loader.set('Loading sound', 'metadata') 
 
@@ -187,7 +188,7 @@ LYT.player =
           #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
           #@pause(@playIntentOffset)
           if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
-            if LYT.config.player.IOSFirstPlay
+            if @firstPlay
               @pause()
           else
             LYT.loader.close('metadata')
@@ -197,9 +198,10 @@ LYT.player =
       
       canplaythrough: (event) =>
         log.message 'Player: event can play through'
+       
         if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
-          if LYT.config.player.IOSFirstPlay
-            LYT.config.player.IOSFirstPlay = false;
+          if @firstPlay
+            @firstPlay = false;
             @el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
             @el.data('jPlayer').htmlElement.audio.play()
           else
@@ -207,8 +209,8 @@ LYT.player =
 
             LYT.loader.close('metadata')  
          
-        else if LYT.config.player.IOSFirstPlay and @isIOS()
-          LYT.config.player.IOSFirstPlay = false;
+        else if @firstPlay and @isIOS()
+          @firstPlay = false;
 
         
         #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
@@ -275,7 +277,7 @@ LYT.player =
             @nextSegment true
             @fakeEndScheduled = false ),
           (timeleft*1000)-50 
-    
+  
   pause: (offset) ->
     # Pause playback
     log.message "Player: pause: pause at offset #{offset}"
