@@ -64,13 +64,12 @@ Playing books (linearly):
 
         - 1: Open the book, press 'Play'. Does the book begin playing?
         
-        - 2: Whilst playing, click 'Pause', then resume playing. 
+        - 2: Whilst playing, does the book start each new segment automatically?
+        
+        - 3: Whilst playing, click 'Pause', then resume playing. 
 
-        - 3: Whilst playing, click on the chapter's timeline. Does it jump to
+        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
           the place you've clicked?
-
-        - 4: Repeat above on: A normal book with/without text, a very large 
-          book (eg. a lexicon or similar), a book with images, a non-Danish book.
 
 
     (On a smartphone):
@@ -78,6 +77,12 @@ Playing books (linearly):
         - 5: Make a call to the phone whilst playing the book. Check, that 
           the book stops the playing, and can be started again at the correct
           chapter after the call
+          
+        - 6: Whilst playing, let the phone go on standby and lock. Does the 
+          book keep playing undisturbed?
+        
+        Repeat above on: A normal book with/without text, a very large book 
+        (e.g. a lexicon or similar), a non-Danish book.
 
 
 Navigation between book sections: 
