@@ -72,6 +72,9 @@ LYT.player =
       timeupdate: (event) =>
         status = event.jPlayer.status
         @time = status.currentTime
+        
+        # Schedule fake ending of file if necessary
+        @fakeEnd status
 
         # FIXME: Pause due unloaded segments should be improved with a visual
         #        notification.
