@@ -122,8 +122,15 @@ Navigation between book sections:
       at the last section of the previous chapter?
 
     - 13: Try the above with normally functioning books as well as books known to have 
-      problems with overlapping sections and gaps between sections. 
+      problems with overlapping sections, gaps between sections and books which are known to 
+      snap off the last bits of text in each segment. 
+      
 
+Special cases for playing: 
+
+    - Whilst on a mobile device: Open a book, pause it. Then exit the player, 
+      log on another network and return to the book again. Does it continue uninterrupted?
+      
 
 Modifying settings: 
 
