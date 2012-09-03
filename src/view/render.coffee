@@ -88,7 +88,7 @@ LYT.render = do ->
               theme: "c"
             ,  
           }
-        }) 
+        })
       else
         $(this).simpledialog({
           'mode' : 'bool',
@@ -120,7 +120,11 @@ LYT.render = do ->
       #alert book.id
       #LYT.bookshelf.remove(book.id).done -> list.remove()
 
-  bubbleNotification = (element, text, vertOffset, timeout) ->
+  # Displays a small speech bubble notification vertOffset pixels below the
+  # provided element containing the provided text for timeout milliseconds.
+  # If timeout provided is zero, the bubble will display until the user clicks
+  # it. Timeout defaults to 2000.
+  bubbleNotification = (element, text, vertOffset=0, timeout) ->
     notification = $("<div class=\"bubble-notification\"><div class=\"bubble-notification-arrow\"></div><div class=\"bubble-notification-message\">#{text}</div></div>")
     # We set visibility to hidden and attach it to body in order to measure the width
     notification.css 'visibility', 'hidden'
@@ -130,12 +134,11 @@ LYT.render = do ->
     notification.hide()
     notification.css 'visibility', ''
     notification.fadeIn()
-    setTimeout(
-      -> notification.fadeOut(
-        -> notification.remove()
-      ),
-      timeout or 2000
-    )
+    remove = -> notification.fadeOut -> notification.remove()
+    if timeout == 0
+      notification.on 'click', remove
+    else
+      setTimeout(remove, timeout or 2000)
   
   # ---------------------------
   
