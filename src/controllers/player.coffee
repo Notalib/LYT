@@ -87,7 +87,7 @@ LYT.player =
         if @timeupdateLock and @_next and @_next.state() isnt 'resolved'
           log.message "Player: timeupdate: timeupdateLock set. Next segment: #{@_next.state()}. Pause until resolved."
           @pause()
-          @_next.done => @el.jPlayer('play')
+          @_next.done => @el.jPlayer 'play'
           return
 
         # Move one segment forward if no current segment or no longer in the
@@ -185,9 +185,9 @@ LYT.player =
         log.message 'Player: event canplay'
         if @gotDuration
           @gotDuration = false
-          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset if @playIntentOffset
+          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset if @playIntentOffset?
           #@pause(@playIntentOffset)
-          if @isIOS() and @playIntentOffset
+          if @isIOS() and @playIntentOffset?
             if @firstPlay
               @pause @playIntentOffset
           else
@@ -195,23 +195,20 @@ LYT.player =
         if(!@gotDuration?)
           LYT.loader.close('metadata') #windows phone 7
 
-      
       canplaythrough: (event) =>
-        log.message 'Player: event can play through'
-       
-        if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
+        log.message 'Player: event canplaythrough'
+        log.message "Player: event canplaythrough: playIntentOffset: #{@playIntentOffset}"
+        if @isIOS() and @playIntentOffset?
           if @firstPlay
-            @firstPlay = false;
             @el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
             @el.data('jPlayer').htmlElement.audio.play()
           else
-            @pause(@playIntentOffset)
-
+            @pause @playIntentOffset
             LYT.loader.close('metadata')  
-         
-        else if @firstPlay and @isIOS()
-          @firstPlay = false;
-
+        
+        @el.jPlayer 'play', @playIntentOffset if @playIntentOffset?
+        @playIntentOffset = null
+        @firstPlay = false
         
         #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
         #LYT.loader.close('metadata')
@@ -422,13 +419,16 @@ LYT.player =
       
       log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}"
 
+      @playIntentOffset = offset
       if @getStatus()?.paused and not autoPlay
-        @el.jPlayer "pause", offset
+        @el.jPlayer 'pause', offset
       else
-        @el.jPlayer "play", offset
+        @el.jPlayer 'play', offset
 
       $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
+
+  dumpStatus: -> console.log field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
 
   playSection: (section, offset = 0, autoPlay = true) ->
     section = @playlist().rewind() unless section?
@@ -474,7 +474,7 @@ LYT.player =
       now = (new Date).getTime()
       interval = LYT.config.player?.lastmarkUpdateInterval or 10000
       return unless force or not @lastBookmark or now - @lastBookmark > interval
-      return if @getStatus().currentTime is 0 or @playIntentOffset > @getStatus().currentTime
+      return if @getStatus().currentTime is 0 or @playIntentOffset? and @playIntentOffset > @getStatus().currentTime
       @book.setLastmark segment, @getStatus().currentTime
       @lastBookmark = now
   
