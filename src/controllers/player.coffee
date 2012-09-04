@@ -180,17 +180,16 @@ LYT.player =
          @gotDuration = true
          @playAttemptCount = 0
          #LYT.loader.close('metadata')
-         
       
       canplay: (event) =>
-        log.message 'Player: event can play'
+        log.message 'Player: event canplay'
         if @gotDuration
           @gotDuration = false
-          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
+          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset if @playIntentOffset
           #@pause(@playIntentOffset)
-          if @playIntentOffset? and @playIntentOffset > 0 and @isIOS()
+          if @isIOS() and @playIntentOffset
             if @firstPlay
-              @pause()
+              @pause @playIntentOffset
           else
             LYT.loader.close('metadata')
         if(!@gotDuration?)
