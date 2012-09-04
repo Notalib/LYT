@@ -150,14 +150,16 @@ Comics:
 
         - 1: Open the comic, press 'Play'. Does the images seem to follow sound?
         
-        - 2: Whilst playing, click 'Pause', then resume playing. 
+        - 2: Whilst playing, check that the image is scaled properly. Can you see everything?
+        
+        - 3: Whilst playing, click 'Pause', then resume playing. 
 
-        - 3: Whilst playing, click on the chapter's timeline. Does it jump to
+        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
           the place you've clicked?
 
-        - 4: Check, that clicking repeatedly on the images does not affect playing. 
+        - 5: Check, that clicking repeatedly on the images does not affect playing. 
 
-        - 5: Forward and backward playing, checking that this does not disrupt the 
+        - 6: Forward and backward playing, checking that this does not disrupt the 
           showing of the images. 
 
 Bookmarks:
@@ -171,14 +173,14 @@ Bookmarks:
              bookmark index: Have you created two bookmarks?
              
         - 4: Wait until just before the end of a sound segment, then place a
-             bookmark there. It it placed correctly?
+             bookmark there. Does it work correctly?
              
         - 5: Place a bookmark just at the beginning of a sound segment. Does it work 
              correctly?
              
-        - Log out, then back in. Are your bookmarks still there?
+        - 6: Log out, then back in. Are your bookmarks still there?
         
-        - Remove your bookmarks. 
+        - 7: Remove your bookmarks. 
         
         
         
