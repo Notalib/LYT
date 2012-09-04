@@ -162,19 +162,20 @@ LYT.player =
         segment.done (segment) => @updateHtml segment
 
       loadedmetadata: (event) =>
-        log.message 'Player: loaded metadata'
+        log.message 'Player: event loadedmetadata'
         if isNaN event.jPlayer.status.duration
           #alert event.jPlayer.status.duration
-          @gotDuration = false
-          if(@getStatus().src == @currentAudio and @playAttemptCount <= LYT.config.player.playAttemptLimit)
-            @el.jPlayer "setMedia", {mp3: @currentAudio}
-            @el.jPlayer "load"
-            @playAttemptCount = @playAttemptCount + 1 
-            log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
-          else if ( @playAttemptCount > LYT.config.player.playAttemptLimit)
-            @gotDuration = true
-            #faking that we got the duration - we don´t but need to play the file now...
-            
+          if @getStatus().src == @currentAudio
+            @gotDuration = false
+            if @playAttemptCount <= LYT.config.player.playAttemptLimit
+              @el.jPlayer "setMedia", {mp3: @currentAudio}
+              @el.jPlayer "load"
+              @playAttemptCount = @playAttemptCount + 1 
+              log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
+            else
+              # Give up: we pretend that we have got the duration
+              @gotDuration = true
+              @playAttemptCount = 0
         else
          @gotDuration = true
          @playAttemptCount = 0
