@@ -286,7 +286,7 @@ LYT.player =
       @playIntentOffset = offset
       @el.jPlayer('pause', offset)
     else
-      #@playIntentOffset = null
+      @playIntentOffset = null
       @el.jPlayer('pause')
   
   getStatus: ->
