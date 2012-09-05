@@ -250,7 +250,7 @@ class LYT.Book
       # Find an index for this bookmark: either at the end of the array
       # or at the location of anohter bookmark very close to this one
       i = 0
-      while i < temp[bookmark.URI]
+      while i < temp[bookmark.URI].length
         saved = temp[bookmark.URI][i]
         if bookmark.offset - 2 < saved.offset < bookmark.offset + 2
           break
