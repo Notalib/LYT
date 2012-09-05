@@ -75,7 +75,7 @@ LYT.player =
         @time = status.currentTime
         
         # Schedule fake ending of file if necessary
-        @fakeEnd status
+        @fakeEnd status if LYT.config.player.useFakeEnd
 
         # FIXME: Pause due unloaded segments should be improved with a visual
         #        notification.
@@ -130,7 +130,7 @@ LYT.player =
       ended: (event) =>
         log.message 'Player: event ended'
         @timeupdateLock = false
-        if @autoProgression
+        if @autoProgression and not LYT.config.player.useFakeEnd
           log.message 'Player: event ended: moving to next segment'
           @nextSegment true
       
@@ -272,7 +272,8 @@ LYT.player =
         setTimeout (
           => 
             @nextSegment true
-            @fakeEndScheduled = false ),
+            @fakeEndScheduled = false
+            @timeUpdateLock   = false),
           (timeleft*1000)-50 
   
   pause: (offset) ->

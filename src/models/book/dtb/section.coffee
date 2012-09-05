@@ -31,17 +31,17 @@ class LYT.Section
     @document = null
   
   load: ->
-    return this if @state() is "resolved"
+    return this if @loading or @state() is "resolved"
     @loading = true
     this.always => this.loading = false
 
-    log.message("Section: loading(\"#{@url}\")")
+    log.message "Section: loading(\"#{@url}\")"
 
     file = @url.replace /#.*$/, ""
     url  = @resources[file]?.url
     @document = new LYT.SMILDocument this, url
 
-    @document.done => @_deferred.resolve(this)
+    @document.done => @_deferred.resolve this
     @document.fail =>
       log.error "Section: Failed to load SMIL-file #{@url.replace /#.*$/, ""}"
       @_deferred.reject()
@@ -74,11 +74,16 @@ class LYT.Section
     deferred = jQuery.Deferred()
     this.fail -> deferred.reject()
     this.done (section) ->
+      throw 'Section: _getSegment: section undefined in callback' unless section
+      throw 'Section: _getSegment: section.document undefined in callback' unless section.document
+      throw 'Section: _getSegment: section.document.segments undefined in callback' unless section.document.segments
       if segment = getter section.document.segments
         segment.load()
         segment.done -> deferred.resolve segment
         segment.fail -> deferred.reject()
       else
+        # TODO: We should change the call convention to just resolve with null
+        #       if no segment is found.
         deferred.reject()
     deferred.promise()
 
