@@ -107,24 +107,13 @@ LYT.player =
           next.always => @timeupdateLock = false
 
       loadstart: (event) =>
-        log.message 'Player: load start'
+        log.message 'Player: loadstart'
+        log.message "Player: loadstart: playAttemptCount: #{@playAttemptCount}"
         @setPlayBackRate()
         @timeupdateLock = false
-        if(@playAttemptCount < 1 and ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod))
-          if (!@firstPlay and $.mobile.activePage[0].id is 'book-player')
-            # IOS will not AutoPlay...
-            LYT.loader.set('Loading sound', 'metadata') 
-
-        else if(@playAttemptCount < 1 and $.mobile.activePage[0].id is 'book-player')
-          #Only make the loading sign the first time...
-          LYT.loader.set('Loading sound', 'metadata') 
-        
-        return if $.jPlayer.platform.android
-
-        return if ($.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod)
-        
+        LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and not @firstPlay
+        return if $.jPlayer.platform.android or $.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod
         return unless jQuery.browser.webkit
-        
         @updateHtml @segment()
       
       ended: (event) =>
@@ -155,7 +144,7 @@ LYT.player =
         @time = event.jPlayer.status.currentTime
         log.message "Player: event seeked to offset #{@time}"
         @timeupdateLock = false
-        LYT.loader.close('metadata')
+        LYT.loader.close 'metadata'
         return if @seekedLoadSegmentLock
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
@@ -163,6 +152,8 @@ LYT.player =
 
       loadedmetadata: (event) =>
         log.message 'Player: event loadedmetadata'
+        log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}"
+        LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
         if isNaN event.jPlayer.status.duration
           #alert event.jPlayer.status.duration
           if @getStatus().src == @currentAudio
@@ -185,29 +176,14 @@ LYT.player =
         log.message 'Player: event canplay'
         if @gotDuration
           @gotDuration = false
-          #@el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset if @playIntentOffset?
-          #@pause(@playIntentOffset)
-          if @isIOS() and @playIntentOffset?
-            if @firstPlay
-              @pause @playIntentOffset
-          else
-            LYT.loader.close('metadata')
-        if(!@gotDuration?)
-          LYT.loader.close('metadata') #windows phone 7
+          LYT.loader.close('metadata')
 
       canplaythrough: (event) =>
         log.message 'Player: event canplaythrough'
         log.message "Player: event canplaythrough: playIntentOffset: #{@playIntentOffset}"
-        if @isIOS() and @playIntentOffset?
-          if @firstPlay
-            @el.data('jPlayer').htmlElement.audio.currentTime = @playIntentOffset
-            @el.data('jPlayer').htmlElement.audio.play()
-          else
-            @pause @playIntentOffset
-            LYT.loader.close('metadata')  
-        
-        @el.jPlayer 'play', @playIntentOffset if @playIntentOffset?
-        @playIntentOffset = null
+        if @playIntentOffset?
+          @el.jPlayer 'play', @playIntentOffset
+          @playIntentOffset = null
         @firstPlay = false
         
         #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
@@ -418,7 +394,7 @@ LYT.player =
       offset = segment.end - 1 if offset > segment.end
       offset = segment.start   if offset < segment.start
       
-      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}"
+      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, pause: #{@getStatus()?.paused and not autoPlay}"
 
       @playIntentOffset = offset
       if @getStatus()?.paused and not autoPlay
