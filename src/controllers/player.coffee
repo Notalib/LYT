@@ -272,17 +272,15 @@ LYT.player =
   setPlayBackRate: (playBackRate) ->
     if playBackRate?
       @playBackRate = playBackRate
-    if @el.data('jPlayer').htmlElement.audio?
-      if @el.data('jPlayer').htmlElement.audio.playbackRate?
-        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-        log.message "Player: setPlayBackRate: #{@playBackRate}"
-        return
-    log.message "Player: setPlayBackRate: unable to set playback rate"
+    if @el.data('jPlayer').htmlElement.audio?.playbackRate?
+      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      log.message "Player: setPlayBackRate: #{@playBackRate}"
+    else
+      log.message "Player: setPlayBackRate: unable to set playback rate"
   
-  # TODO: Don't set the playback rate here
-  isPlayBackRateSurpported: ->
-    if @el.data('jPlayer').htmlElement.audio.playbackRate?
-      return false if $.jPlayer.platform[platform] for platform in ['iphone', 'ipad', 'iPod', 'android']
+  isPlayBackRateSupported: ->
+    if @el.data('jPlayer').htmlElement.audio?.playbackRate?
+      return false if $.jPlayer.platform[platform] for platform in ['iphone', 'ipad', 'ipod', 'android']
       return false if /Windows Phone/i.test(navigator.userAgent)
       return true
     else

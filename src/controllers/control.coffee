@@ -334,7 +334,7 @@ LYT.control =
   
   settings: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
-      if not LYT.player.isPlayBackRateSurpported()
+      if not LYT.player.isPlayBackRateSupported()
         LYT.render.hideplayBackRate()
 
     if type is 'pageshow'
