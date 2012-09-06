@@ -394,11 +394,7 @@ LYT.player =
       
       log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, pause: #{@getStatus()?.paused and not autoPlay}"
 
-      @playIntentOffset = offset
-      if @getStatus()?.paused and not autoPlay
-        @el.jPlayer 'pause', offset
-      else
-        @el.jPlayer 'play', offset
+      @playIntentOffset = offset if autoPlay or not @getStatus()?.pause
 
       $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
