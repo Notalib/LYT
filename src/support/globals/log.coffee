@@ -1,7 +1,29 @@
 # A facade for `console.*` functions
 @log = do ->
   console = window.console or {}
-  
+
+  started = new Date()
+  setTime = (messages) ->
+    jQuery.map messages, (message) ->
+      if typeof message is 'string'
+        "[#{new Date() - started}] #{messages[0]}"
+      else
+        message 
+
+  logMethodMessages = (method, messages) ->
+    method or= console.log
+    if method?.apply?
+      method.apply console, setTime messages
+    else
+      method? setTime messages
+
+  getAjaxOptions = (url, data) ->
+    dataType:    "json"
+    type:        "POST"
+    contentType: "application/json; charset=utf-8"
+    data:        JSON.stringify data
+    url:         url
+
   # The level of logging:  
   #     0 = No logging
   #     1 = Errors
@@ -12,13 +34,6 @@
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
   filter: null
-
-  getAjaxOptions = (url, data) ->
-    dataType:    "json"
-    type:        "POST"
-    contentType: "application/json; charset=utf-8"
-    data:        JSON.stringify data
-    url:         url
   
   _filter: (type, messages, title) ->
     try
@@ -30,43 +45,28 @@
   message: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'message', messages
-    if console.log?.apply?
-      console.log.apply console, messages 
-    else
-      console.log? messages
+    logMethodMessages console.log, messages
   
   # Error-checking alias for `console.error()` (falls back to `console.log`)  
   # Logging level: 1 or higher
   error: (messages...) ->
     return unless log.level > 0
     return unless log._filter 'error', messages
-    method = console.error or console.log
-    if method?.apply?
-      method.apply console, messages
-    else
-      method? messages
+    logMethodMessages console.error, messages
   
   # Error-checking alias for `console.warn()` (falls back to `console.log`)  
   # Logging level: 2 or higher
   warn: (messages...) ->
     return unless log.level > 1
     return unless log._filter 'warn', messages
-    method = console.warn or console.log
-    if method?.apply?
-      method.apply console, messages
-    else
-      method? messages
+    logMethodMessages console.warn, messages
   
   # Error-checking alias for `console.info()` (falls back to `console.log`)  
   # Logging level: 3 or higher
   info: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'info', messages
-    method = (console.info or @message)
-    if method?.apply?
-      method.apply console, messages
-    else
-      method? messages
+    logMethodMessages console.info, messages
   
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
   # than `console.group()`. If neither function exists, it'll fake it with `log.message`

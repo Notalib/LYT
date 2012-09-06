@@ -27,7 +27,7 @@ class LYT.Playlist
   hasPreviousSection: -> @currentSection()?.previous?
 
   load: (segment) ->
-    log.message "Playlist: load: queue segment #{segment.url?()}"
+    log.message "Playlist: load: queue segment #{if segment.state() is 'resolved' then segment.url() else '(pending)'}"
     segment.done (segment) =>
       if segment?
         log.message "Playlist: load: set currentSegment to #{segment.url()}"
