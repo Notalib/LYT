@@ -219,14 +219,14 @@ LYT.control =
             window.location.reload()
           else
             $.mobile.activePage.simpledialog({
-              'mode' : 'bool',
-              'prompt' : 'Der er opstået en fejl!',
-              'subTitle' : 'kunne ikke hente bogen.'
+              'mode': 'bool',
+              'prompt': 'Der er opstået en fejl!',
+              'subTitle': 'kunne ikke hente bogen.'
               'animate': false,
               'useDialogForceFalse': true,
               'allowReopen': true,
               'useModal': true,
-              'buttons' : {
+              'buttons': {
                 'Prøv igen': 
                   click: (event) ->
                     window.location.reload()

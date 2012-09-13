@@ -36,7 +36,6 @@ LYT.player =
   gotDuration : null
   playBackRate : 1 #Default playBackRate for audio element....
   
-  
   lastBookmark: (new Date).getTime()
   
   segment: -> @playlist().currentSegment
@@ -200,14 +199,14 @@ LYT.player =
           when $.jPlayer.error.URL
             log.message 'jPlayer: url error'
             $.mobile.activePage.simpledialog.simpledialog({
-                'mode' : 'bool',
-                'prompt' : 'Der er opstået en fejl!',
-                'subTitle' : 'kunne ikke hente lydfilen.'
+                'mode': 'bool',
+                'prompt': 'Der er opstået en fejl!',
+                'subTitle': 'kunne ikke hente lydfilen.'
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
                 'useModal': true,
-                'buttons' : {
+                'buttons': {
                   'Prøv igen': 
                     click: (event) ->
                       window.location.reload()
