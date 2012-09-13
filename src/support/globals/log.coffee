@@ -11,18 +11,34 @@
         message 
 
   logMethodMessages = (method, messages) ->
-    method or= console.log
-    if method?.apply?
-      method.apply console, setTime messages
-    else
-      method? setTime messages
-
-  getAjaxOptions = (url, data) ->
-    dataType:    "json"
-    type:        "POST"
-    contentType: "application/json; charset=utf-8"
-    data:        JSON.stringify data
-    url:         url
+    if log.receiver is 'local'
+      method or= console.log
+      if method?.apply?
+        method.apply console, setTime messages
+      else
+        method? setTime messages
+    else if log.receiver is 'remote'
+      
+      data =
+        method:   method
+        messages: setTime messages
+      seen = []
+      jsonData = JSON.stringify data, (key, value) ->
+        if typeof value is 'object'
+          return '__stub__' if seen.indexOf(value) >= 0
+          seen.push value
+        return value
+        
+      options =
+        url:         LYT.config.mobileMessage.LogError.url
+        dataType:    'json'
+        type:        'POST'
+        contentType: 'application/json; charset=utf-8'
+        error:       (jqXHR, description, error) -> console.log 'Logging to server failed: ' + description + ', ' + JSON.stringify error
+        data:        jsonData
+          
+      # Perform the request
+      jQuery.ajax options
 
   # The level of logging:  
   #     0 = No logging
@@ -30,6 +46,8 @@
   #     2 = Errors & warnings
   #     3 = Errors, warnings, and messages (everything)
   level: 3
+  # Receiver of logs:
+  receiver: 'local'
   # To filter the log, set this value to a function that returns true for
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
@@ -121,30 +139,3 @@
     return unless log._filter 'trace', messages, title
     return unless log.level > 0
     console.trace?()
-
-
-  #sourceClient ip adress of client, errorMessage , priority ( 1 = Error, 2 = warning , 3 = information), userId
-  errorToServer: (sourceClient, errorMessage, priority, userId) ->
-    serverRequestData = {}
-    serverRequestData.sourceClient = String(sourceClient)
-    serverRequestData.errorMessage = String(errorMessage)
-    serverRequestData.priority     = priority
-    serverRequestData.userId       = userId
-
-    deferred = jQuery.Deferred()
-    url  = LYT.config.mobileMessage.LogError.url
-    options = getAjaxOptions url, serverRequestData
-
-    # Perform the request
-    jQuery.ajax(options)
-      # On success, extract the results and pass them on
-      .done (data) ->
-        #Making a javascript object...
-        JSONResult = data.d
-        deferred.resolve JSONResult
-      # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
-
-    deferred.promise()
-  
