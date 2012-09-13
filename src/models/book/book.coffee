@@ -123,13 +123,18 @@ class LYT.Book
           # Each resource is identified by its relative path,
           # and contains the properties `url` and `document`
           # (the latter initialized to `null`)
+          # Urls are rewritten to use the origin server just
+          # in case we are behind a proxy.
+          path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
           @resources[localUri] =
-            url:      uri
+            url:      document.location.origin + path
             document: null
           
           # If the url of the resource is the NCC document,
           # save the resource for later
           if (/^ncc\.x?html?$/i).test localUri then ncc = @resources[localUri]
+        
+        console.log @resources
         
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
