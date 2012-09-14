@@ -102,7 +102,6 @@ $(document).bind "mobileinit", ->
     
     return url
     
-  
   LYT.router.getSegmentUrl = (segment, offset, action = 'book-play', resolution='segment', absolute=true) ->
     reference = {book: segment.section.nccDocument.book.id}
     unless resolution is 'book'
@@ -121,7 +120,6 @@ $(document).bind "mobileinit", ->
       $.mobile.changePage "#login"   
 
   $(LYT.service).bind "logoff", ->
-    LYT.player.clear()
     $.mobile.changePage "#login"
 
   #logon rejected from  LYT.session....  
@@ -129,7 +127,6 @@ $(document).bind "mobileinit", ->
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
     unless LYT.var.next is "#login" 
       $.mobile.changePage "#login"   
-
 
   #logon rejected from  LYT.catalog....
 

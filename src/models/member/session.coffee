@@ -29,7 +29,6 @@ LYT.session = do ->
       return credentials
     else
       return credentials
-
   
   setCredentials: (username, password) ->
     credentials or= {}
