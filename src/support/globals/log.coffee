@@ -11,14 +11,13 @@
         message 
 
   logMethodMessages = (method, messages) ->
-    if log.receiver is 'local'
+    if log.receiver in ['all', 'local']
       method or= console.log
       if method?.apply?
         method.apply console, setTime messages
       else
         method? setTime messages
-    else if log.receiver is 'remote'
-      
+    if log.receiver in ['all', 'remote']
       data =
         method:   method
         messages: setTime messages
