@@ -53,6 +53,7 @@ LYT.player =
          
     jplayer = @el.jPlayer
       ready: =>
+        log.message "Player: event ready: paused: #{@getStatus.paused}"
         @ready = true
         @timeupdateLock = false
         log.message 'Player: initialization complete'
@@ -106,8 +107,7 @@ LYT.player =
           next.always => @timeupdateLock = false
 
       loadstart: (event) =>
-        log.message 'Player: loadstart'
-        log.message "Player: loadstart: playAttemptCount: #{@playAttemptCount}"
+        log.message "Player: loadstart: playAttemptCount: #{@playAttemptCount}, paused: #{@getStatus.paused}"
         @setPlayBackRate()
         @timeupdateLock = false
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and not @firstPlay
@@ -122,7 +122,18 @@ LYT.player =
           log.message 'Player: event ended: moving to next segment'
           @nextSegment true
       
-      play: (event) => @autoProgression = true
+      play: (event) =>
+        log.message "Player: event play, paused: #{@getStatus.paused}, readyState: #{@getStatus().readyState}"
+        # We should be checking for readyState < 4, but IOS is optimistic and allows readyState == 3
+        # when it fires the canplaythrough event, which - in turn - will press play
+        # We could solve this issue by setting up a timer that is watching the readyState, but such
+        # a timer needs to be cleared on most kinds of interaction with the player.
+        if @getStatus().readyState < 3
+          log.message "Player: event play: calling pause since not enough content has been buffered"
+          LYT.loader.set('Loading sound', 'metadata')
+          @el.jPlayer 'pause'
+          @playIntentOffset = @getStatus().currentTime
+        @autoProgression = true
       
       pause: (event) =>
         status = event.jPlayer.status
@@ -141,7 +152,7 @@ LYT.player =
                    
       seeked: (event) =>
         @time = event.jPlayer.status.currentTime
-        log.message "Player: event seeked to offset #{@time}"
+        log.message "Player: event seeked to offset #{@time}, paused: #{@getStatus.paused}"
         @timeupdateLock = false
         LYT.loader.close 'metadata'
         return if @seekedLoadSegmentLock
@@ -150,8 +161,7 @@ LYT.player =
         segment.done (segment) => @updateHtml segment
 
       loadedmetadata: (event) =>
-        log.message 'Player: event loadedmetadata'
-        log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}"
+        log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus.paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
         if isNaN event.jPlayer.status.duration
           #alert event.jPlayer.status.duration
@@ -172,15 +182,16 @@ LYT.player =
          #LYT.loader.close('metadata')
       
       canplay: (event) =>
-        log.message 'Player: event canplay'
+        log.message "Player: event canplay: paused: #{@getStatus.paused}"
         if @gotDuration
+          # Reset gotDuration so it is cleared for the next file
           @gotDuration = false
-          LYT.loader.close('metadata')
 
       canplaythrough: (event) =>
-        log.message 'Player: event canplaythrough'
-        log.message "Player: event canplaythrough: playIntentOffset: #{@playIntentOffset}"
+        log.message "Player: event canplaythrough: playIntentOffset: #{@playIntentOffset}, paused: #{@getStatus.paused}, readyState: #{@getStatus().readyState}"
         if @playIntentOffset?
+          # We aren't using @pause here, since it will make the player emit a seek event
+          # which will in turn clear the metadata loader.
           @el.jPlayer 'play', @playIntentOffset
           @playIntentOffset = null
         @firstPlay = false
