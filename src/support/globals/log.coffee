@@ -17,6 +17,7 @@
         method.apply console, setTime messages
       else
         method? setTime messages
+        
     if log.receiver in ['all', 'remote']
       data =
         method:   method
@@ -38,6 +39,13 @@
           
       # Perform the request
       jQuery.ajax options
+    
+    if log.receiver in ['all', 'devconsole']
+      $('#devconsole-container').show()
+      for message in setTime messages
+        if typeof message is 'object'
+          message = Object.prototype.toString.call message
+        $('#devconsole').append message
 
   # The level of logging:  
   #     0 = No logging
@@ -46,6 +54,11 @@
   #     3 = Errors, warnings, and messages (everything)
   level: 3
   # Receiver of logs:
+  #     local      = Log to the built in console
+  #     remote     = Send log entries to server
+  #                  (The entries may arrive out of order.)
+  #     devconsole = Log to developer console on screen (home brew)
+  #     all        = Log to all of the above
   receiver: 'local'
   # To filter the log, set this value to a function that returns true for
   # all items that should appear in the log. If the function throws an
