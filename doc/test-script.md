@@ -64,13 +64,12 @@ Playing books (linearly):
 
         - 1: Open the book, press 'Play'. Does the book begin playing?
         
-        - 2: Whilst playing, click 'Pause', then resume playing. 
+        - 2: Whilst playing, does the book start each new segment automatically?
+        
+        - 3: Whilst playing, click 'Pause', then resume playing. 
 
-        - 3: Whilst playing, click on the chapter's timeline. Does it jump to
+        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
           the place you've clicked?
-
-        - 4: Repeat above on: A normal book with/without text, a very large 
-          book (eg. a lexicon or similar), a book with images, a non-Danish book.
 
 
     (On a smartphone):
@@ -78,6 +77,12 @@ Playing books (linearly):
         - 5: Make a call to the phone whilst playing the book. Check, that 
           the book stops the playing, and can be started again at the correct
           chapter after the call
+          
+        - 6: Whilst playing, let the phone go on standby and lock. Does the 
+          book keep playing undisturbed?
+        
+        Repeat above on: A normal book with/without text, a very large book 
+        (e.g. a lexicon or similar), a non-Danish book.
 
 
 Navigation between book sections: 
@@ -117,8 +122,15 @@ Navigation between book sections:
       at the last section of the previous chapter?
 
     - 13: Try the above with normally functioning books as well as books known to have 
-      problems with overlapping sections and gaps between sections. 
+      problems with overlapping sections, gaps between sections and books which are known to 
+      snap off the last bits of text in each segment. 
+      
 
+Special cases for playing: 
+
+    - Whilst on a mobile device: Open a book, pause it. Then exit the player, 
+      log on another network and return to the book again. Does it continue uninterrupted?
+      
 
 Modifying settings: 
 
@@ -138,16 +150,42 @@ Comics:
 
         - 1: Open the comic, press 'Play'. Does the images seem to follow sound?
         
-        - 2: Whilst playing, click 'Pause', then resume playing. 
+        - 2: Whilst playing, check that the image is scaled properly. Can you see everything?
+        
+        - 3: Whilst playing, click 'Pause', then resume playing. 
 
-        - 3: Whilst playing, click on the chapter's timeline. Does it jump to
+        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
           the place you've clicked?
 
-        - 4: Check, that clicking repeatedly on the images does not affect playing. 
+        - 5: Check, that clicking repeatedly on the images does not affect playing. 
 
-        - 5: Forward and backward playing, checking that this does not disrupt the 
+        - 6: Forward and backward playing, checking that this does not disrupt the 
           showing of the images. 
 
 Bookmarks:
 
-        - Yet to be finished.  
+        - 1: Open a book, place a bookmark in three different chapters. 
+        
+        - 2: Enter the bookmark index, click consecutively on each of the 
+             bookmarks. Do they take you to the correct place in the book?
+             
+        - 3: Whilst playing, doubleclick the bookmark button. Check the 
+             bookmark index: Have you created two bookmarks?
+             
+        - 4: Wait until just before the end of a sound segment, then place a
+             bookmark there. Does it work correctly?
+             
+        - 5: Place a bookmark just at the beginning of a sound segment. Does it work 
+             correctly?
+             
+        - 6: Log out, then back in. Are your bookmarks still there?
+        
+        - 7: Remove your bookmarks. 
+        
+        
+        
+        
+        
+        
+        
+        
