@@ -3,20 +3,18 @@
   console = window.console
 
   $(document).bind 'pagecreate', ->
-    # Use developer console if the user triple clicks a h1 element twice
-    tripleclicks = 0
+    # Use developer console if the user clicks a h1 element six times
     clicks = 0
-    resetClicks = -> clicks = 0
-    resetTripleClicks = -> tripleClicks = 0
+    reset = -> clicks = 0
+    timer = null
     $('h1').bind 'click', ->
       clicks++
-      if clicks == 3
-        tripleclicks++
-        if tripleclicks == 2
-          log.receiver = 'devconsole'
-          log.message 'Opened developer console'
-      setTimeout resetClicks, 500
-      setTimeout resetTripleClicks, 2000
+      if clicks == 6
+        log.receiver = 'devconsole'
+        log.message 'Opened developer console'
+      else if clicks < 6
+        clearTimeout timer if timer
+        timer = setTimeout reset, 1500
 
   started = new Date()
   setTime = (messages) ->
