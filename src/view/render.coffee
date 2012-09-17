@@ -6,7 +6,7 @@
 # -------------------
 
 # This module handles gui callbacks and various utility functions
-console.log 'Load LYT.render'
+#console.log 'Load LYT.render'
 
 LYT.render = do ->
   

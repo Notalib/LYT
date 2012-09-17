@@ -431,7 +431,7 @@ LYT.player =
       $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
 
-  dumpStatus: -> console.log field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
+  dumpStatus: -> console?.log field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
 
   playSection: (section, offset = 0, autoPlay = true) ->
     section = @playlist().rewind() unless section?
