@@ -22,9 +22,7 @@ LYT.render = do ->
     info.push getMediaType(book.media) if book.media?
     info = info.join "&nbsp;&nbsp;|&nbsp;&nbsp;"
     
-    playing = LYT.player.getCurrentlyPlaying()
-    
-    if String(book.id) is String(playing?.book)
+    if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
       nowPlaying = """<div class="book-now-playing"></div>"""
     
     element = jQuery """
@@ -175,9 +173,9 @@ LYT.render = do ->
     list = view.find("ul")
     list.empty() if page is 1
     
-    # TODO: Abstract the list generation (and image error handling below) into a separate function
     for book in books
-      li = bookListItem "book-play", book
+      target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
+      li = bookListItem target, book
       removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
@@ -191,7 +189,6 @@ LYT.render = do ->
 
   hideplayBackRate: () ->
       $("#playBackRate").hide()
-
 
   hideOrShowButtons: (details) ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
