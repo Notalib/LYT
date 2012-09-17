@@ -199,9 +199,8 @@ LYT.player =
           @el.jPlayer 'play', @playIntentOffset
           @playIntentOffset = null
         @firstPlay = false
-        
-        #@el.data('jPlayer').htmlElement.audio.currentTime = parseFloat("6.4");
-        #LYT.loader.close('metadata')
+        # We are ready to play now, so remove the loading message, if any
+        LYT.loader.close('metadata')
       
       progress: (event) =>
         #log.message 'Player: event progress'
