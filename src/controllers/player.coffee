@@ -132,7 +132,10 @@ LYT.player =
           log.message "Player: event play: calling pause since not enough content has been buffered"
           LYT.loader.set('Loading sound', 'metadata')
           @el.jPlayer 'pause'
-          @playIntentOffset = @getStatus().currentTime
+          # Use the old value of playIntentOffset (if any) in case the player
+          # is on IOS, since the meta data bug on this platform causes the
+          # player to report the wrong currentTime. 
+          @playIntentOffset or= @getStatus().currentTime
         @autoProgression = true
       
       pause: (event) =>
@@ -389,22 +392,41 @@ LYT.player =
 
     deferred.promise()
 
-  playSegment: (segment, autoPlay = true) -> @playSegmentOffset segment, 0, autoPlay
-    
-  playSegmentOffset: (segment, offset = 0, autoPlay = true) -> 
+  playSegment: (segment, autoPlay = true) -> @playSegmentOffset segment, null, autoPlay
+  
+  # Will display the provided segment, load (if necessary) and play the
+  # associated audio file starting att offset. If offset isn't provided, start
+  # at the beginning of the segment. It is an error to provide an offset not 
+  # within the bounds of segment.start and segment.end. In this case, the
+  # offset is capped to segment.start or segment.end - 1 (one second before
+  # the segment ends).
+  playSegmentOffset: (segment, offset, autoPlay = true) -> 
     throw 'Player: playSegmentOffset called with no segment' unless segment?
     segment.done (segment) =>
+      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, pause: #{@getStatus()?.paused and not autoPlay}"
+
+      # Ensure that offset has a useful value
+      if offset?
+        if offset > segment.end
+          log.warn "Player: playSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
+          offset = segment.end - 1
+        else if offset < segment.start
+          log.warn "Player: playSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
+          offset = segment.start
+      else
+        offset = segment.start
+        
+      # See if we need to initiate loading of a new audio file or if it is
+      # possible to just move the play head.
       if @currentAudio != segment.audio
+        log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting playIntentOffset to #{offset}"
         @el.jPlayer "setMedia", {mp3: segment.audio}
         @el.jPlayer "load"
         @currentAudio = segment.audio
-
-      offset = segment.end - 1 if offset > segment.end
-      offset = segment.start   if offset < segment.start
-      
-      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, pause: #{@getStatus()?.paused and not autoPlay}"
-
-      @playIntentOffset = offset if autoPlay or not @getStatus()?.pause
+        @playIntentOffset = offset if autoPlay or not @getStatus()?.pause
+      else
+        log.message "Player: playSegmentOffset: moving play head to offset #{offset}"
+        @el.jPlayer 'play', offset
 
       $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
