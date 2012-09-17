@@ -53,7 +53,7 @@ LYT.render.content = do ->
 # IOS Debugging
     img = new Image();
     img.src = image.attr 'src'
-    console.log "width: #{img.width}, height: #{img.height}"
+#    console.log "width: #{img.width}, height: #{img.height}"
     
     width: Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
@@ -133,7 +133,7 @@ LYT.render.content = do ->
         x: left + div.width()
         y: top  + div.height()
     
-    console.log "Area: #{area.width}x#{area.height}, (#{area.tl.x}, #{area.tl.y})"
+#    console.log "Area: #{area.width}x#{area.height}, (#{area.tl.x}, #{area.tl.y})"
     
     panZoomImage segment, image, area, renderDelta
     

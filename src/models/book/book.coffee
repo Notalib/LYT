@@ -135,8 +135,6 @@ class LYT.Book
           # save the resource for later
           if (/^ncc\.x?html?$/i).test localUri then ncc = @resources[localUri]
         
-        console.log @resources
-        
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
         # parallel. Otherwise, fail.
