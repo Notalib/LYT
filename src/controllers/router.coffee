@@ -77,7 +77,6 @@ $(document).bind "mobileinit", ->
     "#redirect":
       handler : "redirect"
       events: "s"
-
   ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
   
   $.mobile.defaultPageTransition = 'fade'
