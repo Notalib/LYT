@@ -331,7 +331,6 @@ LYT.control =
         event.preventDefault()
         event.stopImmediatePropagation()
       
-  
   settings: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
       if not LYT.player.isPlayBackRateSupported()
@@ -353,7 +352,7 @@ LYT.control =
             colors = val.split(';')
             if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
               $(this).attr("checked", true).checkboxradio("refresh");
-       #Saving th GUI       
+       #Saving the GUI       
       $("#style-settings input").change (event) ->
         target = $(event.target)
         name = target.attr 'name'

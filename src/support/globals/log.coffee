@@ -1,6 +1,22 @@
 # A facade for `console.*` functions
 @log = do ->
-  console = window.console or {}
+  console = window.console
+
+  $(document).bind 'pagecreate', ->
+    # Use developer console if the user triple clicks a h1 element twice
+    tripleclicks = 0
+    clicks = 0
+    resetClicks = -> clicks = 0
+    resetTripleClicks = -> tripleClicks = 0
+    $('h1').bind 'click', ->
+      clicks++
+      if clicks == 3
+        tripleclicks++
+        if tripleclicks == 2
+          log.receiver = 'devconsole'
+          log.message 'Opened developer console'
+      setTimeout resetClicks, 500
+      setTimeout resetTripleClicks, 2000
 
   started = new Date()
   setTime = (messages) ->
@@ -45,7 +61,8 @@
       for message in setTime messages
         if typeof message is 'object'
           message = Object.prototype.toString.call message
-        $('#devconsole').append message
+        $('#devconsole').append '<br/>' + message
+        $('#devconsole-container').scrollTop $('#devconsole').height()
 
   # The level of logging:  
   #     0 = No logging
