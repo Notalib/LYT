@@ -47,16 +47,17 @@ class LYT.Segment
     @_deferred.promise this
     
     # Properties initialized in the constructor
-    @id      = data.id
-    @index   = data.index
-    @start   = data.start
-    @end     = data.end
-    @section = section
+    @id          = data.id
+    @index       = data.index
+    @start       = data.start
+    @end         = data.end
+    @canBookmark = data.canBookmark
+    @section     = section
     # Will be initialized in the load() method
-    @text    = null
-    @html    = null
-    @audio   = @section.resources[data.audio.src]?.url
-    @data    = data
+    @text        = null
+    @html        = null
+    @audio       = @section.resources[data.audio.src]?.url
+    @data        = data
     
   # Loads all resources
   load: ->

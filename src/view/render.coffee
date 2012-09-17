@@ -217,7 +217,6 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
 
-
   ShowAnnouncements: (announcements) ->
     #for announcement in announcements
      # if announcement.text?
@@ -228,7 +227,14 @@ LYT.render = do ->
 
   bookEnd: () -> LYT.render.content.renderText 'Her slutter bogen'
   
-  textContent: (segment) -> LYT.render.content.renderSegment segment
+  textContent: (segment) ->
+    return unless segment
+    # Hide bookmark button if unable to place bookmark here
+    if segment.canBookmark
+      $('#bookmark-add-button').show()
+    else
+      $('#bookmark-add-button').hide()
+    LYT.render.content.renderSegment segment
       
   bookDetails: (details, view) ->
     $("#details-book-title").text details.title

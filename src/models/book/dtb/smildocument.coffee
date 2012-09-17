@@ -91,9 +91,12 @@ do ->
       # Collapse audio references into 1
       clip = clips[0]
       clip.end = clips[clips.length-1].end
-      unless clip.id?
+      if clip.id?
+        clip.canBookmark = true
+      else
+        clip.canBookmark = false
         idCounts[clip.audio.src] or= 1
-        clip.id or= "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
+        clip.id = "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
       return [clip]
   
   

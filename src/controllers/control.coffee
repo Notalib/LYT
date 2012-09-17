@@ -48,9 +48,6 @@ LYT.control =
                   ,  
                 }
           })
-          
- 
-       
         
       LYT.loader.register "Logging in", process
       

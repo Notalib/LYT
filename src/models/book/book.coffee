@@ -172,7 +172,6 @@ class LYT.Book
         ncc.book = this
         
         resolve()
-    
 
     getBookmarks = =>
       @lastmark  = null
