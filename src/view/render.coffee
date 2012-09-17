@@ -71,7 +71,7 @@ LYT.render = do ->
     else
       "Lydbog med tekst"
 
-  atachClickEvent = (aElement, book, list) ->
+  attachClickEvent = (aElement, book, list) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         $(this).simpledialog({
@@ -179,15 +179,13 @@ LYT.render = do ->
     for book in books
       li = bookListItem "book-play", book
       removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
-      atachClickEvent removeLink,book,li
-        
+      attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
     
     # if the list i empty -> bookshelf is empty -> show icon...
     if(list.length is 1)
       $("#bookshelf-content").css('background','transparent url(../images/icons/empty_bookshelf.png) no-repeat')
-        
     
     list.listview('refresh')
 
