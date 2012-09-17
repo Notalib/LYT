@@ -26,7 +26,7 @@
 
   logMethodMessages = (method, messages) ->
     if log.receiver in ['all', 'local']
-      method or= console.log
+      method or= console?.log
       if method?.apply?
         method.apply console, setTime messages
       else
@@ -48,7 +48,7 @@
         dataType:    'json'
         type:        'POST'
         contentType: 'application/json; charset=utf-8'
-        error:       (jqXHR, description, error) -> console.log 'Logging to server failed: ' + description + ', ' + JSON.stringify error
+        error:       (jqXHR, description, error) -> console?.log 'Logging to server failed: ' + description + ', ' + JSON.stringify error
         data:        jsonData
           
       # Perform the request
@@ -90,28 +90,28 @@
   message: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'message', messages
-    logMethodMessages console.log, messages
+    logMethodMessages console?.log, messages
   
   # Error-checking alias for `console.error()` (falls back to `console.log`)  
   # Logging level: 1 or higher
   error: (messages...) ->
     return unless log.level > 0
     return unless log._filter 'error', messages
-    logMethodMessages console.error, messages
+    logMethodMessages console?.error, messages
   
   # Error-checking alias for `console.warn()` (falls back to `console.log`)  
   # Logging level: 2 or higher
   warn: (messages...) ->
     return unless log.level > 1
     return unless log._filter 'warn', messages
-    logMethodMessages console.warn, messages
+    logMethodMessages console?.warn, messages
   
   # Error-checking alias for `console.info()` (falls back to `console.log`)  
   # Logging level: 3 or higher
   info: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'info', messages
-    logMethodMessages console.info, messages
+    logMethodMessages console?.info, messages
   
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
   # than `console.group()`. If neither function exists, it'll fake it with `log.message`
@@ -124,7 +124,7 @@
   group: (title = "", messages...) ->
     return unless log.level > 2
     return unless log._filter 'group', messages, title
-    method = console.groupCollapsed or console.group
+    method = console?.groupCollapsed or console?.group
     if method?
       method.call console, title
     else
@@ -139,10 +139,10 @@
   errorGroup: (title = "", messages...) ->
     return unless log.level > 0
     return unless log._filter 'errorGroup', messages, title
-    method = console.groupCollapsed or console.group
-    if console.groupCollapsed?
+    method = console?.groupCollapsed or console?.group
+    if console?.groupCollapsed?
       console.groupCollapsed title
-    else if console.group?
+    else if console?.group?
       console.group title
     else
       @error "=== #{title} ==="
@@ -155,7 +155,7 @@
   # Logging level: 1 or higher
   closeGroup: ->
     return unless log.level > 0
-    if console.groupEnd?
+    if console?.groupEnd?
       console.groupEnd "=== *** ==="
     else
       @message "=== *** ==="
@@ -165,4 +165,4 @@
   trace: ->
     return unless log._filter 'trace', messages, title
     return unless log.level > 0
-    console.trace?()
+    console?.trace?()

@@ -4,7 +4,7 @@
 # -------------------
 
 # This module handles rendering of book content
-console.log 'Load LYT.render.content'
+#console.log 'Load LYT.render.content'
 LYT.render.content = do ->
   
   _focusEasing   = 'easeInOutQuint'
@@ -71,7 +71,7 @@ LYT.render.content = do ->
   panZoomImage = (segment, image, area, renderDelta) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     nextFocus = translate image, area
-    console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
+    #console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.stop true
     image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
