@@ -86,6 +86,7 @@ LYT.player =
         # Don't do anything else if we're already moving to a new segment
         if @timeupdateLock and @_next and @_next.state() isnt 'resolved'
           log.message "Player: timeupdate: timeupdateLock set. Next segment: #{@_next.state()}. Pause until resolved."
+          LYT.loader.register 'Loading book', @_next
           @pause()
           @_next.done => @el.jPlayer 'play'
           return
