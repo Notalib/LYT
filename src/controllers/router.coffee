@@ -112,27 +112,14 @@ $(document).bind "mobileinit", ->
           
     return LYT.router.getBookActionUrl reference, action, absolute
  
-  #logon rejected from  LYT.service....  
-  $(LYT.service).bind "logon:rejected", () ->
+  # If LYT.service, LYT.session or LYT.catalog emits a logon:rejected, prompt
+  # the user to log back in.
+  $([LYT.service, LYT.session, LYT.catalog]).bind "logon:rejected", () ->
+    return if window.location.hash is '#login'
     LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
-    unless LYT.var.next is "#login" 
-      $.mobile.changePage "#login"   
+    $.mobile.changePage "#login"   
 
-  $(LYT.service).bind "logoff", ->
-    $.mobile.changePage "#login"
-
-  #logon rejected from  LYT.session....  
-  $(LYT.session).bind "logon:rejected", () ->
-    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
-    unless LYT.var.next is "#login" 
-      $.mobile.changePage "#login"   
-
-  #logon rejected from  LYT.catalog....
-
-  $(LYT.catalog).bind "logon:rejected", () ->
-    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
-    unless LYT.var.next is "#login" 
-      $.mobile.changePage "#login"
+  $(LYT.service).bind "logoff", -> $.mobile.changePage "#login"
 
   $("[data-role=page]").live "pageshow", (event, ui) ->
     _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]

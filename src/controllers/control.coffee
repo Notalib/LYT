@@ -22,26 +22,24 @@ LYT.control =
     
       process = LYT.service.logOn($("#username").val(), $("#password").val())
         .done ->
-          log.message 'logon done'
-
-          
-          if not LYT.var.next? or LYT.var.next is "#login" or LYT.var.next is ""
-            LYT.var.next = "#bookshelf"
-          
-          $.mobile.changePage LYT.var.next
+          log.message 'control: login: logOn done'
+          next = LYT.var.next
+          LYT.var.next = null
+          next = "#bookshelf" if not next? or next is "#login" or next is ""
+          $.mobile.changePage next
         
         .fail ->
           log.message "log on failure"
           $("#login-form").simpledialog({
-                'mode' : 'bool',
-                'prompt' : 'Log ind fejl!',
+                'mode': 'bool',
+                'prompt': 'Log ind fejl!',
                 'subTitle' : 'Forkert brugernavn eller kodeord.'
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
                 'useModal': true,
-                'buttons' : {
-                  'OK': 
+                'buttons': {
+                  'OK':
                     click: (event) ->
                     ,
                     theme: "c"
@@ -180,14 +178,17 @@ LYT.control =
       LYT.render.content.focusEasing params.focusEasing if params.focusEasing
       LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
 
-      if guest is null and LYT.session.getCredentials() is null and LYT.var.next? #logged off
-         window.location.reload()
-
-      if guest? and LYT.session.getCredentials() is null
-         process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin).done ->
-           $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&segment=#{params.segment}&offset=#{params.offset}"
-        
-      return unless LYT.session.getCredentials()?
+      if LYT.session.getCredentials() is null
+        if guest?
+          process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin).done ->
+            $.mobile.changePage "#book-play?book=#{params.book}&section=#{params.section}&segment=#{params.segment}&offset=#{params.offset}"
+        else
+          if LYT.var.next?
+            window.location.reload()
+          else
+            LYT.var.next = window.location.hash
+            $.mobile.changePage '#login'
+            return
       
       LYT.player.pause()
       LYT.render.clearBookPlayer()
@@ -200,11 +201,8 @@ LYT.control =
       LYT.loader.register "Loading book", process
       process.done (book) ->
         LYT.render.bookPlayer book, $(page)
-
-        #see if there are any announcements....each time we loaded a new book.....
-      
+        #see if there are any announcements....each time we have loaded a new book.....
         LYT.service.getAnnouncements()
-
         $.mobile.changePage "#book-player?book=#{LYT.player.book.id}"
 
       process.fail ->
