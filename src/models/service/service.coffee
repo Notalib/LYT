@@ -155,14 +155,12 @@ LYT.service = do ->
           emitError code
           deferred.reject code, message
     
-    
     loggedOn = (data) ->
       LYT.session.setCredentials username, password
       LYT.session.setInfo data
       LYT.rpc("getServiceAttributes")
         .done(gotServiceAttrs)
         .fail(failed)
-    
     
     gotServiceAttrs = (ops) ->
       operations[op] = false for op of operations
@@ -171,7 +169,6 @@ LYT.service = do ->
         .done(readingSystemAttrsSet)
         .fail(failed)
     
-    
     readingSystemAttrsSet = ->
       deferred.resolve()# returning that logon is Ok.
       
@@ -179,7 +176,6 @@ LYT.service = do ->
         LYT.rpc("getServiceAnnouncements")
           .done(gotServiceAnnouncements)
           # Fail silently
-          .fail -> # noop
     
     # Calling GUI to show announcements
     gotServiceAnnouncements = (announcements) ->
@@ -191,7 +187,6 @@ LYT.service = do ->
       LYT.rpc("logOn", username, password)
         .done(loggedOn)
         .fail(failed)
-    
     
     # Kick it off
     attemptLogOn()
