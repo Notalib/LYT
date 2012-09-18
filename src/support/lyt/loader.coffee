@@ -13,16 +13,14 @@ LYT.loader = do ->
   loaders = []
   defaultMessage = "Loading"
   
-  lockPage = ->
-    jQuery(".ui-page-active").fadeTo(500, 0.4)
+  lockPage = (duration = 500) -> jQuery(".ui-page-active").fadeTo(duration, 0.4)
     #todo: implement interface locking
     #$('document').click (event) ->
     #  log.message "someone tried to click something whle we are loading"
     #  event.preventDefault()
     #  event.preventDefaultPropagation()
   
-  unlockPage = ->
-    jQuery(".ui-page-active").fadeTo(500, 1)
+  unlockPage = (duration = 500) -> jQuery(".ui-page-active").fadeTo(duration, 1)
   
   # ## Public API
   
@@ -35,21 +33,27 @@ LYT.loader = do ->
   # which uses the default message, or:
   # 
   #     LYT.loader.register message, promiseObj
-  register: (message, promise) ->
+  register: (message, promise, delay) ->
     [message, promise] = [defaultMessage, promise] if arguments.length is 1
     return unless promise.state() is "pending"
-    @set message, promise, false
+    @set message, promise, false, delay
     promise.always => @close promise
   
   # Set a custom loading message
-  set: (message, id, clearStack = true) ->
+  set: (message, id, clearStack = true, fadeDuration, delay) ->
     # register new loader with ID, if clearStack is true close all previous loaders
-    jQuery.mobile.showPageLoadingMsg LYT.i18n(message)
-    
-    lockPage()   if loaders.length is 0
     loaders = [] if clearStack
-    
     loaders.push id
+    setMessage = ->
+      return if loaders.indexOf(id) is -1
+      log.message "Loader: set: setMessage #{id}"
+      jQuery.mobile.showPageLoadingMsg LYT.i18n(message)
+      lockPage fadeDuration
+    if delay?
+      log.message "Loader: set: schedule message #{id}, delay #{delay}"
+      setTimeout setMessage, delay
+    else
+      setMessage()
   
   # Close a loading message
   close: (id) ->
