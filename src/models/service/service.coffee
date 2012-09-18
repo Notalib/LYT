@@ -124,8 +124,6 @@ LYT.service = do ->
   logOn = (username, password) ->
     # Check for and return any pending logon processes
   
-    log.message currentLogOnProcess
-
     return currentLogOnProcess if currentLogOnProcess? and currentLogOnProcess.state() is "pending"
     
     currentRefreshSessionProcess.reject() if currentRefreshSessionProcess? and currentRefreshSessionProcess.state() is "pending"

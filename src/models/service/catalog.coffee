@@ -196,7 +196,7 @@ LYT.catalog = do ->
       deferred.reject()
       return deferred.promise()
     if not url? 
-      log.message "LYT.config.catalog.suggestions.url is empty"
+      log.message "Catalog: LYT.config.catalog.suggestions.url is empty"
       deferred.reject()
       return deferred.promise() 
 

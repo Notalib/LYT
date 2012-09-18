@@ -211,7 +211,7 @@ LYT.player =
       error: (event) =>
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
-            log.message "Player: error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
+            log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
             $.mobile.activePage.simpledialog({
                 'mode': 'bool',
                 'prompt': 'Der er opstået en fejl!',
@@ -241,7 +241,7 @@ LYT.player =
             #TODO: this is usually because something is wrong with the session or the internet connection, 
             # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION
-            log.message 'jPlayer: no solution error, you need to install flash or update your browser.'
+            log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
             #TODO: send people to a link where they can download flash or update their browser
       
       
@@ -446,6 +446,15 @@ LYT.player =
     section.fail ->
       log.error "Player: Failed to load section #{section}"
 
+  # Set metadata loader if handler returns a segment that belongs to a
+  # different audio file than the current one.
+  setMetadataLoader: (handler) ->
+    segment = handler()
+    previousAudio = @currentAudio
+    segment.done (segment) ->
+      LYT.loader.set('Loading sound', 'metadata') if previousAudio isnt segment.audio
+    return segment
+    
   nextSegment: (autoPlay = false) ->
     # FIXME: We shouldn't throw an error on a call to nextSegment if the playlist isn't there
     return null unless @playlist()?
@@ -455,7 +464,7 @@ LYT.player =
       @book.saveBookmarks()
       return null
     @seekedLoadSegmentLock = true
-    segment = @playlist().nextSegment()
+    segment = @setMetadataLoader => @playlist().nextSegment()
     log.message "Player: nextSegment: #{segment.state()}"
     segment.done (segment) -> log.message "Player: nextSegment: #{segment.url()}, #{segment.start}"
     @playSegment segment, autoPlay
@@ -464,10 +473,9 @@ LYT.player =
   previousSegment: (autoPlay = false) ->
     return null unless @playlist()?.hasPreviousSegment()
     @seekedLoadSegmentLock = true
-    segment = @playlist().previousSegment()
+    segment = @setMetadataLoader => @playlist().previousSegment()
     @playSegment segment, autoPlay
     segment.always => @seekedLoadSegmentLock = false
-      
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin

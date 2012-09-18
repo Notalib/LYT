@@ -20,7 +20,7 @@ LYT.mobileMessage = do ->
     obj = jQuery.Event event
     delete data.type if data.hasOwnProperty "type"
     jQuery.extend obj, data
-    log.message "catalog: Emitting #{event} event"
+    log.message "mobileMessage: Emitting #{event} event"
     jQuery(LYT.mobileMessage).trigger obj
 
 

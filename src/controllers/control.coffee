@@ -29,7 +29,7 @@ LYT.control =
           $.mobile.changePage next
         
         .fail ->
-          log.message "log on failure"
+          log.warn 'control: login: logOn failed'
           $("#login-form").simpledialog({
                 'mode': 'bool',
                 'prompt': 'Log ind fejl!',
@@ -241,7 +241,6 @@ LYT.control =
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
       
-
       $("#listshow-btn").click (event) ->
         LYT.var.callback = null
         content = $(page).children(":jqmData(role=content)")
@@ -267,7 +266,7 @@ LYT.control =
         LYT.var.searchTerm = params
       else
         if LYT.var.searchTerm?
-          log.message "control.search: #{LYT.var.searchTerm}"
+          log.message "control: search: #{LYT.var.searchTerm}"
           params = LYT.var.searchTerm
           handleResults LYT.catalog.search(params.term)
         else

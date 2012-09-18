@@ -35,7 +35,7 @@ LYT.google = do ->
       else
         deferred.reject() #nota autocomplete is not blank -> normal search
     catch e
-      log.message 'error from google autocomplete'+e
+      log.message 'Google: GotValues: error from google autocomplete'+e
       deferred.reject()
 
   DoAutoComplete: (term)->
@@ -44,7 +44,7 @@ LYT.google = do ->
     jQuery.getScript(LYT.config.google.autocomplete.url + "#{term}&callback=LYT.google.GotValues")
       .fail ->
         deferred.reject()
-        log.message 'error from google autocomplete link'
+        log.message 'Google: DoAutoComplete: error from google autocomplete link'
 
     deferred.promise() #return deffered to listen on....
 
