@@ -446,25 +446,25 @@ LYT.player =
     section.fail ->
       log.error "Player: Failed to load section #{section}"
 
-  # Set metadata loader if handler returns a segment that belongs to a
-  # different audio file than the current one.
-  setMetadataLoader: (handler) ->
-    segment = handler()
-    previousAudio = @currentAudio
-    segment.done (segment) ->
-      LYT.loader.set('Loading sound', 'metadata') if previousAudio isnt segment.audio
-    return segment
-    
+  # If it seems that loading the provided segment will take time
+  # display the loading message and pause the player.
+  # Not providing a segment is allowed and will cause the loading
+  # message to appear and the player to pause.
+  setMetadataLoader: (segment) ->
+    if not segment or (segment.state() isnt 'resolved' or segment.audio isnt @currentAudio)
+      LYT.loader.set 'Loading sound', 'metadata', true, 0
+      @el.jPlayer 'pause'
+
   nextSegment: (autoPlay = false) ->
-    # FIXME: We shouldn't throw an error on a call to nextSegment if the playlist isn't there
     return null unless @playlist()?
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
       delete @book.lastmark
       @book.saveBookmarks()
       return null
+    @setMetadataLoader @segment().next
     @seekedLoadSegmentLock = true
-    segment = @setMetadataLoader => @playlist().nextSegment()
+    segment = @playlist().nextSegment()
     log.message "Player: nextSegment: #{segment.state()}"
     segment.done (segment) -> log.message "Player: nextSegment: #{segment.url()}, #{segment.start}"
     @playSegment segment, autoPlay
@@ -472,8 +472,9 @@ LYT.player =
 
   previousSegment: (autoPlay = false) ->
     return null unless @playlist()?.hasPreviousSegment()
+    @setMetadataLoader @segment().previous
     @seekedLoadSegmentLock = true
-    segment = @setMetadataLoader => @playlist().previousSegment()
+    segment = @playlist().previousSegment()
     @playSegment segment, autoPlay
     segment.always => @seekedLoadSegmentLock = false
   
