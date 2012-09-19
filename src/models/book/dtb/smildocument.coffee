@@ -73,33 +73,35 @@ do ->
     clips = par.find("> audio, seq > audio").map ->
       audio = jQuery this
       
-      id:    par.attr("id")
-      start: parseNPT audio.attr("clip-begin")
-      end:   parseNPT audio.attr("clip-end")
-      text:  text
-      section: section
-      audio:
-        id:  audio.attr "id"
-        src: audio.attr "src"
+      id:          audio.attr("id") or "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
+      start:       parseNPT audio.attr("clip-begin")
+      end:         parseNPT audio.attr("clip-end")
+      text:        text
+      section:     section
+      canBookmark: par.attr('id')?
+      audio:       src: audio.attr "src"
     
     clips = jQuery.makeArray clips
     clips.sort (a, b) -> a.start - b.start
-    
-    if clips.length == 0
-      return []
-    else
-      # Collapse audio references into 1
-      clip = clips[0]
-      clip.end = clips[clips.length-1].end
-      if clip.id?
-        clip.canBookmark = true
-      else
-        clip.canBookmark = false
-        idCounts[clip.audio.src] or= 1
-        clip.id = "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
-      return [clip]
-  
-  
+
+    return clips if clips.length == 0
+
+    # Collapse adjacent audio clips
+    reducedClips = []
+    i = 0
+    while clip = clips[i]
+      i++
+      if lastClip? and clip.audio.src is lastClip.audio.src
+        # Ignore small differences between start and end,
+        # since this can occur as a result of rounding errors
+        if Math.abs(clip.start - lastClip.end) < 0.001
+          lastClip.end = clip.end
+          continue
+      lastClip = clip
+      reducedClips.push clip
+
+    return reducedClips
+
   parseTextNode = (text) ->
     return null if text.length is 0
     id:  text.attr "id"
