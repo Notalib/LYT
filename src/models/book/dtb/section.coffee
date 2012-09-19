@@ -48,6 +48,8 @@ class LYT.Section
     
     this
   
+  segments: -> @document.segments
+  
   getOffset: ->
     return null unless @document?.state() is "resolved"
     @document.absoluteOffset

@@ -93,12 +93,15 @@ class LYT.Playlist
   segmentByAudioOffset: (audio, offset = 0, fudge = 0.1) ->
     iterator = @_searchSegments (segment) ->
       if segment.audio is audio
-        if segment.start <= offset < segment.end
+        # Using 0.01 to cover rounding errors (yes, they do occur)
+        if segment.start - 0.01 <= offset < segment.end + 0.01
           return true
     promise = iterator()
     promise.pipe (segment) =>
-      segment = @fudgeFix offset, segment if segment?
-      segment
+      if segment
+        segment = @fudgeFix offset, segment if segment?
+        segment.load()
+        return @load segment
 
   _searchSegments: (filter) ->
     getters = [
