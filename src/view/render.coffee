@@ -14,6 +14,8 @@ LYT.render = do ->
   
   # Default book cover image
   defaultCover = "/images/icons/default-cover.png"
+  ListRemove = (item,list) -> 
+    list[t..t] = [] if (t = list.indexOf(item)) > -1
   
   # Create a book list-item which links to the `target` page
   bookListItem = (target, book) ->
@@ -349,6 +351,10 @@ LYT.render = do ->
   searchResults: (results, view) ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
+
+    for result in results
+      if result.state is 'Undervejs' 
+        ListRemove(result,results)
     
     list.append bookListItem("book-details", result) for result in results
     
