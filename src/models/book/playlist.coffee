@@ -18,11 +18,15 @@ class LYT.Playlist
 
   currentSection: -> @currentSegment?.section
 
-  hasNextSegment: -> @currentSegment?.hasNext() or @hasNextSection()
+  hasNextSegment: (segment) ->
+    segment or= @currentSegment
+    segment?.hasNext() or @hasNextSection segment
 
   hasPreviousSegment: -> @currentSegment?.hasPrevious() or @hasPreviousSection()
 
-  hasNextSection: -> @currentSection()?.next?
+  hasNextSection: (segment) ->
+    section = segment?.section or @currentSection()
+    section?.next?
 
   hasPreviousSection: -> @currentSection()?.previous?
 
@@ -36,12 +40,13 @@ class LYT.Playlist
 
   rewind: -> @load @nccDocument.firstSegment()
 
-  nextSection: ->
+  nextSection: (segment) ->
+    section = segment?.section or @currentSection()
     # FIXME: loading segments is the responsibility of the section each
     # each segment belongs to.
-    if @currentSection().next
-      @currentSection().next.load()
-      @load @currentSection().next.firstSegment()
+    if section.next
+      section.next.load()
+      @load section.next.firstSegment()
 
   previousSection: ->
     # FIXME: loading segments is the responsibility of the section each
@@ -49,16 +54,17 @@ class LYT.Playlist
     @currentSection().previous.load()
     @load @currentSection().previous.firstSegment()
     
-  nextSegment: ->
-    if @currentSegment.hasNext()
+  nextSegment: (segment) ->
+    segment or= @currentSegment
+    if segment.hasNext()
       # FIXME: loading segments is the responsibility of the section each
       # each segment belongs to.
-      @currentSegment.next.load()
-      return @load @currentSegment.next
+      segment.next.load()
+      return @load segment.next
     else
-      return @nextSection()
+      return @nextSection segment
     
-  previousSegment: ->
+  previousSegment: (segment) ->
     if @currentSegment.hasPrevious()
       # FIXME: loading segments is the responsibility of the section each
       # each segment belongs to.
