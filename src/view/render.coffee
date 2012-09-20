@@ -14,7 +14,7 @@ LYT.render = do ->
   
   # Default book cover image
   defaultCover = "/images/icons/default-cover.png"
-  listRemove = (item,list) -> 
+  listRemove = (item, list) -> 
     list[t..t] = [] if (t = list.indexOf(item)) > -1
   
   # Create a book list-item which links to the `target` page
