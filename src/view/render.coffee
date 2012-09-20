@@ -315,6 +315,8 @@ LYT.render = do ->
       more.on 'click', ->
         listItem = more.parents 'li'
         list.find('.bookmark-actions').remove()
+        list.find('.active').removeClass('active')
+        listItem.addClass 'active'
         share  = $('<div class="ui-block-a bookmark-share" title="Del">&nbsp;</div>')
         remove = $('<div class="ui-block-b bookmark-delete" title="Slet">&nbsp;</div>')
         share.on 'click', ->

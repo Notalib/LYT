@@ -45,7 +45,8 @@
 		@include border-radius(0, 0);
   }
   .ui-btn-active {
-    background-color: white;
+    background-color: #262626;
+    border: 1px solid black;
     .ui-icon-bookmark-list {
         background-image: url(../images/icons/bookmark_list_icn_18_dark.png);
     }
@@ -932,6 +933,14 @@ img.nota-full {
   max-width: 25px;
 }
 
+#NccRootElement {
+  li.active {
+    background-color: white;
+  }
+  a {
+    background: none;
+  }
+}
 
 /*
 #NccRootElement a::before,
