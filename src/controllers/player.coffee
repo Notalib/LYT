@@ -20,10 +20,10 @@ LYT.player =
   playlist: -> @book?.playlist
   nextButton: null
   previousButton: null
-  playIntentOffset: 0
+  
+  nextOffset: null
 
   autoProgression: true 
-  toggleAutoProgression: null
   progressionMode: null
   timeupdateLock: false
   
@@ -33,8 +33,8 @@ LYT.player =
   _iBug: false
   
   playAttemptCount: 0
-  gotDuration : null
-  playBackRate : 1 #Default playBackRate for audio element....
+  gotDuration: null
+  playBackRate: 1 #Default playBackRate for audio element....
   
   lastBookmark: (new Date).getTime()
   
@@ -133,10 +133,10 @@ LYT.player =
           log.message "Player: event play: calling pause since not enough content has been buffered"
           LYT.loader.set('Loading sound', 'metadata')
           @el.jPlayer 'pause'
-          # Use the old value of playIntentOffset (if any) in case the player
+          # Use the old value of nextOffset (if any) in case the player
           # is on IOS, since the meta data bug on this platform causes the
           # player to report the wrong currentTime. 
-          @playIntentOffset or= @getStatus().currentTime
+          @nextOffset or= @getStatus().currentTime
         @autoProgression = true
       
       pause: (event) =>
@@ -192,12 +192,15 @@ LYT.player =
           @gotDuration = false
 
       canplaythrough: (event) =>
-        log.message "Player: event canplaythrough: playIntentOffset: #{@playIntentOffset}, paused: #{@getStatus.paused}, readyState: #{@getStatus().readyState}"
-        if @playIntentOffset?
+        log.message "Player: event canplaythrough: nextOffset: #{@nextOffset}, paused: #{@getStatus.paused}, readyState: #{@getStatus().readyState}"
+        if @nextOffset?
           # We aren't using @pause here, since it will make the player emit a seek event
           # which will in turn clear the metadata loader.
-          @el.jPlayer 'play', @playIntentOffset
-          @playIntentOffset = null
+          if @autoProgression
+            @el.jPlayer 'play', @nextOffset
+          else
+            @el.jPlayer 'pause', @nextOffset
+          @nextOffset = null
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
@@ -270,10 +273,10 @@ LYT.player =
     log.message "Player: pause: pause at offset #{offset}"
 
     if offset?
-      @playIntentOffset = offset
+      @nextOffset = offset
       @el.jPlayer('pause', offset)
     else
-      @playIntentOffset = null
+      @nextOffset = null
       @el.jPlayer('pause')
   
   getStatus: ->
@@ -419,14 +422,17 @@ LYT.player =
       # See if we need to initiate loading of a new audio file or if it is
       # possible to just move the play head.
       if @currentAudio != segment.audio
-        log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting playIntentOffset to #{offset}"
+        log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting nextOffset to #{offset}"
         @el.jPlayer "setMedia", {mp3: segment.audio}
         @el.jPlayer "load"
         @currentAudio = segment.audio
-        @playIntentOffset = offset if autoPlay or not @getStatus()?.pause
+        @nextOffset   = offset
       else
         log.message "Player: playSegmentOffset: moving play head to offset #{offset}"
-        @el.jPlayer 'play', offset
+        if @autoProgression and autoPlay
+          @el.jPlayer 'play', offset
+        else
+          @el.jPlayer 'pause', offset
 
       $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
@@ -490,7 +496,7 @@ LYT.player =
       now = (new Date).getTime()
       interval = LYT.config.player?.lastmarkUpdateInterval or 10000
       return unless force or not @lastBookmark or now - @lastBookmark > interval
-      return if @getStatus().currentTime is 0 or @playIntentOffset? and @playIntentOffset > @getStatus().currentTime
+      return if @getStatus().currentTime is 0 or @nextOffset? and @nextOffset > @getStatus().currentTime
       @book.setLastmark segment, @getStatus().currentTime
       @lastBookmark = now
   
