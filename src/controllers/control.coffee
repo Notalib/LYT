@@ -133,7 +133,7 @@ LYT.control =
     bookId = params?.book or LYT.player.book?.id
     $.mobile.changePage '#bookshelf' unless bookId
     content = $(page).children ':jqmData(role=content)'
-    
+
     # Remove any previously generated index (may be from another book)
     LYT.render.clearContent content
 
