@@ -34,9 +34,7 @@ do ->
         urls.push segment.audio.src if urls.indexOf(segment.audio.src) is -1
       urls
         
-  
-  # -------
-  
+
   # ## Privileged
   
   # Parse the main `<seq>` element's `<par>`s (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
@@ -53,7 +51,6 @@ do ->
       clips[index] = clip
       previous = clip
     clips
-  
   
   # Parse a `<par>` node
   idCounts = {}
@@ -98,7 +95,6 @@ do ->
         idCounts[clip.audio.src] or= 1
         clip.id = "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
       return [clip]
-  
   
   parseTextNode = (text) ->
     return null if text.length is 0

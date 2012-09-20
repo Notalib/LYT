@@ -204,12 +204,18 @@ class LYT.Segment
       images.push imageData
     else
       @type = 'standard' # Standard html
+      if sourceContent.parent('div').prev('img').parent('div').length > 0
+        sourceContent = sourceContent.parent('div').prev('img').parent('div')
+        imageIncludeHack = true
+
       element = jQuery source.get(0).createElement("DIV")
       element.append sourceContent.first().clone()
-      sibling = element.next()
-      until sibling.length is 0 or sibling.attr "id"
-        element.append sibling.clone()
-        sibling = sibling.next()
+
+      unless imageIncludeHack
+        sibling = element.next()
+        until sibling.length is 0 or sibling.attr "id"
+          element.append sibling.clone()
+          sibling = sibling.next()
   
       # Remove links.  
       # This will fall apart on nested links, I think.
