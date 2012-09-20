@@ -211,8 +211,11 @@ LYT.render = do ->
 
   clearContent: (content) ->
     # Removes anything in content
-    content.children().remove()
+    content.children("ol").listview('childPages').remove()
+    content.children("ol").listview("refresh")
 
+    
+    
   bookPlayer: (book, view) ->
     $("#player-book-title").text book.title
     $("#player-book-author").text book.author
