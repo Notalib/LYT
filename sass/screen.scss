@@ -977,7 +977,7 @@ img.nota-full {
   display: none;
 }
 
-.missingSegment:first-child, .segmentContainer + .missingSegment {
+.segmentContainer + .missingSegment {
   display: inline;
 }
 

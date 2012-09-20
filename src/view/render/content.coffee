@@ -31,13 +31,13 @@ LYT.render.content = do ->
   hspace = -> $(window).width()
 
   # Given an image and an area of the image, return how the image
-  # should be translated in cordinates relative to its containing div.
+  # should be translated in cordinates relative to its containing view.
   # New width and height is returned as well.
   # The object returned contains css attributes that will do the translation.
   # FIXME: This function shouldn't depend on the image having a parent.
-  translate = (image, area) ->
+  translate = (image, area, view) ->
     result = {}
-    view = image.parent()
+    view or= image.parent()
 
     scale = 1;
     scale = view.width() / area.width if scale > view.width() / area.width
@@ -50,15 +50,10 @@ LYT.render.content = do ->
     # FIXME: resizing div to fit content in case div is too large
     centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
     
-# IOS Debugging
-    img = new Image();
-    img.src = image.attr 'src'
-#    console.log "width: #{img.width}, height: #{img.height}"
-    
-    width: Math.floor(image[0].naturalWidth * scale)
+    width:  Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
-    top: Math.floor(-area.tl.y * scale)
-    left: Math.floor(centering - area.tl.x * scale)
+    top:    Math.floor(-area.tl.y * scale)
+    left:   Math.floor(centering - area.tl.x * scale)
 
   # Move straight to focus area without any effects  
   focusImage = (image, area) ->
@@ -167,7 +162,10 @@ LYT.render.content = do ->
           element.attr 'id', segmentContainerId segment
           element.attr 'class', 'segmentContainer'
           element.html segment.html
-          element.find('img').each -> $(this).click -> $(this).toggleClass('zoom')
+          element.find('img').each ->
+            image = $(this)
+            image.click -> image.toggleClass('zoom')
+            image.css translate(image, wholeImageArea(image), $('#book-stack-content'))
 
           segment.element = element
           
@@ -181,11 +179,15 @@ LYT.render.content = do ->
     # Halt all animations
     view.children('.current').stop true, true
 
+    before = currentSegment.element.prevAll(':visible')
     setCurrent = ->
       view.children('.current').removeClass 'current'
       currentSegment.element.addClass 'current'
+      # This shouldn't be necessary, because we have already run slideUp on
+      # theese elements. For some reason, it doesn't always work.
+      # See issue #281.
+      before.hide()
       
-    before = currentSegment.element.prevAll(':visible')
     if before.length > 0
       before.slideUp 500 * timeScale, 'easeInOutQuad', setCurrent
     else
