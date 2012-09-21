@@ -151,8 +151,6 @@ LYT.player =
         else if status.duration > 0 and jQuery.jPlayer.convertTime(status.duration) is not 'NaN' and jQuery.jPlayer.convertTime(status.duration) is not '00:00' and (status.currentTime is 0 or status.currentTime is status.duration)  
           log.warn 'set ibug'
           @_iBug = true
-          if @autoProgression
-            @nextSegment true
                    
       seeked: (event) =>
         @time = event.jPlayer.status.currentTime
