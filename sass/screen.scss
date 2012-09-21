@@ -707,6 +707,14 @@
   }
 }
 
+#list_item_6 {
+ background: transparent url(../images/icons/coming_icn_30.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
 
 #searchresult {
 	li {
@@ -856,6 +864,10 @@
 #details-play-button {
   @include action-button(#a2bd30, a);
   }
+
+#book-unavailable-message {
+  margin-top: 5px;
+}
 
 /* Book index page */
 
@@ -1306,6 +1318,10 @@ div.current {
   }
     #list_item_5 {
     background-image: url(../images/icons/top10_icn_60.png);
+    background-size: 25px 25px;
+    }
+    #list_item_6 {
+    background-image: url(../images/icons/coming_icn_60.png);
     background-size: 25px 25px;
     }
 }
