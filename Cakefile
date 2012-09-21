@@ -27,11 +27,11 @@ task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
 
 task "src", "Compile CoffeeScript source", (options) ->
+  invoke "notabs"
   cleanDir "build/javascript"
   files = coffee.grind "src"
   coffee.brew files, "src", "build/javascript", options.concat, ->
     boast "compiled", "src", "build/javascript"
-
 
 task "html", "Build HTML", (options) ->
   createDir "build"
@@ -117,6 +117,11 @@ task "lint:css", "Validate build/css/*.css", (options) ->
     w3c.validateCSS file, iterator
   iterator()
 
+task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
+  errors = checkForTabs()
+  if errors
+    console.error "Can't build: coffeescript contains tabs:\n" + errors
+    process.exit 1
 
 # --------------------------------------
 
@@ -181,6 +186,18 @@ coffee = do ->
     files = (join relpath, relative(base, file) for file in files)
     (file.replace /\.coffee$/i, ".js" for file in files)
 
+
+# --------------------------------------
+
+# # Coffeescript validation
+
+checkForTabs = ->
+  result = null
+  for path in glob 'src', /\.coffee$/
+    file = fs.readFileSync path, 'utf8'
+    if match = file.match(/^.*\t.*$/m)
+      result += "#{path}: #{match[0]}\n"
+  return result
 
 # --------------------------------------
 
