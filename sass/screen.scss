@@ -1118,6 +1118,21 @@ div.current {
   }
 }
 
+.ui-icon-bookmark-add {
+  background-image: url(../images/icons/add_bookmark_icn_18.png);
+  @media only screen and (-webkit-min-device-pixel-ratio: 2)  {
+    background-image: url(../images/icons/add_bookmark_icn_36.png);
+    background-size: 25px 18px;
+  }
+}
+
+.ui-icon-bookmark-add.disabled {
+  background-image: url(../images/icons/add_bookmark_icn_18_dark.png);
+  @media only screen and (-webkit-min-device-pixel-ratio: 2)  {
+    background-image: url(../images/icons/add_bookmark_icn_36_dark.png);
+    background-size: 25px 18px;
+  }
+}
 
 .ui-icon.ui-icon-arrow-r {
   background: transparent url(../images/icons/arrow_icn_16.png) no-repeat 0 50%;
@@ -1148,10 +1163,6 @@ div.current {
   background-image: url(../images/icons/bookmark_list_icn_18.png);
   }
     
-.ui-icon-bookmark-add {
-  background-image: url(../images/icons/add_bookmark_icn_18.png);
-  }
-
 .ui-icon-lyt-more {
   background-image: url(../images/icons/more_icn_18.png);
   }
@@ -1219,10 +1230,6 @@ div.current {
     background-image: url(../images/icons/bookmark_list_icn_36.png);
     background-size: 25px 18px;
   } 
-    .ui-icon-bookmark-add {
-    background-image: url(../images/icons/add_bookmark_icn_36.png);
-    background-size: 25px 18px;
-  }
     .ui-icon-lyt-more {
     background-image: url(../images/icons/more_icn_36.png);
     background-size: 18px 18px;

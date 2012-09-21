@@ -234,13 +234,13 @@ LYT.render = do ->
   
   textContent: (segment) ->
     return unless segment
-    # Hide bookmark button if unable to place bookmark here
+    # Set enable or disable add bookmark button depending on we can bookmark
     if segment.canBookmark
-      $('#bookmark-list-button, #book-toc-button, #bookmark-add-button').show()
-      $('#book-index-button').attr 'title', 'Indhold og bogmærker'
+      $('.ui-icon-bookmark-add').removeClass 'disabled'
+      $('#bookmark-add-button').attr 'title', 'Sæt bogmærke'
     else
-      $('#bookmark-list-button, #book-toc-button, #bookmark-add-button').hide()
-      $('#book-index-button').attr 'title', 'Indhold'
+      $('.ui-icon-bookmark-add').addClass 'disabled'
+      $('#bookmark-add-button').attr 'title', 'Kan ikke sætte bogmærke'
     LYT.render.content.renderSegment segment
       
   bookDetails: (details, view) ->

@@ -417,6 +417,7 @@ LYT.control =
         return $.mobile.changePage("#bookshelf")
 
   addBookmark: ->
-    LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
-    LYT.render.bookmarkAddedNotification()
+    if LYT.player.segment().canBookmark
+      LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
+      LYT.render.bookmarkAddedNotification()
   
