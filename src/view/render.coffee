@@ -14,8 +14,6 @@ LYT.render = do ->
   
   # Default book cover image
   defaultCover = "/images/icons/default-cover.png"
-  listRemove = (item, list) -> 
-    list[t..t] = [] if (t = list.indexOf(item)) > -1
   
   # Create a book list-item which links to the `target` page
   bookListItem = (target, book) ->
@@ -213,8 +211,6 @@ LYT.render = do ->
     # Removes anything in content
     content.children("ol").listview('childPages').remove()
     content.children("ol").listview("refresh")
-
-    
     
   bookPlayer: (book, view) ->
     $("#player-book-title").text book.title
@@ -356,9 +352,7 @@ LYT.render = do ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
 
-    for result in results
-      if result.state is 'Undervejs' 
-        listRemove(result, results)
+    results = $.grep(results, (result)-> return result.state isnt 'Undervejs')
     
     list.append bookListItem("book-details", result) for result in results
     

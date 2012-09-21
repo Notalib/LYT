@@ -18,4 +18,5 @@ LYT.lists = do ->
     { id: "list_item_3", title: "Most popular",          callback: list(sort: LYT.catalog.SORTING_OPTIONS.last3month) }
     { id: "list_item_4", title: "Most popular - Kids",   callback: list("publikum=unge",   sort: LYT.catalog.SORTING_OPTIONS.last3month) }
     { id: "list_item_5", title: "Most popular - Adults", callback: list("publikum=voksne", sort: LYT.catalog.SORTING_OPTIONS.last3month) }
+    { id: "list_item_6", title: "Comming",               callback: list("genre=undervejs", sort: LYT.catalog.SORTING_OPTIONS.last3month) }
   ]
