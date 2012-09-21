@@ -62,13 +62,16 @@ LYT.player =
         
         $.jPlayer.timeFormat.showHour = true
         
+        $('.jp-pause').click => @playing = false
+        $('.jp-play').click  => @playing = true
+        
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
-          @nextSegment @autoProgression
+          @nextSegment @playing
             
         @previousButton.click =>
           log.message "Player: previous: #{@segment().previous?.url()}"
-          @previousSegment @autoProgression
+          @previousSegment @playing
       
       timeupdate: (event) =>
         status = event.jPlayer.status
@@ -119,7 +122,7 @@ LYT.player =
       ended: (event) =>
         log.message 'Player: event ended'
         @timeupdateLock = false
-        if @autoProgression and not LYT.config.player.useFakeEnd
+        if @playing and not LYT.config.player.useFakeEnd
           log.message 'Player: event ended: moving to next segment'
           @nextSegment true
       
@@ -137,12 +140,11 @@ LYT.player =
           # is on IOS, since the meta data bug on this platform causes the
           # player to report the wrong currentTime. 
           @nextOffset or= @getStatus().currentTime
-        @autoProgression = true
       
       pause: (event) =>
+        log.message "Player: event pause"
         status = event.jPlayer.status
         return if status.ended # Drop pause event emitted when media ends
-        @autoProgression = false
         return unless @isIOS()
         if @_iBug
           log.warn 'we are ibug'
@@ -194,9 +196,11 @@ LYT.player =
         if @nextOffset?
           # We aren't using @pause here, since it will make the player emit a seek event
           # which will in turn clear the metadata loader.
-          if @autoProgression
+          if @playing
+            log.message "Player: event canplaythrough: play from #{@nextOffset}"
             @el.jPlayer 'play', @nextOffset
           else
+            log.message "Player: event canplaythrough: pause at #{@nextOffset}"
             @el.jPlayer 'pause', @nextOffset
           @nextOffset = null
         @firstPlay = false
@@ -426,10 +430,11 @@ LYT.player =
         @currentAudio = segment.audio
         @nextOffset   = offset
       else
-        log.message "Player: playSegmentOffset: moving play head to offset #{offset}"
-        if @autoProgression and autoPlay
+        if @playing or autoPlay
+          log.message "Player: playSegmentOffset: play from offset #{offset}"
           @el.jPlayer 'play', offset
         else
+          log.message "Player: playSegmentOffset: pause at offset #{offset}"
           @el.jPlayer 'pause', offset
 
       $("#player-chapter-title h2").text segment.section.title
