@@ -196,6 +196,7 @@ LYT.render = do ->
       $("#details-play-button").hide()
     else
       if details.state is LYT.config.book.states.Undervejs
+        $("#details-button-wrapper").html("<div class='ui-bar-x'><div class='content'><div class='textfield'><p><b>Kommer snart</b></p></div></div></div>");
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
       else  
@@ -352,7 +353,7 @@ LYT.render = do ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
 
-    results = $.grep(results, (result)-> return result.state isnt 'Undervejs')
+    #results = $.grep(results, (result)-> return result.state isnt 'Undervejs')
     
     list.append bookListItem("book-details", result) for result in results
     
