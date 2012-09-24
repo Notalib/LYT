@@ -270,6 +270,6 @@ class LYT.Book
     @saveBookmarks()
     
   setLastmark: (segment, offset = 0) ->
-    @lastmark = @segmentToBookmark segment
+    @lastmark = @segmentToBookmark segment, offset
     @saveBookmarks()
       

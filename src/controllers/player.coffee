@@ -504,6 +504,7 @@ LYT.player =
       return unless force or not @lastBookmark or now - @lastBookmark > interval
       return if @nextOffset?
       # Round off to nearest 5 seconds
+      # TODO: Use segment start if close to it
       @book.setLastmark segment, Math.floor(@getStatus().currentTime / 5) * 5
       @lastBookmark = now
   
