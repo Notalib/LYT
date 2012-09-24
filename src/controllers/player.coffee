@@ -93,6 +93,10 @@ LYT.player =
           @pause()
           @_next.done => @el.jPlayer 'play'
           return
+         
+        # This method is idempotent - will not do anything if last update was
+        # recent enough.
+        @updateLastMark()
 
         # Move one segment forward if no current segment or no longer in the
         # interval of the current segment
@@ -329,8 +333,6 @@ LYT.player =
     log.group "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}", segment
     @renderTranscript segment
     segment.preloadNext()
-    # FIXME: Don't call updateLastMark() here - it's not obvious
-    @updateLastMark()
   
   # TODO: Factor out this method and replace it by calls to updateHtml
   renderTranscript: (segment) ->
@@ -362,7 +364,7 @@ LYT.player =
       @whenReady =>
         if not url and book.lastmark?
           url    = book.lastmark.URI
-          offset = book.lastmark.offset
+          offset = LYT.utils.parseOffset book.lastmark?.timeOffset
           log.message "Player: resuming from lastmark #{url}, offset #{offset}"
 
         failHandler = () =>
@@ -493,14 +495,16 @@ LYT.player =
   
   updateLastMark: (force = false) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
-    return unless @book? and @section()?
-    @segment().done (segment) =>
-      # FIXME: Rewrite to only use book time
+    return unless segment = @segment()
+    segment.done (segment) =>
+      # We use wall clock time here because book time can be streched if
+      # the user has chosen a different play back speed.
       now = (new Date).getTime()
-      interval = LYT.config.player?.lastmarkUpdateInterval or 10000
+      interval = LYT.config.player?.lastmarkUpdateInterval or 20000
       return unless force or not @lastBookmark or now - @lastBookmark > interval
-      return if @getStatus().currentTime is 0 or @nextOffset? and @nextOffset > @getStatus().currentTime
-      @book.setLastmark segment, @getStatus().currentTime
+      return if @nextOffset?
+      # Round off to nearest 5 seconds
+      @book.setLastmark segment, Math.floor(@getStatus().currentTime / 5) * 5
       @lastBookmark = now
   
   getCurrentlyPlaying: ->
