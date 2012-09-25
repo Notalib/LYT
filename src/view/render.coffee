@@ -149,6 +149,7 @@ LYT.render = do ->
     @setStyle()
     @setVersion()
     $("#bookmark-add-button").on 'click', -> LYT.control.addBookmark()
+    $("#log-off").on 'click',  -> LYT.service.logOff()
     ###
     $("#book-player").bind "swiperight", ->
         LYT.player.nextSection()
