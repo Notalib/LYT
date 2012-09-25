@@ -372,9 +372,6 @@ LYT.control =
   profile: (type, match, ui, page, event) ->
     if type is 'pageshow'
       LYT.render.profile()
-      
-      # TODO: Move this to initialization somewhere
-      $("#log-off").click (event) -> LYT.service.logOff()
         
   share: (type, match, ui, page, event) ->
     if type is 'pageshow'
