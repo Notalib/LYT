@@ -29,6 +29,7 @@ $(document).ready ->
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
   LYT.gatrack.init()
+  LYT.control.init()
 
 $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([

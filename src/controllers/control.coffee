@@ -16,6 +16,25 @@
 
 LYT.control = 
   
+  init: ->
+    lastVersion = ->
+      # For debugging: let the user specify lastVersion in the address
+      if match = window.location.hash.match /lastVersion=([0-9\.]+)/
+        return match[1]
+      if version = LYT.cache.read 'lyt', 'lastVersion'
+        return version
+      if LYT.cache.read 'session', 'credentials' or LYT.cache.read 'lyt', 'settings'
+        return '0.0.2'
+          
+    if lastVersion() and lastVersion() isnt LYT.VERSION
+      next = window.location.hash
+      window.location.hash = '#splash-upgrade'
+    
+    $(document).one 'pageinit', ->
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(next or '#bookshelf')
+    
+    LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
+  
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       $("#password").blur()

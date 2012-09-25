@@ -164,7 +164,7 @@ LYT.render = do ->
     $('#book-player').css
       'background-color': $("#book-stack-content").css('background-color')
       
-  setVersion: -> $('#legal').append("<p>Version #{LYT.VERSION}</p>")
+  setVersion: -> $('.lyt-version').html LYT.VERSION
   
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), "Bogmærke tilføjet", 5
   
