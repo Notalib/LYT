@@ -13,10 +13,16 @@ LYT.loader = do ->
   loaders = []
   defaultMessage = "Loading"
   
+  # Safari mobile will pause most running JavaScript, causing any running
+  # fade effects to stop. This is handled by attaching the handler below that
+  # will fade back in if it is necessary.
+  # TODO: Handle fading out if a loader is active (requires larger rewrite)
+  $(window).on 'focus', -> jQuery(".ui-page-active").fadeTo(duration, 1) if loaders.length is 0 
+    
   lockPage = (duration = 500) -> jQuery(".ui-page-active").fadeTo(duration, 0.4)
     #todo: implement interface locking
     #$('document').click (event) ->
-    #  log.message "someone tried to click something whle we are loading"
+    #  log.message "someone tried to click something while we are loading"
     #  event.preventDefault()
     #  event.preventDefaultPropagation()
   
