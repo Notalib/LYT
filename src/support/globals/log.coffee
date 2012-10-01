@@ -2,7 +2,7 @@
 @log = do ->
   console = window.console
 
-  $(document).bind 'pagecreate', ->
+  $(document).one 'pagecreate', ->
     # Use developer console if the user clicks a h1 element six times
     clicks = 0
     reset = -> clicks = 0
