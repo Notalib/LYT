@@ -9,6 +9,10 @@
 LYT.bookshelf =
   # Load a paginated part of the bookshelf.  
   # Pages are numbered sequentially, starting at 1
+
+  #holds the nextpage number if there is one....
+  nextPage: false
+
   load: (page = 1) ->
     deferred = jQuery.Deferred()
     pageSize = LYT.config.bookshelf.pageSize
@@ -36,8 +40,10 @@ LYT.bookshelf =
         # next page number
         list.pop()
         list.nextPage = page + 1
+        LYT.bookshelf.nextPage = list.nextPage
       else
         list.nextPage = false
+        LYT.bookshelf.nextPage = list.nextPage
       deferred.resolve list
     
     response.fail (args...) ->
@@ -54,3 +60,6 @@ LYT.bookshelf =
   # Remove (return) a book from the shelf by its ID
   remove: (id) ->
     LYT.service.return(id)
+
+  getNextPage:() ->
+    @nextPage
