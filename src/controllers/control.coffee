@@ -419,8 +419,8 @@ LYT.control =
       $("#share-link-textarea").click -> 
         this.focus()
         if LYT.player.isIOS()
-          this.selectionStart=0;
-          this.selectionEnd= this.value.length;
+          this.selectionStart = 0;
+          this.selectionEnd = this.value.length;
         else
           this.select()  
         
