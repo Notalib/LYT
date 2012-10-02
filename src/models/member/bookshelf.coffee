@@ -14,7 +14,6 @@ LYT.bookshelf =
   nextPage: false
 
   load: (page = 1, zeroAndUp = false) ->
-    #deferred = jQuery.Deferred()
     pageSize = LYT.config.bookshelf.pageSize
     
     # By specifiying the `from` and `to` params
@@ -41,7 +40,7 @@ LYT.bookshelf =
     log.message "Bookshelf: Getting book from #{from} to #{to}"
     
     response = LYT.service.getBookshelf(from, to)
-    response.done (list) ->
+    response.pipe (list) ->
       # Are there more results than `pageSize`?
       if list.length > size
         # If yes, then there's a next page, so
@@ -53,13 +52,7 @@ LYT.bookshelf =
         list.nextPage = false
       if not zeroAndUp 
         LYT.bookshelf.nextPage = page + 1
-      #deferred.resolve list
       return list
-    
-    response.fail (args...) ->
-      #deferred.reject args...
-    
-    #deferred.promise()
   
   
   # Add (issue) a book to the shelf by its ID
