@@ -180,7 +180,6 @@ LYT.render = do ->
     list.listview('refresh')
 
   loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
-    if zeroAndUp
       process = LYT.bookshelf.load(page,zeroAndUp)
       .done (books) ->
         LYT.render.bookshelf(books, content, page, zeroAndUp)
@@ -191,19 +190,9 @@ LYT.render = do ->
           
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
-    else
-      process = LYT.bookshelf.load(page)
-      .done (books) ->
-        LYT.render.bookshelf(books, content, page, zeroAndUp)
-        if books.nextPage
-          $("#more-bookshelf-entries").show()
-        else
-          $("#more-bookshelf-entries").hide()
-          
-      .fail (error, msg) ->
-        log.message "failed with error #{error} and msg #{msg}"
+
         
-    LYT.loader.register "Loading bookshelf", process
+      LYT.loader.register "Loading bookshelf", process
 
   hideplayBackRate: () ->
       $("#playBackRate").hide()
