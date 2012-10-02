@@ -54,7 +54,7 @@ LYT.control =
       else
         this.select()
 
-    $("#more-bookshelf-entries").click (event) ->
+    $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
       LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
       #event.preventDefault()
@@ -101,7 +101,12 @@ LYT.control =
   bookshelf: (type, match, ui, page, event) ->
     if type is 'pageshow'
       content = $(page).children(":jqmData(role=content)")
-      LYT.render.loadBookshelfPage content
+
+      if LYT.bookshelf.nextPage is false
+        LYT.render.loadBookshelfPage content
+      else
+        #loadBookshelfPage is called with view, page count and zeroAndUp set to true...  
+        LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true 
 
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'

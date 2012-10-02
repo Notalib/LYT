@@ -160,10 +160,10 @@ LYT.render = do ->
   
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), "Bogmærke tilføjet", 5
   
-  bookshelf: (books, view, page) ->
+  bookshelf: (books, view, page, zeroAndUp) ->
     #todo: add pagination
     list = view.find("ul")
-    list.empty() if page is 1
+    list.empty() if page is 1 or zeroAndUp
 
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
@@ -179,10 +179,22 @@ LYT.render = do ->
     
     list.listview('refresh')
 
-  loadBookshelfPage: (content, page = 1) ->
-    process = LYT.bookshelf.load(page)
+  loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
+    if zeroAndUp
+      process = LYT.bookshelf.load(page,zeroAndUp)
       .done (books) ->
-        LYT.render.bookshelf(books, content, page)
+        LYT.render.bookshelf(books, content, page, zeroAndUp)
+        if books.nextPage
+          $("#more-bookshelf-entries").show()
+        else
+          $("#more-bookshelf-entries").hide()
+          
+      .fail (error, msg) ->
+        log.message "failed with error #{error} and msg #{msg}"
+    else
+      process = LYT.bookshelf.load(page)
+      .done (books) ->
+        LYT.render.bookshelf(books, content, page, zeroAndUp)
         if books.nextPage
           $("#more-bookshelf-entries").show()
         else
