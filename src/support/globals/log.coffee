@@ -30,7 +30,9 @@
       if method?.apply?
         method.apply console, setTime messages
       else
-        method? setTime messages
+        # Using method? setTime messages here will break on IE8, since it
+        # claims that method is an object.
+        method setTime messages if method
         
     if log.receiver in ['all', 'remote']
       data =
