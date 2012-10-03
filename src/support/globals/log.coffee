@@ -39,7 +39,7 @@
       seen = []
       jsonData = JSON.stringify data, (key, value) ->
         if typeof value is 'object'
-          return '__stub__' if jQuery.inArray(value,seen) >= 0
+          return '__stub__' if jQuery.inArray(value, seen) >= 0
           seen.push value
         return value
         
