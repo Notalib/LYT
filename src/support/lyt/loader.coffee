@@ -17,7 +17,7 @@ LYT.loader = do ->
   # fade effects to stop. This is handled by attaching the handler below that
   # will fade back in if it is necessary.
   # TODO: Handle fading out if a loader is active (requires larger rewrite)
-  $(window).on 'focus', -> jQuery(".ui-page-active").fadeTo(duration, 1) if loaders.length is 0 
+  $(window).on 'focus', -> jQuery(".ui-page-active").fadeTo(500, 1) if loaders.length is 0 
     
   lockPage = (duration = 500) -> jQuery(".ui-page-active").fadeTo(duration, 0.4)
     #todo: implement interface locking
