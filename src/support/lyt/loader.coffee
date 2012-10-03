@@ -51,7 +51,7 @@ LYT.loader = do ->
     loaders = [] if clearStack
     loaders.push id
     setMessage = ->
-      return if loaders.indexOf(id) is -1
+      return if jQuery.inArray(id, loaders) is -1
       log.message "Loader: set: setMessage #{id}"
       jQuery.mobile.showPageLoadingMsg LYT.i18n(message)
       lockPage fadeDuration

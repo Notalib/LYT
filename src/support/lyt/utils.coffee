@@ -56,7 +56,7 @@ LYT.utils =
       # on the data
       append = (nodeName, data) ->
         nsid = 'ns1:'
-        if nodeName.indexOf(':') > -1
+        if jQuery.inArray(':', nodeName) > -1
           nsid = ''
         
         xml += "<#{nsid}#{nodeName}>#{toXML data}</#{nsid}#{nodeName}>"
