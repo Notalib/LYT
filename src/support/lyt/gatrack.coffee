@@ -9,7 +9,7 @@ clickHandler = ->
     log.error 'gatrack: class handler: can not track: no title for page.'
     return
 
-  action = element.text().trim() or element.attr('title')
+  action = jQuery.trim(element.text()) or element.attr('title')
   dimensions = {}
   if session = LYT.session.getInfo()
     dimensions['Member-Id'] = session.memberId if session.memberId
