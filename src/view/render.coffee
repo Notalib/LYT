@@ -148,15 +148,6 @@ LYT.render = do ->
     log.message 'Render: init'
     @setStyle()
     @setVersion()
-    $("#bookmark-add-button").on 'click', -> LYT.control.addBookmark()
-    $("#log-off").on 'click',  -> LYT.service.logOff()
-    ###
-    $("#book-player").bind "swiperight", ->
-        LYT.player.nextSection()
-    
-    $("#book-player").bind "swipeleft", ->
-        LYT.player.previousSection()
-    ###
 
   setStyle: ->
     log.message 'Render: setting custom style'
@@ -169,11 +160,11 @@ LYT.render = do ->
   
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), "Bogmærke tilføjet", 5
   
-  bookshelf: (books, view, page) ->
+  bookshelf: (books, view, page, zeroAndUp) ->
     #todo: add pagination
     list = view.find("ul")
-    list.empty() if page is 1
-    
+    list.empty() if page is 1 or zeroAndUp
+
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
       li = bookListItem target, book
@@ -187,6 +178,21 @@ LYT.render = do ->
       $("#bookshelf-content").css('background','transparent url(../images/icons/empty_bookshelf.png) no-repeat')
     
     list.listview('refresh')
+
+  loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
+      process = LYT.bookshelf.load(page,zeroAndUp)
+      .done (books) ->
+        LYT.render.bookshelf(books, content, page, zeroAndUp)
+        if books.nextPage
+          $("#more-bookshelf-entries").show()
+        else
+          $("#more-bookshelf-entries").hide()
+          
+      .fail (error, msg) ->
+        log.message "failed with error #{error} and msg #{msg}"
+
+        
+      LYT.loader.register "Loading bookshelf", process
 
   hideplayBackRate: () ->
       $("#playBackRate").hide()

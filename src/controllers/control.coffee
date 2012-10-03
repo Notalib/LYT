@@ -30,10 +30,36 @@ LYT.control =
       next = window.location.hash
       window.location.hash = '#splash-upgrade'
     
+    LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
+    @clickHandlers()
+
+
+
+  clickHandlers: ->
     $(document).one 'pageinit', ->
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(next or '#bookshelf')
-    
-    LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
+
+    $("#bookmark-add-button").on 'click', ->
+      if LYT.player.segment().canBookmark
+        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
+        LYT.render.bookmarkAddedNotification() 
+
+    $("#log-off").on 'click',  -> LYT.service.logOff()
+
+    $("#share-link-textarea").on 'click', -> 
+      this.focus()
+      if LYT.player.isIOS()
+        this.selectionStart = 0
+        this.selectionEnd = this.value.length
+      else
+        this.select()
+
+    $("#more-bookshelf-entries").on 'click', ->
+      content = $.mobile.activePage.children(":jqmData(role=content)")
+      LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
+      #event.preventDefault()
+      #event.stopImmediatePropagation()
+
   
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
@@ -76,27 +102,11 @@ LYT.control =
     if type is 'pageshow'
       content = $(page).children(":jqmData(role=content)")
 
-      load = (page = 1) ->
-        process = LYT.bookshelf.load(page)
-          .done (books) ->
-            LYT.render.bookshelf(books, content, page)
-            
-            $("#more-bookshelf-entries").unbind "click"
-            if books.nextPage
-              $("#more-bookshelf-entries").click (event) ->
-                load books.nextPage
-                event.preventDefault()
-                event.stopImmediatePropagation()
-              $("#more-bookshelf-entries").show()
-            else
-              $("#more-bookshelf-entries").hide()
-          
-          .fail (error, msg) ->
-            log.message "failed with error #{error} and msg #{msg}"
-        
-        LYT.loader.register "Loading bookshelf", process
-        
-      load()
+      if LYT.bookshelf.nextPage is false
+        LYT.render.loadBookshelfPage content
+      else
+        #loadBookshelfPage is called with view, page count and zeroAndUp set to true...  
+        LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true 
 
   bookDetails: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
@@ -431,9 +441,5 @@ LYT.control =
     process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
       .done ->
         return $.mobile.changePage("#bookshelf")
-
-  addBookmark: ->
-    if LYT.player.segment().canBookmark
-      LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
-      LYT.render.bookmarkAddedNotification()
+    
   

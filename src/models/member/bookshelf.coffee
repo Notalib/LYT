@@ -9,8 +9,11 @@
 LYT.bookshelf =
   # Load a paginated part of the bookshelf.  
   # Pages are numbered sequentially, starting at 1
-  load: (page = 1) ->
-    deferred = jQuery.Deferred()
+
+  #holds the nextpage number if there is one....
+  nextPage: false
+
+  load: (page = 1, zeroAndUp = false) ->
     pageSize = LYT.config.bookshelf.pageSize
     
     # By specifiying the `from` and `to` params
@@ -22,15 +25,24 @@ LYT.bookshelf =
     # it's obvious that there isn't a "next page".
     # However, if 6 items are returned, there is at
     # least 1 more page to that can be fetched.
-    from = (page - 1) * pageSize
-    to   = from + pageSize
+
+    if zeroAndUp
+      from = 0
+      to   = pageSize * (page - 1)
+      if to > LYT.config.bookshelf.maxShow
+        to = LYT.config.bookshelf.maxShow
+      size = to
+    else
+      from = (page - 1) * pageSize
+      to   = from + pageSize
+      size = pageSize
     
     log.message "Bookshelf: Getting book from #{from} to #{to}"
     
     response = LYT.service.getBookshelf(from, to)
-    response.done (list) ->
+    response.pipe (list) ->
       # Are there more results than `pageSize`?
-      if list.length > pageSize
+      if list.length > size
         # If yes, then there's a next page, so
         # leave out the extra item, and set the
         # next page number
@@ -38,12 +50,9 @@ LYT.bookshelf =
         list.nextPage = page + 1
       else
         list.nextPage = false
-      deferred.resolve list
-    
-    response.fail (args...) ->
-      deferred.reject args...
-    
-    deferred.promise()
+      if not zeroAndUp 
+        LYT.bookshelf.nextPage = page + 1
+      return list
   
   
   # Add (issue) a book to the shelf by its ID
@@ -54,3 +63,6 @@ LYT.bookshelf =
   # Remove (return) a book from the shelf by its ID
   remove: (id) ->
     LYT.service.return(id)
+
+  getNextPage:() ->
+    @nextPage

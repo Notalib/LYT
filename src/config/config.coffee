@@ -58,6 +58,8 @@ LYT.config =
   bookshelf:
     # Number of books to load per page
     pageSize: 5 # default: 5
+    # Number of books to show on bookshelf (whitout show more)... 
+    maxShow: 20
 
 
   mobileMessage:
