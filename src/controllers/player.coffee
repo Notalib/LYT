@@ -142,11 +142,19 @@ LYT.player =
         if @getStatus().readyState < 3
           log.message "Player: event play: calling pause since not enough content has been buffered"
           LYT.loader.set('Loading sound', 'metadata')
-          @el.jPlayer 'pause'
           # Use the old value of nextOffset (if any) in case the player
           # is on IOS, since the meta data bug on this platform causes the
           # player to report the wrong currentTime. 
-          @nextOffset or= @getStatus().currentTime
+          unless @nextOffset?
+            if @nextOffset = @getStatus().currentTime
+              log.warn "Player: event play: using the players time to determine nextOffset, nextOffset #{@nextOffset}"
+            else
+              log.error 'Player: event play: unable to determine next offset. Rewinding.'
+              @nextOffset = 0
+          # Issue pause to stop the player from playing until we have buffered
+          # enough. Also, provide @nextOffset to ensure that we buffer the
+          # right part of the audio.
+          @el.jPlayer 'pause', @nextOffset
       
       pause: (event) =>
         log.message "Player: event pause"
@@ -180,7 +188,7 @@ LYT.player =
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer "setMedia", {mp3: @currentAudio}
-              @el.jPlayer "load"
+              @el.jPlayer "pause", @nextOffset
               @playAttemptCount = @playAttemptCount + 1 
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
             else
@@ -194,6 +202,7 @@ LYT.player =
       
       canplay: (event) =>
         log.message "Player: event canplay: paused: #{@getStatus.paused}"
+        @el.jPlayer "pause", @nextOffset
         if @gotDuration
           # Reset gotDuration so it is cleared for the next file
           @gotDuration = false
@@ -201,15 +210,11 @@ LYT.player =
       canplaythrough: (event) =>
         log.message "Player: event canplaythrough: nextOffset: #{@nextOffset}, paused: #{@getStatus.paused}, readyState: #{@getStatus().readyState}"
         if @nextOffset?
-          # We aren't using @pause here, since it will make the player emit a seek event
-          # which will in turn clear the metadata loader.
-          if @playing
-            log.message "Player: event canplaythrough: play from #{@nextOffset}"
-            @el.jPlayer 'play', @nextOffset
-          else
-            log.message "Player: event canplaythrough: pause at #{@nextOffset}"
-            @el.jPlayer 'pause', @nextOffset
+          action = if @playing then 'play' else 'pause'
+          log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
+          @el.jPlayer action, @nextOffset
           @nextOffset = null
+          log.message "Player: event canplaythrough: currentTime: #{@getStatus.currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
