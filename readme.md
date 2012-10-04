@@ -11,7 +11,7 @@ Tests built with [QUnit](http://docs.jquery.com/QUnit)
 
 ## Change log
 
-All releases are available from Github using the tag format lyt-<version>.
+All releases are available from Github using the tag format lyt-&lt;version&gt;.
 
 ### Version 1.0.1
 
