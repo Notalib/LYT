@@ -69,7 +69,7 @@
   #     1 = Errors
   #     2 = Errors & warnings
   #     3 = Errors, warnings, and messages (everything)
-  level: 0
+  level: 3
   # Receiver of logs:
   #     local      = Log to the built in console
   #     remote     = Send log entries to server
