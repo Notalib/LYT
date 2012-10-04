@@ -172,7 +172,7 @@ do ->
         # _all_ html-type documents are forcibly sent through `coerceToHTML` even though
         # it shouldn't be necessary...
         if dataType is "html" or jQuery(document).find("parsererror").length isnt 0
-          @source = coerceToHTML jqXHR.responseText  
+          @source = coerceToHTML jqXHR.responseText
         else
           @source = jQuery document
         
@@ -269,8 +269,6 @@ do ->
             content: node.attr("content")
             scheme:  node.attr("scheme") or null
           }
-        
-        
 
         return null if nodes.length is 0
         return nodes
@@ -278,8 +276,6 @@ do ->
       xml = @source.find("meta")
 
       @_metadata = {}
-
-      
       
       for own name, values of METADATA_NAMES.singular
         found = findNodes values
@@ -288,7 +284,6 @@ do ->
       for own name, values of METADATA_NAMES.plural
         found = findNodes values
         @_metadata[name] = found if found?
-      
 
       @_metadata
     
