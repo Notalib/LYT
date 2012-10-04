@@ -234,8 +234,8 @@ LYT.control =
         LYT.service.getAnnouncements()
         $.mobile.changePage "#book-player?book=#{LYT.player.book.id}"
 
-      process.fail ->
-        log.error "Control: Failed to load book ID #{params.book}"
+      process.fail (error) ->
+        log.error "Control: Failed to load book ID #{params.book}, reason: #{error}"
         
         # Hack to fix books not loading when being redirected directly from login page
         if LYT.session.getCredentials()?

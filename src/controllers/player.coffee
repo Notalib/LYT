@@ -371,7 +371,7 @@ LYT.player =
           log.message "Player: resuming from lastmark #{url}, offset #{offset}"
 
         failHandler = () =>
-          deferred.reject()
+          deferred.reject 'failed to find segment'
           log.error "Player: failed to find segment"
 
         doneHandler = (segment) =>
@@ -396,9 +396,9 @@ LYT.player =
           promise.done doneHandler
           promise.fail failHandler
     
-    load.fail ->
-      log.error 'Player: failed to load book (reason unknown)'
-      deferred.reject()
+    load.fail (error) ->
+      log.error "Player: failed to load book, reason #{error}"
+      deferred.reject error
 
     deferred.promise()
 
