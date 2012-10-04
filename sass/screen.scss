@@ -452,8 +452,14 @@
     }
 }
 
-/* Support page */
-#support {
+#splash-upgrade .content {
+  div {
+    margin: 14px 0px
+  }
+}
+
+/* Support and splash upgrade page */
+#support, #splash-upgrade {
   .ui-content {
   max-width: 500px;
   padding: 10px;
@@ -880,14 +886,6 @@
    left: auto;
    background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
    }
-
-/* Splash upgrade page */
-
-#splash-upgrade {
-  .ui-content {
-    text-align: center
-  }
-}
 
 /* Login page */
 #login { 
