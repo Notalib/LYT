@@ -98,7 +98,7 @@ task "clean", "Remove the build dir", ->
 
 task "lint:html", "Validate build/index.html", ->
   w3c = require "./tools/support/w3c.js"
-  unless fs.path.existsSync "build/index.html"
+  unless fs.existsSync "build/index.html"
     console.error "Error: Can't find build/index.html. Try running `cake html` first"
     process.exit 1
   w3c.validateHTML fs.path.resolve("build/index.html")
@@ -308,8 +308,8 @@ fatal = (err, command, message) ->
 # A simple file synchronizer (like rsync)
 # Only syncs file that don't exist or are out of date in the destination
 sync = (from, to, callback) ->
-  {dirname, relative, join, existsSync} = require "path"
-  {lstatSync, createReadStream, createWriteStream} = require "fs"
+  {dirname, relative, join} = require "path"
+  {lstatSync, createReadStream, createWriteStream, existsSync} = require "fs"
   
   files = glob from, /^[^.]/i
   directories = {}
@@ -361,13 +361,13 @@ resolve = (relativePath) ->
 
 # Recursively create directories as needed
 createDir = (path) ->
-  return if fs.path.existsSync path
+  return if fs.existsSync path
   segments = path.split /\/|[\\]/
   path = ""
   created = false
   until segments.length is 0
     path = fs.path.join path, segments.shift()
-    continue if fs.path.existsSync path
+    continue if fs.existsSync path
     fs.mkdir path
     created = true
   boast "mkdir", path
@@ -378,7 +378,7 @@ removeDir = (path) ->
   if /^\./.test fs.path.relative(__dirname, path)
     console.error "Error: Won't remove directories outside of the project"
     process.exit 1
-  return unless fs.path.existsSync path
+  return unless fs.existsSync path
   cleanDir path
   fs.rmdirSync path
 
@@ -386,7 +386,7 @@ removeDir = (path) ->
 # Create or empty the directory specified by `path`
 cleanDir = (path) ->
   path = path
-  unless fs.path.existsSync(path)
+  unless fs.existsSync(path)
     createDir path
     return
   files = fs.readdirSync path
