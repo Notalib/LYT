@@ -73,13 +73,13 @@ LYT.render = do ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         $(this).simpledialog({
-          'mode' : 'bool',
-          'prompt' : 'Du er logget på som gæst!',
-          'subTitle' : '...og kan derfor ikke slette bøger.'
+          'mode': 'bool',
+          'prompt': 'Du er logget på som gæst!',
+          'subTitle': '...og kan derfor ikke slette bøger.'
           'animate': false,
           'useDialogForceFalse': true,
           'useModal': true,
-          'buttons' : {
+          'buttons': {
             'OK': 
               click: (event) ->
               ,
@@ -89,13 +89,13 @@ LYT.render = do ->
         })
       else
         $(this).simpledialog({
-          'mode' : 'bool',
-          'prompt' : 'Vil du fjerne denne bog?',
-          'subTitle' : book.title,
+          'mode': 'bool',
+          'prompt': 'Vil du fjerne denne bog?',
+          'subTitle': book.title,
           'animate': false,
           'useDialogForceFalse': true,
           'useModal': true,
-          'buttons' : {
+          'buttons': {
             'Fjern': 
               click: (event) -> 
                 LYT.bookshelf.remove(book.id).done -> list.remove()

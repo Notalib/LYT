@@ -78,7 +78,7 @@ LYT.control =
           $("#login-form").simpledialog({
                 'mode': 'bool',
                 'prompt': 'Log ind fejl!',
-                'subTitle' : 'Forkert brugernavn eller kodeord.'
+                'subTitle': 'Forkert brugernavn eller kodeord.'
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
@@ -128,14 +128,14 @@ LYT.control =
             # of knowing if something's already on the shelf
             if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
               $(this).simpledialog({
-                'mode' : 'bool',
-                'prompt' : 'Du er logget på som gæst!',
-                'subTitle' : '...og kan derfor ikke tilføje bøger.'
+                'mode': 'bool',
+                'prompt': 'Du er logget på som gæst!',
+                'subTitle': '...og kan derfor ikke tilføje bøger.'
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
                 'useModal': true,
-                'buttons' : {
+                'buttons': {
                   'OK': 
                     click: (event) ->
                     ,
