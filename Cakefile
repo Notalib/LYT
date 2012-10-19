@@ -45,7 +45,7 @@ task "html", "Build HTML", (options) ->
     content = "<!-- Begin file: #{path} -->\n#{html.readFile page}\n<!-- End file: #{path} -->"
   ).join "\n\n"
   template = html.interpolate template, body, "body"
-  
+
   if options.concat
     scripts = html.scriptTags "javascript/#{config.concatName}.js"
   else
@@ -54,7 +54,6 @@ task "html", "Build HTML", (options) ->
     scripts = html.scriptTags scripts
   
   template = html.interpolate template, scripts, "scripts"
-  
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
     boast "rendered", "html", "build/index.html"

@@ -12,9 +12,6 @@ LYT.render = do ->
   
   # ## Privileged API
   
-  # Default book cover image
-  defaultCover = "/images/icons/default-cover.png"
-  
   # Create a book list-item which links to the `target` page
   bookListItem = (target, book) ->
     info = []
@@ -25,11 +22,14 @@ LYT.render = do ->
     if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
       nowPlaying = """<div class="book-now-playing"></div>"""
     
+    # if periodical, use periodical code (first 4 letters of book.id)
+    imageid = if $.isNumeric(book.id) then book.id else book.id.substring(0, 4)
+
     element = jQuery """
     <li data-book-id="#{book.id}">
       <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
         <div class="cover-image-frame">
-          <img class="ui-li-icon cover-image" src="#{defaultCover}">
+          <img class="ui-li-icon cover-image" src="http://bookcover.e17.dk/#{imageid}_h80.jpg">
         </div>
         <h3>#{book.title or "&nbsp;"}</h3>
         <p>#{info or "&nbsp;"}</p>
@@ -37,8 +37,6 @@ LYT.render = do ->
       </a>
     </li>
     """
-    
-    loadCover element.find("img.cover-image"), book.id
     
     return element
 
@@ -51,17 +49,6 @@ LYT.render = do ->
     </li>
     """
     return element
-
-  
-  getCoverSrc = (id) ->
-    "http://bookcover.e17.dk/#{id}_h80.jpg"
-  
-  loadCover = (img, id) ->
-    img.attr "src", defaultCover
-    
-    cover = new Image
-    cover.onload = -> img.attr "src", getCoverSrc(id)
-    cover.src = getCoverSrc(id)   
   
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
