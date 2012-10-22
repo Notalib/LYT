@@ -24,7 +24,8 @@ LYT.i18n = do ->
     "Most popular":             "Top 10 bøger"
     "Most popular - Kids":      "Top 10 - børn & unge"
     "Most popular - Adults":    "Top 10 - voksne"
-    "Coming":                  "Kommer snart"
+    "Coming":                   "Kommer snart"
+    "No bookmarks defined":      "Der er endnu ikke sat bogmærker i denne bog" 
   
   # The i18n function. Returns either the "translated"
   # string, or - if no translation was found - the

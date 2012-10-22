@@ -314,6 +314,7 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
+
       more = $('<a href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
@@ -338,7 +339,13 @@ LYT.render = do ->
         listItem.after actionsItem
         list.listview('refresh')
       return more
-      
+    
+    # if book.bookmarks is empty -> display message
+    if book.bookmarks.length is 0
+      element = jQuery "<li></li>"
+      element.append LYT.i18n("No bookmarks defined")
+      list.append element
+    else
     for bookmark, index in book.bookmarks
       element = jQuery "<li></li>" 
       element.attr "id", bookmark.id
@@ -350,7 +357,6 @@ LYT.render = do ->
           </a>
         """
       element.append generateMoreItem(bookmark, index)
-      
       list.append element
 
     list.parent().trigger('create')
