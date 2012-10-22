@@ -25,9 +25,6 @@ LYT.render = do ->
     if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
       nowPlaying = """<div class="book-now-playing"></div>"""
     
-    # if periodical, use periodical code (first 4 letters of book.id)
-    #imageid = if $.isNumeric(book.id) then book.id else book.id.substring(0, 4)
-
     element = jQuery """
     <li data-book-id="#{book.id}">
       <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
@@ -166,7 +163,7 @@ LYT.render = do ->
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
       li = bookListItem target, book
-      removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
+      removeLink = jQuery """<a href="" class="remove-book">#{LYT.i18n("Remove book")}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
@@ -200,7 +197,7 @@ LYT.render = do ->
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.Undervejs
+      if details.state is LYT.config.book.states.Undervejs or details.state is LYT.config.book.states.DeleUndervejs 
         $("#book-unavailable-message").show()
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
@@ -367,7 +364,10 @@ LYT.render = do ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
 
-    list.append bookListItem("book-details", result) for result in results
+    if results.length is 0
+      list.append jQuery "<li><h3 class='no-search-results'>#{LYT.i18n("No search results")}</h3></li>"
+    else
+      list.append bookListItem("book-details", result) for result in results
     
     if results.loadNextPage?
       $("#more-search-results").show()
