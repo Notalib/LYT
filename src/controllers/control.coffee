@@ -31,11 +31,10 @@ LYT.control =
       window.location.hash = '#splash-upgrade'
     
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
-    @clickHandlers()
+    @setupClickHandlers()
 
-
-
-  clickHandlers: ->
+  
+  setupClickHandlers: ->
     $(document).one 'pageinit', ->
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(next or '#bookshelf')
 
