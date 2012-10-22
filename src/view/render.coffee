@@ -14,7 +14,7 @@ LYT.render = do ->
   
   # Default book cover image
   defaultCover = "/images/icons/default-cover.png"
-  
+
   # Create a book list-item which links to the `target` page
   bookListItem = (target, book) ->
     info = []
@@ -29,7 +29,7 @@ LYT.render = do ->
     <li data-book-id="#{book.id}">
       <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
         <div class="cover-image-frame">
-          <img class="ui-li-icon cover-image" src="#{defaultCover}">
+          <img class="ui-li-icon cover-image">
         </div>
         <h3>#{book.title or "&nbsp;"}</h3>
         <p>#{info or "&nbsp;"}</p>
@@ -37,7 +37,7 @@ LYT.render = do ->
       </a>
     </li>
     """
-    
+
     loadCover element.find("img.cover-image"), book.id
     
     return element
@@ -51,18 +51,13 @@ LYT.render = do ->
     </li>
     """
     return element
-
-  
-  getCoverSrc = (id) ->
-    "http://bookcover.e17.dk/#{id}_h80.jpg"
   
   loadCover = (img, id) ->
-    img.attr "src", defaultCover
-    
-    cover = new Image
-    cover.onload = -> img.attr "src", getCoverSrc(id)
-    cover.src = getCoverSrc(id)   
-  
+    # if periodical, use periodical code (first 4 letters of id)
+    imageid = if $.isNumeric(id) then id else id.substring(0, 4)
+    img.attr "src", "http://bookcover.e17.dk/#{imageid}_h80.jpg"
+
+
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
       "Lydbog"
@@ -168,7 +163,7 @@ LYT.render = do ->
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
       li = bookListItem target, book
-      removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
+      removeLink = jQuery """<a href="" class="remove-book">#{LYT.i18n("Remove book")}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
@@ -202,7 +197,7 @@ LYT.render = do ->
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.Undervejs
+      if details.state is LYT.config.book.states.Undervejs or details.state is LYT.config.book.states.DeleUndervejs 
         $("#book-unavailable-message").show()
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
@@ -316,6 +311,7 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
+
       more = $('<a href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
@@ -340,7 +336,13 @@ LYT.render = do ->
         listItem.after actionsItem
         list.listview('refresh')
       return more
-      
+    
+    # if book.bookmarks is empty -> display message
+    if book.bookmarks.length is 0
+      element = jQuery "<li></li>"
+      element.append LYT.i18n("No bookmarks defined")
+      list.append element
+    else
     for bookmark, index in book.bookmarks
       element = jQuery "<li></li>" 
       element.attr "id", bookmark.id
@@ -352,7 +354,6 @@ LYT.render = do ->
           </a>
         """
       element.append generateMoreItem(bookmark, index)
-      
       list.append element
 
     list.parent().trigger('create')
@@ -363,7 +364,10 @@ LYT.render = do ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
 
-    list.append bookListItem("book-details", result) for result in results
+    if results.length is 0
+      list.append jQuery "<li><h3 class='no-search-results'>#{LYT.i18n("No search results")}</h3></li>"
+    else
+      list.append bookListItem("book-details", result) for result in results
     
     if results.loadNextPage?
       $("#more-search-results").show()

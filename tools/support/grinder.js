@@ -31,11 +31,11 @@
     locate = function(file) {
       var loadpath, resolved, _i, _len;
       if (!/\.coffee$/.test(file)) file = "" + file + ".coffee";
-      if (path.existsSync(file)) return path.resolve(file);
+      if (fs.existsSync(file)) return path.resolve(file);
       for (_i = 0, _len = loadpaths.length; _i < _len; _i++) {
         loadpath = loadpaths[_i];
         resolved = path.join(loadpath, file);
-        if (path.existsSync(resolved)) return resolved;
+        if (fs.existsSync(resolved)) return resolved;
       }
       throw "Could not find " + file + " in the given loadpath(s)";
     };
