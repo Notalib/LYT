@@ -51,7 +51,6 @@ LYT.service = do ->
     .fail () ->
       #noop wait for other operations to fail...
 
-
   
   # Emit an event
   emit = (event, data = {}) ->
@@ -61,7 +60,6 @@ LYT.service = do ->
     log.message "Service: Emitting #{event} event"
     jQuery(LYT.service).trigger obj
 
-  
   
   # Emit an error event
   emitError = (code) ->
@@ -87,14 +85,11 @@ LYT.service = do ->
       emitError code
       deferred.reject code, message
     
-    
     # Make the call
     result = callback()
     
-    
     # If everything works, then just pass on the resolve args
     result.done success
-    
     
     # If the call fails
     result.fail (code, message) ->
@@ -119,6 +114,12 @@ LYT.service = do ->
     
     deferred.promise()
   
+  onCurrentLogOn = (handlers) ->
+    promise = currentLogOnProcess
+    unless promise
+      promise = jQuery.Deferred().resolve()
+    promise[handlerName](handlers[handlerName]) for handlerName of handlers
+  
   # Perform the logOn handshake:  
   # `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
   logOn = (username, password) ->
@@ -134,7 +135,7 @@ LYT.service = do ->
       {username, password} = credentials if (credentials = LYT.session.getCredentials())
     
     unless username and password
-      emit "logon:rejected"
+      emit 'logon:rejected'
       deferred.reject()
       return deferred.promise()
     
@@ -146,7 +147,7 @@ LYT.service = do ->
     # TODO: Flesh out error handling
     failed = (code, message) ->
       if code is RPC_UNEXPECTED_RESPONSE_ERROR
-        emit "logon:rejected"
+        emit 'logon:rejected'
         deferred.reject()
       else
         if attempts > 0
@@ -156,6 +157,7 @@ LYT.service = do ->
           deferred.reject code, message
     
     loggedOn = (data) ->
+      emit 'logon:resolved'
       LYT.session.setCredentials username, password
       LYT.session.setInfo data
       LYT.rpc("getServiceAttributes")
@@ -198,6 +200,8 @@ LYT.service = do ->
   # ## Basic operations
   
   logOn: logOn
+  
+  onCurrentLogOn: onCurrentLogOn
   
   # Silently attempt to refresh a session. I.e. if this fails, no logOn errors are
   # emitted directly. This is intended for use with e.g. DTBDocument.
