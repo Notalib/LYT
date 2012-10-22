@@ -202,7 +202,7 @@ LYT.render = do ->
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.Undervejs
+      if details.state is LYT.config.book.states.pending
         $("#book-unavailable-message").show()
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 

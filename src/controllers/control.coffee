@@ -77,8 +77,8 @@ LYT.control =
           log.warn 'control: login: logOn failed'
           $("#login-form").simpledialog({
                 'mode': 'bool',
-                'prompt': 'Log ind fejl!',
-                'subTitle' : 'Forkert brugernavn eller kodeord.'
+                'prompt': LYT.i18n('Login error'),
+                'subTitle' : LYT.i18n('Incorrect username or password'),
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
@@ -129,8 +129,8 @@ LYT.control =
             if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
               $(this).simpledialog({
                 'mode' : 'bool',
-                'prompt' : 'Du er logget på som gæst!',
-                'subTitle' : '...og kan derfor ikke tilføje bøger.'
+                'prompt' : LYT.i18n('You are logged in as guest!'),
+                'subTitle' : '...' + LYT.i18n('and hence cannot add books'),
                 'animate': false,
                 'useDialogForceFalse': true,
                 'allowReopen': true,
@@ -242,31 +242,30 @@ LYT.control =
           if LYT.var.next? and ui.prevPage[0]?.id is 'login'
             window.location.reload()
           else
-            $.mobile.activePage.simpledialog({
+            parameters = {
               'mode': 'bool',
-              'prompt': 'Der er opstået en fejl!',
-              'subTitle': 'kunne ikke hente bogen.'
+              'prompt': LYT.i18n('An error has occurred!'),
+              'subTitle': LYT.i18n('unable to retrieve book'),
               'animate': false,
               'useDialogForceFalse': true,
               'allowReopen': true,
               'useModal': true,
-              'buttons': {
-                'Prøv igen': 
-                  click: (event) ->
-                    window.location.reload()
-                  icon: "refresh",
-                  theme: "c"
-                ,
-                'Annuller': 
-                  click: (event) ->
-                    $.mobile.changePage "#bookshelf"
-                  icon: "delete",
-                  theme: "c"
-                ,
-                 
-              }
-            })
-  
+              'buttons': {}
+            }
+            parameters['buttons'][LYT.i18n('Try again')] = {
+              click: (event) ->
+                window.location.reload()
+              icon: "refresh",
+              theme: "c"
+            }
+            parameters['buttons'][LYT.i18n('Cancel')] = {
+              click: (event) ->
+                $.mobile.changePage "#bookshelf"
+              icon: "delete",
+              theme: "c"
+            }
+            $.mobile.activePage.simpledialog(parameters)
+
   search: (type, match, ui, page, event) ->
     if type is 'pageshow'
       
