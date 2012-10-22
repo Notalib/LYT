@@ -33,6 +33,7 @@ LYT.i18n = do ->
     "unable to retrieve the book.":     "kunne ikke hente bogen."
     "Try again":                        "Prøv igen"
     "Cancel":                           "Annuller"
+    "unable to retrieve sound file.":    "kunne ikke hente lydfilen."
 
   # The i18n function. Returns either the "translated"
   # string, or - if no translation was found - the
