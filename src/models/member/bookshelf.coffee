@@ -40,7 +40,7 @@ LYT.bookshelf =
     log.message "Bookshelf: Getting book from #{from} to #{to}"
     
     response = LYT.service.getBookshelf(from, to)
-    response.pipe (list) ->
+    response.pipe (list) =>
       # Are there more results than `pageSize`?
       if list.length > size
         # If yes, then there's a next page, so
@@ -51,7 +51,7 @@ LYT.bookshelf =
       else
         list.nextPage = false
       if not zeroAndUp 
-        LYT.bookshelf.nextPage = page + 1
+        @nextPage = page + 1
       return list
   
   
