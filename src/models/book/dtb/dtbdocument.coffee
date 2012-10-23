@@ -157,13 +157,16 @@ do ->
         doc = createHTMLDocument()
         # Give up if nothing was created
         return null unless doc?
-        
+
         container = doc.createElement "div"
         container.innerHTML = markup
-        #html.documentElement.getElementsByTagName('body')?[0].appendChild pseudo
+        
+
         if doc.documentElement?
+          #This is working with other browsers but not IE8 
           doc.documentElement.getElementsByTagName('body')?[0].appendChild container
         else
+          #Internet Explore 8 does not have a document.implementation.createHTMLDocument
           doc.appendChild container
 
         jQuery doc

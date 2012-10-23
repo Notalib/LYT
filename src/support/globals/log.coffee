@@ -17,23 +17,26 @@
         timer = setTimeout reset, 1500
 
   started = new Date()
+
   setTime = (messages) ->
     jQuery.map messages, (message) ->
       if typeof message is 'string'
         "[#{new Date() - started}] #{messages[0]}"
       else
-        message 
-
+        message
+    
   logMethodMessages = (method, messages) ->
+    return unless messages.length > 0 and messages[0] isnt null
     if log.receiver in ['all', 'local']
       method or= console?.log
       if method?.apply?
         method.apply console, setTime messages
       else
-        # Using method? setTime messages here will break on IE8, since it
-        # claims that method is an object.
-        method setTime messages if method
-        
+        messageArray = setTime messages
+        if method 
+          for message in messageArray
+            method message
+
     if log.receiver in ['all', 'remote']
       data =
         method:   method
