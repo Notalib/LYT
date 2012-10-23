@@ -25,8 +25,8 @@ LYT.i18n = do ->
     "Most popular - Kids":      "Top 10 - børn & unge"
     "Most popular - Adults":    "Top 10 - voksne"
     "Coming":                   "Kommer snart"
-    "No bookmarks defined":     "Der er endnu ikke sat bogmærker i denne bog" 
-    "No search results":        "Din søgning gav ingen resultater. Prøv igen"
+    "No bookmarks defined yet": "Der er ingen bogmærker endnu" 
+    "No search results":        "Din søgning gav ingen resultater"
     "Remove book":              "Slet bog" 
   
   # The i18n function. Returns either the "translated"

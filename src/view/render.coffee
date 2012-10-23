@@ -340,7 +340,7 @@ LYT.render = do ->
     # if book.bookmarks is empty -> display message
     if book.bookmarks.length is 0
       element = jQuery "<li></li>"
-      element.append LYT.i18n("No bookmarks defined")
+      element.append LYT.i18n("No bookmarks defined yet")
       list.append element
     else
     for bookmark, index in book.bookmarks
