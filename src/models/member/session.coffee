@@ -14,6 +14,12 @@ LYT.session = do ->
 
   # ## Public API
   
+  init: ->
+    credentials = getNotaAuthToken()
+    if credentials.status is 'ok'
+      LYT.session.setCredentials credentials.username, credentials.token
+      log.message 'Session: init: read credentials from getNotaAuthToken()'
+  
   getCredentials: -> LYT.cache.read "session", "credentials"
   
   setCredentials: (username, password) ->
