@@ -159,7 +159,6 @@ LYT.protocol =
     # TODO: Can you send an array or list of IDs instead? If you can, it could reduce the number of calls/requests
     # ----: Yes, the markAnnouncementsAsRead method takes a list of announcement id's as input (array of strings) 
     request: (ids) ->
-      
       read:
         item: ids
 

@@ -27,7 +27,6 @@ LYT.i18n = do ->
     "Coming":                           "Kommer snart"
     "No bookmarks defined yet":         "Der er ingen bogmærker endnu" 
     "No search results":                "Din søgning gav ingen resultater"
-    "Remove book":                      "Slet bog" 
     "Login error":                      "Log ind fejl!"
     "Incorrect username or password":   "Forkert brugernavn eller kodeord."
     "You are logged in as guest!":      "Du er logget på som gæst!"
