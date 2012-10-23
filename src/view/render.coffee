@@ -343,16 +343,16 @@ LYT.render = do ->
       element.append LYT.i18n("No bookmarks defined")
       list.append element
     else
-    for bookmark, index in book.bookmarks
-      element = jQuery "<li></li>" 
-      element.attr "id", bookmark.id
-      element.attr "data-href", bookmark.id
-      [baseUrl, id] = bookmark.URI.split('#')
-      element.append """
-          <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
-            #{bookmark.note.text}
-          </a>
-        """
+      for bookmark, index in book.bookmarks
+        element = jQuery "<li></li>" 
+        element.attr "id", bookmark.id
+        element.attr "data-href", bookmark.id
+        [baseUrl, id] = bookmark.URI.split('#')
+        element.append """
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
+              #{bookmark.note.text}
+            </a>
+          """
       element.append generateMoreItem(bookmark, index)
       list.append element
 
