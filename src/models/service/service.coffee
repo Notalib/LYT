@@ -234,6 +234,8 @@ LYT.service = do ->
   # TODO: Can logOff fail? If so, what to do? Very zen!  
   # Also, there should probably be some global "cancel all
   # outstanding ajax calls!" when log off is called
+  # ----: No, Nota's service implementation always returns true when calling
+  #       logOff(). Other service implementations may behave differently.
   logOff: ->
     LYT.rpc("logOff").always ->
       # Clean up

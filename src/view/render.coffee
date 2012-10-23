@@ -60,58 +60,44 @@ LYT.render = do ->
 
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
-      "Lydbog"
+      LYT.i18n('Talking book')
     else
-      "Lydbog med tekst"
+      LYT.i18n('Talking book with text')
 
   attachClickEvent = (aElement, book, list) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-        $(this).simpledialog({
-          'mode': 'bool',
-          'prompt': 'Du er logget på som gæst!',
-          'subTitle': '...og kan derfor ikke slette bøger.'
-          'animate': false,
-          'useDialogForceFalse': true,
-          'useModal': true,
-          'buttons': {
-            'OK': 
-              click: (event) ->
-              ,
-              theme: "c"
-            ,  
-          }
-        })
+        parameters =
+          mode:               'bool'
+          prompt:              LYT.i18n('You are logged on as guest!')
+          subTitle:            '...' + LYT.i18n('and hence can not remove books.')
+          animate:             false
+          useDialogForceFalse: true
+          useModal:            true
+          buttons:             {}
+        parameters.buttons[LYT.i18n('OK')] =
+          click: ->
+          theme: 'c'
+        $(this).simpledialog parameters
       else
-        $(this).simpledialog({
-          'mode': 'bool',
-          'prompt': 'Vil du fjerne denne bog?',
-          'subTitle': book.title,
-          'animate': false,
-          'useDialogForceFalse': true,
-          'useModal': true,
-          'buttons': {
-            'Fjern': 
-              click: (event) -> 
-                LYT.bookshelf.remove(book.id).done -> list.remove()
-              ,
-              id: "ok-btn"
-              ,
-              theme: "c"
-            ,
-            'Annuller': 
-              click: (event)->
-              ,
-              id: "cancel-btn"
-              ,
-              theme: "c"
-            ,
-            
-      
-          }
-        })
-      #alert book.id
-      #LYT.bookshelf.remove(book.id).done -> list.remove()
+        parameters =
+          mode:                'bool'
+          prompt:              'Vil du fjerne denne bog?'
+          subTitle:            book.title
+          animate:             false
+          useDialogForceFalse: true
+          useModal:            true
+          buttons:             {}
+        parameters.buttons[LYT.i18n('Remove')] =
+          click: -> LYT.bookshelf.remove(book.id).done -> list.remove()
+          id:    'ok-btn'
+          theme: 'c'
+        parameters.buttons[LYT.i18n('Cancel')] =
+          click: ->
+          id:    'cancel-btn'
+          theme: 'c'
+        $(this).simpledialog(parameters)
+
 
   # Displays a small speech bubble notification vertOffset pixels below the
   # provided element containing the provided text for timeout milliseconds.
@@ -197,7 +183,7 @@ LYT.render = do ->
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.Undervejs or details.state is LYT.config.book.states.DeleUndervejs 
+      if details.state is LYT.config.book.states.pending
         $("#book-unavailable-message").show()
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
@@ -230,17 +216,17 @@ LYT.render = do ->
     #LYT.service.markAnnouncementsAsRead(announcements)
 
 
-  bookEnd: () -> LYT.render.content.renderText 'Her slutter bogen'
+  bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
   
   textContent: (segment) ->
     return unless segment
     # Set enable or disable add bookmark button depending on we can bookmark
     if segment.canBookmark
       $('.ui-icon-bookmark-add').removeClass 'disabled'
-      $('#bookmark-add-button').attr 'title', 'Sæt bogmærke'
+      $('#bookmark-add-button').attr 'title', LYT.i18n('Bookmark location')
     else
       $('.ui-icon-bookmark-add').addClass 'disabled'
-      $('#bookmark-add-button').attr 'title', 'Kan ikke sætte bogmærke'
+      $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
       
   bookDetails: (details, view) ->
@@ -426,6 +412,6 @@ LYT.render = do ->
     
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-      $("#current-user-name").text 'gæst'
+      $("#current-user-name").text LYT.i18n('guest')
     else 
       $("#current-user-name").text LYT.session.getInfo().realname

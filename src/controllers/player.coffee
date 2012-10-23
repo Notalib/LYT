@@ -229,38 +229,29 @@ LYT.player =
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
-            $.mobile.activePage.simpledialog({
-                'mode': 'bool',
-                'prompt': 'Der er opstået en fejl!',
-                'subTitle': 'kunne ikke hente lydfilen.'
-                'animate': false,
-                'useDialogForceFalse': true,
-                'allowReopen': true,
-                'useModal': true,
-                'buttons': {
-                  'Prøv igen': 
-                    click: (event) ->
-                      window.location.reload()
-                    ,
-                    theme: "c"
-                  ,
-                  'Annuller': 
-                    click: (event) ->
-                      $.mobile.changePage "#bookshelf"
-                    ,
-                    theme: "c"
-                  ,
-                   
-                }
-              
-            })
+            parameters =
+              mode:                'bool'
+              prompt:              LYT.i18n('An error has occurred!')
+              subTitle:            LYT.i18n('unable to retrieve sound file.')
+              animate:             false
+              useDialogForceFalse: true
+              allowReopen:         true
+              useModal:            true
+              buttons:             {}
+            parameters.buttons[LYT.i18n('Try again')] =
+              click: -> window.location.reload()
+              theme: 'c'
+            parameters.buttons[LYT.i18n('Cancel')] =
+              click: -> $.mobile.changePage "#bookshelf"
+              theme: 'c'
+            $.mobile.activePage.simpledialog parameters
+
             #reopen the dialog...
             #TODO: this is usually because something is wrong with the session or the internet connection, 
             # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION
             log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
             #TODO: send people to a link where they can download flash or update their browser
-      
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"

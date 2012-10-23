@@ -48,9 +48,9 @@ LYT.config =
 
   book:
     states:
-      Ny: "Ny"
-      Undervejs:  "Undervejs"
-      Ehverv:  "Ehverv"
+      new: "New"
+      pending:  "Pending"
+      commercial:  "Commercial"
       
   # ### LYT.bookshelf module config
   bookshelf:
