@@ -65,7 +65,7 @@ LYT.render = do ->
   
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
-      LYT.I18n('Talking book')
+      LYT.i18n('Talking book')
     else
       LYT.i18n('Talking book with text')
 
@@ -236,7 +236,7 @@ LYT.render = do ->
     #LYT.service.markAnnouncementsAsRead(announcements)
 
 
-  bookEnd: () -> LYT.render.content.renderText LYT.I18n('The end of the book')
+  bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
   
   textContent: (segment) ->
     return unless segment

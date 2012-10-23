@@ -48,9 +48,9 @@ LYT.config =
 
   book:
     states:
-      new: LYT.i18n("New")
-      pending:  LYT.i18n("Pending")
-      commercial:  LYT.i18n("Commercial")
+      new: "New"
+      pending:  "Pending"
+      commercial:  "Commercial"
       
   # ### LYT.bookshelf module config
   bookshelf:
