@@ -75,22 +75,23 @@ LYT.control =
         
         .fail ->
           log.warn 'control: login: logOn failed'
-          $("#login-form").simpledialog({
-                'mode': 'bool',
-                'prompt': LYT.i18n('Login error'),
-                'subTitle' : LYT.i18n('Incorrect username or password'),
-                'animate': false,
-                'useDialogForceFalse': true,
-                'allowReopen': true,
-                'useModal': true,
-                'buttons': {
-                  'OK':
-                    click: (event) ->
-                    ,
-                    theme: "c"
+          parameters = {
+            'mode': 'bool',
+            'prompt': LYT.i18n('Login error'),
+            'subTitle' : LYT.i18n('Incorrect username or password'),
+            'animate': false,
+            'useDialogForceFalse': true,
+            'allowReopen': true,
+            'useModal': true,
+            'buttons': {}
+          }
+          parameters['buttons'][LYT.i18n('OK')] = {
+            click: (event) ->
+            ,
+            theme: "c"
                   ,  
-                }
-          })
+          }
+          $("#login-form").simpledialog(parameters)
         
       LYT.loader.register "Logging in", process
       
@@ -127,7 +128,7 @@ LYT.control =
             # TODO: This is far from perfect: There's no way
             # of knowing if something's already on the shelf
             if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-              $(this).simpledialog({
+              parameters = {
                 'mode' : 'bool',
                 'prompt' : LYT.i18n('You are logged in as guest!'),
                 'subTitle' : '...' + LYT.i18n('and hence cannot add books'),
@@ -135,14 +136,16 @@ LYT.control =
                 'useDialogForceFalse': true,
                 'allowReopen': true,
                 'useModal': true,
-                'buttons' : {
-                  'OK': 
-                    click: (event) ->
-                    ,
-                    theme: "c"
-                  ,  
-                }
-              })
+                'buttons' : {}
+              }
+              parameters['buttons'][LYT.i18n('OK')] = {
+                'OK': 
+                  click: (event) ->
+                  ,
+                  theme: "c"
+                ,  
+              }
+              $(this).simpledialog(parameters)
 
             else
               LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
@@ -416,10 +419,11 @@ LYT.control =
           $.mobile.changePage("#bookshelf") #no book go to bookshelf
       url = LYT.router.getBookActionUrl params
       subject = "Link til bog på E17"
+      # Sorry about the clumsy enlish below, but it has to translate directly to danish without changing the position of the title and url
       if LYT.player.isIOS() #nice html... 
-        body = "Hør #{params.title} ved at følge dette link: <a href='#{url}'>#{params.title}</a>"
+        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: <a href='#{url}'>#{params.title}</a>"
       else
-        body = "Hør #{params.title} ved at følge dette link: #{url}"
+        body = "#{LYT.i18n('Listen to')} #{params.title} #{Lyt.i18n('by clicking this link')}: #{url}"
         # body...
       
       $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")

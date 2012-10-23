@@ -45,6 +45,11 @@ LYT.i18n = do ->
     "Bookmark location":                "Sæt bogmærke"
     "Unable to bookmark location":      "Kan ikke sætte bogmærke"
     "guest":                            "gæst"
+    "New":                              "Ny"
+    "Pending":                          "Undervejs"
+    "Commercial":                       "Erhverv"
+    "Listen to":                        "Hør"
+    "by clicking this link":            "ved at følge dette link"
 
   # The i18n function. Returns either the "translated"
   # string, or - if no translation was found - the
