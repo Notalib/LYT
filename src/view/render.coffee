@@ -65,56 +65,57 @@ LYT.render = do ->
   
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
-      "Lydbog"
+      LYT.I18n('Talking book')
     else
-      "Lydbog med tekst"
+      LYT.i18n('Talking book with text')
 
   attachClickEvent = (aElement, book, list) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-        $(this).simpledialog({
+        parameters = {
           'mode' : 'bool',
-          'prompt' : 'Du er logget på som gæst!',
-          'subTitle' : '...og kan derfor ikke slette bøger.'
+          'prompt' : LYT.i18n('You are logged on as guest!'),
+          'subTitle' : '...' + LYT.i18n('and hence can not remove books.'),
           'animate': false,
           'useDialogForceFalse': true,
           'useModal': true,
-          'buttons' : {
-            'OK': 
-              click: (event) ->
-              ,
-              theme: "c"
-            ,  
-          }
-        })
+          'buttons' : {}
+        }
+        parameters['buttons'][LYT.i18n('OK')] = {
+          'OK': 
+            click: (event) ->
+            ,
+            theme: "c"
+          ,  
+        }
+        $(this).simpledialog(parameters)
       else
-        $(this).simpledialog({
+        parameters = {
           'mode' : 'bool',
           'prompt' : 'Vil du fjerne denne bog?',
           'subTitle' : book.title,
           'animate': false,
           'useDialogForceFalse': true,
           'useModal': true,
-          'buttons' : {
-            'Fjern': 
-              click: (event) -> 
-                LYT.bookshelf.remove(book.id).done -> list.remove()
-              ,
-              id: "ok-btn"
-              ,
-              theme: "c"
-            ,
-            'Annuller': 
-              click: (event)->
-              ,
-              id: "cancel-btn"
-              ,
-              theme: "c"
-            ,
-            
-      
-          }
-        })
+          'buttons' : {}
+        }
+        parameters['buttons'][LYT.i18n('Remove')] = {
+          click: (event) -> 
+            LYT.bookshelf.remove(book.id).done -> list.remove()
+          ,
+          id: "ok-btn"
+          ,
+          theme: "c"
+        }
+        parameters['buttons'][LYT.i18n('Cancel')] = {
+          click: (event)->
+          ,
+          id: "cancel-btn"
+          ,
+          theme: "c"
+        }
+        $(this).simpledialog(parameters)
+
       #alert book.id
       #LYT.bookshelf.remove(book.id).done -> list.remove()
 
@@ -168,7 +169,7 @@ LYT.render = do ->
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
       li = bookListItem target, book
-      removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
+      removeLink = jQuery """<a href="" title="#{LYT.i18n('Remove book')}" class="remove-book"></a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
@@ -235,17 +236,17 @@ LYT.render = do ->
     #LYT.service.markAnnouncementsAsRead(announcements)
 
 
-  bookEnd: () -> LYT.render.content.renderText 'Her slutter bogen'
+  bookEnd: () -> LYT.render.content.renderText LYT.I18n('The end of the book')
   
   textContent: (segment) ->
     return unless segment
     # Set enable or disable add bookmark button depending on we can bookmark
     if segment.canBookmark
       $('.ui-icon-bookmark-add').removeClass 'disabled'
-      $('#bookmark-add-button').attr 'title', 'Sæt bogmærke'
+      $('#bookmark-add-button').attr 'title', LYT.i18n('Bookmark location')
     else
       $('.ui-icon-bookmark-add').addClass 'disabled'
-      $('#bookmark-add-button').attr 'title', 'Kan ikke sætte bogmærke'
+      $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
       
   bookDetails: (details, view) ->
@@ -422,6 +423,6 @@ LYT.render = do ->
     
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-      $("#current-user-name").text 'gæst'
+      $("#current-user-name").text LYT.i18n('guest')
     else 
       $("#current-user-name").text LYT.session.getInfo().realname

@@ -157,6 +157,7 @@ LYT.protocol =
   
   markAnnouncementsAsRead:
     # TODO: Can you send an array or list of IDs instead? If you can, it could reduce the number of calls/requests
+    # ----: Yes, the markAnnouncementsAsRead method takes a list of announcement id's as input (array of strings) 
     request: (ids) ->
       
       read:
@@ -253,6 +254,9 @@ LYT.protocol =
       bookmarks
   
   # FIXME: lastmark may be placed after the bookmarks in bookmarkSet as the specification dictates. This is caused by XML serializer (util.toXML)
+  # -----: There is no specific order of element placements. Elements such as lastmark og bookmark can appear either below or above the other., however
+  #        Nota's service implementation would properbly have the lastmark before bookmark, but it all depends on the serializer, and can change when
+  #        new releases of the service is compiled with newer versions of the .NET framework..  Do not depend on element position.
   setBookmarks:
     request: (bookmarks) ->
 
