@@ -82,11 +82,9 @@ LYT.render = do ->
           'buttons' : {}
         }
         parameters['buttons'][LYT.i18n('OK')] = {
-          'OK': 
-            click: (event) ->
-            ,
-            theme: "c"
-          ,  
+          click: (event) ->
+          ,
+          theme: "c"
         }
         $(this).simpledialog(parameters)
       else

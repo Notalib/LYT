@@ -60,7 +60,6 @@ LYT.control =
       #event.preventDefault()
       #event.stopImmediatePropagation()
 
-  
   login: (type, match, ui, page, event) ->
     $("#login-form").submit (event) ->
       $("#password").blur()
@@ -139,11 +138,9 @@ LYT.control =
                 'buttons' : {}
               }
               parameters['buttons'][LYT.i18n('OK')] = {
-                'OK': 
-                  click: (event) ->
-                  ,
-                  theme: "c"
-                ,  
+                click: (event) ->
+                ,
+                theme: "c"
               }
               $(this).simpledialog(parameters)
 
@@ -159,6 +156,7 @@ LYT.control =
       LYT.loader.register "Loading book", process
   
   # TODO: Move bookmarks list to separate page
+  # TOTO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     return if params?['ui-page']
@@ -171,23 +169,30 @@ LYT.control =
 
     activate = (active, inactive, handler) ->
       # TODO: We shouldn't have to re-bind every time a page is shown
-      $(active).unbind 'click'
-      $(inactive).unbind 'click'
+      #$(active).unbind 'click'
+      #$(inactive).unbind 'click'
       $(active).addClass 'ui-btn-active'
       $(inactive).removeClass 'ui-btn-active'
-      $(inactive).click (event) -> handler event
+      #$(inactive).click (event) -> handler event
 
     renderBookmarks = ->
+      if $("#bookmark-list-button.ui-btn-active").length != 0
+        return
       activate "#bookmark-list-button", "#book-toc-button", renderIndex
       promise = LYT.Book.load bookId
       promise.done (book) -> LYT.render.bookmarks book, content
       LYT.loader.register "Loading bookmarks", promise
 
     renderIndex = ->
+      if $("#book-toc-button.ui-btn-active").length != 0
+        return
       activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
       promise = LYT.Book.load bookId
       promise.done (book) -> LYT.render.bookIndex book, content
       LYT.loader.register "Loading index", promise
+
+    $("#bookmark-list-button").click -> renderBookmarks()
+    $("#book-toc-button").click -> renderIndex()
 
     renderIndex()
 
