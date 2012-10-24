@@ -262,7 +262,7 @@ LYT.protocol =
       setnamespace = (ns, obj) ->
         if typeof obj == "object"
           if obj instanceof Array
-            return obj.map (value) -> setnamespace(ns, value)
+            return   jQuery.map(obj, (value) -> setnamespace(ns, value) )
           else 
             newObj = {}
             for key, value of obj
