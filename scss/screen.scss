@@ -1332,6 +1332,15 @@ $bubble-arrow-height: 10px;
     }
 }
 
-#no-js {
-  color:#ff0000;
+html.js {
+  #no-js {
+    visibility:hidden;
+  }
+}
+
+
+html.no-js {
+  #no-js {
+    visibility:visible;
+  }
 }
