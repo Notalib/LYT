@@ -102,9 +102,12 @@ do ->
       return ->
         doc = document.implementation.createDocument "", "HTML", doctype
         return doc
-    
-    else if document.implementation? and !document.implementation.createHTMLDocument# Internet Explore 8 does not have a  document.implementation.createHTMLDocument
-      document.createHTMLDocument = ->
+
+    # Internet Explorer 8 does not have a document.implementation.createHTMLDocument
+    # We bypass this by extracting the document from an invisible iframe.
+    # Caveat emptor: the documentElement attribute on the document is null.
+    else if document.implementation? and !document.implementation.createHTMLDocument
+      return ->
         iframe = $('<iframe id="docContainer" src="about:blank" style="display: none; position: absolute; z-index: -1;"></iframe>')
         $('body').append iframe
         doc = iframe[0].contentDocument
@@ -150,6 +153,7 @@ do ->
         
         # Give up, if nothing was found
         return null unless markup.length > 0
+        
         # Android innerHTML takes out <head></head>...so cheat...
         markup = markup[0].replace /<\/?head[^>]*>/gi, ""
 
@@ -161,12 +165,12 @@ do ->
         container = doc.createElement "div"
         container.innerHTML = markup
         
-
+        # doc.documentElement is missing if doc was created by IE8
+        # For some reason, we can work around the issue by appending directly
+        # on doc itself (which doesn't really make sense).
         if doc.documentElement?
-          #This is working with other browsers but not IE8 
           doc.documentElement.getElementsByTagName('body')?[0].appendChild container
         else
-          #Internet Explore 8 does not have a document.implementation.createHTMLDocument
           doc.appendChild container
 
         jQuery doc
