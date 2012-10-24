@@ -50,7 +50,7 @@ LYT.config =
     states:
       Ny: "Ny"
       Undervejs:  "Undervejs"
-      Ehverv:  "Ehverv"
+      Erhverv:  "Erhverv"
       
   # ### LYT.bookshelf module config
   bookshelf:
