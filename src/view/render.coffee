@@ -69,7 +69,7 @@ LYT.render = do ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         parameters =
           mode:               'bool'
-          prompt:              LYT.i18n('You are logged on as guest!')
+          prompt:              LYT.i18n('You are logged on as guest')
           subTitle:            '...' + LYT.i18n('and hence can not remove books.')
           animate:             false
           useDialogForceFalse: true
@@ -82,7 +82,7 @@ LYT.render = do ->
       else
         parameters =
           mode:                'bool'
-          prompt:              'Vil du fjerne denne bog?'
+          prompt:              LYT.i18n('Delete this book?')
           subTitle:            book.title
           animate:             false
           useDialogForceFalse: true
