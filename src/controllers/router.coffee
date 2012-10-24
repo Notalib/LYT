@@ -26,6 +26,7 @@ LYT.var =
   callback: null #last callback function
 
 $(document).ready ->
+  LYT.session.init()
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
   LYT.gatrack.init()

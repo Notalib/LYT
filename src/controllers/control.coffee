@@ -96,22 +96,19 @@ LYT.control =
         
         .fail ->
           log.warn 'control: login: logOn failed'
-          $("#login-form").simpledialog({
-                'mode': 'bool',
-                'prompt': 'Log ind fejl!',
-                'subTitle': 'Forkert brugernavn eller kodeord.'
-                'animate': false,
-                'useDialogForceFalse': true,
-                'allowReopen': true,
-                'useModal': true,
-                'buttons': {
-                  'OK':
-                    click: (event) ->
-                    ,
-                    theme: "c"
-                  ,  
-                }
-          })
+          parameters =
+            mode:                'bool'
+            prompt:              LYT.i18n('Login error')
+            subTitle:            LYT.i18n('Incorrect username or password')
+            animate:             false
+            useDialogForceFalse: true
+            allowReopen:         true
+            useModal:            true
+            buttons:             {}
+          parameters.buttons[LYT.i18n('OK')] =
+            click: -> # Nop
+            theme: 'c'
+          $("#login-form").simpledialog parameters
         
       LYT.loader.register "Logging in", process
       
@@ -146,38 +143,33 @@ LYT.control =
         content = $(page).children( ":jqmData(role=content)" )
         
         process = LYT.catalog.getDetails(params.book)
+          .fail (error, msg) ->
+            log.message "failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
-            
             content.find("#add-to-bookshelf-button").bind "click", (event) ->
               # TODO: This is far from perfect: There's no way
               # of knowing if something's already on the shelf
               if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-                $(this).simpledialog({
-                  'mode': 'bool',
-                  'prompt': 'Du er logget på som gæst!',
-                  'subTitle': '...og kan derfor ikke tilføje bøger.'
-                  'animate': false,
-                  'useDialogForceFalse': true,
-                  'allowReopen': true,
-                  'useModal': true,
-                  'buttons': {
-                    'OK': 
-                      click: (event) ->
-                      ,
-                      theme: "c"
-                    ,  
-                  }
-                })
+                parameters =
+                  mode:                'bool'
+                  prompt:              LYT.i18n('You are logged in as guest!')
+                  subTitle:            '...' + LYT.i18n('and hence cannot add books')
+                  animate:             false
+                  useDialogForceFalse: true
+                  allowReopen:         true
+                  useModal:            true
+                  buttons:             {}
+                parameters.buttons[LYT.i18n('OK')] =
+                  click: -> # Nop
+                  theme: "c"
+                $(this).simpledialog(parameters)
   
               else
                 LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
                 $(this).unbind event 
                 event.preventDefault()
                 event.stopImmediatePropagation()
-          
-          .fail (error, msg) ->
-            log.message "failed with error #{error} and msg #{msg}"
         
         LYT.loader.register "Loading book", process
   
@@ -261,30 +253,24 @@ LYT.control =
             if LYT.var.next? and ui.prevPage[0]?.id is 'login'
               window.location.reload()
             else
-              $.mobile.activePage.simpledialog({
-                'mode': 'bool',
-                'prompt': 'Der er opstået en fejl!',
-                'subTitle': 'kunne ikke hente bogen.'
-                'animate': false,
-                'useDialogForceFalse': true,
-                'allowReopen': true,
-                'useModal': true,
-                'buttons': {
-                  'Prøv igen': 
-                    click: (event) ->
-                      window.location.reload()
-                    icon: "refresh",
-                    theme: "c"
-                  ,
-                  'Annuller': 
-                    click: (event) ->
-                      $.mobile.changePage "#bookshelf"
-                    icon: "delete",
-                    theme: "c"
-                  ,
-                   
-                }
-              })
+              parameters =
+                mode:                'bool'
+                prompt:              LYT.i18n('An error has occurred!')
+                subTitle:            LYT.i18n('unable to retrieve book')
+                animate:             false
+                useDialogForceFalse: true
+                allowReopen:         true
+                useModal:            true
+                buttons: {}
+              parameters.buttons[LYT.i18n('Try again')] =
+                click: -> window.location.reload()
+                icon:  'refresh'
+                theme: 'c'
+              parameters.buttons[LYT.i18n('Cancel')] =
+                click: -> $.mobile.changePage "#bookshelf"
+                icon:  'delete'
+                theme: 'c'
+              $.mobile.activePage.simpledialog parameters
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
@@ -360,16 +346,9 @@ LYT.control =
           
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
-          #autoGoogle = LYT.google.DoAutoComplete($('#searchterm').val())
-            #.done (jsonResults)->
-              #LYT.render.showDidYouMean jsonResults, content
-  
-            #.fail ->
-              
           term = encodeURI $('#searchterm').val()
           handleResults LYT.catalog.search($('#searchterm').val())
-          $.mobile.changePage "#search?term=#{term}" , transition: "none"
-              
+          $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
           event.stopImmediatePropagation()
       
@@ -389,7 +368,7 @@ LYT.control =
           name = $(this).attr 'name'
           val = $(this).val()
           
-          #setting the GUI
+          # Setting the GUI
           switch name 
             when 'font-size', 'font-family'
               if val is style[name]
@@ -398,7 +377,7 @@ LYT.control =
               colors = val.split(';')
               if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
                 $(this).attr("checked", true).checkboxradio("refresh");
-         #Saving the GUI       
+        # Saving the GUI       
         $("#style-settings input").change (event) ->
           target = $(event.target)
           name = target.attr 'name'
@@ -449,10 +428,11 @@ LYT.control =
             $.mobile.changePage("#bookshelf") #no book go to bookshelf
         url = LYT.router.getBookActionUrl params
         subject = "Link til bog på E17"
+        # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
         if LYT.player.isIOS() #nice html... 
-          body = "Hør #{params.title} ved at følge dette link: <a href='#{url}'>#{params.title}</a>"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: <a href='#{url}'>#{params.title}</a>"
         else
-          body = "Hør #{params.title} ved at følge dette link: #{url}"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{Lyt.i18n('by clicking this link')}: #{url}"
         
         $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
         
