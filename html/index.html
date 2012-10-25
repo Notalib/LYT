@@ -53,10 +53,22 @@
 </head>
 
 <body>
+
+	<!-- Shown if the client does not have javascript support enabled -->
 	<div id="no-js">
-		Vi er kede af det... men din browser understøtter ikke javascript.<br>
-		Hvis du har slået javascript fra i din browser, skal du slå det til igen
+		<div align="center"><img src="images/logo.png"/></div>
+		<div class="ui-bar-c">
+		  <h2>Vi er kede af det...</h2>
+		  <div class="text-field">
+				<p>...men din browser kan ikke køre javascript, derfor kan E17 Mobil ikke vises.</p>
+				<ul>
+					<li>Gå til indstillinger for din browser og tillad at websites kører javascript</li>
+				</ul>
+				<p>Hvis det ikke virker, kontakt E17&nbsp;Support.</p>
+			</div>
+		</div>
 	</div>
+	
 	<div id="jplayer" class="jp-jplayer"></div>
 	
 	<div data-role="page" id="bookshelf" data-title="Mine bøger">
