@@ -148,6 +148,9 @@ LYT.player =
           unless @nextOffset?
             if @nextOffset = @getStatus().currentTime
               log.warn "Player: event play: using the players time to determine nextOffset, nextOffset #{@nextOffset}"
+            else if segment = @segment()
+              @nextOffset = segment.start
+              log.warn "Player: event play: using current segment to determine nextOffset, nextOffset #{@nextOffset}"
             else
               log.error 'Player: event play: unable to determine next offset. Rewinding.'
               @nextOffset = 0
@@ -168,13 +171,14 @@ LYT.player =
         else if status.duration > 0 and jQuery.jPlayer.convertTime(status.duration) is not 'NaN' and jQuery.jPlayer.convertTime(status.duration) is not '00:00' and (status.currentTime is 0 or status.currentTime is status.duration)  
           log.warn 'set ibug'
           @_iBug = true
-                   
+
       seeked: (event) =>
         @time = event.jPlayer.status.currentTime
-        log.message "Player: event seeked to offset #{@time}, paused: #{@getStatus.paused}"
+        log.message "Player: event seeked to offset #{@time}, paused: #{@getStatus.paused}, readyState: #{@getStatus().readyState}"
         @timeupdateLock = false
         LYT.loader.close 'metadata'
         return if @seekedLoadSegmentLock
+        log.message "Player: event seeked: get segment at offset #{@time}"
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
         segment.done (segment) => @updateHtml segment
@@ -220,10 +224,11 @@ LYT.player =
         LYT.loader.close('metadata')
       
       progress: (event) =>
-        #log.message 'Player: event progress'
-        # To take advantage of this event, calculate how much audio has been
-        # buffered by looking at the audio element owned by jPlayer.
-        #LYT.loader.close('metadata')
+        log.message 'Player: event progress'
+        status = @getStatus()
+        if @playing and status.paused and status.readyState > 2
+          log.message 'Player: event progress: resuming play since enough audio has been buffered'
+          @el.jPlayer 'play'
       
       error: (event) =>
         switch event.jPlayer.error.type
