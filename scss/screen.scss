@@ -64,8 +64,8 @@
 
 
 /* button adjustments */
-.ui-header .ui-btn-left {
-  top: 6px;
+.ui-header .ui-btn {
+  top: 6px !important;
 }
 
 #submenu {
@@ -212,12 +212,15 @@
         border: none;
         background: none;
         @include box-shadow(none);
+        padding-top: 6px;
       }
       .ui-icon-shadow {
         @include box-shadow(none);
       }
       .remove-book {
         border-left: 1px solid $listbordercolor;
+        padding-top: 0px;
+        padding-left: 2px;
       }
       
       border-top: 1px solid #fff;
@@ -297,7 +300,7 @@
       }  
     }
     hr {
-      margin-top: 20px;
+      margin-top: 16px;
       border-top: 1px solid #484848;
       background: #ebebeb; 
       height: 1px;
@@ -577,7 +580,7 @@
   @include clearfix();
   
   .ui-input-search {
-    height: 41px;
+    height: 43px;
     margin: 0 60px 0 0;
     border: 1px solid #3b73b3; 
   }
@@ -595,7 +598,7 @@
    .ui-btn {
       width: 50px;
       height: 41px;
-      margin: 7px 0 0 0;
+      margin: 8px 0 0 0;
       border: 1px solid  #3b73b3;
       background-image: none;
       background-color: darken($highlightcolor, 16%);
@@ -606,7 +609,7 @@
       height: 25px;
     }
     .ui-btn-inner {
-      padding: 5px 0 0 11px;
+      padding: 5px 0 0 8px;
       height: 32px;
       border: 2px solid $highlightcolor;
     } 
@@ -623,6 +626,8 @@
     border: none;
     top: 31%;
     margin: 0; /*-11px 5px 0 0;*/
+    margin-top: -2px;
+    margin-right: 2px;
     @include box-shadow(none);
     
     .ui-icon-shadow {
@@ -660,6 +665,7 @@
 
 #searchterm {
   line-height: 2;
+  margin-left: -22px;
 }
 
 #searchresult-wrapper {
@@ -1100,6 +1106,10 @@ div.current {
   }
 }
 
+.ui-icon-arrow-right {
+  background-image: url(../images/icons/arrow_icn_16.png);
+}
+
 .ui-icon .ui-icon-arrow-r {
   background: transparent url(../images/icons/arrow_icn_16.png) no-repeat 0 50%;
   background-size: 16px 16px;
@@ -1156,7 +1166,7 @@ div.current {
 .ui-btn-icon-notext {
   &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='bookmark-add'], &[data-icon='book-settings'], &[data-icon='share'] {
     .ui-btn-inner {
-      padding: 5px 0 0 21px;
+      padding: 3px 0px 0px 18px;
     }
   }
   &[data-icon='lyt-search'] {
@@ -1166,6 +1176,7 @@ div.current {
 
 .ui-icon-list-delete {
   background-image: url(../images/icons/delete_icn_16.png);
+  top: 2px;
 }
 
 /* Media query for high resolution icons for devices width a device pixel ratio above 2. */
@@ -1330,4 +1341,23 @@ $bubble-arrow-height: 10px;
         background-repeat:no-repeat;
         background-position:center;
     }
+}
+
+html.js {
+  #no-js {
+    visibility:hidden;
+  }
+}
+
+
+html.no-js {
+  #no-js {
+    visibility:visible;
+  }
+  #jplayer {
+    visibility:hidden;
+  }
+  #bookshelf {
+    visibility:hidden;
+  }
 }
