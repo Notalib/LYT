@@ -339,8 +339,8 @@ LYT.render = do ->
               #{bookmark.note.text}
             </a>
           """
-      element.append generateMoreItem(bookmark, index)
-      list.append element
+        element.append generateMoreItem(bookmark, index)
+        list.append element
 
     list.parent().trigger('create')
     list.show()

@@ -52,7 +52,6 @@ LYT.cache = do =>
   # Retrieve the object with the given namspace (prefix) and ID
   read: (prefix, id) ->
     return null unless window.localStorage?
-    log.message "Cache: Reading '#{prefix}/#{id}'"
     cache = getCache "#{prefix}/#{id}"
     cache?.data or null
   
