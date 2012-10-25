@@ -31,7 +31,7 @@ LYT.utils =
     values = timeOffset.match /\d+/g
     values[3] or= "0"
     values[3] = "0.#{values[3]}"
-    values = values.map parseFloat
+    values = jQuery.map values, parseFloat
     values[0] * 3600 + values[1] * 60 + values[2] + values[3]
   
   toSentence: (array) ->

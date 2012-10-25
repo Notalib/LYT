@@ -190,7 +190,6 @@ LYT.catalog = do ->
     data = memberid: String( LYT.session.getMemberId() )
     url  = LYT.config.catalog.suggestions.url
     
-    
     if data.memberid == 'undefined'
       emit "logon:rejected" 
       deferred.reject()

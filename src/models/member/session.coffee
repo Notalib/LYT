@@ -12,23 +12,15 @@ LYT.session = do ->
   # Member info (memberId, name, email, etc.)
   memberInfo  = null
 
-   # Emit an event
-  emit = (event, data = {}) ->
-    obj = jQuery.Event event
-    delete data.type if data.hasOwnProperty "type"
-    jQuery.extend obj, data
-    log.message "Session: Emitting #{event} event"
-    jQuery(LYT.session).trigger obj
-  
   # ## Public API
   
-  getCredentials: ->
-    credentials or= LYT.cache.read "session", "credentials"
-    if credentials is null
-      #emit "logon:rejected" #emiting a logon event from service...kun hvis ikke gæst..hmmm
-      return credentials
-    else
-      return credentials
+  init: ->
+    credentials = getNotaAuthToken()
+    if credentials.status is 'ok'
+      log.message 'Session: init: reading credentials from getNotaAuthToken()'
+      LYT.session.setCredentials credentials.username, credentials.token
+  
+  getCredentials: -> LYT.cache.read "session", "credentials"
   
   setCredentials: (username, password) ->
     credentials or= {}

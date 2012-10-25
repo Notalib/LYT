@@ -1,6 +1,6 @@
 <!DOCTYPE html> 
 
-<html class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px"> 
+<html manifest="manifest.appcache" class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px"> 
 
 <head>
 	<meta charset="utf-8">
@@ -19,29 +19,30 @@
 	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png" />
 	
 	<!-- jQuery UI and jQuery Mobile stylesheets -->
-	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css">
 	
 	<!-- App-specific stylesheets -->
 	<link rel="stylesheet" type="text/css" href="css/lyt.min.css">
 	<link rel="stylesheet" type="text/css" href="css/screen.css">
 	
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile.structure-1.2.0.min.css" />
-	<link rel="stylesheet" type="text/css" href="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.min.css" />
+	<link rel="stylesheet" type="text/css" href="lib/simpledialog/jquery.mobile.simpledialog.min.css" />
 
 	<!-- JavaScript libraries -->
 	<script src="lib/polyfills/indexOf.js"></script>
 	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
 
 	<script src="lib/jPlayer/jquery.jplayer.min.js"></script>
 	<script src="lib/router/jquery.mobile.router.js"></script>
 	
 	<!-- App-specific javascript -->
 	<!-- scripts -->
+	<script src="http://test.e17.dk/getnotaauthtoken"></script>
 	
 	<!-- jQuery Mobile -->
 	<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
-	<script type="text/javascript" src="http://dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.min.js"></script>
+	<script type="text/javascript" src="lib/simpledialog/jquery.mobile.simpledialog.min.js"></script>
 	
 	<!--[if lt IE 9]>
 	<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>

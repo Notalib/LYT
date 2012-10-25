@@ -26,6 +26,7 @@ LYT.var =
   callback: null #last callback function
 
 $(document).ready ->
+  LYT.session.init()
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
   LYT.gatrack.init()
@@ -69,8 +70,11 @@ $(document).bind "mobileinit", ->
     "#bookshelf":
       handler: "bookshelf"
       events: "s"
-    "#anbefalinger":
-      handler: "anbefal"
+    "#suggestions":
+      handler: "suggestions"
+      events: "s"
+    "#anbefalinger":         # This url is deprecated
+      handler: "suggestions"
       events: "s"
     "#guest":
       handler: "guest"
@@ -115,10 +119,18 @@ $(document).bind "mobileinit", ->
  
   # If LYT.service, LYT.session or LYT.catalog emits a logon:rejected, prompt
   # the user to log back in.
-  $([LYT.service, LYT.session, LYT.catalog]).bind "logon:rejected", () ->
+  $([LYT.service, LYT.catalog]).bind "logon:rejected", ->
     return if window.location.hash is '#login'
-    LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
-    $.mobile.changePage "#login"   
+    LYT.service.onCurrentLogOn
+      always: ->
+        LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+        params = LYT.router.getParams window.location.hash
+        if params?.guest?
+          promise = LYT.service.logOn LYT.config.service.guestUser, LYT.config.service.guestLogin
+          promise.done -> $.mobile.changePage LYT.var.next
+          promise.fail -> $.mobile.changePage "#login"
+        else
+          $.mobile.changePage "#login"
 
   $(LYT.service).bind "logoff", -> $.mobile.changePage "#login"
 

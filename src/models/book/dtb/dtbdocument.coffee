@@ -102,9 +102,17 @@ do ->
       return ->
         doc = document.implementation.createDocument "", "HTML", doctype
         return doc
-    
-    else
-      null
+
+    # Internet Explorer 8 does not have a document.implementation.createHTMLDocument
+    # We bypass this by extracting the document from an invisible iframe.
+    # Caveat emptor: the documentElement attribute on the document is null.
+    else if document.implementation? and !document.implementation.createHTMLDocument
+      return ->
+        iframe = $('<iframe id="docContainer" src="about:blank" style="display: none; position: absolute; z-index: -1;"></iframe>')
+        $('body').append iframe
+        doc = iframe[0].contentDocument
+        $('body').detach "#docContainer"
+        return doc 
   
   # -------
   
@@ -145,23 +153,27 @@ do ->
         
         # Give up, if nothing was found
         return null unless markup.length > 0
-        markup = markup[0]
-        
-        # Create the DOM document
-        html = createHTMLDocument()
-        
-        # Give up if nothing was created
-        return null unless html?
-        
-        pseudo = html.createElement "div"
         
         # Android innerHTML takes out <head></head>...so cheat...
-        markup = markup.replace /<\/?head[^>]*>/gi, ""
+        markup = markup[0].replace /<\/?head[^>]*>/gi, ""
+
+        # Create the DOM document
+        doc = createHTMLDocument()
+        # Give up if nothing was created
+        return null unless doc?
+
+        container = doc.createElement "div"
+        container.innerHTML = markup
         
-        pseudo.innerHTML = markup
-        html.documentElement.getElementsByTagName('body')?[0].appendChild pseudo
-        
-        jQuery html
+        # doc.documentElement is missing if doc was created by IE8
+        # For some reason, we can work around the issue by appending directly
+        # on doc itself (which doesn't really make sense).
+        if doc.documentElement?
+          doc.documentElement.getElementsByTagName('body')?[0].appendChild container
+        else
+          doc.appendChild container
+
+        jQuery doc
       
       
       # This function will be called, when a DTB document has been successfully downloaded

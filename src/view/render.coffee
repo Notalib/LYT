@@ -14,7 +14,7 @@ LYT.render = do ->
   
   # Default book cover image
   defaultCover = "/images/icons/default-cover.png"
-  
+
   # Create a book list-item which links to the `target` page
   bookListItem = (target, book) ->
     info = []
@@ -29,7 +29,7 @@ LYT.render = do ->
       <li data-book-id="#{book.id}">
         <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
           <div class="cover-image-frame">
-            <img class="ui-li-icon cover-image" src="#{defaultCover}">
+            <img class="ui-li-icon cover-image">
           </div>
           <h3>#{book.title or "&nbsp;"}</h3>
           <p>#{info or "&nbsp;"}</p>
@@ -54,72 +54,53 @@ LYT.render = do ->
     </li>
     """
     return element
-
-  
-  getCoverSrc = (id) ->
-    "http://bookcover.e17.dk/#{id}_h80.jpg"
   
   loadCover = (img, id) ->
-    img.attr "src", defaultCover
-    
-    cover = new Image
-    cover.onload = -> img.attr "src", getCoverSrc(id)
-    cover.src = getCoverSrc(id)   
-  
+    # if periodical, use periodical code (first 4 letters of id)
+    imageid = if $.isNumeric(id) then id else id.substring(0, 4)
+    img.attr "src", "http://bookcover.e17.dk/#{imageid}_h80.jpg"
+
+
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
-      "Lydbog"
+      LYT.i18n('Talking book')
     else
-      "Lydbog med tekst"
+      LYT.i18n('Talking book with text')
 
   attachClickEvent = (aElement, book, list) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-        $(this).simpledialog({
-          'mode' : 'bool',
-          'prompt' : 'Du er logget på som gæst!',
-          'subTitle' : '...og kan derfor ikke slette bøger.'
-          'animate': false,
-          'useDialogForceFalse': true,
-          'useModal': true,
-          'buttons' : {
-            'OK': 
-              click: (event) ->
-              ,
-              theme: "c"
-            ,  
-          }
-        })
+        parameters =
+          mode:               'bool'
+          prompt:              LYT.i18n('You are logged on as guest!')
+          subTitle:            '...' + LYT.i18n('and hence can not remove books.')
+          animate:             false
+          useDialogForceFalse: true
+          useModal:            true
+          buttons:             {}
+        parameters.buttons[LYT.i18n('OK')] =
+          click: ->
+          theme: 'c'
+        $(this).simpledialog parameters
       else
-        $(this).simpledialog({
-          'mode' : 'bool',
-          'prompt' : 'Vil du fjerne denne bog?',
-          'subTitle' : book.title,
-          'animate': false,
-          'useDialogForceFalse': true,
-          'useModal': true,
-          'buttons' : {
-            'Fjern': 
-              click: (event) -> 
-                LYT.bookshelf.remove(book.id).done -> list.remove()
-              ,
-              id: "ok-btn"
-              ,
-              theme: "c"
-            ,
-            'Annuller': 
-              click: (event)->
-              ,
-              id: "cancel-btn"
-              ,
-              theme: "c"
-            ,
-            
-      
-          }
-        })
-      #alert book.id
-      #LYT.bookshelf.remove(book.id).done -> list.remove()
+        parameters =
+          mode:                'bool'
+          prompt:              'Vil du fjerne denne bog?'
+          subTitle:            book.title
+          animate:             false
+          useDialogForceFalse: true
+          useModal:            true
+          buttons:             {}
+        parameters.buttons[LYT.i18n('Remove')] =
+          click: -> LYT.bookshelf.remove(book.id).done -> list.remove()
+          id:    'ok-btn'
+          theme: 'c'
+        parameters.buttons[LYT.i18n('Cancel')] =
+          click: ->
+          id:    'cancel-btn'
+          theme: 'c'
+        $(this).simpledialog(parameters)
+
 
   # Displays a small speech bubble notification vertOffset pixels below the
   # provided element containing the provided text for timeout milliseconds.
@@ -171,7 +152,7 @@ LYT.render = do ->
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
       li = bookListItem target, book
-      removeLink = jQuery """<a href=""  title="Slet bog" class="remove-book"></a>"""
+      removeLink = jQuery """<a href="" class="remove-book">#{LYT.i18n("Remove book")}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
@@ -205,7 +186,7 @@ LYT.render = do ->
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.Undervejs
+      if details.state is LYT.config.book.states.pending
         $("#book-unavailable-message").show()
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
@@ -238,17 +219,17 @@ LYT.render = do ->
     #LYT.service.markAnnouncementsAsRead(announcements)
 
 
-  bookEnd: () -> LYT.render.content.renderText 'Her slutter bogen'
+  bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
   
   textContent: (segment) ->
     return unless segment
     # Set enable or disable add bookmark button depending on we can bookmark
     if segment.canBookmark
       $('.ui-icon-bookmark-add').removeClass 'disabled'
-      $('#bookmark-add-button').attr 'title', 'Sæt bogmærke'
+      $('#bookmark-add-button').attr 'title', LYT.i18n('Bookmark location')
     else
       $('.ui-icon-bookmark-add').addClass 'disabled'
-      $('#bookmark-add-button').attr 'title', 'Kan ikke sætte bogmærke'
+      $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
       
   bookDetails: (details, view) ->
@@ -319,6 +300,7 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
+
       more = $('<a href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
@@ -343,20 +325,25 @@ LYT.render = do ->
         listItem.after actionsItem
         list.listview('refresh')
       return more
-      
-    for bookmark, index in book.bookmarks
-      element = jQuery "<li></li>" 
-      element.attr "id", bookmark.id
-      element.attr "data-href", bookmark.id
-      [baseUrl, id] = bookmark.URI.split('#')
-      element.append """
-          <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
-            #{bookmark.note.text}
-          </a>
-        """
-      element.append generateMoreItem(bookmark, index)
-      
+    
+    # if book.bookmarks is empty -> display message
+    if book.bookmarks.length is 0
+      element = jQuery "<li></li>"
+      element.append LYT.i18n("No bookmarks defined yet")
       list.append element
+    else
+      for bookmark, index in book.bookmarks
+        element = jQuery "<li></li>" 
+        element.attr "id", bookmark.id
+        element.attr "data-href", bookmark.id
+        [baseUrl, id] = bookmark.URI.split('#')
+        element.append """
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
+              #{bookmark.note.text}
+            </a>
+          """
+        element.append generateMoreItem(bookmark, index)
+        list.append element
 
     list.parent().trigger('create')
     list.show()
@@ -366,7 +353,10 @@ LYT.render = do ->
     list = view.find "ul"
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
 
-    list.append bookListItem("book-details", result) for result in results
+    if results.length is 0
+      list.append jQuery "<li><h3 class='no-search-results'>#{LYT.i18n("No search results")}</h3></li>"
+    else
+      list.append bookListItem("book-details", result) for result in results
     
     if results.loadNextPage?
       $("#more-search-results").show()
@@ -425,6 +415,6 @@ LYT.render = do ->
     
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-      $("#current-user-name").text 'gæst'
+      $("#current-user-name").text LYT.i18n('guest')
     else 
       $("#current-user-name").text LYT.session.getInfo().realname
