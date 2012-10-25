@@ -36,9 +36,12 @@ class LYT.Section
     this.always => this.loading = false
 
     log.message "Section: loading(\"#{@url}\")"
-
+    # if there is a '#' after the filename - replace it
     file = @url.replace /#.*$/, ""
+    file = file.substr file.lastIndexOf('/') + 1
     url  = @resources[file]?.url
+    if url is undefined
+      log.error "url is undefined"
     @document = new LYT.SMILDocument this, url
 
     @document.done => @_deferred.resolve this
