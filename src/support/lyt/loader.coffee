@@ -19,14 +19,15 @@ LYT.loader = do ->
   # TODO: Handle fading out if a loader is active (requires larger rewrite)
   $(window).on 'focus', -> jQuery(".ui-page-active").fadeTo(500, 1) if loaders.length is 0 
     
-  lockPage = (duration = 500) -> jQuery(".ui-page-active").fadeTo(duration, 0.4)
+  lockPage = -> 
     #todo: implement interface locking
     #$('document').click (event) ->
     #  log.message "someone tried to click something while we are loading"
     #  event.preventDefault()
     #  event.preventDefaultPropagation()
   
-  unlockPage = (duration = 500) -> jQuery(".ui-page-active").fadeTo(duration, 1)
+  unlockPage = -> 
+    #todo: implement interface unlocking
   
   # ## Public API
   
@@ -46,7 +47,7 @@ LYT.loader = do ->
     promise.always => @close promise
   
   # Set a custom loading message
-  set: (message, id, clearStack = true, fadeDuration, delay) ->
+  set: (message, id, clearStack = true, delay) ->
     # register new loader with ID, if clearStack is true close all previous loaders
     loaders = [] if clearStack
     loaders.push id
@@ -54,7 +55,7 @@ LYT.loader = do ->
       return if jQuery.inArray(id, loaders) is -1
       log.message "Loader: set: setMessage #{id}"
       jQuery.mobile.showPageLoadingMsg LYT.i18n(message)
-      lockPage fadeDuration
+      lockPage
     if delay?
       log.message "Loader: set: schedule message #{id}, delay #{delay}"
       setTimeout setMessage, delay
