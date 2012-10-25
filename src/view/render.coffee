@@ -25,19 +25,32 @@ LYT.render = do ->
     if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
       nowPlaying = """<div class="book-now-playing"></div>"""
     
-    element = jQuery """
-    <li data-book-id="#{book.id}">
-      <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
-        <div class="cover-image-frame">
-          <img class="ui-li-icon cover-image" src="#{defaultCover}">
-        </div>
-        <h3>#{book.title or "&nbsp;"}</h3>
-        <p>#{info or "&nbsp;"}</p>
-        #{nowPlaying or ""}
-      </a>
-    </li>
-    """
-    
+    if String(target) is """book-details"""
+      element = jQuery """
+      <li data-book-id="#{book.id}" data-icon="arrow-right">
+        <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
+          <div class="cover-image-frame">
+            <img class="ui-li-icon cover-image" src="#{defaultCover}">
+          </div>
+          <h3>#{book.title or "&nbsp;"}</h3>
+          <p>#{info or "&nbsp;"}</p>
+          #{nowPlaying or ""}
+        </a>
+      </li>
+      """
+    else
+      element = jQuery """
+        <li data-book-id="#{book.id}">
+          <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
+            <div class="cover-image-frame">
+              <img class="ui-li-icon cover-image" src="#{defaultCover}">
+            </div>
+            <h3>#{book.title or "&nbsp;"}</h3>
+            <p>#{info or "&nbsp;"}</p>
+            #{nowPlaying or ""}
+          </a>
+        </li>
+        """
     loadCover element.find("img.cover-image"), book.id
     
     return element
@@ -381,7 +394,7 @@ LYT.render = do ->
 
     for query in LYT.lists
       do (query) ->
-        listItem = jQuery """<li id=#{query.id}><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
+        listItem = jQuery """<li id="#{query.id}" data-icon="arrow-right"><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
         listItem.find("a").click (event) ->
           callback query.callback()
           LYT.var.callback = true
