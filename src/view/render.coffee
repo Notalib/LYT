@@ -25,9 +25,8 @@ LYT.render = do ->
     if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
       nowPlaying = """<div class="book-now-playing"></div>"""
     
-    if String(target) is """book-details"""
-      element = jQuery """
-      <li data-book-id="#{book.id}" data-icon="arrow-right">
+    element = jQuery """
+      <li data-book-id="#{book.id}">
         <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image" src="#{defaultCover}">
@@ -38,19 +37,10 @@ LYT.render = do ->
         </a>
       </li>
       """
-    else
-      element = jQuery """
-        <li data-book-id="#{book.id}">
-          <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
-            <div class="cover-image-frame">
-              <img class="ui-li-icon cover-image" src="#{defaultCover}">
-            </div>
-            <h3>#{book.title or "&nbsp;"}</h3>
-            <p>#{info or "&nbsp;"}</p>
-            #{nowPlaying or ""}
-          </a>
-        </li>
-        """
+
+    if String(target) is "book-details"
+      element.attr "data-icon", "arrow-right"
+
     loadCover element.find("img.cover-image"), book.id
     
     return element
