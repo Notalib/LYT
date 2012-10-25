@@ -231,7 +231,7 @@ LYT.player =
             log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
             parameters =
               mode:                'bool'
-              prompt:              LYT.i18n('An error has occurred!')
+              prompt:              LYT.i18n('An error has occurred')
               subTitle:            LYT.i18n('unable to retrieve sound file.')
               animate:             false
               useDialogForceFalse: true

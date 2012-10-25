@@ -150,26 +150,10 @@ LYT.control =
             content.find("#add-to-bookshelf-button").bind "click", (event) ->
               # TODO: This is far from perfect: There's no way
               # of knowing if something's already on the shelf
-              if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-                parameters =
-                  mode:                'bool'
-                  prompt:              LYT.i18n('You are logged in as guest!')
-                  subTitle:            '...' + LYT.i18n('and hence cannot add books')
-                  animate:             false
-                  useDialogForceFalse: true
-                  allowReopen:         true
-                  useModal:            true
-                  buttons:             {}
-                parameters.buttons[LYT.i18n('OK')] =
-                  click: -> # Nop
-                  theme: "c"
-                $(this).simpledialog(parameters)
-  
-              else
-                LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
-                $(this).unbind event 
-                event.preventDefault()
-                event.stopImmediatePropagation()
+              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
+              $(this).unbind event 
+              event.preventDefault()
+              event.stopImmediatePropagation()
         
         LYT.loader.register "Loading book", process
   
@@ -255,7 +239,7 @@ LYT.control =
             else
               parameters =
                 mode:                'bool'
-                prompt:              LYT.i18n('An error has occurred!')
+                prompt:              LYT.i18n('An error has occurred')
                 subTitle:            LYT.i18n('unable to retrieve book')
                 animate:             false
                 useDialogForceFalse: true
