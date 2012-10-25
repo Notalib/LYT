@@ -1342,3 +1342,22 @@ $bubble-arrow-height: 10px;
         background-position:center;
     }
 }
+
+html.js {
+  #no-js {
+    visibility:hidden;
+  }
+}
+
+
+html.no-js {
+  #no-js {
+    visibility:visible;
+  }
+  #jplayer {
+    visibility:hidden;
+  }
+  #bookshelf {
+    visibility:hidden;
+  }
+}

@@ -158,6 +158,7 @@ LYT.control =
         LYT.loader.register "Loading book", process
   
   # TODO: Move bookmarks list to separate page
+  # TOTO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     return if params?['ui-page']
@@ -172,24 +173,25 @@ LYT.control =
       LYT.render.clearContent content
   
       activate = (active, inactive, handler) ->
-        # TODO: We shouldn't have to re-bind every time a page is shown
-        $(active).unbind 'click'
-        $(inactive).unbind 'click'
         $(active).addClass 'ui-btn-active'
         $(inactive).removeClass 'ui-btn-active'
-        $(inactive).click (event) -> handler event
   
       renderBookmarks = ->
+        return if $("#bookmark-list-button.ui-btn-active").length != 0
         activate "#bookmark-list-button", "#book-toc-button", renderIndex
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
   
       renderIndex = ->
+        return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookIndex book, content
         LYT.loader.register "Loading index", promise
+  
+      $("#bookmark-list-button").click -> renderBookmarks()
+      $("#book-toc-button").click -> renderIndex()
   
       renderIndex()
 
