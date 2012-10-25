@@ -38,7 +38,7 @@ LYT.i18n = do ->
     "Talking book with text":           "Lydbog med tekst"
     "You are logged on as guest":       "Du er logget på som gæst"
     "and hence can not remove books.":  "og kan derfor ikke slette bøger."
-    "Delete this book?"                 "Vil du fjerne denne bog?"
+    "Delete this book?":                "Vil du fjerne denne bog?"
     "Remove":                           "Fjern"
     "OK":                               "OK"
     "Remove book":                      "Fjern bog"
