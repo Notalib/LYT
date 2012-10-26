@@ -81,7 +81,7 @@ LYT.render = do ->
         parameters.buttons[LYT.i18n('OK')] =
           click: ->
           theme: 'c'
-        $(this).simpledialog parameters
+        LYT.render.showDialog($(this),parameters)
       else
         parameters =
           mode:                'bool'
@@ -99,7 +99,7 @@ LYT.render = do ->
           click: ->
           id:    'cancel-btn'
           theme: 'c'
-        $(this).simpledialog(parameters)
+        LYT.render.showDialog($(this),parameters)
 
 
   # Displays a small speech bubble notification vertOffset pixels below the
@@ -418,3 +418,18 @@ LYT.render = do ->
       $("#current-user-name").text LYT.i18n('guest')
     else 
       $("#current-user-name").text LYT.session.getInfo().realname
+
+
+  showDialog: (parent, parameters) ->
+    parent.simpledialog parameters
+
+    # simpleDialog does not have aria labels on the output elements, so screenreaders has
+    # no chance of finding out what the dialog is saying without going into advanced 
+    # formular or cursor modes (usually not used by not-so-advanced users)
+    #
+    # Modify the created ui-simpledialog-container so that the screenreader knows this is an alert
+    $(".ui-simpledialog-container").attr 'role', 'alert'
+
+
+
+

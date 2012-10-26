@@ -253,7 +253,7 @@ LYT.player =
             parameters.buttons[LYT.i18n('Cancel')] =
               click: -> $.mobile.changePage "#bookshelf"
               theme: 'c'
-            $.mobile.activePage.simpledialog parameters
+            LYT.render.showDialog($.mobile.activePage,parameters)
 
             #reopen the dialog...
             #TODO: this is usually because something is wrong with the session or the internet connection, 
