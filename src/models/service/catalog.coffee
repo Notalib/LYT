@@ -20,16 +20,12 @@ LYT.catalog = do ->
   
   # Sorting options for the server-side function
   SORTING_OPTIONS =
-    "new":        1 # default
+    "new":        0 # default
+    "lastweek":   1
     "lastmonth":  2
     "last3month": 3
     "thisyear":   4
     "forever":    5
-    "author":     6
-    "title":      7
-    "yearasc":    8
-    "yeardesc":   9
-    "series":     10
   
   # Fields to be searched by the server-side function
   FIELD_OPTIONS =

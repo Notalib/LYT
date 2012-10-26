@@ -36,9 +36,11 @@ class LYT.Section
     this.always => this.loading = false
 
     log.message "Section: loading(\"#{@url}\")"
-    # if there is a '#' after the filename - replace it
+    # We get some wierd uri´s from IE8 due to missing documentElement substituted with iframe contentDocument.
+    # here we trim away everything before and after the filename.
     file = @url.replace /#.*$/, ""
-    file = file.substr file.lastIndexOf('/') + 1
+    if file.lastIndexOf('/') != -1
+      file = file.substr file.lastIndexOf('/') + 1
     url  = @resources[file]?.url
     if url is undefined
       log.error "url is undefined"
