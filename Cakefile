@@ -14,9 +14,10 @@ config =
 
 # # Options/Switches
 
-option "-c", "--concat",          "Concatenate CoffeeScript"
-option "-m", "--minify",          "Concatenate CoffeeScript and then minify"
-option "-v", "--verbose",         "Be more talkative"
+option "-c", "--concat",      "Concatenate CoffeeScript"
+option "-m", "--minify",      "Concatenate CoffeeScript and then minify"
+option "-v", "--verbose",     "Be more talkative"
+option "-d", "--development", "Use development settings"     
 
 # --------------------------------------
 
@@ -31,7 +32,12 @@ task "assets", "Sync assets to build", (options) ->
 task "src", "Compile CoffeeScript source", (options) ->
   invoke "notabs"
   cleanDir "build/javascript"
-  files = coffee.grind "src"
+  files = coffee.grind "src", null, (file) ->
+    if options.development
+      return true
+    else
+      return not file.match /config.dev.coffee$/
+
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
 
@@ -58,7 +64,11 @@ task "html", "Build HTML", (options) ->
   else if options.concat
     scripts = html.scriptTags "javascript/#{config.concatName}.js"
   else
-    scripts = coffee.grind "src"
+    scripts = coffee.grind "src", null, (file) ->
+      if options.development
+        return true
+      else
+        return not file.match /config.dev.coffee$/
     scripts = coffee.filter scripts, "src", "javascript"
     scripts = html.scriptTags scripts
 
@@ -171,10 +181,11 @@ coffee = do ->
   # ---------------
   
   # Return a list of files in their concatenation order
-  grind: (directory, loadpaths) ->
+  grind: (directory, loadpaths, fileFilter) ->
     {grind} = require "./tools/support/grinder.js"
     loadpaths or= directory
-    files = glob directory, /\.coffee$/i
+    fileFilter or= -> true
+    files = (glob directory, /\.coffee$/i).filter fileFilter
     grind loadpaths, files
   
   # Compile some CoffeeScript files

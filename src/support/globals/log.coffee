@@ -72,14 +72,15 @@
   #     1 = Errors
   #     2 = Errors & warnings
   #     3 = Errors, warnings, and messages (everything)
-  level: 3
+  level: 0
   # Receiver of logs:
+  #     none       = No receiver
   #     local      = Log to the built in console
   #     remote     = Send log entries to server
   #                  (The entries may arrive out of order.)
   #     devconsole = Log to developer console on screen (home brew)
   #     all        = Log to all of the above
-  receiver: 'local'
+  receiver: 'none'
   # To filter the log, set this value to a function that returns true for
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
