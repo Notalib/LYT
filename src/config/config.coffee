@@ -48,9 +48,8 @@ LYT.config =
 
   book:
     states:
-      new:        'New'
-      pending:    'Pending'
-      commercial: 'Commercial'
+      pending:    'InProduction'
+      available:  'Available'
       
   # ### LYT.bookshelf module config
   bookshelf:
