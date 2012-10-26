@@ -108,8 +108,8 @@ LYT.control =
           parameters.buttons[LYT.i18n('OK')] =
             click: -> # Nop
             theme: 'c'
-          $("#login-form").simpledialog parameters
-        
+          LYT.render.showDialog($("#login-form"),parameters)
+
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
@@ -258,7 +258,7 @@ LYT.control =
                 click: -> $.mobile.changePage "#bookshelf"
                 icon:  'delete'
                 theme: 'c'
-              $.mobile.activePage.simpledialog parameters
+              LYT.render.showDialog($.mobile.activePage,parameters)
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
