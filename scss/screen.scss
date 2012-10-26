@@ -1361,3 +1361,17 @@ html.no-js {
     visibility:hidden;
   }
 }
+
+/* This section fixes a problem with auto calculation of the z-index property on Apple Safari on IOS platforms */
+#profile {
+  z-index:100;
+}
+#support {
+  z-index:101;
+}
+#about {
+  z-index:102;
+}
+#book-index {
+  z-index:103;
+}
