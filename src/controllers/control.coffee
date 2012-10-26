@@ -166,7 +166,9 @@ LYT.control =
     promise.fail -> log.error 'Control: bookIndex: unable to log in'
     promise.done ->
       bookId = params?.book or LYT.player.book?.id
-      $.mobile.changePage '#bookshelf' unless bookId
+      if not bookId
+        $.mobile.changePage '#bookshelf' 
+        return
       content = $(page).children ':jqmData(role=content)'
   
       # Remove any previously generated index (may be from another book)
