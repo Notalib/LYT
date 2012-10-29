@@ -181,7 +181,11 @@ LYT.player =
         log.message "Player: event seeked: get segment at offset #{@time}"
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.error 'Player: event seeked: unable to get segment at offset '
-        segment.done (segment) => @updateHtml segment
+        segment.done (segment) =>
+          @updateHtml segment
+          if @getStatus().paused and @playing and @getStatus().readyState > 2
+            log.message 'Player: event seeked: starting the player again'
+            @el.jPlayer 'play'
 
       loadedmetadata: (event) =>
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus.paused}"
