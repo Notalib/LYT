@@ -4,17 +4,20 @@ fs.path = require "path"
 # # Configuration
 
 config =
-  concatName: "lyt"     # Name of concatenated script, when using the --concat option
-  coffee:     "coffee"  # Path to CoffeeScript compiler (if not in PATH)
-  docco:      "docco"   # Path to docco (if not in PATH)
-  compass:    "compass" # Path to compass (if not in PATH)
+  concatName: "lyt"       # Name of concatenated script, when using the --concat option
+  coffee:     "coffee"    # Path to CoffeeScript compiler (if not in PATH)
+  docco:      "docco"     # Path to docco (if not in PATH)
+  compass:    "compass"   # Path to compass (if not in PATH)
+  minify:     "uglifyjs2" # Path to minifier
 
 # --------------------------------------
 
 # # Options/Switches
 
-option "-c", "--concat",  "Concatenate CoffeeScript before compiling"
-option "-v", "--verbose", "Be more talkative"
+option "-c", "--concat",      "Concatenate CoffeeScript"
+option "-m", "--minify",      "Concatenate CoffeeScript and then minify"
+option "-v", "--verbose",     "Be more talkative"
+option "-d", "--development", "Use development settings"     
 
 # --------------------------------------
 
@@ -29,8 +32,13 @@ task "assets", "Sync assets to build", (options) ->
 task "src", "Compile CoffeeScript source", (options) ->
   invoke "notabs"
   cleanDir "build/javascript"
-  files = coffee.grind "src"
-  coffee.brew files, "src", "build/javascript", options.concat, ->
+  files = coffee.grind "src", null, (file) ->
+    if options.development
+      return true
+    else
+      return not file.match /config.dev.coffee$/
+
+  coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
 
 task "html", "Build HTML", (options) ->
@@ -46,14 +54,27 @@ task "html", "Build HTML", (options) ->
   ).join "\n\n"
   template = html.interpolate template, body, "body"
 
-  if options.concat
+  # Using config.concatName below for the css files is a little off, since
+  # the sheet lyt.css is the theme roller generated sheet whereas screen.css
+  # (which isn't minified) is our own.
+  stylesheet = "css/#{config.concatName}.css"
+  if options.minify
+    scripts = html.scriptTags "javascript/#{config.concatName}.min.js"
+    stylesheet = "css/#{config.concatName}.min.css"
+  else if options.concat
     scripts = html.scriptTags "javascript/#{config.concatName}.js"
   else
-    scripts = coffee.grind "src"
+    scripts = coffee.grind "src", null, (file) ->
+      if options.development
+        return true
+      else
+        return not file.match /config.dev.coffee$/
     scripts = coffee.filter scripts, "src", "javascript"
     scripts = html.scriptTags scripts
-  
+
+  template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'stylesheets'
   template = html.interpolate template, scripts, "scripts"
+  
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
     boast "rendered", "html", "build/index.html"
@@ -141,6 +162,8 @@ coffee = do ->
     grouped
   
   # Compile some CoffeeScript files
+  # Will *always* produce both concatenated and minified
+  # versions if concat is true.
   compile = (files, output, concat, callback) ->
     cmd = "#{config.coffee} --compile"
     cmd = "#{cmd} --join #{q concat}" if concat
@@ -148,20 +171,26 @@ coffee = do ->
     exec "#{cmd} --output #{q output} #{files}", (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
+      if concat
+        minOutput = "#{output}/#{concat}.min.js"
+        minInput  = "#{output}/#{concat}.js"
+        exec "#{config.minify} -o #{q minOutput} #{q minInput}"
       callback()
   
   # ### Public methods
   # ---------------
   
   # Return a list of files in their concatenation order
-  grind: (directory, loadpaths) ->
+  grind: (directory, loadpaths, fileFilter) ->
     {grind} = require "./tools/support/grinder.js"
-    directory = directory
     loadpaths or= directory
-    files = glob directory, /\.coffee$/i
+    fileFilter or= -> true
+    files = (glob directory, /\.coffee$/i).filter fileFilter
     grind loadpaths, files
   
   # Compile some CoffeeScript files
+  # Will always produce both concatenated and minified
+  # versions if concat is true.
   brew: (files, base, output, concat, callback) ->
     base   = base
     output = output
@@ -217,7 +246,11 @@ html = do ->
   # Generate script tags for the given urls
   scriptTags: (urls) ->
     urls = [urls] if typeof urls is "string"
-    ("""<script src="#{url}"></script>""" for url in urls).join "\n" 
+    ("""<script src="#{url}"></script>""" for url in urls).join "\n"
+
+  styleSheets: (urls) ->
+    urls = [urls] if typeof urls is "string"
+    ("""<link rel="stylesheet" type="text/css" href="#{url}">""" for url in urls).join "\n"
   
 
 # --------------------------------------
