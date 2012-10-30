@@ -185,7 +185,7 @@ LYT.control =
         LYT.loader.register "Loading bookmarks", promise
   
       renderIndex = ->
-        #We should check if book is different than last time we checked...
+        #TODO:  Check if book is different than last time we checked...
         #return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
         promise = LYT.Book.load bookId
