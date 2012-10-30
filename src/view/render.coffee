@@ -429,7 +429,8 @@ LYT.render = do ->
     #
     # Modify the created ui-simpledialog-container so that the screenreader knows this is an alert
     $(".ui-simpledialog-container").attr 'role', 'alert'
-
+    $(".ui-simpledialog-header h4").attr 'role', 'alert'
+    $(".ui-simpledialog-subtitle").attr 'role', 'alert'
 
 
 
