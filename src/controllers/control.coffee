@@ -119,7 +119,7 @@ LYT.control =
   bookshelf: (type, match, ui, page, event) ->
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: bookshelf: unable to log in'
     promise.done ->
       content = $(page).children(":jqmData(role=content)")
   
@@ -343,7 +343,7 @@ LYT.control =
   settings: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
         if not LYT.player.isPlayBackRateSupported()
@@ -392,7 +392,7 @@ LYT.control =
     # Not passing params since it is currently only being used to indicate
     # whether the user should be logged in as guest.
     promise = LYT.control.ensureLogOn()
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: profile: unable to log in'
     promise.done ->
       if type is 'pageshow'
         LYT.render.profile()
@@ -400,7 +400,7 @@ LYT.control =
   share: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: share: unable to log in'
     promise.done ->
       if type is 'pageshow'
         params = LYT.router.getParams match[1]
