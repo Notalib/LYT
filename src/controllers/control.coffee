@@ -177,14 +177,16 @@ LYT.control =
         $(inactive).removeClass 'ui-btn-active'
   
       renderBookmarks = ->
-        return if $("#bookmark-list-button.ui-btn-active").length != 0
+        #TODO:  Check if book is different than last time we checked...
+        #return if $("#bookmark-list-button.ui-btn-active").length != 0
         activate "#bookmark-list-button", "#book-toc-button", renderIndex
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
   
       renderIndex = ->
-        return if $("#book-toc-button.ui-btn-active").length != 0
+        #We should check if book is different than last time we checked...
+        #return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookIndex book, content
