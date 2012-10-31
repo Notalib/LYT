@@ -439,3 +439,7 @@ LYT.render = do ->
     $(".ui-simpledialog-subtitle").attr 'role', 'alert'
 
 
+  setPlayerButtonFocus: (button) ->
+    $(".jp-#{button}").addClass('ui-btn-active').focus()
+
+
