@@ -61,6 +61,7 @@ LYT.loader = do ->
       setTimeout setMessage, delay
     else
       setMessage()
+    $(".ui-loader h1").attr("role","alert")
   
   # in JQueryMobile 1.2 there is a update to the loader (but ugly layout), so we are using our own css.
   # Close a loading message
