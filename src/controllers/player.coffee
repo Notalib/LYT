@@ -21,6 +21,7 @@ LYT.player =
   nextButton: null
   previousButton: null
   
+  playing: null
   nextOffset: null
 
   autoProgression: true 
@@ -135,6 +136,8 @@ LYT.player =
       
       play: (event) =>
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
+        # Help JAWS users, move focus back
+        LYT.render.setPlayerButtonFocus 'pause'
         # We should be checking for readyState < 4, but IOS is optimistic and allows readyState == 3
         # when it fires the canplaythrough event, which - in turn - will press play
         # We could solve this issue by setting up a timer that is watching the readyState, but such
@@ -158,11 +161,14 @@ LYT.player =
           # enough. Also, provide @nextOffset to ensure that we buffer the
           # right part of the audio.
           @el.jPlayer 'pause', @nextOffset
-      
+
       pause: (event) =>
         log.message "Player: event pause"
         status = event.jPlayer.status
+        LYT.render.setPlayerButtonFocus 'play'
+
         return if status.ended # Drop pause event emitted when media ends
+
         return unless @isIOS()
         if @_iBug
           log.warn 'we are ibug'
