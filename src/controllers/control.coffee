@@ -108,8 +108,8 @@ LYT.control =
           parameters.buttons[LYT.i18n('OK')] =
             click: -> # Nop
             theme: 'c'
-          $("#login-form").simpledialog parameters
-        
+          LYT.render.showDialog($("#login-form"),parameters)
+
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
@@ -166,7 +166,9 @@ LYT.control =
     promise.fail -> log.error 'Control: bookIndex: unable to log in'
     promise.done ->
       bookId = params?.book or LYT.player.book?.id
-      $.mobile.changePage '#bookshelf' unless bookId
+      if not bookId
+        $.mobile.changePage '#bookshelf' 
+        return
       content = $(page).children ':jqmData(role=content)'
   
       # Remove any previously generated index (may be from another book)
@@ -258,7 +260,7 @@ LYT.control =
                 click: -> $.mobile.changePage "#bookshelf"
                 icon:  'delete'
                 theme: 'c'
-              $.mobile.activePage.simpledialog parameters
+              LYT.render.showDialog($.mobile.activePage,parameters)
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
