@@ -252,7 +252,7 @@ LYT.render = do ->
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
       for item in items
-        element = jQuery "<li></li>" 
+        element = jQuery """<li data-icon="arrow-right"></li>""" 
         element.attr "id", item.id
         element.attr "data-href", item.id
         
