@@ -108,8 +108,8 @@ LYT.control =
           parameters.buttons[LYT.i18n('OK')] =
             click: -> # Nop
             theme: 'c'
-          $("#login-form").simpledialog parameters
-        
+          LYT.render.showDialog($("#login-form"),parameters)
+
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
@@ -119,7 +119,7 @@ LYT.control =
   bookshelf: (type, match, ui, page, event) ->
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: bookshelf: unable to log in'
     promise.done ->
       content = $(page).children(":jqmData(role=content)")
   
@@ -150,30 +150,15 @@ LYT.control =
             content.find("#add-to-bookshelf-button").bind "click", (event) ->
               # TODO: This is far from perfect: There's no way
               # of knowing if something's already on the shelf
-              if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-                parameters =
-                  mode:                'bool'
-                  prompt:              LYT.i18n('You are logged in as guest!')
-                  subTitle:            '...' + LYT.i18n('and hence cannot add books')
-                  animate:             false
-                  useDialogForceFalse: true
-                  allowReopen:         true
-                  useModal:            true
-                  buttons:             {}
-                parameters.buttons[LYT.i18n('OK')] =
-                  click: -> # Nop
-                  theme: "c"
-                $(this).simpledialog(parameters)
-  
-              else
-                LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
-                $(this).unbind event 
-                event.preventDefault()
-                event.stopImmediatePropagation()
+              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
+              $(this).unbind event 
+              event.preventDefault()
+              event.stopImmediatePropagation()
         
         LYT.loader.register "Loading book", process
   
   # TODO: Move bookmarks list to separate page
+  # TOTO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     return if params?['ui-page']
@@ -181,31 +166,34 @@ LYT.control =
     promise.fail -> log.error 'Control: bookIndex: unable to log in'
     promise.done ->
       bookId = params?.book or LYT.player.book?.id
-      $.mobile.changePage '#bookshelf' unless bookId
+      if not bookId
+        $.mobile.changePage '#bookshelf' 
+        return
       content = $(page).children ':jqmData(role=content)'
   
       # Remove any previously generated index (may be from another book)
       LYT.render.clearContent content
   
       activate = (active, inactive, handler) ->
-        # TODO: We shouldn't have to re-bind every time a page is shown
-        $(active).unbind 'click'
-        $(inactive).unbind 'click'
         $(active).addClass 'ui-btn-active'
         $(inactive).removeClass 'ui-btn-active'
-        $(inactive).click (event) -> handler event
   
       renderBookmarks = ->
+        return if $("#bookmark-list-button.ui-btn-active").length != 0
         activate "#bookmark-list-button", "#book-toc-button", renderIndex
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
   
       renderIndex = ->
+        return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookIndex book, content
         LYT.loader.register "Loading index", promise
+  
+      $("#bookmark-list-button").click -> renderBookmarks()
+      $("#book-toc-button").click -> renderIndex()
   
       renderIndex()
 
@@ -255,7 +243,7 @@ LYT.control =
             else
               parameters =
                 mode:                'bool'
-                prompt:              LYT.i18n('An error has occurred!')
+                prompt:              LYT.i18n('An error has occurred')
                 subTitle:            LYT.i18n('unable to retrieve book')
                 animate:             false
                 useDialogForceFalse: true
@@ -270,7 +258,7 @@ LYT.control =
                 click: -> $.mobile.changePage "#bookshelf"
                 icon:  'delete'
                 theme: 'c'
-              $.mobile.activePage.simpledialog parameters
+              LYT.render.showDialog($.mobile.activePage,parameters)
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
@@ -355,7 +343,7 @@ LYT.control =
   settings: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
         if not LYT.player.isPlayBackRateSupported()
@@ -404,7 +392,7 @@ LYT.control =
     # Not passing params since it is currently only being used to indicate
     # whether the user should be logged in as guest.
     promise = LYT.control.ensureLogOn()
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: profile: unable to log in'
     promise.done ->
       if type is 'pageshow'
         LYT.render.profile()
@@ -412,7 +400,7 @@ LYT.control =
   share: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
+    promise.fail -> log.error 'Control: share: unable to log in'
     promise.done ->
       if type is 'pageshow'
         params = LYT.router.getParams match[1]

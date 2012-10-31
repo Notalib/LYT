@@ -47,6 +47,44 @@
   padding: 0 !important;
   margin: 0 !important;
 }
+.ui-body-a {
+  color: white !important;
+  text-shadow: 0 0px 0 white !important; 
+}
+
+
+/* loader */
+.ui-loader-default {
+  display: none;
+  position: absolute !important;
+  opacity: .75 !important;
+  z-index: 100 !important;
+  left: 50% !important;
+  width: 200px !important;
+  height: 90px !important;
+  margin-left: -130px !important;
+  margin-top: -35px !important;
+  padding: 10px 30px !important;
+  border: 2px !important;
+  background: black !important;
+}
+
+.ui-icon-loading {
+  position: static !important;
+  display: block !important;
+  opacity: 1 !important;
+  margin: 0 auto !important;
+  width: 46px !important;
+  height: 46px !important;
+  background-color: black !important;
+}
+
+.ui-loader-default h1 {
+  font-size: 15px !important;
+  text-align: center !important;
+  width: 200px !important;
+  height: 30px !important;
+}
 
 #bookshelf-content {
   .ui-li, .ui-li.ui-field-contain {
@@ -1359,4 +1397,37 @@ $bubble-arrow-height: 10px;
         background-repeat:no-repeat;
         background-position:center;
     }
+}
+
+html.js {
+  #no-js {
+    visibility:hidden;
+  }
+}
+
+
+html.no-js {
+  #no-js {
+    visibility:visible;
+  }
+  #jplayer {
+    visibility:hidden;
+  }
+  #bookshelf {
+    visibility:hidden;
+  }
+}
+
+/* This section fixes a problem with auto calculation of the z-index property on Apple Safari on IOS platforms */
+#profile {
+  z-index:100;
+}
+#support {
+  z-index:101;
+}
+#about {
+  z-index:102;
+}
+#book-index {
+  z-index:103;
 }

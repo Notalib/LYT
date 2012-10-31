@@ -154,15 +154,15 @@ class LYT.Segment
         log.error "Segment: parseContent: can't create reliable cartoon type with multiple or zero images: #{this.url()}"
         throw 'Segment: parseContent: unable to find exactly one image in cartoon display div'
 
-      getCanvasSize = ->
+      getCanvasSize = (image) ->
         result = {}
         for type in ['height', 'width']
           # Try reading canvas size from height/width attribute on image
           if dim = image.attr type
             result[type] = dim
             continue
-          # Try reading canvas size from css on image
-          if dim = image.css(type).match(/(\d+)(?:px)?/)
+          # Try parsing style attribute
+          if dim = image.attr('style').match(type + '\\s*:\\s*(\\d+)\\s*px')
             result[type] = dim[1]
             continue
           # Try reading canvas size from css on the containing div

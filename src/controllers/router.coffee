@@ -32,6 +32,10 @@ $(document).ready ->
   LYT.gatrack.init()
   LYT.control.init()
 
+# This is a hack - redirect the first page load to use the real url location
+# See http://stackoverflow.com/questions/13086110/jquery-mobile-router-doesnt-route-the-first-page-load
+$(document).one 'pagebeforechange', (event, data) -> data.toPage = window.location.hash
+
 $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
     "#book-details([?].*)?":
@@ -144,3 +148,4 @@ $(document).bind "mobileinit", ->
     #TODO: apologize on behalf of the server
   $(LYT.service).bind "error:service", () ->
     #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
+

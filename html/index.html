@@ -1,6 +1,6 @@
 <!DOCTYPE html> 
 
-<html manifest="manifest.appcache" class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px"> 
+<html class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px no-js"> 
 
 <head>
 	<meta charset="utf-8">
@@ -22,12 +22,14 @@
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css">
 	
 	<!-- App-specific stylesheets -->
-	<link rel="stylesheet" type="text/css" href="css/lyt.min.css">
-	<link rel="stylesheet" type="text/css" href="css/screen.css">
+	<!-- stylesheets -->
 	
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile.structure-1.2.0.min.css" />
 	<link rel="stylesheet" type="text/css" href="lib/simpledialog/jquery.mobile.simpledialog.min.css" />
 
+	<!-- Modernizr library, tests for javascript capabilities -->
+	<script src="lib/modernizr/modernizr.js"></script>
+	
 	<!-- JavaScript libraries -->
 	<script src="lib/polyfills/indexOf.js"></script>
 	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
@@ -51,11 +53,27 @@
 </head>
 
 <body>
+
+	<!-- Shown if the client does not have javascript support enabled -->
+	<div id="no-js">
+		<div align="center"><img src="images/logo.png"/></div>
+		<div class="ui-bar-c">
+		  <h2>Vi er kede af det...</h2>
+		  <div class="text-field">
+				<p>...men din browser kan ikke køre javascript, derfor kan E17 Mobil ikke vises.</p>
+				<ul>
+					<li>Gå til indstillinger for din browser og tillad at websites kører javascript</li>
+				</ul>
+				<p>Hvis det ikke virker, kontakt E17&nbsp;Support.</p>
+			</div>
+		</div>
+	</div>
+	
 	<div id="jplayer" class="jp-jplayer"></div>
 	
 	<div data-role="page" id="bookshelf" data-title="Mine bøger">
     	<header data-role="header" data-theme="b">
-    		<a class="gatrack" data-role="button" role="button" href="#search" data-iconpos="notext" data-icon="lyt-search" data-iconshadow="false">Søg</a>
+    		<a class="gatrack" data-role="button" role="button" href="#search" data-iconpos="notext" data-icon="lyt-search" data-iconshadow="false" aria-label="Søg">Søg</a>
 	    		<h1>Mine bøger</h1>	
     		<a class="gatrack" data-role="button" role="button" href="#profile" data-icon="lyt-gear" data-iconpos="notext" data-iconshadow="false">Profil</a>
     	</header>
