@@ -252,7 +252,7 @@ LYT.render = do ->
     # Recursively builds nested ordered lists from an array of items
     mapper = (list, items) ->
       for item in items
-        element = jQuery "<li></li>" 
+        element = jQuery """<li data-icon="arrow-right"></li>""" 
         element.attr "id", item.id
         element.attr "data-href", item.id
         
@@ -421,6 +421,7 @@ LYT.render = do ->
 
 
   showDialog: (parent, parameters) ->
+    LYT.loader.clear
     parent.simpledialog parameters
 
     # simpleDialog does not have aria labels on the output elements, so screenreaders has
@@ -429,7 +430,8 @@ LYT.render = do ->
     #
     # Modify the created ui-simpledialog-container so that the screenreader knows this is an alert
     $(".ui-simpledialog-container").attr 'role', 'alert'
-
+    $(".ui-simpledialog-header h4").attr 'role', 'alert'
+    $(".ui-simpledialog-subtitle").attr 'role', 'alert'
 
   setPlayerButtonFocus: (button) ->
     $(".jp-#{button}").addClass('ui-btn-active').focus()
