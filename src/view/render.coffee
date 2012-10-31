@@ -426,7 +426,7 @@ LYT.render = do ->
 
 
   showDialog: (parent, parameters) ->
-    LYT.loader.clear
+    LYT.loader.clear()
     parent.simpledialog parameters
 
     # simpleDialog does not have aria labels on the output elements, so screenreaders has
