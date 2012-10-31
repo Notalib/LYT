@@ -30,7 +30,7 @@ LYT.control =
         return '0.0.2'
           
     if lastVersion() and lastVersion() isnt LYT.VERSION
-      next = window.location.hash
+      LYT.var.next = window.location.hash
       window.location.hash = '#splash-upgrade'
     
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
@@ -39,7 +39,8 @@ LYT.control =
   
   setupClickHandlers: ->
     $(document).one 'pageinit', ->
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(next or '#bookshelf')
+      goto = if LYT.var.next then LYT.var.next else '#bookshelf'
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(goto)
 
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
