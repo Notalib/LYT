@@ -421,6 +421,7 @@ LYT.render = do ->
 
 
   showDialog: (parent, parameters) ->
+    LYT.loader.clear
     parent.simpledialog parameters
 
     # simpleDialog does not have aria labels on the output elements, so screenreaders has
@@ -429,7 +430,8 @@ LYT.render = do ->
     #
     # Modify the created ui-simpledialog-container so that the screenreader knows this is an alert
     $(".ui-simpledialog-container").attr 'role', 'alert'
-
+    $(".ui-simpledialog-header h4").attr 'role', 'alert'
+    $(".ui-simpledialog-subtitle").attr 'role', 'alert'
 
 
 
