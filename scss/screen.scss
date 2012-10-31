@@ -973,6 +973,7 @@
 }
 #login-button-wrapper {
   @include action-button();
+  margin-top:10px;
 }
 img.nota-full {
   max-height: 120px;
@@ -1451,4 +1452,19 @@ li.ui-li h3.no-search-results {
   padding-left: 11px;
   padding-top: 20px;
   background:#EEE;
+}
+
+/* This fixes a problem for the ui-btn-* classes.. When hovering, the left and/or right border disappears */
+#book-play-menu .ui-btn-hover-a.previous-section  {
+  #background:#ff0000 !important;
+  border-left:solid 1px #000000 !important;
+}
+#book-play-menu .ui-btn-hover-a.jp-play, .ui-btn-hover-a.jp-pause {
+  #background:#00ff00 !important; 
+  border-left:solid 1px #000000 !important;
+}
+#book-play-menu .ui-btn-hover-a.next-section  {
+  #background:#0000ff !important;
+  border-left:solid 1px #000000 !important;
+  border-right:solid 1px #000000 !important;
 }
