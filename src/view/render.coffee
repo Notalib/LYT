@@ -312,8 +312,8 @@ LYT.render = do ->
         list.find('.bookmark-actions').remove()
         list.find('.active').removeClass('active')
         listItem.addClass 'active'
-        share  = $('<div class="ui-block-a bookmark-share" title="Del">&nbsp;</div>')
-        remove = $('<div class="ui-block-b bookmark-delete" title="Slet">&nbsp;</div>')
+        share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
+        remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
         share.on 'click', ->
           [section, segment] = bookmark.URI.split '#'
           reference =
@@ -437,6 +437,5 @@ LYT.render = do ->
     $(".ui-simpledialog-container").attr 'role', 'alert'
     $(".ui-simpledialog-header h4").attr 'role', 'alert'
     $(".ui-simpledialog-subtitle").attr 'role', 'alert'
-
 
 
