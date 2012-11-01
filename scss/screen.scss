@@ -1132,16 +1132,23 @@ div.current {
   .ui-btn {
     border-color: #000;
     border-top: none;
-  }
-  .ui-btn-down-a {
-    background: $highlightcolor !important;
+    margin: 0 !important;
+    border-right-width: 0px !important;
   }
   .ui-btn-up-a, .ui-btn-hover-a {
     background: $darkbuttoncolor;
+    @include box-shadow(none);
+  }
+  .ui-btn-down-a {
+    background: $highlightcolor !important;
+    @include box-shadow(none);
   }
   .ui-icon {
     width: 25px;
     @include border-radius(0, 0);
+  }
+  .ui-block-a, .ui-block-b, .ui.block-c {
+    margin-right: 0px !important;
   }
 }
 
