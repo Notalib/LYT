@@ -36,8 +36,8 @@ class LYT.Section
     this.always => this.loading = false
 
     log.message "Section: loading(\"#{@url}\")"
-    # We get some wierd uri´s from IE8 due to missing documentElement substituted with iframe contentDocument.
-    # here we trim away everything before and after the filename.
+    # We get some weird uris from IE8 due to missing documentElement substituted with iframe contentDocument.
+    # Here we trim away everything before and after the filename.
     file = @url.replace /#.*$/, ""
     if file.lastIndexOf('/') != -1
       file = file.substr file.lastIndexOf('/') + 1
