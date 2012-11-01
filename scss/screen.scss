@@ -973,6 +973,7 @@
 }
 #login-button-wrapper {
   @include action-button();
+  margin-top:10px;
 }
 img.nota-full {
   max-height: 120px;
