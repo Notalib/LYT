@@ -1446,7 +1446,7 @@ html.no-js {
   z-index:106;
 }
 
-/* IE seems to miscalculate the position of the autocomplete list.. it properbly forgets about 
+/* IE seems to miscalculate the position of the autocomplete list.. it probably forgets about 
    some margins or padding..  fix the list at 100px, which seems to be correct on all browsers. */
 .ui-autocomplete {
   top:100px !important;
