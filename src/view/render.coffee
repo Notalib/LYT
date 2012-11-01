@@ -255,7 +255,12 @@ LYT.render = do ->
         element = jQuery """<li data-icon="arrow-right"></li>""" 
         element.attr "id", item.id
         element.attr "data-href", item.id
-        
+
+        # IE8 fix url
+        # TODO: remove URLs from structure on retriving ressources.
+        if item.url.lastIndexOf('/') != -1
+          item.url = item.url.substr item.url.lastIndexOf('/') + 1
+
         if item.children.length > 0
           element.append "<span>#{item.title}</span>"
         else
@@ -307,8 +312,8 @@ LYT.render = do ->
         list.find('.bookmark-actions').remove()
         list.find('.active').removeClass('active')
         listItem.addClass 'active'
-        share  = $('<div class="ui-block-a bookmark-share" title="Del">&nbsp;</div>')
-        remove = $('<div class="ui-block-b bookmark-delete" title="Slet">&nbsp;</div>')
+        share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
+        remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
         share.on 'click', ->
           [section, segment] = bookmark.URI.split '#'
           reference =
@@ -421,7 +426,7 @@ LYT.render = do ->
 
 
   showDialog: (parent, parameters) ->
-    LYT.loader.clear
+    LYT.loader.clear()
     parent.simpledialog parameters
 
     # simpleDialog does not have aria labels on the output elements, so screenreaders has
@@ -432,6 +437,7 @@ LYT.render = do ->
     $(".ui-simpledialog-container").attr 'role', 'alert'
     $(".ui-simpledialog-header h4").attr 'role', 'alert'
     $(".ui-simpledialog-subtitle").attr 'role', 'alert'
+
 
   setPlayerButtonFocus: (button) ->
     $(".jp-#{button}").addClass('ui-btn-active').focus()

@@ -26,7 +26,7 @@ LYT.i18n = do ->
     "Most popular - Adults":            "Top 10 - voksne"
     "Coming":                           "Kommer snart"
     "No bookmarks defined yet":         "Der er ingen bogmærker endnu" 
-    "No search results":                "Din søgning gav ingen resultater"
+    "No search results":                "Din søgning gav ingen resultater, prøv igen"
     "Login error":                      "Log-in fejl"
     "Incorrect username or password":   "Forkert brugernavn eller kodeord."
     "An error has occurred":            "Der er opstået en fejl"
