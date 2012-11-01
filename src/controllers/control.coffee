@@ -145,7 +145,7 @@ LYT.control =
         
         process = LYT.catalog.getDetails(params.book)
           .fail (error, msg) ->
-            log.message "failed with error #{error} and msg #{msg}"
+            log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
             content.find("#add-to-bookshelf-button").bind "click", (event) ->
