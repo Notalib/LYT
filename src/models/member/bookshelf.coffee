@@ -64,5 +64,5 @@ LYT.bookshelf =
   remove: (id) ->
     LYT.service.return(id)
 
-  getNextPage:() ->
+  getNextPage: ->
     @nextPage
