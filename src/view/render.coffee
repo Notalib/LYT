@@ -211,7 +211,7 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
 
-  ShowAnnouncements: (announcements) ->
+  showAnnouncements: (announcements) ->
     #for announcement in announcements
      # if announcement.text?
        # alert announcement.text #Stops processing of javascript (alert)...
