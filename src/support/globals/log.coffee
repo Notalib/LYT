@@ -32,6 +32,9 @@
       if method?.apply?
         method.apply console, setTime messages
       else
+        # TODO: This should be rewritten to
+        # if method
+        #   method message for message in setTime messages
         messageArray = setTime messages
         if method 
           for message in messageArray
