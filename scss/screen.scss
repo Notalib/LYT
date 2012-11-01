@@ -1138,11 +1138,9 @@ div.current {
   }
   .ui-btn-up-a, .ui-btn-hover-a {
     background: $darkbuttoncolor;
-    @include box-shadow(none);
   }
   .ui-btn-down-a {
     background: $highlightcolor !important;
-    @include box-shadow(none);
   }
   .ui-icon {
     width: 25px;
