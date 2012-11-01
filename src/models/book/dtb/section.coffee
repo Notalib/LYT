@@ -43,7 +43,7 @@ class LYT.Section
       file = file.substr file.lastIndexOf('/') + 1
     url  = @resources[file]?.url
     if url is undefined
-      log.error "url is undefined"
+      log.error "Section: load: url is undefined"
     @document = new LYT.SMILDocument this, url
 
     @document.done => @_deferred.resolve this
