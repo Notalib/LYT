@@ -727,6 +727,12 @@
 
 }
 
+li.ui-li h3.no-search-results {
+  padding-left: 11px;
+  padding-top: 20px;
+  background:#EEE;
+}
+
 #list_item_1 {
   background: transparent url(../images/icons/recommend_icn_25.png) no-repeat 8px 50%;
 
@@ -1450,10 +1456,4 @@ html.no-js {
    some margins or padding..  fix the list at 100px, which seems to be correct on all browsers. */
 .ui-autocomplete {
   top:100px !important;
-}
-
-li.ui-li h3.no-search-results {
-  padding-left: 11px;
-  padding-top: 20px;
-  background:#EEE;
 }
