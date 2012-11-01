@@ -30,7 +30,7 @@ LYT.control =
         return '0.0.2'
           
     if lastVersion() and lastVersion() isnt LYT.VERSION
-      next = window.location.hash
+      LYT.var.next = window.location.hash
       window.location.hash = '#splash-upgrade'
     
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
@@ -39,7 +39,8 @@ LYT.control =
   
   setupClickHandlers: ->
     $(document).one 'pageinit', ->
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(next or '#bookshelf')
+      goto = if LYT.var.next then LYT.var.next else '#bookshelf'
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(goto)
 
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
@@ -179,14 +180,16 @@ LYT.control =
         $(inactive).removeClass 'ui-btn-active'
   
       renderBookmarks = ->
-        return if $("#bookmark-list-button.ui-btn-active").length != 0
+        #TODO:  Check if book is different than last time we checked...
+        #return if $("#bookmark-list-button.ui-btn-active").length != 0
         activate "#bookmark-list-button", "#book-toc-button", renderIndex
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
   
       renderIndex = ->
-        return if $("#book-toc-button.ui-btn-active").length != 0
+        #TODO:  Check if book is different than last time we checked...
+        #return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookIndex book, content
@@ -420,18 +423,12 @@ LYT.control =
         if LYT.player.isIOS() #nice html... 
           body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: <a href='#{url}'>#{params.title}</a>"
         else
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{Lyt.i18n('by clicking this link')}: #{url}"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{url}"
         
         $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
         
         $("#share-link-textarea").text url
-        $("#share-link-textarea").click -> 
-          this.focus()
-          if LYT.player.isIOS()
-            this.selectionStart = 0;
-            this.selectionEnd = this.value.length;
-          else
-            this.select()
+        
         
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 

@@ -61,26 +61,21 @@ LYT.loader = do ->
       setTimeout setMessage, delay
     else
       setMessage()
+    $(".ui-loader h1").attr("role","alert")
   
-  # in JQueryMobile 1.2 there is a update to loader (but ugly layout)
-  # $.mobile.loading( 'show', { text: 'foo', textVisible: true, theme: 'z', html: ""} );
-  # $.mobile.loading('show')
-  # $.mobile.loading('hide')
-
+  # in JQueryMobile 1.2 there is a update to the loader (but ugly layout), so we are using our own css.
   # Close a loading message
   close: (id) ->
     # close loader with id and unlock interface if all loaders are closed
     loaders.splice index, 1 while (index = loaders.indexOf id) isnt -1
     
     if loaders.length is 0
-      #jQuery.mobile.hidePageLoadingMsg()
       $.mobile.loading 'hide'
       unlockPage()
   
   # Clear the loading stack
   clear: ->
     loaders = []
-    #jQuery.mobile.hidePageLoadingMsg()
     $.mobile.loading 'hide'
     unlockPage()
   
