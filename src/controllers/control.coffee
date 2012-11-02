@@ -39,8 +39,8 @@ LYT.control =
   
   setupClickHandlers: ->
     $(document).one 'pageinit', ->
-      goto = if LYT.var.next then LYT.var.next else '#bookshelf'
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(goto)
+      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else '#bookshelf'
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
 
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
