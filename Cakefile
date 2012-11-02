@@ -17,7 +17,8 @@ config =
 option "-c", "--concat",      "Concatenate CoffeeScript"
 option "-m", "--minify",      "Concatenate CoffeeScript and then minify"
 option "-v", "--verbose",     "Be more talkative"
-option "-d", "--development", "Use development settings"     
+option "-d", "--development", "Use development settings"
+option "-t", "--test",        "Use test environment"
 
 # --------------------------------------
 
@@ -58,22 +59,28 @@ task "html", "Build HTML", (options) ->
   # the sheet lyt.css is the theme roller generated sheet whereas screen.css
   # (which isn't minified) is our own.
   stylesheet = "css/#{config.concatName}.css"
+  scripts = []
+
+  if options.test
+    scripts.push "http://test.e17.dk/getnotaauthtoken"
+  else
+    scripts.push "http://e17.dk/getnotaauthtoken"
+
   if options.minify
-    scripts = html.scriptTags "javascript/#{config.concatName}.min.js"
+    scripts.push "javascript/#{config.concatName}.min.js"
     stylesheet = "css/#{config.concatName}.min.css"
   else if options.concat
-    scripts = html.scriptTags "javascript/#{config.concatName}.js"
+    scripts.push "javascript/#{config.concatName}.js"
   else
-    scripts = coffee.grind "src", null, (file) ->
+    coffeeScripts = coffee.grind "src", null, (file) ->
       if options.development
         return true
       else
         return not file.match /config.dev.coffee$/
-    scripts = coffee.filter scripts, "src", "javascript"
-    scripts = html.scriptTags scripts
+    scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'stylesheets'
-  template = html.interpolate template, scripts, "scripts"
+  template = html.interpolate template, html.scriptTags(scripts), "scripts"
   
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
