@@ -368,14 +368,14 @@ LYT.player =
       @el.bind $.jPlayer.event.ready, callback
   
   # url: url pointing to section or segment
-  load: (book, url = null, offset = 0, autoPlay = true) ->
+  load: (book, url = null, offset = 0, play) ->
     #return if book.id is @book?.id
     deferred = jQuery.Deferred()
     load = LYT.Book.load book
     
     #LYT.loader.register "Loading book", @book
     
-    log.message "Player: Loading book #{book}, segment #{url}, offset: #{offset}, autoPlay #{autoPlay}"
+    log.message "Player: Loading book #{book}, segment #{url}, offset: #{offset}, play #{play}"
     load.done (book) =>
       @book = book
       jQuery("#book-duration").text @book.totalTime
@@ -391,7 +391,7 @@ LYT.player =
 
         doneHandler = (segment) =>
           deferred.resolve @book
-          @playSegmentOffset segment, offset, autoPlay
+          @playSegmentOffset segment, offset, play
           log.message "Player: found segment #{segment.url()} - playing"
 
         if url
@@ -417,7 +417,7 @@ LYT.player =
 
     deferred.promise()
 
-  playSegment: (segment, autoPlay = true) -> @playSegmentOffset segment, null, autoPlay
+  playSegment: (segment, play) -> @playSegmentOffset segment, null, play
   
   # Will display the provided segment, load (if necessary) and play the
   # associated audio file starting att offset. If offset isn't provided, start
@@ -425,10 +425,10 @@ LYT.player =
   # within the bounds of segment.start and segment.end. In this case, the
   # offset is capped to segment.start or segment.end - 1 (one second before
   # the segment ends).
-  playSegmentOffset: (segment, offset, autoPlay = true) -> 
+  playSegmentOffset: (segment, offset, play) -> 
     throw 'Player: playSegmentOffset called with no segment' unless segment?
     segment.done (segment) =>
-      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, pause: #{@getStatus()?.paused and not autoPlay}"
+      log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, play: #{play}"
 
       # Ensure that offset has a useful value
       if offset?
@@ -440,7 +440,10 @@ LYT.player =
           offset = segment.start
       else
         offset = segment.start
-        
+      
+      # If play is set to true or false, set playing accordingly
+      @playing = play if play?
+      
       # See if we need to initiate loading of a new audio file or if it is
       # possible to just move the play head.
       if @currentAudio != segment.audio
@@ -450,7 +453,7 @@ LYT.player =
         @currentAudio = segment.audio
         @nextOffset   = offset
       else
-        if @playing or autoPlay
+        if @playing
           log.message "Player: playSegmentOffset: play from offset #{offset}"
           @el.jPlayer 'play', offset
         else
@@ -462,7 +465,7 @@ LYT.player =
 
   dumpStatus: -> console?.log field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
 
-  playSection: (section, offset = 0, autoPlay = true) ->
+  playSection: (section, offset = 0, play) ->
     section = @playlist().rewind() unless section?
     LYT.loader.register "Loading book", section
     
@@ -470,7 +473,7 @@ LYT.player =
       log.message "Player: Playlist current section #{@section().id}"
       # Get the media obj
       @playlist().segmentBySectionOffset section, offset
-      @playSegmentOffset @segment(), offset, autoPlay
+      @playSegmentOffset @segment(), offset, play
       
     section.fail ->
       log.error "Player: Failed to load section #{section}"
@@ -488,7 +491,7 @@ LYT.player =
       LYT.loader.set 'Loading sound', 'metadata', true, 0
       @el.jPlayer 'pause'
 
-  nextSegment: (autoPlay = false) ->
+  nextSegment: ->
     return null unless @playlist()?
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
@@ -500,15 +503,15 @@ LYT.player =
     segment = @playlist().nextSegment()
     log.message "Player: nextSegment: #{segment.state()}"
     segment.done (segment) -> log.message "Player: nextSegment: #{segment.url()}, #{segment.start}"
-    @playSegment segment, autoPlay
+    @playSegment segment
     segment.always => @seekedLoadSegmentLock = false
 
-  previousSegment: (autoPlay = false) ->
+  previousSegment: ->
     return null unless @playlist()?.hasPreviousSegment()
     @setMetadataLoader @segment().previous
     @seekedLoadSegmentLock = true
     segment = @playlist().previousSegment()
-    @playSegment segment, autoPlay
+    @playSegment segment
     segment.always => @seekedLoadSegmentLock = false
   
   updateLastMark: (force = false) ->

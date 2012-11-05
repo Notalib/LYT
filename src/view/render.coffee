@@ -267,7 +267,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&autoplay=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
               #{item.title}
             </a>"""
         
@@ -307,7 +307,6 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
-
       more = $('<a href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
@@ -345,7 +344,9 @@ LYT.render = do ->
         element.attr "data-href", bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}"
+               data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}"
+               href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&play=true"> 
               #{bookmark.note.text}
             </a>
           """

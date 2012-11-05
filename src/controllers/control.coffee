@@ -217,7 +217,7 @@ LYT.control =
         segmentUrl = params.section or null
         segmentUrl += "##{params.segment}" if params.segment
         offset = if params.offset then LYT.utils.parseOffset(params.offset) else 0
-        autoplay = params.autoplay or false
+        play = (params.play is 'true') or false
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
   
@@ -228,7 +228,7 @@ LYT.control =
         
         log.message "control: bookPlay: loading book #{params.book}"
         
-        process = LYT.player.load params.book, segmentUrl, offset, true
+        process = LYT.player.load params.book, segmentUrl, offset, play
         LYT.loader.register "Loading book", process
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
