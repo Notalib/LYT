@@ -211,7 +211,7 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
 
-  ShowAnnouncements: (announcements) ->
+  showAnnouncements: (announcements) ->
     #for announcement in announcements
      # if announcement.text?
        # alert announcement.text #Stops processing of javascript (alert)...
@@ -220,6 +220,7 @@ LYT.render = do ->
 
 
   bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
+  
   
   textContent: (segment) ->
     return unless segment
@@ -231,6 +232,7 @@ LYT.render = do ->
       $('.ui-icon-bookmark-add').addClass 'disabled'
       $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
+      
       
   bookDetails: (details, view) ->
     $("#details-book-title").text details.title
@@ -257,7 +259,7 @@ LYT.render = do ->
         element.attr "data-href", item.id
 
         # IE8 fix url
-        # TODO: remove URLs from structure on retriving ressources.
+        # TODO: remove URLs from structure on retrieving ressources.
         if item.url.lastIndexOf('/') != -1
           item.url = item.url.substr item.url.lastIndexOf('/') + 1
 
@@ -400,19 +402,18 @@ LYT.render = do ->
         event.stopImmediatePropagation()
     list.listview('refresh')
 
+
   showDidYouMean: (results, view) ->
     list = view.find "ul"
     list.empty()
 
     list.append jQuery """<li data-role="list-divider" role="heading">Mente du?</li>"""
 
-
     for item in results
       listItem = didYouMeanItem(item)
       listItem.find("a").click (event) ->
         $.mobile.changePage "#search?term=#{encodeURI item}" , transition: "none"
       list.append listItem
-
       
     $('#listshow-btn').show()#show button list 
     list.listview('refresh')  

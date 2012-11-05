@@ -47,11 +47,11 @@
   padding: 0 !important;
   margin: 0 !important;
 }
+
 .ui-body-a {
   color: white !important;
   text-shadow: 0 0px 0 white !important; 
 }
-
 
 /* loader */
 .ui-loader-default {
@@ -725,6 +725,12 @@
 
 #searchresult-wrapper {
 
+}
+
+li.ui-li h3.no-search-results {
+  padding-left: 11px;
+  padding-top: 20px;
+  background:#EEE;
 }
 
 #list_item_1 {
@@ -1411,7 +1417,6 @@ html.js {
   }
 }
 
-
 html.no-js {
   #no-js {
     visibility:visible;
@@ -1447,14 +1452,8 @@ html.no-js {
   z-index:106;
 }
 
-/* IE seems to miscalculate the position of the autocomplete list.. it properbly forgets about 
+/* IE seems to miscalculate the position of the autocomplete list.. it probably forgets about 
    some margins or padding..  fix the list at 100px, which seems to be correct on all browsers. */
 .ui-autocomplete {
   top:100px !important;
-}
-
-li.ui-li h3.no-search-results {
-  padding-left: 11px;
-  padding-top: 20px;
-  background:#EEE;
 }
