@@ -287,7 +287,8 @@ LYT.player =
             @fakeEndScheduled = false
             @timeUpdateLock   = false),
           (timeleft*1000)-50 
-  
+
+  # Private method to pause (optionally at an offset)  
   pause: (offset) ->
     # Pause playback
     log.message "Player: pause: pause at offset #{offset}"
@@ -298,6 +299,13 @@ LYT.player =
     else
       @nextOffset = null
       @el.jPlayer('pause')
+  
+  # This is a public method - stops playback
+  stop: ->
+    log.message 'Player: stop'
+    if @ready?
+      @el.jPlayer('stop')
+      @playing = false
   
   getStatus: ->
     # Be cautious only read from status
@@ -322,10 +330,6 @@ LYT.player =
     else
       return false
   
-  stop: () ->
-    if @ready?
-      @el.jPlayer('stop')
-    
   isIOS: () ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
       return true

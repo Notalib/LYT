@@ -136,7 +136,9 @@ $(document).bind "mobileinit", ->
         else
           $.mobile.changePage "#login"
 
-  $(LYT.service).bind "logoff", -> $.mobile.changePage "#login"
+  $(LYT.service).bind "logoff", ->
+    LYT.player.stop()
+    $.mobile.changePage "#login"
 
   $("[data-role=page]").live "pageshow", (event, ui) ->
     _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]
