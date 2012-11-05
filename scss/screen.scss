@@ -48,42 +48,33 @@
   margin: 0 !important;
 }
 
-.ui-body-a {
-  color: white !important;
-  text-shadow: 0 0px 0 white !important; 
-}
-
 /* loader */
-.ui-loader-default {
+.ui-loader.ui-loader-default {
   display: none;
-  position: absolute !important;
-  opacity: .75 !important;
-  z-index: 100 !important;
-  left: 50% !important;
-  width: 200px !important;
-  height: 90px !important;
-  margin-left: -130px !important;
-  margin-top: -35px !important;
-  padding: 10px 30px !important;
-  border: 2px !important;
-  background: black !important;
+  position: absolute;
+  opacity: .75;
+  z-index: 100;
+  left: 50%;
+  width: 200px;
+  height: 90px;
+  margin-left: -130px;
+  margin-top: -35px;
+  padding: 10px 30px;
+  border: 2px;
+  background: black;
 }
 
-.ui-icon-loading {
-  position: static !important;
-  display: block !important;
-  opacity: 1 !important;
-  margin: 0 auto !important;
-  width: 46px !important;
-  height: 46px !important;
-  background-color: black !important;
+.ui-loader.ui-loader-default .ui-icon-loading {
+  margin: 0 auto;
 }
 
-.ui-loader-default h1 {
-  font-size: 15px !important;
-  text-align: center !important;
-  width: 200px !important;
-  height: 30px !important;
+.ui-loader.ui-loader-default h1 {
+  font-size: 15px;
+  text-align: center;
+  width: 200px;
+  height: 30px;
+  color: white;
+  text-shadow: 0 0px 0 white; 
 }
 
 #bookshelf-content {
