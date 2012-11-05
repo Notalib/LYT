@@ -50,10 +50,21 @@
 
 /* loader */
 .ui-loader.ui-loader-default {
+  .ui-icon-loading {
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 15px;
+    text-align: center;
+    width: 200px;
+    height: 30px;
+    color: white;
+    text-shadow: 0 0px 0 white; 
+  }
   display: none;
   position: absolute;
   opacity: .75;
-  z-index: 100;
+  z-index: 200;
   left: 50%;
   width: 200px;
   height: 90px;
@@ -62,19 +73,6 @@
   padding: 10px 30px;
   border: 2px;
   background: black;
-}
-
-.ui-loader.ui-loader-default .ui-icon-loading {
-  margin: 0 auto;
-}
-
-.ui-loader.ui-loader-default h1 {
-  font-size: 15px;
-  text-align: center;
-  width: 200px;
-  height: 30px;
-  color: white;
-  text-shadow: 0 0px 0 white; 
 }
 
 #bookshelf-content {

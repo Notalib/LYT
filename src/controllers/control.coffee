@@ -70,6 +70,7 @@ LYT.control =
     else
       if params?.guest?
         promise = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
+        LYT.loader.register 'Logging in', deferred.promise()
         promise.done -> deferred.done()
         promise.fail -> deferred.fail()
       else
