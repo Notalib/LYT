@@ -85,6 +85,9 @@ class LYT.Playlist
     return segment
 
   segmentByAudioOffset: (audio, offset = 0, fudge = 0.1) ->
+    if not audio? or audio is ''
+      log.error 'Playlist: segmentByAudioOffset: audio not provided'
+      return jQuery.Deferred().reject('audio not provided').promise()
     promise = @_segmentsByAudio audio
     promise.pipe (segments) =>
       for segment in segments

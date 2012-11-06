@@ -109,7 +109,7 @@ LYT.player =
           @timeupdateLock = true
           next = @playlist().segmentByAudioOffset status.src, @time
           @_next = next
-          next.fail -> log.errorGroup 'Player: timeupdate event: Unable to load next segment.', next
+          next.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
           next.done (next) =>
             if next
               log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"

@@ -77,7 +77,7 @@ class LYT.Section
   # and the segment are loaded.
   _getSegment: (getter) ->
     deferred = jQuery.Deferred()
-    this.fail -> deferred.reject()
+    this.fail (error) -> deferred.reject error
     this.done (section) ->
       throw 'Section: _getSegment: section undefined in callback' unless section
       throw 'Section: _getSegment: section.document undefined in callback' unless section.document
@@ -85,11 +85,11 @@ class LYT.Section
       if segment = getter section.document.segments
         segment.load()
         segment.done -> deferred.resolve segment
-        segment.fail -> deferred.reject()
+        segment.fail (error) -> deferred.reject error
       else
         # TODO: We should change the call convention to just resolve with null
         #       if no segment is found.
-        deferred.reject()
+        deferred.reject 'Segment not found'
     deferred.promise()
 
   firstSegment: -> @_getSegment (segments) -> segments[0]
