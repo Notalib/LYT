@@ -71,16 +71,16 @@ $(document).bind "mobileinit", ->
     "#profile":
       handler: "profile"
       events: "s"
-    "#bookshelf":
+    "#bookshelf([?].*)?":
       handler: "bookshelf"
       events: "s"
-    "#suggestions":
+    "#suggestions([?].*)?":
       handler: "suggestions"
       events: "s"
     "#anbefalinger":         # This url is deprecated
       handler: "suggestions"
       events: "s"
-    "#guest":
+    "#guest":                # This url is deprecated, use #bookshelf?guest=true in stead
       handler: "guest"
       events: "s"
     "#redirect":

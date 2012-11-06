@@ -71,8 +71,8 @@ LYT.control =
       if params?.guest?
         promise = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
         LYT.loader.register 'Logging in', deferred.promise()
-        promise.done -> deferred.done()
-        promise.fail -> deferred.fail()
+        promise.done -> deferred.resolve()
+        promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
         $.mobile.changePage '#login'
@@ -433,9 +433,4 @@ LYT.control =
         
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
-  guest: (type)->
-    process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-      .done ->
-        return $.mobile.changePage("#bookshelf")
-    
-  
+  guest: -> $.mobile.changePage('#bookshelf?guest=true')
