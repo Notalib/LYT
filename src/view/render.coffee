@@ -182,16 +182,16 @@ LYT.render = do ->
       $("#playBackRate").hide()
 
   hideOrShowButtons: (details) ->
-    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
+    if details.state is LYT.config.book.states.pending
+      $("#book-unavailable-message").show()
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.pending
-        $("#book-unavailable-message").show()
+      $("#book-unavailable-message").hide()
+      if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
-      else  
-        $("#book-unavailable-message").hide()
+      else
         $("#add-to-bookshelf-button").show()
         $("#details-play-button").show() 
   

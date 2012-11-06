@@ -132,6 +132,11 @@ LYT.control =
         LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true 
 
   bookDetails: (type, match, ui, page, event) ->
+    content = $(page).children( ":jqmData(role=content)" )
+    if type is 'pagebeforeshow'
+      #LYT.render.clearBookDetails()
+      content.children().hide()
+    
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookDetails: unable to log in'
@@ -140,15 +145,15 @@ LYT.control =
         process = LYT.catalog.getDetails(params.book)
           .done (details) ->
             LYT.render.hideOrShowButtons(details)
+        LYT.loader.register "Loading book", process, 10
   
       if type is 'pageshow'
-        content = $(page).children( ":jqmData(role=content)" )
-        
         process = LYT.catalog.getDetails(params.book)
           .fail (error, msg) ->
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
+            content.children().show()
             content.find("#add-to-bookshelf-button").bind "click", (event) ->
               # TODO: This is far from perfect: There's no way
               # of knowing if something's already on the shelf
@@ -156,11 +161,9 @@ LYT.control =
               $(this).unbind event 
               event.preventDefault()
               event.stopImmediatePropagation()
-        
-        LYT.loader.register "Loading book", process
-  
+ 
   # TODO: Move bookmarks list to separate page
-  # TOTO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
+  # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     return if params?['ui-page']
