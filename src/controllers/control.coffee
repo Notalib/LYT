@@ -34,10 +34,10 @@ LYT.control =
       window.location.hash = '#splash-upgrade'
     
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
-    @setupClickHandlers()
+    @setupEventHandlers()
 
   
-  setupClickHandlers: ->
+  setupEventHandlers: ->
     $(document).one 'pageinit', ->
       goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else '#bookshelf'
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
@@ -60,8 +60,8 @@ LYT.control =
     $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
       LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
-      #event.preventDefault()
-      #event.stopImmediatePropagation()
+
+    $(window).resize -> LYT.player.refreshContent()
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
@@ -211,6 +211,8 @@ LYT.control =
         $.mobile.changePage "#book-play?book=#{params.book}"
       else if not LYT.player.book
         $.mobile.changePage "#bookshelf"
+      else
+        LYT.player.refreshContent()
   
   bookPlay: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])

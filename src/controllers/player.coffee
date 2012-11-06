@@ -336,6 +336,9 @@ LYT.player =
     else
       return false
   
+  refreshContent: ->
+    if segment = @segment()
+      @updateHtml segment
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section

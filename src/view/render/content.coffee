@@ -165,14 +165,17 @@ LYT.render.content = do ->
           element.find('img').each ->
             image = $(this)
             image.click -> image.toggleClass('zoom')
-            image.css translate(image, wholeImageArea(image), $('#book-stack-content'))
-
+            
           segment.element = element
           
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
 
       segment = segment.next
+
+    view.find('img').each ->
+      image = $(this)
+      image.css translate(image, wholeImageArea(image), view)
 
     # Hide segments that follow missing segments (this would confuse the reader)
     currentSegment.element.nextAll('.missingSegment ~ .segmentContainer').css 'display', 'none'
