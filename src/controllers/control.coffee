@@ -63,6 +63,11 @@ LYT.control =
       #event.preventDefault()
       #event.stopImmediatePropagation()
 
+    $("#add-to-bookshelf-button").on 'click', ->
+      LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
+        .done( -> $.mobile.changePage "#bookshelf" )
+
+
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
     if credentials = LYT.session.getCredentials()
@@ -148,13 +153,13 @@ LYT.control =
             log.message "failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
-            content.find("#add-to-bookshelf-button").bind "click", (event) ->
+            #content.find("#add-to-bookshelf-button").bind "click", (event) ->
               # TODO: This is far from perfect: There's no way
               # of knowing if something's already on the shelf
-              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
-              $(this).unbind event 
-              event.preventDefault()
-              event.stopImmediatePropagation()
+            #  LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
+            #  $(this).unbind event 
+            #  event.preventDefault()
+            #  event.stopImmediatePropagation()
         
         LYT.loader.register "Loading book", process
   
