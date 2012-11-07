@@ -59,7 +59,7 @@ Released june 2012. Historic.
 ## Development
 You'll need a few things [so check out these instructions](/Notalib/LYT/wiki/Prerequisites).
 
-Also, [read the style guide](/Notalib/LYT/wiki/Style-Guide).
+Also, [read the style guide](/Notalib/coffeescript-style-guide).
 
 ### Building
 
