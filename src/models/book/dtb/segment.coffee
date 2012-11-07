@@ -244,7 +244,7 @@ class LYT.Segment
         if image.attempts-- > 0
           backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50)
           log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left. Waiting for #{backoff} ms."
-          doLoad  = () -> loadImage image
+          doLoad = -> loadImage image
           setTimeout doLoad, backoff
         else
           log.error "Segment: parseContent: unable to preload image #{image.src}"
