@@ -158,21 +158,9 @@ LYT.control =
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
-<<<<<<< HEAD
         
         LYT.loader.register "Loading book", process
   
-=======
-            content.children().show()
-            content.find("#add-to-bookshelf-button").bind "click", (event) ->
-              # TODO: This is far from perfect: There's no way
-              # of knowing if something's already on the shelf
-              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
-              $(this).unbind event 
-              event.preventDefault()
-              event.stopImmediatePropagation()
- 
->>>>>>> 0363e047f87431d65b8fc7d6fb6ae678ff7c7f52
   # TODO: Move bookmarks list to separate page
   # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
