@@ -36,14 +36,14 @@ class LYT.Section
     this.always => this.loading = false
 
     log.message "Section: loading(\"#{@url}\")"
-    # We get some wierd uri´s from IE8 due to missing documentElement substituted with iframe contentDocument.
-    # here we trim away everything before and after the filename.
+    # We get some weird uris from IE8 due to missing documentElement substituted with iframe contentDocument.
+    # Here we trim away everything before and after the filename.
     file = @url.replace /#.*$/, ""
     if file.lastIndexOf('/') != -1
       file = file.substr file.lastIndexOf('/') + 1
     url  = @resources[file]?.url
     if url is undefined
-      log.error "url is undefined"
+      log.error "Section: load: url is undefined"
     @document = new LYT.SMILDocument this, url
 
     @document.done => @_deferred.resolve this
@@ -77,7 +77,7 @@ class LYT.Section
   # and the segment are loaded.
   _getSegment: (getter) ->
     deferred = jQuery.Deferred()
-    this.fail -> deferred.reject()
+    this.fail (error) -> deferred.reject error
     this.done (section) ->
       throw 'Section: _getSegment: section undefined in callback' unless section
       throw 'Section: _getSegment: section.document undefined in callback' unless section.document
@@ -85,11 +85,11 @@ class LYT.Section
       if segment = getter section.document.segments
         segment.load()
         segment.done -> deferred.resolve segment
-        segment.fail -> deferred.reject()
+        segment.fail (error) -> deferred.reject error
       else
         # TODO: We should change the call convention to just resolve with null
         #       if no segment is found.
-        deferred.reject()
+        deferred.reject 'Segment not found'
     deferred.promise()
 
   firstSegment: -> @_getSegment (segments) -> segments[0]

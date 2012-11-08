@@ -182,16 +182,16 @@ LYT.render = do ->
       $("#playBackRate").hide()
 
   hideOrShowButtons: (details) ->
-    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
+    if details.state is LYT.config.book.states.pending
+      $("#book-unavailable-message").show()
       $("#add-to-bookshelf-button").hide()
       $("#details-play-button").hide()
     else
-      if details.state is LYT.config.book.states.pending
-        $("#book-unavailable-message").show()
+      $("#book-unavailable-message").hide()
+      if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
         $("#add-to-bookshelf-button").hide()
         $("#details-play-button").hide() 
-      else  
-        $("#book-unavailable-message").hide()
+      else
         $("#add-to-bookshelf-button").show()
         $("#details-play-button").show() 
   
@@ -211,7 +211,7 @@ LYT.render = do ->
     $("#player-info h1, #player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
 
-  ShowAnnouncements: (announcements) ->
+  showAnnouncements: (announcements) ->
     #for announcement in announcements
      # if announcement.text?
        # alert announcement.text #Stops processing of javascript (alert)...
@@ -220,6 +220,7 @@ LYT.render = do ->
 
 
   bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
+  
   
   textContent: (segment) ->
     return unless segment
@@ -231,6 +232,7 @@ LYT.render = do ->
       $('.ui-icon-bookmark-add').addClass 'disabled'
       $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
+      
       
   bookDetails: (details, view) ->
     $("#details-book-title").text details.title
@@ -258,7 +260,7 @@ LYT.render = do ->
         element.attr "data-href", item.id
 
         # IE8 fix url
-        # TODO: remove URLs from structure on retriving ressources.
+        # TODO: remove URLs from structure on retrieving ressources.
         if item.url.lastIndexOf('/') != -1
           item.url = item.url.substr item.url.lastIndexOf('/') + 1
 
@@ -266,7 +268,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&autoplay=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
               #{item.title}
             </a>"""
         
@@ -306,7 +308,6 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
-
       more = $('<a href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
@@ -344,7 +345,9 @@ LYT.render = do ->
         element.attr "data-href", bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&autoplay=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}"
+               data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}"
+               href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&play=true"> 
               #{bookmark.note.text}
             </a>
           """
@@ -401,19 +404,18 @@ LYT.render = do ->
         event.stopImmediatePropagation()
     list.listview('refresh')
 
+
   showDidYouMean: (results, view) ->
     list = view.find "ul"
     list.empty()
 
     list.append jQuery """<li data-role="list-divider" role="heading">Mente du?</li>"""
 
-
     for item in results
       listItem = didYouMeanItem(item)
       listItem.find("a").click (event) ->
         $.mobile.changePage "#search?term=#{encodeURI item}" , transition: "none"
       list.append listItem
-
       
     $('#listshow-btn').show()#show button list 
     list.listview('refresh')  

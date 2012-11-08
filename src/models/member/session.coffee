@@ -16,10 +16,13 @@ LYT.session = do ->
   
   init: ->
     #The function getNotaAuthToken() is defined in http://wwww.e17.dk/getnotaauthtoken.js
-    credentials = getNotaAuthToken()
-    if credentials.status is 'ok'
-      log.message 'Session: init: reading credentials from getNotaAuthToken()'
-      LYT.session.setCredentials credentials.username, credentials.token
+    if getNotaAuthToken?
+      credentials = getNotaAuthToken()
+      if credentials.status is 'ok'
+        log.message 'Session: init: reading credentials from getNotaAuthToken()'
+        LYT.session.setCredentials credentials.username, credentials.token
+    else
+      log.warn 'Session: init: getNotaAuthToken is undefined'
   
   getCredentials: -> LYT.cache.read "session", "credentials"
   

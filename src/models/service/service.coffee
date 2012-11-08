@@ -181,7 +181,7 @@ LYT.service = do ->
     
     # Calling GUI to show announcements
     gotServiceAnnouncements = (announcements) ->
-      LYT.render.ShowAnnouncements(announcements)
+      LYT.render.showAnnouncements(announcements)
 
     attemptLogOn = ->
       --attempts
@@ -309,7 +309,7 @@ LYT.service = do ->
       
       response =  withLogOn -> LYT.rpc("getServiceAnnouncements")
       response.done (announcements) ->
-        LYT.render.ShowAnnouncements(announcements)
+        LYT.render.showAnnouncements(announcements)
         deferred.resolve()
         
       response.fail (err, message) -> deferred.reject err, message

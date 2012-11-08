@@ -34,13 +34,13 @@ LYT.control =
       window.location.hash = '#splash-upgrade'
     
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
-    @setupClickHandlers()
+    @setupEventHandlers()
 
   
-  setupClickHandlers: ->
+  setupEventHandlers: ->
     $(document).one 'pageinit', ->
-      goto = if LYT.var.next then LYT.var.next else '#bookshelf'
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage(goto)
+      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else '#bookshelf'
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
 
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
@@ -60,8 +60,8 @@ LYT.control =
     $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
       LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
-      #event.preventDefault()
-      #event.stopImmediatePropagation()
+
+    $(window).resize -> LYT.player.refreshContent()
 
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
@@ -75,8 +75,9 @@ LYT.control =
     else
       if params?.guest?
         promise = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-        promise.done -> deferred.done()
-        promise.fail -> deferred.fail()
+        LYT.loader.register 'Logging in', deferred.promise()
+        promise.done -> deferred.resolve()
+        promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
         $.mobile.changePage '#login'
@@ -136,6 +137,11 @@ LYT.control =
         LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true 
 
   bookDetails: (type, match, ui, page, event) ->
+    content = $(page).children( ":jqmData(role=content)" )
+    if type is 'pagebeforeshow'
+      #LYT.render.clearBookDetails()
+      content.children().hide()
+    
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookDetails: unable to log in'
@@ -144,20 +150,31 @@ LYT.control =
         process = LYT.catalog.getDetails(params.book)
           .done (details) ->
             LYT.render.hideOrShowButtons(details)
+        LYT.loader.register "Loading book", process, 10
   
       if type is 'pageshow'
-        content = $(page).children( ":jqmData(role=content)" )
-        
         process = LYT.catalog.getDetails(params.book)
           .fail (error, msg) ->
-            log.message "failed with error #{error} and msg #{msg}"
+            log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
+<<<<<<< HEAD
         
         LYT.loader.register "Loading book", process
   
+=======
+            content.children().show()
+            content.find("#add-to-bookshelf-button").bind "click", (event) ->
+              # TODO: This is far from perfect: There's no way
+              # of knowing if something's already on the shelf
+              LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add(params.book).done( -> $.mobile.changePage "#bookshelf" )
+              $(this).unbind event 
+              event.preventDefault()
+              event.stopImmediatePropagation()
+ 
+>>>>>>> 0363e047f87431d65b8fc7d6fb6ae678ff7c7f52
   # TODO: Move bookmarks list to separate page
-  # TOTO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
+  # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     return if params?['ui-page']
@@ -205,6 +222,8 @@ LYT.control =
         $.mobile.changePage "#book-play?book=#{params.book}"
       else if not LYT.player.book
         $.mobile.changePage "#bookshelf"
+      else
+        LYT.player.refreshContent()
   
   bookPlay: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
@@ -215,7 +234,7 @@ LYT.control =
         segmentUrl = params.section or null
         segmentUrl += "##{params.segment}" if params.segment
         offset = if params.offset then LYT.utils.parseOffset(params.offset) else 0
-        autoplay = params.autoplay or false
+        play = (params.play is 'true') or false
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
   
@@ -226,7 +245,7 @@ LYT.control =
         
         log.message "control: bookPlay: loading book #{params.book}"
         
-        process = LYT.player.load params.book, segmentUrl, offset, true
+        process = LYT.player.load params.book, segmentUrl, offset, play
         LYT.loader.register "Loading book", process
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
@@ -430,9 +449,4 @@ LYT.control =
         
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
-  guest: (type)->
-    process = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-      .done ->
-        return $.mobile.changePage("#bookshelf")
-    
-  
+  guest: -> $.mobile.changePage('#bookshelf?guest=true')

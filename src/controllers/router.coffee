@@ -71,16 +71,16 @@ $(document).bind "mobileinit", ->
     "#profile":
       handler: "profile"
       events: "s"
-    "#bookshelf":
+    "#bookshelf([?].*)?":
       handler: "bookshelf"
       events: "s"
-    "#suggestions":
+    "#suggestions([?].*)?":
       handler: "suggestions"
       events: "s"
     "#anbefalinger":         # This url is deprecated
       handler: "suggestions"
       events: "s"
-    "#guest":
+    "#guest":                # This url is deprecated, use #bookshelf?guest=true in stead
       handler: "guest"
       events: "s"
     "#redirect":
@@ -136,7 +136,9 @@ $(document).bind "mobileinit", ->
         else
           $.mobile.changePage "#login"
 
-  $(LYT.service).bind "logoff", -> $.mobile.changePage "#login"
+  $(LYT.service).bind "logoff", ->
+    LYT.player.stop()
+    $.mobile.changePage "#login"
 
   $("[data-role=page]").live "pageshow", (event, ui) ->
     _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]
