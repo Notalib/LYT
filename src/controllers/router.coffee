@@ -38,6 +38,9 @@ $(document).one 'pagebeforechange', (event, data) -> data.toPage = window.locati
 
 $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
+    "#default-page":
+      handler: "defaultPage"
+      events: "bs"
     "#book-details([?].*)?":
       handler: "bookDetails"
       events: "s,bs" #
