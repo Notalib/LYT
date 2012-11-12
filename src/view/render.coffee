@@ -240,6 +240,7 @@ LYT.render = do ->
     $("#details-book-description").text details.teaser
     $("#details-book-narrator").text details.speaker
     $("#details-book-totaltime").text "#{details.playtime}:00"
+    $("#add-to-bookshelf-button").attr "data-book-id", details.id
     $("#details-play-button").attr "href", "#book-player?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
     
