@@ -72,7 +72,8 @@ class LYT.Segment
       log.message "Segment: loading #{@url()}"
       # Parse transcript content
       [@contentUrl, @contentId] = @data.text.src.split "#"
-      unless resource = section.resources[@contentUrl]
+      resource = section.resources[@contentUrl]
+      if not resource
         log.error "Segment: no absolute URL for content #{@contentUrl}"
         @_deferred.reject()
       else
