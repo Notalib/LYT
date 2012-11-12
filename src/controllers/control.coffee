@@ -158,8 +158,7 @@ LYT.control =
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
-        
-        LYT.loader.register "Loading book", process
+            content.children().show()
   
   # TODO: Move bookmarks list to separate page
   # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
