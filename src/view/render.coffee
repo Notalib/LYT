@@ -258,11 +258,6 @@ LYT.render = do ->
         element.attr "id", item.id
         element.attr "data-href", item.id
 
-        # IE8 fix url
-        # TODO: remove URLs from structure on retrieving ressources.
-        if item.url.lastIndexOf('/') != -1
-          item.url = item.url.substr item.url.lastIndexOf('/') + 1
-
         if item.children.length > 0
           element.append "<span>#{item.title}</span>"
         else
