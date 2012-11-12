@@ -25,6 +25,9 @@ class LYT.Section
     # seq id in the SMIL file. Since the section class represents the entire
     # SMIL file, we remove the id reference from the url.
     @url   = (anchor.attr "href").split('#')[0]
+    # We get some weird uris from IE8 due to missing documentElement substituted with iframe contentDocument.
+    # Here we trim away everything before the filename.
+    @url   = @url.substr @url.lastIndexOf('/') + 1 unless @url.lastIndexOf('/') == -1 
     # Create an array to collect any sub-headings
     @children = []
     # The SMIL document (not loaded initially)
@@ -36,11 +39,8 @@ class LYT.Section
     this.always => this.loading = false
 
     log.message "Section: loading(\"#{@url}\")"
-    # We get some weird uris from IE8 due to missing documentElement substituted with iframe contentDocument.
-    # Here we trim away everything before and after the filename.
+    # trim away everything after the filename.
     file = @url.replace /#.*$/, ""
-    if file.lastIndexOf('/') != -1
-      file = file.substr file.lastIndexOf('/') + 1
     url  = @resources[file]?.url
     if url is undefined
       log.error "Section: load: url is undefined"
