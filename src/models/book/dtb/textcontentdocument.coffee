@@ -11,5 +11,7 @@ class LYT.TextContentDocument extends LYT.DTBDocument
     this.source.find("*[src]").each (index, item) =>
       item = jQuery item
       return if item.data("resolved")?
-      item.attr "src", resources[item.attr("src")]?.url
+      url = item.attr("src")
+      url = url.substr url.lastIndexOf('/') + 1 unless url.lastIndexOf('/') == -1 
+      item.attr "src", resources[url]?.url
       item.data "resolved", "yes" # Mark as already-processed
