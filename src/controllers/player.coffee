@@ -246,8 +246,8 @@ LYT.player =
             log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
             parameters =
               mode:                'bool'
-              prompt:              LYT.i18n('An error has occurred')
-              subTitle:            LYT.i18n('unable to retrieve sound file.')
+              prompt:              LYT.i18n('Unable to retrieve sound file')
+              subTitle:            LYT.i18n('')
               animate:             false
               useDialogForceFalse: true
               allowReopen:         true
@@ -337,7 +337,7 @@ LYT.player =
       return false
   
   refreshContent: ->
-    if segment = @segment()
+    if @playlist() and segment = @segment()
       @updateHtml segment
       
   updateHtml: (segment) ->
@@ -466,7 +466,7 @@ LYT.player =
       $("#player-chapter-title h2").text segment.section.title
       @updateHtml segment
 
-  dumpStatus: -> console?.log field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
+  dumpStatus: -> log.message field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
 
   playSection: (section, offset = 0, play) ->
     section = @playlist().rewind() unless section?
