@@ -64,7 +64,7 @@ $(document).bind "mobileinit", ->
       events: "s"
     "#search([?].*)?":
       handler: "search"
-      events: "s"
+      events: "bs,s"
     "#login":
       handler: "login"
       events: "s"

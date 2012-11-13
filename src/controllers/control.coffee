@@ -272,15 +272,18 @@ LYT.control =
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: search: unable to log in'
     promise.done ->
+      #if type is 'pagebeforeshow'
+        
+
       if type is 'pageshow'
-        $("#listshow-btn").click (event) ->
-          LYT.var.callback = null
-          content = $(page).children(":jqmData(role=content)")
-          LYT.render.catalogLists handleResults, content
-          $('#searchterm').val ""
-          $('#listshow-btn').hide()
-          $('#more-search-results').hide()
-  
+        # $("#listshow-btn").click (event) ->
+        #   LYT.var.callback = null
+        #   content = $(page).children(":jqmData(role=content)")
+        #   LYT.render.catalogLists content
+        #   $('#searchterm').val ""
+        #   $('#listshow-btn').hide()
+        #   $('#more-search-results').hide()
+        
         handleResults = (process) ->
           LYT.loader.register "Searching", process
           process.done (results) ->
@@ -291,54 +294,36 @@ LYT.control =
               event.stopImmediatePropagation()
             
             LYT.render.searchResults results, content
-           
+
+        # determine action and parse params: predefinedView, search, predefinedSearch
+        action = "predefinedView"
         if not jQuery.isEmptyObject params
-          LYT.var.searchTerm = params
-        else
-          if LYT.var.searchTerm?
-            log.message "control: search: #{LYT.var.searchTerm}"
-            params = LYT.var.searchTerm
-            handleResults LYT.catalog.search(params.term)
-          else
-            params = {}
-  
-        #search?list=???
-        list = params.list or null  
-  
-        params.term = jQuery.trim(decodeURI(params.term or "")) or null
-        
+          if params.term?
+            [action, term] = ["search", jQuery.trim(decodeURI(params.term or "") ) ]
+          else if params.list?
+            list = jQuery.trim(decodeURI(params.list or "") )
+            action = "showList" if LYT.predefinedSearches[list]?
+
         content = $(page).children( ":jqmData(role=content)" )
-  
+        
+        switch action
+          when "predefinedView"
+            $('#listshow-btn').hide()
+            $('#more-search-results').hide()
+            LYT.render.catalogLists content
+          when "search"
+            if $('#searchterm').val() isnt term
+              $('#searchterm').val term
+              handleResults LYT.catalog.search(term)
+          when "showList"
+            handleResults LYT.predefinedSearches[list].callback()
+            
         LYT.catalog.attachAutocomplete $('#searchterm')
         # Selecting the item from the autocompleteselect list....
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
           handleResults LYT.catalog.search(ui.item.value)
           $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
-        
-        # This allows for bookmarkable/direct search terms
-        if params.term and $('#searchterm').val() isnt params.term
-          $('#searchterm').val params.term
-          handleResults LYT.catalog.search(params.term)
-        else if list?
-          # Direct link to lists
-          switch list
-            when 'anbe' then list = "list_item_1"
-            when 'ny'   then list = "list_item_2"
-            when 'top'  then list = "list_item_3"
-            when 'topu' then list = "list_item_4"
-            when 'topv' then list = "list_item_5"
-            else
-              LYT.render.catalogLists handleResults, content  
-  
-          LYT.render.catalogListsDirectlink handleResults, content, list
-        else if LYT.var.callback?
-          
-        else
-          # TODO: Simple, rough implementation - show lists....
-          $('#listshow-btn').hide()
-          $('#more-search-results').hide()
-          LYT.render.catalogLists handleResults, content
-          
+
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
           term = encodeURI $('#searchterm').val()

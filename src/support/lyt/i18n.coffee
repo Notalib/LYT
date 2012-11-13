@@ -51,6 +51,7 @@ LYT.i18n = do ->
     "Commercial":                       "Erhverv"
     "Listen to":                        "Hør"
     "by clicking this link":            "ved at følge dette link"
+    "Comics":                           "Tegneserier" 
   
   # The i18n function. Returns either the "translated"
   # string, or - if no translation was found - the

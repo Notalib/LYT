@@ -372,33 +372,16 @@ LYT.render = do ->
 
   
   # TODO: Simple, rough implementation
-  catalogLists: (callback, view) ->
+  catalogLists: (view) ->
     list = view.find "ul"
     list.empty()
 
-    for query in LYT.lists
-      do (query) ->
-        listItem = jQuery """<li id="#{query.id}" data-icon="arrow-right"><a href="#"><h3>#{LYT.i18n query.title}</h3></a></li>"""
-        listItem.find("a").click (event) ->
-          callback query.callback()
-          LYT.var.callback = true
-          event.preventDefault()
-          event.stopImmediatePropagation()
-        list.append listItem   
+    for key, value of LYT.predefinedSearches
+      listItem = jQuery """<li id="#{key}" data-icon="arrow-right">
+                           <a href="##{value.hash}?#{value.param}=#{key}" class="ui-link-inherit">
+                           <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
+      list.append listItem   
     list.listview('refresh')
-
-  
-  catalogListsDirectlink: (callback, view, param) ->
-    list = view.find "ul"
-    list.empty()
-    
-    for query in LYT.lists
-      if query.id is param
-        callback query.callback()
-        event.preventDefault()
-        event.stopImmediatePropagation()
-    list.listview('refresh')
-
 
   showDidYouMean: (results, view) ->
     list = view.find "ul"
