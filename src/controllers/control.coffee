@@ -422,3 +422,5 @@ LYT.control =
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
   guest: -> $.mobile.changePage('#bookshelf?guest=true')
+
+  defaultPage: -> $.mobile.changePage('#bookshelf')
