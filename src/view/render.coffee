@@ -72,8 +72,8 @@ LYT.render = do ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         parameters =
           mode:               'bool'
-          prompt:              LYT.i18n('You are logged on as guest')
-          subTitle:            '...' + LYT.i18n('and hence can not remove books.')
+          prompt:              LYT.i18n('You are logged on as guest and hence can not remove books')
+          subTitle:            LYT.i18n('')
           animate:             false
           useDialogForceFalse: true
           useModal:            true
@@ -91,7 +91,7 @@ LYT.render = do ->
           useDialogForceFalse: true
           useModal:            true
           buttons:             {}
-        parameters.buttons[LYT.i18n('Remove')] =
+        parameters.buttons[LYT.i18n('Remove book')] =
           click: -> LYT.bookshelf.remove(book.id).done -> list.remove()
           id:    'ok-btn'
           theme: 'c'

@@ -105,8 +105,8 @@ LYT.control =
           log.warn 'control: login: logOn failed'
           parameters =
             mode:                'bool'
-            prompt:              LYT.i18n('Login error')
-            subTitle:            LYT.i18n('Incorrect username or password')
+            prompt:              LYT.i18n('Incorrect username or password')
+            subTitle:            LYT.i18n('')
             animate:             false
             useDialogForceFalse: true
             allowReopen:         true
@@ -250,8 +250,8 @@ LYT.control =
             else
               parameters =
                 mode:                'bool'
-                prompt:              LYT.i18n('An error has occurred')
-                subTitle:            LYT.i18n('unable to retrieve book')
+                prompt:              LYT.i18n('Unable to retrieve book')
+                subTitle:            LYT.i18n('')
                 animate:             false
                 useDialogForceFalse: true
                 allowReopen:         true
