@@ -105,8 +105,8 @@ LYT.control =
           log.warn 'control: login: logOn failed'
           parameters =
             mode:                'bool'
-            prompt:              LYT.i18n('Login error')
-            subTitle:            LYT.i18n('Incorrect username or password')
+            prompt:              LYT.i18n('Incorrect username or password')
+            subTitle:            LYT.i18n('')
             animate:             false
             useDialogForceFalse: true
             allowReopen:         true
@@ -250,8 +250,8 @@ LYT.control =
             else
               parameters =
                 mode:                'bool'
-                prompt:              LYT.i18n('An error has occurred')
-                subTitle:            LYT.i18n('unable to retrieve book')
+                prompt:              LYT.i18n('Unable to retrieve book')
+                subTitle:            LYT.i18n('')
                 animate:             false
                 useDialogForceFalse: true
                 allowReopen:         true
@@ -410,11 +410,11 @@ LYT.control =
         subject = "Link til bog på E17"
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
         if LYT.player.isIOS() #nice html... 
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: <a href='#{url}'>#{params.title}</a>"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&","&amp;"))}"
         else
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{url}"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url)}"
         
-        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
+        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
         
         $("#share-link-textarea").text url
         
