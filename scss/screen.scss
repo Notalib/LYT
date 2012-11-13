@@ -722,7 +722,7 @@ li.ui-li h3.no-search-results {
   background:#EEE;
 }
 
-#list_item_1 {
+#anbefalinger {
   background: transparent url(../images/icons/recommend_icn_25.png) no-repeat 8px 50%;
 
   h3 {
@@ -731,7 +731,7 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#list_item_2 {
+#nye {
   background: transparent url(../images/icons/new_icn_25.png) no-repeat 8px 50%;
 
   h3 {
@@ -740,7 +740,7 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#list_item_3 {
+#top {
   background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
 
   h3 {
@@ -749,7 +749,15 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#list_item_4 {
+#tegneserie {
+ background: transparent url(../images/icons/tegneserie_icn_25.png) no-repeat 8px 50%;
+  h3 {
+   padding-left: 28px;
+   padding-top: 8px;
+  }
+}
+
+#topung {
   background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
 
   h3 {
@@ -758,7 +766,7 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#list_item_5 {
+#topvoksen {
   background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
 
   h3 {
@@ -767,7 +775,7 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#list_item_6 {
+#kommersnart {
  background: transparent url(../images/icons/coming_icn_30.png) no-repeat 8px 50%;
   h3 {
    padding-left: 28px;
@@ -1319,28 +1327,32 @@ div.current {
     background-image: url(../images/nota-logo-hires.png);
     background-size: 200px 67px;
   }  
-  #list_item_1 {
+  #anbefalinger {
     background-image: url(../images/icons/recommend_icn_50.png);
     background-size: 25px 25px;
   }
-  #list_item_2 {
+  #nye {
     background-image: url(../images/icons/new_icn_50.png);
     background-size: 25px 25px;
   }
-  #list_item_3 {
+  #tegneserie {
+    background-image: url(../images/icons/tegneserie_icn_50.png);
+    background-size: 25px 25px;
+  }
+  #top {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
   }
-  #list_item_4 {
+  #topung {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
   }
-  #list_item_5 {
+  #topvoksen {
     background-image: url(../images/icons/top10_icn_60.png);
     background-size: 25px 25px;
   }
-  #list_item_6 {
-    background-image: url(../images/icons/coming_icn_60.png);
+  #kommersnart {
+    background-image: url(../images/icons/coming_icn_50.png);
     background-size: 25px 25px;
   }
 }
