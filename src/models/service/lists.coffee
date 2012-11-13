@@ -14,9 +14,9 @@ LYT.lists = do ->
     
   [
     { id: "list_item_1", title: "Suggestions",           callback: LYT.catalog.getSuggestions }
-    { id: "list_item_2", title: "Latest books",          callback: list("!genre=undervejs") }
-    { id: "list_item_3", title: "Most popular",          callback: list("!genre=undervejs", sort: LYT.catalog.SORTING_OPTIONS.last3month) }
-    { id: "list_item_4", title: "Most popular - Kids",   callback: list("publikum=unge !genre=undervejs",   sort: LYT.catalog.SORTING_OPTIONS.last3month) }
-    { id: "list_item_5", title: "Most popular - Adults", callback: list("publikum=voksne !genre=undervejs", sort: LYT.catalog.SORTING_OPTIONS.last3month) }
+    { id: "list_item_2", title: "Latest books",          callback: list("!genre=undervejs", sort: LYT.catalog.SORTING_OPTIONS.new) }
+    { id: "list_item_3", title: "Most popular",          callback: list("", sort: LYT.catalog.SORTING_OPTIONS.last3month) }
+    { id: "list_item_4", title: "Most popular - Kids",   callback: list("publikum=unge",   sort: LYT.catalog.SORTING_OPTIONS.last3month) }
+    { id: "list_item_5", title: "Most popular - Adults", callback: list("publikum=voksne", sort: LYT.catalog.SORTING_OPTIONS.last3month) }
     { id: "list_item_6", title: "Coming",               callback: list("genre=undervejs", sort: LYT.catalog.SORTING_OPTIONS.new) }
   ]

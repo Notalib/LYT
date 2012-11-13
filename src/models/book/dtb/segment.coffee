@@ -72,7 +72,8 @@ class LYT.Segment
       log.message "Segment: loading #{@url()}"
       # Parse transcript content
       [@contentUrl, @contentId] = @data.text.src.split "#"
-      unless resource = section.resources[@contentUrl]
+      resource = section.resources[@contentUrl]
+      if not resource
         log.error "Segment: no absolute URL for content #{@contentUrl}"
         @_deferred.reject()
       else
@@ -244,7 +245,7 @@ class LYT.Segment
         if image.attempts-- > 0
           backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50)
           log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left. Waiting for #{backoff} ms."
-          doLoad  = () -> loadImage image
+          doLoad = -> loadImage image
           setTimeout doLoad, backoff
         else
           log.error "Segment: parseContent: unable to preload image #{image.src}"
