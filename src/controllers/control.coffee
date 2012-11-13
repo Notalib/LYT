@@ -158,7 +158,7 @@ LYT.control =
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
-        
+            content.children().show();
         LYT.loader.register "Loading book", process
   
   # TODO: Move bookmarks list to separate page
@@ -426,11 +426,11 @@ LYT.control =
         subject = "Link til bog på E17"
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
         if LYT.player.isIOS() #nice html... 
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: <a href='#{url}'>#{params.title}</a>"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&","&amp;"))}"
         else
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{url}"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url)}"
         
-        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body.replace(/&/gi,'%26')}")
+        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
         
         $("#share-link-textarea").text url
         
