@@ -1055,18 +1055,25 @@ img.nota-full {
 .segmentContainer + .missingSegment {
   display: inline;
 }
-div.current {
-  font-weight: regular;
+#book-stack-content .segmentContainer.current {
+  
+  p, h1, h2, h3, img, image, a, span {
+    opacity: 1.0;
+  }
 }
 #book-stack-content, #book-plain-content {
   overflow: hidden;
   text-shadow: none;
   text-align: center;
   
+  p, h1, h2, h3, img, image, a, span {
+    opacity: 0.6;
+  }
+  
   p {
     margin: 2% 6% 0 5%;
     text-align: left;
-    line-height: 1.32em;  
+    line-height: 1.32em;
   }
   h1, h2, h3 {
     margin: 2% 6% 1% 5%;
