@@ -1056,7 +1056,7 @@ img.nota-full {
   display: inline;
 }
 div.current {
-  font-weight: bold;
+  font-weight: regular;
 }
 #book-stack-content, #book-plain-content {
   overflow: hidden;
@@ -1064,11 +1064,12 @@ div.current {
   text-align: center;
   
   p {
-    margin: 10px;
-    text-align: left;  
+    margin: 2% 6% 0 5%;
+    text-align: left;
+    line-height: 1.32em;  
   }
   h1, h2, h3 {
-    margin: 10px;
+    margin: 2% 6% 1% 5%;
     text-align: left;
   }
   img, .image {
@@ -1095,6 +1096,9 @@ div.current {
 /* Pop-up menu */
 
 .ui-simpledialog-container {
+  border:2px solid #000;
+  padding: 8px;
+  
   #ok-btn {
     .ui-btn-inner {
       color:#fff;
