@@ -1055,20 +1055,28 @@ img.nota-full {
 .segmentContainer + .missingSegment {
   display: inline;
 }
-div.current {
-  font-weight: bold;
+#book-stack-content .segmentContainer.current {
+  
+  p, h1, h2, h3, img, image, a, span {
+    opacity: 1.0;
+  }
 }
 #book-stack-content, #book-plain-content {
   overflow: hidden;
   text-shadow: none;
   text-align: center;
   
+  p, h1, h2, h3, img, image, a, span {
+    opacity: 0.6;
+  }
+  
   p {
-    margin: 10px;
-    text-align: left;  
+    margin: 2% 6% 0 5%;
+    text-align: left;
+    line-height: 1.32em;
   }
   h1, h2, h3 {
-    margin: 10px;
+    margin: 2% 6% 1% 5%;
     text-align: left;
   }
   img, .image {
@@ -1095,6 +1103,9 @@ div.current {
 /* Pop-up menu */
 
 .ui-simpledialog-container {
+  border:2px solid #000;
+  padding: 8px;
+  
   #ok-btn {
     .ui-btn-inner {
       color:#fff;
