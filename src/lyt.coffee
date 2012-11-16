@@ -17,4 +17,4 @@
 # This indicates release candidate 2 of version 1.0.0, but we do not include
 # the release candidate numbers in the version info below.
 window.LYT =
-  VERSION: '1.1.2'
+  VERSION: '1.1.3'
