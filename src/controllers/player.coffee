@@ -54,6 +54,16 @@ LYT.player =
     @previousButton = jQuery("a.previous-section")
     @progressionMode = @PROGRESSION_MODES.MP3
     @currentAudio = ''
+    
+    # This handler replaces the old progress handler which unfortunately
+    # never got called as often as necessary
+    startHandler = =>
+      status = @getStatus()
+      if @playing and status.paused and status.readyState > 2
+        log.message 'Player: synthetic event progress: resuming play since enough audio has been buffered'
+        @el.jPlayer 'play'
+      
+    setInterval startHandler, 200
          
     jplayer = @el.jPlayer
       ready: =>
@@ -67,15 +77,16 @@ LYT.player =
         $.jPlayer.timeFormat.showHour = true
         
         $('.jp-pause').click => @playing = false
-        $('.jp-play').click  => @playing = true
+
+        $('.jp-play').click =>  @playing = true
         
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
-          @nextSegment @playing
+          @nextSegment()
             
         @previousButton.click =>
           log.message "Player: previous: #{@segment().previous?.url()}"
-          @previousSegment @playing
+          @previousSegment()
       
       timeupdate: (event) =>
         status = event.jPlayer.status
@@ -232,13 +243,6 @@ LYT.player =
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
-      
-      progress: (event) =>
-        log.message 'Player: event progress'
-        status = @getStatus()
-        if @playing and status.paused and status.readyState > 2
-          log.message 'Player: event progress: resuming play since enough audio has been buffered'
-          @el.jPlayer 'play'
       
       error: (event) =>
         switch event.jPlayer.error.type
@@ -494,6 +498,8 @@ LYT.player =
       LYT.loader.set 'Loading sound', 'metadata', true, 0
       @el.jPlayer 'pause'
 
+  # Skip to next segment
+  # Returns segment promise
   nextSegment: ->
     return null unless @playlist()?
     if @playlist().hasNextSegment() is false
@@ -509,6 +515,8 @@ LYT.player =
     @playSegment segment
     segment.always => @seekedLoadSegmentLock = false
 
+  # Skip to next segment
+  # Returns segment promise
   previousSegment: ->
     return null unless @playlist()?.hasPreviousSegment()
     @setMetadataLoader @segment().previous
@@ -517,16 +525,15 @@ LYT.player =
     @playSegment segment
     segment.always => @seekedLoadSegmentLock = false
   
-  updateLastMark: (force = false) ->
+  updateLastMark: (force = false, segment) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
-    return unless segment = @segment()
+    return unless (segment or= @segment())
     segment.done (segment) =>
       # We use wall clock time here because book time can be streched if
       # the user has chosen a different play back speed.
       now = (new Date).getTime()
-      interval = LYT.config.player?.lastmarkUpdateInterval or 20000
-      return unless force or not @lastBookmark or now - @lastBookmark > interval
-      return if @nextOffset?
+      interval = LYT.config.player?.lastmarkUpdateInterval or 10000
+      return if not (force or @lastBookmark and now - @lastBookmark > interval)
       # Round off to nearest 5 seconds
       # TODO: Use segment start if close to it
       @book.setLastmark segment, Math.floor(@getStatus().currentTime / 5) * 5
