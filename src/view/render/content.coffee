@@ -150,7 +150,7 @@ LYT.render.content = do ->
       view.children().detach()
       view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
   
-    view.css('overflow-x','scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
+    view.css('overflow-x', 'scroll') if(LYT.player.isIOS() or $.jPlayer.platform.android?)
 
     segment = currentSegment
     while segment and segment.state() is "resolved"

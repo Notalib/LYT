@@ -22,7 +22,7 @@ LYT.settings = do ->
     # All text:   2
   
   # Load settings if they are set in localstorage
-  settings = jQuery.extend {}, defaults, LYT.cache.read("lyt","settings") or {}
+  settings = jQuery.extend {}, defaults, LYT.cache.read("lyt", "settings") or {}
   
   # Save the settings in local storage
   save = ->

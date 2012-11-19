@@ -115,7 +115,7 @@ LYT.control =
           parameters.buttons[LYT.i18n('OK')] =
             click: -> # Nop
             theme: 'c'
-          LYT.render.showDialog($("#login-form"),parameters)
+          LYT.render.showDialog($("#login-form"), parameters)
 
       LYT.loader.register "Logging in", process
       
@@ -410,7 +410,7 @@ LYT.control =
         subject = "Link til bog på E17"
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
         if LYT.player.isIOS() #nice html... 
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&","&amp;"))}"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&", "&amp;"))}"
         else
           body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url)}"
         

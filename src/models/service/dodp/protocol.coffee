@@ -113,7 +113,7 @@ LYT.protocol =
       return {} unless header.length is 1
       data = {}
       header.children().each ->
-        key   = @nodeName.slice(0,1).toLowerCase() + @nodeName.slice(1)
+        key   = @nodeName.slice(0, 1).toLowerCase() + @nodeName.slice(1)
         value = jQuery.trim jQuery(this).text()
         data[key] = value
       data

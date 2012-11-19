@@ -13,13 +13,13 @@ LYT.google = do ->
       jsonResults = []
       resultsMatch = []
 
-      jQuery.each jason[1],(i, val) ->
+      jQuery.each jason[1], (i, val) ->
         jsonResults.push(val) #put resultat i arrayet fra google
       
       if jsonResults.length is 0
         deferred.reject()
       if countNotaAutoComplete is 0 #only come with surgestions if autocomplete is blank...
-        jQuery.each jsonResults,(i)->
+        jQuery.each jsonResults, (i)->
           lookup = LYT.catalog.getAutoComplete(this)#look up google surgestions in nota autocomplete..
             .done (data) ->
               if data.length > 0
