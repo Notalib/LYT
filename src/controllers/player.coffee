@@ -270,12 +270,26 @@ LYT.player =
             # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION
             log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
-            #TODO: send people to a link where they can download flash or update their browser
+            parameters =
+              mode:                'bool'
+              prompt:              LYT.i18n('Platform not supported')
+              subTitle:            LYT.i18n('')
+              animate:             false
+              useDialogForceFalse: true
+              allowReopen:         true
+              useModal:            true
+              buttons:             {}
+            parameters.buttons[LYT.i18n('OK')] =
+              click: ->
+                $(document).one 'pagechange', -> $.mobile.silentScroll $('a[name="supported-platforms"]').offset().top
+                $.mobile.changePage '#support'
+              theme: 'c'
+            LYT.render.showDialog($.mobile.activePage, parameters)
       
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
       solution: 'html, flash'
-    
+
   fakeEnd: (status) ->
     return unless status.duration > 0 and status.currentTime > 1
     timeleft = status.duration - status.currentTime

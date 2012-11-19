@@ -265,7 +265,7 @@ LYT.control =
                 click: -> $.mobile.changePage "#bookshelf"
                 icon:  'delete'
                 theme: 'c'
-              LYT.render.showDialog($.mobile.activePage,parameters)
+              LYT.render.showDialog($.mobile.activePage, parameters)
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
