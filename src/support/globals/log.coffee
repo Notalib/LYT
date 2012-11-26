@@ -1,4 +1,5 @@
 # A facade for `console.*` functions
+# TODO: Move to LYT namespace or to separate project
 @log = do ->
   console = window.console
 

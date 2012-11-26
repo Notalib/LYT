@@ -16,6 +16,8 @@
 
 # ## Constants
 
+# TODO: Move the constants below out of global namespace
+
 window.RPC_UNEXPECTED_RESPONSE_ERROR = {}
 window.RPC_GENERAL_ERROR             = {}
 window.RPC_TIMEOUT_ERROR             = {}

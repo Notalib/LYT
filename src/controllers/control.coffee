@@ -14,6 +14,8 @@
 # This is the main controller for the app. It handles most of the business-logic
 # involved in displaying the requested pages
 
+# TODO: Rename to controller (not control)
+
 LYT.control =
   
   # ---------------
