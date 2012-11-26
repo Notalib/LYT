@@ -85,6 +85,15 @@ task "html", "Build HTML", (options) ->
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
     boast "rendered", "html", "build/index.html"
+    require('w3cjs').validate
+      file: 'build/index.html'
+      callback: (res) ->
+        if res.messages?.length > 0
+          console.log 'There were HTML validation errors:'
+          console.log ''
+          console.log '<line>, <column>: <message>'
+          for message in res.messages
+            console.log "#{message.lastLine}, #{message.lastColumn}: #{message.message}"
 
 
 task "scss", "Compile scss source", (options) ->
