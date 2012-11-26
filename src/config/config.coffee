@@ -104,7 +104,7 @@ LYT.config =
   # ### LYT.player config
   player:
     # The minimum time between lastmark updates (milliseconds)
-    lastmarkUpdateInterval: 20000 # Default: 20000 (i.e. 20 secs)
+    lastmarkUpdateInterval: 10000 # Default: 10000 (i.e. 10 secs)
     playAttemptLimit: 10
     # Fakeend disabled because it triggers a race condition in
     # the section loading code.

@@ -1,5 +1,6 @@
 fs      = require "fs"
 fs.path = require "path"
+w3cjs   = require "w3cjs" # https://github.com/thomasdavis/w3cjs
 
 # # Configuration
 
@@ -85,6 +86,15 @@ task "html", "Build HTML", (options) ->
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
     boast "rendered", "html", "build/index.html"
+    w3cjs.validate
+      file: 'build/index.html'
+      callback: (res) ->
+        if res.messages?.length > 0
+          console.warn 'There were HTML validation errors:'
+          console.warn ''
+          console.warn '<line>, <column>: <message>'
+          for message in res.messages
+            console.warn "#{message.lastLine}, #{message.lastColumn}: #{message.message}"
 
 
 task "scss", "Compile scss source", (options) ->

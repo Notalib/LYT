@@ -16,5 +16,9 @@
 # Version numbers such as 1.0.0_002 are used to indicate release candidates.
 # This indicates release candidate 2 of version 1.0.0, but we do not include
 # the release candidate numbers in the version info below.
+
+# TODO: make it possible to keep lyt in a private namespace
+#       (see LYT issue #63 for a discussion).
+
 window.LYT =
-  VERSION: '1.1.2'
+  VERSION: '1.1.4'

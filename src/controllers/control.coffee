@@ -14,6 +14,8 @@
 # This is the main controller for the app. It handles most of the business-logic
 # involved in displaying the requested pages
 
+# TODO: Rename to controller (not control)
+
 LYT.control =
   
   # ---------------
@@ -115,7 +117,7 @@ LYT.control =
           parameters.buttons[LYT.i18n('OK')] =
             click: -> # Nop
             theme: 'c'
-          LYT.render.showDialog($("#login-form"),parameters)
+          LYT.render.showDialog($("#login-form"), parameters)
 
       LYT.loader.register "Logging in", process
       
@@ -265,7 +267,7 @@ LYT.control =
                 click: -> $.mobile.changePage "#bookshelf"
                 icon:  'delete'
                 theme: 'c'
-              LYT.render.showDialog($.mobile.activePage,parameters)
+              LYT.render.showDialog($.mobile.activePage, parameters)
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
@@ -410,7 +412,7 @@ LYT.control =
         subject = "Link til bog på E17"
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
         if LYT.player.isIOS() #nice html... 
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&","&amp;"))}"
+          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&", "&amp;"))}"
         else
           body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url)}"
         

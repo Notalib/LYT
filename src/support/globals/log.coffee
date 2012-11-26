@@ -1,4 +1,5 @@
 # A facade for `console.*` functions
+# TODO: Move to LYT namespace or to separate project
 @log = do ->
   console = window.console
 
@@ -7,14 +8,14 @@
     clicks = 0
     reset = -> clicks = 0
     timer = null
-    $('h1').bind 'click', ->
+    $(':jqmData(role=header)').bind 'click', ->
       clicks++
       if clicks == 6
         log.receiver = 'devconsole'
         log.message 'Opened developer console'
       else if clicks < 6
         clearTimeout timer if timer
-        timer = setTimeout reset, 1500
+        timer = setTimeout reset, 2000
 
   started = new Date()
 

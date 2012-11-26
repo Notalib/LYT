@@ -81,7 +81,7 @@ LYT.render = do ->
         parameters.buttons[LYT.i18n('OK')] =
           click: ->
           theme: 'c'
-        LYT.render.showDialog($(this),parameters)
+        LYT.render.showDialog($(this), parameters)
       else
         parameters =
           mode:                'bool'
@@ -99,7 +99,7 @@ LYT.render = do ->
           click: ->
           id:    'cancel-btn'
           theme: 'c'
-        LYT.render.showDialog($(this),parameters)
+        LYT.render.showDialog($(this), parameters)
 
 
   # Displays a small speech bubble notification vertOffset pixels below the
@@ -159,12 +159,12 @@ LYT.render = do ->
     
     # if the list i empty -> bookshelf is empty -> show icon...
     if(list.length is 1)
-      $("#bookshelf-content").css('background','transparent url(../images/icons/empty_bookshelf.png) no-repeat')
+      $("#bookshelf-content").css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
     
     list.listview('refresh')
 
   loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
-      process = LYT.bookshelf.load(page,zeroAndUp)
+      process = LYT.bookshelf.load(page, zeroAndUp)
       .done (books) ->
         LYT.render.bookshelf(books, content, page, zeroAndUp)
         if books.nextPage
