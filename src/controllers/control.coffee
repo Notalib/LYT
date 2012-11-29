@@ -419,6 +419,10 @@ LYT.control =
         $("#share-link-textarea").text url
         
         
+  instrumentation: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      LYT.render.showInstrumentation $('#instrumentation-content') 
+        
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
   guest: -> $.mobile.changePage('#bookshelf?guest=true')

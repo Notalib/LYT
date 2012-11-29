@@ -106,6 +106,7 @@ LYT.render = do ->
   # provided element containing the provided text for timeout milliseconds.
   # If timeout provided is zero, the bubble will display until the user clicks
   # it. Timeout defaults to 2000.
+  # Returns a function that will remove the notification when called.
   bubbleNotification = (element, text, vertOffset=0, timeout) ->
     notification = $("<div class=\"bubble-notification\"><div class=\"bubble-notification-arrow\"></div><div class=\"bubble-notification-message\">#{text}</div></div>")
     # We set visibility to hidden and attach it to body in order to measure the width
@@ -121,6 +122,7 @@ LYT.render = do ->
       notification.on 'click', remove
     else
       setTimeout(remove, timeout or 2000)
+    remove
   
   # ---------------------------
   
@@ -423,4 +425,93 @@ LYT.render = do ->
   setPlayerButtonFocus: (button) ->
     $(".jp-#{button}").addClass('ui-btn-active').focus()
 
+  showInstrumentation: (view) ->
+    view.children().detach()
+    
+    fields = LYT.instrumentation.fieldInfo()
 
+    colors = [
+      'Blue'
+      'BlueViolet'
+      'Brown'
+      'BurlyWood'
+      'CadetBlue'
+      'Chartreuse'
+      'Chocolate'
+      'Coral'
+      'CornflowerBlue'
+      'Crimson'
+      'Cyan'
+      'DarkBlue'
+      'DarkCyan'
+      'DarkGoldenRod'
+      'DarkGreen'
+      'DarkKhaki'
+      'DarkMagenta'
+      'DarkOliveGreen'
+      'Darkorange'
+      'DarkOrchid'
+      'DarkRed'
+    ]
+
+    i = 0
+    for key, fieldInfo of fields
+      fieldInfo.color = colors[i++]
+      i = i % colors.length
+
+    mapValue = (key, value) ->
+      fieldInfo = fields[key]
+        # TODO string types
+      if not value?
+        0.5 # TODO Handle undefined better
+      else if not fieldInfo.type
+        0.5
+      else if fieldInfo.type is 'number'
+        if fieldInfo.domain.max is fieldInfo.domain.min
+          0.5
+        else
+          1 - (value - fieldInfo.domain.min) / (fieldInfo.domain.max - fieldInfo.domain.min)
+      else if fieldInfo.type is 'boolean'
+        if value then 0 else 1
+      else
+        0.5 # Everything else
+      
+    # Chrome doesn't render the svg items if the DOM is manipulated, so
+    # everything is built up as one large string
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="graph-canvas" viewBox="0 0 1 1">'
+
+    events    = {}
+    polyLines = {}
+    circles   = ''
+    appendEvent = (object, key) ->
+      events[object.delta.toString()] or= ''
+      events[object.delta.toString()] += "#{key}: #{object[key]}<br/>"
+    LYT.instrumentation.iterateObjects (object) ->
+      events[object.delta.toString()] = ''
+      appendEvent object, 'delta'
+      for key, value of object
+        continue if key is 'delta'
+        appendEvent object, key
+        continue if fields[key].type isnt 'number'
+        polyLines[key] or= ''
+        polyLines[key] += "#{mapValue 'delta', object.delta},#{mapValue key, value} "
+        circles += "<circle data-point=\"(delta, #{key}): (#{object.delta}, #{value})\" data-delta=\"#{object.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', object.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
+    
+    for key, coords of polyLines
+      svg += "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
+    svg += circles
+    svg += '</svg>'
+    view.append svg
+
+    $('circle.graph-point').each (i, elt) ->
+      element = $(elt)
+      remove = null
+      element.hover(
+        -> remove = LYT.render.bubbleNotification $(this), $(this).attr('data-point'), 5, 0
+        -> remove?()
+      )
+
+    $('circle.graph-point').click ->
+      infoView = view.children('.info')
+      infoView.children().detach()
+      infoView.append events[$(this).attr 'data-delta']

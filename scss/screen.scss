@@ -1470,3 +1470,18 @@ html {
 .ui-autocomplete {
   top:100px !important;
 }
+
+/* Instrumentation styles */
+
+svg.graph-canvas {
+  background-color: white;
+}
+
+.graph-line {
+  fill: none;
+  stroke-width: 0.001;
+  
+  &:hover {
+    stroke-width: 0.005;
+  }
+}
