@@ -457,6 +457,9 @@ LYT.render = do ->
       'DarkRed'
     ]
 
+    canvasHeight = 0.25
+    canvasWidth  = 1
+
     i = 0
     for key, fieldInfo of fields
       fieldInfo.color = colors[i++]
@@ -465,7 +468,8 @@ LYT.render = do ->
     mapValue = (key, value) ->
       fieldInfo = fields[key]
         # TODO string types
-      if not value?
+      scale = if key is 'delta' then canvasWidth else canvasHeight
+      scale * if not value?
         0.5 # TODO Handle undefined better
       else if not fieldInfo.type
         0.5
@@ -482,7 +486,7 @@ LYT.render = do ->
       
     # Chrome doesn't render the svg items if the DOM is manipulated, so
     # everything is built up as one large string
-    svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="graph-canvas" viewBox="0 0 1 1">'
+    svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" class=\"graph-canvas\" viewBox=\"0 0 #{canvasWidth} #{canvasHeight}\">"
 
     timeline     = {}
     descriptions = {}
