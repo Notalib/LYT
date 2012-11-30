@@ -457,8 +457,10 @@ LYT.render = do ->
       'DarkRed'
     ]
 
-    canvasHeight = 0.25
-    canvasWidth  = 1
+    canvasHeight   = 0.25
+    canvasWidth    = 1
+    timelineHeight = 0.03
+    timelineMargin = 0.01
 
     i = 0
     for key, fieldInfo of fields
@@ -468,7 +470,7 @@ LYT.render = do ->
     mapValue = (key, value) ->
       fieldInfo = fields[key]
       # TODO string types
-      scale = if key is 'delta' then canvasWidth else canvasHeight
+      scale = if key is 'delta' then canvasWidth else canvasHeight - timelineHeight - timelineMargin
       scale * if not value?
         NaN
       else if not fieldInfo.type
@@ -487,13 +489,6 @@ LYT.render = do ->
     # Chrome doesn't render the svg items if the DOM is manipulated, so
     # everything is built up as one large string
     svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" class=\"graph-canvas\" viewBox=\"0 0 #{canvasWidth} #{canvasHeight}\">"
-
-    timeline     = {}
-    descriptions = {}
-    polyLines    = {}
-    polyLinesStr = ''
-    circles      = ''
-    deltaMarkers = ''
 
     graph =
       fields: fields
@@ -527,8 +522,12 @@ LYT.render = do ->
         $('.delta-marker').attr 'class', 'delta-marker'
         $("#delta-marker-#{entry.event.delta}").attr 'class', 'delta-marker highlight'
           
-
     makePolyLine = (key, coords) -> "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
+
+    polyLines    = {}
+    polyLinesStr = ''
+    circles      = ''
+    deltaMarkers = ''
 
     lastEntry = null
     LYT.instrumentation.iterateObjects (event) ->
@@ -539,7 +538,8 @@ LYT.render = do ->
         entry.previous = lastEntry
         lastEntry.next = entry
       lastEntry = entry
-      deltaMarkers   += "<polyline id=\"delta-marker-#{event.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', event.delta},0 #{mapValue 'delta', event.delta},1\"></polyline>"
+      deltaMarkers += "<polyline id=\"delta-marker-#{event.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', event.delta},0 #{mapValue 'delta', event.delta},1\"></polyline>"
+      deltaMarkers += "<rect class=\"delta-timeline-marker\" fill=\"blue\" stroke=\"none\" width=\"0.01\" height=\"#{timelineHeight}\" x=\"#{mapValue('delta', event.delta) - 0.005}\" y=\"#{canvasHeight - timelineHeight}\"></rect>" 
       for key, value of event
         continue if key is 'delta'
         entry.description += "#{key}: #{event[key]}<br/>"
@@ -554,9 +554,9 @@ LYT.render = do ->
       graph.saveEntry entry
       graph.currentEntry or= entry
     
-    for key, coords of polyLines
-      polyLinesStr += makePolyLine key, coords
+    polyLinesStr += makePolyLine key, coords for key, coords of polyLines
 
+    svg += "<polyline stroke=\"none\" fill=\"#CCC\" points=\"0,#{canvasHeight} #{canvasWidth},#{canvasHeight} #{canvasWidth},#{canvasHeight - timelineHeight} 0,#{canvasHeight - timelineHeight} 0,#{canvasHeight}\"></polyline>"
     svg += polyLinesStr
     svg += circles
     svg += deltaMarkers
@@ -574,6 +574,8 @@ LYT.render = do ->
       )
 
     $('circle.graph-point').click -> graph.highlight $(this).attr 'data-delta'
+    
+    graph.highlight graph.currentEntry if graph.currentEntry
     
     
       
