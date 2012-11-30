@@ -383,6 +383,11 @@ LYT.render = do ->
       list.append listItem   
     list.listview('refresh')
 
+  setHeader: (page, text) -> 
+    header = $(page).children( ":jqmData(role=header)" ).find("h1")
+    header.text LYT.i18n text
+
+
   showDidYouMean: (results, view) ->
     list = view.find "ul"
     list.empty()

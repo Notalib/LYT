@@ -274,10 +274,7 @@ LYT.control =
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: search: unable to log in'
     promise.done ->
-      #if type is 'pagebeforeshow'
-        
-
-      if type is 'pageshow'
+      if type is 'pagebeforeshow'
         # $("#listshow-btn").click (event) ->
         #   LYT.var.callback = null
         #   content = $(page).children(":jqmData(role=content)")
@@ -307,17 +304,21 @@ LYT.control =
             action = "showList" if LYT.predefinedSearches[list]?
 
         content = $(page).children( ":jqmData(role=content)" )
+        header = $(page).children( ":jqmData(role=header)" ).find("h1")
         
         switch action
           when "predefinedView"
             $('#listshow-btn').hide()
             $('#more-search-results').hide()
+            LYT.render.setHeader page, "Search"
             LYT.render.catalogLists content
           when "search"
+            LYT.render.setHeader page, "Search"
             if $('#searchterm').val() isnt term
               $('#searchterm').val term
               handleResults LYT.catalog.search(term)
           when "showList"
+            LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
             
         LYT.catalog.attachAutocomplete $('#searchterm')
