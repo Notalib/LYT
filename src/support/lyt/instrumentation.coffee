@@ -48,6 +48,7 @@ iterateArrays = (callback) ->
 
 iterateObjects = (callback) ->
   fields = false
+  lastObject = null
   iterateArrays (data) ->
     if fields
       result = {}
@@ -83,7 +84,7 @@ fieldInfo = ->
       continue if fieldInfo.type is 'number'
       fieldInfo.type = 'unknown'
   fields
-    
+
 
 LYT.instrumentation =
   last:           last

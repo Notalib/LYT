@@ -480,26 +480,34 @@ LYT.render = do ->
     # everything is built up as one large string
     svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="graph-canvas" viewBox="0 0 1 1">'
 
-    events    = {}
-    polyLines = {}
-    circles   = ''
+    timeline     = {}
+    events       = {}
+    polyLines    = {}
+    circles      = ''
+    deltaMarkers = ''
+
     appendEvent = (object, key) ->
       events[object.delta.toString()] or= ''
       events[object.delta.toString()] += "#{key}: #{object[key]}<br/>"
+
+    lastObject = null
     LYT.instrumentation.iterateObjects (object) ->
+      timeline[object.delta.toString()] = object
       events[object.delta.toString()] = ''
       appendEvent object, 'delta'
+      deltaMarkers   += "<polyline id=\"delta-marker-#{object.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', object.delta},0 #{mapValue 'delta', object.delta},1\"></polyline>"
       for key, value of object
         continue if key is 'delta'
         appendEvent object, key
         continue if fields[key].type isnt 'number'
         polyLines[key] or= ''
         polyLines[key] += "#{mapValue 'delta', object.delta},#{mapValue key, value} "
-        circles += "<circle data-point=\"(delta, #{key}): (#{object.delta}, #{value})\" data-delta=\"#{object.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', object.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
+        circles        += "<circle data-point=\"(delta, #{key}): (#{object.delta}, #{value})\" data-delta=\"#{object.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', object.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
     
     for key, coords of polyLines
       svg += "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
     svg += circles
+    svg += deltaMarkers
     svg += '</svg>'
     view.append svg
 
@@ -512,6 +520,16 @@ LYT.render = do ->
       )
 
     $('circle.graph-point').click ->
-      infoView = view.children('.info')
-      infoView.children().detach()
-      infoView.append events[$(this).attr 'data-delta']
+      view.children('.info').detach()
+      infoView = $('<div class="info"></div>')
+      deltaStr = $(this).attr 'data-delta'
+      infoView.append events[deltaStr]
+      view.append infoView
+      # TODO: We should do $('svg.graph-canvas').children('.delta-marker')
+      #       but it doesn't work in Chrome
+      # TODO: We should use addClass and removeClass, but this doesn't work
+      #       in Chrome.
+      $('.delta-marker').attr 'class', 'delta-marker'
+      $("#delta-marker-#{deltaStr}").attr 'class', 'delta-marker highlight'
+      
+      
