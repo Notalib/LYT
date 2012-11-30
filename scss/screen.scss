@@ -1473,14 +1473,12 @@ html {
 
 /* Instrumentation styles */
 
-#instrumentation-content {
-  .info {
-    background-color: white;
-    font-family: Courier New, Courier, monospace;
-    font-size: 10pt;
-    padding: 5px;
-    overflow-x: scroll;
-  }
+#instrumentation-delta {
+  background-color: white;
+  font-family: Courier New, Courier, monospace;
+  font-size: 10pt;
+  padding: 5px;
+  overflow-x: scroll;
 }
 
 svg.graph-canvas {

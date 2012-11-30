@@ -5,12 +5,18 @@
 		<h1>Statistik</h1>
 	</header>
 	<div data-role="content" data-theme="a">
-	  <div id="instrumentation-content">
+     <div data-role="collapsible">
+      <h3>Graf</h3>
+      <div id="instrumentation-content">
+    </div>
 	  </div>
-	  <div id="instrumentation-delta"></div>
-		<fieldset class="ui-grid-a">
-		  <div class="ui-block-a"><button type="submit" data-theme="b" class="previous">Forrige</button></div>
-		  <div class="ui-block-b"><button type="submit" data-theme="b" class="next">Næste</button></div>     
-	  </fieldset>
+    <fieldset class="ui-grid-a">
+      <div class="ui-block-a"><button type="submit" data-theme="b" class="previous">Forrige</button></div>
+      <div class="ui-block-b"><button type="submit" data-theme="b" class="next">Næste</button></div>     
+    </fieldset>
+    <div data-role="collapsible">
+      <h3>Data</h3>
+	    <div id="instrumentation-delta"></div>
+	  </div>
 	</div>
 </div>

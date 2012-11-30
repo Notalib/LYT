@@ -66,6 +66,12 @@ LYT.control =
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage "#bookshelf" )
+        
+    $('#instrumentation').find('button.previous').on 'click', ->
+      LYT.render.instrumentationGraph()?.previousEntry()
+
+    $('#instrumentation').find('button.next').on 'click', ->
+      LYT.render.instrumentationGraph()?.nextEntry()
 
 
   ensureLogOn: (params) ->

@@ -425,6 +425,9 @@ LYT.render = do ->
   setPlayerButtonFocus: (button) ->
     $(".jp-#{button}").addClass('ui-btn-active').focus()
 
+  instrumentationGraph: ->
+    $('#instrumentation').find('svg.graph-canvas').data('lyt-graph')
+
   showInstrumentation: (view) ->
     view.children().detach()
     
@@ -470,7 +473,8 @@ LYT.render = do ->
         if fieldInfo.domain.max is fieldInfo.domain.min
           0.5
         else
-          1 - (value - fieldInfo.domain.min) / (fieldInfo.domain.max - fieldInfo.domain.min)
+          result = (value - fieldInfo.domain.min) / (fieldInfo.domain.max - fieldInfo.domain.min)
+          if key is 'delta' then result else 1 - result
       else if fieldInfo.type is 'boolean'
         if value then 0 else 1
       else
@@ -487,10 +491,37 @@ LYT.render = do ->
     deltaMarkers = ''
 
     graph =
-      fields:       fields
-      entries:      {}
-      saveEntry:    (entry) -> @entries[entry.event.delta.toString()] = entry
-      getEntry:     (delta) -> @entries[delta.toString()]
+      fields: fields
+      entries: {}
+      
+      saveEntry: (entry) ->
+        @entries[entry.event.delta.toString()] = entry
+        
+      getEntry: (delta) ->
+        @entries[delta.toString()]
+        
+      nextEntry: ->
+        @highlight @currentEntry.next if @currentEntry.next
+        
+      previousEntry: ->
+        @highlight @currentEntry.previous if @currentEntry.previous
+      
+      # Highlight an entry
+      # Input: delta timestamp (as Number or String) or an entry
+      highlight: (data) ->
+        entry = if typeof data is 'object' then data else @getEntry data
+        if entry?
+          @currentEntry = entry
+        else
+          log.errorGroup "Render: showInstrumentation: can't highlight this: ", data
+        $('#instrumentation-delta').html entry.description
+        # TODO: We should do $('svg.graph-canvas').children('.delta-marker')
+        #       but it doesn't work in Chrome
+        # TODO: We should use addClass and removeClass, but this doesn't work
+        #       in Chrome.
+        $('.delta-marker').attr 'class', 'delta-marker'
+        $("#delta-marker-#{entry.event.delta}").attr 'class', 'delta-marker highlight'
+          
 
     lastEntry = null
     LYT.instrumentation.iterateObjects (event) ->
@@ -500,7 +531,7 @@ LYT.render = do ->
       if lastEntry
         entry.previous = lastEntry
         lastEntry.next = entry
-      lastEntry = event
+      lastEntry = entry
       deltaMarkers   += "<polyline id=\"delta-marker-#{event.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', event.delta},0 #{mapValue 'delta', event.delta},1\"></polyline>"
       for key, value of event
         continue if key is 'delta'
@@ -510,6 +541,7 @@ LYT.render = do ->
         polyLines[key] += "#{mapValue 'delta', event.delta},#{mapValue key, value} "
         circles        += "<circle data-point=\"(delta, #{key}): (#{event.delta}, #{value})\" data-delta=\"#{event.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', event.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
       graph.saveEntry entry
+      graph.currentEntry or= entry
     
     for key, coords of polyLines
       svg += "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
@@ -517,6 +549,8 @@ LYT.render = do ->
     svg += deltaMarkers
     svg += '</svg>'
     view.append svg
+
+    $('svg.graph-canvas').data 'lyt-graph', graph
 
     $('circle.graph-point').each (i, elt) ->
       element = $(elt)
@@ -526,17 +560,7 @@ LYT.render = do ->
         -> remove?()
       )
 
-    $('circle.graph-point').click ->
-      view.children('.info').detach()
-      infoView = $('<div class="info"></div>')
-      deltaStr = $(this).attr 'data-delta'
-      infoView.append graph.getEntry(deltaStr).description
-      view.append infoView
-      # TODO: We should do $('svg.graph-canvas').children('.delta-marker')
-      #       but it doesn't work in Chrome
-      # TODO: We should use addClass and removeClass, but this doesn't work
-      #       in Chrome.
-      $('.delta-marker').attr 'class', 'delta-marker'
-      $("#delta-marker-#{deltaStr}").attr 'class', 'delta-marker highlight'
-      
+    $('circle.graph-point').click -> graph.highlight $(this).attr 'data-delta'
+    
+    
       
