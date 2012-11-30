@@ -467,12 +467,12 @@ LYT.render = do ->
 
     mapValue = (key, value) ->
       fieldInfo = fields[key]
-        # TODO string types
+      # TODO string types
       scale = if key is 'delta' then canvasWidth else canvasHeight
       scale * if not value?
-        0.5 # TODO Handle undefined better
+        NaN
       else if not fieldInfo.type
-        0.5
+        NaN
       else if fieldInfo.type is 'number'
         if fieldInfo.domain.max is fieldInfo.domain.min
           0.5
@@ -482,7 +482,7 @@ LYT.render = do ->
       else if fieldInfo.type is 'boolean'
         if value then 0 else 1
       else
-        0.5 # Everything else
+        NaN # Everything else
       
     # Chrome doesn't render the svg items if the DOM is manipulated, so
     # everything is built up as one large string
@@ -491,6 +491,7 @@ LYT.render = do ->
     timeline     = {}
     descriptions = {}
     polyLines    = {}
+    polyLinesStr = ''
     circles      = ''
     deltaMarkers = ''
 
@@ -527,6 +528,8 @@ LYT.render = do ->
         $("#delta-marker-#{entry.event.delta}").attr 'class', 'delta-marker highlight'
           
 
+    makePolyLine = (key, coords) -> "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
+
     lastEntry = null
     LYT.instrumentation.iterateObjects (event) ->
       entry =
@@ -541,14 +544,20 @@ LYT.render = do ->
         continue if key is 'delta'
         entry.description += "#{key}: #{event[key]}<br/>"
         continue if fields[key].type isnt 'number'
-        polyLines[key] or= ''
-        polyLines[key] += "#{mapValue 'delta', event.delta},#{mapValue key, value} "
-        circles        += "<circle data-point=\"(delta, #{key}): (#{event.delta}, #{value})\" data-delta=\"#{event.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', event.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
+        mappedValue = mapValue key, value
+        if isNaN mappedValue
+          delete polyLines[key]
+        else
+          polyLines[key] or= ''
+          polyLines[key] += "#{mapValue 'delta', event.delta},#{mappedValue} "
+          circles        += "<circle data-point=\"(delta, #{key}): (#{event.delta}, #{value})\" data-delta=\"#{event.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', event.delta}\" cy=\"#{mappedValue}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
       graph.saveEntry entry
       graph.currentEntry or= entry
     
     for key, coords of polyLines
-      svg += "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
+      polyLinesStr += makePolyLine key, coords
+
+    svg += polyLinesStr
     svg += circles
     svg += deltaMarkers
     svg += '</svg>'
