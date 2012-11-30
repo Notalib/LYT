@@ -481,28 +481,35 @@ LYT.render = do ->
     svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="graph-canvas" viewBox="0 0 1 1">'
 
     timeline     = {}
-    events       = {}
+    descriptions = {}
     polyLines    = {}
     circles      = ''
     deltaMarkers = ''
 
-    appendEvent = (object, key) ->
-      events[object.delta.toString()] or= ''
-      events[object.delta.toString()] += "#{key}: #{object[key]}<br/>"
+    graph =
+      fields:       fields
+      entries:      {}
+      saveEntry:    (entry) -> @entries[entry.event.delta.toString()] = entry
+      getEntry:     (delta) -> @entries[delta.toString()]
 
-    lastObject = null
-    LYT.instrumentation.iterateObjects (object) ->
-      timeline[object.delta.toString()] = object
-      events[object.delta.toString()] = ''
-      appendEvent object, 'delta'
-      deltaMarkers   += "<polyline id=\"delta-marker-#{object.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', object.delta},0 #{mapValue 'delta', object.delta},1\"></polyline>"
-      for key, value of object
+    lastEntry = null
+    LYT.instrumentation.iterateObjects (event) ->
+      entry =
+        description: "delta: #{event.delta}<br/>"
+        event: event
+      if lastEntry
+        entry.previous = lastEntry
+        lastEntry.next = entry
+      lastEntry = event
+      deltaMarkers   += "<polyline id=\"delta-marker-#{event.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', event.delta},0 #{mapValue 'delta', event.delta},1\"></polyline>"
+      for key, value of event
         continue if key is 'delta'
-        appendEvent object, key
+        entry.description += "#{key}: #{event[key]}<br/>"
         continue if fields[key].type isnt 'number'
         polyLines[key] or= ''
-        polyLines[key] += "#{mapValue 'delta', object.delta},#{mapValue key, value} "
-        circles        += "<circle data-point=\"(delta, #{key}): (#{object.delta}, #{value})\" data-delta=\"#{object.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', object.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
+        polyLines[key] += "#{mapValue 'delta', event.delta},#{mapValue key, value} "
+        circles        += "<circle data-point=\"(delta, #{key}): (#{event.delta}, #{value})\" data-delta=\"#{event.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', event.delta}\" cy=\"#{mapValue key, value}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
+      graph.saveEntry entry
     
     for key, coords of polyLines
       svg += "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
@@ -523,7 +530,7 @@ LYT.render = do ->
       view.children('.info').detach()
       infoView = $('<div class="info"></div>')
       deltaStr = $(this).attr 'data-delta'
-      infoView.append events[deltaStr]
+      infoView.append graph.getEntry(deltaStr).description
       view.append infoView
       # TODO: We should do $('svg.graph-canvas').children('.delta-marker')
       #       but it doesn't work in Chrome
