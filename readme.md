@@ -17,6 +17,36 @@ Tests built with [QUnit](http://docs.jquery.com/QUnit)
 
 All releases are available from Github using the tag format lyt-&lt;version&gt;.
 
+### Version 1.1.0
+
+#### Major features
+
+  * IE8 support (limited to basic functions).
+  * Added single sign on method for integration with external authorization server.
+  * Better support of JAWS 10 to 13 and other screen readers.
+  * Better highlighting of current paragraph in stack player.
+  * Dynamic resizing of book content.
+  * Upgraded to use jQuery 1.8.2, jQuery Mobile 1.2 and jQuery UI 1.9.0.
+  * Upgraded to jQuery Mobile router 0.93.
+  * Using Modernizr for non-JavaScript fallback.
+  * Logging is now disabled by default.
+  * More build options:
+    * Development mode (enables logging).
+    * Concatenate JavaScript.
+    * Minify JavaScript.
+
+#### Improvements and bug fixes
+
+  * Added predefined comic search.
+  * Numerous UI tweaks.
+  * Bugfixes related to bookmarks, search and adding items to bookshelf.
+  * Cleaned up screen.scss and added formatting notes.
+  * Add home screen icons for IOS.
+  * Make it possible to link to most pages and log the user in if necessary.
+  * Removed hard wired Danish strings from coffeescript source.
+  * Rewrote search related pages to handle some glitches and better clarity.
+ 
+
 ### Version 1.0.1
 
 #### Major features
