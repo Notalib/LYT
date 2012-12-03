@@ -68,6 +68,12 @@ LYT.control =
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage "#bookshelf" )
+        
+    $('#instrumentation').find('button.previous').on 'click', ->
+      LYT.render.instrumentationGraph()?.previousEntry()
+
+    $('#instrumentation').find('button.next').on 'click', ->
+      LYT.render.instrumentationGraph()?.nextEntry()
 
 
   ensureLogOn: (params) ->
@@ -421,6 +427,10 @@ LYT.control =
         
         $("#share-link-textarea").text url
         
+        
+  instrumentation: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      LYT.render.showInstrumentation $('#instrumentation-content') 
         
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 

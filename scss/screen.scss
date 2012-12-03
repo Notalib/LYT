@@ -1470,3 +1470,40 @@ html {
 .ui-autocomplete {
   top:100px !important;
 }
+
+/* Instrumentation styles */
+
+#instrumentation-delta {
+  background-color: white;
+  font-family: Courier New, Courier, monospace;
+  font-size: 10pt;
+  padding: 5px;
+  overflow-x: scroll;
+}
+
+svg.graph-canvas {
+  background-color: white;
+  border: 1px solid black;
+  padding: 5px;
+  height: 25%;
+}
+
+.delta-marker {
+  fill: none;
+  stroke-width: 0.015;
+  stroke: blue;
+  display: none;
+  &.highlight {
+    opacity: 0.4;
+    display: block;
+  }
+}
+
+.graph-line {
+  fill: none;
+  stroke-width: 0.001;
+  
+  &:hover {
+    stroke-width: 0.005;
+  }
+}

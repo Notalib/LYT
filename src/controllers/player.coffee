@@ -67,6 +67,7 @@ LYT.player =
          
     jplayer = @el.jPlayer
       ready: =>
+        LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         @ready = true
         @timeupdateLock = false
@@ -89,6 +90,7 @@ LYT.player =
           @previousSegment()
       
       timeupdate: (event) =>
+        LYT.instrumentation.record 'timeupdate', event.jPlayer.status
         status = event.jPlayer.status
         @time = status.currentTime
         
@@ -130,6 +132,7 @@ LYT.player =
           next.always => @timeupdateLock = false
 
       loadstart: (event) =>
+        LYT.instrumentation.record 'loadstart', event.jPlayer.status
         log.message "Player: loadstart: playAttemptCount: #{@playAttemptCount}, paused: #{@getStatus().paused}"
         @setPlayBackRate()
         @timeupdateLock = false
@@ -139,6 +142,7 @@ LYT.player =
         @updateHtml @segment()
       
       ended: (event) =>
+        LYT.instrumentation.record 'ended', event.jPlayer.status
         log.message 'Player: event ended'
         @timeupdateLock = false
         if @playing and not LYT.config.player.useFakeEnd
@@ -146,6 +150,7 @@ LYT.player =
           @nextSegment true
       
       play: (event) =>
+        LYT.instrumentation.record 'play', event.jPlayer.status
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
@@ -174,6 +179,7 @@ LYT.player =
           @el.jPlayer 'pause', @nextOffset
 
       pause: (event) =>
+        LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
         status = event.jPlayer.status
         LYT.render.setPlayerButtonFocus 'play'
@@ -190,6 +196,7 @@ LYT.player =
           @_iBug = true
 
       seeked: (event) =>
+        LYT.instrumentation.record 'seeked', event.jPlayer.status
         @time = event.jPlayer.status.currentTime
         log.message "Player: event seeked to offset #{@time}, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         @timeupdateLock = false
@@ -205,6 +212,7 @@ LYT.player =
             @el.jPlayer 'play'
 
       loadedmetadata: (event) =>
+        LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
         if isNaN event.jPlayer.status.duration
@@ -226,6 +234,7 @@ LYT.player =
          #LYT.loader.close('metadata')
       
       canplay: (event) =>
+        LYT.instrumentation.record 'canplay', event.jPlayer.status
         log.message "Player: event canplay: paused: #{@getStatus().paused}"
         @el.jPlayer "pause", @nextOffset
         if @gotDuration
@@ -233,6 +242,7 @@ LYT.player =
           @gotDuration = false
 
       canplaythrough: (event) =>
+        LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
         log.message "Player: event canplaythrough: nextOffset: #{@nextOffset}, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         if @nextOffset?
           action = if @playing then 'play' else 'pause'
@@ -245,6 +255,7 @@ LYT.player =
         LYT.loader.close('metadata')
       
       error: (event) =>
+        LYT.instrumentation.record 'error', event.jPlayer.status
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
