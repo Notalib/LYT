@@ -369,6 +369,7 @@ LYT.render = do ->
     
     $('#listshow-btn').show()#show button list 
     list.listview('refresh')
+    view.children().show()
 
   
   # TODO: Simple, rough implementation
@@ -382,6 +383,7 @@ LYT.render = do ->
                            <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
       list.append listItem   
     list.listview('refresh')
+    view.children().show()
 
   showDidYouMean: (results, view) ->
     list = view.find "ul"
