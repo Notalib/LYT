@@ -4,7 +4,7 @@ A DAISY Online Delivery Protocol compatible book player for handheld devices.
 
 # License and copyright
 
-LYT is copyright [Nota](http://nota.nu/) and distritributed under [GPL version 3](LYT/gpl-license.txt).
+LYT is copyright [Nota](http://nota.nu/) and distritributed under [GPL version 3](/Notalib/LYT/blob/master/gpl-license.txt).
 
 ## Technologies used
 
