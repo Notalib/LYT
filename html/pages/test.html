@@ -12,13 +12,14 @@
 		      var promise = LYT.bookshelf.load();
 		      promise.fail(function(error) {
 		        ok(false, 'Got bookshelf');
+		        start();
 		      });
 		      promise.done(function(books) {
 		        ok(true, 'Got bookshelf');
 		        var timer = setTimeout(function(){
 		          ok(false, 'Test timed out');
 		          start();
-		        }, 5000);
+		        }, 10000);
 		        $('body').one('pageshow', function(event) {
 		          ok(event.target.id == 'book-player', 'Loaded book player page.');
 		          $('#jPlayer').one($.jPlayer.event.play, function() {
