@@ -22,20 +22,45 @@ asyncTest 'Player starts playing when clicking play', ->
 
   promise.done (books) ->
     ok true, 'Got bookshelf'
+    
+    bookId = books.pop().id
 
-    # Set up a handler that is called when the book starts playing    
+    # Set up a handler that is called when the player is ready    
     pageHandler = (event) ->
       ok event.target.id == 'book-player', 'Loaded book player page'
-      playHandler = ->
-        ok true, 'Player started playing'
+      bail = false
+      promise = LYT.player.load bookId
+      promise.fail (error) ->
+        return if bail
+        ok false, 'Loading book'
         cleanup()
-      $('#jplayer').one $.jPlayer.event.play, playHandler
-      cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.play, playHandler
+      promise.done ->
+        return if bail
+        loadstartHandler = ->
+          playHandler = ->
+            setTimeout(
+              ->
+                ok LYT.player.playing, 'Player has set playing flag'
+                ok not LYT.player.getStatus().paused, 'jPlayer is playing'
+                cleanup()
+              1000
+            )
+          $('#jplayer').one $.jPlayer.event.play, playHandler
+          cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.play, playHandler
+    
+          log.message 'Test: player starts playing when clicking play: clicking play button'
+          setTimeout(
+            -> $('.jp-play').trigger 'click'
+            2000 
+          )
 
-      $('.jp-play').trigger 'click'
+        $('#jplayer').one $.jPlayer.event.loadstart, loadstartHandler
+        cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.loadstart, loadstartHandler
+
+      cleanupHandlers.push -> bail = true
       
     $('body').one 'pageshow', pageHandler
     cleanupHandlers.push -> $('body').off 'pageshow', pageHandler
 
     # Now play the book
-    $.mobile.changePage('#book-player?book=' + books.pop().id);
+    $.mobile.changePage '#book-player?book=' + bookId;
