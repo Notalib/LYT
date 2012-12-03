@@ -2,6 +2,10 @@
 
 A DAISY Online Delivery Protocol compatible book player for handheld devices.
 
+# License and copyright
+
+LYT is copyright [Nota](http://nota.nu/) and distritributed under [GPL version 3](gpl-license.txt).
+
 ## Technologies used
 
 Source written in [CoffeeScript](http://jashkenas.github.com/coffee-script/)  
