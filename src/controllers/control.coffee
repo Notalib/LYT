@@ -75,6 +75,22 @@ LYT.control =
     $('#instrumentation').find('button.next').on 'click', ->
       LYT.render.instrumentationGraph()?.nextEntry()
 
+    $('#run-tests').one 'click', ->
+      $('#run-tests').button 'disable'
+      QUnit.start()
+
+    QUnit.begin ->
+      $('.test-results').text ''
+      $('.test-tab').addClass 'running'
+      $('.test-tab').removeClass 'error'
+
+    QUnit.testStart (test) ->
+      $('.test-results').text ": #{test.name}"
+
+    QUnit.testDone (test) ->
+      $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
+      if test.failed > 0
+        $('.test-tab').addClass 'error'
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
@@ -430,7 +446,13 @@ LYT.control =
   instrumentation: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
       LYT.render.showInstrumentation $('#instrumentation-content') 
-        
+      
+  test:  (type, match, ui, page, event) ->
+    if type is 'pageshow'
+      LYT.render.hideTestTab()
+    else if type is 'pagehide'
+      LYT.render.showTestTab()
+
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
   guest: -> $.mobile.changePage('#bookshelf?guest=true')

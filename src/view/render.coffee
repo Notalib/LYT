@@ -425,6 +425,11 @@ LYT.render = do ->
   setPlayerButtonFocus: (button) ->
     $(".jp-#{button}").addClass('ui-btn-active').focus()
 
+
+  showTestTab: -> $('.test-tab').show()
+
+  hideTestTab: -> $('.test-tab').hide()
+
   instrumentationGraph: ->
     $('#instrumentation').find('svg.graph-canvas').data('lyt-graph')
 

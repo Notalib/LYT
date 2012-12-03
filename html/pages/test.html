@@ -1,0 +1,38 @@
+<div data-role="page" data-add-back-btn="true" id="test" data-theme="a" data-title="Test">
+	<header data-role="header" data-theme="b">
+		<a class="gatrack" data-icon="" data-rel="back" href="#bookshelf" data-role="button" role="button">Tilbage</a>
+		<h1>Test</h1>
+	</header>
+	<div data-role="content" data-theme="a">
+		<div id="qunit">
+		  <script src="http://code.jquery.com/qunit/qunit-1.10.0.js"></script>
+		  <script type="text/javascript">QUnit.config.autostart = false</script>
+		  <script type="text/javascript">
+		    asyncTest( 'Player starts playing when clicking play', function() {
+		      var promise = LYT.bookshelf.load();
+		      promise.fail(function(error) {
+		        ok(false, 'Got bookshelf');
+		      });
+		      promise.done(function(books) {
+		        ok(true, 'Got bookshelf');
+		        var timer = setTimeout(function(){
+		          ok(false, 'Test timed out');
+		          start();
+		        }, 5000);
+		        $('body').one('pageshow', function(event) {
+		          ok(event.target.id == 'book-player', 'Loaded book player page.');
+		          $('#jPlayer').one($.jPlayer.event.play, function() {
+		            clearTimeout(timer);
+		            start();
+		          });
+		          $('.jp-play').trigger('click');
+		        });
+		        $.mobile.changePage('#book-player?book=' + books.pop().id);
+		      });
+		    });
+		  </script>
+		</div>
+    <button id="run-tests" data-role="button">Kør tests</button>
+	</div>
+</div>
+<div class="test-tab" style="display: none;"><a href="#test">Unit test</a><span class="test-results"></span></div>
