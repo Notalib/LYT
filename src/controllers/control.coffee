@@ -81,7 +81,7 @@ LYT.control =
 
     QUnit.begin ->
       $('.test-results').text ''
-      $('.test-tab').addClass 'running'
+      $('.test-tab').addClass 'started'
       $('.test-tab').removeClass 'error'
 
     QUnit.testStart (test) ->
@@ -89,8 +89,8 @@ LYT.control =
 
     QUnit.testDone (test) ->
       $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
-      if test.failed > 0
-        $('.test-tab').addClass 'error'
+      $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
+      
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()

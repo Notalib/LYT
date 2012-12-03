@@ -1491,11 +1491,22 @@ html {
   padding: 0.4em;
   background-color: #CCC;
   
-  &.running {
-    background-color: #C6E746;
+  &.started {
+    background-color: #D2E0E6;
+    background-image: url(../images/icons/test_running_16.gif);
+    background-repeat: no-repeat;
+    padding-left: 22px;
+    background-size: 16px;
+    background-position: 4px 6px;
     
     &.error {
-      background-color: #EE5757;    
+      background-image: url(../images/icons/glyphish/25-weather.png);
+      background-color: #EE5757;
+    }
+    
+    &.done {
+      background-image: url(../images/icons/glyphish/171-sun.png);
+      background-color: #C6E746;
     }
   }
  
