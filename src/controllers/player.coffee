@@ -235,7 +235,6 @@ LYT.player =
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
         log.message "Player: event canplay: paused: #{@getStatus().paused}"
-        @el.jPlayer "pause", @nextOffset
         if @gotDuration
           # Reset gotDuration so it is cleared for the next file
           @gotDuration = false
