@@ -329,7 +329,7 @@
         margin: 0;
     }
     h2 {
-      color: #636363;
+      color: #383838;
       /*@include text-shadow(#ebebeb 0 2px 0);*/
       font-weight: 500;
       /*color: #00415c;*/
@@ -400,12 +400,12 @@
     padding: 0 8px;
   }
   h2 {
-    color: #636363;
+    color: #383838;
     font-weight: 500;
     font-size: 18px;
   }
   .text-field {
-    font-style: normal;
+    font-weight: normal;
     .ui-link {
       color: black;
     }
@@ -420,7 +420,7 @@
     border-width: 1px 0 0 0;
   } 
   #mail-button-wrapper {
-    @include action-button(#8cbbe2, a);
+    @include action-button(#5c9dd5, a);
   }
 }
 
@@ -482,12 +482,14 @@
     padding-bottom: 8px;
   }
   h2 {
-    color: #636363;
+    color: #383838;
     font-weight: 500;
     font-size: 18px;
   }
   .text-field {
-    font-style: normal;
+    font-weight: normal;
+    line-height: 1.3em;
+    color: black;
   }
   hr {
     margin: 8px 0;
@@ -506,7 +508,7 @@
   }
 
   #mail-button-wrapper {
-    @include action-button(#8cbbe2, a);
+    @include action-button(#5c9dd5, a);
   }
 }
 
@@ -533,12 +535,18 @@
     padding-bottom: 8px;
   }
   h2 {
-    color: #636363;
+    color: #383838;
     font-weight: 500;
     font-size: 18px;
   }
+  h3 {
+    color: #383838;
+    margin-bottom: 0.5em;
+  }
   .text-field {
-    font-style: normal;
+    font-weight: normal;
+    color: black;
+    line-height: 1.3em;
     .ui-link {
       color: black;
     }
@@ -569,7 +577,7 @@
   }
   
   #mail-button-wrapper {
-    @include action-button(#8cbbe2, a);
+    @include action-button(#5c9dd5, a);
   }
 }
 
@@ -590,7 +598,7 @@
     padding-bottom: 8px;
   }
   h2 {
-    color: #636363;
+    color: #383838;
     font-weight: 500;
     font-size: 18px;
   }
@@ -917,11 +925,11 @@ li.ui-li h3.no-search-results {
 }
 
 #add-to-bookshelf-button {
-  @include action-button(#8cbbe2, a);
+  @include action-button(#5c9dd5, a);
 }
   
 #details-play-button {
-  @include action-button(#a2bd30, a);
+  @include action-button(#879d27, a);
 }
 
 #book-unavailable-message {
@@ -975,8 +983,8 @@ li.ui-li h3.no-search-results {
   }
 }
 #login-button-wrapper {
-  @include action-button();
-  margin-top:10px;
+  @include action-button(#5c9dd5, a);
+  margin-top:15px;
 }
 img.nota-full {
   max-height: 120px;
@@ -984,11 +992,13 @@ img.nota-full {
 #about {
   .ui-link {
     text-decoration: none;
+    color:#484848;
   }  
 }
 #forgot-password {
   .ui-link {
     text-decoration: none;
+    color:#484848;
   }  
 }
 #legal {
@@ -1113,6 +1123,9 @@ img.nota-full {
       border: solid 2px #EA0026;
       text-shadow: 0 -1px 0 #000;
     }
+    .ui-icon {
+      visibility: hidden;
+    }
   }
   #cancel-btn {
     .ui-btn-inner {
@@ -1120,6 +1133,9 @@ img.nota-full {
       background-color: #7c7c7c;
       border: solid 2px #aaaaaa;
       text-shadow: 0 -1px 0 #000;
+    }
+    .ui-icon {
+      visibility: hidden;
     }
   }    
   
@@ -1129,7 +1145,7 @@ img.nota-full {
 }
 .ui-simpledialog-controls {
   .ui-btn-inner {
-    background-color: #8cbbe2;
+    background-color: #5c9dd5;
   }
 }
 
