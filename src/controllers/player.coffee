@@ -59,7 +59,7 @@ LYT.player =
     # never got called as often as necessary
     startHandler = =>
       status = @getStatus()
-      if @playing and status.paused and status.readyState > 2
+      if @playing and status.paused and @currentAudio? and @segment? and @currentAudio is @segment.audio and status.readyState > 2
         log.message 'Player: synthetic event progress: resuming play since enough audio has been buffered'
         @el.jPlayer 'play'
       
