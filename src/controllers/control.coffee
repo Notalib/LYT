@@ -91,6 +91,10 @@ LYT.control =
       $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
       $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
       
+    QUnit.log (event) ->
+      method = if event.result then log.message else log.error
+      method "Test: #{event.message}: passed: #{event.result}"
+      
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
