@@ -472,6 +472,9 @@ LYT.player =
       else
         offset = segment.start
       
+      # Fixing odd buffer bug in Chrome 24 where offset == 0 causes it to stop buffering
+      offset = 0.000001 if offset == 0
+      
       # If play is set to true or false, set playing accordingly
       @playing = play if play?
       
