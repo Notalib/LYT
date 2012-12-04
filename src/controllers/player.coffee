@@ -165,7 +165,7 @@ LYT.player =
           # is on IOS, since the meta data bug on this platform causes the
           # player to report the wrong currentTime. 
           unless @nextOffset?
-            if @nextOffset = @getStatus().currentTime
+            if (@nextOffset = @getStatus().currentTime)?
               log.warn "Player: event play: using the players time to determine nextOffset, nextOffset #{@nextOffset}"
             else if segment = @segment()
               @nextOffset = segment.start
