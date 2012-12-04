@@ -154,29 +154,6 @@ LYT.player =
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
-        # We should be checking for readyState < 4, but IOS is optimistic and allows readyState == 3
-        # when it fires the canplaythrough event, which - in turn - will press play
-        # We could solve this issue by setting up a timer that is watching the readyState, but such
-        # a timer needs to be cleared on most kinds of interaction with the player.
-        if @getStatus().readyState < 3
-          log.message "Player: event play: calling pause since not enough content has been buffered"
-          LYT.loader.set('Loading sound', 'metadata')
-          # Use the old value of nextOffset (if any) in case the player
-          # is on IOS, since the meta data bug on this platform causes the
-          # player to report the wrong currentTime. 
-          unless @nextOffset?
-            if (@nextOffset = @getStatus().currentTime)?
-              log.warn "Player: event play: using the players time to determine nextOffset, nextOffset #{@nextOffset}"
-            else if segment = @segment()
-              @nextOffset = segment.start
-              log.warn "Player: event play: using current segment to determine nextOffset, nextOffset #{@nextOffset}"
-            else
-              log.error 'Player: event play: unable to determine next offset. Rewinding.'
-              @nextOffset = 0
-          # Issue pause to stop the player from playing until we have buffered
-          # enough. Also, provide @nextOffset to ensure that we buffer the
-          # right part of the audio.
-          @el.jPlayer 'pause', @nextOffset
 
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
