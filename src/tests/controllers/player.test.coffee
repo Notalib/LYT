@@ -10,7 +10,7 @@ asyncTest 'Player starts playing when clicking play', ->
     ->
       ok false, 'Test timed out'
       cleanup()
-    10000
+    15000
   )
   cleanupHandlers.push -> clearTimeout timer
 
@@ -23,7 +23,7 @@ asyncTest 'Player starts playing when clicking play', ->
   promise.done (books) ->
     ok true, 'Got bookshelf'
     
-    bookId = books.pop().id
+    bookId = books.shift().id
 
     # Set up a handler that is called when the player is ready    
     pageHandler = (event) ->
@@ -51,9 +51,10 @@ asyncTest 'Player starts playing when clicking play', ->
           $('#jplayer').one $.jPlayer.event.play, playHandler
           cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.play, playHandler
     
-          log.message 'Test: player starts playing when clicking play: clicking play button'
           setTimeout(
-            -> $('.jp-play').trigger 'click'
+            ->
+              log.message 'Test: player starts playing when clicking play: clicking play button'
+              $('.jp-play').trigger 'click'
             2000 
           )
 
