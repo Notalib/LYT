@@ -398,6 +398,7 @@ LYT.control =
               colors = val.split(';')
               style['background-color'] = colors[0]
               style['color'] = colors[1]
+            # TODO: use lower case just like all the other parameters
             when 'playBack-Rate'
               speed_lookup = ['slow', 'normal_slow', 'normal', 'fast', 'fast_ultra']
               if speed_key = speed_lookup[val - 1]
