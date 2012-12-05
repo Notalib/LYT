@@ -361,6 +361,7 @@
     }
     .ui-btn, .ui-btn-up-c {
       border-color: #636363;
+      color: #fff;
     }
     #log-off-button-wrapper {
       @include action-button(#c1001f, a);
@@ -1011,6 +1012,11 @@ img.nota-full {
 }
 .ui-li-icon.ui-li-thumb {
   max-width: 25px;
+}
+
+.ui-simepledialog-controls, .ui-btn-text {
+  color: #fff;
+  text-shadow: 0 1px 1px #1F4F79;
 }
 
 #NccRootElement {
