@@ -177,7 +177,7 @@
 }
 
 #settings, #profile, #about, #support {
-  &.ui-page {background: #9f9f9furl(../images/bg_pattern_dark.png) repeat;}
+  &.ui-page {background: #9f9f9furl(../images/bg_pattern_grey.png) repeat;}
 }
 
 #login {
@@ -991,6 +991,7 @@ img.nota-full {
   max-height: 120px;
 }
 #about {
+  margin-top: 26px;
   .ui-link {
     text-decoration: none;
     color:#484848;
