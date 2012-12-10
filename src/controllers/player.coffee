@@ -294,7 +294,7 @@ LYT.player =
               buttons:             {}
             parameters.buttons[LYT.i18n('OK')] =
               click: ->
-                $(document).one 'pagechange', -> $.mobile.silentScroll $('a[name="supported-platforms"]').offset().top
+                $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
                 $.mobile.changePage '#support'
               theme: 'c'
             LYT.render.showDialog($.mobile.activePage, parameters)

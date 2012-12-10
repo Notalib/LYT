@@ -21,10 +21,10 @@ clickHandler = ->
 
   # If there is a label specified, move the text value down to the value
   # category action label value
-  if element.attr 'ga-action'
+  if element.attr 'data-ga-action'
     if action
       dimensions['Additional'] = action if action
-    action = element.attr 'ga-action'
+    action = element.attr 'data-ga-action'
 
   unless action
     log.error 'gatrack: unable to determine action'
