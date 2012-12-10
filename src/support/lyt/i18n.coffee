@@ -50,8 +50,10 @@ LYT.i18n = do ->
     'by clicking this link':            'ved at følge dette link'
     'Comics':                           'Tegneserier'
     'Platform not supported':           'Platform ikke understøttet'
+    'Search':                           'Søgning'        
   
   # The i18n function. Returns either the translated string, or - if no
   # translation was found - the input string.
   (string) -> strings[string] or string
+
 

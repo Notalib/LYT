@@ -88,7 +88,30 @@ LYT.player =
         @previousButton.click =>
           log.message "Player: previous: #{@segment().previous?.url()}"
           @previousSegment()
+
+        Mousetrap.bind 'alt+ctrl+space', =>
+          if @playing 
+            $('.jp-pause').click()
+          else 
+            $('.jp-play').click()
+          return false
+
+        Mousetrap.bind 'alt+right', ->
+          $('a.next-section').click()
+          return false
+        
+        Mousetrap.bind 'alt+left', ->
+          $('a.previous-section').click()
+          return false
       
+        # FIXME: add handling of section jumps
+        Mousetrap.bind 'alt+ctrl+n', ->
+          log.message "next section"
+          return false
+        Mousetrap.bind 'alt+ctrl+o', ->
+          log.message "previous section"
+          return false
+
       timeupdate: (event) =>
         LYT.instrumentation.record 'timeupdate', event.jPlayer.status
         status = event.jPlayer.status
