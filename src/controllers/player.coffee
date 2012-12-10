@@ -38,7 +38,7 @@ LYT.player =
   
   playAttemptCount: 0
   gotDuration: null
-  playBackRate: 1 #Default playBackRate for audio element....
+  playBackRate: 1
   
   lastBookmark: (new Date).getTime()
   
@@ -350,13 +350,7 @@ LYT.player =
     else
       log.message "Player: setPlayBackRate: unable to set playback rate"
   
-  isPlayBackRateSupported: ->
-    if @el.data('jPlayer').htmlElement.audio?.playbackRate?
-      return false if $.jPlayer.platform[platform] for platform in ['iphone', 'ipad', 'ipod', 'android']
-      return false if /Windows Phone/i.test(navigator.userAgent)
-      return true
-    else
-      return false
+  isPlayBackRateSupported: -> Modernizr.playbackrate
   
   isIOS: () ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
