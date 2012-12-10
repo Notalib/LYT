@@ -336,6 +336,7 @@ LYT.control =
           when "predefinedView"
             $('#listshow-btn').hide()
             $('#more-search-results').hide()
+            $('#searchterm').val ''
             LYT.render.setHeader page, "Search"
             LYT.render.catalogLists content
           when "search"
