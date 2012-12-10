@@ -94,7 +94,13 @@ LYT.control =
     QUnit.log (event) ->
       method = if event.result then log.message else log.error
       method "Test: #{event.message}: passed: #{event.result}"
-      
+
+    Mousetrap.bind 'alt+ctrl+h', ->
+      $.mobile.changePage "#support", transition: "none"
+      return false
+
+    Mousetrap.bind 'alt+ctrl+m', ->
+      $("#bookmark-add-button").click()
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
