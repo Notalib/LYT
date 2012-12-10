@@ -200,7 +200,7 @@ LYT.render = do ->
   clearBookPlayer: (view) ->
     LYT.render.textContent null
     $("#currentbook_image img").attr "src", defaultCover
-    $("#player-info h1, #player-chapter-title").hide()
+    $("#player-info h1, .player-chapter-title").hide()
 
   clearContent: (content) ->
     # Removes anything in content
@@ -210,7 +210,7 @@ LYT.render = do ->
   bookPlayer: (book, view) ->
     $("#player-book-title").text book.title
     $("#player-book-author").text book.author
-    $("#player-info h1, #player-chapter-title").show()
+    $("#player-info h1, .player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
 
   showAnnouncements: (announcements) ->
