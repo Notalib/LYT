@@ -77,6 +77,9 @@ $(document).bind "mobileinit", ->
     "#bookshelf([?].*)?":
       handler: "bookshelf"
       events: "s"
+    "#instrumentation":
+      handler: 'instrumentation'
+      events: 'bs'
     "#suggestions([?].*)?":
       handler: "suggestions"
       events: "s"
@@ -89,6 +92,9 @@ $(document).bind "mobileinit", ->
     "#redirect":
       handler: "redirect"
       events: "s"
+    "#test":
+      handler: "test"
+      events: "s,h"
   ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
   
   $.mobile.defaultPageTransition = 'fade'

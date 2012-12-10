@@ -4,7 +4,7 @@
   console = window.console
 
   $(document).one 'pagecreate', ->
-    # Use developer console if the user clicks a h1 element six times
+    # Use developer console if the user clicks the header element six times
     clicks = 0
     reset = -> clicks = 0
     timer = null

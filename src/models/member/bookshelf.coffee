@@ -54,15 +54,10 @@ LYT.bookshelf =
         @nextPage = page + 1
       return list
   
-  
   # Add (issue) a book to the shelf by its ID
-  add: (id) ->
-    LYT.service.issue(id)
-  
+  add: (id) -> LYT.service.issue(id)
   
   # Remove (return) a book from the shelf by its ID
-  remove: (id) ->
-    LYT.service.return(id)
+  remove: (id) -> LYT.service.return(id)
 
-  getNextPage: ->
-    @nextPage
+  getNextPage: -> @nextPage
