@@ -27,7 +27,7 @@ LYT.i18n = do ->
     'Coming':                           'Kommer snart'
     'No bookmarks defined yet':         'Der er ingen bogmærker endnu' 
     'No search results':                'Din søgning gav ingen resultater, prøv igen'
-    'Incorrect username or password':   'Forkert brugernavn eller kodeord'
+    'Incorrect username or password':   'Forkert brugernummer eller kodeord'
     'Unable to retrieve book':          'Bogen kunne ikke hentes'
     'Try again':                        'Prøv igen'
     'Cancel':                           'Annuller'
