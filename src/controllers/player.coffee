@@ -118,31 +118,34 @@ LYT.player =
 
         # Move one segment forward if no current segment or no longer in the
         # interval of the current segment
-        if not @segment() or status.src != @segment().audio or @segment().end < @time
+        segment = @segment()
+        if not segment or status.src != segment.audio or segment.end < @time
           log.message "Player: timeupdate: queue for offset #{@time}"
           @timeupdateLock = true
-          next = @playlist().segmentByAudioOffset status.src, @time
-          @_next = next
-          next.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
-          next.done (next) =>
+          promise = @playlist().segmentByAudioOffset status.src, @time
+          @_next = promise
+          promise.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
+          promise.done (next) =>
             if next
               log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
               @updateHtml next
             else
               log.message "Player: timeupdate: current segment: [#{segment.start}, #{segment.end}], no segment at #{@time}, skipping to next segment."
-              next = @playlist().nextSegment segment
-              next.done (next) =>
+              promise = @playlist().nextSegment segment
+              promise.done (next) =>
                 if next?
                   if next.start > @time or next.end < @time
                     @seekedLoadSegmentLock = true
                     @playSegment next, true
+                    # TODO: This is most likely to not do as we expect, since next
+                    # has already resolved
                     next.done => @seekedLoadSegmentLock = false
                   else
                     @playlist.currentSegment = next
                     @updateHtml next
                 else
                   log.error 'Player: timeupdate: no next segment'
-          next.always => @timeupdateLock = false
+          promise.always => @timeupdateLock = false
 
       loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
