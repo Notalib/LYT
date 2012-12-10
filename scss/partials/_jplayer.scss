@@ -52,37 +52,35 @@
 }
 
 #player-chapter-title {
-  
   h2 {
-  text-align: center;
-  color: #cbcbcb;
-  text-overflow: ellipsis;  
-  text-shadow: none;
-  font-size: 11px;
-  line-height: 14px;
-  height: 14px;
-  overflow: hidden;
-  z-index: 0;
-  font-weight: normal;
-  
-  position: absolute;
-  left: 40px;
-  right: 40px;
-  
+    text-align: center;
+    color: #cbcbcb;
+    text-overflow: ellipsis;  
+    text-shadow: none;
+    font-size: 11px;
+    line-height: 14px;
+    height: 14px;
+    overflow: hidden;
+    z-index: 0;
+    font-weight: normal;
+    
+    position: absolute;
+    left: 40px;
+    right: 40px;
   }
-
 }
 
 #book-play {
   background: #fff;
-  }
+}
+
 #book-middle-menu {
   background-color: #292929;
   /*border-top: 1px solid #000;*/
   height: 44px;
   font-size: 13px;
   padding: 0;
-  }
+}
   
 #author {
     font-weight: normal;
@@ -93,20 +91,19 @@
   height: 45px;
   @include clearfix;
  
- h1, h2, span {
-   margin: 0;
-   color: #cbcbcb;
-   
-   text-overflow: ellipsis;
-   white-space: nowrap;
- }
+  h1, h2, span {
+    margin: 0;
+    color: #cbcbcb;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
  
-.info {
-  position: relative;
-  height: 45px;
-  margin-left: 39px;
-  margin-right: 10px;
- }
+  .info {
+    position: relative;
+    height: 45px;
+    margin-left: 39px;
+    margin-right: 10px;
+  }
 }
 
 .jp-time-holder { 
@@ -125,26 +122,24 @@
 
 #jp_container_1 {
   background-color: #292929;
-  }
+}
   
 #currentbook_image {
   width: 29px;
   margin: 0;
   float: left;
-  }
+}
   
 #player-info h1 {
-    position: absolute;
-    width: 100%;
-    top: 4px;
-    font-size: 13px;
-    line-height: 13px;
-    height: 18px;
-    font-weight: normal;
-    text-overflow: ellipsis;
-    text-align: center;
-    text-shadow: none;
-    color: #cbcbcb;
+  position: absolute;
+  width: 100%;
+  top: 4px;
+  font-size: 13px;
+  line-height: 13px;
+  height: 18px;
+  font-weight: normal;
+  text-overflow: ellipsis;
+  text-align: center;
+  text-shadow: none;
+  color: #cbcbcb;
 }
-
-
