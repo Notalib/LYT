@@ -300,8 +300,9 @@ LYT.control =
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: search: unable to log in'
     promise.done ->
-      #if type is 'pagebeforeshow'
-        
+      if type is 'pagebeforeshow'
+        content = $(page).children(":jqmData(role=content)")
+        content.children().hide()
 
       if type is 'pageshow'
         # $("#listshow-btn").click (event) ->
@@ -345,7 +346,7 @@ LYT.control =
               handleResults LYT.catalog.search(term)
           when "showList"
             handleResults LYT.predefinedSearches[list].callback()
-            
+        
         LYT.catalog.attachAutocomplete $('#searchterm')
         # Selecting the item from the autocompleteselect list....
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
