@@ -51,8 +51,7 @@
   top: 0;
 }
 
-#player-chapter-title {
-  h2 {
+h2 .player-chapter-title {
     text-align: center;
     color: #cbcbcb;
     text-overflow: ellipsis;  
@@ -67,7 +66,6 @@
     position: absolute;
     left: 40px;
     right: 40px;
-  }
 }
 
 #book-play {
