@@ -246,7 +246,6 @@ LYT.render = do ->
     $("#details-play-button").attr "href", "#book-player?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
     
-  
   bookIndex: (book, view) ->  
     playing = LYT.player.getCurrentlyPlaying()
     isPlaying = (sectionId) ->

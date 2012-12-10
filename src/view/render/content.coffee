@@ -259,6 +259,7 @@ LYT.render.content = do ->
     renderDelta = now - lastRender if lastRender
 
     if segment
+      $("#player-chapter-title h2").text segment.section.title
       switch segment.type
         when 'cartoon'
           renderCartoon segment, selectView(segment.type), renderDelta
