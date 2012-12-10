@@ -75,6 +75,26 @@ LYT.control =
     $('#instrumentation').find('button.next').on 'click', ->
       LYT.render.instrumentationGraph()?.nextEntry()
 
+    $('#run-tests').one 'click', ->
+      $('#run-tests').button 'disable'
+      QUnit.start()
+
+    QUnit.begin ->
+      $('.test-results').text ''
+      $('.test-tab').addClass 'started'
+      $('.test-tab').removeClass 'error'
+
+    QUnit.testStart (test) ->
+      $('.test-results').text ": #{test.name}"
+
+    QUnit.testDone (test) ->
+      $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
+      $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
+      
+    QUnit.log (event) ->
+      method = if event.result then log.message else log.error
+      method "Test: #{event.message}: passed: #{event.result}"
+      
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
@@ -379,6 +399,7 @@ LYT.control =
               colors = val.split(';')
               style['background-color'] = colors[0]
               style['color'] = colors[1]
+            # TODO: use lower case just like all the other parameters
             when 'playBack-Rate'
               speed_lookup = ['slow', 'normal_slow', 'normal', 'fast', 'fast_ultra']
               if speed_key = speed_lookup[val - 1]
@@ -431,7 +452,13 @@ LYT.control =
   instrumentation: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
       LYT.render.showInstrumentation $('#instrumentation-content') 
-        
+      
+  test:  (type, match, ui, page, event) ->
+    if type is 'pageshow'
+      LYT.render.hideTestTab()
+    else if type is 'pagehide'
+      LYT.render.showTestTab()
+
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
   guest: -> $.mobile.changePage('#bookshelf?guest=true')

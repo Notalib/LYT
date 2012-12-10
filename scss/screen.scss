@@ -1471,6 +1471,47 @@ html {
   top:100px !important;
 }
 
+/* Unit test elements */
+
+#qunit {
+  text-shadow: none;
+}
+
+.test-tab {
+  position: absolute;
+  bottom: 0px;
+  z-index: 10;
+  font-family: sans-serif;
+  text-shadow: none;
+  color: black;  
+  border-radius: 0.5em 0.5em 0 0;
+  border-top: 2px solid black;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  padding: 0.4em;
+  background-color: #CCC;
+  
+  &.started {
+    background-color: #D2E0E6;
+    background-image: url(../images/icons/test_running_16.gif);
+    background-repeat: no-repeat;
+    padding-left: 22px;
+    background-size: 16px;
+    background-position: 4px 6px;
+    
+    &.error {
+      background-image: url(../images/icons/glyphish/25-weather.png);
+      background-color: #EE5757;
+    }
+    
+    &.done {
+      background-image: url(../images/icons/glyphish/171-sun.png);
+      background-color: #C6E746;
+    }
+  }
+ 
+}
+
 /* Instrumentation styles */
 
 #instrumentation-delta {

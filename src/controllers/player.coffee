@@ -59,7 +59,7 @@ LYT.player =
     # never got called as often as necessary
     startHandler = =>
       status = @getStatus()
-      if @playing and status.paused and status.readyState > 2
+      if @playing and status.paused and @currentAudio? and @segment? and @currentAudio is @segment.audio and status.readyState > 2
         log.message 'Player: synthetic event progress: resuming play since enough audio has been buffered'
         @el.jPlayer 'play'
       
@@ -154,29 +154,6 @@ LYT.player =
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
-        # We should be checking for readyState < 4, but IOS is optimistic and allows readyState == 3
-        # when it fires the canplaythrough event, which - in turn - will press play
-        # We could solve this issue by setting up a timer that is watching the readyState, but such
-        # a timer needs to be cleared on most kinds of interaction with the player.
-        if @getStatus().readyState < 3
-          log.message "Player: event play: calling pause since not enough content has been buffered"
-          LYT.loader.set('Loading sound', 'metadata')
-          # Use the old value of nextOffset (if any) in case the player
-          # is on IOS, since the meta data bug on this platform causes the
-          # player to report the wrong currentTime. 
-          unless @nextOffset?
-            if @nextOffset = @getStatus().currentTime
-              log.warn "Player: event play: using the players time to determine nextOffset, nextOffset #{@nextOffset}"
-            else if segment = @segment()
-              @nextOffset = segment.start
-              log.warn "Player: event play: using current segment to determine nextOffset, nextOffset #{@nextOffset}"
-            else
-              log.error 'Player: event play: unable to determine next offset. Rewinding.'
-              @nextOffset = 0
-          # Issue pause to stop the player from playing until we have buffered
-          # enough. Also, provide @nextOffset to ensure that we buffer the
-          # right part of the audio.
-          @el.jPlayer 'pause', @nextOffset
 
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
@@ -216,7 +193,6 @@ LYT.player =
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
         if isNaN event.jPlayer.status.duration
-          #alert event.jPlayer.status.duration
           if @getStatus().src == @currentAudio
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
@@ -236,7 +212,6 @@ LYT.player =
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
         log.message "Player: event canplay: paused: #{@getStatus().paused}"
-        @el.jPlayer "pause", @nextOffset
         if @gotDuration
           # Reset gotDuration so it is cleared for the next file
           @gotDuration = false
@@ -472,6 +447,9 @@ LYT.player =
           offset = segment.start
       else
         offset = segment.start
+      
+      # Fixing odd buffer bug in Chrome 24 where offset == 0 causes it to stop buffering
+      offset = 0.000001 if offset == 0
       
       # If play is set to true or false, set playing accordingly
       @playing = play if play?
