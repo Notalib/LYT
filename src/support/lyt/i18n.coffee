@@ -46,6 +46,7 @@ LYT.i18n = do ->
     'New':                              'Ny'
     'Pending':                          'Undervejs'
     'Commercial':                       'Erhverv'
+    'Link to book at E17':              'Link til bog på E17'
     'Listen to':                        'Hør'
     'by clicking this link':            'ved at følge dette link'
     'Comics':                           'Tegneserier'

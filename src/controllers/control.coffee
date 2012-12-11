@@ -51,13 +51,10 @@ LYT.control =
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
-    $("#share-link-textarea").on 'click', -> 
+    $("#share-link-textarea").on 'click', ->
       this.focus()
-      if LYT.player.isIOS()
-        this.selectionStart = 0
-        this.selectionEnd = this.value.length
-      else
-        this.select()
+      this.selectionStart = 0
+      this.selectionEnd = this.value.length
 
     $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
@@ -445,14 +442,11 @@ LYT.control =
             defaultPage()
 
         url = LYT.router.getBookActionUrl params
-        subject = "Link til bog på E17"
+        subject = LYT.i18n 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        if LYT.player.isIOS() #nice html... 
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&", "&amp;"))}"
-        else
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url)}"
+        body = encodeURIComponent "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{url}"
         
-        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
+        $("#email-bookmark").attr('href', "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent body}")
         
         $("#share-link-textarea").text url
         
