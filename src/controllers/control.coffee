@@ -393,8 +393,10 @@ LYT.control =
               toNumber = (Number) val
               if toNumber is style['playback-rate']
                 $(this).attr("checked", true).checkboxradio("refresh");
-                
+
         # Saving the GUI       
+        # TODO: The change handler below is being bound once for every time we
+        #       enter this page.
         $("#style-settings input").change (event) ->
           target = $(event.target)
           name = target.attr 'name'
