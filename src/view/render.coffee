@@ -248,52 +248,77 @@ LYT.render = do ->
     
   
   bookIndex: (book, view) ->  
+     
+    # Create an ordered list wrapper for the list
+   
+    # FIXME: We should be using the playlist here - any reference to NCC- or
+    # SMIL documents from this class is not good design.
+    @createbookIndex book.nccDocument.structure, view, book
+    
+
+  createbookIndex: (items, view, book, root = null) ->
+
     playing = LYT.player.getCurrentlyPlaying()
     isPlaying = (sectionId) ->
       return false unless playing? and String(book.id) is String(playing?.book)
       return true if String(playing.section) is String(sectionId)
       return false
-    
-    # Recursively builds nested ordered lists from an array of items
-    mapper = (list, items) ->
-      for item in items
-        element = jQuery """<li data-icon="arrow-right"></li>""" 
-        element.attr "id", item.id
-        element.attr "data-href", item.id
 
-        if item.children.length > 0
-          element.append "<span>#{item.title}</span>"
-        else
-          element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
-              #{item.title}
-            </a>"""
+    h1 = view.parent().find "header"
+    h1.find("h1").remove()
+
+    if root?.title?
+      h1.append """<h1>#{root.title}</h1>"""
         
-        if isPlaying item.id
-          element.append """<div class="section-now-playing"></div>"""
-        
-        if item.children.length > 0
-          nested = jQuery "<ol></ol>"
-          mapper nested, item.children
-          element.append nested
-        list.append element
-        
-    # Create an ordered list wrapper for the list
+
+
     view.children().remove()
-    list = $('<ol data-role="listview"></ol>').hide()
+    list = $('<ul data-role="listview"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
     list.attr "id", "NccRootElement"
-    # FIXME: We should be using the playlist here - any reference to NCC- or
-    # SMIL documents from this class is not good design.
-    mapper(list, book.nccDocument.structure)
-    
+
+    for item in items
+      if item.children.length > 0
+        element = jQuery """<li data-icon="arrow-right"></li>""" 
+        element.append """
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
+              #{item.title}
+            </a>"""
+        element.append """<a nodeid="#{item.id}"  class="create-listview">underafsnit</a>"""
+      else
+        element = jQuery """<li data-icon="false"></li>""" 
+        element.append """
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
+              #{item.title}
+            </a>"""
+        element.attr "id", item.id
+        element.attr "data-href", item.id
+
+      if isPlaying item.id
+        element.append """<div class="section-now-playing"></div>"""
+
+
+      list.append element
+
+
     list.parent().trigger('create')
     list.show()
- 
-  
+
+    $("#book_index_content .create-listview").on 'click', ->
+      iterate = (items) =>
+        for item in items
+          if item.id == $(this).attr("nodeid")
+            LYT.render.createbookIndex item.children, view, book, item
+            break
+          else if item.children.length > 0
+            iterate item.children
+                  
+      iterate book.nccDocument.structure
+
+
   bookmarks: (book, view) ->  
     # Create an ordered list wrapper for the list
     view.children().remove()

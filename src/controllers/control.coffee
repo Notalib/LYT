@@ -51,6 +51,8 @@ LYT.control =
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
+    
+
     $("#share-link-textarea").on 'click', -> 
       this.focus()
       if LYT.player.isIOS()
