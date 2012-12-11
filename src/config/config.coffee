@@ -109,15 +109,6 @@ LYT.config =
     # Fakeend disabled because it triggers a race condition in
     # the section loading code.
     useFakeEnd: false
-    readSpeed:
-      slow:         0.5
-      normal_slow:  0.8
-      normal:       1
-      normal_fast:  1.5
-      fast:         2
-      fast_extra:   2.5
-      fast_ultra:   3
-      ultra_fast:   4
 
   segment:
     preload:
