@@ -343,9 +343,8 @@ LYT.control =
             LYT.render.catalogLists content
           when "search"
             LYT.render.setHeader page, "Search"
-            if $('#searchterm').val() isnt term
-              $('#searchterm').val term
-              handleResults LYT.catalog.search(term)
+            $('#searchterm').val term
+            handleResults LYT.catalog.search(term)
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
