@@ -69,7 +69,7 @@ do ->
       this.done (document) ->
         id = url.split('#')[1]
         if section = document.getSectionByURL(url)
-          section.fail -> deferred.reject()
+          section.fail -> deferred.reject("Unable to find any section with url #{url}")
           section.done (section) ->
             segment
             if id? and id isnt ""
