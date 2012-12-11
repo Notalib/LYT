@@ -91,7 +91,8 @@ class LYT.Playlist
     promise = @_segmentsByAudio audio
     promise.pipe (segments) =>
       for segment in segments
-        if segment.start <= offset < segment.end
+        # Using 0.01s to cover rounding errors (yes, they do occur)
+        if segment.start - 0.01 <= offset < segment.end + 0.01
           segment = @_fudgeFix offset, segment
           # FIXME: loading segments is the responsibility of the section each
           # each segment belongs to.

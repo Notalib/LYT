@@ -27,7 +27,7 @@ LYT.render = do ->
     
     element = jQuery """
       <li data-book-id="#{book.id}">
-        <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
+        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image">
           </div>
@@ -200,7 +200,7 @@ LYT.render = do ->
   clearBookPlayer: (view) ->
     LYT.render.textContent null
     $("#currentbook_image img").attr "src", defaultCover
-    $("#player-info h1, #player-chapter-title").hide()
+    $("#player-info h1, .player-chapter-title").hide()
 
   clearContent: (content) ->
     # Removes anything in content
@@ -210,7 +210,7 @@ LYT.render = do ->
   bookPlayer: (book, view) ->
     $("#player-book-title").text book.title
     $("#player-book-author").text book.author
-    $("#player-info h1, #player-chapter-title").show()
+    $("#player-info h1, .player-chapter-title").show()
     loadCover $("#currentbook_image img"), book.id
 
   showAnnouncements: (announcements) ->
@@ -246,7 +246,6 @@ LYT.render = do ->
     $("#details-play-button").attr "href", "#book-player?book=#{details.id}"
     loadCover view.find("img.cover-image"), details.id
     
-  
   bookIndex: (book, view) ->  
      
     # Create an ordered list wrapper for the list
@@ -269,7 +268,6 @@ LYT.render = do ->
 
     if root?.title?
       h1.append """<h1>#{root.title}</h1>"""
-        
 
 
     view.children().remove()
@@ -367,7 +365,7 @@ LYT.render = do ->
         element.attr "data-href", bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}"
+            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
                data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}"
                href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&play=true"> 
               #{bookmark.note.text}
@@ -411,6 +409,11 @@ LYT.render = do ->
       list.append listItem   
     list.listview('refresh')
     view.children().show()
+
+  setHeader: (page, text) -> 
+    header = $(page).children( ":jqmData(role=header)" ).find("h1")
+    header.text LYT.i18n text
+
 
   showDidYouMean: (results, view) ->
     list = view.find "ul"
