@@ -297,7 +297,7 @@ LYT.player =
               click: -> window.location.reload()
               theme: 'c'
             parameters.buttons[LYT.i18n('Cancel')] =
-              click: -> $.mobile.changePage "#bookshelf"
+              click: -> $.mobile.changePage LYT.config.defaultPage.hash
               theme: 'c'
             LYT.render.showDialog($.mobile.activePage, parameters)
 
