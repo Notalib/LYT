@@ -27,7 +27,6 @@ LYT.player =
   # TODO See if the IOS metadata bug has been fixed here:
   # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
-  _iBug: false
   
   playAttemptCount: 0
   gotDuration: null
@@ -197,15 +196,6 @@ LYT.player =
         LYT.render.setPlayerButtonFocus 'play'
 
         return if status.ended # Drop pause event emitted when media ends
-
-        return unless @isIOS()
-        if @_iBug
-          log.warn 'we are ibug'
-          #@el.jPlayer('load')
-          
-        else if status.duration > 0 and jQuery.jPlayer.convertTime(status.duration) is not 'NaN' and jQuery.jPlayer.convertTime(status.duration) is not '00:00' and (status.currentTime is 0 or status.currentTime is status.duration)  
-          log.warn 'set ibug'
-          @_iBug = true
 
       seeked: (event) =>
         LYT.instrumentation.record 'seeked', event.jPlayer.status
