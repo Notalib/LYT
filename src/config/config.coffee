@@ -142,3 +142,6 @@ LYT.config =
       #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
       #"GFLAP":    "ref"   # elements whose `ID` attribute is "GFLAP"
   
+  # default page redirect page
+  defaultPage:
+    hash: '#bookshelf'

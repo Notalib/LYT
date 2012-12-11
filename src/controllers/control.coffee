@@ -67,7 +67,7 @@ LYT.control =
 
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
-        .done( -> $.mobile.changePage "#bookshelf" )
+        .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
         
     $('#instrumentation').find('button.previous').on 'click', ->
       LYT.render.instrumentationGraph()?.previousEntry()
@@ -204,7 +204,7 @@ LYT.control =
     promise.done ->
       bookId = params?.book or LYT.player.book?.id
       if not bookId
-        $.mobile.changePage '#bookshelf' 
+        $.mobile.changePage LYT.config.defaultPage.hash
         return
       content = $(page).children ':jqmData(role=content)'
   
@@ -242,7 +242,7 @@ LYT.control =
       if params?.book and params.book isnt LYT.player?.book?.id
         $.mobile.changePage "#book-play?book=#{params.book}"
       else if not LYT.player.book
-        $.mobile.changePage "#bookshelf"
+        $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
   
@@ -296,7 +296,7 @@ LYT.control =
                 icon:  'refresh'
                 theme: 'c'
               parameters.buttons[LYT.i18n('Cancel')] =
-                click: -> $.mobile.changePage "#bookshelf"
+                click: -> $.mobile.changePage LYT.config.defaultPage.hash
                 icon:  'delete'
                 theme: 'c'
               LYT.render.showDialog($.mobile.activePage, parameters)
@@ -343,9 +343,8 @@ LYT.control =
             LYT.render.catalogLists content
           when "search"
             LYT.render.setHeader page, "Search"
-            if $('#searchterm').val() isnt term
-              $('#searchterm').val term
-              handleResults LYT.catalog.search(term)
+            $('#searchterm').val term
+            handleResults LYT.catalog.search(term)
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
@@ -443,7 +442,8 @@ LYT.control =
               segment: segment.id
               offset:  LYT.player.time 
           else
-            $.mobile.changePage("#bookshelf") #no book go to bookshelf
+            defaultPage()
+
         url = LYT.router.getBookActionUrl params
         subject = "Link til bog på E17"
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
@@ -469,6 +469,6 @@ LYT.control =
 
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
-  guest: -> $.mobile.changePage('#bookshelf?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
 
-  defaultPage: -> $.mobile.changePage('#bookshelf')
+  defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)

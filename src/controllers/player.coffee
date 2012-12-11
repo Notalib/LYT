@@ -7,11 +7,6 @@
 # TODO: provide a visual cue on the next and previous section buttons if there are no next or previous section.
 
 LYT.player = 
-  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" # FIXME: dixie chicks as we test, replace with silent mp3 when moving to production
-  PROGRESSION_MODES:
-    MP3:  'mp3'
-    TEXT: 'text'
-  
   ready: false 
   el: null
   
@@ -24,8 +19,6 @@ LYT.player =
   playing: null
   nextOffset: null
 
-  autoProgression: true 
-  progressionMode: null
   timeupdateLock: false
   
   fakeEndScheduled: false
@@ -52,7 +45,6 @@ LYT.player =
     @el = jQuery("#jplayer")
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
-    @progressionMode = @PROGRESSION_MODES.MP3
     @currentAudio = ''
     
     if LYT.settings.get("textStyle" || {})['playback-rate']?
@@ -75,8 +67,6 @@ LYT.player =
         @ready = true
         @timeupdateLock = false
         log.message 'Player: initialization complete'
-        #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
-        #todo: add a silent state where we do not play on can play   
         
         $.jPlayer.timeFormat.showHour = true
         
@@ -300,7 +290,7 @@ LYT.player =
               click: -> window.location.reload()
               theme: 'c'
             parameters.buttons[LYT.i18n('Cancel')] =
-              click: -> $.mobile.changePage "#bookshelf"
+              click: -> $.mobile.changePage LYT.config.defaultPage.hash
               theme: 'c'
             LYT.render.showDialog($.mobile.activePage, parameters)
 
