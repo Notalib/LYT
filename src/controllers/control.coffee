@@ -51,7 +51,27 @@ LYT.control =
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
-    $("#share-link-textarea").on 'click', ->
+    $("#book-index").on 'click', ->
+      ev = $(event.srcElement).closest(".create-listview")
+      if ev.length isnt 0
+        view = $.mobile.activePage.children ':jqmData(role=content)'
+        book = LYT.player.book
+        iterate = (items) ->
+          for item in items
+            if item.id == ev.attr("nodeid")
+              LYT.render.createbookIndex item.children, view, book, item
+              break
+            else if item.children.length > 0
+              iterate item.children
+        if ev.attr("nodeid")?      
+          if ev.attr("nodeid") is "0"
+            LYT.render.createbookIndex book.nccDocument.structure, view, book
+          else
+            iterate book.nccDocument.structure
+        else
+          $.mobile.changePage "#book-player"
+
+    $("#share-link-textarea").on 'click', -> 
       this.focus()
       this.selectionStart = 0
       this.selectionEnd = this.value.length
@@ -244,6 +264,10 @@ LYT.control =
         LYT.player.refreshContent()
   
   bookPlay: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      if LYT.player.isPlaying()
+        LYT.player.pause()
+
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
@@ -256,7 +280,7 @@ LYT.control =
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
   
-        LYT.player.pause()
+        
         LYT.render.clearBookPlayer()
           
         header = $(page).children(':jqmData(role=header)')

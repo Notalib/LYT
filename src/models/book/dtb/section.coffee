@@ -70,6 +70,8 @@ class LYT.Section
   hasNext: -> @next?
   
   hasPrevious: -> @previous?
+
+  hasParent: -> @parent?
   
   # Since segments are sub-components of this class, we ensure that loading
   # is complete before returning them.

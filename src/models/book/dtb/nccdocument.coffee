@@ -103,6 +103,7 @@ do ->
         return index if heading.tagName.toLowerCase() isnt "h#{level}"
         # Create a section object
         section = new LYT.Section heading, resources
+        section.parent = level-1
         # Collect all higher-level headings into that section's `children` array,
         # and increment the `index` accordingly
         index += getConsecutive headings.slice(index+1), level+1, section.children

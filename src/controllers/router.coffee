@@ -44,7 +44,7 @@ $(document).bind "mobileinit", ->
       events: "s,bs" #
     "#book-play([?].*)?$":
       handler: "bookPlay"
-      events: "s"
+      events: "bs,s"
     "#book-player([?].*)?":
       handler: "bookPlayer"
       events: "s"
