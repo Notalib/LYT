@@ -225,8 +225,7 @@ class LYT.Book
       seconds = '0' + seconds.toFixed(2)
     else
       seconds = seconds.toFixed(2)
-    
-    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: {text: "#{segment.section.title} - #{offset.toFixed(2)}"}
+    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: {text: "#{segment.section.title} - #{hours}:#{minutes}:#{seconds}"}
 
   saveBookmarks: ->
     LYT.service.setBookmarks

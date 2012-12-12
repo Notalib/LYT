@@ -440,7 +440,7 @@ LYT.control =
               book:    segment.section.nccDocument.book.id
               section: segment.section.url
               segment: segment.id
-              offset:  LYT.player.time 
+              offset:  LYT.utils.formatTime(LYT.player.time)
           else
             defaultPage()
 
