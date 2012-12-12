@@ -108,7 +108,7 @@ LYT.render = do ->
   # it. Timeout defaults to 2000.
   # Returns a function that will remove the notification when called.
   bubbleNotification = (element, text, vertOffset=0, timeout) ->
-    notification = $("<div class=\"bubble-notification\"><div class=\"bubble-notification-arrow\"></div><div class=\"bubble-notification-message\">#{text}</div></div>")
+    notification = $("<div class=\"bubble-notification\" role=\"alert\"><div class=\"bubble-notification-arrow\"></div><div class=\"bubble-notification-message\">#{text}</div></div>")
     # We set visibility to hidden and attach it to body in order to measure the width
     notification.css 'visibility', 'hidden'
     $('body').append notification
@@ -117,7 +117,10 @@ LYT.render = do ->
     notification.hide()
     notification.css 'visibility', ''
     notification.fadeIn()
-    remove = -> notification.fadeOut -> notification.remove()
+    remove = -> 
+      notification.removeAttr("role")
+      notification.fadeOut ->
+        notification.remove()
     if timeout == 0
       notification.on 'click', remove
     else
