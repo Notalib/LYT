@@ -51,20 +51,25 @@ LYT.control =
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
-    $("#book-index .create-listview").live 'click', ->
-      view = $.mobile.activePage.children ':jqmData(role=content)'
-      book = LYT.player.book
-      iterate = (items) =>
-        for item in items
-          if item.id == $(this).attr("nodeid")
-            LYT.render.createbookIndex item.children, view, book, item
-            break
-          else if item.children.length > 0
-            iterate item.children
-      if $(this).attr("nodeid") is "0"
-        LYT.render.createbookIndex book.nccDocument.structure, view, book
-      else
-        iterate book.nccDocument.structure
+    $("#book-index").on 'click', ->
+      ev = $(event.srcElement).closest(".create-listview")
+      if ev.length isnt 0
+        view = $.mobile.activePage.children ':jqmData(role=content)'
+        book = LYT.player.book
+        iterate = (items) ->
+          for item in items
+            if item.id == ev.attr("nodeid")
+              LYT.render.createbookIndex item.children, view, book, item
+              break
+            else if item.children.length > 0
+              iterate item.children
+        if ev.attr("nodeid")?      
+          if ev.attr("nodeid") is "0"
+            LYT.render.createbookIndex book.nccDocument.structure, view, book
+          else
+            iterate book.nccDocument.structure
+        else
+          $.mobile.changePage "#book-player"
 
     
 

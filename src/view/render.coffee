@@ -266,14 +266,12 @@ LYT.render = do ->
     
     h1 = view.parent().find "header"
     h1.find("h1").remove()
+    $("#index-back-button").removeAttr "nodeid"
+
 
     if root?.title?
       h1.append """<h1>#{root.title}</h1>"""
       $("#index-back-button").attr "nodeid","#{root.parent}"
-      $("#index-back-button").addClass "create-listview"
-
-
-
 
     view.children().remove()
     list = $('<ul data-role="listview"></ul>').hide()
