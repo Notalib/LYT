@@ -157,7 +157,7 @@ LYT.render = do ->
     for book in books
       target = if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book) then 'book-player' else 'book-play'
       li = bookListItem target, book
-      removeLink = jQuery """<a href="" class="remove-book">#{LYT.i18n("Remove book")}</a>"""
+      removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
@@ -167,6 +167,7 @@ LYT.render = do ->
       $("#bookshelf-content").css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
     
     list.listview('refresh')
+    list.find('a').first().focus()
 
   loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
       process = LYT.bookshelf.load(page, zeroAndUp)
@@ -265,12 +266,10 @@ LYT.render = do ->
       return false unless playing? and String(book.id) is String(playing?.book)
       return true if String(playing.section) is String(sectionId)
       return false
-
     
     h1 = view.parent().find "header"
     h1.find("h1").remove()
     $("#index-back-button").removeAttr "nodeid"
-
 
     if root?.title?
       h1.append """<h1>#{root.title}</h1>"""
@@ -304,20 +303,16 @@ LYT.render = do ->
       if isPlaying item.id
         element.append """<div class="section-now-playing"></div>"""
 
-
       list.append element
-
 
     list.parent().trigger('create')
     list.show()
 
 
-
-
   bookmarks: (book, view) ->  
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ul data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ul>').hide()
+    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ol>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
