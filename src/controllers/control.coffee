@@ -41,7 +41,8 @@ LYT.control =
   
   setupEventHandlers: ->
     $(document).one 'pageinit', ->
-      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else '#bookshelf'
+      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
+
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
 
     $("#bookmark-add-button").on 'click', ->
@@ -149,7 +150,7 @@ LYT.control =
           log.message 'control: login: logOn done'
           next = LYT.var.next
           LYT.var.next = null
-          next = "#bookshelf" if not next? or next is "#login" or next is ""
+          next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
           $.mobile.changePage next
         
         .fail ->
