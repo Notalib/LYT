@@ -263,11 +263,16 @@ LYT.render = do ->
       return true if String(playing.section) is String(sectionId)
       return false
 
+    
     h1 = view.parent().find "header"
     h1.find("h1").remove()
 
     if root?.title?
       h1.append """<h1>#{root.title}</h1>"""
+      $("#index-back-button").attr "nodeid","#{root.parent}"
+      $("#index-back-button").addClass "create-listview"
+
+
 
 
     view.children().remove()
@@ -285,7 +290,7 @@ LYT.render = do ->
             <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
               #{item.title}
             </a>"""
-        element.append """<a nodeid="#{item.id}"  class="create-listview">underafsnit</a>"""
+        element.append """<a nodeid="#{item.id}" class="create-listview">underafsnit</a>"""
       else
         element = jQuery """<li data-icon="false"></li>""" 
         element.append """
@@ -305,16 +310,7 @@ LYT.render = do ->
     list.parent().trigger('create')
     list.show()
 
-    $("#book_index_content .create-listview").on 'click', ->
-      iterate = (items) =>
-        for item in items
-          if item.id == $(this).attr("nodeid")
-            LYT.render.createbookIndex item.children, view, book, item
-            break
-          else if item.children.length > 0
-            iterate item.children
-                  
-      iterate book.nccDocument.structure
+
 
 
   bookmarks: (book, view) ->  
