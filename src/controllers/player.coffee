@@ -7,11 +7,6 @@
 # TODO: provide a visual cue on the next and previous section buttons if there are no next or previous section.
 
 LYT.player = 
-  SILENTMEDIA: "http://m.nota.nu/sound/dixie.mp3" # FIXME: dixie chicks as we test, replace with silent mp3 when moving to production
-  PROGRESSION_MODES:
-    MP3:  'mp3'
-    TEXT: 'text'
-  
   ready: false 
   el: null
   
@@ -24,8 +19,6 @@ LYT.player =
   playing: null
   nextOffset: null
 
-  autoProgression: true 
-  progressionMode: null
   timeupdateLock: false
   
   fakeEndScheduled: false
@@ -34,7 +27,6 @@ LYT.player =
   # TODO See if the IOS metadata bug has been fixed here:
   # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
-  _iBug: false
   
   playAttemptCount: 0
   gotDuration: null
@@ -52,7 +44,6 @@ LYT.player =
     @el = jQuery("#jplayer")
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
-    @progressionMode = @PROGRESSION_MODES.MP3
     @currentAudio = ''
     
     if LYT.settings.get("textStyle" || {})['playback-rate']?
@@ -75,8 +66,6 @@ LYT.player =
         @ready = true
         @timeupdateLock = false
         log.message 'Player: initialization complete'
-        #@el.jPlayer('setMedia', {mp3: @SILENTMEDIA})
-        #todo: add a silent state where we do not play on can play   
         
         $.jPlayer.timeFormat.showHour = true
         
@@ -208,15 +197,6 @@ LYT.player =
 
         return if status.ended # Drop pause event emitted when media ends
 
-        return unless @isIOS()
-        if @_iBug
-          log.warn 'we are ibug'
-          #@el.jPlayer('load')
-          
-        else if status.duration > 0 and jQuery.jPlayer.convertTime(status.duration) is not 'NaN' and jQuery.jPlayer.convertTime(status.duration) is not '00:00' and (status.currentTime is 0 or status.currentTime is status.duration)  
-          log.warn 'set ibug'
-          @_iBug = true
-
       seeked: (event) =>
         LYT.instrumentation.record 'seeked', event.jPlayer.status
         @time = event.jPlayer.status.currentTime
@@ -300,7 +280,7 @@ LYT.player =
               click: -> window.location.reload()
               theme: 'c'
             parameters.buttons[LYT.i18n('Cancel')] =
-              click: -> $.mobile.changePage "#bookshelf"
+              click: -> $.mobile.changePage LYT.config.defaultPage.hash
               theme: 'c'
             LYT.render.showDialog($.mobile.activePage, parameters)
 
@@ -367,7 +347,8 @@ LYT.player =
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
-  
+  isPlaying:->
+    !@el.data('jPlayer').status.paused
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
   setPlayBackRate: (playBackRate) ->
@@ -427,8 +408,6 @@ LYT.player =
     deferred = jQuery.Deferred()
     load = LYT.Book.load book
     
-    #LYT.loader.register "Loading book", @book
-    
     log.message "Player: Loading book #{book}, segment #{url}, offset: #{offset}, play #{play}"
     load.done (book) =>
       @book = book
@@ -451,11 +430,11 @@ LYT.player =
         if url
           promise = @playlist().segmentByURL url
           promise.done doneHandler
-          promise.fail =>
+          promise.fail (error) =>
             if url.match /__LYT_auto_/
               log.message "Player: failed to load #{url} containing auto generated book marks - rewinding to start"
             else
-              log.error "Player: failed to load url #{url} - rewinding to start"
+              log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
             offset = 0
             promise = @playlist().rewind()
             promise.done doneHandler
@@ -479,7 +458,7 @@ LYT.player =
   # within the bounds of segment.start and segment.end. In this case, the
   # offset is capped to segment.start or segment.end - 1 (one second before
   # the segment ends).
-  playSegmentOffset: (segment, offset, play) -> 
+  playSegmentOffset: (segment, offset, play) ->
     throw 'Player: playSegmentOffset called with no segment' unless segment?
     segment.done (segment) =>
       log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, play: #{play}"
@@ -494,7 +473,7 @@ LYT.player =
           offset = segment.start
       else
         offset = segment.start
-      
+
       # Fixing odd buffer bug in Chrome 24 where offset == 0 causes it to stop buffering
       offset = 0.000001 if offset == 0
       

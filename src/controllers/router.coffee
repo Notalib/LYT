@@ -22,8 +22,6 @@
 
 LYT.var =
   next: null # store nextpage 
-  searchTerm: null # store last search term
-  callback: null #last callback function
 
 $(document).ready ->
   LYT.session.init()
@@ -46,7 +44,7 @@ $(document).bind "mobileinit", ->
       events: "s,bs" #
     "#book-play([?].*)?$":
       handler: "bookPlay"
-      events: "s"
+      events: "bs,s"
     "#book-player([?].*)?":
       handler: "bookPlayer"
       events: "s"

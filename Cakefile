@@ -5,11 +5,12 @@ w3cjs   = require "w3cjs" # https://github.com/thomasdavis/w3cjs
 # # Configuration
 
 config =
-  concatName: "lyt"       # Name of concatenated script, when using the --concat option
-  coffee:     "coffee"    # Path to CoffeeScript compiler (if not in PATH)
-  docco:      "docco"     # Path to docco (if not in PATH)
-  compass:    "compass"   # Path to compass (if not in PATH)
-  minify:     "uglifyjs2" # Path to minifier
+  concatName:    "lyt"       # Name of concatenated script, when using the --concat option
+  coffee:        "coffee"    # Path to CoffeeScript compiler (if not in PATH)
+  docco:         "docco"     # Path to docco (if not in PATH)
+  compass:       "compass"   # Path to compass (if not in PATH)
+  minify:        "uglifyjs2" # Path to minifier
+  maxHtmlErrors: 13          # Maximum number of acceptable HTML validation errors
 
 # --------------------------------------
 
@@ -90,11 +91,14 @@ task "html", "Build HTML", (options) ->
       file: 'build/index.html'
       callback: (res) ->
         if res.messages?.length > 0
-          console.warn 'There were HTML validation errors:'
+          console.warn "There were #{res.messages.length} HTML validation error messages:"
           console.warn ''
           console.warn '<line>, <column>: <message>'
           for message in res.messages
             console.warn "#{message.lastLine}, #{message.lastColumn}: #{message.message}"
+          if res.messages.length > config.maxHtmlErrors
+            throw 'Refusing to continue build: it seems that the number of errors has increased'
+          
 
 
 task "scss", "Compile scss source", (options) ->

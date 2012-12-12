@@ -250,52 +250,70 @@ LYT.render = do ->
     loadCover view.find("img.cover-image"), details.id
     
   bookIndex: (book, view) ->  
+     
+    # Create an ordered list wrapper for the list
+   
+    # FIXME: We should be using the playlist here - any reference to NCC- or
+    # SMIL documents from this class is not good design.
+    @createbookIndex book.nccDocument.structure, view, book
+    
+
+  createbookIndex: (items, view, book, root = null) ->
+
     playing = LYT.player.getCurrentlyPlaying()
     isPlaying = (sectionId) ->
       return false unless playing? and String(book.id) is String(playing?.book)
       return true if String(playing.section) is String(sectionId)
       return false
-    
-    # Recursively builds nested ordered lists from an array of items
-    mapper = (list, items) ->
-      for item in items
-        element = jQuery """<li data-icon="arrow-right"></li>""" 
-        element.attr "id", item.id
-        element.attr "data-href", item.id
 
-        if item.children.length > 0
-          element.append "<span>#{item.title}</span>"
-        else
-          element.append """
-            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
-              #{item.title}
-            </a>"""
-        
-        if isPlaying item.id
-          element.append """<div class="section-now-playing"></div>"""
-        
-        if item.children.length > 0
-          nested = jQuery "<ol></ol>"
-          mapper nested, item.children
-          element.append nested
-        list.append element
-        
-    # Create an ordered list wrapper for the list
+    
+    h1 = view.parent().find "header"
+    h1.find("h1").remove()
+    $("#index-back-button").removeAttr "nodeid"
+
+
+    if root?.title?
+      h1.append """<h1>#{root.title}</h1>"""
+      $("#index-back-button").attr "nodeid","#{root.parent}"
+
     view.children().remove()
-    list = $('<ol data-role="listview"></ol>').hide()
+    list = $('<ul data-role="listview"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
     list.attr "id", "NccRootElement"
-    # FIXME: We should be using the playlist here - any reference to NCC- or
-    # SMIL documents from this class is not good design.
-    mapper(list, book.nccDocument.structure)
-    
+
+    for item in items
+      if item.children.length > 0
+        element = jQuery """<li data-icon="arrow-right"></li>""" 
+        element.append """
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
+              #{item.title}
+            </a>"""
+        element.append """<a nodeid="#{item.id}" class="create-listview">underafsnit</a>"""
+      else
+        element = jQuery """<li data-icon="false"></li>""" 
+        element.append """
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
+              #{item.title}
+            </a>"""
+        element.attr "id", item.id
+        element.attr "data-href", item.id
+
+      if isPlaying item.id
+        element.append """<div class="section-now-playing"></div>"""
+
+
+      list.append element
+
+
     list.parent().trigger('create')
     list.show()
- 
-  
+
+
+
+
   bookmarks: (book, view) ->  
     # Create an ordered list wrapper for the list
     view.children().remove()
@@ -321,6 +339,7 @@ LYT.render = do ->
             book:    book.id
             section: section
             segment: segment
+            offset: bookmark.timeOffset
           jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
         remove.on 'click', ->
           book.bookmarks.splice index, 1

@@ -69,7 +69,7 @@ do ->
       this.done (document) ->
         id = url.split('#')[1]
         if section = document.getSectionByURL(url)
-          section.fail -> deferred.reject()
+          section.fail -> deferred.reject("Unable to find any section with url #{url}")
           section.done (section) ->
             segment
             if id? and id isnt ""
@@ -103,6 +103,7 @@ do ->
         return index if heading.tagName.toLowerCase() isnt "h#{level}"
         # Create a section object
         section = new LYT.Section heading, resources
+        section.parent = level-1
         # Collect all higher-level headings into that section's `children` array,
         # and increment the `index` accordingly
         index += getConsecutive headings.slice(index+1), level+1, section.children

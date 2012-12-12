@@ -51,13 +51,30 @@ LYT.control =
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
+    $("#book-index").on 'click', ->
+      ev = $(event.srcElement).closest(".create-listview")
+      if ev.length isnt 0
+        view = $.mobile.activePage.children ':jqmData(role=content)'
+        book = LYT.player.book
+        iterate = (items) ->
+          for item in items
+            if item.id == ev.attr("nodeid")
+              LYT.render.createbookIndex item.children, view, book, item
+              break
+            else if item.children.length > 0
+              iterate item.children
+        if ev.attr("nodeid")?      
+          if ev.attr("nodeid") is "0"
+            LYT.render.createbookIndex book.nccDocument.structure, view, book
+          else
+            iterate book.nccDocument.structure
+        else
+          $.mobile.changePage "#book-player"
+
     $("#share-link-textarea").on 'click', -> 
       this.focus()
-      if LYT.player.isIOS()
-        this.selectionStart = 0
-        this.selectionEnd = this.value.length
-      else
-        this.select()
+      this.selectionStart = 0
+      this.selectionEnd = this.value.length
 
     $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
@@ -67,7 +84,7 @@ LYT.control =
 
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
-        .done( -> $.mobile.changePage "#bookshelf" )
+        .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
         
     $('#instrumentation').find('button.previous').on 'click', ->
       LYT.render.instrumentationGraph()?.previousEntry()
@@ -204,7 +221,7 @@ LYT.control =
     promise.done ->
       bookId = params?.book or LYT.player.book?.id
       if not bookId
-        $.mobile.changePage '#bookshelf' 
+        $.mobile.changePage LYT.config.defaultPage.hash
         return
       content = $(page).children ':jqmData(role=content)'
   
@@ -242,11 +259,15 @@ LYT.control =
       if params?.book and params.book isnt LYT.player?.book?.id
         $.mobile.changePage "#book-play?book=#{params.book}"
       else if not LYT.player.book
-        $.mobile.changePage "#bookshelf"
+        $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
   
   bookPlay: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      if LYT.player.isPlaying()
+        LYT.player.pause()
+
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
@@ -259,7 +280,7 @@ LYT.control =
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
   
-        LYT.player.pause()
+        
         LYT.render.clearBookPlayer()
           
         header = $(page).children(':jqmData(role=header)')
@@ -296,7 +317,7 @@ LYT.control =
                 icon:  'refresh'
                 theme: 'c'
               parameters.buttons[LYT.i18n('Cancel')] =
-                click: -> $.mobile.changePage "#bookshelf"
+                click: -> $.mobile.changePage LYT.config.defaultPage.hash
                 icon:  'delete'
                 theme: 'c'
               LYT.render.showDialog($.mobile.activePage, parameters)
@@ -343,9 +364,8 @@ LYT.control =
             LYT.render.catalogLists content
           when "search"
             LYT.render.setHeader page, "Search"
-            if $('#searchterm').val() isnt term
-              $('#searchterm').val term
-              handleResults LYT.catalog.search(term)
+            $('#searchterm').val term
+            handleResults LYT.catalog.search(term)
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
@@ -441,18 +461,16 @@ LYT.control =
               book:    segment.section.nccDocument.book.id
               section: segment.section.url
               segment: segment.id
-              offset:  LYT.player.time 
+              offset:  LYT.utils.formatTime(LYT.player.time)
           else
-            $.mobile.changePage("#bookshelf") #no book go to bookshelf
+            defaultPage()
+
         url = LYT.router.getBookActionUrl params
-        subject = "Link til bog på E17"
+        subject = LYT.i18n 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        if LYT.player.isIOS() #nice html... 
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url.replace("&", "&amp;"))}"
-        else
-          body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape(url)}"
+        body = encodeURIComponent "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{url}"
         
-        $("#email-bookmark").attr('href', "mailto:?subject=#{subject}&body=#{body}")
+        $("#email-bookmark").attr('href', "mailto:?subject=#{encodeURIComponent subject}&body=#{encodeURIComponent body}")
         
         $("#share-link-textarea").text url
         
@@ -469,6 +487,6 @@ LYT.control =
 
   suggestions: -> $.mobile.changePage("#search?list=anbe")
 
-  guest: -> $.mobile.changePage('#bookshelf?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
 
-  defaultPage: -> $.mobile.changePage('#bookshelf')
+  defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)
