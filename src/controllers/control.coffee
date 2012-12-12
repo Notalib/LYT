@@ -388,7 +388,14 @@ LYT.control =
               colors = val.split(';')
               if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
                 $(this).attr("checked", true).checkboxradio("refresh");
+            when 'playback-rate'
+              toNumber = (Number) val
+              if toNumber is style['playback-rate']
+                $(this).attr("checked", true).checkboxradio("refresh");
+
         # Saving the GUI       
+        # TODO: The change handler below is being bound once for every time we
+        #       enter this page.
         $("#style-settings input").change (event) ->
           target = $(event.target)
           name = target.attr 'name'
@@ -402,12 +409,10 @@ LYT.control =
               style['background-color'] = colors[0]
               style['color'] = colors[1]
             # TODO: use lower case just like all the other parameters
-            when 'playBack-Rate'
-              speed_lookup = ['slow', 'normal_slow', 'normal', 'fast', 'fast_ultra']
-              if speed_key = speed_lookup[val - 1]
-                LYT.player.setPlayBackRate(LYT.config.player.readSpeed[speed_key])
-              else
-                log.error "Control: setting playback rate to #{val} failed"
+            when 'playback-rate'
+              toNumber = (Number) val
+              style['playback-rate'] = toNumber
+              LYT.player.setPlayBackRate(toNumber)
                   
           LYT.settings.set('textStyle', style)
           LYT.render.setStyle()

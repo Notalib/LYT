@@ -11,7 +11,6 @@ LYT.settings = do ->
   # TODO: How much of this is actually used?
   defaults =
     textPresentation: "full" 
-    readSpeed:        "1.0"
     textMode:         1
     textStyle:
       'font-size':        "16px"
