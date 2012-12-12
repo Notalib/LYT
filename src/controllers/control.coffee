@@ -269,6 +269,10 @@ LYT.control =
         LYT.player.refreshContent()
   
   bookPlay: (type, match, ui, page, event) ->
+    if type is 'pagebeforeshow'
+      if LYT.player.isPlaying()
+        LYT.player.pause()
+
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
@@ -281,7 +285,7 @@ LYT.control =
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
   
-        LYT.player.pause()
+        
         LYT.render.clearBookPlayer()
           
         header = $(page).children(':jqmData(role=header)')

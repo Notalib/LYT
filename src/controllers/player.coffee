@@ -367,7 +367,8 @@ LYT.player =
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
-  
+  isPlaying:->
+    !@el.data('jPlayer').status.paused
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
   setPlayBackRate: (playBackRate) ->
