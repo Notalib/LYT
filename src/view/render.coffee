@@ -321,6 +321,7 @@ LYT.render = do ->
             book:    book.id
             section: section
             segment: segment
+            offset: bookmark.timeOffset
           jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
         remove.on 'click', ->
           book.bookmarks.splice index, 1
