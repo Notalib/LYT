@@ -94,7 +94,13 @@ LYT.control =
     QUnit.log (event) ->
       method = if event.result then log.message else log.error
       method "Test: #{event.message}: passed: #{event.result}"
-      
+
+    Mousetrap.bind 'alt+ctrl+h', ->
+      $.mobile.changePage "#support", transition: "none"
+      return false
+
+    Mousetrap.bind 'alt+ctrl+m', ->
+      $("#bookmark-add-button").click()
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
@@ -300,18 +306,11 @@ LYT.control =
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: search: unable to log in'
     promise.done ->
-      #if type is 'pagebeforeshow'
-        
+      if type is 'pagebeforeshow'
+        content = $(page).children(":jqmData(role=content)")
+        content.children().hide()
 
       if type is 'pageshow'
-        # $("#listshow-btn").click (event) ->
-        #   LYT.var.callback = null
-        #   content = $(page).children(":jqmData(role=content)")
-        #   LYT.render.catalogLists content
-        #   $('#searchterm').val ""
-        #   $('#listshow-btn').hide()
-        #   $('#more-search-results').hide()
-        
         handleResults = (process) ->
           LYT.loader.register "Searching", process
           process.done (results) ->
@@ -333,19 +332,24 @@ LYT.control =
             action = "showList" if LYT.predefinedSearches[list]?
 
         content = $(page).children( ":jqmData(role=content)" )
+        header = $(page).children( ":jqmData(role=header)" ).find("h1")
         
         switch action
           when "predefinedView"
             $('#listshow-btn').hide()
             $('#more-search-results').hide()
+            $('#searchterm').val ''
+            LYT.render.setHeader page, "Search"
             LYT.render.catalogLists content
           when "search"
+            LYT.render.setHeader page, "Search"
             if $('#searchterm').val() isnt term
               $('#searchterm').val term
               handleResults LYT.catalog.search(term)
           when "showList"
+            LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
-            
+        
         LYT.catalog.attachAutocomplete $('#searchterm')
         # Selecting the item from the autocompleteselect list....
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
@@ -389,8 +393,10 @@ LYT.control =
               toNumber = (Number) val
               if toNumber is style['playback-rate']
                 $(this).attr("checked", true).checkboxradio("refresh");
-                
+
         # Saving the GUI       
+        # TODO: The change handler below is being bound once for every time we
+        #       enter this page.
         $("#style-settings input").change (event) ->
           target = $(event.target)
           name = target.attr 'name'

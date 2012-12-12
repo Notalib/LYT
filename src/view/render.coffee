@@ -27,7 +27,7 @@ LYT.render = do ->
     
     element = jQuery """
       <li data-book-id="#{book.id}">
-        <a class="gatrack book-play-link" ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
+        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image">
           </div>
@@ -267,7 +267,7 @@ LYT.render = do ->
           element.append "<span>#{item.title}</span>"
         else
           element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
+            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
               #{item.title}
             </a>"""
         
@@ -344,7 +344,7 @@ LYT.render = do ->
         element.attr "data-href", bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}"
+            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
                data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}"
                href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&play=true"> 
               #{bookmark.note.text}
@@ -373,6 +373,7 @@ LYT.render = do ->
     
     $('#listshow-btn').show()#show button list 
     list.listview('refresh')
+    view.children().show()
 
   
   # TODO: Simple, rough implementation
@@ -386,6 +387,12 @@ LYT.render = do ->
                            <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
       list.append listItem   
     list.listview('refresh')
+    view.children().show()
+
+  setHeader: (page, text) -> 
+    header = $(page).children( ":jqmData(role=header)" ).find("h1")
+    header.text LYT.i18n text
+
 
   showDidYouMean: (results, view) ->
     list = view.find "ul"
