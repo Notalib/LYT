@@ -468,10 +468,10 @@ LYT.control =
             defaultPage()
 
         url = LYT.router.getBookActionUrl params
-        url = url.replace("&", "&amp;")
+        urlEmail = url.replace("&", "&amp;")
         subject = LYT.i18n 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape url}"
+        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape urlEmail}"
         
         $("#email-bookmark").attr('href', "mailto: ?subject=#{subject}&body=#{body}")
         
