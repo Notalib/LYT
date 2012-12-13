@@ -111,7 +111,7 @@ $(document).bind "mobileinit", ->
       if document.baseURI?
         document.baseURI + url
       else
-        window.location.hostname + '/' + url 
+        window.location.protocol + "//" + window.location.hostname + window.location.pathname + url 
     else
       url
     

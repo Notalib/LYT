@@ -30,7 +30,7 @@ LYT.player =
   
   playAttemptCount: 0
   gotDuration: null
-  playBackRate: 1
+  playBackRate: LYT.settings.get('playBackRate') or 1
   
   lastBookmark: (new Date).getTime()
   
@@ -45,9 +45,6 @@ LYT.player =
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
     @currentAudio = ''
-    
-    if LYT.settings.get("textStyle" || {})['playback-rate']?
-      @playBackRate = LYT.settings.get("textStyle" || {})['playback-rate']
       
     # This handler replaces the old progress handler which unfortunately
     # never got called as often as necessary

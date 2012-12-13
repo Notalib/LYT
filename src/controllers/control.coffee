@@ -412,9 +412,8 @@ LYT.control =
               colors = val.split(';')
               if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
                 $(this).attr("checked", true).checkboxradio("refresh");
-            when 'playback-rate'
-              toNumber = (Number) val
-              if toNumber is style['playback-rate']
+            when 'playback-rate'  
+              if Number(val) is LYT.settings.get('playBackRate')
                 $(this).attr("checked", true).checkboxradio("refresh");
 
         # Saving the GUI       
@@ -434,9 +433,9 @@ LYT.control =
               style['color'] = colors[1]
             # TODO: use lower case just like all the other parameters
             when 'playback-rate'
-              toNumber = (Number) val
-              style['playback-rate'] = toNumber
-              LYT.player.setPlayBackRate(toNumber)
+              val = Number(val)
+              LYT.settings.set('playBackRate', val)
+              LYT.player.setPlayBackRate val
                   
           LYT.settings.set('textStyle', style)
           LYT.render.setStyle()
@@ -469,10 +468,10 @@ LYT.control =
             defaultPage()
 
         url = LYT.router.getBookActionUrl params
-        url = url.replace("&", "&amp;")
+        urlEmail = url.replace("&", "&amp;")
         subject = LYT.i18n 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape url}"
+        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape urlEmail}"
         
         $("#email-bookmark").attr('href', "mailto: ?subject=#{subject}&body=#{body}")
         

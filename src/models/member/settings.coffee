@@ -17,6 +17,7 @@ LYT.settings = do ->
       'background-color': "#fff"
       'color':            "#000000"
       'font-family':      "Helvetica, sans-serif"
+    playBackRate:             1
     # phrasemode: 1
     # All text:   2
   
