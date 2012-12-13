@@ -348,9 +348,9 @@ LYT.control =
         action = "predefinedView"
         if not jQuery.isEmptyObject params
           if params.term?
-            [action, term] = ["search", jQuery.trim(decodeURI(params.term or "") ) ]
+            [action, term] = ["search", jQuery.trim(decodeURIComponent(params.term or "") ) ]
           else if params.list?
-            list = jQuery.trim(decodeURI(params.list or "") )
+            list = jQuery.trim(decodeURIComponent(params.list or "") )
             action = "showList" if LYT.predefinedSearches[list]?
 
         content = $(page).children( ":jqmData(role=content)" )
@@ -375,11 +375,11 @@ LYT.control =
         # Selecting the item from the autocompleteselect list....
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
           handleResults LYT.catalog.search(ui.item.value)
-          $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
+          $.mobile.changePage "#search?term=#{encodeURIComponent ui.item.value}" , transition: "none"
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
-          term = encodeURI $('#searchterm').val()
+          term = encodeURIComponent $('#searchterm').val()
           handleResults LYT.catalog.search($('#searchterm').val())
           $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
