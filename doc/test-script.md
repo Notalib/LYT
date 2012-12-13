@@ -56,6 +56,10 @@ Searching and adding books:
 
     - 10: Log in on another device, keeping current session open as well. Add
       a book on the other device. Are the changes registered both places?
+      
+    - 11: Do a search, click one of the books and then click the browsers back
+      button. Does it display the last search result? Repeat using the applications
+      back to search results - button.
 
  
 Playing books (linearly):
@@ -137,13 +141,15 @@ Modifying settings:
     - 1: Log on as normal user, change background colour. Play a book, checking that 
       the changes are registered.
  
-    - 2: Repeat above consecutively with text size and font. 
+    - 2: Repeat above consecutively with read speed (where available), text size and font.
 
     - 3: Log off, log on again and check that changes persist.
 
     - 4: Log on as a guest, change background colour, text size, and font, play a book.
 
     - 5: Log out, log on as guest again and check that the changes are not registered. 
+    
+    - 6: Setting buttons for read speed should appear on all platforms, except IOS.
 
 
 Comics: 
@@ -170,7 +176,7 @@ Bookmarks:
              bookmarks. Do they take you to the correct place in the book?
              
         - 3: Whilst playing, doubleclick the bookmark button. Check the 
-             bookmark index: Have you created two bookmarks?
+             bookmark index: make sure that there is only one bookmark.
              
         - 4: Wait until just before the end of a sound segment, then place a
              bookmark there. Does it work correctly?
@@ -181,8 +187,38 @@ Bookmarks:
         - 6: Log out, then back in. Are your bookmarks still there?
         
         - 7: Remove your bookmarks. 
+
+Sharing bookmarks:
+
+        - 1: Open a book, place a bookmark in the middle of a segment.
         
+        - 2: Change to another chapter in the book and wait for it to start
+          playing.
         
+        - 3: Open the bookmarks and note down the link on the bookmark that
+          was created. Click the bookmark and verify that it starts playing at
+          the right place in the book.
+          
+        - 4: Open the bookmarks and choose to share the bookmark. Verify that
+          the link is identical to the one noted down above. Click the share
+          button and verify in the email that the link displayed is still
+          correct and the wording looks right.
+
+Shortcuts:
+
+        - 1: Open a book. Verify the following shortcuts:
+        
+          - Play/pause: alt + ctrl + space
+          
+          - Next segment: alt + arrow right
+          
+          - Previous segment: alt + arrow left
+          
+          - Help: alt + ctrl + h
+          
+          - Place bookmark: alt + ctrl + m
+
+
         
         
         
