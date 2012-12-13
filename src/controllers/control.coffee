@@ -142,6 +142,8 @@ LYT.control =
   # Control handlers
   
   login: (type, match, ui, page, event) ->
+    $('#username').focus()
+    
     $("#login-form").submit (event) ->
       $("#password").blur()
     
@@ -173,7 +175,6 @@ LYT.control =
       
       event.preventDefault()
       event.stopPropagation()
-    
   
   bookshelf: (type, match, ui, page, event) ->
     params = LYT.router.getParams match[1]
@@ -191,7 +192,6 @@ LYT.control =
   bookDetails: (type, match, ui, page, event) ->
     content = $(page).children( ":jqmData(role=content)" )
     if type is 'pagebeforeshow'
-      #LYT.render.clearBookDetails()
       content.children().hide()
     
     params = LYT.router.getParams match[1]
@@ -263,6 +263,7 @@ LYT.control =
         $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
+        $('.jp-play').focus()
   
   bookPlay: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
@@ -281,7 +282,6 @@ LYT.control =
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
   
-        
         LYT.render.clearBookPlayer()
           
         header = $(page).children(':jqmData(role=header)')
@@ -384,6 +384,8 @@ LYT.control =
           $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
           event.stopImmediatePropagation()
+          
+        $('#searchterm').focus()
       
   settings: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
