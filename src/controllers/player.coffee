@@ -1,6 +1,6 @@
 # Requires `/common`  
 # Requires `/support/lyt/loader`  
-
+# Requires `/models/member/settings`
 # -------------------
 
 # This module handles playback of current media and timing of transcript updates  
