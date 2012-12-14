@@ -185,7 +185,7 @@ LYT.render = do ->
       LYT.loader.register "Loading bookshelf", process
 
   hideplayBackRate: () ->
-      $("#playBackRate").hide()
+    $("#playback-rate").hide()
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
