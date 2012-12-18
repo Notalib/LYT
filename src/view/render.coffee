@@ -272,11 +272,11 @@ LYT.render = do ->
     $("#index-back-button").removeAttr "nodeid"
 
     if root?.title?
-      h1.append """<h1>#{root.title}</h1>"""
+      h1.append """<h1 class="ui-title" role="heading">#{root.title}</h1>"""
       $("#index-back-button").attr "nodeid","#{root.parent}"
 
     view.children().remove()
-    list = $('<ul data-role="listview"></ul>').hide()
+    list = $('<ul data-role="listview" data-split-theme="a"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
@@ -290,7 +290,7 @@ LYT.render = do ->
             <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
               #{item.title}
             </a>"""
-        element.append """<a nodeid="#{item.id}" class="create-listview">underafsnit</a>"""
+        element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
       else
         element = jQuery """<li data-icon="false"></li>""" 
         element.append """
