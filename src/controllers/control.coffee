@@ -380,7 +380,6 @@ LYT.control =
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
           term = encodeURIComponent $('#searchterm').val()
-          handleResults LYT.catalog.search($('#searchterm').val())
           $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
           event.stopImmediatePropagation()

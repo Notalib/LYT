@@ -53,11 +53,11 @@ LYT.loader = do ->
     loaders.push id
     setMessage = ->
       return if jQuery.inArray(id, loaders) is -1
-      log.message "Loader: set: setMessage #{id}"
+      log.message "Loader: set: setMessage #{message}"
       jQuery.mobile.showPageLoadingMsg LYT.i18n(message)
       lockPage
     if delay?
-      log.message "Loader: set: schedule message #{id}, delay #{delay}"
+      log.message "Loader: set: schedule message #{message}, delay #{delay}"
       setTimeout setMessage, delay
     else
       setMessage()
