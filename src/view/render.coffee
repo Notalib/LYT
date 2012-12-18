@@ -267,12 +267,12 @@ LYT.render = do ->
       return true if String(playing.section) is String(sectionId)
       return false
     
-    h1 = view.parent().find "header"
-    h1.find("h1").remove()
+    #h1 = view.parent().find "header"
+    #h1.find("h1").remove()
     $("#index-back-button").removeAttr "nodeid"
 
     if root?.title?
-      h1.append """<h1>#{root.title}</h1>"""
+      #h1.append """<h1>#{root.title}</h1>"""
       $("#index-back-button").attr "nodeid","#{root.parent}"
 
     view.children().remove()
