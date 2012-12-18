@@ -82,16 +82,6 @@ img.e17-logo {
   background: black;
 }
 
-#bookshelf-content {
-  .ui-li, .ui-li.ui-field-contain {
-    border-top: none;
-  }
-  
-  .ui-listview {
-    margin-bottom: 0;
-  }
-}
-
 .ui-icon-shadow {
   @include box-shadow(none);
 }
@@ -215,12 +205,23 @@ img.e17-logo {
 .ui-listview li {
   &, &:hover, &.ui-btn-hover {
     background-image: none;
+    border-top-width: 0px;
   }
 }
 
 /* bookshelf */
 
-#bookshelf-content {
+#bookshelf-content , #book-index {
+  .ui-li, .ui-li.ui-field-contain {
+    border-top: none;
+  }
+  
+  .ui-listview {
+    margin-bottom: 0;
+  }
+}
+
+#bookshelf-content, #book-index {
   /* background: transparent url(../images/icons/empty_bookshelf.png) no-repeat; */
   background-position: left top;
   min-height: 40px;
@@ -265,6 +266,10 @@ img.e17-logo {
       }
 
       .remove-book {
+        border-left: 1px solid $listbordercolor;
+      }
+
+      .subsection {
         border-left: 1px solid $listbordercolor;
       }
 

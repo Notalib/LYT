@@ -232,9 +232,9 @@ LYT.player =
               @gotDuration = true
               @playAttemptCount = 0
         else
-         @gotDuration = true
-         @playAttemptCount = 0
-         #LYT.loader.close('metadata')
+          @gotDuration = true
+          @playAttemptCount = 0
+          #LYT.loader.close('metadata')
       
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
