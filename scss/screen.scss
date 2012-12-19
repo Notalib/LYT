@@ -211,7 +211,7 @@ img.e17-logo {
 
 /* bookshelf */
 
-#bookshelf-content , #book-index {
+#bookshelf-content, #book-index {
   .ui-li, .ui-li.ui-field-contain {
     border-top: none;
   }
@@ -1435,8 +1435,9 @@ $bubble-arrow-height: 10px;
 }
 
 .bookmark-actions {
-    background-color: #282828;
-    color: white;
+    background-color: #282828 !important;
+    height: 22px !important;
+    color: white !important;
      
     .bookmark-share {
         background-image: url(../images/icons/share_icn_18_white.png);

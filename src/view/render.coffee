@@ -312,7 +312,7 @@ LYT.render = do ->
   bookmarks: (book, view) ->  
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ol>').hide()
+    list = $('<ul data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
@@ -320,7 +320,7 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
-      more = $('<a href="#">Mere</a>')
+      more = $('<a class="subsection" href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
         list.find('.bookmark-actions').remove()
