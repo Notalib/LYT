@@ -185,7 +185,7 @@ LYT.render = do ->
       LYT.loader.register "Loading bookshelf", process
 
   hideplayBackRate: () ->
-      $("#playBackRate").hide()
+    $("#playback-rate").hide()
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
@@ -267,16 +267,16 @@ LYT.render = do ->
       return true if String(playing.section) is String(sectionId)
       return false
     
-    h1 = view.parent().find "header"
-    h1.find("h1").remove()
+    #h1 = view.parent().find "header"
+    #h1.find("h1").remove()
     $("#index-back-button").removeAttr "nodeid"
 
     if root?.title?
-      h1.append """<h1>#{root.title}</h1>"""
+      #h1.append """<h1 class="ui-title" role="heading">#{root.title}</h1>"""
       $("#index-back-button").attr "nodeid","#{root.parent}"
 
     view.children().remove()
-    list = $('<ul data-role="listview"></ul>').hide()
+    list = $('<ul data-role="listview" data-split-theme="a"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
@@ -290,7 +290,7 @@ LYT.render = do ->
             <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-play?book=#{book.id}&section=#{item.url}&play=true"> 
               #{item.title}
             </a>"""
-        element.append """<a nodeid="#{item.id}" class="create-listview">underafsnit</a>"""
+        element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
       else
         element = jQuery """<li data-icon="false"></li>""" 
         element.append """
@@ -312,7 +312,7 @@ LYT.render = do ->
   bookmarks: (book, view) ->  
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ol>').hide()
+    list = $('<ul data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ul>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
@@ -320,7 +320,7 @@ LYT.render = do ->
     list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
-      more = $('<a href="#">Mere</a>')
+      more = $('<a class="subsection" href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
         list.find('.bookmark-actions').remove()
