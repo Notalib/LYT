@@ -392,8 +392,12 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        if not LYT.player.isPlayBackRateSupported()
-          LYT.render.hideplayBackRate()
+        promise = LYT.player.isPlayBackRateSupported()
+        promise.done (result) ->
+          if not result 
+            LYT.render.hideplayBackRate()
+        promise.fail () ->
+           LYT.render.hideplayBackRate()   
   
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})

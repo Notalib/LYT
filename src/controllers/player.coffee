@@ -367,9 +367,8 @@ LYT.player =
   
   isPlayBackRateSupported: ->
     promise = LYT.playbackrate.isPlayBackRateSupported()
-    promise.done -> Modernizr.playbackrate
-    promise.fail -> Modernizr.playbackrate
-  
+    promise.pipe (result) ->
+      return result  
   isIOS: () ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
       return true

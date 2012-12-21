@@ -33,7 +33,7 @@ LYT.playbackrate = do ->
         return if audio.paused # Guard against more events
         audio.pause()
         Modernizr.addTest 'playbackrate', not isNaN audio.currentTime and (rate - margin) < audio.currentTime / delta < (rate + margin)
-        deferred.resolve()
+        deferred.resolve Modernizr.playbackrate
   
       source = document.createElement 'source'
       source.setAttribute 'type', 'audio/mpeg'
@@ -44,7 +44,7 @@ LYT.playbackrate = do ->
       audio.play()
     catch e
       deferred.reject()
-    # NOP
+      
     deferred.promise()
 
   isPlayBackRateSupported()
