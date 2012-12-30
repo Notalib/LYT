@@ -10,26 +10,24 @@ Login:
     - 3: Log on using incorrect username without illegal characters + correct
       password
 
-    - 4: Log on with 'Capslock' on
+    - 4: Log on with non-UTF8-username
 
-    - 5: Log on with non-UTF8-username
+    - 5: Log on with non-UTF8-password
 
-    - 6: Log on with non-UTF8-password
+    - 6: Log on correctly, close tab, open it again. Still logged in?
 
-    - 7: Log on correctly, close tab, open it again. Still logged in?
+    - 7: Log on another device, then log off. Still logged on in first session?
 
-    - 8: Log on another device, then log off. Still logged on in first session?
+    - 8: Log on correctly, log off, close tab, return to page. Still logged off?
 
-    - 9: Log on correctly, log off, close tab, return to page. Still logged off?
-
-    - 10: Log on with 'guest/anypassword', check that you can play the books on the 
+    - 9: Log on with 'guest/anypassword', check that you can play the books on the 
       shelf, use the search engine, but only play the freely available books in
       the database. 
 
-    - 11: Log on as guest, log off, then log on as normal user. Check your profile: 
+    - 10: Log on as guest, log off, then log on as normal user. Check your profile: 
       are you registered as the right user. 
 
-    - 12: Log on a normal user, then log off and log on as another normal user.
+    - 11: Log on a normal user, then log off and log on as another normal user.
       Repeat above profile check. 
 
 
