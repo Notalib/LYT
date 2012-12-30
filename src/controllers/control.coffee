@@ -40,7 +40,8 @@ LYT.control =
 
   setupEventHandlers: ->
     $(document).one 'pageinit', ->
-      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else '#bookshelf'
+      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
+
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
 
     $("#bookmark-add-button").on 'click', ->
@@ -150,7 +151,7 @@ LYT.control =
           log.message 'control: login: logOn done'
           next = LYT.var.next
           LYT.var.next = null
-          next = "#bookshelf" if not next? or next is "#login" or next is ""
+          next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
           $.mobile.changePage next
         
         .fail ->
@@ -346,9 +347,9 @@ LYT.control =
         action = "predefinedView"
         if not jQuery.isEmptyObject params
           if params.term?
-            [action, term] = ["search", jQuery.trim(decodeURI(params.term or "") ) ]
+            [action, term] = ["search", jQuery.trim(decodeURIComponent(params.term or "") ) ]
           else if params.list?
-            list = jQuery.trim(decodeURI(params.list or "") )
+            list = jQuery.trim(decodeURIComponent(params.list or "") )
             action = "showList" if LYT.predefinedSearches[list]?
 
         content = $(page).children( ":jqmData(role=content)" )
@@ -373,12 +374,11 @@ LYT.control =
         # Selecting the item from the autocompleteselect list....
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
           handleResults LYT.catalog.search(ui.item.value)
-          $.mobile.changePage "#search?term=#{encodeURI ui.item.value}" , transition: "none"
+          $.mobile.changePage "#search?term=#{encodeURIComponent ui.item.value}" , transition: "none"
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
-          term = encodeURI $('#searchterm').val()
-          handleResults LYT.catalog.search($('#searchterm').val())
+          term = encodeURIComponent $('#searchterm').val()
           $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
           event.stopImmediatePropagation()
@@ -391,8 +391,12 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        if not LYT.player.isPlayBackRateSupported()
-          LYT.render.hideplayBackRate()
+        promise = LYT.player.isPlayBackRateSupported()
+        promise.done (result) ->
+          if not result 
+            LYT.render.hideplayBackRate()
+        promise.fail () ->
+           LYT.render.hideplayBackRate()   
   
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})

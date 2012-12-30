@@ -105,6 +105,14 @@ LYT.player =
         LYT.instrumentation.record 'timeupdate', event.jPlayer.status
         status = event.jPlayer.status
         @time = status.currentTime
+
+        #Did we jump in time? if not try again this will fix the iphone bug
+        # FIXME: what if the nextOffset is wrong (out of bounce) will it loop?
+        if @time < @nextOffset 
+          action = if @playing then 'play' else 'pause'
+          @el.jPlayer action, @nextOffset
+        else
+          @nextOffset = null 
         
         # Schedule fake ending of file if necessary
         @fakeEnd status if LYT.config.player.useFakeEnd
@@ -216,10 +224,11 @@ LYT.player =
             @el.jPlayer 'play'
 
       loadedmetadata: (event) =>
+        #alert event.jPlayer.status.duration
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
-        if isNaN event.jPlayer.status.duration
+        if isNaN event.jPlayer.status.duration or event.jPlayer.status.duration == 0
           if @getStatus().src == @currentAudio
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
@@ -232,9 +241,9 @@ LYT.player =
               @gotDuration = true
               @playAttemptCount = 0
         else
-         @gotDuration = true
-         @playAttemptCount = 0
-         #LYT.loader.close('metadata')
+          @gotDuration = true
+          @playAttemptCount = 0
+          #LYT.loader.close('metadata')
       
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
@@ -253,12 +262,11 @@ LYT.player =
           action = if @playing then 'play' else 'pause'
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
-          @nextOffset = null
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
-      
+
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
         switch event.jPlayer.error.type
@@ -357,8 +365,10 @@ LYT.player =
     else
       log.message "Player: setPlayBackRate: unable to set playback rate"
   
-  isPlayBackRateSupported: -> Modernizr.playbackrate
-  
+  isPlayBackRateSupported: ->
+    promise = LYT.playbackrate.isPlayBackRateSupported()
+    promise.pipe (result) ->
+      return result  
   isIOS: () ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
       return true
@@ -481,10 +491,10 @@ LYT.player =
       # possible to just move the play head.
       if @currentAudio != segment.audio
         log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting nextOffset to #{offset}"
-        @el.jPlayer "setMedia", {mp3: segment.audio}
-        @el.jPlayer "load"
         @currentAudio = segment.audio
         @nextOffset   = offset
+        @el.jPlayer "setMedia", {mp3: segment.audio}
+        @el.jPlayer "load"
       else
         if @playing
           log.message "Player: playSegmentOffset: play from offset #{offset}"
