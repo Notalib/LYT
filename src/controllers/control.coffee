@@ -38,7 +38,6 @@ LYT.control =
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
     @setupEventHandlers()
 
-  
   setupEventHandlers: ->
     $(document).one 'pageinit', ->
       goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else '#bookshelf'
