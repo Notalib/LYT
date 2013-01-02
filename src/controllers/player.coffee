@@ -366,7 +366,7 @@ LYT.player =
       log.message "Player: setPlayBackRate: unable to set playback rate"
   
   isPlayBackRateSupported: ->
-    promise = LYT.playbackrate.isPlayBackRateSupported()
+    promise = Modernizr.playback.isPlayBackRateSupported()
     promise.pipe (result) ->
       return result  
   isIOS: () ->

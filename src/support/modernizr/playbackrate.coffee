@@ -19,11 +19,14 @@ setTimeout(
   (duration + 1) * 1000
 )
 
-LYT.playbackrate = do ->
-
+Modernizr.playback = do ->
+  #Setting up the deffered once
+  deferred = jQuery.Deferred()
+  loading = null
+  
   isPlayBackRateSupported = ->
-    deferred = jQuery.Deferred()
-
+    return deferred if loading? or deferred.state() is "resolved"
+    loading = true
     try
       started = null
       audio = document.createElement 'audio'
@@ -44,7 +47,8 @@ LYT.playbackrate = do ->
       audio.play()
     catch e
       deferred.reject()
-      
+
+    deferred.always -> loading = false
     deferred.promise()
 
   isPlayBackRateSupported()
