@@ -111,6 +111,7 @@ LYT.player =
         if @time < @nextOffset 
           action = if @playing then 'play' else 'pause'
           @el.jPlayer action, @nextOffset
+          return
         else
           @nextOffset = null 
         
