@@ -86,7 +86,7 @@ LYT.control =
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
-        
+
     $('#instrumentation').find('button.previous').on 'click', ->
       LYT.render.instrumentationGraph()?.previousEntry()
 
@@ -370,12 +370,12 @@ LYT.control =
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
-        
+
         LYT.catalog.attachAutocomplete $('#searchterm')
-        # Selecting the item from the autocompleteselect list....
+        # When hitting enter in dropdown, submit.
+        $("#searchterm").unbind "autocompleteselect"
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
-          handleResults LYT.catalog.search(ui.item.value)
-          $.mobile.changePage "#search?term=#{encodeURIComponent ui.item.value}" , transition: "none"
+          $('#search-form').trigger('submit')
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
@@ -383,7 +383,7 @@ LYT.control =
           $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
           event.stopImmediatePropagation()
-          
+
         $('#searchterm').focus()
       
   settings: (type, match, ui, page, event) ->

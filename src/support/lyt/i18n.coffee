@@ -40,7 +40,7 @@ LYT.i18n = do ->
     'OK':                               'OK'
     'Remove book':                      'Fjern bog'
     'The end of the book':              'Her slutter bogen'
-    'Bookmark location':                'Sæt bogmærke (Genvej: Ctrl+Alt+M)'
+    'Bookmark location':                'Sæt bogmærke (Ctrl+Alt+M)'
     'Unable to bookmark location':      'Kan ikke sætte bogmærke'
     'guest':                            'gæst'
     'New':                              'Ny'
