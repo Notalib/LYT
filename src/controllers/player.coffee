@@ -108,12 +108,12 @@ LYT.player =
 
         #Did we jump in time? if not try again this will fix the iphone bug
         # FIXME: what if the nextOffset is wrong (out of bounce) will it loop?
-        if @time < @nextOffset 
-          action = if @playing then 'play' else 'pause'
-          @el.jPlayer action, @nextOffset
-          return
-        else
-          @nextOffset = null 
+        #if @time < @nextOffset and @nextOffset > 0
+          #action = if @playing then 'play' else 'pause'
+          #@el.jPlayer action, @nextOffset
+          #return
+        #else
+          #@nextOffset = null 
         
         # Schedule fake ending of file if necessary
         @fakeEnd status if LYT.config.player.useFakeEnd
@@ -171,7 +171,6 @@ LYT.player =
       loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
         log.message "Player: loadstart: playAttemptCount: #{@playAttemptCount}, paused: #{@getStatus().paused}"
-        @setPlayBackRate()
         @timeupdateLock = false
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and not @firstPlay
         return if $.jPlayer.platform.android or $.jPlayer.platform.iphone or $.jPlayer.platform.ipad or $.jPlayer.platform.iPod
@@ -194,13 +193,15 @@ LYT.player =
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
+        # IE 9 sets the playbackRate back to 1 when paused is called...
+        if @el.data('jPlayer').htmlElement.audio?.playbackRate? and @playBackRate?
+          @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
 
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
         status = event.jPlayer.status
         LYT.render.setPlayerButtonFocus 'play'
-
         return if status.ended # Drop pause event emitted when media ends
 
       seeked: (event) =>
@@ -263,6 +264,8 @@ LYT.player =
           action = if @playing then 'play' else 'pause'
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
+          @nextOffset = null
+          @setPlayBackRate()
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
@@ -362,6 +365,10 @@ LYT.player =
       @playBackRate = playBackRate
     if @el.data('jPlayer').htmlElement.audio?.playbackRate?
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      #Added for IOS6 
+      if @isPlaying()
+        @el.jPlayer 'pause'
+        @el.jPlayer 'play'
       log.message "Player: setPlayBackRate: #{@playBackRate}"
     else
       log.message "Player: setPlayBackRate: unable to set playback rate"
