@@ -372,7 +372,8 @@ LYT.control =
             handleResults LYT.predefinedSearches[list].callback()
 
         LYT.catalog.attachAutocomplete $('#searchterm')
-        # Selecting the item from the autocompleteselect list....
+        # When hitting enter in dropdown, submit.
+        $("#searchterm").unbind "autocompleteselect"
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
           $('#search-form').trigger('submit')
 
