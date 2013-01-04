@@ -203,6 +203,8 @@ LYT.player =
         return if status.ended # Drop pause event emitted when media ends
 
       seeked: (event) =>
+        # FIXME issue 459 HACK remove spinner no matter what
+        LYT.loader.close 'metadata'
         LYT.instrumentation.record 'seeked', event.jPlayer.status
         @time = event.jPlayer.status.currentTime
         log.message "Player: event seeked to offset #{@time}, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
