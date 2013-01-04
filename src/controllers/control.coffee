@@ -210,6 +210,7 @@ LYT.control =
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
+            LYT.render.setPageTitle details.title
             content.children().show()
   
   # TODO: Move bookmarks list to separate page
@@ -263,7 +264,10 @@ LYT.control =
         $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
+        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.player.book.title
         $('.jp-play').focus()
+
+
   
   bookPlay: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
