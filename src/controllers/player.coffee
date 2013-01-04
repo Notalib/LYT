@@ -18,6 +18,8 @@ LYT.player =
   
   playing: null
   nextOffset: null
+  currentOffset: null
+  timeIntervalHandel:null
 
   timeupdateLock: false
   
@@ -106,14 +108,6 @@ LYT.player =
         status = event.jPlayer.status
         @time = status.currentTime
 
-        #Did we jump in time? if not try again this will fix the iphone bug
-        # FIXME: what if the nextOffset is wrong (out of bounce) will it loop?
-        #if @time < @nextOffset and @nextOffset > 0
-          #action = if @playing then 'play' else 'pause'
-          #@el.jPlayer action, @nextOffset
-          #return
-        #else
-          #@nextOffset = null 
         
         # Schedule fake ending of file if necessary
         @fakeEnd status if LYT.config.player.useFakeEnd
@@ -221,10 +215,11 @@ LYT.player =
         segment.fail -> log.warn "Player: event seeked: unable to get segment at #{event.jPlayer.status.src}, #{event.jPlayer.status.currentTime}"
         segment.done (segment) =>
           @updateHtml segment
+          #if we were playing and the system pause the sound for some reason start play again
           if @getStatus().paused and @playing and @getStatus().readyState > 2
             log.message 'Player: event seeked: starting the player again'
             @el.jPlayer 'play'
-
+          
       loadedmetadata: (event) =>
         #alert event.jPlayer.status.duration
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
@@ -264,13 +259,15 @@ LYT.player =
           action = if @playing then 'play' else 'pause'
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
+          @currentOffset = @nextOffset
           @nextOffset = null
           @setPlayBackRate()
+          @timeIntervalHandel = setInterval @checkCurrentOffset, 500
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
-
+        
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
         switch event.jPlayer.error.type
@@ -356,8 +353,17 @@ LYT.player =
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
-  isPlaying:->
-    !@el.data('jPlayer').status.paused
+
+  checkCurrentOffset: ->
+    status = LYT.player.getStatus()
+
+    if (status.readyState > 2) and status.duration? and (status.currentTime < LYT.player.currentOffset) and (0 <= LYT.player.currentOffset <= status.duration)
+      action = if LYT.player.playing then 'play' else 'pause'
+      LYT.player.el.jPlayer action, LYT.player.currentOffset
+    else
+      LYT.player.currentOffset = null
+      clearInterval LYT.player.timeIntervalHandel
+
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
   setPlayBackRate: (playBackRate) ->
@@ -366,7 +372,7 @@ LYT.player =
     if @el.data('jPlayer').htmlElement.audio?.playbackRate?
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
       #Added for IOS6 
-      if @isPlaying()
+      if not @getStatus().paused
         @el.jPlayer 'pause'
         @el.jPlayer 'play'
       log.message "Player: setPlayBackRate: #{@playBackRate}"

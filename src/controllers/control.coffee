@@ -267,7 +267,7 @@ LYT.control =
   
   bookPlay: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
-      if LYT.player.isPlaying()
+      if not LYT.player.getStatus().paused
         LYT.player.pause()
 
     params = LYT.router.getParams(match[1])
