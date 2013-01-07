@@ -87,6 +87,29 @@ LYT.control =
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
 
+    $("#style-settings input").change (event) ->
+      target = $(event.target)
+      name = target.attr 'name'
+      val = target.val()
+      
+      style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+
+      switch name
+        when 'font-size', 'font-family'
+          style[name] = val
+        when 'marking-color'
+          colors = val.split(';')
+          style['background-color'] = colors[0]
+          style['color'] = colors[1]
+          # TODO: use lower case just like all the other parameters
+        when 'playback-rate'
+          val = Number(val)
+          LYT.settings.set('playBackRate', val)
+          LYT.player.setPlayBackRate val
+                  
+      LYT.settings.set('textStyle', style)
+      LYT.render.setStyle()    
+
     $('#instrumentation').find('button.previous').on 'click', ->
       LYT.render.instrumentationGraph()?.previousEntry()
 
@@ -264,7 +287,7 @@ LYT.control =
         $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
-        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.player.book.title
+        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.playesettings.book.title
         $('.jp-play').focus()
 
 
@@ -423,29 +446,7 @@ LYT.control =
               if Number(val) is LYT.settings.get('playBackRate')
                 $(this).attr("checked", true).checkboxradio("refresh");
 
-        # Saving the GUI       
-        # TODO: The change handler below is being bound once for every time we
-        #       enter this page.
-        $("#style-settings input").change (event) ->
-          target = $(event.target)
-          name = target.attr 'name'
-          val = target.val()
-          
-          switch name
-            when 'font-size', 'font-family'
-              style[name] = val
-            when 'marking-color'
-              colors = val.split(';')
-              style['background-color'] = colors[0]
-              style['color'] = colors[1]
-            # TODO: use lower case just like all the other parameters
-            when 'playback-rate'
-              val = Number(val)
-              LYT.settings.set('playBackRate', val)
-              LYT.player.setPlayBackRate val
-                  
-          LYT.settings.set('textStyle', style)
-          LYT.render.setStyle()
+        
   
   profile: (type, match, ui, page, event) ->
     # Not passing params since it is currently only being used to indicate

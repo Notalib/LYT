@@ -229,8 +229,8 @@ LYT.player =
           if @getStatus().src == @currentAudio
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
-              @el.jPlayer "setMedia", {mp3: @currentAudio}
-              @el.jPlayer "pause", @nextOffset
+              @el.jPlayer 'setMedia', {mp3: @currentAudio}
+              @el.jPlayer 'pause', @nextOffset
               @playAttemptCount = @playAttemptCount + 1 
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
             else
@@ -336,22 +336,22 @@ LYT.player =
 
     if offset?
       @nextOffset = offset
-      @el.jPlayer('pause', offset)
+      @el.jPlayer 'pause', offset
     else
       @nextOffset = null
-      @el.jPlayer('pause')
+      @el.jPlayer 'pause'
   
   # This is a public method - stops playback
   stop: ->
     log.message 'Player: stop'
     if @ready?
-      @el.jPlayer('stop')
+      @el.jPlayer 'stop'
       @playing = false
   
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
-    
+
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
   setPlayBackRate: (playBackRate) ->
@@ -497,8 +497,8 @@ LYT.player =
         log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting nextOffset to #{offset}"
         @currentAudio = segment.audio
         @nextOffset   = offset
-        @el.jPlayer "setMedia", {mp3: segment.audio}
-        @el.jPlayer "load"
+        @el.jPlayer 'setMedia', {mp3: segment.audio}
+        @el.jPlayer 'load'
       else
         if @playing
           log.message "Player: playSegmentOffset: play from offset #{offset}"
