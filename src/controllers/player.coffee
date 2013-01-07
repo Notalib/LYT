@@ -221,11 +221,10 @@ LYT.player =
             @el.jPlayer 'play'
           
       loadedmetadata: (event) =>
-        #alert event.jPlayer.status.duration
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
-        if isNaN event.jPlayer.status.duration or event.jPlayer.status.duration == 0
+        if isNaN(event.jPlayer.status.duration) or event.jPlayer.status.duration == 0
           if @getStatus().src == @currentAudio
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
@@ -237,9 +236,11 @@ LYT.player =
               # Give up: we pretend that we have got the duration
               @gotDuration = true
               @playAttemptCount = 0
+              @el.jPlayer 'pause', @nextOffset
         else
           @gotDuration = true
           @playAttemptCount = 0
+          @el.jPlayer 'pause', @nextOffset
           #LYT.loader.close('metadata')
       
       canplay: (event) =>
