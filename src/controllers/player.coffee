@@ -18,9 +18,7 @@ LYT.player =
   
   playing: null
   nextOffset: null
-  currentOffset: null
-  timeIntervalHandel:null
-
+  
   timeupdateLock: false
   
   fakeEndScheduled: false
@@ -187,7 +185,7 @@ LYT.player =
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
-        # IE 9 sets the playbackRate back to 1 when paused is called...
+        # IE 9 sets the playbackRate back to 1 (normal speed) when playback is paused.
         if @el.data('jPlayer').htmlElement.audio?.playbackRate? and @playBackRate?
           @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
 
@@ -261,10 +259,8 @@ LYT.player =
           action = if @playing then 'play' else 'pause'
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
-          @currentOffset = @nextOffset
           @nextOffset = null
           @setPlayBackRate()
-          @timeIntervalHandel = setInterval @checkCurrentOffset, 500
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
@@ -355,17 +351,7 @@ LYT.player =
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
-
-  checkCurrentOffset: ->
-    status = LYT.player.getStatus()
-
-    if (status.readyState > 2) and status.duration? and (status.currentTime < LYT.player.currentOffset) and (0 <= LYT.player.currentOffset <= status.duration)
-      action = if LYT.player.playing then 'play' else 'pause'
-      LYT.player.el.jPlayer action, LYT.player.currentOffset
-    else
-      LYT.player.currentOffset = null
-      clearInterval LYT.player.timeIntervalHandel
-
+    
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
   setPlayBackRate: (playBackRate) ->
@@ -373,7 +359,9 @@ LYT.player =
       @playBackRate = playBackRate
     if @el.data('jPlayer').htmlElement.audio?.playbackRate?
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-      #Added for IOS6 
+      #Added for IOS6 - iphone will not change the playBackRate unless you pause
+      #the playback, after setting the playbackRate. And then we can obtain the new
+      #playbackRate and continue 
       if not @getStatus().paused
         @el.jPlayer 'pause'
         @el.jPlayer 'play'
