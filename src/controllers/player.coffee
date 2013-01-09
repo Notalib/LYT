@@ -229,18 +229,15 @@ LYT.player =
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer 'setMedia', {mp3: @currentAudio}
-              @el.jPlayer 'pause', @nextOffset
               @playAttemptCount = @playAttemptCount + 1 
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
             else
               # Give up: we pretend that we have got the duration
               @gotDuration = true
               @playAttemptCount = 0
-              @el.jPlayer 'pause', @nextOffset
         else
           @gotDuration = true
           @playAttemptCount = 0
-          @el.jPlayer 'pause', @nextOffset
           #LYT.loader.close('metadata')
       
       canplay: (event) =>
