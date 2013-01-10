@@ -18,6 +18,7 @@ LYT.player =
   
   playing: null
   nextOffset: null
+  currentOffset: null
   
   timeupdateLock: false
   
@@ -179,16 +180,23 @@ LYT.player =
           @nextSegment(true).always => @timeupdateLock = false
         else
           @timeupdateLock = false
+
+      playing: (event) =>
+        status = LYT.player.getStatus()
+
+        if (status.readyState > 2) and status.duration? and (status.currentTime < @currentOffset) and (0 <= @currentOffset <= status.duration)
+          @el.jPlayer 'pause'
+          action = if @playing then 'play' else 'pause'
+          @el.jPlayer action, @nextOffset
+        else
+          LYT.player.currentOffset = null
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
-        # IE 9 sets the playbackRate back to 1 (normal speed) when playback is paused.
-        if @el.data('jPlayer').htmlElement.audio?.playbackRate? and @playBackRate?
-          @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-
+        
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
@@ -215,7 +223,7 @@ LYT.player =
         segment.fail -> log.warn "Player: event seeked: unable to get segment at #{event.jPlayer.status.src}, #{event.jPlayer.status.currentTime}"
         segment.done (segment) =>
           @updateHtml segment
-          #if we were playing and the system pause the sound for some reason start play again
+          #if we were playing and the system pause the sound for some reason  -  start play again
           if @getStatus().paused and @playing and @getStatus().readyState > 2
             log.message 'Player: event seeked: starting the player again'
             @el.jPlayer 'play'
@@ -229,7 +237,7 @@ LYT.player =
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer 'setMedia', {mp3: @currentAudio}
-              @playAttemptCount = @playAttemptCount + 1 
+              @playAttemptCount = @playAttemptCount + 1
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
             else
               # Give up: we pretend that we have got the duration
@@ -257,6 +265,7 @@ LYT.player =
           action = if @playing then 'play' else 'pause'
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
+          @currentOffset = @nextOffset
           @nextOffset = null
           @setPlayBackRate()
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
@@ -357,12 +366,17 @@ LYT.player =
       @playBackRate = playBackRate
     if @el.data('jPlayer').htmlElement.audio?.playbackRate?
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+
+    if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
+      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate  = @playBackRate
       #Added for IOS6 - iphone will not change the playBackRate unless you pause
       #the playback, after setting the playbackRate. And then we can obtain the new
-      #playbackRate and continue 
+      #playbackRate and continue
+      # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
       if not @getStatus().paused
         @el.jPlayer 'pause'
         @el.jPlayer 'play'
+
       log.message "Player: setPlayBackRate: #{@playBackRate}"
     else
       log.message "Player: setPlayBackRate: unable to set playback rate"
@@ -383,7 +397,6 @@ LYT.player =
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
-    
     if not segment?
       log.error "Player: updateHtml called with no segment"
       return
