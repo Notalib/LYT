@@ -183,13 +183,9 @@ LYT.player =
 
       playing: (event) =>
         status = LYT.player.getStatus()
-
         if (status.readyState > 2) and status.duration? and (status.currentTime < @currentOffset) and (0 <= @currentOffset <= status.duration)
-          @el.jPlayer 'pause'
           action = if @playing then 'play' else 'pause'
-          @el.jPlayer action, @nextOffset
-        else
-          LYT.player.currentOffset = null
+          @el.jPlayer action, @currentOffset
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
