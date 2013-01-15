@@ -19,8 +19,7 @@ LYT.player =
   playing: null
   nextOffset: null
   currentOffset: null
-  timeIntervalHandel:null
-
+  
   timeupdateLock: false
   
   fakeEndScheduled: false
@@ -181,16 +180,19 @@ LYT.player =
           @nextSegment(true).always => @timeupdateLock = false
         else
           @timeupdateLock = false
+
+      playing: (event) =>
+        status = LYT.player.getStatus()
+        if (status.readyState > 2) and status.duration? and (status.currentTime < @currentOffset) and (0 <= @currentOffset <= status.duration)
+          action = if @playing then 'play' else 'pause'
+          @el.jPlayer action, @currentOffset
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
         log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         # Help JAWS users, move focus back
         LYT.render.setPlayerButtonFocus 'pause'
-        # IE 9 sets the playbackRate back to 1 when paused is called...
-        if @el.data('jPlayer').htmlElement.audio?.playbackRate? and @playBackRate?
-          @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-
+        
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
@@ -217,23 +219,21 @@ LYT.player =
         segment.fail -> log.warn "Player: event seeked: unable to get segment at #{event.jPlayer.status.src}, #{event.jPlayer.status.currentTime}"
         segment.done (segment) =>
           @updateHtml segment
-          #if we were playing and the system pause the sound for some reason start play again
+          #if we were playing and the system pause the sound for some reason  -  start play again
           if @getStatus().paused and @playing and @getStatus().readyState > 2
             log.message 'Player: event seeked: starting the player again'
             @el.jPlayer 'play'
           
       loadedmetadata: (event) =>
-        #alert event.jPlayer.status.duration
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
-        if isNaN event.jPlayer.status.duration or event.jPlayer.status.duration == 0
+        if isNaN(event.jPlayer.status.duration) or event.jPlayer.status.duration == 0
           if @getStatus().src == @currentAudio
             @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
-              @el.jPlayer "setMedia", {mp3: @currentAudio}
-              @el.jPlayer "pause", @nextOffset
-              @playAttemptCount = @playAttemptCount + 1 
+              @el.jPlayer 'setMedia', {mp3: @currentAudio}
+              @playAttemptCount = @playAttemptCount + 1
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
             else
               # Give up: we pretend that we have got the duration
@@ -264,7 +264,6 @@ LYT.player =
           @currentOffset = @nextOffset
           @nextOffset = null
           @setPlayBackRate()
-          @timeIntervalHandel = setInterval @checkCurrentOffset, 500
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
@@ -340,31 +339,21 @@ LYT.player =
 
     if offset?
       @nextOffset = offset
-      @el.jPlayer('pause', offset)
+      @el.jPlayer 'pause', offset
     else
       @nextOffset = null
-      @el.jPlayer('pause')
+      @el.jPlayer 'pause'
   
   # This is a public method - stops playback
   stop: ->
     log.message 'Player: stop'
     if @ready?
-      @el.jPlayer('stop')
+      @el.jPlayer 'stop'
       @playing = false
   
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
-
-  checkCurrentOffset: ->
-    status = LYT.player.getStatus()
-
-    if (status.readyState > 2) and status.duration? and (status.currentTime < LYT.player.currentOffset) and (0 <= LYT.player.currentOffset <= status.duration)
-      action = if LYT.player.playing then 'play' else 'pause'
-      LYT.player.el.jPlayer action, LYT.player.currentOffset
-    else
-      LYT.player.currentOffset = null
-      clearInterval LYT.player.timeIntervalHandel
 
   # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
   #       If it isn't available, there is no reason to try using it.
@@ -373,10 +362,17 @@ LYT.player =
       @playBackRate = playBackRate
     if @el.data('jPlayer').htmlElement.audio?.playbackRate?
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-      #Added for IOS6 
+
+    if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
+      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate  = @playBackRate
+      #Added for IOS6 - iphone will not change the playBackRate unless you pause
+      #the playback, after setting the playbackRate. And then we can obtain the new
+      #playbackRate and continue
+      # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
       if not @getStatus().paused
         @el.jPlayer 'pause'
         @el.jPlayer 'play'
+
       log.message "Player: setPlayBackRate: #{@playBackRate}"
     else
       log.message "Player: setPlayBackRate: unable to set playback rate"
@@ -397,7 +393,6 @@ LYT.player =
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
-    
     if not segment?
       log.error "Player: updateHtml called with no segment"
       return
@@ -509,8 +504,8 @@ LYT.player =
         log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting nextOffset to #{offset}"
         @currentAudio = segment.audio
         @nextOffset   = offset
-        @el.jPlayer "setMedia", {mp3: segment.audio}
-        @el.jPlayer "load"
+        @el.jPlayer 'setMedia', {mp3: segment.audio}
+        @el.jPlayer 'load'
       else
         if @playing
           log.message "Player: playSegmentOffset: play from offset #{offset}"
