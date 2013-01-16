@@ -267,12 +267,9 @@ LYT.render = do ->
       return true if String(playing.section) is String(sectionId)
       return false
     
-    #h1 = view.parent().find "header"
-    #h1.find("h1").remove()
     $("#index-back-button").removeAttr "nodeid"
 
     if root?.title?
-      #h1.append """<h1 class="ui-title" role="heading">#{root.title}</h1>"""
       $("#index-back-button").attr "nodeid","#{root.parent}"
 
     view.children().remove()
@@ -407,6 +404,8 @@ LYT.render = do ->
     header = $(page).children( ":jqmData(role=header)" ).find("h1")
     header.text LYT.i18n text
 
+  setPageTitle: (title) -> 
+    $("head").find("title").text  title + " | " + LYT.i18n("Sitename")
 
   showDidYouMean: (results, view) ->
     list = view.find "ul"
