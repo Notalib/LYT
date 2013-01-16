@@ -79,7 +79,6 @@ do ->
       audio:       src: audio.attr "src"
     
     clips = jQuery.makeArray clips
-    clips.sort (a, b) -> a.start - b.start
 
     return [] if clips.length == 0
 
