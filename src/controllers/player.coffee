@@ -199,25 +199,38 @@ LYT.player =
           @nextSegment(true).always => @timeupdateLock = false
         else
           @timeupdateLock = false
-
-#      playing: (event) =>
-#        LYT.instrumentation.record 'playing', event.jPlayer.status
-#        log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
-#        status = LYT.player.getStatus()
-#        if (status.readyState > 2) and status.duration? and (status.currentTime < @currentOffset) and (0 <= @currentOffset <= status.duration)
-#          action = if @playing then 'play' else 'pause'
-#          @el.jPlayer action, @currentOffset
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
-        log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
-        # Help JAWS users, move focus back
+        status = event.jPlayer.status
+        log.message "Player: event play, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
+        if @nextOffset?
+          # IOS will some times omit seeking (both the actual seek and the
+          # following seeked event are missing) and just start playing from
+          # the start of the stream. We detect this here and do another seek
+          # if it is the case.
+          if -0.5 < status.currentTime - @nextOffset < 0.5
+            # This event handler consumes @nextOffset
+            @nextOffset = null
+          else
+            log.warn "Player: event play: retry seek, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
+            # Stop playback to ensure that another play event is emitted
+            # to check that the player doesn't skip the next seek as well.
+            @el.jPlayer 'pause'
+            # Not using a delay here seems to create infinite play/pause loops
+            # because the player doesn't get time for the seek.
+            # (This is probably a hint wrt a better way of working around this
+            # bug in IOS.)
+            setTimeout(
+              => @el.jPlayer 'play', @nextOffset
+              500
+            )
+            return
         LYT.render.setPlayerButtonFocus 'pause'
         
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
-        status = event.jPlayer.status
         LYT.render.setPlayerButtonFocus 'play'
 
       seeked: (event) =>
@@ -284,7 +297,6 @@ LYT.player =
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
           @currentOffset = @nextOffset
-          @nextOffset = null
           @setPlayBackRate()
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
