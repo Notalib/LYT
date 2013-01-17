@@ -312,18 +312,19 @@ LYT.render = do ->
   bookmarks: (book, view) ->  
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ul data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ul>').hide()
+    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ol>').hide()
     view.append list
     list.attr "data-title", book.title
     list.attr "data-author", book.author
     list.attr "data-totalTime", book.totalTime
-    list.attr "id", "NccRootElement"
+    #list.attr "id", "NccRootElement"
     
     generateMoreItem = (bookmark, index) ->
       more = $('<a class="subsection" href="#">Mere</a>')
       more.on 'click', ->
         listItem = more.parents 'li'
         list.find('.bookmark-actions').remove()
+        list.find('.bookmark-indents').remove()
         list.find('.active').removeClass('active')
         listItem.addClass 'active'
         share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
@@ -340,7 +341,7 @@ LYT.render = do ->
           book.bookmarks.splice index, 1
           book.saveBookmarks()
           LYT.render.bookmarks book, view
-        actionsItem = $('<li class="bookmark-actions"><div class="ui-grid-a"></div></li>')
+        actionsItem = $('<ul class="bookmark-indents"><li class="bookmark-actions"><div class="ui-grid-a"></div></li></ul>')
         actionsItem.find('div').append(share, remove)
         listItem.after actionsItem
         list.listview('refresh')

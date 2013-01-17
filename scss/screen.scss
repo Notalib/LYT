@@ -293,6 +293,20 @@ img.e17-logo {
         
     }
   }
+
+  ol {
+    li {     
+      border-bottom: 1px solid #888888;
+      background-color: #ebebeb;
+      
+      &:hover {
+        background-color: #ebebeb;  
+      }
+      &.ui-btn-down-a {
+        background-color: #8cbbe2;
+      }
+    }
+  }
 }
 
 #more-bookshelf-entries {
@@ -1436,8 +1450,10 @@ $bubble-arrow-height: 10px;
 
 .bookmark-actions {
     background-color: #282828 !important;
-    height: 22px !important;
+    height: 20px !important;
     color: white !important;
+    padding: 0.7em;
+    border-top: 0px !important;
      
     .bookmark-share {
         background-image: url(../images/icons/share_icn_18_white.png);
@@ -1452,6 +1468,12 @@ $bubble-arrow-height: 10px;
         background-repeat:no-repeat;
         background-position:center;
     }
+}
+
+.bookmark-indents {
+  list-style-type: none;
+  padding: 0;
+  border-top: 0;
 }
 
 html {
