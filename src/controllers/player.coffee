@@ -225,7 +225,15 @@ LYT.player =
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
-        if isNaN(event.jPlayer.status.duration) or event.jPlayer.status.duration == 0
+        # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
+        # file until we get a valid duration.
+        # At this point we get the following sporadic errors
+        # IOS 5: duration is not a number
+        # IOS 6: duration is set to zero on non-zero length audio streams
+        # Caveat emptor: for this reason, the player will wrongly assume that
+        # there is an error if the player is ever asked to play a zero length
+        # audio stream.
+        if event.jPlayer.status.duration == 0 or isNaN event.jPlayer.status.duration
           if @getStatus().src == @currentAudio
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer 'setMedia', {mp3: @currentAudio}
