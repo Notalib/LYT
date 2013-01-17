@@ -153,6 +153,12 @@ img.e17-logo {
       font-family: "Arial"; 
     }
   }
+  /* The blue button problem (#431): override lyt.css.ui-btn-active, TODO better to modify theme roller? */
+  .ui-btn-active {
+    background-image: -webkit-linear-gradient( #5D5B5B /*{b-bup-background-start}*/, #434141 /*{b-bup-background-end}*/);
+    color: white /*{b-bup-color}*/;
+    border: 1px solid black /*{b-bup-border}*/;
+  }
   .ui-btn-right {
     right: 10px !important;
   }

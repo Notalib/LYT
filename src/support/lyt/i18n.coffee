@@ -40,7 +40,7 @@ LYT.i18n = do ->
     'OK':                               'OK'
     'Remove book':                      'Fjern bog'
     'The end of the book':              'Her slutter bogen'
-    'Bookmark location':                'Sæt bogmærke (Genvej: Ctrl+Alt+M)'
+    'Bookmark location':                'Sæt bogmærke (Ctrl+Alt+M)'
     'Unable to bookmark location':      'Kan ikke sætte bogmærke'
     'guest':                            'gæst'
     'New':                              'Ny'
@@ -51,7 +51,9 @@ LYT.i18n = do ->
     'by clicking this link':            'ved at følge dette link'
     'Comics':                           'Tegneserier'
     'Platform not supported':           'Platform ikke understøttet'
-    'Search':                           'Søgning'        
+    'Search':                           'Søgning'
+    'Sitename':                         'E17 Direkte'
+    'Now playing':                      'Afspiller'
   
   # The i18n function. Returns either the translated string, or - if no
   # translation was found - the input string.

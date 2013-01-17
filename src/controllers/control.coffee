@@ -38,7 +38,6 @@ LYT.control =
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
     @setupEventHandlers()
 
-  
   setupEventHandlers: ->
     $(document).one 'pageinit', ->
       goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
@@ -86,7 +85,30 @@ LYT.control =
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
-        
+
+    $("#style-settings input").change (event) ->
+      target = $(event.target)
+      name = target.attr 'name'
+      val = target.val()
+      
+      style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+
+      switch name
+        when 'font-size', 'font-family'
+          style[name] = val
+        when 'marking-color'
+          colors = val.split(';')
+          style['background-color'] = colors[0]
+          style['color'] = colors[1]
+          # TODO: use lower case just like all the other parameters
+        when 'playback-rate'
+          val = Number(val)
+          LYT.settings.set('playBackRate', val)
+          LYT.player.setPlayBackRate val
+                  
+      LYT.settings.set('textStyle', style)
+      LYT.render.setStyle()    
+
     $('#instrumentation').find('button.previous').on 'click', ->
       LYT.render.instrumentationGraph()?.previousEntry()
 
@@ -210,6 +232,7 @@ LYT.control =
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
             LYT.render.bookDetails(details, content)
+            LYT.render.setPageTitle details.title
             content.children().show()
   
   # TODO: Move bookmarks list to separate page
@@ -263,11 +286,12 @@ LYT.control =
         $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
+        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.playesettings.book.title
         $('.jp-play').focus()
-  
+
   bookPlay: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
-      if LYT.player.isPlaying()
+      if not LYT.player.getStatus().paused
         LYT.player.pause()
 
     params = LYT.router.getParams(match[1])
@@ -370,12 +394,12 @@ LYT.control =
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title 
             handleResults LYT.predefinedSearches[list].callback()
-        
+
         LYT.catalog.attachAutocomplete $('#searchterm')
-        # Selecting the item from the autocompleteselect list....
+        # When hitting enter in dropdown, submit.
+        $("#searchterm").unbind "autocompleteselect"
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
-          handleResults LYT.catalog.search(ui.item.value)
-          $.mobile.changePage "#search?term=#{encodeURIComponent ui.item.value}" , transition: "none"
+          $('#search-form').trigger('submit')
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
@@ -383,7 +407,7 @@ LYT.control =
           $.mobile.changePage "#search?term=#{term}", transition: "none"
           event.preventDefault()
           event.stopImmediatePropagation()
-          
+
         $('#searchterm').focus()
       
   settings: (type, match, ui, page, event) ->
@@ -392,8 +416,12 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        if not LYT.player.isPlayBackRateSupported()
-          LYT.render.hideplayBackRate()
+        promise = LYT.player.isPlayBackRateSupported()
+        promise.done (result) ->
+          if not result 
+            LYT.render.hideplayBackRate()
+        promise.fail () ->
+           LYT.render.hideplayBackRate()   
   
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
@@ -415,29 +443,7 @@ LYT.control =
               if Number(val) is LYT.settings.get('playBackRate')
                 $(this).attr("checked", true).checkboxradio("refresh");
 
-        # Saving the GUI       
-        # TODO: The change handler below is being bound once for every time we
-        #       enter this page.
-        $("#style-settings input").change (event) ->
-          target = $(event.target)
-          name = target.attr 'name'
-          val = target.val()
-          
-          switch name
-            when 'font-size', 'font-family'
-              style[name] = val
-            when 'marking-color'
-              colors = val.split(';')
-              style['background-color'] = colors[0]
-              style['color'] = colors[1]
-            # TODO: use lower case just like all the other parameters
-            when 'playback-rate'
-              val = Number(val)
-              LYT.settings.set('playBackRate', val)
-              LYT.player.setPlayBackRate val
-                  
-          LYT.settings.set('textStyle', style)
-          LYT.render.setStyle()
+        
   
   profile: (type, match, ui, page, event) ->
     # Not passing params since it is currently only being used to indicate
