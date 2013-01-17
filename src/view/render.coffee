@@ -532,6 +532,14 @@ LYT.render = do ->
         
       previousEntry: ->
         @highlight @currentEntry.previous if @currentEntry.previous
+        
+      firstEntry: ->
+        @currentEntry = @currentEntry.previous while @currentEntry.previous?
+        @highlight @currentEntry
+
+      lastEntry: ->
+        @currentEntry = @currentEntry.next while @currentEntry.next?
+        @highlight @currentEntry
       
       # Highlight an entry
       # Input: delta timestamp (as Number or String) or an entry

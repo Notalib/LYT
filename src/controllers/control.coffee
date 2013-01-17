@@ -109,6 +109,12 @@ LYT.control =
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()    
 
+    $('#instrumentation').find('button.first').on 'click', ->
+      LYT.render.instrumentationGraph()?.firstEntry()
+
+    $('#instrumentation').find('button.last').on 'click', ->
+      LYT.render.instrumentationGraph()?.lastEntry()
+
     $('#instrumentation').find('button.previous').on 'click', ->
       LYT.render.instrumentationGraph()?.previousEntry()
 
@@ -141,6 +147,12 @@ LYT.control =
 
     Mousetrap.bind 'alt+ctrl+m', ->
       $("#bookmark-add-button").click()
+      
+    $('.open-log-console').on 'click', ->
+        log.receiver = 'devconsole'
+        log.level = 3
+        log.message 'Opened developer console'
+      
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()

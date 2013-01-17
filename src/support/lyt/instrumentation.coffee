@@ -41,8 +41,8 @@ iterateArrays = (callback) ->
     currentValues.delta = event.delta
     currentValues.label = event.label
     for key in keys
-      if value = event.changed[key]
-        currentValues[key] = value
+      if event.changed[key]?
+        currentValues[key] = event.changed[key]
     callback (currentValues[key] for key in keys)
   return
 
