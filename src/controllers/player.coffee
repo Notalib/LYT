@@ -105,7 +105,6 @@ LYT.player =
         LYT.instrumentation.record 'timeupdate', event.jPlayer.status
         status = event.jPlayer.status
         @time = status.currentTime
-
         
         # Schedule fake ending of file if necessary
         @fakeEnd status if LYT.config.player.useFakeEnd
@@ -197,10 +196,9 @@ LYT.player =
         log.message "Player: event pause"
         status = event.jPlayer.status
         LYT.render.setPlayerButtonFocus 'play'
-        return if status.ended # Drop pause event emitted when media ends
 
       seeked: (event) =>
-        # FIXME issue 459 HACK remove spinner no matter what
+        # FIXME: issue #459 HACK remove spinner no matter what
         LYT.loader.close 'metadata'
         LYT.instrumentation.record 'seeked', event.jPlayer.status
         @time = event.jPlayer.status.currentTime
@@ -217,7 +215,7 @@ LYT.player =
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.warn "Player: event seeked: unable to get segment at #{event.jPlayer.status.src}, #{event.jPlayer.status.currentTime}"
         segment.done (segment) =>
-          @updateHtml segment
+          @updateHtml segment if segment?
           #if we were playing and the system pause the sound for some reason  -  start play again
           if @getStatus().paused and @playing and @getStatus().readyState > 2
             log.message 'Player: event seeked: starting the player again'
@@ -238,7 +236,6 @@ LYT.player =
               @playAttemptCount = 0
         else
           @playAttemptCount = 0
-          #LYT.loader.close('metadata')
       
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
@@ -261,7 +258,7 @@ LYT.player =
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
-        
+      
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
         switch event.jPlayer.error.type
@@ -479,6 +476,7 @@ LYT.player =
         if offset > segment.end
           log.warn "Player: playSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
           offset = segment.end - 1
+          offset = segment.start if offset < segment.start
         else if offset < segment.start
           log.warn "Player: playSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
           offset = segment.start
@@ -490,7 +488,7 @@ LYT.player =
       
       # If play is set to true or false, set playing accordingly
       @playing = play if play?
-      
+
       # See if we need to initiate loading of a new audio file or if it is
       # possible to just move the play head.
       if @currentAudio != segment.audio
