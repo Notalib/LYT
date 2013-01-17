@@ -30,7 +30,6 @@ LYT.player =
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
   
   playAttemptCount: 0
-  gotDuration: null
   playBackRate: LYT.settings.get('playBackRate') or 1
   
   lastBookmark: (new Date).getTime()
@@ -230,26 +229,20 @@ LYT.player =
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
         if isNaN(event.jPlayer.status.duration) or event.jPlayer.status.duration == 0
           if @getStatus().src == @currentAudio
-            @gotDuration = false
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer 'setMedia', {mp3: @currentAudio}
               @playAttemptCount = @playAttemptCount + 1
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
             else
               # Give up: we pretend that we have got the duration
-              @gotDuration = true
               @playAttemptCount = 0
         else
-          @gotDuration = true
           @playAttemptCount = 0
           #LYT.loader.close('metadata')
       
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
         log.message "Player: event canplay: paused: #{@getStatus().paused}"
-        if @gotDuration
-          # Reset gotDuration so it is cleared for the next file
-          @gotDuration = false
 
       canplaythrough: (event) =>
         LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
