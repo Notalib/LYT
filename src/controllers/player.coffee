@@ -141,44 +141,51 @@ LYT.player =
         @updateLastMark()
 
         # Move one segment forward if no current segment or no longer in the
-        # interval of the current segment
+        # interval of the current segment and within two seconds past end of
+        # current segment (otherwise we are seeking ahead).
         segment = @segment()
-        if not segment?
-          log.error 'Player: timeupdate: no current segment'
-#          promise = @playlist().segmentByAudioOffset status.src, @time
-#          @_next = promise
-#          promise.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
-#          promise.done (next) =>
-#            if next
-#              log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
-#              @updateHtml next
-#            else
-#              log.errorGroup "Player: timeupdate event: Unable to load any segment: #{error}.", next
-          return
-        if status.src != segment.audio or segment.end < @time
-          log.message "Player: timeupdate: queue for offset #{@time}"
-          @timeupdateLock = true
-          log.message "Player: timeupdate: current segment: [#{segment.start}, #{segment.end}], no segment at #{@time}, skipping to next segment."
-          promise = @playlist().nextSegment segment
-          promise.done (next) =>
-            if next?
-              if next.audio is @currentAudio and next.start - 0.1 < @time < next.end + 0.1
-                @playlist.currentSegment = next
-                @updateHtml next
-                @timeupdateLock = false
-              else
-                @seekedLoadSegmentLock = true
-                # This stops playback and should ensure that we won't skip more
-                # than one segment ahead if another timeupdate event is fired,
-                # since all timeupdate events with status paused are dropped.
-                @el.jPlayer 'pause'
-                promise = @playSegment next, true
-                promise.done =>
-                  @seekedLoadSegmentLock = false
+        if segment? and status.src == segment.audio and segment.start < @time + 0.1 < segment.end + 2
+          if segment.end < @time
+            # This block uses the current segment for synchronization.
+            log.message "Player: timeupdate: queue for offset #{@time}"
+            @timeupdateLock = true
+            log.message "Player: timeupdate: current segment: [#{segment.start}, #{segment.end}], no segment at #{@time}, skipping to next segment."
+            promise = @playlist().nextSegment segment
+            @_next = promise
+            promise.done (next) =>
+              if next?
+                if next.audio is @currentAudio and next.start - 0.1 < @time < next.end + 0.1
+                  @playlist.currentSegment = next
                   @updateHtml next
-                promise.always => @timeupdateLock = false
+                  @timeupdateLock = false
+                else
+                  @seekedLoadSegmentLock = true
+                  # This stops playback and should ensure that we won't skip more
+                  # than one segment ahead if another timeupdate event is fired,
+                  # since all timeupdate events with status paused are dropped.
+                  @el.jPlayer 'pause'
+                  promise = @playSegment next, true
+                  promise.done =>
+                    @seekedLoadSegmentLock = false
+                    @updateHtml next
+                  promise.always => @timeupdateLock = false
+              else
+                log.error 'Player: timeupdate: no next segment'
+            # else: nothing to do: segment and audio are in sync as they should
+        else
+          # This block uses the current offset in the audio stream for
+          # synchronization - a strategy that fails if there is no segment for
+          # the current offset.
+          log.message "Player: timeupdate: segment and sound out of sync. Fetching segment for #{status.src}, offset #{@time}"
+          promise = @playlist().segmentByAudioOffset status.src, @time
+          @_next = promise
+          promise.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
+          promise.done (next) =>
+            if next
+              log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
+              @updateHtml next
             else
-              log.error 'Player: timeupdate: no next segment'
+              log.errorGroup "Player: timeupdate event: Unable to load any segment: #{error}.", next
 
       loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
