@@ -444,7 +444,7 @@ LYT.player =
       log.error "Player: updateHtml called with unresolved segment"
       return
 
-    log.group "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}", segment
+    log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
     @renderTranscript segment
     segment.preloadNext()
   
