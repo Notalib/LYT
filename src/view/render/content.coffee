@@ -142,7 +142,7 @@ LYT.render.content = do ->
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
 
     contentContainerId = (segment) -> "content-#{segment.contentUrl}--#{segment.contentId}"
-    missingContainerId = (segment) -> "missing-content-#{segment.contentUrl}--#{segment.contentId}"
+    missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
     
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
@@ -167,9 +167,11 @@ LYT.render.content = do ->
             image.click -> image.toggleClass('zoom')
             
           segment.element = element
-          
+        
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
+      else if missingContainer = $(document.getElementById missingContainerId(segment))
+        missingContainer.remove()
 
       segment = segment.next
 
