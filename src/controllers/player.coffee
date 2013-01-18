@@ -266,7 +266,7 @@ LYT.player =
         # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
         # file until we get a valid duration.
         # At this point we get the following sporadic errors
-        # IOS 5: duration is not a number
+        # IOS 5: duration is not a number.
         # IOS 6: duration is set to zero on non-zero length audio streams
         # Caveat emptor: for this reason, the player will wrongly assume that
         # there is an error if the player is ever asked to play a zero length
