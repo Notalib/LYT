@@ -422,18 +422,14 @@ LYT.control =
 
         $('#searchterm').focus()
       
-  settings: (type, match, ui, page, event) ->
+  settings: (type, match, ui, page, event) ->    
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        promise = LYT.player.isPlayBackRateSupported()
-        promise.done (result) ->
-          if not result 
-            LYT.render.hideplayBackRate()
-        promise.fail () ->
-           LYT.render.hideplayBackRate()   
+        if Modernizr.playbackrate is true
+          LYT.render.showplayBackRate()  
   
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})

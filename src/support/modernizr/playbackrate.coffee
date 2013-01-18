@@ -19,37 +19,22 @@ setTimeout(
   (duration + 1) * 1000
 )
 
-LYT.playbackrate = do ->
-
-  isPlayBackRateSupported = ->
-    deferred = jQuery.Deferred()
-
-    try
-      started = null
-      audio = document.createElement 'audio'
-      audio.addEventListener 'timeupdate', ->
-        delta = (new Date() - started) / 1000
-        return if delta < duration
-        return if audio.paused # Guard against more events
-        audio.pause()
-        Modernizr.addTest 'playbackrate', not isNaN audio.currentTime and (rate - margin) < audio.currentTime / delta < (rate + margin)
-        deferred.resolve Modernizr.playbackrate
+try
+  started = null
+  audio = document.createElement 'audio'
+  audio.addEventListener 'timeupdate', ->
+    delta = (new Date() - started) / 1000
+    return if delta < duration
+    return if audio.paused # Guard against more events
+    audio.pause()
+    Modernizr.addTest 'playbackrate', not isNaN audio.currentTime and (rate - margin) < audio.currentTime / delta < (rate + margin)
   
-      source = document.createElement 'source'
-      source.setAttribute 'type', 'audio/mpeg'
-      source.setAttribute 'src', 'audio/silence.mp3'
-      audio.appendChild source
-      audio.playbackRate = rate
-      audio.volume = 0
-      audio.play()
-    catch e
-      deferred.reject()
-      
-    deferred.promise()
-
-  isPlayBackRateSupported()
-
-
-   # ## Public API
-  isPlayBackRateSupported:        isPlayBackRateSupported
-  
+  source = document.createElement 'source'
+  source.setAttribute 'type', 'audio/mpeg'
+  source.setAttribute 'src', 'audio/silence.mp3'
+  audio.appendChild source
+  audio.playbackRate = rate
+  audio.volume = 0
+  audio.play()
+catch e
+  # NOP
