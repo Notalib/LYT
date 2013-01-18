@@ -141,8 +141,8 @@ LYT.render.content = do ->
     
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
 
-    segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
-    missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
+    contentContainerId = (segment) -> "content-#{segment.contentUrl}--#{segment.contentId}"
+    missingContainerId = (segment) -> "missing-content-#{segment.contentUrl}--#{segment.contentId}"
     
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
@@ -155,11 +155,11 @@ LYT.render.content = do ->
     segment = currentSegment
     while segment and segment.state() is "resolved"
       # Using getElementById in this loop for performance reasons
-      element = $(document.getElementById segmentContainerId segment)
+      element = $(document.getElementById contentContainerId segment)
       if element.length == 0
         unless element = segment.element
           element = $(document.createElement('div'))
-          element.attr 'id', segmentContainerId segment
+          element.attr 'id', contentContainerId segment
           element.attr 'class', 'segmentContainer'
           element.html segment.html
           element.find('img').each ->
