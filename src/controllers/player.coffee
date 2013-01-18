@@ -445,18 +445,9 @@ LYT.player =
       return
 
     log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
-    @renderTranscript segment
+    LYT.render.textContent segment
     segment.preloadNext()
-  
-  # TODO: Factor out this method and replace it by calls to updateHtml
-  renderTranscript: (segment) ->
-    if segment?
-      segment.done (segment) -> LYT.render.textContent segment
-    else
-      # If there's no media, show nothing
-      LYT.render.textContent null
-  
-  
+    
   whenReady: (callback) ->
     if @ready
       callback()
