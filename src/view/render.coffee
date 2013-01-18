@@ -187,6 +187,10 @@ LYT.render = do ->
   hideplayBackRate: () ->
     $("#playback-rate").hide()
 
+  showplayBackRate: () ->
+    $("#playback-rate div").removeClass('ui-disabled');
+    $("#playback-rate :input").removeAttr('disabled');
+
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
       $("#book-unavailable-message").show()

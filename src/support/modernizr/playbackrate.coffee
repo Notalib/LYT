@@ -19,41 +19,22 @@ setTimeout(
   (duration + 1) * 1000
 )
 
-Modernizr.playback = do ->
-  #Setting up the deffered once
-  deferred = jQuery.Deferred()
-  loading = null
+try
+  started = null
+  audio = document.createElement 'audio'
+  audio.addEventListener 'timeupdate', ->
+    delta = (new Date() - started) / 1000
+    return if delta < duration
+    return if audio.paused # Guard against more events
+    audio.pause()
+    Modernizr.addTest 'playbackrate', not isNaN audio.currentTime and (rate - margin) < audio.currentTime / delta < (rate + margin)
   
-  isPlayBackRateSupported = ->
-    return deferred if loading? or deferred.state() is "resolved"
-    loading = true
-    try
-      started = null
-      audio = document.createElement 'audio'
-      audio.addEventListener 'timeupdate', ->
-        delta = (new Date() - started) / 1000
-        return if delta < duration
-        return if audio.paused # Guard against more events
-        audio.pause()
-        Modernizr.addTest 'playbackrate', not isNaN audio.currentTime and (rate - margin) < audio.currentTime / delta < (rate + margin)
-        deferred.resolve Modernizr.playbackrate
-  
-      source = document.createElement 'source'
-      source.setAttribute 'type', 'audio/mpeg'
-      source.setAttribute 'src', 'audio/silence.mp3'
-      audio.appendChild source
-      audio.playbackRate = rate
-      audio.volume = 0
-      audio.play()
-    catch e
-      deferred.reject()
-
-    deferred.always -> loading = false
-    deferred.promise()
-
-  isPlayBackRateSupported()
-
-
-   # ## Public API
-  isPlayBackRateSupported:        isPlayBackRateSupported
-  
+  source = document.createElement 'source'
+  source.setAttribute 'type', 'audio/mpeg'
+  source.setAttribute 'src', 'audio/silence.mp3'
+  audio.appendChild source
+  audio.playbackRate = rate
+  audio.volume = 0
+  audio.play()
+catch e
+  # NOP
