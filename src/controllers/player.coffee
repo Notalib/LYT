@@ -209,7 +209,9 @@ LYT.player =
           # following seeked event are missing) and just start playing from
           # the start of the stream. We detect this here and do another seek
           # if it is the case.
-          if -0.5 < status.currentTime - @nextOffset < 0.5
+          # This will cause a loop if the play event arrives later than 0.5
+          # seconds after playback has started.
+          if -0.01 < status.currentTime - @nextOffset < 0.5
             # This event handler consumes @nextOffset
             @nextOffset = null
           else
