@@ -137,15 +137,17 @@ LYT.render.content = do ->
   # Stack renderer - stack segments
   renderStack = (currentSegment, view, renderDelta) ->
     
+    log.message "Render: content: renderStack: renderDelta #{renderDelta}, vspace: #{vspace()}"
+    
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
-
     contentContainerId = (segment) -> "content-#{segment.contentUrl}--#{segment.contentId}"
     missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
     
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
+      log.message 'Render: content: renderStack: empty view - wrong section'
       view.data 'LYT-render-book-section', bookSection currentSegment
       view.children().detach()
       view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
@@ -154,6 +156,7 @@ LYT.render.content = do ->
 
     segment = currentSegment
     while segment and segment.state() is "resolved"
+      log.message "Render: content: renderStack: rendering #{segment.url()}"
       # Using getElementById in this loop for performance reasons
       element = $(document.getElementById contentContainerId segment)
       if element.length == 0
