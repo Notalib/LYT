@@ -173,8 +173,9 @@ LYT.render.content = do ->
         
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
-      else if missingContainer = $(document.getElementById missingContainerId(segment))
-        missingContainer.remove()
+      else
+        if missingContainer = $(document.getElementById missingContainerId(segment))
+          missingContainer.remove()
 
       segment = segment.next
 
@@ -187,19 +188,18 @@ LYT.render.content = do ->
     # Halt all animations
     view.children('.current').stop true, true
 
+    # Set current container and hide all content containers before it
     before = currentSegment.element.prevAll(':visible')
-    setCurrent = ->
-      view.children('.current').removeClass 'current'
-      currentSegment.element.addClass 'current'
-      # This shouldn't be necessary, because we have already run slideUp on
-      # theese elements. For some reason, it doesn't always work.
-      # See issue #281.
-      before.hide()
-      
-    if before.length > 0
-      before.slideUp 500 * timeScale, 'easeInOutQuad', setCurrent
-    else
-      setCurrent()
+    view.children('.current').removeClass 'current'
+    currentSegment.element.addClass 'current'
+    before.hide()
+    show = (el) ->
+      el.css
+        visibility: 'visible'
+        display: 'block'
+        opacity: 1
+    show currentSegment.element
+    show currentSegment.element.nextAll '.segmentContainer'
 
     # Function that calculates the available vertical space and preloads if
     # there is any space available
@@ -212,7 +212,6 @@ LYT.render.content = do ->
         maxHeight or= height
         maxHeight = height if height > maxHeight
       if segment and totalHeight < vspace() + 2*maxHeight
-        segment.done -> renderSegment currentSegment
         log.message "Render: content: renderStack: preloading #{Math.floor(totalHeight / maxHeight + 1)} segments"
         segment.preloadNext Math.floor(totalHeight / maxHeight + 1)
     
