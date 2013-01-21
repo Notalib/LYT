@@ -26,6 +26,8 @@ LYT.player =
   fakeEndScheduled: false
   firstPlay: true
   
+  refreshTimer: null
+  
   # TODO See if the IOS metadata bug has been fixed here:
   # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
@@ -431,8 +433,12 @@ LYT.player =
       return false
   
   refreshContent: ->
-    if @playlist() and segment = @segment()
-      @updateHtml segment
+    # Using timeout to ensure that we don't call updateHtml too often
+    refreshHandler = =>
+      if @playlist() and segment = @segment()
+        updateHtml segment
+    clearTimeout @refreshTimer if @refreshTimer
+    @refreshTimer = setTimeout 500, refreshHandler
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
