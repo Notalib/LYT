@@ -298,7 +298,7 @@ LYT.control =
         $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
-        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.playesettings.book.title
+        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.player.book.title
         $('.jp-play').focus()
 
   bookPlay: (type, match, ui, page, event) ->
