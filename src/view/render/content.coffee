@@ -212,8 +212,9 @@ LYT.render.content = do ->
         maxHeight or= height
         maxHeight = height if height > maxHeight
       if segment and totalHeight < vspace() + 2*maxHeight
-        segment.done (segment) -> renderSegment segment
-        segment.preloadNext()
+        segment.done -> renderSegment currentSegment
+        log.message "Render: content: renderStack: preloading #{Math.floor(totalHeight / maxHeight + 1)} segments"
+        segment.preloadNext Math.floor(totalHeight / maxHeight + 1)
     
     # Fade in all segments from the current and up to the first missing segment
     currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'
