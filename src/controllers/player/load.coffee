@@ -1,24 +1,35 @@
 # Requires `/controllers/player/command`
 # -------------------
 
-class LYT.player.load extends LYT.player.command
+class LYT.player.command.load extends LYT.player.command
 
-  constructor: (player, @book) ->
-    super player
-    log.message 'Player: command load: intializing'
-    load.done (book) => log.message "Player: command load: loading book #{@book} done"
-    load.fail (book) => log.message "Player: command load: loading book #{@book} failed"
+  constructor: (el, @src) ->
+    super el
+    if @src is @status().src
+      this.resolve()
+    else
+      @_run =>
+        @loadAttemptCount = 0
+        @el.jPlayer 'setMedia', {mp3: @src}
+        @el.jPlayer 'load'
 
-  run: ->
-    return if @player.book? and @player.book.id is @book
-    promise = LYT.Book.load @book
-    
-    log.message "Player: command load: loading book #{@book}"
-    
-    promise.done (book) ->
-      @player.book = book
-      # TODO: Move to view method
-      jQuery("#book-duration").text @player.book.totalTime
-      
-    promise
-
+  handles:
+    loadedmetadata: (event) =>
+      # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
+      # file until we get a valid duration.
+      # At this point we get the following sporadic errors
+      # IOS 5: duration is not a number.
+      # IOS 6: duration is set to zero on non-zero length audio streams
+      # Caveat emptor: for this reason, the player will wrongly assume that
+      # there is an error if the player is ever asked to play a zero length
+      # audio stream.
+      if @status().src == @src
+        if event.jPlayer.status.duration == 0 or isNaN event.jPlayer.status.duration
+          if ++@loadAttemptCount <= 5 # FIXME: configurable defaults
+            @el.jPlayer 'setMedia', {mp3: @src}
+          else
+            # Give up - we pretend that we have got the duration
+            this.resolve event.jPlayer.status
+        else
+          this.resolve event.jPlayer.status
+      # else: nothing to do because this event is from the wrong file

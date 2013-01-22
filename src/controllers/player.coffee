@@ -549,10 +549,14 @@ LYT.player =
       # possible to just move the play head.
       if @currentAudio != segment.audio
         log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting nextOffset to #{offset}"
+        command = new LYT.player.command.load(@el, segment.audio)
         @currentAudio = segment.audio
         @nextOffset   = offset
-        @el.jPlayer 'setMedia', {mp3: segment.audio}
-        @el.jPlayer 'load'
+#        @el.jPlayer 'setMedia', {mp3: segment.audio}
+#        @el.jPlayer 'load'
+        command.done (status) ->
+          log.message 'Command load done'
+          log.message status
       else
         if @playing
           log.message "Player: playSegmentOffset: play from offset #{offset}"
