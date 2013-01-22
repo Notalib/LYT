@@ -137,15 +137,17 @@ LYT.render.content = do ->
   # Stack renderer - stack segments
   renderStack = (currentSegment, view, renderDelta) ->
     
+    log.message "Render: content: renderStack: renderDelta #{renderDelta}, vspace: #{vspace()}"
+    
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
-
-    segmentContainerId = (segment) -> "segment-#{segment.url().replace /[#.]/g, '--'}"
+    contentContainerId = (segment) -> "content-#{segment.contentUrl}--#{segment.contentId}"
     missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
     
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
+      log.message 'Render: content: renderStack: empty view - wrong section'
       view.data 'LYT-render-book-section', bookSection currentSegment
       view.children().detach()
       view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
@@ -154,12 +156,13 @@ LYT.render.content = do ->
 
     segment = currentSegment
     while segment and segment.state() is "resolved"
+      log.message "Render: content: renderStack: rendering #{segment.url()}"
       # Using getElementById in this loop for performance reasons
-      element = $(document.getElementById segmentContainerId segment)
+      element = $(document.getElementById contentContainerId segment)
       if element.length == 0
         unless element = segment.element
           element = $(document.createElement('div'))
-          element.attr 'id', segmentContainerId segment
+          element.attr 'id', contentContainerId segment
           element.attr 'class', 'segmentContainer'
           element.html segment.html
           element.find('img').each ->
@@ -167,9 +170,12 @@ LYT.render.content = do ->
             image.click -> image.toggleClass('zoom')
             
           segment.element = element
-          
+        
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
+      else
+        if missingContainer = $(document.getElementById missingContainerId(segment))
+          missingContainer.remove()
 
       segment = segment.next
 
@@ -182,19 +188,18 @@ LYT.render.content = do ->
     # Halt all animations
     view.children('.current').stop true, true
 
+    # Set current container and hide all content containers before it
     before = currentSegment.element.prevAll(':visible')
-    setCurrent = ->
-      view.children('.current').removeClass 'current'
-      currentSegment.element.addClass 'current'
-      # This shouldn't be necessary, because we have already run slideUp on
-      # theese elements. For some reason, it doesn't always work.
-      # See issue #281.
-      before.hide()
-      
-    if before.length > 0
-      before.slideUp 500 * timeScale, 'easeInOutQuad', setCurrent
-    else
-      setCurrent()
+    view.children('.current').removeClass 'current'
+    currentSegment.element.addClass 'current'
+    before.hide()
+    show = (el) ->
+      el.css
+        visibility: 'visible'
+        display: 'block'
+        opacity: 1
+    show currentSegment.element
+    show currentSegment.element.nextAll '.segmentContainer'
 
     # Function that calculates the available vertical space and preloads if
     # there is any space available
@@ -205,8 +210,10 @@ LYT.render.content = do ->
         height = $(this).height()
         totalHeight += height
         maxHeight or= height
-        maxHeight = height if height > maxHeight 
-      segment.preloadNext() if segment and totalHeight - 2*maxHeight < vspace()
+        maxHeight = height if height > maxHeight
+      if segment and totalHeight < vspace() + 2*maxHeight
+        log.message "Render: content: renderStack: preloading #{Math.floor(totalHeight / maxHeight + 1)} segments"
+        segment.preloadNext Math.floor(totalHeight / maxHeight + 1)
     
     # Fade in all segments from the current and up to the first missing segment
     currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'

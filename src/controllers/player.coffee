@@ -19,18 +19,20 @@ LYT.player =
   playing: null
   nextOffset: null
   currentOffset: null
+  playCommands: {}
   
   timeupdateLock: false
   
   fakeEndScheduled: false
   firstPlay: true
   
+  refreshTimer: null
+  
   # TODO See if the IOS metadata bug has been fixed here:
   # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
   
   playAttemptCount: 0
-  gotDuration: null
   playBackRate: LYT.settings.get('playBackRate') or 1
   
   lastBookmark: (new Date).getTime()
@@ -105,8 +107,9 @@ LYT.player =
       timeupdate: (event) =>
         LYT.instrumentation.record 'timeupdate', event.jPlayer.status
         status = event.jPlayer.status
+        # Drop timeupdate event fired while the player is paused 
+        return if status.paused
         @time = status.currentTime
-
         
         # Schedule fake ending of file if necessary
         @fakeEnd status if LYT.config.player.useFakeEnd
@@ -117,13 +120,22 @@ LYT.player =
         #        mixed with user interactions, causing an undesired resume
         #        after the user has clicked pause.
 
+        # Resolve any play commands found
+        if commands = @playCommands[status.src]
+          for playCommand in commands
+            if -0.5 < playCommand.offset - status.currentTime < 0.5
+              log.message "Player: event playing: resolving playCommand #{status.src}, offset #{playCommand.offset} (segment #{playCommand.segment.url()})"
+              playCommand.deferred.resolve()
+
         # Don't do anything else if we're already moving to a new segment
-        if @timeupdateLock and @_next and @_next.state() isnt 'resolved'
-          log.message "Player: timeupdate: timeupdateLock set. Next segment: #{@_next.state()}. Pause until resolved."
-          LYT.loader.register 'Loading book', @_next
-          @pause()
-          @_next.done => @el.jPlayer 'play'
-          @_next.fail   -> log.error 'Player: timeupdate event: unable to load next segment after pause.'
+        if @timeupdateLock
+          log.message 'Player: timeupdate: timeudateLock set.'
+          if @_next and @_next.state() isnt 'resolved'
+            log.message "Player: timeupdate: Next segment: #{@_next.state()}. Pause until resolved."
+            LYT.loader.register 'Loading book', @_next
+            @pause()
+            @_next.done => @el.jPlayer 'play'
+            @_next.fail -> log.error 'Player: timeupdate event: unable to load next segment after pause.'
           return
          
         # This method is idempotent - will not do anything if last update was
@@ -131,11 +143,42 @@ LYT.player =
         @updateLastMark()
 
         # Move one segment forward if no current segment or no longer in the
-        # interval of the current segment
+        # interval of the current segment and within two seconds past end of
+        # current segment (otherwise we are seeking ahead).
         segment = @segment()
-        if not segment or status.src != segment.audio or segment.end < @time
-          log.message "Player: timeupdate: queue for offset #{@time}"
-          @timeupdateLock = true
+        if segment? and status.src == segment.audio and segment.start < @time + 0.1 < segment.end + 2
+          if segment.end < @time
+            # This block uses the current segment for synchronization.
+            log.message "Player: timeupdate: queue for offset #{@time}"
+            @timeupdateLock = true
+            log.message "Player: timeupdate: current segment: [#{segment.start}, #{segment.end}], no segment at #{@time}, skipping to next segment."
+            promise = @playlist().nextSegment segment
+            @_next = promise
+            promise.done (next) =>
+              if next?
+                if next.audio is @currentAudio and next.start - 0.1 < @time < next.end + 0.1
+                  @playlist.currentSegment = next
+                  @updateHtml next
+                  @timeupdateLock = false
+                else
+                  @seekedLoadSegmentLock = true
+                  # This stops playback and should ensure that we won't skip more
+                  # than one segment ahead if another timeupdate event is fired,
+                  # since all timeupdate events with status paused are dropped.
+                  @el.jPlayer 'pause'
+                  promise = @playSegment next, true
+                  promise.done =>
+                    @seekedLoadSegmentLock = false
+                    @updateHtml next
+                  promise.always => @timeupdateLock = false
+              else
+                log.error 'Player: timeupdate: no next segment'
+            # else: nothing to do: segment and audio are in sync as they should
+        else
+          # This block uses the current offset in the audio stream for
+          # synchronization - a strategy that fails if there is no segment for
+          # the current offset.
+          log.message "Player: timeupdate: segment and sound out of sync. Fetching segment for #{status.src}, offset #{@time}"
           promise = @playlist().segmentByAudioOffset status.src, @time
           @_next = promise
           promise.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
@@ -144,22 +187,7 @@ LYT.player =
               log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
               @updateHtml next
             else
-              log.message "Player: timeupdate: current segment: [#{segment.start}, #{segment.end}], no segment at #{@time}, skipping to next segment."
-              promise = @playlist().nextSegment segment
-              promise.done (next) =>
-                if next?
-                  if next.start > @time or next.end < @time
-                    @seekedLoadSegmentLock = true
-                    @playSegment next, true
-                    # TODO: This is most likely to not do as we expect, since next
-                    # has already resolved
-                    next.done => @seekedLoadSegmentLock = false
-                  else
-                    @playlist.currentSegment = next
-                    @updateHtml next
-                else
-                  log.error 'Player: timeupdate: no next segment'
-          promise.always => @timeupdateLock = false
+              log.errorGroup "Player: timeupdate event: Unable to load any segment: #{error}.", next
 
       loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
@@ -180,28 +208,44 @@ LYT.player =
           @nextSegment(true).always => @timeupdateLock = false
         else
           @timeupdateLock = false
-
-      playing: (event) =>
-        status = LYT.player.getStatus()
-        if (status.readyState > 2) and status.duration? and (status.currentTime < @currentOffset) and (0 <= @currentOffset <= status.duration)
-          action = if @playing then 'play' else 'pause'
-          @el.jPlayer action, @currentOffset
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
-        log.message "Player: event play, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
-        # Help JAWS users, move focus back
+        status = event.jPlayer.status
+        log.message "Player: event play, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
+        if @nextOffset?
+          # IOS will some times omit seeking (both the actual seek and the
+          # following seeked event are missing) and just start playing from
+          # the start of the stream. We detect this here and do another seek
+          # if it is the case.
+          # This will cause a loop if the play event arrives later than 0.5
+          # seconds after playback has started.
+          if -0.01 < status.currentTime - @nextOffset < 0.5
+            # This event handler consumes @nextOffset
+            @nextOffset = null
+          else
+            log.warn "Player: event play: retry seek, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
+            # Stop playback to ensure that another play event is emitted
+            # to check that the player doesn't skip the next seek as well.
+            @el.jPlayer 'pause'
+            # Not using a delay here seems to create infinite play/pause loops
+            # because the player doesn't get time for the seek.
+            # (This is probably a hint wrt a better way of working around this
+            # bug in IOS.)
+            setTimeout(
+              => @el.jPlayer 'play', @nextOffset
+              500
+            )
+            return
         LYT.render.setPlayerButtonFocus 'pause'
         
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
-        status = event.jPlayer.status
         LYT.render.setPlayerButtonFocus 'play'
-        return if status.ended # Drop pause event emitted when media ends
 
       seeked: (event) =>
-        # FIXME issue 459 HACK remove spinner no matter what
+        # FIXME: issue #459 HACK remove spinner no matter what
         LYT.loader.close 'metadata'
         LYT.instrumentation.record 'seeked', event.jPlayer.status
         @time = event.jPlayer.status.currentTime
@@ -215,10 +259,12 @@ LYT.player =
           log.message 'Player: event seeked: cleared playIntentOffset'
         return if @seekedLoadSegmentLock
         log.message "Player: event seeked: get segment at offset #{@time}"
+        # TODO: Remove this kind of rendering. We should be able to handle it
+        #       using playCommands since they are more reliable.
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.warn "Player: event seeked: unable to get segment at #{event.jPlayer.status.src}, #{event.jPlayer.status.currentTime}"
         segment.done (segment) =>
-          @updateHtml segment
+          @updateHtml segment if segment?
           #if we were playing and the system pause the sound for some reason  -  start play again
           if @getStatus().paused and @playing and @getStatus().readyState > 2
             log.message 'Player: event seeked: starting the player again'
@@ -228,28 +274,28 @@ LYT.player =
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
-        if isNaN(event.jPlayer.status.duration) or event.jPlayer.status.duration == 0
-          if @getStatus().src == @currentAudio
-            @gotDuration = false
+        # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
+        # file until we get a valid duration.
+        # At this point we get the following sporadic errors
+        # IOS 5: duration is not a number.
+        # IOS 6: duration is set to zero on non-zero length audio streams
+        # Caveat emptor: for this reason, the player will wrongly assume that
+        # there is an error if the player is ever asked to play a zero length
+        # audio stream.
+        if @getStatus().src == @currentAudio
+          if event.jPlayer.status.duration == 0 or isNaN event.jPlayer.status.duration
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer 'setMedia', {mp3: @currentAudio}
               @playAttemptCount = @playAttemptCount + 1
               log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
-            else
-              # Give up: we pretend that we have got the duration
-              @gotDuration = true
-              @playAttemptCount = 0
-        else
-          @gotDuration = true
+              return
+            # else: give up - we pretend that we have got the duration
           @playAttemptCount = 0
-          #LYT.loader.close('metadata')
+        # else: nothing to do because we are playing the wrong file
       
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
         log.message "Player: event canplay: paused: #{@getStatus().paused}"
-        if @gotDuration
-          # Reset gotDuration so it is cleared for the next file
-          @gotDuration = false
 
       canplaythrough: (event) =>
         LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
@@ -262,13 +308,12 @@ LYT.player =
           log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
           @el.jPlayer action, @nextOffset
           @currentOffset = @nextOffset
-          @nextOffset = null
           @setPlayBackRate()
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
         @firstPlay = false
         # We are ready to play now, so remove the loading message, if any
         LYT.loader.close('metadata')
-        
+      
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
         switch event.jPlayer.error.type
@@ -384,19 +429,19 @@ LYT.player =
     else
       log.message "Player: setPlayBackRate: unable to set playback rate"
   
-  isPlayBackRateSupported: ->
-    promise = Modernizr.playback
-    promise.pipe (result) ->
-      return result  
-  isIOS: () ->
+  isIOS: ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
       return true
     else
       return false
   
   refreshContent: ->
-    if @playlist() and segment = @segment()
-      @updateHtml segment
+    # Using timeout to ensure that we don't call updateHtml too often
+    refreshHandler = =>
+      if @playlist() and segment = @segment()
+        updateHtml segment
+    clearTimeout @refreshTimer if @refreshTimer
+    @refreshTimer = setTimeout 500, refreshHandler
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
@@ -408,19 +453,10 @@ LYT.player =
       log.error "Player: updateHtml called with unresolved segment"
       return
 
-    log.group "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}", segment
-    @renderTranscript segment
+    log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
+    LYT.render.textContent segment
     segment.preloadNext()
-  
-  # TODO: Factor out this method and replace it by calls to updateHtml
-  renderTranscript: (segment) ->
-    if segment?
-      segment.done (segment) -> LYT.render.textContent segment
-    else
-      # If there's no media, show nothing
-      LYT.render.textContent null
-  
-  
+    
   whenReady: (callback) ->
     if @ready
       callback()
@@ -485,6 +521,16 @@ LYT.player =
   # the segment ends).
   playSegmentOffset: (segment, offset, play) ->
     throw 'Player: playSegmentOffset called with no segment' unless segment?
+
+    @playCommands[segment.audio] or= []
+    playCommand = 
+      segment:  segment
+      offset:   offset
+      deferred: jQuery.Deferred()
+    playCommand.deferred.always =>
+      @playCommands = jQuery.grep @playCommands, (otherCommand) -> otherCommand isnt playCommand
+    @playCommands[segment.audio].push playCommand
+
     segment.done (segment) =>
       log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, play: #{play}"
 
@@ -493,6 +539,7 @@ LYT.player =
         if offset > segment.end
           log.warn "Player: playSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
           offset = segment.end - 1
+          offset = segment.start if offset < segment.start
         else if offset < segment.start
           log.warn "Player: playSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
           offset = segment.start
@@ -504,7 +551,7 @@ LYT.player =
       
       # If play is set to true or false, set playing accordingly
       @playing = play if play?
-      
+
       # See if we need to initiate loading of a new audio file or if it is
       # possible to just move the play head.
       if @currentAudio != segment.audio
@@ -522,6 +569,8 @@ LYT.player =
           @el.jPlayer 'pause', offset
 
       @updateHtml segment
+      
+    playCommand.deferred.promise()
 
   dumpStatus: -> log.message field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
 

@@ -12,6 +12,7 @@
       clicks++
       if clicks == 6
         log.receiver = 'devconsole'
+        log.level = 3
         log.message 'Opened developer console'
       else if clicks < 6
         clearTimeout timer if timer
