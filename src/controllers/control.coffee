@@ -417,8 +417,8 @@ LYT.control =
     promise.done ->
       if type is 'pagebeforeshow'
         if Modernizr.playbackrate is true
-          LYT.render.showplayBackRate()  
-  
+          LYT.render.showplayBackRate()
+
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
         
