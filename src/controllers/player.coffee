@@ -33,7 +33,7 @@ LYT.player =
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
   
   playAttemptCount: 0
-  playBackRate: LYT.settings.get('playBackRate') or 1
+  playBackRate: 1
   
   lastBookmark: (new Date).getTime()
   
@@ -48,7 +48,8 @@ LYT.player =
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
     @currentAudio = ''
-      
+    @playBackRate = LYT.settings.get('playBackRate') if LYT.settings.get('playBackRate')?
+
     # This handler replaces the old progress handler which unfortunately
     # never got called as often as necessary
     startHandler = =>
@@ -406,28 +407,26 @@ LYT.player =
     if playBackRate?
       @playBackRate = playBackRate
       
-      setRate = =>
-        if @el.data('jPlayer').htmlElement.audio?.playbackRate?
-          @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+    setRate = =>
+      if @el.data('jPlayer').htmlElement.audio?.playbackRate?
+        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
 
-        if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
-          @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
+      if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
+        @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
 
-      setRate()
+    setRate()
 
-      #Added for IOS6 - iphone will not change the playBackRate unless you pause
-      #the playback, after setting the playbackRate. And then we can obtain the new
-      #playbackRate and continue
-      # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
-      
-      @el.jPlayer 'pause'
-      setRate()
-      @el.jPlayer 'play'
-      setRate()
+    #Added for IOS6 - iphone will not change the playBackRate unless you pause
+    #the playback, after setting the playbackRate. And then we can obtain the new
+    #playbackRate and continue
+    # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
+    
+    @el.jPlayer 'pause'
+    setRate()
+    @el.jPlayer 'play'
+    setRate()
 
-      log.message "Player: setPlayBackRate: #{@playBackRate}"
-    else
-      log.message "Player: setPlayBackRate: unable to set playback rate"
+    log.message "Player: setPlayBackRate: #{@playBackRate}"
   
   isIOS: ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
