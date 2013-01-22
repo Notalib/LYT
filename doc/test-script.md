@@ -4,58 +4,54 @@ Login:
 
     - 1: Log on using correct username + password
 
-    - 2: Log on using correct username + incorrect password without illegal 
-      characters
+    - 2: Log on using correct username + incorrect password
+     
+    - 3: Log on using incorrect username + correct password 
 
-    - 3: Log on using incorrect username without illegal characters + correct
-      password
+    - 4: Log on correctly, close tab, open it again. Check, that you are still logged in.
 
-    - 4: Log on with non-UTF8-username
+    - 5: Log on another device, then log off. Check, that you are still logged on in first session
 
-    - 5: Log on with non-UTF8-password
+    - 6: Log on correctly, log off, close tab, return to page. Check, that you are logged off.
 
-    - 6: Log on correctly, close tab, open it again. Still logged in?
-
-    - 7: Log on another device, then log off. Still logged on in first session?
-
-    - 8: Log on correctly, log off, close tab, return to page. Still logged off?
-
-    - 9: Log on with 'guest/anypassword', check that you can play the books on the 
+    - 7: Log on with 'guest/anypassword', check that you can play the books on the 
       shelf, use the search engine, but only play the freely available books in
       the database. 
 
-    - 10: Log on as guest, log off, then log on as normal user. Check your profile: 
-      are you registered as the right user. 
+    - 8: Log on as guest, log off, then log on as normal user. Check your profile: 
+      are you registered as the right user?
 
-    - 11: Log on a normal user, then log off and log on as another normal user.
-      Repeat above profile check. 
+    - 9: Log on a normal user, then log off and log on as another normal user. Check your profile: 
+      are you registered as the right user?
 
 
 Searching and adding books: 
 
     - 1: Write 'Harry Potter' in the search field. Find all available Potter books?
+         (The available HP books are the following: 
+         Harry Potter and the Chamber of Secrets, 
+         Harry Potter and the Prisoner of Azkaban,
+         Harry Potter and the Goblet of Fire,
+         Harry Potter and the Order of the Phoenix, 
+         Harry Potter and the Half-Blood Prince,
+         Harry Potter and the Deathly Hallows.
     
-    - 2: Write 'krimi' in the search field. Check, that you only get crime fiction. 
+    - 2: Write 'krimi' in the search field. Check, that you only get crime fiction - i.e. 
+         that you don't get any academic books on crime or similar. 
 
     - 3: Write 'krimi Larsson' in the search field. Check, that you only get crime 
       fiction involving the name Larsson.
     
-    - 4: Find book without text and add it
+    - 4: Find a book (type doesn't matter) and add it
 
-    - 5: Find book with text and add it
- 
-    - 6: Find comic book and add it
- 
-    - 7: Find non-Danish book and add it
+    - 5: Log out, close tab, open again and log in. All books still there?
 
-    - 8: Log out, close tab, open again and log in. All books still there?
+    - 6: Remove a book, repeat above. Is the removal registered on return?
 
-    - 9: Remove a book, repeat above. Is the removal registered on return?
-
-    - 10: Log in on another device, keeping current session open as well. Add
+    - 7: Log in on another device, keeping current session open as well. Add
       a book on the other device. Are the changes registered both places?
       
-    - 11: Do a search, click one of the books and then click the browsers back
+    - 8: Do a search, click one of the books and then click the browser's back
       button. Does it display the last search result? Repeat using the applications
       back to search results - button.
 
@@ -122,10 +118,6 @@ Navigation between book sections:
 
     - 12: Just at the beginning of a new book chapter, click 'Backwards'. Does it begin 
       at the last section of the previous chapter?
-
-    - 13: Try the above with normally functioning books as well as books known to have 
-      problems with overlapping sections, gaps between sections and books which are known to 
-      snap off the last bits of text in each segment. 
       
 
 Special cases for playing: 
