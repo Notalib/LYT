@@ -66,17 +66,14 @@ Playing books (linearly):
         
         - 3: Whilst playing, click 'Pause', then resume playing. 
 
-        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
-          the place you've clicked?
-
 
     (On a smartphone):
  
-        - 5: Make a call to the phone whilst playing the book. Check, that 
+        - 4: Make a call to the phone whilst playing the book. Check, that 
           the book stops the playing, and can be started again at the correct
           chapter after the call
           
-        - 6: Whilst playing, let the phone go on standby and lock. Does the 
+        - 5: Whilst playing, let the phone go on standby and lock. Does the 
           book keep playing undisturbed?
         
         Repeat above on: A normal book with/without text, a very large book 
