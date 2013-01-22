@@ -5,11 +5,11 @@ class LYT.player.command extends jQuery.Deferred
     jQuery.extend this, jQuery.Deferred()
     
   attach: ->
-    for name, handler of @handles
+    for name, handler of @handles()
       @el.on $.jPlayer.event[name], handler
 
   detach: ->
-    for name, handler of @handles
+    for name, handler of @handles()
       @el.unbind $.jPlayer.event[name], handler
 
   _run: (callback) ->
@@ -19,6 +19,6 @@ class LYT.player.command extends jQuery.Deferred
 
   cancel: ->
 
-  handles: {}
+  handles: -> {}
 
   status: => @el.data('jPlayer').status

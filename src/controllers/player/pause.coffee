@@ -8,7 +8,7 @@ class LYT.player.command.play extends LYT.player.command
     @_run =>
       @el.jPlayer 'play'
 
-  handles:
+  handles: ->
     timeupdate: (event) =>
       if event.jPlayer.status.paused
         this.resolve event.jPlayer.status

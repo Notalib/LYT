@@ -8,7 +8,7 @@ class LYT.player.command.play extends LYT.player.command
     @_run =>
       @el.jPlayer 'play'
 
-  handles:
+  handles: ->
     playing: (event) =>
       this.resolve event.jPlayer.status
 

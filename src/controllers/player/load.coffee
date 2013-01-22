@@ -13,7 +13,7 @@ class LYT.player.command.load extends LYT.player.command
         @el.jPlayer 'setMedia', {mp3: @src}
         @el.jPlayer 'load'
 
-  handles:
+  handles: ->
     loadedmetadata: (event) =>
       # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
       # file until we get a valid duration.

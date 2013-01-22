@@ -16,7 +16,7 @@ class LYT.player.command.seek extends LYT.player.command
         offset = 0.000001 if offset == 0
         @el.jPlayer 'pause', offset
 
-  handles:
+  handles: ->
     seeked: (event) =>
       if -0.1 < @offset - event.jPlayer.status.currentTime < 0.1
         this.resolve event.jPlayer.status
