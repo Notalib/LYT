@@ -75,7 +75,7 @@ do ->
       end:         parseNPT audio.attr("clip-end")
       text:        text
       section:     section
-      canBookmark: par.attr('id')?
+      canBookmark: audio.attr('id')?
       audio:       src: audio.attr "src"
     
     clips = jQuery.makeArray clips
