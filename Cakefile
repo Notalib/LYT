@@ -21,6 +21,7 @@ option "-m", "--minify",      "Concatenate CoffeeScript and then minify"
 option "-v", "--verbose",     "Be more talkative"
 option "-d", "--development", "Use development settings"
 option "-t", "--test",        "Use test environment"
+option "-n", "--no-validate", "Don't validate build"
 
 # --------------------------------------
 
@@ -87,18 +88,18 @@ task "html", "Build HTML", (options) ->
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
     boast "rendered", "html", "build/index.html"
-    w3cjs.validate
-      file: 'build/index.html'
-      callback: (res) ->
-        if res.messages?.length > 0
-          console.warn "There were #{res.messages.length} HTML validation error messages:"
-          console.warn ''
-          console.warn '<line>, <column>: <message>'
-          for message in res.messages
-            console.warn "#{message.lastLine}, #{message.lastColumn}: #{message.message}"
-          if res.messages.length > config.maxHtmlErrors
-            throw 'Refusing to continue build: it seems that the number of errors has increased'
-          
+    unless options['no-validate']
+      w3cjs.validate
+        file: 'build/index.html'
+        callback: (res) ->
+          if res.messages?.length > 0
+            console.warn "There were #{res.messages.length} HTML validation error messages:"
+            console.warn ''
+            console.warn '<line>, <column>: <message>'
+            for message in res.messages
+              console.warn "#{message.lastLine}, #{message.lastColumn}: #{message.message}"
+            if res.messages.length > config.maxHtmlErrors
+              throw 'Refusing to continue build: it seems that the number of errors has increased'
 
 
 task "scss", "Compile scss source", (options) ->
