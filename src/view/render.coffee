@@ -333,7 +333,7 @@ LYT.render = do ->
         share.on 'click', ->
           [section, segment] = bookmark.URI.split '#'
           reference =
-            book:    book.id
+            book: book.id
             section: section
             segment: segment
             offset: bookmark.timeOffset
@@ -360,10 +360,9 @@ LYT.render = do ->
         element.attr "data-href", bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
-               data-ga-book-title="#{(bookmark.note?.text or '').replace '"', ''}"
-               href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{bookmark.timeOffset}&play=true"> 
-              #{bookmark.note.text}
+            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{bookmark.id}"
+               href="#book-play?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true"> 
+              #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """
         element.append generateMoreItem(bookmark, index)

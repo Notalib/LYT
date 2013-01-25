@@ -232,37 +232,87 @@ LYT.protocol =
       contentID: bookID
     
     receive: ($xml) ->
-      parse = (element) ->
-        ncxRef:     element.find("ncxRef").text()
-        URI:        element.find("URI").text()
-        timeOffset: element.find("timeOffset").text()
-        note: text: element.find("note > text").text()
+
+      deserialize = (data) ->
+        URI = $('URI', data).text()
+        # Convert from Dodp offset to floating point in seconds
+        # TODO: Implement correct parsing of all time formats provided in
+        #       http://www.daisy.org/z3986/2005/Z3986-2005.html#Clock
+        # Parse offset strings ("HH:MM:SS.ss") to seconds, e. g.
+        #     parseOffset("1:02:03.05") #=> 3723.05
+        # We keep this function as well as parseTime in LYT.utils because they
+        # are used to parse formats that are not completely identical.
+        parseOffset = (timeOffset) ->
+          if values = timeOffset.match /\d+/g
+            if values.length is 4
+              values[3] or= "0"
+              values[3] = "0.#{values[3]}"
+              values = jQuery.map values, parseFloat
+              values[0] * 3600 + values[1] * 60 + values[2] + values[3]
+          
+        timeOffset = parseOffset $('timeOffset', data).text()
+        note = $('note > text', data).text()
         
-      bookmarks =
-        bookmarks: [],
+        if URI and timeOffset?
+          return new LYT.Bookmark
+            ncxRef:     null
+            URI:        URI
+            timeOffset: timeOffset
+            note:       text: note || '-'
+
+        
+      bookmarkSet =
+        bookmarks: []
         book:
-          id: $xml.find("bookmarkSet > uid").text()
+          uid: $xml.find("bookmarkSet > uid").text()
           title:
             text: $xml.find("bookmarkSet > title > text").text()
             audio: $xml.find("bookmarkSet > title > audio").text()
+            
       $xml.find("bookmarkSet > bookmark").each ->
-        bookmarks.bookmarks.push parse(jQuery(this))
+        if bookmark = deserialize this
+          bookmarkSet.bookmarks.push bookmark
+        else
+          log.errorGroup 'Protocol: getBookmarks: receive: unable to parse bookmark', this 
+        
       lastmark = $xml.find("bookmarkSet > lastmark").first()
-      bookmarks.lastmark = parse lastmark if lastmark.length
+      bookmarkSet.lastmark = deserialize lastmark if lastmark.length
       
-      bookmarks
+      bookmarkSet
   
   # FIXME: lastmark may be placed after the bookmarks in bookmarkSet as the specification dictates. This is caused by XML serializer (util.toXML)
   # -----: There is no specific order of element placements. Elements such as lastmark og bookmark can appear either below or above the other., however
-  #        Nota's service implementation would properbly have the lastmark before bookmark, but it all depends on the serializer, and can change when
+  #        Nota's service implementation would probably have the lastmark before bookmark, but it all depends on the serializer, and can change when
   #        new releases of the service is compiled with newer versions of the .NET framework..  Do not depend on element position.
   setBookmarks:
-    request: (bookmarks) ->
+
+    request: (book) ->
+
+      # Convert from floating point in seconds to Dodp offset
+      formatDodpOffset = (timeOffset) ->
+        # TODO: The server doesn't support npt format, though it is required
+        #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
+        offset  = timeOffset
+        hours   = Math.floor(offset / 3600)
+        minutes = Math.floor((offset - hours*3600) / 60)
+        seconds = offset - hours * 3600 - minutes * 60
+        hours   = '0' + hours.toString()   if hours < 10
+        minutes = '0' + minutes.toString() if minutes < 10
+        if seconds < 10
+          seconds = '0' + seconds.toFixed(2)
+        else
+          seconds = seconds.toFixed(2)
+        "#{hours}:#{minutes}:#{seconds}"
+    
+      serialize = (bookmark) ->
+        URI:        bookmark.URI
+        timeOffset: formatDodpOffset bookmark.timeOffset
+        note:       bookmark.note
 
       setnamespace = (ns, obj) ->
         if typeof obj == "object"
           if obj instanceof Array
-            return   jQuery.map(obj, (value) -> setnamespace(ns, value) )
+            return jQuery.map(obj, (value) -> setnamespace(ns, value) )
           else 
             newObj = {}
             for key, value of obj
@@ -271,16 +321,16 @@ LYT.protocol =
         else
           return obj
                 
-      throw "setBookmarks failed - you have to provide a book property with an id" unless bookmarks.book? and bookmarks.book.id?
+      throw "setBookmarks failed - you have to provide a book with an id" unless book? and book.id?
       data =
-        contentID: bookmarks.book.id,
+        contentID: book.id
         bookmarkSet:
-          title: bookmarks.book.title, 
-          uid: bookmarks.book.id,
-          bookmark: bookmarks.bookmarks
+          title: book.title 
+          uid: book.getMetadata().identifier?.content
+          bookmark: (serialize bookmark for bookmark in book.bookmarks)
        
-      if bookmarks.lastmark?
-        data.bookmarkSet.lastmark = bookmarks.lastmark
+      if book.lastmark?
+        data.bookmarkSet.lastmark = serialize book.lastmark
       
       data.bookmarkSet = setnamespace 'ns2', data.bookmarkSet
       
@@ -289,9 +339,3 @@ LYT.protocol =
     receive: ($xml) ->
       throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"
       true
-
-    
-  
-
-
-  

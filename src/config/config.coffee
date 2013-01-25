@@ -145,3 +145,7 @@ LYT.config =
   # default page redirect page
   defaultPage:
     hash: '#bookshelf'
+    
+  settings:
+    showAdvanced: no
+

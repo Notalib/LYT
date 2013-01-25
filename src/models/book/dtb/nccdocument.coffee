@@ -77,7 +77,7 @@ do ->
             else
               segment = section.firstSegment()
             segment.done (segment) -> deferred.resolve(segment)
-            segment.fail -> deferred.reject()
+            segment.fail -> deferred.reject("Section found for url #{url}, but couldn't find segment with id #{id}")
       return deferred.promise()
       
     

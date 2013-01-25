@@ -10,3 +10,6 @@ jQuery.extend log,
   level: 3
   receiver: 'local'
 
+jQuery.extend LYT.config,
+  settings:
+    showAdvanced: yes

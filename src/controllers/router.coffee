@@ -97,6 +97,14 @@ $(document).bind "mobileinit", ->
   
   $.mobile.defaultPageTransition = 'fade'
   
+  # Generate an url for a point in a book given:
+  # - bookReference: an object with the following properties:
+  #    - book:       id of book
+  #    - section:    section in book (optional)
+  #    - segment:    id of par element in section (optional)
+  #    - smilOffset: time offset relative to start of par element in section (optional)
+  # - action: what action to use in the url (defaults to 'book-play')
+  # - absolute: boolean indicating if the url should be absolute or relative
   LYT.router.getBookActionUrl = (bookReference, action = 'book-play', absolute=true) ->
     return null unless bookReference and bookReference.book
     url = "##{action}?book=#{bookReference.book}"
@@ -104,8 +112,8 @@ $(document).bind "mobileinit", ->
       url += "&section=#{bookReference.section}"
       if bookReference.segment
         url += "&segment=#{bookReference.segment}"
-        if bookReference.offset
-          url += "&offset=#{bookReference.offset}"
+        if bookReference.smilOffset
+          url += "&offset=#{LYT.utils.formatTime bookReference.smilOffset}"
     
     url = if absolute
       if document.baseURI?
@@ -116,7 +124,12 @@ $(document).bind "mobileinit", ->
       url
     
     return url
-    
+  
+  # Generate url for provided segment given:
+  # - segment: a segment instance
+  # - offset: audio offset (i.e. relative to start of segment.audio file).
+  # - action: what action to use in the url (defaults to 'book-play')
+  # - absolute: boolean indicating if the url should be absolute or relative
   LYT.router.getSegmentUrl = (segment, offset, action = 'book-play', resolution='segment', absolute=true) ->
     reference = {book: segment.section.nccDocument.book.id}
     unless resolution is 'book'
@@ -124,7 +137,7 @@ $(document).bind "mobileinit", ->
       unless resolution is 'section'
         reference.segment = segment.id
         if offset
-          reference.offset = offset
+          reference.smilOffset = segment.smilOffset(offset)
           
     return LYT.router.getBookActionUrl reference, action, absolute
  
