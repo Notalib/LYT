@@ -137,19 +137,23 @@ Modifying settings:
 
 Comics (THIS TEST CASE NEEDS REVIEWING): 
 
-        - 1: Open the comic, press 'Play'. Does the images seem to follow sound?
+        - 1: Test the first three cases of "Playing books (linearly)" on the comic.
         
-        - 2: Whilst playing, check that the image is scaled properly. Can you see everything?
+        - 2: Whilst Playing, Check that the image automatically follows the text being read.
+
+        - 3: Whilst playing, click on the chapter's timeline. Does it jump to the place you've clicked?
+
+        - 4: Check, that clicking repeatedly on the images does not affect playing. 
+
+        - 5: Forward and backward playing, checking that this does not disrupt the showing of the images. 
+          
+    (On a smartphone/Tablet)
+    
+        - 1: Run the same test listed above.
         
-        - 3: Whilst playing, click 'Pause', then resume playing. 
-
-        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
-          the place you've clicked?
-
-        - 5: Check, that clicking repeatedly on the images does not affect playing. 
-
-        - 6: Forward and backward playing, checking that this does not disrupt the 
-          showing of the images. 
+        - 2: Test the two cases for smartphone of "Playing books (linearly)".
+        
+        - 3: Whilst playing, check that the image is scaled properly. Can you see everything?
 
 Bookmarks:
 
