@@ -136,6 +136,7 @@ Modifying settings:
     
 
 Comics (THIS TEST CASE NEEDS REVIEWING): 
+    NOTE: The player must be running the cartoon player, which works by zooming in at the specific text being read
 
         - 1: Test the first three cases of "Playing books (linearly)" on the comic.
         
