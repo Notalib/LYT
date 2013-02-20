@@ -101,6 +101,7 @@ LYT.player =
         Mousetrap.bind 'alt+ctrl+n', ->
           log.message "next section"
           return false
+
         Mousetrap.bind 'alt+ctrl+o', ->
           log.message "previous section"
           return false
@@ -427,13 +428,20 @@ LYT.player =
 
     setRate()
 
-    #Added for IOS6 - iphone will not change the playBackRate unless you pause
-    #the playback, after setting the playbackRate. And then we can obtain the new
-    #playbackRate and continue
+    # Added for IOS6: iphone will not change the playBackRate unless you pause
+    # the playback, after setting the playbackRate. And then we can obtain the new
+    # playbackRate and continue
     # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
     
     @el.jPlayer 'pause'
     setRate()
+    
+    # Return before starting the player unless we are supposed so
+    # This is definately a hack that should go away if we move everyting to
+    # player-controllers, because setting playback rate should be done as an
+    # integral part of starting playback.
+    return unless @playing
+    
     @el.jPlayer 'play'
     setRate()
 
