@@ -322,17 +322,17 @@ LYT.protocol =
           return obj
                 
       throw "setBookmarks failed - you have to provide a book with an id" unless book? and book.id?
-      data =
-        contentID: book.id
-        bookmarkSet:
-          title: book.title 
-          uid: book.getMetadata().identifier?.content
-          bookmark: (serialize bookmark for bookmark in book.bookmarks)
+      data = contentID: book.id
+      bookmarkSet =
+        title: book.title 
+        uid: book.getMetadata().identifier?.content
+        bookmark: (serialize bookmark for bookmark in book.bookmarks)
        
       if book.lastmark?
-        data.bookmarkSet.lastmark = serialize book.lastmark
+        bookmarkSet.lastmark = serialize book.lastmark
       
-      data.bookmarkSet = setnamespace 'ns2', data.bookmarkSet
+      bookmarkSet = setnamespace 'ns2', bookmarkSet
+      data['ns2:bookmarkSet'] = bookmarkSet
       
       data
 
