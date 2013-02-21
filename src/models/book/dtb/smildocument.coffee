@@ -70,13 +70,14 @@ do ->
     clips = par.find("> audio, seq > audio").map ->
       audio = jQuery this
       
-      id:          audio.attr("id") or "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
+      id:          par.attr("id") or "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
       start:       parseNPT audio.attr("clip-begin")
       end:         parseNPT audio.attr("clip-end")
       text:        text
       section:     section
       canBookmark: par.attr('id')?
       audio:       src: audio.attr "src"
+      smil:        element: audio
     
     clips = jQuery.makeArray clips
 

@@ -112,6 +112,18 @@ class LYT.Section
       if segment.audio is audio
         return true
   
+  getSegmentsByAudioOffset: (audio, offset) ->
+    for segment in @getUnloadedSegmentsByAudio(audio)
+      return segment if segment.containsOffset offset
+  
+  getSegmentBySmilOffset: (offset = 0) ->
+    @_getSegment (segments) ->
+      currentOffset = 0
+      for segment in segments
+        if currentOffset <= offset <= currentOffset + segment.duration
+          return segment
+        currentOffset += segment.duration
+
   getSegmentByOffset: (offset = 0) -> 
     @_getSegment (segments) ->
       for segment in segments

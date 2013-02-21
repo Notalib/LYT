@@ -33,7 +33,7 @@ LYT.player =
   # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
   
   playAttemptCount: 0
-  playBackRate: LYT.settings.get('playBackRate') or 1
+  playBackRate: 1
   
   lastBookmark: (new Date).getTime()
   
@@ -48,7 +48,8 @@ LYT.player =
     @nextButton = jQuery("a.next-section")
     @previousButton = jQuery("a.previous-section")
     @currentAudio = ''
-      
+    @playBackRate = LYT.settings.get('playBackRate') if LYT.settings.get('playBackRate')?
+
     # This handler replaces the old progress handler which unfortunately
     # never got called as often as necessary
     startHandler = =>
@@ -100,6 +101,7 @@ LYT.player =
         Mousetrap.bind 'alt+ctrl+n', ->
           log.message "next section"
           return false
+
         Mousetrap.bind 'alt+ctrl+o', ->
           log.message "previous section"
           return false
@@ -151,7 +153,7 @@ LYT.player =
             # This block uses the current segment for synchronization.
             log.message "Player: timeupdate: queue for offset #{@time}"
             @timeupdateLock = true
-            log.message "Player: timeupdate: current segment: [#{segment.start}, #{segment.end}], no segment at #{@time}, skipping to next segment."
+            log.message "Player: timeupdate: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}], no segment at #{@time}, skipping to next segment."
             promise = @playlist().nextSegment segment
             @_next = promise
             promise.done (next) =>
@@ -165,6 +167,7 @@ LYT.player =
                   # This stops playback and should ensure that we won't skip more
                   # than one segment ahead if another timeupdate event is fired,
                   # since all timeupdate events with status paused are dropped.
+                  log.message 'Player: timeupdate: pause while switching audio file'
                   @el.jPlayer 'pause'
                   promise = @playSegment next, true
                   promise.done =>
@@ -179,15 +182,23 @@ LYT.player =
           # synchronization - a strategy that fails if there is no segment for
           # the current offset.
           log.message "Player: timeupdate: segment and sound out of sync. Fetching segment for #{status.src}, offset #{@time}"
+          if segment
+            log.group "Player: timeupdate: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}]: ", segment
+          else
+            log.message 'Player: timeupdate: no current segment set.'
           promise = @playlist().segmentByAudioOffset status.src, @time
           @_next = promise
-          promise.fail (error) -> log.errorGroup "Player: timeupdate event: Unable to load next segment: #{error}.", next
+          promise.fail (error) ->
+            # TODO: The user may have navigated to a place in the audio stream
+            #       that isn't included in the book. Handle this gracefully by
+            #       searching for the next segment in the audio file.
+            log.error "Player: timeupdate event: Unable to load next segment: #{error}."
           promise.done (next) =>
             if next
               log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
               @updateHtml next
             else
-              log.errorGroup "Player: timeupdate event: Unable to load any segment: #{error}.", next
+              log.error "Player: timeupdate event: Unable to load any segment for #{status.src}, offset #{@time}."
 
       loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
@@ -258,17 +269,19 @@ LYT.player =
           LYT.loader.close 'metadata'
           log.message 'Player: event seeked: cleared playIntentOffset'
         return if @seekedLoadSegmentLock
-        log.message "Player: event seeked: get segment at offset #{@time}"
+        log.message "Player: event seeked: get segment in #{event.jPlayer.status.src} at offset #{@time}"
         # TODO: Remove this kind of rendering. We should be able to handle it
         #       using playCommands since they are more reliable.
+        @timeupdateLock = true
         segment = @playlist().segmentByAudioOffset event.jPlayer.status.src, @time
         segment.fail -> log.warn "Player: event seeked: unable to get segment at #{event.jPlayer.status.src}, #{event.jPlayer.status.currentTime}"
         segment.done (segment) =>
           @updateHtml segment if segment?
-          #if we were playing and the system pause the sound for some reason  -  start play again
+          # Start playing again if we were playing and jPlayer paused for some reason
           if @getStatus().paused and @playing and @getStatus().readyState > 2
             log.message 'Player: event seeked: starting the player again'
             @el.jPlayer 'play'
+        segment.always => @timeupdateLock = false
           
       loadedmetadata: (event) =>
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
@@ -405,22 +418,34 @@ LYT.player =
   setPlayBackRate: (playBackRate) ->
     if playBackRate?
       @playBackRate = playBackRate
-    if @el.data('jPlayer').htmlElement.audio?.playbackRate?
-      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      
+    setRate = =>
+      if @el.data('jPlayer').htmlElement.audio?.playbackRate?
+        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
 
-    if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
-      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate  = @playBackRate
-      #Added for IOS6 - iphone will not change the playBackRate unless you pause
-      #the playback, after setting the playbackRate. And then we can obtain the new
-      #playbackRate and continue
-      # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
-      if not @getStatus().paused
-        @el.jPlayer 'pause'
-        @el.jPlayer 'play'
+      if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
+        @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
 
-      log.message "Player: setPlayBackRate: #{@playBackRate}"
-    else
-      log.message "Player: setPlayBackRate: unable to set playback rate"
+    setRate()
+
+    # Added for IOS6: iphone will not change the playBackRate unless you pause
+    # the playback, after setting the playbackRate. And then we can obtain the new
+    # playbackRate and continue
+    # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
+    
+    @el.jPlayer 'pause'
+    setRate()
+    
+    # Return before starting the player unless we are supposed so
+    # This is definately a hack that should go away if we move everyting to
+    # player-controllers, because setting playback rate should be done as an
+    # integral part of starting playback.
+    return unless @playing
+    
+    @el.jPlayer 'play'
+    setRate()
+
+    log.message "Player: setPlayBackRate: #{@playBackRate}"
   
   isIOS: ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
@@ -457,20 +482,20 @@ LYT.player =
       @el.bind $.jPlayer.event.ready, callback
   
   # url: url pointing to section or segment
-  load: (book, url = null, offset = 0, play) ->
+  load: (book, url = null, smilOffset, play) ->
     #return if book.id is @book?.id
     deferred = jQuery.Deferred()
     load = LYT.Book.load book
     
-    log.message "Player: Loading book #{book}, segment #{url}, offset: #{offset}, play #{play}"
+    log.message "Player: Loading book #{book}, segment #{url}, smilOffset: #{smilOffset}, play #{play}"
     load.done (book) =>
       @book = book
       jQuery("#book-duration").text @book.totalTime
       @whenReady =>
         if not url and book.lastmark?
-          url    = book.lastmark.URI
-          offset = LYT.utils.parseOffset book.lastmark?.timeOffset
-          log.message "Player: resuming from lastmark #{url}, offset #{offset}"
+          url = book.lastmark.URI
+          smilOffset = book.lastmark.timeOffset
+          log.message "Player: resuming from lastmark #{url}, smilOffset #{smilOffset}"
 
         failHandler = () =>
           deferred.reject 'failed to find segment'
@@ -478,6 +503,7 @@ LYT.player =
 
         doneHandler = (segment) =>
           deferred.resolve @book
+          offset = segment.audioOffset(smilOffset) if smilOffset
           @playSegmentOffset segment, offset, play
           log.message "Player: found segment #{segment.url()} - playing"
 
@@ -503,6 +529,7 @@ LYT.player =
       deferred.reject error
 
     deferred.promise()
+
 
   playSegment: (segment, play) -> @playSegmentOffset segment, null, play
   

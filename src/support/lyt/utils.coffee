@@ -23,17 +23,6 @@ LYT.utils =
     components = (parseInt(component, 10) || 0 for component in components)
     components[0] * 3600 + components[1] * 60 + components[2]
   
-  # Parse offset strings ("HH:MM:SS.ss") to seconds, e. g.
-  #     LYT.utils.parseOffset("1:02:03.05") #=> 3723.05
-  # We keep this function as well as parseTime above because they are used
-  # to parse formats that are not completely identical.
-  parseOffset: (timeOffset) ->
-    values = timeOffset.match /\d+/g
-    values[3] or= "0"
-    values[3] = "0.#{values[3]}"
-    values = jQuery.map values, parseFloat
-    values[0] * 3600 + values[1] * 60 + values[2] + values[3]
-  
   toSentence: (array) ->
     return "" if not (array instanceof Array) or array.length is 0
     return String(array[0]) if array.length is 1

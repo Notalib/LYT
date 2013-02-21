@@ -22,6 +22,10 @@ LYT.control =
   # Utility methods
   
   init: ->
+    @versionCheck()
+    @setupEventHandlers()
+
+  versionCheck: ->
     lastVersion = ->
       # For debugging: let the user specify lastVersion in the address
       if match = window.location.hash.match /lastVersion=([0-9\.]+)/
@@ -34,9 +38,7 @@ LYT.control =
     if lastVersion() and lastVersion() isnt LYT.VERSION
       LYT.var.next = window.location.hash
       window.location.hash = '#splash-upgrade'
-    
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
-    @setupEventHandlers()
 
   setupEventHandlers: ->
     $(document).one 'pageinit', ->
@@ -313,7 +315,7 @@ LYT.control =
       if type is 'pageshow'
         segmentUrl = params.section or null
         segmentUrl += "##{params.segment}" if params.segment
-        offset = if params.offset then LYT.utils.parseOffset(params.offset) else 0
+        offset = if params.offset then LYT.utils.parseTime(params.offset) else null
         play = (params.play is 'true') or false
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
@@ -322,7 +324,7 @@ LYT.control =
           
         header = $(page).children(':jqmData(role=header)')
         
-        log.message "control: bookPlay: loading book #{params.book}"
+        log.message "Control: bookPlay: loading book #{params.book}"
         
         process = LYT.player.load params.book, segmentUrl, offset, play
         LYT.loader.register "Loading book", process
@@ -429,8 +431,12 @@ LYT.control =
     promise.done ->
       if type is 'pagebeforeshow'
         if Modernizr.playbackrate is true
-          LYT.render.showplayBackRate()  
-  
+          LYT.render.showplayBackRate()
+        if LYT.config.settings.showAdvanced
+          $('.advanced-settings').show()
+        else
+          $('.advanced-settings').hide()
+
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
         

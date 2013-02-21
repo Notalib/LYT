@@ -53,11 +53,12 @@ class LYT.Segment
     @end         = data.end
     @canBookmark = data.canBookmark
     @section     = section
-    # Will be initialized in the load() method
-    @text        = null
-    @html        = null
     @audio       = @section.resources[data.audio.src]?.url
     @data        = data
+    # Will be initialized in the load() method:
+    @text        = null
+    @html        = null
+    @smil        = data.smil
     
   # Loads all resources
   load: ->
@@ -101,6 +102,8 @@ class LYT.Segment
   
   getPrevious: -> @previous
   
+  duration: -> @end - @start
+  
   search: (iterator, filter, onlyOne = true) ->
     if onlyOne
       found = false
@@ -125,6 +128,31 @@ class LYT.Segment
   _status: ->
     for image in @_images
       log.message "Segment: image queue: #{image.src}: #{image.deferred.state()}"
+
+  bookmark: (audioOffset) ->
+    new LYT.Bookmark
+      URI:        @url()
+      timeOffset: @smilOffset audioOffset
+      note:       text: @section.title
+
+  smilStart: ->
+    return @smil.start if @smil.start?
+    start = 0
+    segment = this
+    while segment = segment.previous
+      start += segment.duration()
+    @smil.start = start
+    start
+
+  # Convert from smil offset to audio offset
+  audioOffset: (smilOffset) -> @start + smilOffset - @smilStart()
+
+  # Convert from audio offset to smil offset
+  smilOffset: (audioOffset) -> @smilStart() + audioOffset - @start
+
+  containsSmilOffset: (smilOffset) -> @smilStart() <= smilOffset <= @smilStart() + @duration()
+  
+  containsOffset: (offset) -> @start <= offset <= @end
 
   # Will load this segment and the next preloadCount segments  
   preloadNext: (preloadCount = LYT.config.segment.preload.queueSize) ->

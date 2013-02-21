@@ -186,21 +186,13 @@ class LYT.Book
       process = LYT.service.getBookmarks(@id)
       
       # TODO: perhaps bookmarks should be loaded lazily, when required?
-      process.fail -> 
-      #deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
-        marks =
-          lastmark:  null
-          bookmarks: []
-
-        {@lastmark, @bookmarks} = marks
-        resolve()
+      process.fail -> deferred.reject BOOK_BOOKMARKS_NOT_LOADED_ERROR
       
       process.done (data) =>
-        if not data?
-          data = 
-            lastmark:  null
-            bookmarks: []
-        {@lastmark, @bookmarks} = data
+        if data?
+          @lastmark = data.lastmark
+          @bookmarks = data.bookmarks
+          @_normalizeBookmarks()
         resolve()
     
     # Kick the whole process off
@@ -212,62 +204,53 @@ class LYT.Book
   getMetadata: ->
     @nccDocument?.getMetadata() or null
 
-  segmentToBookmark: (segment, offset) ->
-    # TODO: The server doesn't support npt format, though it is required
-    #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
-    offset or= segment.start
-    hours   = Math.floor(offset / 3600)
-    minutes = Math.floor((offset - hours*3600) / 60)
-    seconds = offset - hours * 3600 - minutes * 60
-    hours   = '0' + hours.toString()   if hours < 10
-    minutes = '0' + minutes.toString() if minutes < 10
-    if seconds < 10
-      seconds = '0' + seconds.toFixed(2)
-    else
-      seconds = seconds.toFixed(2)
-    return URI: segment.url(), timeOffset: "#{hours}:#{minutes}:#{seconds}", note: {text: "#{segment.section.title} - #{hours}:#{minutes}:#{seconds}"}
+  saveBookmarks: -> LYT.service.setBookmarks this
 
-  saveBookmarks: ->
-    LYT.service.setBookmarks
-      book:
-        id:      @id
-        title:   @title
-      lastmark:  @lastmark
-      bookmarks: @bookmarks
-
-  # TODO: Sort bookmarks in reverse chronological order
-  # TODO: Add remove bookmark method
-  addBookmark: (segment, offset = 0) ->
-    @bookmarks or= []
-    @bookmarks.push @segmentToBookmark segment, offset
-    
-    # We need the offsets parsed to seconds here, so first
-    # they are all added and at the end, we remove them again.
-    # TODO: Write class representing bookmarks(!)
-    
+  _normalizeBookmarks: ->
+    # Delete all bookmarks that are very close to each other
     temp = {}
     for bookmark in @bookmarks
-      bookmark.offset = LYT.utils.parseOffset bookmark.timeOffset
       temp[bookmark.URI] or= []
       # Find an index for this bookmark: either at the end of the array
       # or at the location of anohter bookmark very close to this one
       i = 0
       while i < temp[bookmark.URI].length
         saved = temp[bookmark.URI][i]
-        if bookmark.offset - 2 < saved.offset < bookmark.offset + 2
+        if -2 < saved.timeOffset - bookmark.timeOffset < 2
           break
         i++
       temp[bookmark.URI][i] = bookmark
 
-    delete bookmark.offset for bookmark in @bookmarks
-    
     @bookmarks = []
-    @bookmarks = @bookmarks.concat segment_marks for uri, segment_marks of temp
-    # TODO: Sort using chronographical order
-    @bookmarks = @bookmarks.sort (a, b) -> a.note.text > b.note.text
+    @bookmarks = @bookmarks.concat bookmarks for uri, bookmarks of temp
+    
+    # Sort them
+    # TODO: Sort using chronographical order (implement LYT.Bookmark.compare)
+    cmp = (a, b) ->
+      return 1 if not b?
+      return -1 if not a?
+      if a > b
+        1
+      else if a < b
+        -1
+      else 0
 
+    @bookmarks = @bookmarks.sort (a, b) ->
+      if a.note? and b.note?
+        cmp a.note.text, b.note.text
+      else if a.title? and b.title?
+        cmp a.title.text, b.title.text
+      else
+        true   
+
+  # TODO: Sort bookmarks in reverse chronological order
+  # TODO: Add remove bookmark method
+  addBookmark: (segment, offset = 0) ->
+    @bookmarks or= []
+    @bookmarks.push segment.bookmark offset
+    @_normalizeBookmarks()
     @saveBookmarks()
     
   setLastmark: (segment, offset = 0) ->
-    @lastmark = @segmentToBookmark segment, offset
+    @lastmark = segment.bookmark offset
     @saveBookmarks()

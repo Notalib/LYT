@@ -160,7 +160,11 @@ LYT.render.content = do ->
       # Using getElementById in this loop for performance reasons
       element = $(document.getElementById contentContainerId segment)
       if element.length == 0
-        unless element = segment.element
+        # There is no content container for this segment, so it should be
+        # rendered now. First see if we have an HTML element cached from
+        # before (in segment.element). If that fails, render it again.
+        element = segment.element
+        unless element
           element = $(document.createElement('div'))
           element.attr 'id', contentContainerId segment
           element.attr 'class', 'segmentContainer'
@@ -168,12 +172,16 @@ LYT.render.content = do ->
           element.find('img').each ->
             image = $(this)
             image.click -> image.toggleClass('zoom')
-            
           segment.element = element
         
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
       else
+        # The element may already have been created by a previous segment, so
+        # set a reference to it here.
+        segment.element = element
+        # TODO: The following should be possible to remove because the missing
+        #       segment containers are removed in the block above.
         if missingContainer = $(document.getElementById missingContainerId(segment))
           missingContainer.remove()
 
