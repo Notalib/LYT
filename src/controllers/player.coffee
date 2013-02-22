@@ -19,7 +19,6 @@ LYT.player =
   playing: null
   nextOffset: null
   currentOffset: null
-  playCommands: {}
   
   timeupdateLock: false
   
@@ -70,9 +69,18 @@ LYT.player =
         
         $.jPlayer.timeFormat.showHour = true
         
-        $('.jp-pause').click => @playing = false
+        # Pause button is only shown when playing
+        $('.lyt-pause').click =>
+          @playing?.cancel()
 
-        $('.jp-play').click =>  @playing = true
+        $('.lyt-play').click => 
+          @playing = new LYT.player.command.play(@el)
+          @playing.progress ->
+            $('.lyt-play').hide()
+            $('.lyt-pause').show()
+          @playing.always ->
+            $('.lyt-pause').hide()
+            $('.lyt-play').show()
         
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
@@ -106,7 +114,7 @@ LYT.player =
           log.message "previous section"
           return false
 
-      timeupdate: (event) =>
+      _timeupdate: (event) =>
         LYT.instrumentation.record 'timeupdate', event.jPlayer.status
         status = event.jPlayer.status
         # Drop timeupdate event fired while the player is paused 
@@ -121,13 +129,6 @@ LYT.player =
         # FIXME: Handling of resume when the segment has been loaded can be
         #        mixed with user interactions, causing an undesired resume
         #        after the user has clicked pause.
-
-        # Resolve any play commands found
-        if commands = @playCommands[status.src]
-          for playCommand in commands
-            if -0.5 < playCommand.offset - status.currentTime < 0.5
-              log.message "Player: event playing: resolving playCommand #{status.src}, offset #{playCommand.offset} (segment #{playCommand.segment.url()})"
-              playCommand.deferred.resolve()
 
         # Don't do anything else if we're already moving to a new segment
         if @timeupdateLock
@@ -200,7 +201,7 @@ LYT.player =
             else
               log.error "Player: timeupdate event: Unable to load any segment for #{status.src}, offset #{@time}."
 
-      loadstart: (event) =>
+      _loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
         log.message "Player: loadstart: playAttemptCount: #{@playAttemptCount}, paused: #{@getStatus().paused}"
         @timeupdateLock = false
@@ -220,7 +221,7 @@ LYT.player =
         else
           @timeupdateLock = false
       
-      play: (event) =>
+      _play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
         status = event.jPlayer.status
         log.message "Player: event play, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
@@ -250,12 +251,12 @@ LYT.player =
             return
         LYT.render.setPlayerButtonFocus 'pause'
         
-      pause: (event) =>
+      _pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
         log.message "Player: event pause"
         LYT.render.setPlayerButtonFocus 'play'
 
-      seeked: (event) =>
+      _seeked: (event) =>
         # FIXME: issue #459 HACK remove spinner no matter what
         LYT.loader.close 'metadata'
         LYT.instrumentation.record 'seeked', event.jPlayer.status
@@ -283,7 +284,7 @@ LYT.player =
             @el.jPlayer 'play'
         segment.always => @timeupdateLock = false
           
-      loadedmetadata: (event) =>
+      _loadedmetadata: (event) =>
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
         log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
         LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
@@ -306,11 +307,11 @@ LYT.player =
           @playAttemptCount = 0
         # else: nothing to do because we are playing the wrong file
       
-      canplay: (event) =>
+      _canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
         log.message "Player: event canplay: paused: #{@getStatus().paused}"
 
-      canplaythrough: (event) =>
+      _canplaythrough: (event) =>
         LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
         log.message "Player: event canplaythrough: nextOffset: #{@nextOffset}, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         if @nextOffset?
@@ -542,15 +543,6 @@ LYT.player =
   playSegmentOffset: (segment, offset, play) ->
     throw 'Player: playSegmentOffset called with no segment' unless segment?
 
-    @playCommands[segment.audio] or= []
-    playCommand = 
-      segment:  segment
-      offset:   offset
-      deferred: jQuery.Deferred()
-    playCommand.deferred.always =>
-      @playCommands = jQuery.grep @playCommands, (otherCommand) -> otherCommand isnt playCommand
-    @playCommands[segment.audio].push playCommand
-
     segment.done (segment) =>
       log.message "Player: playSegmentOffset: play #{segment.url()}, offset #{offset}, play: #{play}"
 
@@ -566,35 +558,43 @@ LYT.player =
       else
         offset = segment.start
 
-      # Fixing odd buffer bug in Chrome 24 where offset == 0 causes it to stop buffering
-      offset = 0.000001 if offset == 0
-      
       # If play is set to true or false, set playing accordingly
       @playing = play if play?
+      
+      seekAndPlay = (offset) =>
+        deferred = jQuery.Deferred()
+        seek = new LYT.player.command.seek(@el, offset)
+        seek.done (event) ->
+          deferred.notify event
+          if @playing
+            play = new LYT.player.command.play(@el)
+            deferred.pipe play
+          else
+            deferred.resolve(event)
+        deferred.promise()
 
       # See if we need to initiate loading of a new audio file or if it is
       # possible to just move the play head.
+      result = null
       if @currentAudio != segment.audio
         log.message "Player: playSegmentOffset: setMedia #{segment.audio}, setting nextOffset to #{offset}"
         command = new LYT.player.command.load(@el, segment.audio)
         @currentAudio = segment.audio
-        @nextOffset   = offset
+        @nextOffset = offset
 #        @el.jPlayer 'setMedia', {mp3: segment.audio}
 #        @el.jPlayer 'load'
-        command.done (status) ->
+        doneHandler = ->
           log.message 'Command load done'
           log.message status
+          deferred.pipe seekAndPlay offset
+        failHandler = ->
+          throw 'defunct! not working!'
+        result = command.then doneHandler, failHandler
       else
-        if @playing
-          log.message "Player: playSegmentOffset: play from offset #{offset}"
-          @el.jPlayer 'play', offset
-        else
-          log.message "Player: playSegmentOffset: pause at offset #{offset}"
-          @el.jPlayer 'pause', offset
+        result = seekAndPlay offset
 
       @updateHtml segment
-      
-    playCommand.deferred.promise()
+
 
   dumpStatus: -> log.message field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
 

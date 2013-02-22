@@ -1,7 +1,7 @@
 # Requires `/controllers/player/command`
 # -------------------
 
-class LYT.player.command.play extends LYT.player.command
+class LYT.player.command.pause extends LYT.player.command
 
   constructor: (el) ->
     super el

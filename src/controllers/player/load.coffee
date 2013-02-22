@@ -6,7 +6,7 @@ class LYT.player.command.load extends LYT.player.command
   constructor: (el, @src) ->
     super el
     if @src is @status().src
-      this.resolve()
+      @resolve()
     else
       @_run =>
         @loadAttemptCount = 0
@@ -23,13 +23,14 @@ class LYT.player.command.load extends LYT.player.command
       # Caveat emptor: for this reason, the player will wrongly assume that
       # there is an error if the player is ever asked to play a zero length
       # audio stream.
-      if @status().src == @src
-        if event.jPlayer.status.duration == 0 or isNaN event.jPlayer.status.duration
+      if @status().src is @src
+        if event.jPlayer.status.duration is 0 or isNaN event.jPlayer.status.duration
           if ++@loadAttemptCount <= 5 # FIXME: configurable defaults
             @el.jPlayer 'setMedia', {mp3: @src}
-          else
-            # Give up - we pretend that we have got the duration
-            this.resolve event.jPlayer.status
+          # else give up - we pretend that we have got the duration
         else
-          this.resolve event.jPlayer.status
+          @notify event.jPlayer.status
       # else: nothing to do because this event is from the wrong file
+
+   canplaythrough: (event) =>
+     @resolve event.jPlayer.status

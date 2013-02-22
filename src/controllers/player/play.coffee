@@ -3,14 +3,22 @@
 
 class LYT.player.command.play extends LYT.player.command
 
-  constructor: (el, @callback) ->
+  constructor: (el) ->
     super el
     @_run =>
       @el.jPlayer 'play'
 
+  cancel: -> @el.jPlayer 'pause'
+
   handles: ->
     playing: (event) =>
-      this.resolve event.jPlayer.status
+      @notify event.jPlayer.status
 
     timeupdate: (event) =>
-      @callback event.jPlayer.status
+      @notify event.jPlayer.status
+
+    ended: (event) =>
+      @resolve event.jPlayer.status
+
+    pause: (event) =>
+      @reject event.jPlayer.status
