@@ -408,22 +408,23 @@ LYT.player =
       @playBackRate = playBackRate
       
     setRate = =>
-      if @el.data('jPlayer').htmlElement.audio?.playbackRate?
-        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
 
-      if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
-        @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
+    unsetRate = =>
+      @el.data('jPlayer').htmlElement.audio.playbackRate = null
+      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = null
 
-    setRate()
-
-    #Added for IOS6 - iphone will not change the playBackRate unless you pause
-    #the playback, after setting the playbackRate. And then we can obtain the new
-    #playbackRate and continue
-    # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
-    
+    # Added for IOS6 - iphone will not change the playBackRate unless you pause
+    # the playback, after setting the playbackRate. And then we can obtain the new
+    # playbackRate and continue
     @el.jPlayer 'pause'
     setRate()
+
     @el.jPlayer 'play'
+
+    # Added for Safari desktop version - will not work unless rate is unset og set again
+    unsetRate()
     setRate()
 
     log.message "Player: setPlayBackRate: #{@playBackRate}"
