@@ -14,7 +14,7 @@ Login:
 
     - 6: Log on correctly, log off, close tab, return to page. Check, that you are logged off.
 
-    - 7: Log on with 'guest/anypassword', check that you can play the books on the 
+    - 7: Log on using the guest link, check that you can play the books on the 
       shelf, use the search engine, but only play the freely available books in
       the database. 
 
@@ -34,7 +34,7 @@ Searching and adding books:
          Harry Potter and the Goblet of Fire,
          Harry Potter and the Order of the Phoenix, 
          Harry Potter and the Half-Blood Prince,
-         Harry Potter and the Deathly Hallows.
+         Harry Potter and the Deathly Hallows)
     
     - 2: Write 'krimi' in the search field. Check, that you only get crime fiction - i.e. 
          that you don't get any academic books on crime or similar. 
@@ -42,16 +42,13 @@ Searching and adding books:
     - 3: Write 'krimi Larsson' in the search field. Check, that you only get crime 
       fiction involving the name Larsson.
     
-    - 4: Find a book (type doesn't matter) and add it
+    - 4: Find a book (type doesn't matter) and add it. 
 
-    - 5: Log out, close tab, open again and log in. All books still there?
+    - 5: Log out, close tab, open again and log in. Are all your books still there?
 
     - 6: Remove a book, repeat above. Is the removal registered on return?
 
-    - 7: Log in on another device, keeping current session open as well. Add
-      a book on the other device. Are the changes registered both places?
-      
-    - 8: Do a search, click one of the books and then click the browser's back
+    - 7: Do a search, click one of the books and then click the browser's back
       button. Does it display the last search result? Repeat using the applications
       back to search results - button.
 
@@ -75,9 +72,6 @@ Playing books (linearly):
           
         - 5: Whilst playing, let the phone go on standby and lock. Does the 
           book keep playing undisturbed?
-        
-        Repeat above on: A normal book with/without text, a very large book 
-        (e.g. a lexicon or similar), a non-Danish book.
 
 
 Navigation between book sections: 
@@ -136,24 +130,32 @@ Modifying settings:
 
     - 5: Log out, log on as guest again and check that the changes are not registered. 
     
-    - 6: Setting buttons for read speed should appear on all platforms, except IOS.
+    - Log on a previous version of the code (i.e. the live version), change some of your
+      settings and log out. Log on the current test release and check, that the changes from
+      the old version appear in the new. 
+    
 
+Comics (THIS TEST CASE NEEDS REVIEWING): 
 
-Comics: 
-
-        - 1: Open the comic, press 'Play'. Does the images seem to follow sound?
+        - NOTE: The player must be running the cartoon player, which works by zooming in at the specific text being read
         
-        - 2: Whilst playing, check that the image is scaled properly. Can you see everything?
+        - 1: Test the first three cases of "Playing books (linearly)" on the comic.
         
-        - 3: Whilst playing, click 'Pause', then resume playing. 
+        - 2: Whilst Playing, Check that the image automatically follows the text being read.
 
-        - 4: Whilst playing, click on the chapter's timeline. Does it jump to
-          the place you've clicked?
+        - 3: Whilst playing, click on the chapter's timeline. Does it jump to the place you've clicked?
 
-        - 5: Check, that clicking repeatedly on the images does not affect playing. 
+        - 4: Check, that clicking repeatedly on the images does not affect playing. 
 
-        - 6: Forward and backward playing, checking that this does not disrupt the 
-          showing of the images. 
+        - 5: Forward and backward playing, checking that this does not disrupt the showing of the images. 
+          
+    (On a smartphone/Tablet)
+    
+        - 1: Run the same test listed above.
+        
+        - 2: Test the two cases for smartphone of "Playing books (linearly)".
+        
+        - 3: Whilst playing, check that the image is scaled properly. Can you see everything?
 
 Bookmarks:
 
@@ -173,7 +175,12 @@ Bookmarks:
              
         - 6: Log out, then back in. Are your bookmarks still there?
         
-        - 7: Remove your bookmarks. 
+        - 7: Remove a book mark, log out and back in. Is it gone?
+        
+        - Log on an older version of the code base (e.g. the live version), add a 
+          few bookmarks and log out again. Log on the test version and check that the
+          bookmarks from the old version appear on the new. NB: This doesn't/isn't 
+          supposed to work the other way around. 
 
 Sharing bookmarks:
 
@@ -191,7 +198,7 @@ Sharing bookmarks:
           button and verify in the email that the link displayed is still
           correct and the wording looks right.
 
-Shortcuts:
+Shortcuts (test only on PCs):
 
         - 1: Open a book. Verify the following shortcuts:
         
