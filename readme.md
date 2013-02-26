@@ -17,6 +17,44 @@ Tests built with [QUnit](http://docs.jquery.com/QUnit)
 
 All releases are available from Github using the tag format lyt-&lt;version&gt;.
 
+### Version 1.2.0
+
+#### Major features
+
+  * Keyboard shortcut navigation for most common tasks:
+    play, pause, skip forward, skip backward, help and add bookmark.
+  * Player handles more complex SMIL files now.
+  * It is possible to change playback rate on supported platforms.
+  * A large number of usability improvements for normal users as well as
+    users of JAWS and other similar screen readers.
+
+#### Improvements and bugfixes
+  
+  * Redirect to support page if platform unsupported.
+  * Improved display of book index.
+  * Navigation bug found when switching between search result pages.
+  * Playback bug found in Chrome 24.
+  * A number of HTML validation errors.
+  * Various playback related bugs.
+  * Fixed a number of bugs where event listeners handling the same event were
+    bound several times.
+  * Validating the finished HTML is now a step in the build process.
+  * Instrumentation and developer console enabled when using the -d build flag.
+  * In-player unit test framework set up.
+  * Removed usage of global variables in a number of places.
+  * Removed a large number of unused variables, functions and data structures.
+  * Introduced a new class for bookmarks that uses SMIL offsets.
+
+
+### Version 1.1.4
+
+  * Updated text on support pages and in various other places.
+  * Highlighting current book content paragraph.
+  * Added predefined comic search.
+  * Minor bugfixes.
+
+Versions 1.1.1, 1.1.2 and 1.1.3 were never released.
+
 ### Version 1.1.0
 
 #### Major features
