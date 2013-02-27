@@ -420,11 +420,12 @@ LYT.player =
       @playBackRate = playBackRate
       
     setRate = =>
-      if @el.data('jPlayer').htmlElement.audio?.playbackRate?
-        @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
+      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
 
-      if @el.data('jPlayer').htmlElement.audio?.defaultPlaybackRate?
-        @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
+    unsetRate = =>
+      @el.data('jPlayer').htmlElement.audio.playbackRate = null
+      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = null
 
     setRate()
 
@@ -443,6 +444,10 @@ LYT.player =
     return unless @playing
     
     @el.jPlayer 'play'
+
+    # Added for Safari desktop version - will not work unless rate is unset
+    # and set again
+    unsetRate()
     setRate()
 
     log.message "Player: setPlayBackRate: #{@playBackRate}"
