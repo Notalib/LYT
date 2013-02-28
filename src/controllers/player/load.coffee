@@ -12,6 +12,12 @@ class LYT.player.command.load extends LYT.player.command
         @loadAttemptCount = 0
         @el.jPlayer 'setMedia', {mp3: @src}
         @el.jPlayer 'load'
+        @startHandler = =>
+          status = @status()
+          if status.src is @src and status.readyState > 2
+            @resolve status
+        @startInterval = setInterval @startHandler, 200
+      this.always => clearInterval @startInterval
 
   handles: ->
     loadedmetadata: (event) =>

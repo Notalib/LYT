@@ -74,13 +74,14 @@ LYT.player =
           @playing?.cancel()
 
         $('.lyt-play').click => 
-          @playing = new LYT.player.command.play(@el)
-          @playing.progress ->
-            $('.lyt-play').hide()
-            $('.lyt-pause').show()
-          @playing.always ->
-            $('.lyt-pause').hide()
-            $('.lyt-play').show()
+          @playing = true
+          new LYT.player.command.play(@el)
+            .progress ->
+              $('.lyt-play').hide()
+              $('.lyt-pause').show()
+            .always ->
+              $('.lyt-pause').hide()
+              $('.lyt-play').show()
         
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
@@ -569,7 +570,7 @@ LYT.player =
       seekAndPlay = (offset) =>
         deferred = jQuery.Deferred()
         seek = new LYT.player.command.seek(@el, offset)
-        seek.done (event) ->
+        seek.done (event) =>
           deferred.notify event
           if @playing
             play = new LYT.player.command.play(@el)
@@ -586,12 +587,10 @@ LYT.player =
         command = new LYT.player.command.load(@el, segment.audio)
         @currentAudio = segment.audio
         @nextOffset = offset
-#        @el.jPlayer 'setMedia', {mp3: segment.audio}
-#        @el.jPlayer 'load'
         doneHandler = ->
           log.message 'Command load done'
           log.message status
-          deferred.pipe seekAndPlay offset
+          seekAndPlay offset
         failHandler = ->
           throw 'defunct! not working!'
         result = command.then doneHandler, failHandler

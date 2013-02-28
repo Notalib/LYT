@@ -22,7 +22,7 @@ class LYT.player.command.seek extends LYT.player.command
         this.resolve event.jPlayer.status
       else
         if ++@seekAttemptCount < 3
-          @el.jPlayer.pause @offset
+          @el.jPlayer 'pause', @offset
         else
           this.reject 'Failed to seek after reaching attempt limit'
 
