@@ -19,12 +19,13 @@ class LYT.player.command.seek extends LYT.player.command
   handles: ->
     seeked: (event) =>
       if -0.1 < @offset - event.jPlayer.status.currentTime < 0.1
-        this.resolve event.jPlayer.status
+        log.message 'seek done!'
+        @resolve event.jPlayer.status
       else
         if ++@seekAttemptCount < 3
           @el.jPlayer 'pause', @offset
         else
-          this.reject 'Failed to seek after reaching attempt limit'
+          @reject 'Failed to seek after reaching attempt limit'
 
   # TODO:
   # IOS will some times omit seeking (both the actual seek and the

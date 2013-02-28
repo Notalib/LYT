@@ -37,7 +37,7 @@ class LYT.player.command extends jQuery.Deferred
     @_attach()
     callback() if @state() is 'pending'
 
-  cancel: ->
+  cancel: -> @cancelled = true
 
   handles: -> {}
 

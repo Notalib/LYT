@@ -5,20 +5,30 @@ class LYT.player.command.play extends LYT.player.command
 
   constructor: (el) ->
     super el
+    log.message 'play start'
     @_run =>
       @el.jPlayer 'play'
 
-  cancel: -> @el.jPlayer 'pause'
+  cancel: ->
+    super()
+    @el.jPlayer 'pause'
 
+  _stop: (event) ->
+    method = if @canceled then @reject else @resolve
+    method.apply this, event.jPlayer.status
+    
   handles: ->
     playing: (event) =>
+      @playing = true
       @notify event.jPlayer.status
 
     timeupdate: (event) =>
-      @notify event.jPlayer.status
+      if @playing and event.jPlayer.status.paused
+        @_stop event
+      else
+        @notify event.jPlayer.status
 
-    ended: (event) =>
-      @resolve event.jPlayer.status
+    ended: (event) => @_stop event
 
-    pause: (event) =>
-      @reject event.jPlayer.status
+    pause: (event) => @_stop event
+
