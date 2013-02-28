@@ -76,9 +76,92 @@ LYT.player =
         $('.lyt-play').click => 
           @playing = true
           new LYT.player.command.play(@el)
-            .progress ->
+            .progress (status) =>
               $('.lyt-play').hide()
               $('.lyt-pause').show()
+
+              time = status.currentTime
+              
+              # Schedule fake ending of file if necessary
+              @fakeEnd status if LYT.config.player.useFakeEnd
+      
+              # FIXME: Pause due unloaded segments should be improved with a visual
+              #        notification.
+              # FIXME: Handling of resume when the segment has been loaded can be
+              #        mixed with user interactions, causing an undesired resume
+              #        after the user has clicked pause.
+      
+              # Don't do anything else if we're already moving to a new segment
+              if @timeupdateLock
+                log.message 'Player: timeupdate: timeudateLock set.'
+                if @_next and @_next.state() isnt 'resolved'
+                  log.message "Player: timeupdate: Next segment: #{@_next.state()}. Pause until resolved."
+                  LYT.loader.register 'Loading book', @_next
+                  @pause()
+                  @_next.done => @el.jPlayer 'play'
+                  @_next.fail -> log.error 'Player: timeupdate event: unable to load next segment after pause.'
+                return
+               
+              # This method is idempotent - will not do anything if last update was
+              # recent enough.
+              @updateLastMark()
+      
+              # Move one segment forward if no current segment or no longer in the
+              # interval of the current segment and within two seconds past end of
+              # current segment (otherwise we are seeking ahead).
+              segment = @segment()
+              if segment? and status.src == segment.audio and segment.start < time + 0.1 < segment.end + 2
+                if segment.end < time
+                  # This block uses the current segment for synchronization.
+                  log.message "Player: timeupdate: queue for offset #{time}"
+                  @timeupdateLock = true
+                  log.message "Player: timeupdate: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}], no segment at #{time}, skipping to next segment."
+                  promise = @playlist().nextSegment segment
+                  @_next = promise
+                  promise.done (next) =>
+                    if next?
+                      if next.audio is @currentAudio and next.start - 0.1 < time < next.end + 0.1
+                        @playlist.currentSegment = next
+                        @updateHtml next
+                        @timeupdateLock = false
+                      else
+                        @seekedLoadSegmentLock = true
+                        # This stops playback and should ensure that we won't skip more
+                        # than one segment ahead if another timeupdate event is fired,
+                        # since all timeupdate events with status paused are dropped.
+                        log.message 'Player: timeupdate: pause while switching audio file'
+                        @el.jPlayer 'pause'
+                        promise = @playSegment next, true
+                        promise.done =>
+                          @seekedLoadSegmentLock = false
+                          @updateHtml next
+                        promise.always => @timeupdateLock = false
+                    else
+                      log.error 'Player: timeupdate: no next segment'
+                  # else: nothing to do: segment and audio are in sync as they should
+              else
+                # This block uses the current offset in the audio stream for
+                # synchronization - a strategy that fails if there is no segment for
+                # the current offset.
+                log.message "Player: timeupdate: segment and sound out of sync. Fetching segment for #{status.src}, offset #{time}"
+                if segment
+                  log.group "Player: timeupdate: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}]: ", segment
+                else
+                  log.message 'Player: timeupdate: no current segment set.'
+                promise = @playlist().segmentByAudioOffset status.src, time
+                @_next = promise
+                promise.fail (error) ->
+                  # TODO: The user may have navigated to a place in the audio stream
+                  #       that isn't included in the book. Handle this gracefully by
+                  #       searching for the next segment in the audio file.
+                  log.error "Player: timeupdate event: Unable to load next segment: #{error}."
+                promise.done (next) =>
+                  if next
+                    log.message "Player: timeupdate: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
+                    @updateHtml next
+                  else
+                    log.error "Player: timeupdate event: Unable to load any segment for #{status.src}, offset #{time}."
+
             .always ->
               $('.lyt-pause').hide()
               $('.lyt-play').show()
