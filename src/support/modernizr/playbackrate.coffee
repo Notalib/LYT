@@ -12,7 +12,7 @@
 margin = 0.25  # Margin that the measured playback rate should be within
 rate = 0.5     # Test rate
 duration = 12   # How long time to play the audio before measuring playback rate
-minDuration = 5
+minDuration = 3
 
 # Just fail the test on timeout
 setTimeout(
@@ -27,18 +27,18 @@ try
   
   audio = document.createElement 'audio'
   audio.appendChild source
-  audio.playbackRate = rate
-  audio.defaultPlaybackRate = rate
   audio.pause()
   audio.playbackRate = rate
   audio.defaultPlaybackRate = rate
   audio.volume = 0
   # Note that play delays before file actually starts playing
   audio.play()
+  audio.playbackRate = null
+  audio.defaultPlaybackRate = null
   audio.playbackRate = rate
   audio.defaultPlaybackRate = rate
-  
-  started = null
+    
+  started = new Date() / 1000 - audio.currentTime
   audio.addEventListener 'timeupdate', ->
     # Skip events fired before audio plays or events with invalid time
     # Occurs on Chrome and IOS

@@ -430,8 +430,9 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        if Modernizr.playbackrate is true
-          LYT.render.showplayBackRate()
+        # TODO: We should use Modernizr.playbackrate to check if setting the
+        #       playback rate is supported.
+        LYT.render.showplayBackRate()
         if LYT.config.settings.showAdvanced
           $('.advanced-settings').show()
         else
