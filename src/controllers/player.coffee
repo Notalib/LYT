@@ -488,8 +488,8 @@ LYT.player =
   
   # url: url pointing to section or segment
   load: (book, url = null, smilOffset, play) ->
-    #return if book.id is @book?.id
-    log.message "Player: Loading book #{book}, segment #{url}, smilOffset: #{smilOffset}, play #{play}"
+    log.message "Player: Load: book #{book}, segment #{url}, smilOffset: #{smilOffset}, play #{play}"
+    return jQuery.Deferred().resolve @book if book is @book?.id
 
     ready = jQuery.Deferred()
     @whenReady -> ready.resolve()
