@@ -489,13 +489,20 @@ LYT.player =
   # url: url pointing to section or segment
   load: (book, url = null, smilOffset, play) ->
     log.message "Player: Load: book #{book}, segment #{url}, smilOffset: #{smilOffset}, play #{play}"
-    return jQuery.Deferred().resolve @book if book is @book?.id
 
+    # Wait for jPlayer to get ready
     ready = jQuery.Deferred()
     @whenReady -> ready.resolve()
-    
-    result = ready.then -> LYT.Book.load book
+  
+    # Get the right book  
+    result = ready.then =>
+      if book is @book?.id
+        jQuery.Deferred().resolve @book
+      else
+        # Load the book since we haven't loaded it already
+        LYT.Book.load book
 
+    # Now seek to the right point in the book
     result = result.then (book) =>
       jQuery("#book-duration").text book.totalTime
       # Setting @book should be done after seeking has completed, but the
@@ -509,7 +516,7 @@ LYT.player =
       segmentPromise = null
       if url
         segmentPromise = @playlist().segmentByURL url
-        segmentPromise = segment.then(
+        segmentPromise = segmentPromise.then(
             (segment) =>
               offset = segment.audioOffset(smilOffset) if smilOffset
               @seekSegmentOffset segment, offset
@@ -537,6 +544,8 @@ LYT.player =
       log.error "Player: failed to load book, reason #{error}"
       deferred.reject error
 
+    LYT.loader.register 'Loading sound', result.promise()
+    
     result.promise()
 
   play: ->
@@ -700,13 +709,13 @@ LYT.player =
   # Not providing a segment is allowed and will cause the loading
   # message to appear and the player to pause.
   setMetadataLoader: (segment) ->
-    if not segment or (segment.state() isnt 'resolved' or segment.audio isnt @currentAudio)
-      # Using a delay and the standard fade duration on LYT.loader.set is the
-      # most desirable, but Safari on IOS blocks right after it starts loading
-      # the sound, which means that the message appears very late.
-      # This is why we use fadeDuration 0 below.
-      LYT.loader.set 'Loading sound', 'metadata', true, 0
-      @el.jPlayer 'pause'
+#    if not segment or (segment.state() isnt 'resolved' or segment.audio isnt @currentAudio)
+#      # Using a delay and the standard fade duration on LYT.loader.set is the
+#      # most desirable, but Safari on IOS blocks right after it starts loading
+#      # the sound, which means that the message appears very late.
+#      # This is why we use fadeDuration 0 below.
+#      LYT.loader.set 'Loading sound', 'metadata', true, 0
+#      @el.jPlayer 'pause'
 
   # Skip to next segment
   # Returns segment promise
