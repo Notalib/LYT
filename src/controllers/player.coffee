@@ -536,9 +536,9 @@ LYT.player =
         log.error "Player: failed to find segment"
 
       if play
-        segmentPromise = segmentPromise.then => @play()
+        segmentPromise.done => @play()
 
-      segmentPromise.then -> book
+      segmentPromise.then -> jQuery.Deferred().resolve book
     
     result.fail (error) ->
       log.error "Player: failed to load book, reason #{error}"

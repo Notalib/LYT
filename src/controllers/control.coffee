@@ -327,10 +327,9 @@ LYT.control =
         log.message "Control: bookPlay: loading book #{params.book}"
         
         process = LYT.player.load params.book, segmentUrl, offset, play
-        LYT.loader.register "Loading book", process
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
-          #see if there are any announcements....each time we have loaded a new book.....
+          # See if there are any service announcements every time a new book has been loaded
           LYT.service.getAnnouncements()
           $.mobile.changePage "#book-player?book=#{LYT.player.book.id}"
   
