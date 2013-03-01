@@ -71,14 +71,10 @@ LYT.player =
         
         # Pause button is only shown when playing
         $('.lyt-pause').click =>
-          @playing?.cancel()
+          @stop()
 
         $('.lyt-play').click => 
-          @playing = true
           @play()
-#          .always ->
-#            $('.lyt-pause').hide()
-#            $('.lyt-play').show()
         
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
@@ -402,13 +398,6 @@ LYT.player =
       @nextOffset = null
       @el.jPlayer 'pause'
   
-  # This is a public method - stops playback
-  stop: ->
-    log.message 'Player: stop'
-    if @ready?
-      @el.jPlayer 'stop'
-      @playing = false
-  
   getStatus: ->
     # Be cautious only read from status
     @el.data('jPlayer').status
@@ -548,9 +537,35 @@ LYT.player =
     
     result.promise()
 
+  # This is a public method - stops playback
+  # The stop command returns the last play command or null in case there
+  # isn't any.
+  stop: ->
+    log.message 'Player: stop'
+    @playing = false
+    result = jQuery.Deferred()
+    command = @playCommand
+    command.done => @playCommand = null if @playCommand is command
+    command.cancel()
+    
+    return command
+
+  # Starts playback
   play: ->
     log.message "Player: play"
-    
+
+    command = null
+    getPlayCommand = =>
+      command = new LYT.player.command.play @el
+      $(this).one 'playback:stop', ->
+        log.message 'Got stop event'
+        command.cancel()
+      command.progress progressHandler
+      command.done -> log.warn 'Play completed!'
+      command.always ->
+        $('.lyt-pause').hide()
+        $('.lyt-play').show()
+
     progressHandler = (status) =>
       $('.lyt-play').hide()
       $('.lyt-pause').show()
@@ -575,7 +590,7 @@ LYT.player =
           log.message "Player: timeupdate: Next segment: #{@_next.state()}. Pause until resolved."
           LYT.loader.register 'Loading book', @_next
           command.cancel()
-          @_next.done => new LYT.player.command.play @el
+          @_next.done => getPlayCommand()
           @_next.fail -> log.error 'Player: timeupdate event: unable to load next segment after pause.'
         return
        
@@ -638,10 +653,19 @@ LYT.player =
             @updateHtml next
           else
             log.error "Player: timeupdate event: Unable to load any segment for #{status.src}, offset #{time}."
-    command = new LYT.player.command.play @el
-    command.progress progressHandler
-    command.done -> log.warn 'Play completed!'
-    command
+
+    @playing = true
+    result = jQuery.Deferred()
+    if oldCommand = @playCommand
+      # We need to cancel the previous play command before doing anything else
+      # The command may either resolve or reject depending on which event hits
+      # first: our cancel call or end of audio stream.
+      oldCommand.always ->
+        result.resolve()
+    else
+      result.resolve()
+    result = result.then => @playCommand = getPlayCommand()
+    result
 
   seekSegmentOffset: (segment, offset) ->
     log.message "Player: seekSegmentOffset: play #{segment.url?()}, offset #{offset}"

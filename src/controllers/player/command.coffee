@@ -23,14 +23,21 @@
 class LYT.player.command extends jQuery.Deferred
   constructor: (@el) ->
     jQuery.extend this, jQuery.Deferred()
-    
+  
   _attach: ->
+    @_attached or= []
     for name, handler of @handles()
-      @el.on $.jPlayer.event[name], handler
+      event = $.jPlayer.event[name]
+      @_attached.push
+        event: event
+        handler: handler
+      @el.bind event, handler
 
+  # Assymmetric because if we call @handles() again, we may get new references
+  # to the same handlers, which can't be unbound below.
   _detach: ->
-    for name, handler of @handles()
-      @el.unbind $.jPlayer.event[name], handler
+    for binding in @_attached
+      @el.unbind binding.event, binding.handler
 
   _run: (callback) ->
     this.always => @_detach()
