@@ -45,11 +45,6 @@ do ->
         for section, index in sections
           return section if section.url is baseUrl
 
-    # The segment getters below can be greatly simplified by writing a generic
-    # fault-pipe that resembles the pipe() method on jQuery.Deferred(), except
-    # letting the pipe fail if nothing is returned by a provided getter
-    # function.
-
     firstSegment: -> 
       deferred = jQuery.Deferred()
       this.fail -> deferred.reject()
