@@ -320,6 +320,8 @@ LYT.player =
     if playBackRate?
       @playBackRate = playBackRate
       
+    # TODO: [play-controllers] integrate the setting playback rate this with
+    #       the play() method by adding a playback rate to the play command
     setRate = =>
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
       @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
@@ -412,10 +414,14 @@ LYT.player =
         smilOffset = book.lastmark.timeOffset
         log.message "Player: resuming from lastmark #{url}, smilOffset #{smilOffset}"
 
-      segmentPromise = null
+      # TODO: [play-controllers] Test all various cases of this structure and
+      #       see if it can be simplified.
+      # TODO: [play-controllers] Make sure to call updateHtml once book-player
+      #       is displayed.
+      promise = null
       if url
-        segmentPromise = @playlist().segmentByURL url
-        segmentPromise = segmentPromise.then(
+        promise = @playlist().segmentByURL url
+        promise = promise.then(
             (segment) =>
               offset = segment.audioOffset(smilOffset) if smilOffset
               @seekSegmentOffset segment, offset
@@ -427,17 +433,17 @@ LYT.player =
               @playlist().rewind()
           )
       else
-        segmentPromise = @playlist().rewind()
-        segmentPromise = segmentPromise.then (segment) => @seekSegmentOffset segment, 0
+        promise = @playlist().rewind()
+        promise = promise.then (segment) => @seekSegmentOffset segment, 0
       
-      segmentPromise.fail ->
+      promise.fail ->
         deferred.reject 'failed to find segment'
         log.error "Player: failed to find segment"
 
       if play
-        segmentPromise.done => @play()
+        promise.done => @play()
 
-      segmentPromise.then -> jQuery.Deferred().resolve book
+      promise.then (segment) -> jQuery.Deferred().resolve book
     
     result.fail (error) ->
       log.error "Player: failed to load book, reason #{error}"
@@ -578,9 +584,20 @@ LYT.player =
     log.message "Player: seekSegmentOffset: play #{segment.url?()}, offset #{offset}"
 
     segment or= @segment()
+    
+    result = jQuery.Deferred().resolve()
+    if @playCommand and @playCommand.state is 'pending'
+      # Stop playback and ensure that this part of the deferred chain resolves
+      # once playback has stopped
+      result = result.then =>
+        @stop().then(
+          -> jQuery.Deferred().resolve()
+          -> jQuery.Deferred().resolve()
+        )
 
     # See if we need to initiate loading of a new audio file
-    result = segment.then =>
+    result = result.then => segment
+    result = result.then (segment) =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
         new LYT.player.command.load @el, segment.audio
@@ -612,7 +629,7 @@ LYT.player =
 
     result
 
-  playSegment: (segment, play) -> @playSegmentOffset segment, null, play
+  playSegment: (segment) -> @playSegmentOffset segment, null
   
   # Will display the provided segment, load (if necessary) and play the
   # associated audio file starting att offset. If offset isn't provided, start
@@ -653,34 +670,33 @@ LYT.player =
 #      LYT.loader.set 'Loading sound', 'metadata', true, 0
 #      @el.jPlayer 'pause'
 
+  navigate: (segmentPromise) ->
+    handler = =>
+      @playSegment segmentPromise
+      segmentPromise
+    if @playCommand
+      # Stop playback and set up both done and fail handlers
+      @playCommand.cancel()
+      @playCommand.then handler, handler
+    else
+      handler
+
   # Skip to next segment
   # Returns segment promise
   nextSegment: ->
-    return null unless @playlist()?
+    return unless @playlist()?
     if @playlist().hasNextSegment() is false
       LYT.render.bookEnd()
       delete @book.lastmark
       @book.saveBookmarks()
-      return null
-    @setMetadataLoader @segment().next
-    @seekedLoadSegmentLock = true
-    segment = @playlist().nextSegment()
-    log.message "Player: nextSegment: #{segment.state()}"
-    segment.done (segment) -> log.message "Player: nextSegment: #{segment.url()}, #{segment.start}"
-    @playSegment segment
-    segment.always => @seekedLoadSegmentLock = false
-    segment
+      return
+    @navigate @playlist().nextSegment()
 
   # Skip to next segment
   # Returns segment promise
   previousSegment: ->
-    return null unless @playlist()?.hasPreviousSegment()
-    @setMetadataLoader @segment().previous
-    @seekedLoadSegmentLock = true
-    segment = @playlist().previousSegment()
-    @playSegment segment
-    segment.always => @seekedLoadSegmentLock = false
-    segment
+    return unless @playlist()?.hasPreviousSegment()
+    @navigate @playlist().previousSegment()
   
   updateLastMark: (force = false, segment) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
