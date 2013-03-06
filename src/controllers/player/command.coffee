@@ -23,7 +23,10 @@
 class LYT.player.command extends jQuery.Deferred
   constructor: (@el) ->
     jQuery.extend this, jQuery.Deferred()
-  
+    # Filter out progress events after cancel()
+    progress = @progress
+    @progress = => progress.apply this, arguments unless @cancelled
+    
   _attach: ->
     @_attached or= []
     for name, handler of @handles()
