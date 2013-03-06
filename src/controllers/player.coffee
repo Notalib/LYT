@@ -361,11 +361,9 @@ LYT.player =
   
   refreshContent: ->
     # Using timeout to ensure that we don't call updateHtml too often
-    refreshHandler = =>
-      if @playlist() and segment = @segment()
-        updateHtml segment
+    refreshHandler = => @updateHtml segment if @playlist() and segment = @segment()
     clearTimeout @refreshTimer if @refreshTimer
-    @refreshTimer = setTimeout 500, refreshHandler
+    @refreshTimer = setTimeout refreshHandler, 500
       
   updateHtml: (segment) ->
     # Update player rendering for current time of section
