@@ -455,10 +455,9 @@ LYT.player =
   stop: ->
     log.message 'Player: stop'
     @playing = false
-    result = jQuery.Deferred()
-    command = @playCommand
-    command.done => @playCommand = null if @playCommand is command
-    command.cancel()
+    if command = @playCommand
+      command.done => @playCommand = null if @playCommand is command
+      command.cancel()
     
     return command
 
