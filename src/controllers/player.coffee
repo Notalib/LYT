@@ -671,15 +671,23 @@ LYT.player =
 #      @el.jPlayer 'pause'
 
   navigate: (segmentPromise) ->
-    handler = =>
-      @playSegment segmentPromise
-      segmentPromise
+    
+    handler = null
+    if @playing
+      handler = =>
+        @playSegment segmentPromise
+        segmentPromise
+    else
+      handler = =>
+        @seekSegmentOffset segmentPromise
+        segmentPromise
+
     if @playCommand
       # Stop playback and set up both done and fail handlers
       @playCommand.cancel()
       @playCommand.then handler, handler
     else
-      handler
+      handler()
 
   # Skip to next segment
   # Returns segment promise
