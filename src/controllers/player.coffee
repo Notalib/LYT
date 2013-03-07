@@ -600,12 +600,12 @@ LYT.player =
     result = result.then (segment) =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        new LYT.player.command.load @el, segment.audio
+        (new LYT.player.command.load @el, segment.audio).then -> segment
       else
-        jQuery.Deferred().resolve()
+        jQuery.Deferred().resolve segment
 
     # Now move the play head
-    result = result.then =>
+    result = result.then (segment) =>
       # Ensure that offset has a useful value
       if offset?
         if offset > segment.end
@@ -619,13 +619,13 @@ LYT.player =
         offset = segment.start
       if offset - 0.1 < @getStatus().currentTime < offset + 0.1
         # We're already at the right point in the audio stream
-        jQuery.Deferred().resolve()
+        jQuery.Deferred().resolve segment
       else
         # Not at the right point - seek
-        new LYT.player.command.seek @el, offset
+        (new LYT.player.command.seek @el, offset).then -> segment
 
     # Once the seek has completed, render the segment
-    result.done => @updateHtml segment
+    result.done (segment) => @updateHtml segment
 
     result
 
