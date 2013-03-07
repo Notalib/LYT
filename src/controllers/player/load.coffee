@@ -12,6 +12,7 @@ class LYT.player.command.load extends LYT.player.command
         @loadAttemptCount = 0
         @el.jPlayer 'setMedia', {mp3: @src}
         @el.jPlayer 'load'
+        # Ensure that this command resolves as soon as readyState is non-zero
         startHandler = =>
           status = @status()
           if status.src is @src and status.readyState > 0
