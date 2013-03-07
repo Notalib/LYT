@@ -136,7 +136,7 @@ LYT.render = do ->
   init: ->
     log.message 'Render: init'
     @setStyle()
-    @setVersion()
+    @setInfo()
 
   setStyle: ->
     log.message 'Render: setting custom style'
@@ -145,7 +145,9 @@ LYT.render = do ->
     $('#book-player').css
       'background-color': $("#book-stack-content").css('background-color')
       
-  setVersion: -> $('.lyt-version').html LYT.VERSION
+  setInfo: ->
+    $('.lyt-version').html LYT.VERSION
+    $('.current-year').html (new Date()).getFullYear()
   
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), "Bogmærke tilføjet", 5
   
