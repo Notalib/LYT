@@ -20,9 +20,12 @@
 #
 # The auxillary method status() returns the current jPlayer status.
 
+nextId = 1
+
 class LYT.player.command extends jQuery.Deferred
-  constructor: (@el) ->
-    jQuery.extend this, jQuery.Deferred()
+  constructor: (@el, deferred) ->
+    jQuery.extend this, (deferred or jQuery.Deferred())
+    @id = nextId++
     # Filter out progress events after cancel()
     progress = @progress
     @progress = => progress.apply this, arguments unless @cancelled
@@ -43,7 +46,10 @@ class LYT.player.command extends jQuery.Deferred
       @el.unbind binding.event, binding.handler
 
   _run: (callback) ->
-    this.always => @_detach()
+    LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:start"
+    @done => LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:done"
+    @fail => LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:fail"
+    @always => @_detach()
     @_attach()
     callback() if @state() is 'pending'
 

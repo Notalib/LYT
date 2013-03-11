@@ -15,6 +15,7 @@ LYT.player =
   previousButton: null
   playing: null
   refreshTimer: null
+  firstPlay: true
   
   # TODO See if the IOS metadata bug has been fixed here:
   # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
@@ -30,6 +31,21 @@ LYT.player =
   
   section: -> @playlist().currentSection()
   
+  setupAudioInstrumentation: ->
+    audio = LYT.player.el.find('audio')[0]
+    # Using proxy function to generate closure with original value
+    proxy = (name, value) ->
+      audio[name] = ->
+        LYT.instrumentation.record "audioCommand:#{name}"
+        value.apply audio, arguments
+    for name, value of audio
+      proxy name, value if typeof value is 'function'
+
+    jPlayer = @el.jPlayer         
+    @el.jPlayer = (command) =>
+      LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
+      jPlayer.apply @el, arguments
+  
   init: ->
     log.message 'Player: starting initialization'
     @el = jQuery("#jplayer")
@@ -37,8 +53,9 @@ LYT.player =
     @previousButton = jQuery("a.previous-section")
     @playBackRate = LYT.settings.get('playBackRate') if LYT.settings.get('playBackRate')?
 
-    jplayer = @el.jPlayer
+    @el.jPlayer
       ready: =>
+        @setupAudioInstrumentation()
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         @ready = true
@@ -46,12 +63,13 @@ LYT.player =
         
         $.jPlayer.timeFormat.showHour = true
         
-        # Pause button is only shown when playing
-        $('.lyt-pause').click =>
-          @stop()
+        $('.lyt-pause').click => @stop()
 
-        $('.lyt-play').click => 
-          @play()
+        $('.lyt-play').click =>
+          if @playClickHook
+            @playClickHook().done => @play()
+          else
+            @play()
         
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
@@ -126,35 +144,6 @@ LYT.player =
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
-# TODO: [play-controllers]: test and see if this issue has reappeared and find
-#       out if this documentation needs to be moved elsewhere.
-#
-#        status = event.jPlayer.status
-#        log.message "Player: event play, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
-#        if @nextOffset?
-#          # IOS will some times omit seeking (both the actual seek and the
-#          # following seeked event are missing) and just start playing from
-#          # the start of the stream. We detect this here and do another seek
-#          # if it is the case.
-#          # This will cause a loop if the play event arrives later than 0.5
-#          # seconds after playback has started.
-#          if -0.01 < status.currentTime - @nextOffset < 0.5
-#            # This event handler consumes @nextOffset
-#            @nextOffset = null
-#          else
-#            log.warn "Player: event play: retry seek, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
-#            # Stop playback to ensure that another play event is emitted
-#            # to check that the player doesn't skip the next seek as well.
-#            @el.jPlayer 'pause'
-#            # Not using a delay here seems to create infinite play/pause loops
-#            # because the player doesn't get time for the seek.
-#            # (This is probably a hint wrt a better way of working around this
-#            # bug in IOS.)
-#            setTimeout(
-#              => @el.jPlayer 'play', @nextOffset
-#              500
-#            )
-#            return
         
       pause: (event) =>
         LYT.instrumentation.record 'pause', event.jPlayer.status
@@ -164,51 +153,32 @@ LYT.player =
           
       loadedmetadata: (event) =>
         LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
-# TODO: [play-controllers]: test and see if this issue has reappeared and find
-#       out if this documentation needs to be moved elsewhere.
-#        log.message "Player: loadedmetadata: playAttemptCount: #{@playAttemptCount}, firstPlay: #{@firstPlay}, paused: #{@getStatus().paused}"
-#        LYT.loader.set('Loading sound', 'metadata') if @playAttemptCount == 0 and @firstPlay
-#        # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
-#        # file until we get a valid duration.
-#        # At this point we get the following sporadic errors
-#        # IOS 5: duration is not a number.
-#        # IOS 6: duration is set to zero on non-zero length audio streams
-#        # Caveat emptor: for this reason, the player will wrongly assume that
-#        # there is an error if the player is ever asked to play a zero length
-#        # audio stream.
-#        if @getStatus().src == @currentAudio
-#          if event.jPlayer.status.duration == 0 or isNaN event.jPlayer.status.duration
-#            if @playAttemptCount <= LYT.config.player.playAttemptLimit
-#              @el.jPlayer 'setMedia', {mp3: @currentAudio}
-#              @playAttemptCount = @playAttemptCount + 1
-#              log.message "Player: loadedmetadata, play attempts: #{@playAttemptCount}"
-#              return
-#            # else: give up - we pretend that we have got the duration
-#          @playAttemptCount = 0
-#        # else: nothing to do because we are playing the wrong file
       
       canplay: (event) =>
         LYT.instrumentation.record 'canplay', event.jPlayer.status
 
       canplaythrough: (event) =>
         LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
-# TODO: [play-controllers]: see if we need to set playback rate here (shouldn't
-#       be necessary.
+      # TODO: [play-controllers]: see if we need to set playback rate here (shouldn't
+      #       be necessary.
       
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
+
+        # Defaults for prompt following in error handlers below
+        parameters =
+          mode:                'bool'
+          animate:             false
+          useDialogForceFalse: true
+          allowReopen:         true
+          useModal:            true
+          buttons:             {}
+
         switch event.jPlayer.error.type
           when $.jPlayer.error.URL
             log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
-            parameters =
-              mode:                'bool'
-              prompt:              LYT.i18n('Unable to retrieve sound file')
-              subTitle:            LYT.i18n('')
-              animate:             false
-              useDialogForceFalse: true
-              allowReopen:         true
-              useModal:            true
-              buttons:             {}
+            parameters.prompt = LYT.i18n('Unable to retrieve sound file')
+            parameters.subTitle = ''
             parameters.buttons[LYT.i18n('Try again')] =
               click: -> window.location.reload()
               theme: 'c'
@@ -217,20 +187,13 @@ LYT.player =
               theme: 'c'
             LYT.render.showDialog($.mobile.activePage, parameters)
 
-            #reopen the dialog...
-            #TODO: this is usually because something is wrong with the session or the internet connection, 
+            # reopen the dialog...
+            # TODO: this is usually because something is wrong with the session or the internet connection, 
             # tell people to try and login again, check their internet connection or try again later
           when $.jPlayer.error.NO_SOLUTION
             log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
-            parameters =
-              mode:                'bool'
-              prompt:              LYT.i18n('Platform not supported')
-              subTitle:            LYT.i18n('')
-              animate:             false
-              useDialogForceFalse: true
-              allowReopen:         true
-              useModal:            true
-              buttons:             {}
+            parameters.prompt = LYT.i18n('Platform not supported')
+            parameters.subTitle = ''
             parameters.buttons[LYT.i18n('OK')] =
               click: ->
                 $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
@@ -333,54 +296,35 @@ LYT.player =
         # Load the book since we haven't loaded it already
         LYT.Book.load book
 
-    # Now seek to the right point in the book
-    result = result.then (book) =>
-      jQuery("#book-duration").text book.totalTime
+    result.done (book) =>
       # Setting @book should be done after seeking has completed, but the
-      # dependency on the books playlist prohibits this.
+      # dependency on the books playlist and firstplay issue prohibits this.
       @book = book
-      if not url and book.lastmark?
-        url = book.lastmark.URI
-        smilOffset = book.lastmark.timeOffset
-        log.message "Player: resuming from lastmark #{url}, smilOffset #{smilOffset}"
+      jQuery("#book-duration").text book.totalTime
 
-      # TODO: [play-controllers] Test all various cases of this structure and
-      #       see if it can be simplified.
-      # TODO: [play-controllers] Make sure to call updateHtml once book-player
-      #       is displayed.
-      promise = null
-      if url
-        promise = @playlist().segmentByURL url
-        promise = promise.then(
-            (segment) =>
-              offset = segment.audioOffset(smilOffset) if smilOffset
-              @seekSegmentOffset segment, offset
-            (error) =>
-              if url.match /__LYT_auto_/
-                log.message "Player: failed to load #{url} containing auto generated book marks - rewinding to start"
-              else
-                log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
-              @playlist().rewind()
-          )
+    result = result.then (book) =>
+      if @firstPlay and not Modernizr.autoplayback
+        # The play click handler will call @playClickHook which enables the
+        # player to start seeking.
+        @playClickHook = =>
+          @playClickHook = null
+          @playCommand = new LYT.player.command.deferred @el, @seekSmilOffsetOrLastmark url, smilOffset
+          @playCommand.done => @firstPlay = false
+          @playCommand
+        return jQuery.Deferred().resolve book
       else
-        promise = @playlist().rewind()
-        promise = promise.then (segment) => @seekSegmentOffset segment, 0
-      
-      promise.fail ->
-        deferred.reject 'failed to find segment'
-        log.error "Player: failed to find segment"
+        log.message 'Player: chaining seeked because we are not in firstPlay mode'
+        return @seekSmilOffsetOrLastmark url, smilOffset
 
-      if play
-        promise.done => @play()
+    result.done (book) ->
+      log.message "Player: book #{book.id} loaded"
 
-      promise.then (segment) -> jQuery.Deferred().resolve book
-    
     result.fail (error) ->
       log.error "Player: failed to load book, reason #{error}"
       deferred.reject error
 
     LYT.loader.register 'Loading sound', result.promise()
-    
+
     result.promise()
 
   # This is a public method - stops playback
@@ -400,7 +344,6 @@ LYT.player =
 
   # Starts playback
   play: ->
-    log.message "Player: play"
     # TODO: [play-controllers] make this work again:
     # LYT.render.setPlayerButtonFocus 'pause'
 
@@ -410,11 +353,9 @@ LYT.player =
       stopHandler = ->
         log.message 'Got stop event'
         command.cancel()
-      $(this).one 'playback:stop', stopHandler
       command.progress progressHandler
       command.done -> log.group 'Play completed. ', command.status()
       command.always ->
-        $(this).off 'playback:stop', stopHandler
         $('.lyt-pause').hide()
         $('.lyt-play').show()
 
@@ -510,17 +451,55 @@ LYT.player =
             log.error "Player: play: progress: Unable to load any segment for #{status.src}, offset #{time}."
 
     @playing = true
-    result = jQuery.Deferred()
+    previous = jQuery.Deferred()
     if oldCommand = @playCommand
       # We need to cancel the previous play command before doing anything else
       # The command may either resolve or reject depending on which event hits
       # first: our cancel call or end of audio stream.
-      oldCommand.always -> result.resolve()
+      oldCommand.always -> previous.resolve()
       oldCommand.cancel()
     else
-      result.resolve()
-    result = result.then => @playCommand = getPlayCommand()
+      previous.resolve()
+    result = previous.then => @playCommand = getPlayCommand()
     result
+
+  seekSmilOffsetOrLastmark: (url, smilOffset) ->
+    log.message "Player: seekSmilOffsetOrLastmark: #{url}, #{smilOffset}"
+    promise = jQuery.Deferred().resolve()
+    # Now seek to the right point in the book
+    if not url and @book.lastmark?
+      url = @book.lastmark.URI
+      smilOffset = @book.lastmark.timeOffset
+      log.message "Player: resuming from lastmark #{url}, smilOffset #{smilOffset}"
+
+    # TODO: [play-controllers] Test all various cases of this structure and
+    #       see if it can be simplified.
+    # TODO: [play-controllers] Make sure to call updateHtml once book-player
+    #       is displayed.
+    if url
+      promise = promise.then => @playlist().segmentByURL url
+      promise = promise.then(
+        (segment) =>
+          log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
+          offset = segment.audioOffset(smilOffset) if smilOffset
+          @seekSegmentOffset segment, offset
+        (error) =>
+          if url.match /__LYT_auto_/
+            log.message "Player: failed to load #{url} containing auto generated bookmarks - rewinding to start"
+          else
+            log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
+          @playlist().rewind()
+      )
+    else
+      promise = promise.then => @playlist().rewind()
+      promise = promise.then (segment) => @seekSegmentOffset segment, 0
+      
+    promise.fail ->
+      deferred.reject 'failed to find segment'
+      log.error "Player: failed to find segment"
+    
+    promise
+    
 
   seekSegmentOffset: (segment, offset) ->
     log.message "Player: seekSegmentOffset: #{segment.url?()}, offset #{offset}"
@@ -562,7 +541,7 @@ LYT.player =
         offset = segment.start
       if offset - 0.1 < @getStatus().currentTime < offset + 0.1
         # We're already at the right point in the audio stream
-        log.message 'Player: seekSegmentOffset: ready at offset #{offset} - not seeking'
+        log.message "Player: seekSegmentOffset: already at offset #{offset} - not seeking"
         jQuery.Deferred().resolve segment
       else
         # Not at the right point - seek
