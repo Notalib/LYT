@@ -59,9 +59,15 @@ LYT.player =
         @el.jPlayer 'play'
       
     setInterval startHandler, 200
-         
-    jplayer = @el.jPlayer
+
+    jPlayer = @el.jPlayer         
+    @el.jPlayer = (command) =>
+      LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
+      jPlayer.apply @el, arguments
+
+    @el.jPlayer
       ready: =>
+          
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         @ready = true
