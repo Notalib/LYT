@@ -376,6 +376,10 @@ LYT.player =
               theme: 'c'
             LYT.render.showDialog($.mobile.activePage, parameters)
       
+      emptied: (event) => LYT.instrumentation.record 'emptied', event.jPlayer.status
+      progress: (event) => LYT.instrumentation.record 'progress', event.jPlayer.status
+      suspend: (event) => LYT.instrumentation.record 'suspend', event.jPlayer.status
+      
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
       solution: 'html, flash'
