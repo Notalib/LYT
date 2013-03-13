@@ -309,12 +309,13 @@ LYT.player =
         @playClickHook = =>
           @playClickHook = null
           @playCommand = new LYT.player.command.deferred @el, @seekSmilOffsetOrLastmark url, smilOffset
-          @playCommand.done => @firstPlay = false
-          @playCommand
+          return @playCommand
         return jQuery.Deferred().resolve book
       else
         log.message 'Player: chaining seeked because we are not in firstPlay mode'
         return @seekSmilOffsetOrLastmark url, smilOffset
+
+    result.done => @firstPlay = false
 
     result.done (book) ->
       log.message "Player: book #{book.id} loaded"
