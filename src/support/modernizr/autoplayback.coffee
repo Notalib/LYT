@@ -15,8 +15,7 @@ try
   # $(document).ready event (without jQuery).
   audio = document.createElement 'audio'
   audio.appendChild source
-  
-  # audio.play()
+  audio.play()
 
   # Just fail the test on timeout
   setTimeout(
