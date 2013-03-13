@@ -1,11 +1,7 @@
 LYT.google = do ->
   jsonResults=[]
   deferred = null
-  countNotaAutoComplete = 0
 
-
-  jQuery(LYT.catalog).bind "autocomplete", (event) ->
-    countNotaAutoComplete = event.results.length #length of results
 
   GotValues: (jason)->
     try
@@ -14,26 +10,25 @@ LYT.google = do ->
       resultsMatch = []
 
       jQuery.each jason[1], (i, val) ->
-        jsonResults.push(val) #put resultat i arrayet fra google
+        #TODO: There is a ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not 
+        if val.indexOf('//') is -1
+          jsonResults.push(val) #put resultat i arrayet fra google
       
       if jsonResults.length is 0
         deferred.reject()
-      if countNotaAutoComplete is 0 #only come with surgestions if autocomplete is blank...
-        jQuery.each jsonResults, (i)->
-          lookup = LYT.catalog.getAutoComplete(this)#look up google surgestions in nota autocomplete..
-            .done (data) ->
-              if data.length > 0
-                resultsMatch.push(jsonResults[i])#if google surgestion is in nota.....
-              if i is jsonResults.length-1
-                if resultsMatch.length > 0
-                  deferred.resolve resultsMatch
-                else
-                  deferred.reject()
-            .fail ->
-              deferred.reject() #something went wrong in notaautocomplete -> normal search
-         
-      else
-        deferred.reject() #nota autocomplete is not blank -> normal search
+      
+      jQuery.each jsonResults, (i)->
+        lookup = LYT.catalog.getAutoComplete(this)#look up google surgestions in nota autocomplete..
+          .done (data) ->
+            if data.length > 0
+              resultsMatch.push(jsonResults[i])#if google surgestion is hits something in nota autocomplete (aka. Catalogsearch).
+            if i is jsonResults.length-1
+              if resultsMatch.length > 0
+                deferred.resolve resultsMatch
+              else
+                deferred.reject()
+          .fail ->
+            deferred.reject() #something went wrong in notaautocomplete -> normal search
     catch e
       log.message 'Google: GotValues: error from google autocomplete'+e
       deferred.reject()

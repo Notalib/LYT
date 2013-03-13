@@ -86,6 +86,8 @@ LYT.config =
     autocomplete:
       # The URL to request results from
       url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
+      # If suggestions from Autocomplete is léss than 'google_trigger' ask google
+      google_trigger: 6
       
       # The options to pass to jQuery UI's `.autocomplete()`
       options:

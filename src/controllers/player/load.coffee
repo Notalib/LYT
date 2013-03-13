@@ -39,5 +39,5 @@ class LYT.player.command.load extends LYT.player.command
           @notify event.jPlayer.status
       # else: nothing to do because this event is from the wrong file
 
-   canplaythrough: (event) =>
-     @resolve event.jPlayer.status
+    canplaythrough: (event) =>
+      @resolve event.jPlayer.status
