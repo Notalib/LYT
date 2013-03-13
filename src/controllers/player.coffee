@@ -85,12 +85,44 @@ LYT.player =
           log.message "previous section"
           return false
 
+      progress: (event) =>
+        LYT.instrumentation.record 'progress', event.jPlayer.status
+
+      suspend: (event) =>
+        LYT.instrumentation.record 'suspend', event.jPlayer.status
+
+      abort: (event) =>
+        LYT.instrumentation.record 'abort', event.jPlayer.status
+
+      emptied: (event) =>
+        LYT.instrumentation.record 'emptied', event.jPlayer.status
+
+      stalled: (event) =>
+        LYT.instrumentation.record 'stalled', event.jPlayer.status
+
+      suspend: (event) =>
+        LYT.instrumentation.record 'suspend', event.jPlayer.status
+
+      ratechange: (event) =>
+        LYT.instrumentation.record 'ratechange', event.jPlayer.status
+
+      playing: (event) =>
+        LYT.instrumentation.record 'playing', event.jPlayer.status
+
+      waiting: (event) =>
+        LYT.instrumentation.record 'waiting', event.jPlayer.status
+
+      seeking: (event) =>
+        LYT.instrumentation.record 'seeking', event.jPlayer.status
 
       loadstart: (event) =>
         LYT.instrumentation.record 'loadstart', event.jPlayer.status
       
       ended: (event) =>
         LYT.instrumentation.record 'ended', event.jPlayer.status
+
+      timeupdate: (event) =>
+        LYT.instrumentation.record 'timeupdate', event.jPlayer.status
       
       play: (event) =>
         LYT.instrumentation.record 'play', event.jPlayer.status
@@ -491,7 +523,7 @@ LYT.player =
     result
 
   seekSegmentOffset: (segment, offset) ->
-    log.message "Player: seekSegmentOffset: play #{segment.url?()}, offset #{offset}"
+    log.message "Player: seekSegmentOffset: #{segment.url?()}, offset #{offset}"
 
     segment or= @segment()
     
@@ -516,6 +548,7 @@ LYT.player =
 
     # Now move the play head
     result = result.then (segment) =>
+      log.message 'Player: seekSegmentOffset: check if it is necessary to seek'
       # Ensure that offset has a useful value
       if offset?
         if offset > segment.end
@@ -529,9 +562,11 @@ LYT.player =
         offset = segment.start
       if offset - 0.1 < @getStatus().currentTime < offset + 0.1
         # We're already at the right point in the audio stream
+        log.message 'Player: seekSegmentOffset: ready at offset #{offset} - not seeking'
         jQuery.Deferred().resolve segment
       else
         # Not at the right point - seek
+        log.message 'Player: seekSegmentOffset: seek'
         (new LYT.player.command.seek @el, offset).then -> segment
 
     # Once the seek has completed, render the segment
