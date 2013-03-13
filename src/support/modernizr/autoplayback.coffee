@@ -26,7 +26,7 @@ try
     
   audio.addEventListener 'timeupdate', ->
     if not Modernizr.autoplayback? and not isNaN(audio.currentTime) and audio.currentTime > 0
- #     Modernizr.addTest 'autoplayback', true
+      Modernizr.addTest 'autoplayback', true
       audio.pause()
 catch e
   # NOP
