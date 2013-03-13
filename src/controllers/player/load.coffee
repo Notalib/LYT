@@ -10,8 +10,15 @@ class LYT.player.command.load extends LYT.player.command
     else
       @_run =>
         @loadAttemptCount = 0
-        @el.jPlayer 'setMedia', {mp3: @src}
-        @el.jPlayer 'load'
+        @load()
+
+  load: ->
+    if ++@loadAttemptCount <= 5 # FIXME: configurable defaults
+      @el.jPlayer 'setMedia', {mp3: @src}
+      @el.jPlayer 'load'
+    else
+      # Give up - we pretend that we have got the duration
+      @resolve event.jPlayer.status
 
   handles: ->
     suspend: (event) =>
@@ -21,8 +28,7 @@ class LYT.player.command.load extends LYT.player.command
       else
         @reject status
 
-    # XXX Bug here - it should be loadedmetadata
-    metadataHandler: (event) =>
+    loadedmetadata: (event) =>
       # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
       # file until we get a valid duration.
       # At this point we get the following sporadic errors
@@ -34,14 +40,7 @@ class LYT.player.command.load extends LYT.player.command
       log.message 'Player command: load: loadedmetadata'
       if event.jPlayer.status.src is @src
         if event.jPlayer.status.duration is 0 or isNaN event.jPlayer.status.duration
-          alert @loadAttemptCount
-          if ++@loadAttemptCount <= 5 # FIXME: configurable defaults
-            @el.jPlayer 'setMedia', {mp3: @src}
-            @el.jPlayer 'load'
-          else
-            # Give up - we pretend that we have got the duration
-            alert 'resolve'
-            @resolve event.jPlayer.status
+          @load()
         else
           @notify event.jPlayer.status
       # else: nothing to do because this event is from the wrong file
