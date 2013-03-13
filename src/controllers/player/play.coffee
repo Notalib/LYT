@@ -8,7 +8,7 @@ class LYT.player.command.play extends LYT.player.command
     @_run =>
       @el.jPlayer 'play'
       setTimeout(
-        -> @reject 'timeout' if @state() is 'pending'
+        => @reject 'timeout' if @state() is 'pending'
         10000
       )
 #      retryInterval = setInterval(
