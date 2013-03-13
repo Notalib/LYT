@@ -75,11 +75,6 @@ LYT.player =
       
     setInterval startHandler, 200
 
-    jPlayer = @el.jPlayer         
-    @el.jPlayer = (command) =>
-      LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
-      jPlayer.apply @el, arguments
-
     @el.jPlayer
       ready: =>
         @setupAudioInstrumentation()
