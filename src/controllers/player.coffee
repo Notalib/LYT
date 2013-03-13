@@ -41,6 +41,21 @@ LYT.player =
   
   section: -> @playlist().currentSection()
   
+  setupAudioInstrumentation: ->
+    audio = LYT.player.el.find('audio')[0]
+    # Using proxy function to generate closure with original value
+    proxy = (name, value) ->
+      audio[name] = ->
+        LYT.instrumentation.record "audioCommand:#{name}"
+        value.apply audio, arguments
+    for name, value of audio
+      proxy name, value if typeof value is 'function'
+
+    jPlayer = @el.jPlayer         
+    @el.jPlayer = (command) =>
+      LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
+      jPlayer.apply @el, arguments
+  
   init: ->
     log.message 'Player: starting initialization'
     # Initialize jplayer and set ready True when ready
@@ -67,7 +82,7 @@ LYT.player =
 
     @el.jPlayer
       ready: =>
-          
+        @setupAudioInstrumentation()
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         @ready = true
