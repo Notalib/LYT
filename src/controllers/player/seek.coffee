@@ -13,11 +13,11 @@ class LYT.player.command.seek extends LYT.player.command
       this.reject "Offset #{@offset} is out of bounds"
     else
       @_run =>
-        @seekAttemptCount = 0
         # Ensure that offset has a useful value
         # Fixing odd buffer bug in Chrome 24 where offset == 0 causes it to stop buffering
         offset = @offset
         offset = 0.000001 if offset == 0
+        @seekAttemptCount = 0
         @seek()
 
   seek: ->
