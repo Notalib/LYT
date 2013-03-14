@@ -281,6 +281,7 @@ LYT.player =
   # smilOffset: SMIL offset relative to url.
   # play:       flag indicating if the book should start playing after loading
   #             has finished.
+  # Returns a promise that resolves with a loaded book.
   load: (book, url = null, smilOffset, play) ->
     log.message "Player: Load: book #{book}, segment #{url}, smilOffset: #{smilOffset}, play #{play}"
 
@@ -313,7 +314,7 @@ LYT.player =
         return jQuery.Deferred().resolve book
       else
         log.message 'Player: chaining seeked because we are not in firstPlay mode'
-        return @seekSmilOffsetOrLastmark url, smilOffset
+        return (@seekSmilOffsetOrLastmark url, smilOffset).then -> book
 
     result.done => @firstPlay = false
 
