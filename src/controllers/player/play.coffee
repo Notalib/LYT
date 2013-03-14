@@ -5,9 +5,21 @@ class LYT.player.command.play extends LYT.player.command
 
   constructor: (el) ->
     super el
-    log.message 'play start'
     @_run =>
       @el.jPlayer 'play'
+      setTimeout(
+        => @reject 'timeout' if @state() is 'pending'
+        10000
+      )
+#      retryInterval = setInterval(
+#        =>
+#          if not @playing
+#            log.message 'Playcommand timeout: play'
+#            @el.jPlayer 'play'
+#          else
+#            clearInterval retryInterval
+#        2000
+#      )
 
   cancel: ->
     super()
