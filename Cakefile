@@ -194,9 +194,9 @@ coffee = do ->
       throw err if err?
       console.log stderr if stderr
       if concat
-        minOutput = "#{output}/#{concat}.min.js"
-        minInput  = "#{output}/#{concat}.js"
-        exec "#{config.minify} -o #{q minOutput} #{q minInput}"
+        process.chdir output
+        exec "#{config.minify} --source-map #{concat}.map -o #{concat}.min.js #{concat}.js"
+        process.chdir '..'
       callback()
   
   # ### Public methods
