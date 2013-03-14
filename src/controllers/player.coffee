@@ -34,12 +34,12 @@ LYT.player =
   setupAudioInstrumentation: ->
     audio = LYT.player.el.find('audio')[0]
     # Using proxy function to generate closure with original value
-    proxy = (name, value) ->
+    proxy = (audio, name, value) ->
       audio[name] = ->
         LYT.instrumentation.record "audioCommand:#{name}"
         value.apply audio, arguments
     for name, value of audio
-      proxy name, value if typeof value is 'function'
+      proxy audio, name, value if typeof value is 'function'
 
     jPlayer = @el.jPlayer         
     @el.jPlayer = (command) =>
