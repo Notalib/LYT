@@ -318,12 +318,9 @@ LYT.player =
 
     result.done => @firstPlay = false
 
-    result.done (book) ->
-      log.message "Player: book #{book.id} loaded"
+    result.done (book) -> log.message "Player: book #{book.id} loaded"
 
-    result.fail (error) ->
-      log.error "Player: failed to load book, reason #{error}"
-      deferred.reject error
+    result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
 
     LYT.loader.register 'Loading sound', result.promise()
 
@@ -496,9 +493,7 @@ LYT.player =
       promise = promise.then => @playlist().rewind()
       promise = promise.then (segment) => @seekSegmentOffset segment, 0
       
-    promise.fail ->
-      deferred.reject 'failed to find segment'
-      log.error "Player: failed to find segment"
+    promise.fail -> log.error "Player: failed to find segment: #{url}"
     
     promise
     
