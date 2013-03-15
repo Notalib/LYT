@@ -323,7 +323,7 @@ LYT.player =
 
     result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
 
-    LYT.loader.register 'Loading sound', result.promise()
+    LYT.loader.register 'Loading book', result.promise()
 
     result.promise()
 
@@ -545,6 +545,16 @@ LYT.player =
 
     # Once the seek has completed, render the segment
     result.done (segment) => @updateHtml segment
+
+    # If this takes a long time, put up the loader
+    # The timeout ensures that we don't display the loader if seeking
+    # without switching audio stream, since that is a very fast operation
+    # which would cause the loader to flicker.
+    # TODO: Only set the loader if switching audio is necessary.
+    setTimeout(
+      => LYT.loader.register 'Loading sound', result
+      500
+    )
 
     result
 
