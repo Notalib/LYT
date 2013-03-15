@@ -188,9 +188,10 @@ coffee = do ->
   # versions if concat is true.
   compile = (files, output, concat, callback) ->
     cmd = "#{config.coffee} --compile"
-    cmd = "#{cmd} --join #{q concat}" if concat
+    cmd += " --join #{q concat}" if concat
     files = q(files).join " "
-    exec "#{cmd} --output #{q output} #{files}", (err, stdout, stderr) ->
+    cmd += " --output #{q output} #{files}"
+    exec cmd, (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
       if concat
