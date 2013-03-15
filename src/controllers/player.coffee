@@ -59,9 +59,10 @@ LYT.player =
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         @ready = true
-        log.message 'Player: initialization complete'
         
         $.jPlayer.timeFormat.showHour = true
+        
+        @showPlayButton()
         
         $('.lyt-pause').click => @stop()
 
@@ -354,15 +355,12 @@ LYT.player =
         command.cancel()
       command.progress progressHandler
       command.done -> log.group 'Play completed. ', command.status()
-      command.always ->
-        $('.lyt-pause').hide()
-        $('.lyt-play').show()
+      command.always => @showPlayButton()
 
     nextSegment = null
     progressHandler = (status) =>
       
-      $('.lyt-play').hide()
-      $('.lyt-pause').show()
+      @showPauseButton()
   
       time = status.currentTime
       
@@ -632,3 +630,14 @@ LYT.player =
     # Only return something if we have played it recently
     if lastplayed = @lastplayed
       return lastplayed if new Date() - lastplayed.updated < 10000
+
+  # View related methods - should go into a file akin to render.coffee
+
+  showPlayButton: ->
+    $('.lyt-pause').css 'display', 'none'
+    $('.lyt-play').css 'display', ''
+
+  showPauseButton: ->
+    $('.lyt-play').css 'display', 'none'
+    $('.lyt-pause').css 'display', ''
+
