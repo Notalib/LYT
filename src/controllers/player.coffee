@@ -64,9 +64,12 @@ LYT.player =
         
         @showPlayButton()
         
-        $('.lyt-pause').click => @stop()
+        $('.lyt-pause').click =>
+          LYT.instrumentation.record 'ui:stop'
+          @stop()
 
         $('.lyt-play').click =>
+          LYT.instrumentation.record 'ui:play'
           if @playClickHook
             @playClickHook().done => @play()
           else
@@ -74,10 +77,12 @@ LYT.player =
         
         @nextButton.click =>
           log.message "Player: next: #{@segment().next?.url()}"
+          LYT.instrumentation.record 'ui:next'
           @nextSegment()
             
         @previousButton.click =>
           log.message "Player: previous: #{@segment().previous?.url()}"
+          LYT.instrumentation.record 'ui:previous'
           @previousSegment()
 
         Mousetrap.bind 'alt+ctrl+space', =>
@@ -165,6 +170,7 @@ LYT.player =
       
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
+        log.error 'Player: event error', event
 
         # Defaults for prompt following in error handlers below
         parameters =
@@ -350,9 +356,6 @@ LYT.player =
     command = null
     getPlayCommand = =>
       command = new LYT.player.command.play @el
-      stopHandler = ->
-        log.message 'Got stop event'
-        command.cancel()
       command.progress progressHandler
       command.done -> log.group 'Play completed. ', command.status()
       command.always => @showPlayButton()
