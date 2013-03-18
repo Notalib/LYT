@@ -21,14 +21,7 @@ class LYT.player.command.load extends LYT.player.command
       @resolve event.jPlayer.status
 
   handles: ->
-    doneHandler = (event) =>
-      status = event.jPlayer.status
-      if status.src is @src and status.networkState > 0
-        @resolve status
-      else
-        @reject status
-
-    metadataHandler = (event) =>
+    loadedmetadata: (event) =>
       # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
       # file until we get a valid duration.
       # At this point we get the following sporadic errors
@@ -45,8 +38,8 @@ class LYT.player.command.load extends LYT.player.command
           @notify event.jPlayer.status
       # else: nothing to do because this event is from the wrong file
 
-    loadedmetadata: doneHandler
-    # IOS will reject any attempts to preload the audio if in firstPlay mode.
-    # To work around it, we pretend to be ready when it suspends loading.
-    # (Given that doneHandler decides that the state is reasonable.)
-    suspend: doneHandler
+    canplaythrough: (event) =>
+      status = event.jPlayer.status
+      @resolve status if status.src is @src
+
+      

@@ -316,8 +316,9 @@ LYT.player =
         # player to start seeking.
         @playClickHook = =>
           @playClickHook = null
-          @playCommand = new LYT.player.command.deferred @el, @seekSmilOffsetOrLastmark url, smilOffset
-          return @playCommand
+          silentplay = new LYT.player.command.silentplay @el
+          playPromise = silentplay.then => @seekSmilOffsetOrLastmark url, smilOffset
+          return @playCommand = new LYT.player.command.deferred @el, playPromise
         return jQuery.Deferred().resolve book
       else
         log.message 'Player: chaining seeked because we are not in firstPlay mode'
