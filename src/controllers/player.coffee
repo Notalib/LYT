@@ -170,7 +170,7 @@ LYT.player =
       
       error: (event) =>
         LYT.instrumentation.record 'error', event.jPlayer.status
-        log.error 'Player: event error', event
+        log.error 'Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}', event
 
         # Defaults for prompt following in error handlers below
         parameters =
@@ -317,7 +317,9 @@ LYT.player =
         @playClickHook = =>
           @playClickHook = null
           silentplay = new LYT.player.command.silentplay @el
-          playPromise = silentplay.then => @seekSmilOffsetOrLastmark url, smilOffset
+          playPromise = silentplay.then =>
+            log.message 'Player: load: silentplay done - will load (and possibly seek) now'
+            @seekSmilOffsetOrLastmark url, smilOffset
           return @playCommand = new LYT.player.command.deferred @el, playPromise
         return jQuery.Deferred().resolve book
       else
