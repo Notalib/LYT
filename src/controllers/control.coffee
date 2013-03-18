@@ -300,8 +300,8 @@ LYT.control =
         $.mobile.changePage LYT.config.default.hash
       else
         LYT.player.refreshContent()
-        LYT.render.setPageTitle LYT.i18n("Now playing") + " " + LYT.player.book.title
-        $('.jp-play').focus()
+        LYT.player.setFocus()
+        LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
 
   bookPlay: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'

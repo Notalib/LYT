@@ -449,11 +449,6 @@ LYT.render = do ->
     $(".ui-simpledialog-header h4").attr 'role', 'alert'
     $(".ui-simpledialog-subtitle").attr 'role', 'alert'
 
-
-  setPlayerButtonFocus: (button) ->
-    $(".jp-#{button}").addClass('ui-btn-active').focus()
-
-
   showTestTab: -> $('.test-tab').show()
 
   hideTestTab: -> $('.test-tab').hide()

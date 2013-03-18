@@ -62,8 +62,6 @@ LYT.player =
         
         $.jPlayer.timeFormat.showHour = true
         
-        @showPlayButton()
-        
         $('.lyt-pause').click =>
           LYT.instrumentation.record 'ui:stop'
           @stop()
@@ -87,9 +85,9 @@ LYT.player =
 
         Mousetrap.bind 'alt+ctrl+space', =>
           if @playing 
-            $('.jp-pause').click()
+            @stop()
           else 
-            $('.jp-play').click()
+            @play()
           return false
 
         Mousetrap.bind 'alt+right', ->
@@ -256,33 +254,6 @@ LYT.player =
 
     log.message "Player: setPlayBackRate: #{@playBackRate}"
   
-  refreshContent: ->
-    # Using timeout to ensure that we don't call updateHtml too often
-    refreshHandler = => @updateHtml segment if @playlist() and segment = @segment()
-    clearTimeout @refreshTimer if @refreshTimer
-    @refreshTimer = setTimeout refreshHandler, 500
-      
- # Update player content with provided segment
-  updateHtml: (segment) ->
-    if not segment?
-      log.error "Player: updateHtml called with no segment"
-      return
-
-    if segment.state() isnt 'resolved'
-      log.error "Player: updateHtml called with unresolved segment"
-      return
-
-    log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
-    LYT.render.textContent segment
-    segment.preloadNext()
-  
-  # Register callback to call when jPlayer is ready
-  whenReady: (callback) ->
-    if @ready
-      callback()
-    else
-      @el.bind $.jPlayer.event.ready, callback
-
   # Load a book and seek to position provided by:  
   # url:        url pointing to par or seq element in SMIL file.
   # smilOffset: SMIL offset relative to url.
@@ -353,9 +324,6 @@ LYT.player =
 
   # Starts playback
   play: ->
-    # TODO: [play-controllers] make this work again:
-    # LYT.render.setPlayerButtonFocus 'pause'
-
     command = null
     getPlayCommand = =>
       command = new LYT.player.command.play @el
@@ -649,11 +617,45 @@ LYT.player =
 
   # View related methods - should go into a file akin to render.coffee
 
+  setFocus: ->
+    for button in [$('.lyt-pause'), $('.lyt-play')]
+      unless button.css('display') is 'none'
+        button.addClass('ui-btn-active').focus()
+
   showPlayButton: ->
     $('.lyt-pause').css 'display', 'none'
-    $('.lyt-play').css 'display', ''
-
+    $('.lyt-play').css('display', '')
+    @setFocus()
+    
   showPauseButton: ->
     $('.lyt-play').css 'display', 'none'
-    $('.lyt-pause').css 'display', ''
+    $('.lyt-pause').css('display', '')
+    @setFocus()
+    
 
+  refreshContent: ->
+    # Using timeout to ensure that we don't call updateHtml too often
+    refreshHandler = => @updateHtml segment if @playlist() and segment = @segment()
+    clearTimeout @refreshTimer if @refreshTimer
+    @refreshTimer = setTimeout refreshHandler, 500
+      
+ # Update player content with provided segment
+  updateHtml: (segment) ->
+    if not segment?
+      log.error "Player: updateHtml called with no segment"
+      return
+
+    if segment.state() isnt 'resolved'
+      log.error "Player: updateHtml called with unresolved segment"
+      return
+
+    log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
+    LYT.render.textContent segment
+    segment.preloadNext()
+  
+  # Register callback to call when jPlayer is ready
+  whenReady: (callback) ->
+    if @ready
+      callback()
+    else
+      @el.bind $.jPlayer.event.ready, callback
