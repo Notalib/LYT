@@ -262,7 +262,7 @@ LYT.player =
   play: ->
     command = null
     getPlayCommand = =>
-      command = new LYT.player.command.play @el, @playbackRate
+      command = new LYT.player.command.play @el
       command.progress progressHandler
       command.done -> log.group 'Play completed. ', command.status()
       command.always => @showPlayButton() unless @playing
