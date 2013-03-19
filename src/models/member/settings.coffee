@@ -10,16 +10,14 @@ LYT.settings = do ->
   # Default settings  
   # TODO: How much of this is actually used?
   defaults =
+    playbackRate: 1
     textPresentation: "full" 
-    textMode:         1
+    textMode: 1
     textStyle:
-      'font-size':        "16px"
       'background-color': "#fff"
       'color':            "#000000"
+      'font-size':        "16px"
       'font-family':      "Helvetica, sans-serif"
-    playBackRate:             1
-    # phrasemode: 1
-    # All text:   2
   
   # Load settings if they are set in localstorage
   settings = jQuery.extend {}, defaults, LYT.cache.read("lyt", "settings") or {}

@@ -1,36 +1,114 @@
 # Requires `/common`  
 # Requires `/support/lyt/loader`  
 # Requires `/models/member/settings`
-# -------------------
+# ----------------------------------
 
-# This module handles playback of current media and timing of transcript updates  
-# TODO: provide a visual cue on the next and previous section buttons if there are no next or previous section.
+# ########################################################################### #
+# Handles playback of current media and timing of transcript updates          #
+# ########################################################################### # 
 
 LYT.player = 
+  
+  # Attributes ############################################################## #
+
   ready: false 
   el: null
-  
   book: null #reference to an instance of book class
-  nextButton: null
-  previousButton: null
   playing: null
   refreshTimer: null
   firstPlay: true
-  
-  # TODO See if the IOS metadata bug has been fixed here:
-  # https://github.com/happyworm/jPlayer/commit/2889b5efd84c4920d904e7ab368aa8db95929a95
-  # https://github.com/happyworm/jPlayer/commit/de22c88d4984210dd1bf4736f998d693c097cba6
-  
-  playBackRate: 1
-  
+  playbackRate: 1
   lastBookmark: (new Date).getTime()
+
+  
+  # Short utility methods ################################################### #
 
   playlist: -> @book?.playlist
   
   segment: -> @playlist().currentSegment
   
   section: -> @playlist().currentSection()
+
+  # Be cautious only read from the returned status object
+  getStatus: -> @el.data('jPlayer').status
+
+  dumpStatus: -> log.message field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
+
+  # Register callback to call when jPlayer is ready
+  whenReady: (callback) ->
+    if @ready
+      callback()
+    else
+      @el.bind $.jPlayer.event.ready, callback
+      
   
+  # Initialization ########################################################## #
+
+  # General initialization
+  init: ->
+    log.message 'Player: starting initialization'
+    @el = jQuery('#jplayer')
+    @playbackRate = LYT.settings.get('playbackRate')
+
+    jPlayerParams =
+      swfPath: "./lib/jPlayer/"
+      supplied: "mp3"
+      solution: 'html, flash'
+      ready: =>
+        @setupAudioInstrumentation()
+        @setupUi()
+        LYT.instrumentation.record 'ready', @getStatus()
+        log.message "Player: event ready: paused: #{@getStatus().paused}"
+        @ready = true
+
+    instrument = (eventName) ->
+      (event) -> LYT.instrumentation.record eventName, event.jPlayer.status
+    # Instrument every possible event that jPlayer offers
+    instrument eventName for eventName, jPlayerName of $.jPlayer.event
+    
+    jPlayerParams.error = (event) =>
+      LYT.instrumentation.record 'error', event.jPlayer.status
+      log.error 'Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}', event
+
+      # Defaults for prompt following in error handlers below
+      parameters =
+        mode:                'bool'
+        animate:             false
+        useDialogForceFalse: true
+        allowReopen:         true
+        useModal:            true
+        buttons:             {}
+
+      switch event.jPlayer.error.type
+        when $.jPlayer.error.URL
+          log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
+          parameters.prompt = LYT.i18n('Unable to retrieve sound file')
+          parameters.subTitle = ''
+          parameters.buttons[LYT.i18n('Try again')] =
+            click: -> window.location.reload()
+            theme: 'c'
+          parameters.buttons[LYT.i18n('Cancel')] =
+            click: -> $.mobile.changePage LYT.config.defaultPage.hash
+            theme: 'c'
+          LYT.render.showDialog($.mobile.activePage, parameters)
+
+          # reopen the dialog...
+          # TODO: this is usually because something is wrong with the session or the internet connection, 
+          # tell people to try and login again, check their internet connection or try again later
+        when $.jPlayer.error.NO_SOLUTION
+          log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
+          parameters.prompt = LYT.i18n('Platform not supported')
+          parameters.subTitle = ''
+          parameters.buttons[LYT.i18n('OK')] =
+            click: ->
+              $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
+              $.mobile.changePage '#support'
+            theme: 'c'
+          LYT.render.showDialog($.mobile.activePage, parameters)
+      
+    @el.jPlayer jPlayerParams
+
+  # Sets up instrumentation on the audio element inside jPlayer
   setupAudioInstrumentation: ->
     audio = LYT.player.el.find('audio')[0]
     # Using proxy function to generate closure with original value
@@ -45,214 +123,60 @@ LYT.player =
     @el.jPlayer = (command) =>
       LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
       jPlayer.apply @el, arguments
+
+  # Sets up bindings for the user interface
+  setupUi: ->
+    $.jPlayer.timeFormat.showHour = true
+    
+    @showPlayButton()
+    
+    $('.lyt-pause').click =>
+      LYT.instrumentation.record 'ui:stop'
+      @stop()
+
+    $('.lyt-play').click =>
+      LYT.instrumentation.record 'ui:play'
+      if @playClickHook
+        @playClickHook().done => @play()
+      else
+        @play()
+    
+    $('a.next-section').click =>
+      log.message "Player: next: #{@segment().next?.url()}"
+      LYT.instrumentation.record 'ui:next'
+      @nextSegment()
+        
+    $('a.previous-section').click =>
+      log.message "Player: previous: #{@segment().previous?.url()}"
+      LYT.instrumentation.record 'ui:previous'
+      @previousSegment()
+
+    Mousetrap.bind 'alt+ctrl+space', =>
+      if @playing 
+        @stop()
+      else 
+        @play()
+      return false
+
+    Mousetrap.bind 'alt+right', =>
+      @nextSegment()
+      return false
+    
+    Mousetrap.bind 'alt+left', =>
+      @previousSegment()
+      return false
   
-  init: ->
-    log.message 'Player: starting initialization'
-    @el = jQuery("#jplayer")
-    @nextButton = jQuery("a.next-section")
-    @previousButton = jQuery("a.previous-section")
-    @playBackRate = LYT.settings.get('playBackRate') if LYT.settings.get('playBackRate')?
+    # FIXME: add handling of section jumps
+    Mousetrap.bind 'alt+ctrl+n', ->
+      log.message "next section"
+      return false
 
-    @el.jPlayer
-      ready: =>
-        @setupAudioInstrumentation()
-        LYT.instrumentation.record 'ready', @getStatus()
-        log.message "Player: event ready: paused: #{@getStatus().paused}"
-        @ready = true
-        
-        $.jPlayer.timeFormat.showHour = true
-        
-        $('.lyt-pause').click =>
-          LYT.instrumentation.record 'ui:stop'
-          @stop()
-
-        $('.lyt-play').click =>
-          LYT.instrumentation.record 'ui:play'
-          if @playClickHook
-            @playClickHook().done => @play()
-          else
-            @play()
-        
-        @nextButton.click =>
-          log.message "Player: next: #{@segment().next?.url()}"
-          LYT.instrumentation.record 'ui:next'
-          @nextSegment()
-            
-        @previousButton.click =>
-          log.message "Player: previous: #{@segment().previous?.url()}"
-          LYT.instrumentation.record 'ui:previous'
-          @previousSegment()
-
-        Mousetrap.bind 'alt+ctrl+space', =>
-          if @playing 
-            @stop()
-          else 
-            @play()
-          return false
-
-        Mousetrap.bind 'alt+right', ->
-          $('a.next-section').click()
-          return false
-        
-        Mousetrap.bind 'alt+left', ->
-          $('a.previous-section').click()
-          return false
+    Mousetrap.bind 'alt+ctrl+o', ->
+      log.message "previous section"
+      return false
       
-        # FIXME: add handling of section jumps
-        Mousetrap.bind 'alt+ctrl+n', ->
-          log.message "next section"
-          return false
 
-        Mousetrap.bind 'alt+ctrl+o', ->
-          log.message "previous section"
-          return false
-
-      progress: (event) =>
-        LYT.instrumentation.record 'progress', event.jPlayer.status
-
-      suspend: (event) =>
-        LYT.instrumentation.record 'suspend', event.jPlayer.status
-
-      abort: (event) =>
-        LYT.instrumentation.record 'abort', event.jPlayer.status
-
-      emptied: (event) =>
-        LYT.instrumentation.record 'emptied', event.jPlayer.status
-
-      stalled: (event) =>
-        LYT.instrumentation.record 'stalled', event.jPlayer.status
-
-      suspend: (event) =>
-        LYT.instrumentation.record 'suspend', event.jPlayer.status
-
-      ratechange: (event) =>
-        LYT.instrumentation.record 'ratechange', event.jPlayer.status
-
-      playing: (event) =>
-        LYT.instrumentation.record 'playing', event.jPlayer.status
-
-      waiting: (event) =>
-        LYT.instrumentation.record 'waiting', event.jPlayer.status
-
-      seeking: (event) =>
-        LYT.instrumentation.record 'seeking', event.jPlayer.status
-
-      loadstart: (event) =>
-        LYT.instrumentation.record 'loadstart', event.jPlayer.status
-      
-      ended: (event) =>
-        LYT.instrumentation.record 'ended', event.jPlayer.status
-
-      timeupdate: (event) =>
-        LYT.instrumentation.record 'timeupdate', event.jPlayer.status
-      
-      play: (event) =>
-        LYT.instrumentation.record 'play', event.jPlayer.status
-        
-      pause: (event) =>
-        LYT.instrumentation.record 'pause', event.jPlayer.status
-
-      seeked: (event) =>
-        LYT.instrumentation.record 'seeked', event.jPlayer.status
-          
-      loadedmetadata: (event) =>
-        LYT.instrumentation.record 'loadedmetadata', event.jPlayer.status
-      
-      canplay: (event) =>
-        LYT.instrumentation.record 'canplay', event.jPlayer.status
-
-      canplaythrough: (event) =>
-        LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
-      # TODO: [play-controllers]: see if we need to set playback rate here (shouldn't
-      #       be necessary.
-      
-      error: (event) =>
-        LYT.instrumentation.record 'error', event.jPlayer.status
-        log.error 'Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}', event
-
-        # Defaults for prompt following in error handlers below
-        parameters =
-          mode:                'bool'
-          animate:             false
-          useDialogForceFalse: true
-          allowReopen:         true
-          useModal:            true
-          buttons:             {}
-
-        switch event.jPlayer.error.type
-          when $.jPlayer.error.URL
-            log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
-            parameters.prompt = LYT.i18n('Unable to retrieve sound file')
-            parameters.subTitle = ''
-            parameters.buttons[LYT.i18n('Try again')] =
-              click: -> window.location.reload()
-              theme: 'c'
-            parameters.buttons[LYT.i18n('Cancel')] =
-              click: -> $.mobile.changePage LYT.config.defaultPage.hash
-              theme: 'c'
-            LYT.render.showDialog($.mobile.activePage, parameters)
-
-            # reopen the dialog...
-            # TODO: this is usually because something is wrong with the session or the internet connection, 
-            # tell people to try and login again, check their internet connection or try again later
-          when $.jPlayer.error.NO_SOLUTION
-            log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
-            parameters.prompt = LYT.i18n('Platform not supported')
-            parameters.subTitle = ''
-            parameters.buttons[LYT.i18n('OK')] =
-              click: ->
-                $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
-                $.mobile.changePage '#support'
-              theme: 'c'
-            LYT.render.showDialog($.mobile.activePage, parameters)
-      
-      swfPath: "./lib/jPlayer/"
-      supplied: "mp3"
-      solution: 'html, flash'
-
-  # Be cautious only read from the returned status object
-  getStatus: -> @el.data('jPlayer').status
-
-  # TODO: Remove our own playBackRate attribute and use the one on the jPlayer
-  #       If it isn't available, there is no reason to try using it.
-  setPlayBackRate: (playBackRate) ->
-    if playBackRate?
-      @playBackRate = playBackRate
-      
-    # TODO: [play-controllers] integrate the setting playback rate this with
-    #       the play() method by adding a playback rate to the play command
-    setRate = =>
-      @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
-      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = @playBackRate
-
-    unsetRate = =>
-      @el.data('jPlayer').htmlElement.audio.playbackRate = null
-      @el.data('jPlayer').htmlElement.audio.defaultPlaybackRate = null
-
-    setRate()
-
-    # Added for IOS6: iphone will not change the playBackRate unless you pause
-    # the playback, after setting the playbackRate. And then we can obtain the new
-    # playbackRate and continue
-    # TODO: This makes safari desktop version fail...so find a solution...browser sniffing?
-    
-    @el.jPlayer 'pause'
-    setRate()
-    
-    # Return before starting the player unless we are supposed so
-    # This is definately a hack that should go away if we move everyting to
-    # player-controllers, because setting playback rate should be done as an
-    # integral part of starting playback.
-    return unless @playing
-    
-    @el.jPlayer 'play'
-
-    # Added for Safari desktop version - will not work unless rate is unset
-    # and set again
-    unsetRate()
-    setRate()
-
-    log.message "Player: setPlayBackRate: #{@playBackRate}"
+  # Main methods ############################################################ #
   
   # Load a book and seek to position provided by:  
   # url:        url pointing to par or seq element in SMIL file.
@@ -307,26 +231,38 @@ LYT.player =
 
     result.promise()
 
+  # Stops playback but doesn't change the playing flag
+  wait: ->
+    log.message 'Player: wait'
+    ok = jQuery.Deferred().resolve()
+    if command = @playCommand
+      command.done => @playCommand = null if @playCommand is command
+      command.cancel()
+      return command.then(
+        -> ok
+        -> ok
+      )
+    else
+      return ok
+
   # This is a public method - stops playback
   # The stop command returns the last play command or null in case there
   # isn't any.
   stop: ->
     log.message 'Player: stop'
-    # TODO: [play-controllers] make this work again:
-    # LYT.render.setPlayerButtonFocus 'play'
-
     @playing = false
-    if command = @playCommand
-      command.done => @playCommand = null if @playCommand is command
-      command.cancel()
-    
-    return command
+    @wait()
+
+  setPlaybackRate: (playbackRate = 1) ->
+    log.message "Player: setPlaybackRate: #{@playbackRate}"
+    @playbackRate = playbackRate
+    @wait().always => @play() if @playing
 
   # Starts playback
   play: ->
     command = null
     getPlayCommand = =>
-      command = new LYT.player.command.play @el
+      command = new LYT.player.command.play @el, @playbackRate
       command.progress progressHandler
       command.done -> log.group 'Play completed. ', command.status()
       command.always => @showPlayButton() unless @playing
@@ -545,23 +481,7 @@ LYT.player =
     @playing = true
     @seekSegmentOffset(segment, offset).then => @play()
 
-  dumpStatus: -> log.message field + ': ' + LYT.player.getStatus()[field] for field in ['currentTime', 'duration', 'ended', 'networkState', 'paused', 'readyState', 'src', 'srcSet', 'waitForLoad', 'waitForPlay']
-
-  # If it seems that loading the provided segment will take time
-  # display the loading message and pause the player.
-  # Not providing a segment is allowed and will cause the loading
-  # message to appear and the player to pause.
-  setMetadataLoader: (segment) ->
-#    if not segment or (segment.state() isnt 'resolved' or segment.audio isnt @currentAudio)
-#      # Using a delay and the standard fade duration on LYT.loader.set is the
-#      # most desirable, but Safari on IOS blocks right after it starts loading
-#      # the sound, which means that the message appears very late.
-#      # This is why we use fadeDuration 0 below.
-#      LYT.loader.set 'Loading sound', 'metadata', true, 0
-#      @el.jPlayer 'pause'
-
   navigate: (segmentPromise) ->
-    
     handler = null
     if @playing
       handler = =>
@@ -581,6 +501,7 @@ LYT.player =
 
   # Skip to next segment
   # Returns segment promise
+  # TODO: provide a visual cue on the next and previous section buttons if there are no next or previous section.
   nextSegment: ->
     return unless @playlist()?
     if @playlist().hasNextSegment() is false
@@ -652,10 +573,3 @@ LYT.player =
     log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
     LYT.render.textContent segment
     segment.preloadNext()
-  
-  # Register callback to call when jPlayer is ready
-  whenReady: (callback) ->
-    if @ready
-      callback()
-    else
-      @el.bind $.jPlayer.event.ready, callback

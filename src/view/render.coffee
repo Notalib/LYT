@@ -186,12 +186,13 @@ LYT.render = do ->
         
       LYT.loader.register "Loading bookshelf", process
 
-  hideplayBackRate: () ->
-    $("#playback-rate").hide()
+  hidePlaybackRate: ->
+    $("#playback-rate div").addClass('ui-disabled')
+    $("#playback-rate :input").Attr('disabled', 'disabled')
 
-  showplayBackRate: () ->
-    $("#playback-rate div").removeClass('ui-disabled');
-    $("#playback-rate :input").removeAttr('disabled');
+  showPlaybackRate: ->
+    $("#playback-rate div").removeClass('ui-disabled')
+    $("#playback-rate :input").removeAttr('disabled')
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending

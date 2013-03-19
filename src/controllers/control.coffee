@@ -105,8 +105,8 @@ LYT.control =
           # TODO: use lower case just like all the other parameters
         when 'playback-rate'
           val = Number(val)
-          LYT.settings.set('playBackRate', val)
-          LYT.player.setPlayBackRate val
+          LYT.settings.set('playbackRate', val)
+          LYT.player.setPlaybackRate val
                   
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()    
@@ -429,9 +429,9 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        # TODO: We should use Modernizr.playbackrate to check if setting the
+        # TODO: We should use Modernizr.playbackRate to check if setting the
         #       playback rate is supported.
-        LYT.render.showplayBackRate()
+        LYT.render.showPlaybackRate()
         if LYT.config.settings.showAdvanced
           $('.advanced-settings').show()
         else
@@ -454,7 +454,7 @@ LYT.control =
               if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
                 $(this).attr("checked", true).checkboxradio("refresh");
             when 'playback-rate'  
-              if Number(val) is LYT.settings.get('playBackRate')
+              if Number(val) is LYT.settings.get('playbackRate')
                 $(this).attr("checked", true).checkboxradio("refresh");
 
         
