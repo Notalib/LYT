@@ -538,6 +538,11 @@ LYT.player =
 
   # View related methods - should go into a file akin to render.coffee
 
+  # TODO: Disable all player buttons (pause/play/forward/back) until
+  #       the player is ready:
+  #
+  #       $('.lyt-play').button('option', 'disabled', true)
+
   setFocus: ->
     for button in [$('.lyt-pause'), $('.lyt-play')]
       unless button.css('display') is 'none'
