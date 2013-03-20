@@ -21,13 +21,6 @@ class LYT.player.command.load extends LYT.player.command
       @resolve event.jPlayer.status
 
   handles: ->
-    suspend: (event) =>
-      status = event.jPlayer.status
-      if status.src is @src and status.networkState > 0
-        @resolve status
-      else
-        @reject status
-
     loadedmetadata: (event) =>
       # Bugs in IOS 5 and IOS 6 forces us to keep trying to load the media
       # file until we get a valid duration.
@@ -46,8 +39,6 @@ class LYT.player.command.load extends LYT.player.command
       # else: nothing to do because this event is from the wrong file
 
     canplaythrough: (event) =>
-      @resolve event.jPlayer.status
+      status = event.jPlayer.status
+      @resolve status if status.src is @src
 
-    loadedmetadata: metadataHandler
-    progress: metadataHandler
-    

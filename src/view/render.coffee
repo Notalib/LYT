@@ -186,12 +186,13 @@ LYT.render = do ->
         
       LYT.loader.register "Loading bookshelf", process
 
-  hideplayBackRate: () ->
-    $("#playback-rate").hide()
+  hidePlaybackRate: ->
+    $("#playback-rate div").addClass('ui-disabled')
+    $("#playback-rate :input").Attr('disabled', 'disabled')
 
-  showplayBackRate: () ->
-    $("#playback-rate div").removeClass('ui-disabled');
-    $("#playback-rate :input").removeAttr('disabled');
+  showPlaybackRate: ->
+    $("#playback-rate div").removeClass('ui-disabled')
+    $("#playback-rate :input").removeAttr('disabled')
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
@@ -209,7 +210,7 @@ LYT.render = do ->
   
   clearBookPlayer: (view) ->
     LYT.render.textContent null
-    $("#currentbook_image img").attr "src", defaultCover
+    $("#currentbook-image img").attr "src", defaultCover
     $("#player-info h1, .player-chapter-title").hide()
 
   clearContent: (content) ->
@@ -221,7 +222,7 @@ LYT.render = do ->
     $("#player-book-title").text book.title
     $("#player-book-author").text book.author
     $("#player-info h1, .player-chapter-title").show()
-    loadCover $("#currentbook_image img"), book.id
+    loadCover $("#currentbook-image img"), book.id
 
   showAnnouncements: (announcements) ->
     #for announcement in announcements
@@ -448,11 +449,6 @@ LYT.render = do ->
     $(".ui-simpledialog-container").attr 'role', 'alert'
     $(".ui-simpledialog-header h4").attr 'role', 'alert'
     $(".ui-simpledialog-subtitle").attr 'role', 'alert'
-
-
-  setPlayerButtonFocus: (button) ->
-    $(".jp-#{button}").addClass('ui-btn-active').focus()
-
 
   showTestTab: -> $('.test-tab').show()
 

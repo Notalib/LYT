@@ -188,15 +188,16 @@ coffee = do ->
   # versions if concat is true.
   compile = (files, output, concat, callback) ->
     cmd = "#{config.coffee} --compile"
-    cmd = "#{cmd} --join #{q concat}" if concat
+    cmd += " --join #{concat}.js" if concat
     files = q(files).join " "
-    exec "#{cmd} --output #{q output} #{files}", (err, stdout, stderr) ->
+    cmd += " --output #{q output} #{files}"
+    exec cmd, (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
       if concat
-        minOutput = "#{output}/#{concat}.min.js"
-        minInput  = "#{output}/#{concat}.js"
-        exec "#{config.minify} -o #{q minOutput} #{q minInput}"
+        process.chdir output
+        exec "#{config.minify} --source-map #{concat}.map -o #{concat}.min.js #{concat}.js"
+        process.chdir '..'
       callback()
   
   # ### Public methods

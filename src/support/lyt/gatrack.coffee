@@ -43,7 +43,7 @@ clickHandler = ->
 
 init = ->
   $('html').on 'click', '.gatrack', clickHandler
-  $('.jp-play, .jp-pause').on 'click', clickHandler
+  $('.lyt-play, .lyt-pause').on 'click', clickHandler
 
 LYT.gatrack =
   init: init

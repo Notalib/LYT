@@ -3,23 +3,25 @@
 
 class LYT.player.command.play extends LYT.player.command
 
-  constructor: (el) ->
+  constructor: (el, @playbackRate) ->
     super el
-    @_run =>
-      @el.jPlayer 'play'
-      setTimeout(
-        => @reject 'timeout' if @state() is 'pending'
-        10000
-      )
-#      retryInterval = setInterval(
-#        =>
-#          if not @playing
-#            log.message 'Playcommand timeout: play'
-#            @el.jPlayer 'play'
-#          else
-#            clearInterval retryInterval
-#        2000
-#      )
+    waitForPause = if @status().paused
+      jQuery.Deferred().resolve()
+    else
+      @el.jPlayer 'pause'
+      new LYT.player.command.wait @el, (deferred, eventName, status) => deferred.resolve() if status.paused
+    waitForPause.done =>
+      # IOS6 will not change the playbackRate unless you pause playback, after
+      # setting the playbackRate. And then we can obtain the new playbackRate and continue
+      # FIXME: This makes safari desktop version fail
+      @setPlaybackRate @playbackRate
+      # We attach event event handlers here because the player is ready to start playing
+      @_run =>
+        @el.jPlayer 'play'
+        # Added for Safari desktop version - will not work unless rate is unset
+        # and set again
+        @setPlaybackRate null
+        @setPlaybackRate @playbackRate
 
   cancel: ->
     super()
@@ -28,7 +30,7 @@ class LYT.player.command.play extends LYT.player.command
   _stop: (event) ->
     method = if @canceled then @reject else @resolve
     method.apply this, event.jPlayer.status
-    
+
   handles: ->
     playing: (event) =>
       @playing = true
@@ -44,3 +46,7 @@ class LYT.player.command.play extends LYT.player.command
 
     pause: (event) => @_stop event
 
+  setPlaybackRate: (rate) ->
+    audio = @el.data('jPlayer').htmlElement.audio
+    audio.playbackRate = rate
+    audio.defaultplaybackRate = rate

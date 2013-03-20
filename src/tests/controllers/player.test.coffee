@@ -54,7 +54,7 @@ asyncTest 'Player starts playing when clicking play', ->
           setTimeout(
             ->
               log.message 'Test: player starts playing when clicking play: clicking play button'
-              $('.jp-play').trigger 'click'
+              $('.lyt-play').trigger 'click'
             2000 
           )
 
