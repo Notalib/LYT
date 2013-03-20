@@ -262,7 +262,7 @@ LYT.player =
   play: ->
     command = null
     getPlayCommand = =>
-      command = new LYT.player.command.play @el, @playbackRate
+      command = new LYT.player.command.play @el
       command.progress progressHandler
       command.done -> log.group 'Play completed. ', command.status()
       command.always => @showPlayButton() unless @playing
@@ -537,6 +537,11 @@ LYT.player =
       return lastplayed if new Date() - lastplayed.updated < 10000
 
   # View related methods - should go into a file akin to render.coffee
+
+  # TODO: Disable all player buttons (pause/play/forward/back) until
+  #       the player is ready:
+  #
+  #       $('.lyt-play').button('option', 'disabled', true)
 
   setFocus: ->
     for button in [$('.lyt-pause'), $('.lyt-play')]
