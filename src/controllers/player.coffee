@@ -240,6 +240,7 @@ LYT.player =
         LYT.instrumentation.record 'play', event.jPlayer.status
         status = event.jPlayer.status
         log.message "Player: event play, nextOffset: #{@nextOffset}, currentTime: #{status.currentTime}"
+        return unless @metadataLoaded event
         if @nextOffset?
           # IOS will some times omit seeking (both the actual seek and the
           # following seeked event are missing) and just start playing from
@@ -312,7 +313,7 @@ LYT.player =
         # there is an error if the player is ever asked to play a zero length
         # audio stream.
         if @getStatus().src == @currentAudio
-          if event.jPlayer.status.duration == 0 or isNaN event.jPlayer.status.duration
+          if not @metadataLoaded event
             if @playAttemptCount <= LYT.config.player.playAttemptLimit
               @el.jPlayer 'setMedia', {mp3: @currentAudio}
               @playAttemptCount = @playAttemptCount + 1
@@ -393,6 +394,8 @@ LYT.player =
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
       solution: 'html, flash'
+
+  metadataLoaded: (event) -> @getStatus().src == @currentAudio and event.jPlayer.status.duration > 0
 
   fakeEnd: (status) ->
     return unless status.duration > 0 and status.currentTime > 1
