@@ -41,13 +41,13 @@ $(document).bind "mobileinit", ->
       events: "bs"
     "#book-details([?].*)?":
       handler: "bookDetails"
-      events: "s,bs" #
+      events: "s,bs"
     "#book-play([?].*)?$":
-      handler: "bookPlay"
+      handler: "bookPlayer"
       events: "bs,s"
     "#book-player([?].*)?":
       handler: "bookPlayer"
-      events: "s"
+      events: "bs,s"
     "#book-index([?&].*)?": # Using & because of nested list from jQuery Mobile
       handler: "bookIndex"
       events: "bs"
@@ -103,9 +103,9 @@ $(document).bind "mobileinit", ->
   #    - section:    section in book (optional)
   #    - segment:    id of par element in section (optional)
   #    - smilOffset: time offset relative to start of par element in section (optional)
-  # - action: what action to use in the url (defaults to 'book-play')
+  # - action: what action to use in the url (defaults to 'book-player')
   # - absolute: boolean indicating if the url should be absolute or relative
-  LYT.router.getBookActionUrl = (bookReference, action = 'book-play', absolute=true) ->
+  LYT.router.getBookActionUrl = (bookReference, action = 'book-player', absolute=true) ->
     return null unless bookReference and bookReference.book
     url = "##{action}?book=#{bookReference.book}"
     if bookReference.section
@@ -128,9 +128,9 @@ $(document).bind "mobileinit", ->
   # Generate url for provided segment given:
   # - segment: a segment instance
   # - offset: audio offset (i.e. relative to start of segment.audio file).
-  # - action: what action to use in the url (defaults to 'book-play')
+  # - action: what action to use in the url (defaults to 'book-player')
   # - absolute: boolean indicating if the url should be absolute or relative
-  LYT.router.getSegmentUrl = (segment, offset, action = 'book-play', resolution='segment', absolute=true) ->
+  LYT.router.getSegmentUrl = (segment, offset, action = 'book-player', resolution='segment', absolute=true) ->
     reference = {book: segment.section.nccDocument.book.id}
     unless resolution is 'book'
       reference.section = segment.section.url

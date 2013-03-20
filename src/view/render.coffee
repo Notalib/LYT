@@ -208,11 +208,12 @@ LYT.render = do ->
         $('#details-play-button').show() 
   
   clearBookPlayer: (view) ->
-    LYT.render.textContent null
+    @clearTextContent()
     $('#player-book-title').text ''
     $('#player-book-author').text ''
     $('#currentbook-image img').attr 'src', defaultCover
     $('#player-info h1, .player-chapter-title').hide()
+    $('.previous-section, .next-section, .lyt-play, .lyt-pause').addClass 'ui-disabled'
 
   clearContent: (content) ->
     # Removes anything in content
@@ -224,6 +225,7 @@ LYT.render = do ->
     $('#player-book-author').text book.author
     $('#player-info h1, .player-chapter-title').show()
     loadCover $('#currentbook-image img'), book.id
+    $('.previous-section, .next-section, .lyt-play, .lyt-pause').removeClass 'ui-disabled'
 
   showAnnouncements: (announcements) ->
     #for announcement in announcements
@@ -234,7 +236,8 @@ LYT.render = do ->
 
 
   bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
-  
+
+  clearTextContent: -> LYT.render.content.renderSegment()
   
   textContent: (segment) ->
     return unless segment
@@ -246,7 +249,7 @@ LYT.render = do ->
       $('.ui-icon-bookmark-add').addClass 'disabled'
       $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
-      
+
       
   bookDetails: (details, view) ->
     $('#details-book-title').text details.title
@@ -551,7 +554,7 @@ LYT.render = do ->
         if entry?
           @currentEntry = entry
         else
-          log.errorGroup 'Render: showInstrumentation: can't highlight this: ', data
+          log.errorGroup "Render: showInstrumentation: can't highlight this: ", data
         $('#instrumentation-delta').html entry.description
         # TODO: We should do $('svg.graph-canvas').children('.delta-marker')
         #       but it doesn't work in Chrome
