@@ -156,24 +156,23 @@ LYT.catalog = do ->
         # call succeeded or not)
 
         # if we don´t have a lot of results -> ask google
-        if results.length < 6
-          Gresult = LYT.google.DoAutoComplete (request.term)
+        if results.length < LYT.config.catalog.autocomplete.google_trigger
+          gresult = LYT.google.doAutoComplete (request.term)
 
-          Gresult.done (data) =>
-            for i in data
-              data[_i] = i[0].toUpperCase() + i[1..-1].toLowerCase()
-            if results.length is 0
-              return response data
-            for i in data
-              if jQuery.inArray(i, results) is -1 
-                results.push i
-            response results
+          gresult.done (data) =>
+            r = {}
+            for i in results.concat data
+              if r[i.toLowerCase()] is undefined
+                 r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1);
+            p = []
+            p.push j for i, j of r
+            response p
 
-          Gresult.fail ->
+          gresult.fail ->
             #No results from Google, that match entries in catalogsearch
             response results
 
-          Gresult.always ->
+          gresult.always ->
             # Emit an event with the results attached as `event.results`
             # and search term stored in 'event.term' 
             event = jQuery.Event "autocomplete"
