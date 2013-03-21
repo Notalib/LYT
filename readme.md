@@ -17,6 +17,63 @@ Tests built with [QUnit](http://docs.jquery.com/QUnit)
 
 All releases are available from Github using the tag format lyt-&lt;version&gt;.
 
+
+### Version 1.2.5-nvb
+
+This version didn't have it version bumped in LYT.VERSION.
+
+#### Improvements and bugfixes
+
+  * Updated Cakefile to support Coffeescript 1.6.1.
+  * Fixed issue that caused the player to stop when changing to a new audio
+    stream on IOS (sporadic).
+
+
+### Version 1.2.4
+
+#### Improvements and bugfixes
+
+  * Implemented source maps (experimental).
+  * Fixed scoping issue that got triggered by using minify.
+
+
+### Version 1.2.3
+
+#### Improvements and bugfixes
+
+  * Fixed bookmark related bug that caused the player to crash if attempting to
+    play a book that doesn't support bookmarks by having id attributes on all
+    par and seq elements in the SMIL resources.
+  * Extensive instrumentation.
+
+
+### Version 1.2.2
+
+#### Improvements and bugfixes
+
+  * Fixed bug that caused the player to lock up when redirecting from E17
+    (and possibly other websites).
+
+
+### Version 1.2.1
+
+#### Improvements and bugfixes
+
+  * Made it possible to disable HTML validation when building.
+  * Updated test script.
+  * Fixed several bookmark related bugs.
+  * Fixed issue #511: bookmarks breaks when upgrading from version 1.1.4
+    to 1.2.0. See commit 8ff265e1727e07d86bfd865f54cccb9a389248d0 for further
+    information.
+  * The player does not start playing automatically any longer (version 1.2.0
+    did).
+  * An IE8 specific bug that caused search to fail.
+  * Disabled use of Modernizr.playbackrate. Setting playback rate is now
+    enabled on all platforms - even when it isn't supported by the browser.
+    (On platforms without playback rate support, setting playback rate has no
+    effect.)
+
+
 ### Version 1.2.0
 
 #### Major features
