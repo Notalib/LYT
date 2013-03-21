@@ -221,9 +221,13 @@ LYT.player =
         log.message 'Player: chaining seeked because we are not in firstPlay mode'
         return (@seekSmilOffsetOrLastmark url, smilOffset).then -> book
 
-    result.done => @firstPlay = false
-
-    result.done (book) -> log.message "Player: book #{book.id} loaded"
+    result.done =>
+      log.message "Player: book #{book.id} loaded"
+      # Never start playing if firstplay flag set
+      if @firstPlay
+        @firstPlay = false
+      else
+        @play() if play
 
     result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
 

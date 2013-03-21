@@ -293,23 +293,13 @@ LYT.control =
       renderIndex()
 
   bookPlayer: (type, match, ui, page, event) ->
-    if type is 'pageshow'
-      params = LYT.router.getParams(match[1])
-      if params?.book and params.book isnt LYT.player?.book?.id
-        $.mobile.changePage "#book-play?book=#{params.book}"
-      else if not LYT.player.book
-        $.mobile.changePage LYT.config.default.hash
-      else
-        LYT.player.refreshContent()
-        LYT.player.setFocus()
-        LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
-
-  bookPlay: (type, match, ui, page, event) ->
-    if type is 'pagebeforeshow'
-      if not LYT.player.getStatus().paused
-        LYT.player.stop()
-
     params = LYT.router.getParams(match[1])
+    
+    if type is 'pagebeforeshow'
+      unless LYT.player.book?.id is params.book
+        LYT.player.stop()
+        LYT.render.clearBookPlayer()
+
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
@@ -320,11 +310,7 @@ LYT.control =
         play = (params.play is 'true') or false
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
-  
-        LYT.render.clearBookPlayer()
           
-        header = $(page).children(':jqmData(role=header)')
-        
         log.message "Control: bookPlay: loading book #{params.book}"
         
         process = LYT.player.load params.book, segmentUrl, offset, play
@@ -332,7 +318,9 @@ LYT.control =
           LYT.render.bookPlayer book, $(page)
           # See if there are any service announcements every time a new book has been loaded
           LYT.service.getAnnouncements()
-          $.mobile.changePage "#book-player?book=#{LYT.player.book.id}"
+          LYT.player.refreshContent()
+          LYT.player.setFocus()
+          LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
   
         process.fail (error) ->
           log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"

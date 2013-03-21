@@ -15,7 +15,6 @@ class LYT.player.command.seek extends LYT.player.command
       @src = @status().src
       @always => clearInterval @seekInterval
       @_run =>
-        log.group 'status', @status()
         # Ensure that offset has a useful value
         # Fixing odd buffer bug in Chrome 24 where offset == 0 causes it to stop buffering
         offset = @offset
