@@ -30,7 +30,7 @@ class LYT.player.command.load extends LYT.player.command
       # Caveat emptor: for this reason, the player will wrongly assume that
       # there is an error if the player is ever asked to play a zero length
       # audio stream.
-      log.message 'Player command: load: loadedmetadata'
+      log.message "Player command: load: loadedmetadata: duration #{event.jPlayer.status.duration}"
       if event.jPlayer.status.src is @src
         if event.jPlayer.status.duration is 0 or isNaN event.jPlayer.status.duration
           @load()

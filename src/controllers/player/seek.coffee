@@ -9,6 +9,7 @@ class LYT.player.command.seek extends LYT.player.command
     # This happens on IOS during first play as well as when it has been
     # impossible to get metadata.
     # jPlayer sets duration to 0 in stead of NaN when duration is unavailable?!
+    log.message "Command seek: started - duration: #{@status.duration}"
     if @offset < 0 or @status.duration and @offset > @status.duration + 0.1
       this.reject "Offset #{@offset} is out of bounds"
     else
@@ -32,9 +33,9 @@ class LYT.player.command.seek extends LYT.player.command
 
   seek: ->
     # TODO: Configurable number of seek attempts
-    if ++@seekAttempts < 10
-      log.message "Seek command #{@id} trying to seek to #{@offset} in #{@src}"
-      @el.jPlayer 'pause', @offset
+    if ++@seekAttempts < 100
+      log.message "Seek command #{@id} trying to seek to #{@offset} in #{@src} (duration is: #{@status.duration})"
+      @el.jPlayer 'pause', Math.floor(@offset * 10)/10
     else
       @reject 'Failed to seek after reaching attempt limit'
 
