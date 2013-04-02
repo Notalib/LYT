@@ -329,14 +329,9 @@ LYT.player =
 
       canplaythrough: (event) =>
         LYT.instrumentation.record 'canplaythrough', event.jPlayer.status
-        log.message "Player: event canplaythrough: nextOffset: #{@nextOffset}, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
+        log.message "Player: event canplaythrough: nextOffset: #{@nextOffset}, playing: #{@playing}, paused: #{@getStatus().paused}, readyState: #{@getStatus().readyState}"
         if @nextOffset?
-          # XXX: Comment from issue-275:
-          # We aren't using @pause here, since it will make the player emit a seek event
-          # which will in turn clear the metadata loader.
-          action = if @playing then 'play' else 'pause'
-          log.message "Player: event canplaythrough: #{action}, offset #{@nextOffset}"
-          @el.jPlayer action, @nextOffset
+          log.message "Player: event canplaythrough: calling setPlayBackRate(). This will start playback if necessary."
           @currentOffset = @nextOffset
           @setPlayBackRate()
           log.message "Player: event canplaythrough: currentTime: #{@getStatus().currentTime}"
@@ -441,6 +436,8 @@ LYT.player =
   setPlayBackRate: (playBackRate) ->
     if playBackRate?
       @playBackRate = playBackRate
+
+    log.message "Player: setPlayBackRate: #{@playBackRate}"
       
     setRate = =>
       @el.data('jPlayer').htmlElement.audio.playbackRate = @playBackRate
@@ -459,21 +456,21 @@ LYT.player =
     
     @el.jPlayer 'pause'
     setRate()
-    
+
     # Return before starting the player unless we are supposed so
     # This is definately a hack that should go away if we move everyting to
     # player-controllers, because setting playback rate should be done as an
     # integral part of starting playback.
     return unless @playing
     
+    @nextOffset = @getStatus().currentTime
+    log.message 'Player: setPlaybackRate: play'
     @el.jPlayer 'play'
 
     # Added for Safari desktop version - will not work unless rate is unset
     # and set again
     unsetRate()
     setRate()
-
-    log.message "Player: setPlayBackRate: #{@playBackRate}"
   
   isIOS: ->
     if /iPad/i.test(navigator.userAgent) or /iPhone/i.test(navigator.userAgent) or /iPod/i.test(navigator.userAgent)
