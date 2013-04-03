@@ -196,9 +196,12 @@ LYT.player =
     # Wait for jPlayer to get ready
     ready = jQuery.Deferred()
     @whenReady -> ready.resolve()
+    
+    # Stop any playback
+    result = ready.then => @stop()
   
     # Get the right book  
-    result = ready.then =>
+    result = result.then =>
       if book is @book?.id
         jQuery.Deferred().resolve @book
       else
