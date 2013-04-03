@@ -61,10 +61,9 @@ LYT.player =
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         @ready = true
 
-    instrument = (eventName) ->
-      (event) -> LYT.instrumentation.record eventName, event.jPlayer.status
-    # Instrument every possible event that jPlayer offers
-    instrument eventName for eventName, jPlayerName of $.jPlayer.event
+    jPlayerParams.warning = (event) =>
+      LYT.instrumentation.record 'warning', event.jPlayer.status
+      log.error 'Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}', event
     
     jPlayerParams.error = (event) =>
       LYT.instrumentation.record 'error', event.jPlayer.status
@@ -106,6 +105,13 @@ LYT.player =
             theme: 'c'
           LYT.render.showDialog($.mobile.activePage, parameters)
       
+    # Instrument every possible event that jPlayer offers that doesn't already
+    # have a handler.
+    instrument = (eventName) ->
+      jPlayerParams[eventName] or= (event) ->
+        LYT.instrumentation.record eventName, event.jPlayer.status
+    instrument eventName for eventName, jPlayerName of $.jPlayer.event
+    
     @el.jPlayer jPlayerParams
 
   # Sets up instrumentation on the audio element inside jPlayer
