@@ -241,6 +241,8 @@ LYT.player =
     result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
 
     LYT.loader.register 'Loading book', result.promise()
+    LYT.render.disablePlayerNavigation()
+    result.done -> LYT.render.enablePlayerNavigation()
 
     result.promise()
 
@@ -327,6 +329,8 @@ LYT.player =
           nextSegment = @playlist().nextSegment segment
           timeoutHandler = =>
             LYT.loader.register 'Loading book', nextSegment
+            LYT.render.disablePlayerNavigation()
+            nextSegment.done -> LYT.render.enablePlayerNavigation()
             command.cancel()
             nextSegment.done => getPlayCommand()
             nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
@@ -478,7 +482,10 @@ LYT.player =
     # which would cause the loader to flicker.
     # TODO: Only set the loader if switching audio is necessary.
     setTimeout(
-      => LYT.loader.register 'Loading sound', result
+      =>
+        LYT.loader.register 'Loading sound', result
+        LYT.render.disablePlayerNavigation()
+        result.done -> LYT.render.enablePlayerNavigation()
       500
     )
 
@@ -554,11 +561,6 @@ LYT.player =
 
   # View related methods - should go into a file akin to render.coffee
 
-  # TODO: Disable all player buttons (pause/play/forward/back) until
-  #       the player is ready:
-  #
-  #       $('.lyt-play').button('option', 'disabled', true)
-
   setFocus: ->
     for button in [$('.lyt-pause'), $('.lyt-play')]
       unless button.css('display') is 'none'
@@ -573,7 +575,6 @@ LYT.player =
     $('.lyt-play').css 'display', 'none'
     $('.lyt-pause').css('display', '')
     @setFocus()
-    
 
   refreshContent: ->
     # Using timeout to ensure that we don't call updateHtml too often

@@ -213,19 +213,25 @@ LYT.render = do ->
     $('#player-book-author').text ''
     $('#currentbook-image img').attr 'src', defaultCover
     $('#player-info h1, .player-chapter-title').hide()
-    $('.previous-section, .next-section, .lyt-play, .lyt-pause').addClass 'ui-disabled'
-
+    @disablePlayerNavigation()
+    
   clearContent: (content) ->
     # Removes anything in content
     content.children('ol').listview('childPages').remove()
     content.children('ol').listview('refresh')
+
+  enablePlayerNavigation: ->
+    $('#book-play-menu').find('a').removeClass 'ui-disabled'
+    
+  disablePlayerNavigation: ->
+    $('#book-play-menu').find('a').addClass 'ui-disabled'
     
   bookPlayer: (book, view) ->
     $('#player-book-title').text book.title
     $('#player-book-author').text book.author
     $('#player-info h1, .player-chapter-title').show()
     loadCover $('#currentbook-image img'), book.id
-    $('.previous-section, .next-section, .lyt-play, .lyt-pause').removeClass 'ui-disabled'
+    @enablePlayerNavigation()
 
   showAnnouncements: (announcements) ->
     #for announcement in announcements
