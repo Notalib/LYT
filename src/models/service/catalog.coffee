@@ -155,7 +155,7 @@ LYT.catalog = do ->
         # must always be called, regardless of whether the AJAX
         # call succeeded or not)
 
-        # if we don´t have a lot of results -> ask google
+        # If we don't have enough results then ask google
         if results.length < LYT.config.catalog.autocomplete.google_trigger
           gresult = LYT.google.doAutoComplete (request.term)
 
@@ -169,7 +169,7 @@ LYT.catalog = do ->
             response p
 
           gresult.fail ->
-            #No results from Google, that match entries in catalogsearch
+            # No results from Google that match entries in catalogsearch
             response results
 
           gresult.always ->
@@ -178,11 +178,10 @@ LYT.catalog = do ->
             event = jQuery.Event "autocomplete"
             event.results = results
             event.term = request.term
-            #log.message "Search: Emitting autocomplete event"
             jQuery(LYT.catalog).trigger event
 
         else
-          #We have more than X matches in catalogsearch so show em
+          # We have enough matches in catalogsearch so show em
           response results
         
           # Emit an event with the results attached as `event.results`
@@ -190,7 +189,6 @@ LYT.catalog = do ->
           event = jQuery.Event "autocomplete"
           event.results = results
           event.term = request.term
-          #log.message "Search: Emitting autocomplete event"
           jQuery(LYT.catalog).trigger event
       
       if autocompleteCache[request.term]?
