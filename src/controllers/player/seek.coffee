@@ -1,5 +1,9 @@
 # Requires `/controllers/player/command`
-# -------------------
+# --------------------------------------
+
+# ########################################################################### #
+# Seek to provided offset in current audio file                               #
+# ########################################################################### # 
 
 class LYT.player.command.seek extends LYT.player.command
 

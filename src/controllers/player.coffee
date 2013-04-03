@@ -67,7 +67,7 @@ LYT.player =
     
     jPlayerParams.error = (event) =>
       LYT.instrumentation.record 'error', event.jPlayer.status
-      log.error 'Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}', event
+      log.error "Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}", event
 
       # Defaults for prompt following in error handlers below
       parameters =

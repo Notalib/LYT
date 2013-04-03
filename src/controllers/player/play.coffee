@@ -1,5 +1,14 @@
 # Requires `/controllers/player/command`
-# -------------------
+# --------------------------------------
+
+# ########################################################################### #
+# Plays current audio file from current position to the end                   #
+# ########################################################################### # 
+
+# This command will start playback of the current file at the current position
+# and will only resolve once the end of file has been reached.
+#
+# Calling cancel() will pause playback and cause the command to reject.
 
 class LYT.player.command.play extends LYT.player.command
 
