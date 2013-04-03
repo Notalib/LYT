@@ -154,13 +154,44 @@ LYT.catalog = do ->
         # UI's autocomplete function (the `response` callback
         # must always be called, regardless of whether the AJAX
         # call succeeded or not)
-        response results
+
+        # if we don´t have a lot of results -> ask google
+        if results.length < LYT.config.catalog.autocomplete.google_trigger
+          gresult = LYT.google.doAutoComplete (request.term)
+
+          gresult.done (data) =>
+            r = {}
+            for i in results.concat data
+              if r[i.toLowerCase()] is undefined
+                 r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1);
+            p = []
+            p.push j for i, j of r
+            response p
+
+          gresult.fail ->
+            #No results from Google, that match entries in catalogsearch
+            response results
+
+          gresult.always ->
+            # Emit an event with the results attached as `event.results`
+            # and search term stored in 'event.term' 
+            event = jQuery.Event "autocomplete"
+            event.results = results
+            event.term = request.term
+            #log.message "Search: Emitting autocomplete event"
+            jQuery(LYT.catalog).trigger event
+
+        else
+          #We have more than X matches in catalogsearch so show em
+          response results
         
-        # Emit an event with the results attached as `event.results` 
-        event = jQuery.Event "autocomplete"
-        event.results = results
-        #log.message "Search: Emitting autocomplete event"
-        jQuery(LYT.catalog).trigger event
+          # Emit an event with the results attached as `event.results`
+          # and search term stored in 'event.term' 
+          event = jQuery.Event "autocomplete"
+          event.results = results
+          event.term = request.term
+          #log.message "Search: Emitting autocomplete event"
+          jQuery(LYT.catalog).trigger event
       
       if autocompleteCache[request.term]?
         complete autocompleteCache[request.term]
@@ -218,6 +249,7 @@ LYT.catalog = do ->
     url = LYT.config.catalog.autocomplete.url
 
     options = getAjaxOptions url, data
+    options.async = false
 
     jQuery.ajax(options)
       .done (data) ->

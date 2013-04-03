@@ -42,4 +42,3 @@ class LYT.player.command.load extends LYT.player.command
       status = event.jPlayer.status
       @resolve status if status.src is @src
 
-      

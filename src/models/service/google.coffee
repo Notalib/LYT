@@ -1,52 +1,49 @@
 LYT.google = do ->
   jsonResults=[]
   deferred = null
-  countNotaAutoComplete = 0
 
 
-  jQuery(LYT.catalog).bind "autocomplete", (event) ->
-    countNotaAutoComplete = event.results.length #length of results
-
-  GotValues: (jason)->
+  gotValues: (jason)->
     try
-        #jsonResults results from google....
+      # JsonResults results from google....
       jsonResults = []
       resultsMatch = []
 
       jQuery.each jason[1], (i, val) ->
-        jsonResults.push(val) #put resultat i arrayet fra google
+        # TODO: There is a ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not 
+        if val.indexOf('//') is -1
+          # Put google results in array
+          jsonResults.push(val) 
       
       if jsonResults.length is 0
         deferred.reject()
-      if countNotaAutoComplete is 0 #only come with surgestions if autocomplete is blank...
-        jQuery.each jsonResults, (i)->
-          lookup = LYT.catalog.getAutoComplete(this)#look up google surgestions in nota autocomplete..
-            .done (data) ->
-              if data.length > 0
-                resultsMatch.push(jsonResults[i])#if google surgestion is in nota.....
-              if i is jsonResults.length-1
-                if resultsMatch.length > 0
-                  deferred.resolve resultsMatch
-                else
-                  deferred.reject()
-            .fail ->
-              deferred.reject() #something went wrong in notaautocomplete -> normal search
-         
-      else
-        deferred.reject() #nota autocomplete is not blank -> normal search
+      
+      jQuery.each jsonResults, (i)->
+        # Look up google surgestions in nota autocomplete..
+        lookup = LYT.catalog.getAutoComplete(this)
+          .done (data) ->
+            if data.length > 0
+              # If google suggestions hits something in nota autocomplete (aka. Catalogsearch).
+              resultsMatch.push(jsonResults[i])
+            if i is jsonResults.length-1
+              deferred.resolve resultsMatch
+             
+          .fail ->
+            # Something went wrong in notaautocomplete -> normal search
+            deferred.reject() 
     catch e
       log.message 'Google: GotValues: error from google autocomplete'+e
       deferred.reject()
 
-  DoAutoComplete: (term)->
+  doAutoComplete: (term)->
     deferred = jQuery.Deferred()
 
-    jQuery.getScript(LYT.config.google.autocomplete.url + "#{term}&callback=LYT.google.GotValues")
+    jQuery.getScript(LYT.config.google.autocomplete.url + "#{term}&callback=LYT.google.gotValues")
       .fail ->
         deferred.reject()
         log.message 'Google: DoAutoComplete: error from google autocomplete link'
-
-    deferred.promise() #return deffered to listen on....
+    # Return deffered to listen on....
+    deferred.promise() 
 
   #http://suggestqueries.google.com/complete/search?hl=en&ds=yt&json=t&jsonp=callbackfunction&q=orange+county+ca
   #http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q=

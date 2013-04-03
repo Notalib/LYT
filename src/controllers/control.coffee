@@ -109,7 +109,8 @@ LYT.control =
           LYT.player.setPlaybackRate val
                   
       LYT.settings.set('textStyle', style)
-      LYT.render.setStyle()    
+      LYT.render.setStyle()
+
 
     $('#instrumentation').find('button.first').on 'click', ->
       LYT.render.instrumentationGraph()?.firstEntry()
@@ -400,7 +401,8 @@ LYT.control =
         # When hitting enter in dropdown, submit.
         $("#searchterm").unbind "autocompleteselect"
         $("#searchterm").bind "autocompleteselect", (event, ui) ->
-          $('#search-form').trigger('submit')
+          $('#searchterm').val ui.item.value
+          $('#search-form').trigger 'submit'
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
