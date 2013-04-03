@@ -12,7 +12,7 @@ class LYT.player.command.play extends LYT.player.command
     @el.jPlayer 'pause'
 
   _stop: (event) ->
-    method = if @canceled then @reject else @resolve
+    method = if @cancelled then @reject else @resolve
     method.apply this, event.jPlayer.status
     
   handles: ->

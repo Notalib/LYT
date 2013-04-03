@@ -63,7 +63,7 @@ LYT.player =
 
     jPlayerParams.warning = (event) =>
       LYT.instrumentation.record 'warning', event.jPlayer.status
-      log.error 'Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}', event
+      log.error "Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}", event
     
     jPlayerParams.error = (event) =>
       LYT.instrumentation.record 'error', event.jPlayer.status
@@ -274,7 +274,10 @@ LYT.player =
     getPlayCommand = =>
       command = new LYT.player.command.play @el
       command.progress progressHandler
-      command.done -> log.group 'Play completed. ', command.status()
+      command.done =>
+        log.group 'Player: play: play command done.', command.status()
+        # Audio stream finished. Put on the next one.
+        @nextSegment()
       command.always => @showPlayButton() unless @playing
 
     nextSegment = null
