@@ -2,15 +2,14 @@ LYT.google = do ->
   jsonResults=[]
   deferred = null
 
-
-  gotValues: (jason)->
+  gotValues: (json)->
     try
       # JsonResults results from google....
       jsonResults = []
       resultsMatch = []
 
-      jQuery.each jason[1], (i, val) ->
-        # TODO: There is a ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not 
+      jQuery.each json[1], (i, val) ->
+        # TODO: There is an ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not
         if val.indexOf('//') is -1
           # Put google results in array
           jsonResults.push(val) 
@@ -24,6 +23,7 @@ LYT.google = do ->
         .fail ->
           deferred.reject()
           
+
     catch e
       log.message 'Google: GotValues: error from google autocomplete'+e
       deferred.reject()
