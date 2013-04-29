@@ -367,8 +367,9 @@ LYT.player =
         nextSegment = @playlist().segmentByAudioOffset status.src, time
         nextSegment.fail (error) ->
           # TODO: The user may have navigated to a place in the audio stream
-          #       that isn't included in the book. Handle this gracefully by
-          #       searching for the next segment in the audio file.
+          #       that isn't included in the book. This should be handled by
+          #       changing the seek bar to make it impossible to click on
+          #       points in the stream that aren't in the book.
           log.error "Player: play: progress: Unable to load next segment: #{error}."
         nextSegment.done (next) =>
           if next
