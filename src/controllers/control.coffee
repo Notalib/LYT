@@ -48,7 +48,7 @@ LYT.control =
 
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
-        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
+        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification() 
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
