@@ -3,7 +3,7 @@
 
 # -------------------
 
-# This class models a Diasy Text Content document (an XHTML file
+# This class models a Daisy Text Content document (an XHTML file
 # containing the text of a book)
 
 class LYT.TextContentDocument extends LYT.DTBDocument
