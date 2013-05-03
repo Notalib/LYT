@@ -10,28 +10,6 @@
   background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
 }
 
-#book-play-menu {
-  .ui-btn {
-    border-color: #000;
-    border-top: none;
-    margin: 0 !important;
-    border-right-width: 0px !important;
-  }
-  .ui-btn-up-a, .ui-btn-hover-a {
-    background: $darkbuttoncolor;
-  }
-  .ui-btn-down-a {
-    background: $highlightcolor !important;
-  }
-  .ui-icon {
-    width: 25px;
-    @include border-radius(0, 0);
-  }
-  .ui-block-a, .ui-block-b, .ui.block-c {
-    margin-right: 0px !important;
-  }
-}
-
 .ui-icon-bookmark-list {
   background-image: url(../images/icons/bookmark_list_icn_18_dark.png);
   @media only screen and (-webkit-min-device-pixel-ratio: 2) {
@@ -204,7 +182,7 @@
     background-image: url(../images/icons/arrow_icn_34.png);
     background-size: 16px 16px;
   }
-  #logged-in-as {
+  .logged-in-as {
     background-image: transparent url(../images/icons/settings_profile_icn_64.png) no-repeat 0 50%;
     background-size: 32px 32px;
   }
@@ -212,11 +190,11 @@
     background-image: url(../images/logo_hires.png);
     background-size: 150px 75px;
   }
-  #bookshelf-content {
+  .bookshelf-content {
     /* background-image: url(../images/icons/empty_bookshelf_hires.png); */
     background-size: 240px 40px;
   }
-  #nota-logo {
+  .nota-logo {
     background-image: url(../images/nota-logo-hires.png);
     background-size: 200px 67px;
   }  

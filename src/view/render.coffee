@@ -165,7 +165,7 @@ LYT.render = do ->
     
     # if the list i empty -> bookshelf is empty -> show icon...
     if(list.length is 1)
-      $('#bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
+      $('.bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
     
     list.listview('refresh')
     list.find('a').first().focus()
