@@ -46,7 +46,7 @@ class LYT.player.command.seek extends LYT.player.command
   handles: ->
     seeked: (event) =>
       return unless event.jPlayer.status.src is @src
-      if -0.1 < @offset - event.jPlayer.status.currentTime < 0.1
+      if -0.5 < @offset - event.jPlayer.status.currentTime < 0.5
         @resolve event.jPlayer.status
       else
         @seek()
