@@ -104,7 +104,7 @@ task "html", "Build HTML", (options) ->
 
 task "scss", "Compile scss source", (options) ->
   createDir "build/css"
-  scss.compile "scss", "build/css", ->
+  scss.compile "scss", "build/css", options, ->
     boast "compiled", "scss", "build/css"
 
 
@@ -282,9 +282,9 @@ html = do ->
 
 scss = do ->
   # Compile scss files in the given dir using compass
-  compile: (dir, output, callback) ->
+  compile: (dir, output, options, callback) ->
     {exec} = require "child_process"
-    exec "#{config.compass} compile --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
+    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
       fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
       console.log stderr if stderr
       callback?()
