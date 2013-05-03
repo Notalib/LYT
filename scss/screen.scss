@@ -36,6 +36,7 @@
 
 @import "partials/base";
 @import "partials/jplayer";
+@import "partials/icons";
 
 
 /* assorted jqm fixes */
@@ -101,20 +102,6 @@ img.e17-logo {
   .ui-btn-active {
     background-color: #262626;
     border: 1px solid black;
-    .ui-icon-bookmark-list {
-      background-image: url(../images/icons/bookmark_list_icn_18_dark.png);
-      @media only screen and (-webkit-min-device-pixel-ratio: 2) {
-        background-image: url(../images/icons/bookmark_list_icn_36_dark.png);
-        background-size: 18px 18px;
-      }
-    }
-    .ui-icon-book-index {
-      background-image: url(../images/icons/index_icn_18_dark.png);
-      @media only screen and (-webkit-min-device-pixel-ratio: 2) {
-        background-image: url(../images/icons/index_icn_36_dark.png);
-        background-size: 25px 18px;
-      }
-    }
     .ui-btn-inner {
       border-color: black; 
       width: 47px !important;
@@ -763,66 +750,31 @@ li.ui-li h3.no-search-results {
   background:#EEE;
 }
 
-#anbefalinger {
-  background: transparent url(../images/icons/recommend_icn_25.png) no-repeat 8px 50%;
+/* Icons and styling of predefined search items */
 
-  h3 {
-    padding-left: 28px;
-    padding-top: 8px;
+@mixin predefined-search($id, $icon-name, $icon-size) {
+  ##{$id} {
+    background: transparent url(../images/icons/#{$icon-name}_icn_#{$icon-size}.png) no-repeat 8px 50%;
+    
+    @media only screen and (-webkit-min-device-pixel-ratio: 2) {
+      background-image: url(../images/icons/#{$icon-name}_icn_#{($icon-size * 2)}.png);
+      background-size: 25px 25px;
+    }
+  
+    h3 {
+      padding-left: 28px;
+      padding-top: 8px;
+    }
   }
 }
 
-#nye {
-  background: transparent url(../images/icons/new_icn_25.png) no-repeat 8px 50%;
-
-  h3 {
-    padding-left: 28px;
-    padding-top: 8px;
-  }
-}
-
-#top {
-  background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
-
-  h3 {
-    padding-left: 28px;
-    padding-top: 8px;
-  }
-}
-
-#tegneserie {
- background: transparent url(../images/icons/tegneserie_icn_25.png) no-repeat 8px 50%;
-  h3 {
-   padding-left: 28px;
-   padding-top: 8px;
-  }
-}
-
-#topung {
-  background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
-
-  h3 {
-   padding-left: 28px;
-   padding-top: 8px;
-  }
-}
-
-#topvoksen {
-  background: transparent url(../images/icons/top10_icn_30.png) no-repeat 8px 50%;
-
-  h3 {
-   padding-left: 28px;
-   padding-top: 8px;
-  }
-}
-
-#kommersnart {
- background: transparent url(../images/icons/coming_icn_30.png) no-repeat 8px 50%;
-  h3 {
-   padding-left: 28px;
-   padding-top: 8px;
-  }
-}
+@include predefined-search(anbefalinger, recommend, 25);
+@include predefined-search(nye, new, 25);
+@include predefined-search(top, top10, 30);
+@include predefined-search(tegneserie, tegneserie, 25);
+@include predefined-search(topung, top10, 30);
+@include predefined-search(topvoksen, top10, 30);
+@include predefined-search(kommersnart, kommersnart, 30);
 
 #searchresult {
   li {
@@ -1183,240 +1135,7 @@ img.nota-full {
   }
 }
 
-/* Custom Icons */
-.book-now-playing {
-  height: 18px;
-  width: 18px;
-  position: absolute;
-  right: 50px;
-  top: 20px;
-  left: auto;
-  background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
-}
-#book-play-menu {
-  .ui-btn {
-    border-color: #000;
-    border-top: none;
-    margin: 0 !important;
-    border-right-width: 0px !important;
-  }
-  .ui-btn-up-a, .ui-btn-hover-a {
-    background: $darkbuttoncolor;
-  }
-  .ui-btn-down-a {
-    background: $highlightcolor !important;
-  }
-  .ui-icon {
-    width: 25px;
-    @include border-radius(0, 0);
-  }
-  .ui-block-a, .ui-block-b, .ui.block-c {
-    margin-right: 0px !important;
-  }
-}
-
-.ui-icon-bookmark-add {
-  background-image: url(../images/icons/add_bookmark_icn_18.png);
-  @media only screen and (-webkit-min-device-pixel-ratio: 2)  {
-    background-image: url(../images/icons/add_bookmark_icn_36.png);
-    background-size: 25px 18px;
-  }
-}
-
-.ui-icon-bookmark-add.disabled {
-  background-image: url(../images/icons/add_bookmark_icn_18_dark.png);
-  @media only screen and (-webkit-min-device-pixel-ratio: 2)  {
-    background-image: url(../images/icons/add_bookmark_icn_36_dark.png);
-    background-size: 25px 18px;
-  }
-}
-
-.ui-icon-arrow-right {
-  background-image: url(../images/icons/arrow_icn_16.png);
-}
-
-.ui-icon .ui-icon-arrow-r {
-  background: transparent url(../images/icons/arrow_icn_16.png) no-repeat 0 50%;
-  background-size: 16px 16px;
-}
-
-.ui-icon-lyt-play {
-  background-image: url(../images/icons/play_btn_18.png);
-}
-
-.ui-icon-lyt-rewind {
-  background-image: url(../images/icons/back_btn_18.png);
-}
-
-.ui-icon-lyt-forward {
-  background-image: url(../images/icons/forward_btn_18.png);
-}
-
-.ui-icon-lyt-pause {
-  background-image: url(../images/icons/pause_btn_18.png);
-}
-  
-.ui-icon-book-index {
-  background-image: url(../images/icons/index_icn_18.png);
-}
-    
-.ui-icon-bookmark-list {
-  background-image: url(../images/icons/bookmark_list_icn_18.png);
-}
-    
-.ui-icon-lyt-more {
-  background-image: url(../images/icons/more_icn_18.png);
-}
-  
-.ui-icon-share {
-  background-image: url(../images/icons/share_icn_18.png);
-}
-  
-.ui-icon-book-settings {
-  background-image: url(../images/icons/book_settings_icn_18.png);
-}
-
-.ui-icon-lyt-gear {
-  background-image: url(../images/icons/settings_menu_icn_18.png);
-}
-  
-.ui-icon-lyt-search {
-  background-image: url(../images/icons/search_menu_icn_18.png);
-}
-
-.ui-icon-lyt-search-main {
-  background-image: url(../images/icons/search_icn_25.png);
-  margin: 2px 0px 0px 8px !important;
-}
-
-.ui-btn-icon-notext {
-  &[data-icon='lyt-search'], &[data-icon='lyt-gear'],  &[data-icon='book-index'], &[data-icon='bookmark-add'], &[data-icon='book-settings'], &[data-icon='share'] {
-    .ui-btn-inner {
-      padding: 3px 0 0 18px !important;
-    }
-  }
-  &[data-icon='lyt-search'] {
-    @include background-image(linear-gradient(#8cbbe2, #4c95d1));
-  }
-}
-
-.ui-icon-list-delete {
-  background-image: url(../images/icons/delete_icn_16.png);
-  top: 2px;
-}
-
-/* Media query for high resolution icons for devices width a device pixel ratio above 2. */
-
-@media only screen and (-webkit-min-device-pixel-ratio: 2) {
-  .ui-icon-list-delete {
-    background-image: url(../images/icons/delete_icn_32.png);
-    background-size: 16px 16px;
-  }
-  .ui-icon-lyt-search {
-    background-image: url(../images/icons/search_menu_icn_36.png);
-    background-size: 18px 18px;
-  }
-  .ui-icon-lyt-gear {
-    background-image: url(../images/icons/settings_menu_icn_36.png);
-    background-size: 18px 18px;
-  }
-  .book-now-playing {
-    background-image: url(../images/icons/nowplaying_36.png);
-    background-size: 18px 18px;
-  }
-  .ui-icon-book-index {
-    background-image: url(../images/icons/index_icn_36.png);
-    background-size: 25px 18px;
-  } 
- .ui-icon-bookmark-list {
-    background-image: url(../images/icons/bookmark_list_icn_36.png);
-    background-size: 18px 18px;
-  } 
-  .ui-icon-lyt-more {
-    background-image: url(../images/icons/more_icn_36.png);
-    background-size: 18px 18px;
-  }
-  .ui-icon-share {
-    background-image: url(../images/icons/share_icn_36.png);
-    background-size: 23px 18px;
-  }
-  .ui-icon-book-settings {
-    background-image: url(../images/icons/book_settings_icn_36.png);
-    background-size: 30px 18px;
-  }
-  .ui-icon-lyt-play {
-    background-image: url(../images/icons/play_btn_36.png);
-    background-size: 25px 18px;
-  }
-  .ui-icon-lyt-rewind {
-    background-image: url(../images/icons/back_btn_36.png);
-    background-size: 25px 18px;
-  }
-  .ui-icon-lyt-forward {
-    background-image: url(../images/icons/forward_btn_36.png);
-    background-size: 25px 18px;
-  }
-  .ui-icon-lyt-pause {
-    background-image: url(../images/icons/pause_btn_36.png);
-    background-size: 25px 18px;
-  }
-  .ui-icon-lyt-search-main {
-    background-image: url(../images/icons/search_icn_50.png);
-    background-size: 25px 25px;
-  }
-  .ui-icon.ui-icon-arrow-r {
-    background-image: url(../images/icons/arrow_icn_34.png);
-    background-size: 16px 16px;
-  }
-  .ui-icon.ui-icon-arrow-r {
-    background-image: url(../images/icons/arrow_icn_34.png);
-    background-size: 16px 16px;
-  }
-  #logged-in-as {
-    background-image: transparent url(../images/icons/settings_profile_icn_64.png) no-repeat 0 50%;
-    background-size: 32px 32px;
-  }
-  img.nota-full {
-    background-image: url(../images/logo_hires.png);
-    background-size: 150px 75px;
-  }
-  #bookshelf-content {
-    /* background-image: url(../images/icons/empty_bookshelf_hires.png); */
-    background-size: 240px 40px;
-  }
-  #nota-logo {
-    background-image: url(../images/nota-logo-hires.png);
-    background-size: 200px 67px;
-  }  
-  #anbefalinger {
-    background-image: url(../images/icons/recommend_icn_50.png);
-    background-size: 25px 25px;
-  }
-  #nye {
-    background-image: url(../images/icons/new_icn_50.png);
-    background-size: 25px 25px;
-  }
-  #tegneserie {
-    background-image: url(../images/icons/tegneserie_icn_50.png);
-    background-size: 25px 25px;
-  }
-  #top {
-    background-image: url(../images/icons/top10_icn_60.png);
-    background-size: 25px 25px;
-  }
-  #topung {
-    background-image: url(../images/icons/top10_icn_60.png);
-    background-size: 25px 25px;
-  }
-  #topvoksen {
-    background-image: url(../images/icons/top10_icn_60.png);
-    background-size: 25px 25px;
-  }
-  #kommersnart {
-    background-image: url(../images/icons/coming_icn_50.png);
-    background-size: 25px 25px;
-  }
-}
+/* Bubble notification */
 
 $bubble-background: white;
 $bubble-opacity: 0.8;
