@@ -150,7 +150,7 @@ $(document).bind "mobileinit", ->
     return if window.location.hash is '#login'
     LYT.service.onCurrentLogOn
       always: ->
-        LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+        LYT.var.next = window.location.hash # If window.location.hash is "" you came from root
         params = LYT.router.getParams window.location.hash
         if params?.guest?
           promise = LYT.service.logOn LYT.config.service.guestUser, LYT.config.service.guestLogin
