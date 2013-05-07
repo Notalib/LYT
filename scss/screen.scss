@@ -274,7 +274,7 @@ img.e17-logo {
       
   ul {
     li {
-      img {
+      .cover-image {
         height: 58px;
         max-height: none;
         margin: 0;
@@ -282,7 +282,7 @@ img.e17-logo {
         left: 0px;
         top: 0;
       }
-      .book-play-link {
+      .ui-btn-text .book-play-link {
         padding-left: 45px;
         padding-top: 0.2em;
       }
