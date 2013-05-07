@@ -22,7 +22,7 @@ LYT.render = do ->
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
     
-    if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
+    if String(book.id) is String(LYT.player.book?.id)
       nowPlaying = '<div class="book-now-playing"></div>'
     
     element = jQuery """
@@ -267,22 +267,19 @@ LYT.render = do ->
     $('#details-play-button').attr 'href', "#book-player?book=#{details.id}"
     loadCover view.find('img.cover-image'), details.id
     
+
   bookIndex: (book, view) ->  
-     
     # Create an ordered list wrapper for the list
-   
     # FIXME: We should be using the playlist here - any reference to NCC- or
     # SMIL documents from this class is not good design.
     @createbookIndex book.nccDocument.structure, view, book
-    
+
 
   createbookIndex: (items, view, book, root = null) ->
-
-    playing = LYT.player.getCurrentlyPlaying()
     isPlaying = (sectionId) ->
-      return false unless playing? and String(book.id) is String(playing?.book)
-      return true if String(playing.section) is String(sectionId)
-      return false
+      return unless String(book.id) is String(LYT.player.book.id)
+      return unless item.url is LYT.player.segment().section.url
+      return true
     
     $('#index-back-button').removeAttr 'nodeid'
 

@@ -555,10 +555,6 @@ LYT.player =
       @book.setLastmark segment, Math.floor(@getStatus().currentTime / 5) * 5
       @lastBookmark = now
 
-  getCurrentlyPlaying: ->
-    # Only return something if we have played it recently
-    if lastplayed = @lastplayed
-      return lastplayed if new Date() - lastplayed.updated < 10000
 
   # View related methods - should go into a file akin to render.coffee
 
