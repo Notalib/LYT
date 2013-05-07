@@ -615,6 +615,12 @@ img.e17-logo {
    Support and splash upgrade page
  * ************************************************************************* */
 
+.deprecation-notice {
+  background-color: red;
+  display: none;
+  padding: 8px;
+}
+
 #support, #splash-upgrade {
   .ui-content {
     max-width: 500px;
