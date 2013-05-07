@@ -551,6 +551,12 @@ img.e17-logo {
   }
 }
 
+.deprecation-notice {
+  background-color: red;
+  display: none;
+  padding: 8px;
+}
+
 /* Support and splash upgrade page */
 #support, #splash-upgrade {
   .ui-content {

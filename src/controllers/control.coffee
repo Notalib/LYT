@@ -41,11 +41,6 @@ LYT.control =
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
 
   setupEventHandlers: ->
-    $(document).one 'pageinit', ->
-      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
-
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
-
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
         LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
@@ -469,6 +464,18 @@ LYT.control =
       if type is 'pageshow'
         LYT.render.profile()
         
+  splashUpgrade: (type, match, ui, page, event) ->
+    params = LYT.router.getParams(match[1])
+    # Display deprecation notice in case browser support is going to stop
+    if params?['deprecation-notice'] or not ('play' in $('<audio/>')[0])
+      $('.deprecation-notice').show()
+      $('#splash-upgrade-button').on 'click', ->
+        $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
+        $.mobile.changePage '#support'
+    else
+      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
+
   share: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
