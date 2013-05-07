@@ -203,6 +203,9 @@ LYT.control =
             theme: 'c'
           LYT.render.showDialog($("#login-form"), parameters)
 
+      # Clear password field
+      $('#password').val ''
+      
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
