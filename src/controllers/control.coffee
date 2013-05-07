@@ -462,7 +462,7 @@ LYT.control =
         LYT.render.profile()
         
   splashUpgrade: (type, match, ui, page, event) ->
-    params = LYT.router.getParams(match[1])
+    params = if match[1] then LYT.router.getParams(match[1]) else {}
     # Display deprecation notice in case browser support is going to stop
     if params['deprecation-notice'] or $.browser.msie and $.browser.version.match /^8(\.|$)/
       $('.deprecation-notice').show()
