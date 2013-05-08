@@ -48,9 +48,19 @@ LYT.control =
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
-    $("#book-index").on 'click', ->
-      ev = $(event.srcElement).closest(".create-listview")
+    # Hacking away on book index page that is mostly being rendered by
+    # the nested list view in jQuery Mobile.
+    # This click handler does several things:
+    #  - Make the back button (currently "Tilbage") go back
+    #  - Make navigation to lower levels of the book index work 
+    #  - Leave it to the normal list view to handle other click events
+    #
+    # The click handler is on #book-index because selecting .create-listview,
+    # doesn't capture clicks, since the list is dynamically created.
+    $('#book-index').on 'click', (event) ->
+      ev = $(event.srcElement).closest('.create-listview')
       if ev.length isnt 0
+        # The click is for us
         view = $.mobile.activePage.children ':jqmData(role=content)'
         book = LYT.player.book
         iterate = (items) ->
@@ -66,6 +76,7 @@ LYT.control =
           else
             iterate book.nccDocument.structure
         else
+          # The back button was clicked
           $.mobile.changePage "#book-player"
 
     $("#share-link-textarea").on 'click', -> 
