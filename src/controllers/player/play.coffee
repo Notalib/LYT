@@ -12,7 +12,7 @@
 
 class LYT.player.command.play extends LYT.player.command
 
-  constructor: (el) ->
+  constructor: (el, @playbackRate) ->
     super el
     @_run => @el.jPlayer 'play'
 
@@ -33,6 +33,9 @@ class LYT.player.command.play extends LYT.player.command
       if @playing and event.jPlayer.status.paused
         @_stop event
       else
+        unless @rateSet
+          new LYT.player.command.setRate @el, @playbackRate
+          @rateSet = true
         @notify event.jPlayer.status
 
     ended: (event) => @_stop event

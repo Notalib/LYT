@@ -94,6 +94,10 @@ LYT.control =
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
 
+    Modernizr.on 'playbackrate', (playbackrate) ->
+      if not playbackrate
+        LYT.render.disablePlaybackRate()
+
     $("#style-settings input").change (event) ->
       target = $(event.target)
       name = target.attr 'name'
@@ -433,9 +437,6 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        # TODO: We should use Modernizr.playbackRate to check if setting the
-        #       playback rate is supported.
-        LYT.render.showPlaybackRate()
         if LYT.config.settings.showAdvanced
           $('.advanced-settings').show()
         else

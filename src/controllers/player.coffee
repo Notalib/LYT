@@ -271,13 +271,14 @@ LYT.player =
   setPlaybackRate: (playbackRate = 1) ->
     log.message "Player: setPlaybackRate: #{@playbackRate}"
     @playbackRate = playbackRate
-    @wait().always => @play() if @playing
+    if @playing
+      new LYT.player.command.setRate @el, @playbackRate
 
   # Starts playback
   play: ->
     command = null
     getPlayCommand = =>
-      command = new LYT.player.command.play @el
+      command = new LYT.player.command.play @el, @playbackRate
       command.progress progressHandler
       command.done =>
         log.group 'Player: play: play command done.', command.status()

@@ -5,13 +5,7 @@
 # Note that this test is asynchronous
 # - it won't set result until after a few seconds
 
-Modernizr.on 'autoplayback', (autoplayback) ->
-  if not autoplayback
-    # IOS prohibits web pages from starting any audio playback automatically, so
-    # we can't run this test.
-    # Modernizr.addTest 'playbackRate', not navigator.userAgent.match(/i(Phone|Pad).+Mobile.+Safari/)
-  else
-  
+runTest = ->
   margin = 0.1    # Margin that the measured playback rate should be within
   rate = 0.5      # Test rate
   duration = 12   # How long time to play the audio before measuring playback rate
@@ -63,3 +57,15 @@ Modernizr.on 'autoplayback', (autoplayback) ->
   
   # Start playback
   audio.play()
+
+Modernizr.on 'autoplayback', (autoplayback) ->
+  if not autoplayback
+    # IOS prohibits web pages from starting any audio playback automatically, so
+    # we fall back to wait for user interaction before running the test.
+    listener = ->
+      document.removeEventListener 'click', listener
+      runTest()
+    document.addEventListener 'click', listener
+  else
+    runTest()
+      

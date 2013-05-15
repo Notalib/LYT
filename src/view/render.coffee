@@ -185,13 +185,9 @@ LYT.render = do ->
         
       LYT.loader.register 'Loading bookshelf', process
 
-  hidePlaybackRate: ->
-    $('#playback-rate div').addClass('ui-disabled')
-    $('#playback-rate :input').Attr('disabled', 'disabled')
-
-  showPlaybackRate: ->
-    $('#playback-rate div').removeClass('ui-disabled')
-    $('#playback-rate :input').removeAttr('disabled')
+  disablePlaybackRate: ->
+   $('#playback-rate input[type="radio"]').checkboxradio('disable')
+   $('#playback-rate .message.disabled').show()
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending

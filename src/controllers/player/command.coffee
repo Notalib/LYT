@@ -60,7 +60,7 @@ class LYT.player.command extends jQuery.Deferred
     @fail => LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:fail"
     @always => @_detach()
     @_attach()
-    callback() if @state() is 'pending'
+    callback() if callback and @state() is 'pending'
 
   cancel: -> @cancelled = true
 
