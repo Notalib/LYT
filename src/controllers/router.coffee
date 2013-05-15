@@ -96,7 +96,7 @@ $(document).bind "mobileinit", ->
     "#test":
       handler: "test"
       events: "s,h"
-  ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
+  ], LYT.control, { ajaxApp: false, debugHandler: (err) -> throw err })
   
   $.mobile.defaultPageTransition = 'fade'
   
