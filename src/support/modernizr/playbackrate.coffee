@@ -1,5 +1,3 @@
-# Requires `async-patch`
-
 # -------------------------------------------
 # Modernizr test: audio supports playbackrate
 # -------------------------------------------
