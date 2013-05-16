@@ -47,6 +47,10 @@
   border: none;
 }
 
+.ui-body-c {
+  border: none;
+}
+
 .ui-content .ui-field-contain {
   padding: 0 !important;
   margin: 0 !important;
@@ -141,12 +145,17 @@
 }
 
 /* Remove gradients from listviews */
-.ui-listview li {
+.ui-listview li ~ li {
   &, &:hover, &.ui-btn-hover {
     background-image: none;
     border-top-width: 0px;
   }
 }
+
+.ui-listview-inset li.ui-li:first {
+  border-top-width: 1px;
+}
+
 
 /* IE seems to miscalculate the position of the autocomplete list.. it probably forgets about 
    some margins or padding..  fix the list at 100px, which seems to be correct on all browsers. */
@@ -736,7 +745,6 @@ img.e17-logo {
 #search-form-wrapper {
   position: relative;
   background: $highlightcolor;
-  margin: -15px -15px 0 -15px;
   height: 60px;
   @include clearfix();
   
@@ -863,6 +871,10 @@ li.ui-li h3.no-search-results {
     padding: 0;
   }
   li {
+    background-color: #ebebeb;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #888888;
+    height: 43px;
     img {
       height: 58px;
       max-height: none;
@@ -900,12 +912,6 @@ li.ui-li h3.no-search-results {
       font-size: 12px;
       margin: .2em 0;
     }
-
-    border-top: 1px solid #fff;
-    border-bottom: 1px solid #888888;
-    height: 43px;
-    background-color: #ebebeb;
-    
     &:hover {
       background-color: #ebebeb;  
     }
@@ -913,7 +919,6 @@ li.ui-li h3.no-search-results {
       background-color: #8cbbe2;
     }
   }
-  margin: -1px -16px 0 -16px;
 }
 
 #more-search-results {
@@ -1183,35 +1188,23 @@ li.ui-li h3.no-search-results {
 
 #login { 
   h1 {
-    text-indent: -9000px;
     background: transparent url(../images/logo.png) no-repeat; 
-    width: 150px;
     height: 100px;
-    text-align: center;
     margin: 0 auto;
+    text-align: center;
+    text-indent: -9000px;
+    width: 150px;
   }
   .ui-content {
-    max-width: 320px;
     margin: 0 auto;
+    max-width: 320px;
     text-align: center;
   }
   #loginwrapper {
     padding: 12px;
   }
-  input {
-    margin: 0 auto;
-    border: 2px solid #636363;
-  }
-  #username {
-    @include border-bottom-radius(0);
-    border-bottom-width: 1px;
-    width: 90%;
-  }
-  #password {
-    @include border-top-radius(0);
-    border-top-width: 0;
-    @include box-shadow(rgba(255, 255, 255, 0.7) 0 2px 0px);
-    width: 90%;
+  div.ui-input-text {
+    margin: 4px;
   }
 }
 
