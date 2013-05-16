@@ -105,7 +105,7 @@ LYT.render = do ->
   # Displays a small speech bubble notification vertOffset pixels below the
   # provided element containing the provided text for timeout milliseconds.
   # If timeout provided is zero, the bubble will display until the user clicks
-  # it. Timeout defaults to 2000.
+  # it. Timeout defaults to 5000.
   # Returns a function that will remove the notification when called.
   bubbleNotification = (element, text, vertOffset=0, timeout) ->
     notification = $("<div class=\"bubble-notification\" role=\"alert\"><div class=\"bubble-notification-arrow\"></div><div class=\"bubble-notification-message\">#{text}</div></div>")
@@ -124,7 +124,7 @@ LYT.render = do ->
     if timeout == 0
       notification.on 'click', remove
     else
-      setTimeout(remove, timeout or 2000)
+      setTimeout(remove, timeout or 5000)
     remove
   
   # ---------------------------
