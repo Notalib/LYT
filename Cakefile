@@ -56,7 +56,7 @@ task "html", "Build HTML", (options) ->
     path = "pages/#{fs.path.basename page}"
     content = "<!-- Begin file: #{path} -->\n#{html.readFile page}\n<!-- End file: #{path} -->"
   ).join "\n\n"
-  template = html.interpolate template, body, "body"
+  template = html.interpolate template, body, 'cake:body'
 
   # Using config.concatName below for the css files is a little off, since
   # the sheet lyt.css is the theme roller generated sheet whereas screen.css
@@ -82,8 +82,8 @@ task "html", "Build HTML", (options) ->
         return not file.match /config.dev.coffee$/
     scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
-  template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'stylesheets'
-  template = html.interpolate template, html.scriptTags(scripts), "scripts"
+  template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'
+  template = html.interpolate template, html.scriptTags(scripts), "cake:scripts"
   
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
@@ -104,7 +104,7 @@ task "html", "Build HTML", (options) ->
 
 task "scss", "Compile scss source", (options) ->
   createDir "build/css"
-  scss.compile "scss", "build/css", ->
+  scss.compile "scss", "build/css", options, ->
     boast "compiled", "scss", "build/css"
 
 
@@ -282,9 +282,9 @@ html = do ->
 
 scss = do ->
   # Compile scss files in the given dir using compass
-  compile: (dir, output, callback) ->
+  compile: (dir, output, options, callback) ->
     {exec} = require "child_process"
-    exec "#{config.compass} compile --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
+    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
       fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
       console.log stderr if stderr
       callback?()

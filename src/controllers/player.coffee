@@ -63,11 +63,11 @@ LYT.player =
 
     jPlayerParams.warning = (event) =>
       LYT.instrumentation.record 'warning', event.jPlayer.status
-      log.error 'Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}', event
+      log.error "Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}", event
     
     jPlayerParams.error = (event) =>
       LYT.instrumentation.record 'error', event.jPlayer.status
-      log.error 'Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}', event
+      log.error "Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}", event
 
       # Defaults for prompt following in error handlers below
       parameters =
@@ -196,9 +196,12 @@ LYT.player =
     # Wait for jPlayer to get ready
     ready = jQuery.Deferred()
     @whenReady -> ready.resolve()
+    
+    # Stop any playback
+    result = ready.then => @stop()
   
     # Get the right book  
-    result = ready.then =>
+    result = result.then =>
       if book is @book?.id
         jQuery.Deferred().resolve @book
       else
@@ -238,6 +241,8 @@ LYT.player =
     result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
 
     LYT.loader.register 'Loading book', result.promise()
+    LYT.render.disablePlayerNavigation()
+    result.done -> LYT.render.enablePlayerNavigation()
 
     result.promise()
 
@@ -266,15 +271,19 @@ LYT.player =
   setPlaybackRate: (playbackRate = 1) ->
     log.message "Player: setPlaybackRate: #{@playbackRate}"
     @playbackRate = playbackRate
-    @wait().always => @play() if @playing
+    if @playing
+      new LYT.player.command.setRate @el, @playbackRate
 
   # Starts playback
   play: ->
     command = null
     getPlayCommand = =>
-      command = new LYT.player.command.play @el
+      command = new LYT.player.command.play @el, @playbackRate
       command.progress progressHandler
-      command.done -> log.group 'Play completed. ', command.status()
+      command.done =>
+        log.group 'Player: play: play command done.', command.status()
+        # Audio stream finished. Put on the next one.
+        @nextSegment()
       command.always => @showPlayButton() unless @playing
 
     nextSegment = null
@@ -321,6 +330,8 @@ LYT.player =
           nextSegment = @playlist().nextSegment segment
           timeoutHandler = =>
             LYT.loader.register 'Loading book', nextSegment
+            LYT.render.disablePlayerNavigation()
+            nextSegment.done -> LYT.render.enablePlayerNavigation()
             command.cancel()
             nextSegment.done => getPlayCommand()
             nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
@@ -357,8 +368,9 @@ LYT.player =
         nextSegment = @playlist().segmentByAudioOffset status.src, time
         nextSegment.fail (error) ->
           # TODO: The user may have navigated to a place in the audio stream
-          #       that isn't included in the book. Handle this gracefully by
-          #       searching for the next segment in the audio file.
+          #       that isn't included in the book. This should be handled by
+          #       changing the seek bar to make it impossible to click on
+          #       points in the stream that aren't in the book.
           log.error "Player: play: progress: Unable to load next segment: #{error}."
         nextSegment.done (next) =>
           if next
@@ -472,7 +484,10 @@ LYT.player =
     # which would cause the loader to flicker.
     # TODO: Only set the loader if switching audio is necessary.
     setTimeout(
-      => LYT.loader.register 'Loading sound', result
+      =>
+        LYT.loader.register 'Loading sound', result
+        LYT.render.disablePlayerNavigation()
+        result.done -> LYT.render.enablePlayerNavigation()
       500
     )
 
@@ -541,17 +556,8 @@ LYT.player =
       @book.setLastmark segment, Math.floor(@getStatus().currentTime / 5) * 5
       @lastBookmark = now
 
-  getCurrentlyPlaying: ->
-    # Only return something if we have played it recently
-    if lastplayed = @lastplayed
-      return lastplayed if new Date() - lastplayed.updated < 10000
 
   # View related methods - should go into a file akin to render.coffee
-
-  # TODO: Disable all player buttons (pause/play/forward/back) until
-  #       the player is ready:
-  #
-  #       $('.lyt-play').button('option', 'disabled', true)
 
   setFocus: ->
     for button in [$('.lyt-pause'), $('.lyt-play')]
@@ -567,7 +573,6 @@ LYT.player =
     $('.lyt-play').css 'display', 'none'
     $('.lyt-pause').css('display', '')
     @setFocus()
-    
 
   refreshContent: ->
     # Using timeout to ensure that we don't call updateHtml too often

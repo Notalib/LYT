@@ -90,10 +90,13 @@ $(document).bind "mobileinit", ->
     "#redirect":
       handler: "redirect"
       events: "s"
+    "#splash-upgrade([?].*)?":
+      handler: "splashUpgrade"
+      events: "bs"
     "#test":
       handler: "test"
       events: "s,h"
-  ], LYT.control, { ajaxApp: false }) #defaultHandler: 'bookDetails'
+  ], LYT.control, { ajaxApp: false, debugHandler: (err) -> throw err })
   
   $.mobile.defaultPageTransition = 'fade'
   
@@ -147,7 +150,7 @@ $(document).bind "mobileinit", ->
     return if window.location.hash is '#login'
     LYT.service.onCurrentLogOn
       always: ->
-        LYT.var.next = window.location.hash #if window.location.hash is "" you came from root
+        LYT.var.next = window.location.hash # If window.location.hash is "" you came from root
         params = LYT.router.getParams window.location.hash
         if params?.guest?
           promise = LYT.service.logOn LYT.config.service.guestUser, LYT.config.service.guestLogin

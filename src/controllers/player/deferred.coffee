@@ -1,5 +1,9 @@
 # Requires `/controllers/player/command`
-# -------------------
+# --------------------------------------
+
+# ########################################################################### #
+# Wrap a jQuery.Deferred() into a LYT.player.command object                   #
+# ########################################################################### # 
 
 class LYT.player.command.deferred extends LYT.player.command
 

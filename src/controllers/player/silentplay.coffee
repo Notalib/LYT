@@ -1,6 +1,15 @@
 # Requires `/controllers/player/command`
 # --------------------------------------
 
+# ########################################################################### #
+# Play a silent audio file                                                    #
+# ########################################################################### # 
+
+# This command is used to bypass firstplay issues on IOS.
+# It will start playing a silent audio file and stop as soon as playback has
+# started. Using this command to play on first user interaction will clear the
+# browsers firstplay flag.
+
 class LYT.player.command.silentplay extends LYT.player.command
 
   constructor: (el) ->

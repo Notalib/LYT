@@ -22,7 +22,7 @@ LYT.render = do ->
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
     
-    if String(book.id) is String(LYT.player.getCurrentlyPlaying()?.book)
+    if String(book.id) is String(LYT.player.book?.id)
       nowPlaying = '<div class="book-now-playing"></div>'
     
     element = jQuery """
@@ -171,7 +171,7 @@ LYT.render = do ->
     
     # if the list i empty -> bookshelf is empty -> show icon...
     if(list.length is 1)
-      $('#bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
+      $('.bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
     
     list.listview('refresh')
     list.find('a').first().focus()
@@ -195,14 +195,10 @@ LYT.render = do ->
       LYT.loader.register 'Loading bookshelf', process
 
     deferred.promise()
-
-  hidePlaybackRate: ->
-    $('#playback-rate div').addClass('ui-disabled')
-    $('#playback-rate :input').Attr('disabled', 'disabled')
-
-  showPlaybackRate: ->
-    $('#playback-rate div').removeClass('ui-disabled')
-    $('#playback-rate :input').removeAttr('disabled')
+    
+  disablePlaybackRate: ->
+   $('#playback-rate input[type="radio"]').checkboxradio('disable')
+   $('#playback-rate .message.disabled').show()
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
@@ -224,19 +220,25 @@ LYT.render = do ->
     $('#player-book-author').text ''
     $('#currentbook-image img').attr 'src', defaultCover
     $('#player-info h1, .player-chapter-title').hide()
-    $('.previous-section, .next-section, .lyt-play, .lyt-pause').addClass 'ui-disabled'
-
+    @disablePlayerNavigation()
+    
   clearContent: (content) ->
     # Removes anything in content
     content.children('ol').listview('childPages').remove()
     content.children('ol').listview('refresh')
+
+  enablePlayerNavigation: ->
+    $('#book-play-menu').find('a').removeClass 'ui-disabled'
+    
+  disablePlayerNavigation: ->
+    $('#book-play-menu').find('a').addClass 'ui-disabled'
     
   bookPlayer: (book, view) ->
     $('#player-book-title').text book.title
     $('#player-book-author').text book.author
     $('#player-info h1, .player-chapter-title').show()
     loadCover $('#currentbook-image img'), book.id
-    $('.previous-section, .next-section, .lyt-play, .lyt-pause').removeClass 'ui-disabled'
+    @enablePlayerNavigation()
 
   showAnnouncements: (announcements) ->
     #for announcement in announcements
@@ -272,22 +274,19 @@ LYT.render = do ->
     $('#details-play-button').attr 'href', "#book-player?book=#{details.id}"
     loadCover view.find('img.cover-image'), details.id
     
+
   bookIndex: (book, view) ->  
-     
     # Create an ordered list wrapper for the list
-   
     # FIXME: We should be using the playlist here - any reference to NCC- or
     # SMIL documents from this class is not good design.
     @createbookIndex book.nccDocument.structure, view, book
-    
+
 
   createbookIndex: (items, view, book, root = null) ->
-
-    playing = LYT.player.getCurrentlyPlaying()
     isPlaying = (sectionId) ->
-      return false unless playing? and String(book.id) is String(playing?.book)
-      return true if String(playing.section) is String(sectionId)
-      return false
+      return unless String(book.id) is String(LYT.player.book.id)
+      return unless item.url is LYT.player.segment().section.url
+      return true
     
     $('#index-back-button').removeAttr 'nodeid'
 

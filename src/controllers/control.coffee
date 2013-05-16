@@ -45,14 +45,9 @@ LYT.control =
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
 
   setupEventHandlers: ->
-    $(document).one 'pageinit', ->
-      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
-
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
-
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
-        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.time
+        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification() 
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
@@ -67,9 +62,19 @@ LYT.control =
       if $("#detailsPopup2-popup.ui-popup-active").length > 0
         event.stopPropagation()
 
-    $("#book-index").on 'click', ->
-      ev = $(event.srcElement).closest(".create-listview")
+    # Hacking away on book index page that is mostly being rendered by
+    # the nested list view in jQuery Mobile.
+    # This click handler does several things:
+    #  - Make the back button (currently "Tilbage") go back
+    #  - Make navigation to lower levels of the book index work 
+    #  - Leave it to the normal list view to handle other click events
+    #
+    # The click handler is on #book-index because selecting .create-listview,
+    # doesn't capture clicks, since the list is dynamically created.
+    $('#book-index').on 'click', (event) ->
+      ev = $(event.srcElement).closest('.create-listview')
       if ev.length isnt 0
+        # The click is for us
         view = $.mobile.activePage.children ':jqmData(role=content)'
         book = LYT.player.book
         iterate = (items) ->
@@ -85,6 +90,7 @@ LYT.control =
           else
             iterate book.nccDocument.structure
         else
+          # The back button was clicked
           $.mobile.changePage "#book-player"
 
     $("#share-link-textarea").on 'click', -> 
@@ -103,6 +109,10 @@ LYT.control =
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
+
+    Modernizr.on 'playbackrate', (playbackrate) ->
+      if not playbackrate
+        LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->
       target = $(event.target)
@@ -249,6 +259,9 @@ LYT.control =
             theme: 'c'
           LYT.render.showDialog($("#login-form"), parameters)
 
+      # Clear password field
+      $('#password').val ''
+      
       LYT.loader.register "Logging in", process
       
       event.preventDefault()
@@ -342,7 +355,8 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     
     if type is 'pagebeforeshow'
-      unless LYT.player.book?.id is params.book
+      # Stop playback if we are going to switch to another book
+      if params?.book and LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
         LYT.render.clearBookPlayer()
 
@@ -350,50 +364,54 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
-        segmentUrl = params.section or null
-        segmentUrl += "##{params.segment}" if params.segment
-        offset = if params.offset then LYT.utils.parseTime(params.offset) else null
-        play = (params.play is 'true') or false
-        LYT.render.content.focusEasing params.focusEasing if params.focusEasing
-        LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
+        if params?.book
+          # Switch to different (part of) book
+          if params?.section
+            segmentUrl = params.section
+            segmentUrl += "##{params.segment}" if params.segment
+            offset = if params.offset then LYT.utils.parseTime(params.offset) else null
+          play = (params.play is 'true') or false
+          LYT.render.content.focusEasing params.focusEasing if params.focusEasing
+          LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
           
-        log.message "Control: bookPlay: loading book #{params.book}"
+          log.message "Control: bookPlay: loading book #{params.book}"
         
-        process = LYT.player.load params.book, segmentUrl, offset, play
-        process.done (book) ->
-          LYT.render.bookPlayer book, $(page)
-          # See if there are any service announcements every time a new book has been loaded
-          LYT.service.getAnnouncements()
-          LYT.player.refreshContent()
-          LYT.player.setFocus()
-          LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          process = LYT.player.load params.book, segmentUrl, offset, play
+          process.done (book) ->
+            LYT.render.bookPlayer book, $(page)
+            # See if there are any service announcements every time a new book has been loaded
+            LYT.service.getAnnouncements()
+            LYT.player.refreshContent()
+            LYT.player.setFocus()
+            LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
   
-        process.fail (error) ->
-          log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"
-          
-          # Hack to fix books not loading when being redirected directly from login page
-          if LYT.session.getCredentials()?
-            if LYT.var.next? and ui.prevPage[0]?.id is 'login'
-              window.location.reload()
-            else
-              parameters =
-                mode:                'bool'
-                prompt:              LYT.i18n('Unable to retrieve book')
-                subTitle:            LYT.i18n('')
-                animate:             false
-                useDialogForceFalse: true
-                allowReopen:         true
-                useModal:            true
-                buttons: {}
-              parameters.buttons[LYT.i18n('Try again')] =
-                click: -> window.location.reload()
-                icon:  'refresh'
-                theme: 'c'
-              parameters.buttons[LYT.i18n('Cancel')] =
-                click: -> $.mobile.changePage LYT.config.defaultPage.hash
-                icon:  'delete'
-                theme: 'c'
-              LYT.render.showDialog($.mobile.activePage, parameters)
+          process.fail (error) ->
+            log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"
+            
+            # Hack to fix books not loading when being redirected directly from login page
+            if LYT.session.getCredentials()?
+              if LYT.var.next? and ui.prevPage[0]?.id is 'login'
+                window.location.reload()
+              else
+                parameters =
+                  mode:                'bool'
+                  prompt:              LYT.i18n('Unable to retrieve book')
+                  subTitle:            LYT.i18n('')
+                  animate:             false
+                  useDialogForceFalse: true
+                  allowReopen:         true
+                  useModal:            true
+                  buttons: {}
+                parameters.buttons[LYT.i18n('Try again')] =
+                  click: -> window.location.reload()
+                  icon:  'refresh'
+                  theme: 'c'
+                parameters.buttons[LYT.i18n('Cancel')] =
+                  click: -> $.mobile.changePage LYT.config.defaultPage.hash
+                  icon:  'delete'
+                  theme: 'c'
+                LYT.render.showDialog($.mobile.activePage, parameters)
+        # else just show book player (done by default by the router)
   
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
@@ -466,9 +484,6 @@ LYT.control =
     promise.fail -> log.error 'Control: settings: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        # TODO: We should use Modernizr.playbackRate to check if setting the
-        #       playback rate is supported.
-        LYT.render.showPlaybackRate()
         if LYT.config.settings.showAdvanced
           $('.advanced-settings').show()
         else
@@ -505,6 +520,18 @@ LYT.control =
       if type is 'pageshow'
         LYT.render.profile()
         
+  splashUpgrade: (type, match, ui, page, event) ->
+    params = if match[1] then LYT.router.getParams(match[1]) else {}
+    # Display deprecation notice in case browser support is going to stop
+    if params['deprecation-notice'] or $.browser.msie and $.browser.version.match /^8(\.|$)/
+      $('.deprecation-notice').show()
+      $('#splash-upgrade-button').on 'click', ->
+        $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
+        $.mobile.changePage '#support'
+    else
+      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
+      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
+
   share: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
