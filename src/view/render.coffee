@@ -126,12 +126,18 @@ LYT.render = do ->
     else
       setTimeout(remove, timeout or 2000)
     remove
+
+
+  showDetailsPopup = (el, text, timeout) ->
+    el.find('p:first').text text
+    el.popup 'open'
   
   # ---------------------------
   
   # ## Public API
   
   bubbleNotification: bubbleNotification
+  showDetailsPopup: showDetailsPopup
   
   init: ->
     log.message 'Render: init'
@@ -171,19 +177,24 @@ LYT.render = do ->
     list.find('a').first().focus()
 
   loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
-      process = LYT.bookshelf.load(page, zeroAndUp)
+    deferred = jQuery.Deferred()
+
+    process = LYT.bookshelf.load(page, zeroAndUp)
       .done (books) ->
         LYT.render.bookshelf(books, content, page, zeroAndUp)
         if books.nextPage
           $('#more-bookshelf-entries').show()
         else
           $('#more-bookshelf-entries').hide()
+        deferred.resolve()  
           
       .fail (error, msg) ->
         log.message "failed with error #{error} and msg #{msg}"
-
+        deferred.reject()
         
       LYT.loader.register 'Loading bookshelf', process
+
+    deferred.promise()
 
   hidePlaybackRate: ->
     $('#playback-rate div').addClass('ui-disabled')
