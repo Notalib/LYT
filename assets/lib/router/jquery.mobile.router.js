@@ -1,5 +1,5 @@
 /*!
- * jQueryMobile-router v20130504
+ * jQueryMobile-router v20130515
  * http://github.com/azicchetti/jquerymobile-router
  *
  * Copyright 2011-2013 (c) Andrea Zicchetti
@@ -29,11 +29,10 @@ $(document).on("mobileinit", function(){
   */
 
   var config = $.extend({
-    fixFirstPageDataUrl: false,
-    firstPageDataUrl: "index.html",
-    ajaxApp: false,
-    firstMatchOnly: false
+    fixFirstPageDataUrl: false, firstPageDataUrl: "index.html",
+    ajaxApp: false, firstMatchOnly: false, defaultArgsRe: false
   }, $.mobile.jqmRouter || {});
+
 
   var previousUrl = null, nextUrl = null, ignoreNext = false;
 
@@ -126,24 +125,20 @@ $(document).on("mobileinit", function(){
       }
     }
     this.add(userRoutes,userHandlers);
-  };
-  
+  }
   $.extend($.mobile.Router.prototype,{
-    debug: function(){
-      var conf = this.conf;
-      
-      if (conf.debugHandler !== null){
-        if (conf.debugHandler){
-          conf.debugHandler.apply(null, arguments);
-        } else {
-          if(console.log){
-            console.log.apply(console, arguments);
-          }
-        }
+    documentEvts: { pagebeforechange:1, pagebeforeload:1, pageload:1 },
+
+    debug: function(err){ 
+      var conf = this.conf; 
+      if (conf.debugHandler){
+        conf.debugHandler.apply(this, arguments);
+      } else if (conf.debugHandler !== false && typeof(console) != "undefined" && console.log){
+	console.log.apply(console, arguments);
+        // for webkit
+        if (err.stack){ console.log(err.stack); }
       }
     },
-    
-    documentEvts: { pagebeforechange:1, pagebeforeload:1, pageload:1 },
 
     add: function(userRoutes,userHandlers,_skipAttach){
       if (!userRoutes) { return; }
@@ -159,12 +154,18 @@ $(document).on("mobileinit", function(){
             if (_self.routes.pagebeforeshow === null){
               _self.routes.pagebeforeshow = {};
             }
+	    if (_self.conf.defaultArgsRe){
+	      r += '(?:[?](.*))?$';
+	    }
             _self.routes.pagebeforeshow[r] = el;
             if ( ! _self.routesRex.hasOwnProperty(r) ){
               _self.routesRex[r] = new RegExp(r);
             }
           } else {
             var i, trig = el.events.split(","), evt;
+	    if (el.argsre !== false && (el.argsre || _self.conf.defaultArgsRe) ){
+	      r += '(?:[?](.*))?$';
+	    }
             for( i = 0; i < trig.length; i++ ){
               evt = _self.evtLookup[trig[i]];
               if ( _self.routes.hasOwnProperty(evt) ){
@@ -270,15 +271,15 @@ $(document).on("mobileinit", function(){
             try {
               if (bCDeferred && ui){
                 ui.bCDeferred = bCDeferred;
-	          }
+              }
               handleFn.apply(_self.userHandlers, [e.type,res,ui,page,e]);
               bHandled = true;
-            }catch(err){
+            } catch(err){
               _self.debug(err);
             }
           }
         }
-        if ( bHandled && _self.conf.firstMatchOnly ) return false;
+        if ( bHandled && _self.conf.firstMatchOnly ){ return false; }
       });
       //Pass to default if specified and can handle this event type
       if ( !bHandled && this.conf.defaultHandler && this.defaultHandlerEvents[e.type] ) {
@@ -288,9 +289,11 @@ $(document).on("mobileinit", function(){
         } else if ( typeof(this.userHandlers[this.conf.defaultHandler]) == "function" ) {
           handleFn = this.userHandlers[this.conf.defaultHandler];
         }
-        try {
-          handleFn.apply(this.userHandlers, [e.type, ui, page, e]);
-        } catch(err){ _self.debug(err); }
+	try {
+	  handleFn.apply(this.userHandlers, [e.type, ui, page, e]);
+	} catch(err){
+          this.debug(err);
+        }
       }
 
       if (e.type=="pagebeforechange" && bHandled){
@@ -299,7 +302,11 @@ $(document).on("mobileinit", function(){
 	  // destination page is refUrl.href, ui.toPage or page.
 	  // I'm using ui.toPage so that really crazy users may try to re-route the transition to
 	  //   another location by modifying this property from the handler.
-	  $.mobile.changePage(ui.toPage, { _jqmrouter_handled: true, _jqmrouter_bC: true });
+	  $.mobile.changePage(ui.toPage, {
+            _jqmrouter_handled: true,
+            _jqmrouter_bC: true,
+            dataUrl: ui.options.dataUrl
+          });
 	});
       }
     },
