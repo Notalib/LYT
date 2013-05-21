@@ -20,14 +20,14 @@ LYT.loader = do ->
   $(window).on 'focus', -> jQuery(".ui-page-active").fadeTo(500, 1) if loaders.length is 0 
     
   lockPage = -> 
-    #todo: implement interface locking
+    # TODO: implement interface locking
     #$('document').click (event) ->
     #  log.message "someone tried to click something while we are loading"
     #  event.preventDefault()
     #  event.preventDefaultPropagation()
   
   unlockPage = -> 
-    #todo: implement interface unlocking
+    # TODO: implement interface unlocking
   
   # ## Public API
   
@@ -48,7 +48,7 @@ LYT.loader = do ->
   
   # Set a custom loading message
   set: (message, id, clearStack = true, delay) ->
-    # register new loader with ID, if clearStack is true close all previous loaders
+    # Register new loader with ID, if clearStack is true then close all previous loaders
     loaders = [] if clearStack
     loaders.push id
     setMessage = ->
@@ -63,10 +63,8 @@ LYT.loader = do ->
       setMessage()
     $(".ui-loader h1").attr("role", "alert")
   
-  # in JQueryMobile 1.2 there is a update to the loader (but ugly layout), so we are using our own css.
-  # Close a loading message
+  # Close loader with id and unlock interface if all loaders are closed
   close: (id) ->
-    # close loader with id and unlock interface if all loaders are closed
     loaders.splice index, 1 while (index = loaders.indexOf id) isnt -1
     
     if loaders.length is 0
@@ -78,5 +76,3 @@ LYT.loader = do ->
     loaders = []
     $.mobile.loading 'hide'
     unlockPage()
-  
-
