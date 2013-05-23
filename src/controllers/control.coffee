@@ -467,7 +467,7 @@ LYT.control =
   splashUpgrade: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     # Display deprecation notice in case browser support is going to stop
-    if params?['deprecation-notice'] or not ('play' in $('<audio/>')[0])
+    if params?['deprecation-notice'] or not ('play' of $('<audio/>')[0])
       $('.deprecation-notice').show()
       $('#splash-upgrade-button').on 'click', ->
         $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
