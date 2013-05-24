@@ -463,7 +463,7 @@ LYT.player =
     # integral part of starting playback.
     return unless @playing
     
-    @nextOffset = @getStatus().currentTime
+    @nextOffset or= @getStatus().currentTime
     log.message 'Player: setPlaybackRate: play'
     @el.jPlayer 'play'
 
