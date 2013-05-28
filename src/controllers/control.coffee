@@ -211,6 +211,9 @@ LYT.control =
       process.done (details) =>
         unless this.title
           this.title = details.teaser
+      process.fail =>
+        unless this.title
+          this.title = LYT.i18n('This book has no description')
 
     $("[data-book-id]").on 'taphold', (event) ->
       event.preventDefault()
@@ -218,6 +221,8 @@ LYT.control =
       process = LYT.catalog.getDetails $(this).attr('data-book-id')
       process.done (details) =>
         LYT.render.showDetailsPopup el, details.teaser
+      process.fail ->
+        LYT.render.showDetailsPopup el, ''
 
     el.on 'touchend', (event) -> 
       el.popup 'close'

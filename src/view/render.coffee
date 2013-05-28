@@ -129,6 +129,8 @@ LYT.render = do ->
 
 
   showDetailsPopup = (el, text, timeout) ->
+    if not text? or text is ''
+      text = LYT.i18n('This book has no description')
     el.find('p:first').text text
     el.popup 'open'
   
