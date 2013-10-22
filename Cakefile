@@ -47,9 +47,9 @@ task "src", "Compile CoffeeScript source", (options) ->
 
 task "html", "Build HTML", (options) ->
   createDir "build"
-  
+
   template = html.readFile "html/index.html"
-  
+
   pages = glob "html/pages", /\.html$/i
   pages.sort()
   body = (for page in pages
@@ -84,7 +84,7 @@ task "html", "Build HTML", (options) ->
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'
   template = html.interpolate template, html.scriptTags(scripts), "cake:scripts"
-  
+
   fs.writeFile "build/index.html", template, (err) ->
     throw err if err?
     boast "rendered", "html", "build/index.html"
@@ -151,7 +151,7 @@ coffee = do ->
   # ### Privileged methods
   # -----------------
   {exec} = require "child_process"
-  
+
   # Group files by their directory
   group = (files, base) ->
     grouped = {}
@@ -160,7 +160,7 @@ coffee = do ->
       grouped[dir] or= []
       grouped[dir].push file
     grouped
-  
+
   # Compile some CoffeeScript files
   # Will *always* produce both concatenated and minified
   # versions if concat is true.
@@ -177,10 +177,10 @@ coffee = do ->
         exec "#{config.minify} --source-map #{concat}.map -o #{concat}.min.js #{concat}.js"
         process.chdir '..'
       callback()
-  
+
   # ### Public methods
   # ---------------
-  
+
   # Return a list of files in their concatenation order
   grind: (directory, loadpaths, fileFilter) ->
     {grind} = require "./tools/support/grinder.js"
@@ -188,16 +188,16 @@ coffee = do ->
     fileFilter or= -> true
     files = (glob directory, /\.coffee$/i).filter fileFilter
     grind loadpaths, files
-  
+
   # Compile some CoffeeScript files
   # Will always produce both concatenated and minified
   # versions if concat is true.
   brew: (files, base, output, concat, callback) ->
     base   = base
     output = output
-    
+
     throw "No files to compile" unless files.length
-    
+
     if concat
       compile files, output, config.concatName, callback
     else
@@ -207,7 +207,7 @@ coffee = do ->
         dir = fs.path.join output, dir
         compile files, dir, false, ->
           --pending or callback()
-  
+
   # Kinda hard to explain
   filter: (files, base, relpath = "") ->
     {join, relative} = fs.path
@@ -237,13 +237,13 @@ html = do ->
   readFile: (path) ->
     path = resolve path
     fs.readFileSync path, "utf8"
-  
+
   # Replace a placeholder in the template with the given string
   interpolate: (template, string, placeholder) ->
     pattern = new RegExp "^([ \\t]*)<!--\\s*#{placeholder}\\s*-->", "mi"
     template.replace pattern, (line, lead) ->
       string.replace /^/mg, lead
-  
+
   # Generate script tags for the given urls
   scriptTags: (urls) ->
     urls = [urls] if typeof urls is "string"
@@ -252,7 +252,7 @@ html = do ->
   styleSheets: (urls) ->
     urls = [urls] if typeof urls is "string"
     ("""<link rel="stylesheet" type="text/css" href="#{url}">""" for url in urls).join "\n"
-  
+
 
 # --------------------------------------
 
@@ -279,7 +279,7 @@ docco = do ->
     exec "#{config.docco} #{files}", cwd: resolve(output), (err, stdout, stderr) ->
       fatal err, config.docco, "You may need to install docco via npm. See http://jashkenas.github.com/docco/" if err?
       callback?()
-  
+
   # Create an index.html file to go with the docco'd html files
   index: (dir, relpath = "") ->
     {join, basename} = fs.path
@@ -288,7 +288,7 @@ docco = do ->
       """\t\t<a href="#{file}">#{file.replace /\.html$/, ""}</a>"""
     )
     "<html>\n\t<body>\n#{links.join "\n"}\n\t</body>\n</html>"
-    
+
 
 # --------------------------------------
 
@@ -299,11 +299,11 @@ boast = (verb, from, to) ->
   padR = (string, length) ->
     string = "#{string} " while string.length < length
     string
-  
+
   padL = (string, length) ->
     string = " #{string}" while string.length < length
     string
-  
+
   msg = "#{padL verb, 10}  #{from}"
   msg = "#{padR msg, 30} -> #{to}" if to
   console.log msg
@@ -343,37 +343,37 @@ fatal = (err, command, message) ->
 sync = (from, to, callback) ->
   {dirname, relative, join} = require "path"
   {lstatSync, createReadStream, createWriteStream, existsSync} = require "fs"
-  
+
   files = glob from, /^[^.]/i
   directories = {}
-  
+
   for file in files
     dir = dirname(file)
     dir = join to, relative(from, dir)
     directories[dir] or= true
-  
+
   createDir dir for own dir of directories
-  
+
   queue = (for file in files
     dest = join to, relative(from, file)
     file: file
     dest: dest
   )
-  
+
   copy = (op, callback) ->
     # Only copy if dest file is missing or older than source
     if existsSync(op.dest)
       willCopy = lstatSync(op.file).mtime.getTime() > lstatSync(op.dest).mtime.getTime()
     else
       willCopy = yes
-    
+
     if willCopy
       stream = createReadStream op.file
       stream.pipe createWriteStream(op.dest, flags: "w")
       stream.on "end", -> callback true
     else
       callback false
-  
+
   copied = 0
   next = (didCopy = false) ->
     copied++ if didCopy
@@ -381,7 +381,7 @@ sync = (from, to, callback) ->
       callback? copied
       return
     copy queue.pop(), next
-  
+
   next()
 
 
