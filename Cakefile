@@ -1,6 +1,6 @@
 fs      = require "fs"
 fs.path = require "path"
-w3cjs   = require "w3cjs" # https://github.com/thomasdavis/w3cjs
+w3cjs   = require "w3cjs"
 
 # # Configuration
 
@@ -136,28 +136,6 @@ task "tests", "Compile the test suite", (options) ->
 task "clean", "Remove the build dir", ->
   removeDir "build"
   boast "removed", "build"
-
-
-task "lint:html", "Validate build/index.html", ->
-  w3c = require "./tools/support/w3c.js"
-  unless fs.existsSync "build/index.html"
-    console.error "Error: Can't find build/index.html. Try running `cake html` first"
-    process.exit 1
-  w3c.validateHTML fs.path.resolve("build/index.html")
-
-
-task "lint:css", "Validate build/css/*.css", (options) ->
-  w3c = require "./tools/support/w3c"
-  try
-    files = glob "build/css", /\.css$/i
-  catch e
-    console.error "Error: Nothing to lint. Try running `cake scss` first"
-  iterator = ->
-    return if files.length is 0
-    file = files.pop()
-    console.log "Validating #{fs.path.basename file}"
-    w3c.validateCSS file, iterator
-  iterator()
 
 task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
   errors = checkForTabs()
