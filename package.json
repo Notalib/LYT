@@ -4,8 +4,7 @@
   "description": "A DAISY Online Delivery Protocol compatible book player for handheld devices",
   "private": true,
   "directories": {
-    "doc": "doc",
-    "test": "test"
+    "doc": "doc"
   },
 
   "devDependencies": {
