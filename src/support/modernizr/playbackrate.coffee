@@ -21,39 +21,39 @@ runTest = ->
   # Test block
   # Handler that checks if the playbackRate is correct and tells Modernizr
   started = null
+  rateSet = false
   audio.addEventListener 'timeupdate', ->
+    console.log 'timeupdate'
     # Don't do anything if the test has finished
-    return if Modernizr.playbackRate?
+    return if Modernizr.playbackrate?
 
+    if not rateSet and not isNaN audio.currentTime
+      audio.playbackRate = rate
+      rateSet = true
     # Skip events fired before audio plays or events with invalid time.
     # Occurs on Chrome and IOS.
     return if audio.paused or isNaN audio.currentTime or audio.currentTime == 0
+
+    # Record the time at which the audio started playing
     if not started?
-      started = new Date() / 1000 - audio.currentTime
-      return
+      return started = Date.now() / 1000 - audio.currentTime
 
     # Get time in seconds since audio started playing and return if played
     # for too short time
-    delta = new Date() / 1000 - started
+    delta = Date.now() / 1000 - started
     return if minDuration > delta
 
-    # Calculate the actual playback rate and run test
-    if not isNaN(audio.currentTime) and (rate - margin) < audio.currentTime / delta < (rate + margin)
-      Modernizr.addTest 'playbackRate', true
+    # Calculate the actual playback rate and set test result
+    playbackRate = audio.currentTime / delta
+    if (rate - margin) < playbackRate < (rate + margin)
+      Modernizr.addTest 'playbackrate', true
+      audio.pause()
 
   # Just fail the test on timeout
-  timeoutHandler = ->
-    return if Modernizr.playbackRate?
-    Modernizr.addTest 'playbackRate', false
-  setTimeout timeoutHandler, (duration + 1) * 1000
-
-  # Set block
-  # Handler that sets the playbackRate when the audio object is ready
-  rateSet = false
-  audio.addEventListener 'timeupdate', ->
-    if not isNaN(audio.currentTime) and not rateSet
-      audio.playbackRate = rate
-      rateSet = true
+  setTimeout( ->
+    -> Modernizr.addTest 'playbackrate', Modernizr.playbackrate?
+    (duration + 1) * 1000
+  )
 
   # Start playback
   audio.play()
