@@ -5,7 +5,7 @@ http     = require "http"
 fs       = require "fs"
 fs.path  = require "path"
 {exec}   = require "child_process"
-optparse = require "./support/node_modules/optparse"
+optparse = require "optparse"
 
 
 opts = new optparse.OptionParser [

@@ -183,7 +183,7 @@ coffee = do ->
 
   # Return a list of files in their concatenation order
   grind: (directory, loadpaths, fileFilter) ->
-    {grind} = require "./tools/support/grinder.js"
+    {grind} = require "lyt-grinder"
     loadpaths or= directory
     fileFilter or= -> true
     files = (glob directory, /\.coffee$/i).filter fileFilter
