@@ -94,8 +94,8 @@ LYT.control =
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
 
-    Modernizr.on 'playbackrate', (playbackrate) ->
-      if not playbackrate
+    Modernizr.on 'playbackratelive', (playbackratelive) ->
+      if not Modernizr.playbackrate and not playbackratelive
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->

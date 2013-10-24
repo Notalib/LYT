@@ -19,8 +19,6 @@ LYT.player =
   firstPlay: true
   playbackRate: 1
   lastBookmark: (new Date).getTime()
-  isIOS: /iPad|iPhone|iPod/g.test navigator.userAgent
-
   
   # Short utility methods ################################################### #
 
@@ -277,7 +275,7 @@ LYT.player =
 
     @playbackRate = playbackRate
 
-    if @isIOS
+    if not Modernizr.playbackrate and Modernizr.playbackratelive
       # Workaround for IOS6 that doesn't alter the perceived playback rate
       # before starting and stopping the audio (issue #480)
       if @playing
