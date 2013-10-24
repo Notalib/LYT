@@ -23,7 +23,6 @@ runTest = ->
   started = null
   rateSet = false
   audio.addEventListener 'timeupdate', ->
-    console.log 'timeupdate'
     # Don't do anything if the test has finished
     return if Modernizr.playbackrate?
 

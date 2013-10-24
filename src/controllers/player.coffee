@@ -19,6 +19,7 @@ LYT.player =
   firstPlay: true
   playbackRate: 1
   lastBookmark: (new Date).getTime()
+  isIOS: /iPad|iPhone|iPod/g.test navigator.userAgent
 
   
   # Short utility methods ################################################### #
@@ -270,15 +271,32 @@ LYT.player =
 
   setPlaybackRate: (playbackRate = 1) ->
     log.message "Player: setPlaybackRate: #{@playbackRate}"
+
+    jPlayer = @el.data 'jPlayer'
+    audio = jPlayer.htmlElement.audio
+
     @playbackRate = playbackRate
-    if @playing
-      new LYT.player.command.setRate @el, @playbackRate
+
+    if @isIOS
+      # Workaround for IOS6 that doesn't alter the perceived playback rate
+      # before starting and stopping the audio (issue #480)
+      if @playing
+        $(@el).one $.jPlayer.event.timeupdate, =>
+          audio.playbackRate = @playbackRate
+          @stop().then => @play()
+      else
+        @play().progress (event) =>
+          audio.playbackRate = @playbackRate
+          @stop()
+    else
+      $(@el).one $.jPlayer.event.timeupdate, =>
+        audio.playbackRate = @playbackRate
 
   # Starts playback
   play: ->
     command = null
     getPlayCommand = =>
-      command = new LYT.player.command.play @el, @playbackRate
+      command = new LYT.player.command.play @el
       command.progress progressHandler
       command.done =>
         log.group 'Player: play: play command done.', command.status()
