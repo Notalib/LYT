@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
-  <s:Fault>
-    <s:faultcode>s:noActiveSession</s:faultcode>
-    <s:faultstring>s:foobar</s:faultstring>
-  </s:Fault>
-</s:Envelope>
