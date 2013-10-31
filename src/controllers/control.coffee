@@ -317,8 +317,10 @@ LYT.control =
         LYT.render.clearBookPlayer()
 
     # Don't do anything if the requested book is already playing
+    # and the section number hasn't changed
     if LYT.player.book?.id is params.book
-      return
+      if not params.section or (params.section is LYT.player.section().url)
+        return
 
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
