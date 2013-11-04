@@ -316,10 +316,6 @@ LYT.control =
         LYT.player.stop()
         LYT.render.clearBookPlayer()
 
-    # Don't do anything if the requested book is already playing
-    if LYT.player.book?.id is params.book
-      return
-
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
