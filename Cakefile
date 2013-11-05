@@ -134,6 +134,15 @@ task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
     console.error "Can't build: coffeescript contains tabs:\n" + errors
     process.exit 1
 
+task "lint:coffee", "Validate the source style of all .coffee files", ->
+  files = glob "src", /\.coffee$/i
+  command = "coffeelint -f .coffeelint.json"
+  for file in files
+    command += " \"#{file}\""
+
+  exec command, (err, stdout) ->
+    console.log stdout
+
 task "lint:html", "Validate build/index.html", ->
   if not fs.existsSync "build/index.html"
     return console.warn "Cannot find build/index.html. Try running `cake html`"
