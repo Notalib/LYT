@@ -6,10 +6,10 @@
 # This module handles rendering of book content
 #console.log 'Load LYT.render.content'
 LYT.render.content = do ->
-  
+
   _focusEasing   = 'easeInOutQuint'
   _focusDuration = 500
-  
+
   # Getter and setter
   focusEasing = (easing...) ->
     _focusEasing = easing[0] if easing.length > 0
@@ -26,7 +26,7 @@ LYT.render.content = do ->
     $('#book-content').prevAll().each (i, e) ->
       result -= $(e).height()
     return result
-    
+
   # Return how much horizontal space that is available
   hspace = -> $(window).width()
 
@@ -49,19 +49,19 @@ LYT.render.content = do ->
 #    console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
     centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
-    
+
     width:  Math.floor(image[0].naturalWidth * scale)
     height: Math.floor(image[0].naturalHeight * scale)
     top:    Math.floor(-area.tl.y * scale)
     left:   Math.floor(centering - area.tl.x * scale)
 
-  # Move straight to focus area without any effects  
+  # Move straight to focus area without any effects
   focusImage = (image, area) ->
     nextFocus = translate image, area
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.data 'LYT-focus', nextFocus
     image.css nextFocus
-  
+
   # Move to focus area with effects specified in focusDuration() and focusEasing()
   panZoomImage = (segment, image, area, renderDelta) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
@@ -77,7 +77,7 @@ LYT.render.content = do ->
         image.animate translate(image, panArea), timeScale*focusDuration(), focusEasing(), () ->
           panArea.tl.y = area.height - panArea.height
           image.animate translate(image, panArea), (segment.end - segment.start)*1000 - 2 * focusDuration(), 'linear'
-  
+
   # Return area object that will focus on the entire image
   # TODO: This method is not cross browser and needs to be rewritten
   wholeImageArea = (image) ->
@@ -104,7 +104,7 @@ LYT.render.content = do ->
   renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
     image = segment.imgObj or= jQuery segment.image
-    
+
     if view.find('img').attr('src') is image.attr('src')
       # We are already displaying the right image
       image = view.find 'img'
@@ -112,9 +112,9 @@ LYT.render.content = do ->
       # Display new image
       view.css 'text-align', 'left'
       image.css 'position', 'relative'
-      view.empty().append image 
+      view.empty().append image
       focusImage image, wholeImageArea image
-    
+
     left = parseInt (div[0].style.left.match /\d+/)[0]
     top  = parseInt (div[0].style.top.match /\d+/)[0]
 
@@ -127,31 +127,31 @@ LYT.render.content = do ->
       br:
         x: left + div.width()
         y: top  + div.height()
-    
+
 #    console.log "Area: #{area.width}x#{area.height}, (#{area.tl.x}, #{area.tl.y})"
-    
+
     panZoomImage segment, image, area, renderDelta
-    
+
     return true
 
   # Stack renderer - stack segments
   renderStack = (currentSegment, view, renderDelta) ->
-    
+
     log.message "Render: content: renderStack: renderDelta #{renderDelta}, vspace: #{vspace()}"
-    
+
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
-    
+
     bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
     contentContainerId = (segment) -> "content-#{segment.contentUrl}--#{segment.contentId}"
     missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
-    
+
     # Empty view if book or section has changed
     if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
       log.message 'Render: content: renderStack: empty view - wrong section'
       view.data 'LYT-render-book-section', bookSection currentSegment
       view.children().detach()
       view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
-  
+
     view.css('overflow-x', 'scroll');
 
     segment = currentSegment
@@ -173,7 +173,7 @@ LYT.render.content = do ->
             image = $(this)
             image.click -> image.toggleClass('zoom')
           segment.element = element
-        
+
         $(document.getElementById missingContainerId(segment)).replaceWith element
         element.css 'display', 'none'
       else
@@ -222,7 +222,7 @@ LYT.render.content = do ->
       if segment and totalHeight < vspace() + 2*maxHeight
         log.message "Render: content: renderStack: preloading #{Math.floor(totalHeight / maxHeight + 1)} segments"
         segment.preloadNext Math.floor(totalHeight / maxHeight + 1)
-    
+
     # Fade in all segments from the current and up to the first missing segment
     currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'
     hiddenContainers = currentSegment.element.nextUntil('.missingSegment', '.segmentContainer:hidden')
@@ -230,7 +230,7 @@ LYT.render.content = do ->
       hiddenContainers.fadeIn 1000*timeScale, preload
     else
       preload()
-    
+
 
   # Plain renderer - render everything in the segment
   renderPlain = (segment, view) ->
@@ -240,17 +240,17 @@ LYT.render.content = do ->
       img = $(this)
 
       return if img.data("vspace-processed")? == "yes"
-        
+
       img.data "vspace-processed", "yes" # Mark as already-processed
-        
+
       if img.height() > vspace()
         img.height vspace()
         img.width 'auto'
-      
+
       if img.width() > view.width()
         img.width '100%'
         img.height 'auto'
-      
+
       img.click -> img.toggleClass('zoom')
     view.empty().append segment.dom
 
@@ -265,7 +265,7 @@ LYT.render.content = do ->
         view.hide()
     result?.show()
     return result
-  
+
   renderText = (text) -> selectView('plain').html text
 
   lastRender = null

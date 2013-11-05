@@ -8,7 +8,7 @@ use class="ui-hide-label" accesible label hiding
 
 Opsætningsguide for nybegyndere:
 
-Kommandoer der skal skrives i terminalen er markeret med et '$' tegn.  
+Kommandoer der skal skrives i terminalen er markeret med et '$' tegn.
 
 # Installer udviklingsmiljø:
 
@@ -22,7 +22,7 @@ Kommandoer der skal skrives i terminalen er markeret med et '$' tegn.
     $ sudo npm install -g coffee-script
 
 ## [Sass](http://sass-lang.com/) og [Compass](http://compass-style.org/)
-1. Installer ruby 
+1. Installer ruby
 
 
 
@@ -32,7 +32,7 @@ Deploy:
 
 
 
-# 
+#
 
 
 Sass/css guide
@@ -42,4 +42,4 @@ Ram et id:
     color: red;
 }
 
-Ram et 
+Ram et

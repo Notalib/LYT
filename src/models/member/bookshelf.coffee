@@ -1,5 +1,5 @@
-# Requires `/common`  
-# Requires `/models/service/service`  
+# Requires `/common`
+# Requires `/models/service/service`
 
 # -------------------
 
@@ -7,7 +7,7 @@
 # `MemberCatalog`; the list of issued content)
 
 LYT.bookshelf =
-  # Load a paginated part of the bookshelf.  
+  # Load a paginated part of the bookshelf.
   # Pages are numbered sequentially, starting at 1
 
   #holds the nextpage number if there is one....
@@ -15,10 +15,10 @@ LYT.bookshelf =
 
   load: (page = 1, zeroAndUp = false) ->
     pageSize = LYT.config.bookshelf.pageSize
-    
+
     # By specifiying the `from` and `to` params
     # this way, the maximum number of items returned
-    # will be `pageSize + 1`.  
+    # will be `pageSize + 1`.
     # I.e. if the page size is 5 the range will in
     # fact retrieve 6 items, if there are 6 or more
     # items left in the list. If there are 5 or fewer
@@ -36,9 +36,9 @@ LYT.bookshelf =
       from = (page - 1) * pageSize
       to   = from + pageSize
       size = pageSize
-    
+
     log.message "Bookshelf: Getting book from #{from} to #{to}"
-    
+
     response = LYT.service.getBookshelf(from, to)
     response.pipe (list) =>
       # Are there more results than `pageSize`?
@@ -50,13 +50,13 @@ LYT.bookshelf =
         list.nextPage = page + 1
       else
         list.nextPage = false
-      if not zeroAndUp 
+      if not zeroAndUp
         @nextPage = page + 1
       return list
-  
+
   # Add (issue) a book to the shelf by its ID
   add: (id) -> LYT.service.issue(id)
-  
+
   # Remove (return) a book from the shelf by its ID
   remove: (id) -> LYT.service.return(id)
 

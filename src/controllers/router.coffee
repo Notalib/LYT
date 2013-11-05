@@ -1,6 +1,6 @@
-# Requires `/common`  
-# Requires `control`  
-# Requires `player`  
+# Requires `/common`
+# Requires `control`
+# Requires `player`
 # Requires `/view/render`
 # Requires `/support/lyt/gatrack`
 
@@ -11,7 +11,7 @@
 
 #     bc  => pagebeforecreate 1 time event
 #     c   => pagecreate 1 time event
-#     i   => pageinit     
+#     i   => pageinit
 #     bs  => pagebeforeshow
 #     s   => pageshow
 #     bh  => pagebeforehide
@@ -21,7 +21,7 @@
 # -------------------
 
 LYT.var =
-  next: null # store nextpage 
+  next: null # store nextpage
 
 $(document).ready ->
   LYT.session.init()
@@ -97,9 +97,9 @@ $(document).bind "mobileinit", ->
       handler: "test"
       events: "s,h"
   ], LYT.control, { ajaxApp: false, debugHandler: (err) -> throw err })
-  
+
   $.mobile.defaultPageTransition = 'fade'
-  
+
   # Generate an url for a point in a book given:
   # - bookReference: an object with the following properties:
   #    - book:       id of book
@@ -117,17 +117,17 @@ $(document).bind "mobileinit", ->
         url += "&segment=#{bookReference.segment}"
         if bookReference.smilOffset
           url += "&offset=#{LYT.utils.formatTime bookReference.smilOffset}"
-    
+
     url = if absolute
       if document.baseURI?
         document.baseURI + url
       else
-        window.location.protocol + "//" + window.location.hostname + window.location.pathname + url 
+        window.location.protocol + "//" + window.location.hostname + window.location.pathname + url
     else
       url
-    
+
     return url
-  
+
   # Generate url for provided segment given:
   # - segment: a segment instance
   # - offset: audio offset (i.e. relative to start of segment.audio file).
@@ -141,9 +141,9 @@ $(document).bind "mobileinit", ->
         reference.segment = segment.id
         if offset
           reference.smilOffset = segment.smilOffset(offset)
-          
+
     return LYT.router.getBookActionUrl reference, action, absolute
- 
+
   # If LYT.service, LYT.session or LYT.catalog emits a logon:rejected, prompt
   # the user to log back in.
   $([LYT.service, LYT.catalog]).bind "logon:rejected", ->
@@ -166,8 +166,8 @@ $(document).bind "mobileinit", ->
   $(document).on "pageshow", "[data-role=page]", (event, ui) ->
     _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]
 
-  #Lyt service error handling (events)    
-  
+  #Lyt service error handling (events)
+
   $(LYT.service).bind "error:rpc", () ->
     #alert "Der er opstået et netværksproblem, prøv at genindlæse siden"
     #TODO: apologize on behalf of the server

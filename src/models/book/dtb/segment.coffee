@@ -1,4 +1,4 @@
-# Requires `/common`  
+# Requires `/common`
 
 # This class models a "segment" of audio + transcript,
 # i.e. a single "sound clip" and its associated text/html
@@ -7,7 +7,7 @@
 # images contained in the transcript have been loaded (by
 # calling the `preload` method), or if there were no images
 # to load.
-# 
+#
 # A Segment instance has the following properties:
 #
 # - id:              The id of the <par> element in the SMIL document
@@ -22,7 +22,7 @@
 # - type:            Type of this segment. The following two types are
 #                    currently supported:
 #                     - cartoon:  Display one large image.
-#                                 Each segment is an area that the 
+#                                 Each segment is an area that the
 #                                 player should pan and zoom to.
 #                     - standard: Displays the provided content, replacing
 #                                 any previous content.
@@ -40,12 +40,12 @@
 
 class LYT.Segment
   # Number of segments to preload
-  
+
   constructor: (section, data) ->
     # Set up deferred load of images
     @_deferred = jQuery.Deferred()
     @_deferred.promise this
-    
+
     # Properties initialized in the constructor
     @id          = data.id
     @index       = data.index
@@ -59,7 +59,7 @@ class LYT.Segment
     @text        = null
     @html        = null
     @smil        = data.smil
-    
+
   # Loads all resources
   load: ->
     # Skip if already finished
@@ -87,23 +87,23 @@ class LYT.Segment
         promise.fail (status, error) =>
           log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
           @_deferred.reject()
-    
+
     return @_deferred.promise()
 
   url: -> "#{@section.url}##{@id}"
-  
+
   ready: -> @_deferred.state() isnt "pending"
-  
+
   hasNext: -> @next?
-  
+
   hasPrevious: -> @previous?
-  
+
   getNext: -> @next
-  
+
   getPrevious: -> @previous
-  
+
   duration: -> @end - @start
-  
+
   search: (iterator, filter, onlyOne = true) ->
     if onlyOne
       found = false
@@ -151,10 +151,10 @@ class LYT.Segment
   smilOffset: (audioOffset) -> @smilStart() + audioOffset - @start
 
   containsSmilOffset: (smilOffset) -> @smilStart() <= smilOffset <= @smilStart() + @duration()
-  
+
   containsOffset: (offset) -> @start <= offset <= @end
 
-  # Will load this segment and the next preloadCount segments  
+  # Will load this segment and the next preloadCount segments
   preloadNext: (preloadCount = LYT.config.segment.preload.queueSize) ->
     this.load()
     if preloadCount > 0
@@ -171,7 +171,7 @@ class LYT.Segment
   parseContent: (document) ->
     source = document.source
     sourceContent = source.find("##{@contentId}")
-    
+
     # Find images in the HTML and set up preloading
     # Use Deferreds to set up a `when` trigger
     images = []
@@ -204,7 +204,7 @@ class LYT.Segment
             log.warn "render.content: imageDim: no #{type} attribute or css #{type} on image. Falling back to #{attr} which is not known to be cross browser"
             result[type] = image[attr]
         result
-      
+
       getCanvasScale = (canvasSize, imageSize) ->
         # TODO: We should check that imageSize.width / canvasSize.width == imageSize.height / canvasSize.height
         #       ...and complain loudly if it isn't the case
@@ -215,7 +215,7 @@ class LYT.Segment
             1
         else
           return 1
-      
+
       # The stuff below simply gets the complete html as a string, as jQuery
       # doesn't have a method for this
       @image = image.clone().wrap('<p>').parent().html()
@@ -245,8 +245,8 @@ class LYT.Segment
         until sibling.length is 0 or sibling.attr "id"
           element.append sibling.clone()
           sibling = sibling.next()
-  
-      # Remove links.  
+
+      # Remove links.
       # This will fall apart on nested links, I think.
       # Then again, nested links are very illegal anyway
       element.find("a").each (index, item) ->
@@ -288,7 +288,7 @@ class LYT.Segment
       tmp = new Image
       $(tmp).load(doneHandler).error(errorHandler)
       tmp.src = image.src
-    
+
     for image in images
       log.message "Segment: queue image for preload: #{image.src}"
       unless prevImage?

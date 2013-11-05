@@ -1,4 +1,4 @@
-# Requires `/common`  
+# Requires `/common`
 
 # -------------------
 
@@ -9,7 +9,7 @@
 
 do ->
   # Meta-element name attribute values to look for
-  # Name attribute values for nodes that may appear 0-1 times per file  
+  # Name attribute values for nodes that may appear 0-1 times per file
   # Names that may have variations (e.g. `ncc:format` is the deprecated form of `dc:format`) are defined a arrays.
   # C.f. [The DAISY 2.02 specification](http://www.daisy.org/z3986/specifications/daisy_202.html#h3metadef)
   # TODO: Comment out the things we'll never need to speed up the processing
@@ -54,23 +54,23 @@ do ->
       tocItems:        ["ncc:tocItems", "ncc:tocitems", "ncc:TOCitems"]
       totalElapsedTime:["ncc:totalElapsedTime", "total-elapsed-time"]
       totalTime:       ["ncc:totalTime", "ncc:totaltime"]
-    
+
     # Name attribute values for nodes that may appear multiple times per file
     plural:
       contributor: "dc:contributor"
       creator:     "dc:creator"
       language:    "dc:language"
       narrator:    "ncc:narrator"
-  
+
   # -------
-  
+
   createHTMLDocument = do ->
     if typeof document.implementation?.createHTMLDocument is "function"
       return ->
         doc = document.implementation.createHTMLDocument ""
         return doc
-    
-    # Firefox does not support `document.implementation.createHTMLDocument()`  
+
+    # Firefox does not support `document.implementation.createHTMLDocument()`
     # The following work-around is adapted from [this gist](http://gist.github.com/49453)
     if XSLTProcessor?
       return ->
@@ -86,17 +86,17 @@ do ->
         doc = document.implementation.createDocument "", "foo", null
         range = doc.createRange()
         range.selectNodeContents doc.documentElement
-        
+
         try
           doc.documentElement.appendChild range.createContextualFragment(template)
         catch error
           return null
-        
+
         processor.importStylesheet doc.documentElement.firstChild
         html = processor.transformToDocument doc
         return null unless html.body
         html
-    
+
     else if typeof document.implementation?.createDocumentType is "function"
       doctype = document.implementation.createDocumentType "HTML", "-//W3C//DTD HTML 4.01//EN", "http://www.w3.org/TR/html4/strict.dtd"
       return ->
@@ -112,15 +112,15 @@ do ->
         $('body').append iframe
         doc = iframe[0].contentDocument
         $('body').detach "#docContainer"
-        return doc 
-  
+        return doc
+
   # -------
-  
-  # This class serves as the parent of the `SMILDocument` and `TextContentDocument` classes.  
+
+  # This class serves as the parent of the `SMILDocument` and `TextContentDocument` classes.
   # It is not meant for direct instantiation - instantiate the specific subclasses.
   class LYT.DTBDocument
-    
-    # The constructor takes 1-2 arguments (the 2nd argument is optional):  
+
+    # The constructor takes 1-2 arguments (the 2nd argument is optional):
     # - url: (string) the URL to retrieve
     # - callback: (function) called when the download is complete (used by subclasses)
     #
@@ -129,20 +129,20 @@ do ->
       # The instance will act as a Deferred
       deferred = jQuery.Deferred()
       deferred.promise this
-      
+
       # This instance property will hold the XML/HTML
       # document, once it's been downloaded
       @source = null
-      
+
       # Set up some local variables
       dataType = if (/\.x?html?$/i).test @url then "html" else "xml"
       attempts = LYT.config.dtbDocument?.attempts or 3
       useForceClose = yes unless LYT.config.dtbDocument?.useForceClose? is no
-      
+
       # Internal function to convert raw text to a HTML DOM document
       coerceToHTML = (responseText) =>
         return null unless createHTMLDocument?
-        
+
         log.message "DTB: Coercing #{@url} into HTML"
         # Grab everything inside the "root" `<html></html>` element
         try
@@ -150,10 +150,10 @@ do ->
         catch e
           log.errorGroup "DTB: Failed to coerce markup into HTML", e, responseText
           return null
-        
+
         # Give up, if nothing was found
         return null unless markup.length > 0
-        
+
         # Android innerHTML takes out <head></head>...so cheat...
         markup = markup[0].replace /<\/?head[^>]*>/gi, ""
 
@@ -164,7 +164,7 @@ do ->
 
         container = doc.createElement "div"
         container.innerHTML = markup
-        
+
         # doc.documentElement is missing if doc was created by IE8
         # For some reason, we can work around the issue by appending directly
         # on doc itself (which doesn't really make sense).
@@ -174,8 +174,8 @@ do ->
           doc.appendChild container
 
         jQuery doc
-      
-      
+
+
       # This function will be called, when a DTB document has been successfully downloaded
       loaded = (document, status, jqXHR) =>
         # TODO: Now that all the documents _should be_ valid XHTML, they should be parsable
@@ -187,10 +187,10 @@ do ->
           @source = coerceToHTML jqXHR.responseText
         else
           @source = jQuery document
-        
+
         resolve()
-      
-      
+
+
       # This function will be called if `load()` (below) fails
       failed = (jqXHR, status, error) =>
         if status is "parsererror"
@@ -198,7 +198,7 @@ do ->
           @source = coerceToHTML jqXHR.responseText
           resolve()
           return
-        
+
         # If access was denied, try silently logging in and then try again
         if jqXHR.status is 403 and attempts > 0
           log.warn "DTB: Access forbidden - refreshing session"
@@ -208,18 +208,18 @@ do ->
               log.errorGroup "DTB: Failed to get #{@url} (status: #{status})", jqXHR, status, error
               deferred.reject status, error
           return
-        
+
         # If the failure was due to something else (and wasn't an explicit abort)
         # try again, if there are any attempts left
         if status isnt "abort" and attempts > 0
           log.warn "DTB: Unexpected failure (#{attempts} attempts left)"
           load()
           return
-        
+
         # If all else fails, give up
         log.errorGroup "DTB: Failed to get #{@url} (status: #{status})", jqXHR, status, error
         deferred.reject status, error
-      
+
       # Resolve the promise
       resolve = =>
         if @source?
@@ -228,7 +228,7 @@ do ->
           deferred.resolve this
         else
           deferred.reject -1, "FAILED_TO_LOAD"
-      
+
       # Perform the actual AJAX request to load the file
       load = =>
         --attempts
@@ -242,13 +242,13 @@ do ->
             url = "#{url}?forceclose=true"
         else
           forceCloseMsg = ""
-          
+
         log.message "DTB: Getting: #{@url} (#{attempts} attempts left) #{forceCloseMsg}"
         request = jQuery.ajax {
           url:      url
           beforeSend: (xhr)->
             #xhr.overrideMimeType("text/html; charset=ISO-8859-1");#this is what you recive...
-          
+
           #contentType: "text/xml; charset=utf-8"#this is the charset, and content type you sent to the server...
           dataType: dataType # TODO: It should be fine to just put "xml" here... but it ain't
           async:    yes
@@ -257,18 +257,18 @@ do ->
           error:    failed
           timeout:  20000
         }
-      
+
       load()
-    
-    
+
+
     # Parse and return the metadata as an array
     getMetadata: ->
       return {} unless @source?
-      
+
       # Return cached metadata, if available
 
       return @_metadata if @_metadata?
-      
+
       # Find the `meta` elements matching the given name-attribute values.
       # Multiple values are given as an array
       findNodes = (values) =>
@@ -284,19 +284,19 @@ do ->
 
         return null if nodes.length is 0
         return nodes
-      
+
       xml = @source.find("meta")
 
       @_metadata = {}
-      
+
       for own name, values of METADATA_NAMES.singular
         found = findNodes values
         @_metadata[name] = found.shift() if found?
-      
+
       for own name, values of METADATA_NAMES.plural
         found = findNodes values
         @_metadata[name] = found if found?
 
       @_metadata
-    
-  
+
+
