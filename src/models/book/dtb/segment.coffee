@@ -302,8 +302,8 @@ class LYT.Segment
 
     # When all images have loaded (or failed)...
     jQuery.when.apply(null, jQuery.map images, (image) -> image.deferred)
-      .done =>
-        log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, images
-        return this
-      .fail =>
-        return jQuery.Deferred().reject()
+    .done =>
+      log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, images
+      return this
+    .fail =>
+      return jQuery.Deferred().reject()

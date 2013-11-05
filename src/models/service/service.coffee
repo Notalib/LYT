@@ -97,18 +97,18 @@ LYT.service = do ->
       if code is DODP_NO_SESSION_ERROR
         # If so , the attempt log-on
         logOn()
-          .done ->
-            # Logon worked, so re-attempt the call
-            callback()
-              # If it works, this time around, then great
-              .done(success)
+        .done ->
+          # Logon worked, so re-attempt the call
+          callback()
+            # If it works, this time around, then great
+            .done(success)
 
-              # If it doesn't, then give up
-              .fail(failure)
+            # If it doesn't, then give up
+            .fail(failure)
 
-          # Logon failed, so propagate the error
-          .fail (code, message) ->
-            deferred.reject code, message
+        # Logon failed, so propagate the error
+        .fail (code, message) ->
+          deferred.reject code, message
       else
         failure code, message
 

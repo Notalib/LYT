@@ -67,4 +67,4 @@ asyncTest 'Player starts playing when clicking play', ->
     cleanupHandlers.push -> $('body').off 'pageshow', pageHandler
 
     # Now play the book
-    $.mobile.changePage '#book-player?book=' + bookId;
+    $.mobile.changePage '#book-player?book=' + bookId

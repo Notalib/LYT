@@ -163,7 +163,7 @@ LYT.catalog = do ->
             r = {}
             for i in results.concat data
               if r[i.toLowerCase()] is undefined
-                 r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1);
+                r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1)
             p = []
             p.push j for i, j of r
             response p
@@ -229,14 +229,14 @@ LYT.catalog = do ->
     # Perform the request
     jQuery.ajax(options)
       # On success, extract the results and pass them on
-      .done (data) ->
-        results = data.d or []
-        item.id = item.itemid for item in results
-        deferred.resolve results
+    .done (data) ->
+      results = data.d or []
+      item.id = item.itemid for item in results
+      deferred.resolve results
 
       # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
   # Get autocomplete surgestions...direct...
@@ -250,12 +250,12 @@ LYT.catalog = do ->
     options.async = false
 
     jQuery.ajax(options)
-      .done (data) ->
-        results = data.d or []
-        deferred.resolve results
+    .done (data) ->
+      results = data.d or []
+      deferred.resolve results
 
-      .fail ->
-        deferred.reject()
+    .fail ->
+      deferred.reject()
 
 
     deferred.promise()
@@ -273,19 +273,18 @@ LYT.catalog = do ->
     # Perform the request
     jQuery.ajax(options)
       # On success, extract the results and pass them on
-      .done (data) ->
-        if not data.d? or data.d.length isnt 1
-          deferred.reject()
-          return
+    .done (data) ->
+      if not data.d? or data.d.length isnt 1
+        return deferred.reject()
 
-        info = data.d.pop()
-        info.id = info.itemid
+      info = data.d.pop()
+      info.id = info.itemid
 
-        deferred.resolve info
+      deferred.resolve info
 
       # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 

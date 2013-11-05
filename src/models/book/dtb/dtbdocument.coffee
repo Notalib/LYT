@@ -74,7 +74,7 @@ do ->
     # The following work-around is adapted from [this gist](http://gist.github.com/49453)
     if XSLTProcessor?
       return ->
-        processor = new XSLTProcessor();
+        processor = new XSLTProcessor()
         template = [
           """<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">"""
           """<xsl:output method="html"/>"""

@@ -55,12 +55,12 @@ class LYT.Book
         return deferred
 
       LYT.service.getMetadata(id)
-        .done (metadata) ->
-          loaded[id] = metadata
-          deferred.resolve metadata
+      .done (metadata) ->
+        loaded[id] = metadata
+        deferred.resolve metadata
 
-        .fail (args...) ->
-          deferred.reject args...
+      .fail (args...) ->
+        deferred.reject args...
 
       deferred.promise()
 

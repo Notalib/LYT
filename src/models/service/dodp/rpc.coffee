@@ -178,7 +178,7 @@ LYT.rpc = do ->
     options.headers["Soapaction"] = "/#{action}"
 
     # Create a new Deferred
-    deferred = jQuery.Deferred();
+    deferred = jQuery.Deferred()
 
     # Log the call
     log.group "RPC: Calling \"#{action}\"", soap, options.data

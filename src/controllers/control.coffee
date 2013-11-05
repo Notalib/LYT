@@ -162,9 +162,9 @@ LYT.control =
       $("#bookmark-add-button").click()
 
     $('.open-log-console').on 'click', ->
-        log.receiver = 'devconsole'
-        log.level = 3
-        log.message 'Opened developer console'
+      log.receiver = 'devconsole'
+      log.level = 3
+      log.message 'Opened developer console'
 
 
   ensureLogOn: (params) ->
@@ -195,28 +195,28 @@ LYT.control =
       $("#password").blur()
 
       process = LYT.service.logOn($("#username").val(), $("#password").val())
-        .done ->
-          log.message 'control: login: logOn done'
-          next = LYT.var.next
-          LYT.var.next = null
-          next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
-          $.mobile.changePage next
+      .done ->
+        log.message 'control: login: logOn done'
+        next = LYT.var.next
+        LYT.var.next = null
+        next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
+        $.mobile.changePage next
 
-        .fail ->
-          log.warn 'control: login: logOn failed'
-          parameters =
-            mode:                'bool'
-            prompt:              LYT.i18n('Incorrect username or password')
-            subTitle:            LYT.i18n('')
-            animate:             false
-            useDialogForceFalse: true
-            allowReopen:         true
-            useModal:            true
-            buttons:             {}
-          parameters.buttons[LYT.i18n('OK')] =
-            click: -> # Nop
-            theme: 'c'
-          LYT.render.showDialog($("#login-form"), parameters)
+      .fail ->
+        log.warn 'control: login: logOn failed'
+        parameters =
+          mode:                'bool'
+          prompt:              LYT.i18n('Incorrect username or password')
+          subTitle:            LYT.i18n('')
+          animate:             false
+          useDialogForceFalse: true
+          allowReopen:         true
+          useModal:            true
+          buttons:             {}
+        parameters.buttons[LYT.i18n('OK')] =
+          click: -> # Nop
+          theme: 'c'
+        LYT.render.showDialog($("#login-form"), parameters)
 
       # Clear password field
       $('#password').val ''
@@ -256,12 +256,12 @@ LYT.control =
 
       if type is 'pageshow'
         process = LYT.catalog.getDetails(params.book)
-          .fail (error, msg) ->
-            log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
-          .done (details) ->
-            LYT.render.bookDetails(details, content)
-            LYT.render.setPageTitle details.title
-            content.children().show()
+        .fail (error, msg) ->
+          log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
+        .done (details) ->
+          LYT.render.bookDetails(details, content)
+          LYT.render.setPageTitle details.title
+          content.children().show()
 
   # TODO: Move bookmarks list to separate page
   # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
@@ -455,14 +455,14 @@ LYT.control =
           switch name
             when 'font-size', 'font-family'
               if val is style[name]
-                $(this).attr("checked", true).checkboxradio("refresh");
+                $(this).attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
               if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
-                $(this).attr("checked", true).checkboxradio("refresh");
+                $(this).attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
-                $(this).attr("checked", true).checkboxradio("refresh");
+                $(this).attr("checked", true).checkboxradio("refresh")
 
 
 

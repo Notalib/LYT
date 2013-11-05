@@ -39,7 +39,7 @@ LYT.render.content = do ->
     result = {}
     view or= image.parent()
 
-    scale = 1;
+    scale = 1
     scale = view.width() / area.width if scale > view.width() / area.width
     scale = vspace() / area.height if scale > vspace() / area.height
 #    console.log "render.content: page dimensions: #{$(window).width()}x#{$(window).height()}"
@@ -152,7 +152,7 @@ LYT.render.content = do ->
       view.children().detach()
       view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
 
-    view.css('overflow-x', 'scroll');
+    view.css('overflow-x', 'scroll')
 
     segment = currentSegment
     while segment and segment.state() is "resolved"

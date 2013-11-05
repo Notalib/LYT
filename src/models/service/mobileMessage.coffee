@@ -38,14 +38,14 @@ LYT.mobileMessage = do ->
 
     # Perform the request
     jQuery.ajax(options)
-      # On success, extract the results and pass them on
-      .done (data) ->
-        #Making a javascript object...
-        JSONResult = data.d
-        deferred.resolve JSONResult
-      # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
+    # On success, extract the results and pass them on
+    .done (data) ->
+      #Making a javascript object...
+      JSONResult = data.d
+      deferred.resolve JSONResult
+    # On fail, reject the deferred
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 
@@ -62,14 +62,14 @@ LYT.mobileMessage = do ->
 
     # Perform the request
     jQuery.ajax(options)
-      # On success, extract the results and pass them on
-      .done (data) ->
-        #Making a javascript object...
-        JSONResult = data.d
-        deferred.resolve JSONResult
-      # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
+    # On success, extract the results and pass them on
+    .done (data) ->
+      #Making a javascript object...
+      JSONResult = data.d
+      deferred.resolve JSONResult
+    # On fail, reject the deferred
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 

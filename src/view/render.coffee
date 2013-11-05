@@ -171,19 +171,19 @@ LYT.render = do ->
     list.find('a').first().focus()
 
   loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
-      process = LYT.bookshelf.load(page, zeroAndUp)
-      .done (books) ->
-        LYT.render.bookshelf(books, content, page, zeroAndUp)
-        if books.nextPage
-          $('#more-bookshelf-entries').show()
-        else
-          $('#more-bookshelf-entries').hide()
+    process = LYT.bookshelf.load(page, zeroAndUp)
+    .done (books) ->
+      LYT.render.bookshelf(books, content, page, zeroAndUp)
+      if books.nextPage
+        $('#more-bookshelf-entries').show()
+      else
+        $('#more-bookshelf-entries').hide()
 
-      .fail (error, msg) ->
-        log.message "failed with error #{error} and msg #{msg}"
+    .fail (error, msg) ->
+      log.message "failed with error #{error} and msg #{msg}"
 
 
-      LYT.loader.register 'Loading bookshelf', process
+    LYT.loader.register 'Loading bookshelf', process
 
   disablePlaybackRate: ->
     # Wait with disabling until it's actually created
