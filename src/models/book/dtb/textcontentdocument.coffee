@@ -1,5 +1,5 @@
-# Requires `/common`  
-# Requires `dtbdocument`  
+# Requires `/common`
+# Requires `dtbdocument`
 
 # -------------------
 
@@ -12,6 +12,6 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       item = jQuery item
       return if item.data("resolved")?
       url = item.attr("src")
-      url = url.substr url.lastIndexOf('/') + 1 unless url.lastIndexOf('/') == -1 
+      url = url.substr url.lastIndexOf('/') + 1 unless url.lastIndexOf('/') == -1
       item.attr "src", resources[url]?.url
       item.data "resolved", "yes" # Mark as already-processed

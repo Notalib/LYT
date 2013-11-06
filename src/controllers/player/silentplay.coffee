@@ -3,7 +3,7 @@
 
 # ########################################################################### #
 # Play a silent audio file                                                    #
-# ########################################################################### # 
+# ########################################################################### #
 
 # This command is used to bypass firstplay issues on IOS.
 # It will start playing a silent audio file and stop as soon as playback has
@@ -27,5 +27,5 @@ class LYT.player.command.silentplay extends LYT.player.command
     timeupdate: metadataHandler
     loadedmetadata: metadataHandler
     progress: metadataHandler
-    
+
     pause: (event) => @resolve event.jPlayer.status

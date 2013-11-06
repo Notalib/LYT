@@ -12,24 +12,24 @@ LYT.google = do ->
         # TODO: There is an ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not
         if val.indexOf('//') is -1
           # Put google results in array
-          jsonResults.push(val) 
-      
+          jsonResults.push(val)
+
       if jsonResults.length is 0
         deferred.reject()
-      
+
       jQuery.each jsonResults, (i)->
         # Look up google suggestions in Nota autocomplete
         lookup = LYT.catalog.getAutoComplete(this)
-          .done (data) ->
-            if data.length > 0
-              # If google suggestions hits something in nota autocomplete (aka. Catalogsearch).
-              resultsMatch.push(jsonResults[i])
-            if i is jsonResults.length-1
-              deferred.resolve resultsMatch
-             
-          .fail ->
-            # Something went wrong in notaautocomplete -> normal search
-            deferred.reject() 
+        .done (data) ->
+          if data.length > 0
+            # If google suggestions hits something in nota autocomplete (aka. Catalogsearch).
+            resultsMatch.push(jsonResults[i])
+          if i is jsonResults.length-1
+            deferred.resolve resultsMatch
+
+        .fail ->
+          # Something went wrong in notaautocomplete -> normal search
+          deferred.reject()
     catch e
       log.message 'Google: GotValues: error from google autocomplete'+e
       deferred.reject()
@@ -42,7 +42,7 @@ LYT.google = do ->
         deferred.reject()
         log.message 'Google: DoAutoComplete: error from google autocomplete link'
     # Return deffered to listen on....
-    deferred.promise() 
+    deferred.promise()
 
   #http://suggestqueries.google.com/complete/search?hl=en&ds=yt&json=t&jsonp=callbackfunction&q=orange+county+ca
   #http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q=

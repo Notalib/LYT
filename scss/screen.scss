@@ -1,37 +1,37 @@
 /*
   Formatting rules for this file:
-  
+
   - Don't use tabs.
   - 2 space indents.
   - Use a leading space after a rule like so:
   - Braces are used like this:
-  
+
     .ui-bar-c {
       border: none;
     }
-    
+
   - Not like this:
-  
+
     .ui-bar-c {
       border: none;
       }
 
   - ...or like this:
-  
+
       .ui-bar-c {
       border: none;
       }
-      
+
   - ...or like this:
-  
+
     .ui-bar-c{
       border: none;
     }
-    
+
   - Just one space after colon and none before:
-  
+
     border: none;
-  
+
 */
 
 @import "partials/base";
@@ -42,7 +42,7 @@
 /* ************************************************************************* *
    Various jQuery Mobile fixes
  * ************************************************************************* */
- 
+
 .ui-bar-c {
   border: none;
 }
@@ -67,8 +67,8 @@
     width: 65px;
     background: none;
   }
-  .ui-icon { 
-    width: 30px; 
+  .ui-icon {
+    width: 30px;
     left: 21px;
     @include border-radius(0, 0);
   }
@@ -76,7 +76,7 @@
     background-color: #262626;
     border: 1px solid black;
     .ui-btn-inner {
-      border-color: black; 
+      border-color: black;
       width: 47px !important;
       height: 24px !important;
     }
@@ -98,7 +98,7 @@
   border-top: 1px solid #72716e;
   border-bottom: 1px solid #000;
   height: 2.6875em;
-  
+
   h1.ui-title {
     font-size: 18px !important;
     color:#fff;
@@ -110,7 +110,7 @@
     top: 5px !important;
     &.ui-btn-icon-notext {
       width: 60px;
-      font-family: "Arial"; 
+      font-family: "Arial";
     }
   }
   /* The blue button problem (#431): override lyt.css.ui-btn-active, TODO better to modify theme roller? */
@@ -157,7 +157,7 @@
 }
 
 
-/* IE seems to miscalculate the position of the autocomplete list.. it probably forgets about 
+/* IE seems to miscalculate the position of the autocomplete list.. it probably forgets about
    some margins or padding..  fix the list at 100px, which seems to be correct on all browsers. */
 .ui-autocomplete {
   top:100px !important;
@@ -223,7 +223,7 @@ html {
 /* ************************************************************************* *
    Styling own elements
  * ************************************************************************* */
- 
+
 img.e17-logo {
   display: block;
   margin-left: auto;
@@ -234,7 +234,7 @@ img.e17-logo {
 /* ************************************************************************* *
    jQuery Mobile loader
  * ************************************************************************* */
- 
+
 .ui-loader.ui-loader-default {
   .ui-icon-loading {
     margin: 0 auto;
@@ -245,7 +245,7 @@ img.e17-logo {
     width: 200px;
     height: 30px;
     color: white;
-    text-shadow: 0 0px 0 white; 
+    text-shadow: 0 0px 0 white;
   }
   position: absolute;
   opacity: .75;
@@ -264,12 +264,12 @@ img.e17-logo {
 /* ************************************************************************* *
    Bookshelf
  * ************************************************************************* */
- 
+
 .bookshelf-content, #book-index {
   .ui-li, .ui-li.ui-field-contain {
     border-top: none;
   }
-  
+
   .ui-listview {
     margin-bottom: 0;
   }
@@ -279,7 +279,7 @@ img.e17-logo {
   /* background: transparent url(../images/icons/empty_bookshelf.png) no-repeat; */
   background-position: left top;
   min-height: 40px;
-      
+
   ul {
     li {
       .cover-image {
@@ -294,11 +294,11 @@ img.e17-logo {
         padding-left: 45px;
         padding-top: 0.2em;
       }
-      
+
       .cover-image {
         max-width: none;
       }
-      
+
       .cover-image-frame {
         width: 37px;
         overflow: hidden;
@@ -307,7 +307,7 @@ img.e17-logo {
         left: 0;
         height: 58px;
       }
-      
+
       .ui-btn {
         border: none;
         background: none;
@@ -336,24 +336,24 @@ img.e17-logo {
       border-bottom: 1px solid #888888;
       height: 58px;
       background-color: #ebebeb;
-      
+
       &:hover {
-        background-color: #ebebeb;  
+        background-color: #ebebeb;
       }
       &.ui-btn-down-a {
         background-color: #8cbbe2;
       }
-        
+
     }
   }
 
   ol {
-    li {     
+    li {
       border-bottom: 1px solid #888888;
       background-color: #ebebeb;
-      
+
       &:hover {
-        background-color: #ebebeb;  
+        background-color: #ebebeb;
       }
       &.ui-btn-down-a {
         background-color: #8cbbe2;
@@ -370,20 +370,20 @@ img.e17-logo {
   text-align: left;
   padding: 12px;
   @include border-radius(0);
-  
+
   .ui-btn-inner {
     border: none;
     @include border-radius(0);
   }
-  
+
   .ui-btn-text {
-    @include text-shadow(0 1px 0 white);    
+    @include text-shadow(0 1px 0 white);
     color: #464646;
     font-weight: normal;
   }
-  
+
   //@include box-shadow(inset 0 0 4px #ebebeb);
-  
+
   border: none;
 }
 
@@ -391,7 +391,7 @@ img.e17-logo {
 /* ************************************************************************* *
    Profile page
  * ************************************************************************* */
- 
+
 #profile {
   .ui-content {
     max-width: 500px;
@@ -424,12 +424,12 @@ img.e17-logo {
       #current-user-name {
         display: block;
         color: black;
-      }  
+      }
     }
     hr {
       margin-top: 16px;
       border-top: 1px solid #484848;
-      background: #ebebeb; 
+      background: #ebebeb;
       height: 1px;
       border-width: 1px 0 0 0;
     }
@@ -462,7 +462,7 @@ img.e17-logo {
     max-width: 500px;
     height: 96px;
     text-overflow: clip clip;
-    overflow: hidden;      
+    overflow: hidden;
     padding: 0 12px;
     margin: 0 auto;
   }
@@ -472,7 +472,7 @@ img.e17-logo {
 /* ************************************************************************* *
    Share page
  * ************************************************************************* */
- 
+
 #share {
   .ui-content {
     max-width: 500px;
@@ -498,15 +498,15 @@ img.e17-logo {
       color: black;
     }
   }
-  
+
   hr {
     margin: 8px 0;
     padding: 0;
     border-top: 1px solid #636363;
-    background: #fff; 
+    background: #fff;
     height: 1px;
     border-width: 1px 0 0 0;
-  } 
+  }
   #mail-button-wrapper {
     @include action-button(#5c9dd5, a);
   }
@@ -516,7 +516,7 @@ img.e17-logo {
 /* ************************************************************************* *
    Settings page
  * ************************************************************************* */
- 
+
 #settings {
   .ui-content {
     padding: 18px;
@@ -538,7 +538,7 @@ img.e17-logo {
   }
   .ui-controlgroup-label {
     color: #383838;
-    font-weight: bold; 
+    font-weight: bold;
     text-shadow: 0 1px 0 white;
     display: block;
     padding-bottom: 6px;
@@ -546,7 +546,7 @@ img.e17-logo {
   hr {
     margin-top: 16px;
     border-top: 1px solid #484848;
-    background: #ebebeb; 
+    background: #ebebeb;
     height: 1px;
     border-width: 1px 0 0 0;
   }
@@ -560,7 +560,7 @@ img.e17-logo {
 /* ************************************************************************* *
    About page
  * ************************************************************************* */
- 
+
 #about {
  .ui-content {
     max-width: 500px;
@@ -590,7 +590,7 @@ img.e17-logo {
     margin: 8px 0;
     padding: 0;
     border-top: 1px solid #636363;
-    background: #fff; 
+    background: #fff;
     height: 1px;
     border-width: 1px 0 0 0;
   }
@@ -661,7 +661,7 @@ img.e17-logo {
       color: black;
     }
   }
-  
+
   .videowrapper {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 */
@@ -676,16 +676,16 @@ img.e17-logo {
       height: 100%;
     }
   }
-  
+
   hr {
     margin: 8px 0;
     padding: 0;
     border-top: 1px solid #636363;
-    background: #fff; 
+    background: #fff;
     height: 1px;
     border-width: 1px 0 0 0;
   }
-  
+
   #mail-button-wrapper {
     @include action-button(#5c9dd5, a);
   }
@@ -723,14 +723,14 @@ img.e17-logo {
     margin: 8px 0;
     padding: 0;
     border-top: 1px solid #636363;
-    background: #fff; 
+    background: #fff;
     height: 1px;
     border-width: 1px 0 0 0;
   }
   #e17-button-wrapper {
     @include action-button(#8cbbe2, a);
   }
-    
+
   #e17-mobil-button-wrapper {
     @include action-button(#8cbbe2, a);
   }
@@ -746,13 +746,13 @@ img.e17-logo {
   background: $highlightcolor;
   height: 60px;
   @include clearfix();
-  
+
   .ui-input-search {
     height: 43px;
     margin: 0 60px 0 0;
-    border: 1px solid #3b73b3; 
+    border: 1px solid #3b73b3;
   }
-         
+
   .ui-icon-searchfield::after {
     background-image: none;
   }
@@ -780,14 +780,14 @@ img.e17-logo {
       padding: 5px 0 0 2px;
       height: 32px;
       border: 2px solid $highlightcolor;
-    } 
-        
+    }
+
     .ui-btn-down-b {
       background-color: lighten($highlightcolor, 16%);
     }
-        
+
   }
-  
+
   .ui-input-clear {
     background-image: none;
     background: transparent;
@@ -797,7 +797,7 @@ img.e17-logo {
     margin-top: -2px;
     margin-right: 2px;
     @include box-shadow(none);
-    
+
     .ui-icon-shadow {
       @include box-shadow(none);
       background-image: none;
@@ -842,12 +842,12 @@ li.ui-li h3.no-search-results {
 @mixin predefined-search($id, $icon-name, $icon-size) {
   ##{$id} {
     background: transparent url(../images/icons/#{$icon-name}_icn_#{$icon-size}.png) no-repeat 8px 50%;
-    
+
     @media only screen and (-webkit-min-device-pixel-ratio: 2) {
       background-image: url(../images/icons/#{$icon-name}_icn_#{($icon-size * 2)}.png);
       background-size: 25px 25px;
     }
-  
+
     h3 {
       padding-left: 28px;
       padding-top: 8px;
@@ -912,7 +912,7 @@ li.ui-li h3.no-search-results {
       margin: .2em 0;
     }
     &:hover {
-      background-color: #ebebeb;  
+      background-color: #ebebeb;
     }
     &.ui-btn-down-c {
       background-color: #8cbbe2;
@@ -929,13 +929,13 @@ li.ui-li h3.no-search-results {
   padding: 12px;
   @include border-radius(0);
   border: none;
-  
+
   .ui-btn-inner {
     border: none;
     @include border-radius(0);
   }
   .ui-btn-text {
-    @include text-shadow(0 1px 0 white);    
+    @include text-shadow(0 1px 0 white);
     color: #464646;
     font-weight: normal;
   }
@@ -1005,7 +1005,7 @@ li.ui-li h3.no-search-results {
 #add-to-bookshelf-button {
   @include action-button(#5c9dd5, a);
 }
-  
+
 #details-play-button {
   @include action-button(#879d27, a);
 }
@@ -1076,7 +1076,7 @@ li.ui-li h3.no-search-results {
   right: 0px;
   top: 132px; /* This equals the combined height of the controls at the top of the player
                  Using the trick described by Okendoken in
-                 http://stackoverflow.com/questions/4980308 
+                 http://stackoverflow.com/questions/4980308
                */
   bottom: 0px;
 }
@@ -1094,7 +1094,7 @@ li.ui-li h3.no-search-results {
 }
 
 #book-stack-content .segmentContainer.current {
-  
+
   p, h1, h2, h3, img, image, a, span {
     opacity: 1.0;
   }
@@ -1104,11 +1104,11 @@ li.ui-li h3.no-search-results {
   overflow: hidden;
   text-shadow: none;
   text-align: center;
-  
+
   p, h1, h2, h3, img, image, a, span {
     opacity: 0.6;
   }
-  
+
   p {
     margin: 2% 6% 0 5%;
     text-align: left;
@@ -1158,14 +1158,14 @@ li.ui-li h3.no-search-results {
     color: white !important;
     padding: 0.7em;
     border-top: 0px !important;
-     
+
     .bookmark-share {
         background-image: url(../images/icons/share_icn_18_white.png);
         background-size: 22px 18px;
         background-repeat:no-repeat;
         background-position:center;
     }
-    
+
     .bookmark-delete {
         background-image: url(../images/icons/delete_icn_18_white.png);
         background-size: 18px 18px;
@@ -1185,9 +1185,9 @@ li.ui-li h3.no-search-results {
    Login page
  * ************************************************************************* */
 
-#login { 
+#login {
   h1 {
-    background: transparent url(../images/logo.png) no-repeat; 
+    background: transparent url(../images/logo.png) no-repeat;
     height: 100px;
     margin: 0 auto;
     text-align: center;
@@ -1221,14 +1221,14 @@ img.nota-full {
   .ui-link {
     text-decoration: none;
     color:#484848;
-  }  
+  }
 }
 
 #forgot-password {
   .ui-link {
     text-decoration: none;
     color:#484848;
-  }  
+  }
 }
 
 #legal {
@@ -1250,7 +1250,7 @@ img.nota-full {
 .ui-simpledialog-container {
   border:2px solid #000;
   padding: 8px;
-  
+
   #ok-btn {
     .ui-btn-inner {
       color:#fff;
@@ -1272,8 +1272,8 @@ img.nota-full {
     .ui-icon {
       visibility: hidden;
     }
-  }    
-  
+  }
+
   .ui-btn {
     border:solid 2px #636363;
   }
@@ -1340,14 +1340,14 @@ $bubble-arrow-height: 10px;
   z-index: 10;
   font-family: sans-serif;
   text-shadow: none;
-  color: black;  
+  color: black;
   border-radius: 0.5em 0.5em 0 0;
   border-top: 2px solid black;
   border-left: 2px solid black;
   border-right: 2px solid black;
   padding: 0.4em;
   background-color: #CCC;
-  
+
   &.started {
     background-color: #D2E0E6;
     background-image: url(../images/icons/test_running_16.gif);
@@ -1355,18 +1355,18 @@ $bubble-arrow-height: 10px;
     padding-left: 22px;
     background-size: 16px;
     background-position: 4px 6px;
-    
+
     &.error {
       background-image: url(../images/icons/glyphish/25-weather.png);
       background-color: #EE5757;
     }
-    
+
     &.done {
       background-image: url(../images/icons/glyphish/171-sun.png);
       background-color: #C6E746;
     }
   }
- 
+
 }
 
 
@@ -1403,7 +1403,7 @@ svg.graph-canvas {
 .graph-line {
   fill: none;
   stroke-width: 0.001;
-  
+
   &:hover {
     stroke-width: 0.005;
   }

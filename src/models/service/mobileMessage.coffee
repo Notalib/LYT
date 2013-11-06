@@ -1,5 +1,5 @@
-# Requires `/common`  
-# Requires `/models/member/session`  
+# Requires `/common`
+# Requires `/models/member/session`
 
 # -------------------
 
@@ -35,22 +35,22 @@ LYT.mobileMessage = do ->
     deferred = jQuery.Deferred()
     url  = LYT.config.mobileMessage.GetVersion.url
     options = getAjaxOptions url, data
-    
+
     # Perform the request
     jQuery.ajax(options)
-      # On success, extract the results and pass them on
-      .done (data) ->
-        #Making a javascript object...
-        JSONResult = data.d
-        deferred.resolve JSONResult
-      # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
+    # On success, extract the results and pass them on
+    .done (data) ->
+      #Making a javascript object...
+      JSONResult = data.d
+      deferred.resolve JSONResult
+    # On fail, reject the deferred
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 
 
-  NotifyMe = (item, userId) -> 
+  NotifyMe = (item, userId) ->
     # ## Public API
     serverRequestData = {}
     serverRequestData.item = String(item)
@@ -62,14 +62,14 @@ LYT.mobileMessage = do ->
 
     # Perform the request
     jQuery.ajax(options)
-      # On success, extract the results and pass them on
-      .done (data) ->
-        #Making a javascript object...
-        JSONResult = data.d
-        deferred.resolve JSONResult
-      # On fail, reject the deferred
-      .fail ->
-        deferred.reject()
+    # On success, extract the results and pass them on
+    .done (data) ->
+      #Making a javascript object...
+      JSONResult = data.d
+      deferred.resolve JSONResult
+    # On fail, reject the deferred
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 
