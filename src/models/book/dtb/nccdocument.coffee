@@ -118,41 +118,40 @@ do ->
         section.id = number
         numberSections section.children, number
     
-    removeMetaSections = (sections, collector) ->
-      blacklisted = (section) ->
-        (return true if section[type] is value) for value, type of LYT.config.nccDocument.metaSections
+    markMetaSections = (sections) ->
+      metaSectionList = LYT.config.nccDocument.metaSections
+
+      isBlacklisted = (section) ->
+        (return true if section[type] is value) for value, type of metaSectionList
         false
       
       index = sections.length
       until --index <= -1
         section = sections[index]
-        if blacklisted section
-          collector.unshift section
-          sections.splice index, 1
+        if isBlacklisted section
+          section.metadataSection = true
         else
-          removeMetaSections section.children, collector
+          markMetaSections section.children
     
-    # Create an array to hold the structured data
     structure = []
+
     # Find all headings as a plain array
     headings  = jQuery.makeArray xml.find(":header")
     return [] if headings.length is 0
+
     # Find the level of the first heading (should be level 1)
-    level     = parseInt headings[0].tagName.slice(1), 10
+    level = parseInt headings[0].tagName.slice(1), 10
     # Get all consecutive headings of that level
     getConsecutive headings, level, structure
-    
-    # Send meta-information to the end of the structure
-    metaSections = []
-    removeMetaSections structure, metaSections         # Extract sections
-    structure.push section for section in metaSections # Append to the end
-    
+    # Mark all meta sections so we don't play them per default
+    markMetaSections structure
+
     # Number sections
     numberSections structure
-    
+
     return structure
-  
-  
+ 
+ 
   flattenStructure = (structure) ->
     flat = []
     for section in structure
