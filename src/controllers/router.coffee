@@ -33,6 +33,14 @@ $(document).ready ->
 # This is a hack - redirect the first page load to use the real url location
 # See http://stackoverflow.com/questions/13086110/jquery-mobile-router-doesnt-route-the-first-page-load
 $(document).one 'pagebeforechange', (event, data) -> data.toPage = window.location.hash
+$(document).on 'pagebeforechange', (event, data) ->
+  if typeof data.toPage is 'string' and data.toPage.indexOf('#profile') isnt -1
+    promise = LYT.control.ensureLogOn()
+    promise.fail -> console.log 'failed'
+    promise.done (cred) ->
+      if not cred
+        event.preventDefault()
+        $.mobile.changePage '#login'
 
 $(document).bind "mobileinit", ->
   LYT.router = new $.mobile.Router([
@@ -163,7 +171,7 @@ $(document).bind "mobileinit", ->
     LYT.player.stop()
     $.mobile.changePage "#login"
 
-  $("[data-role=page]").live "pageshow", (event, ui) ->
+  $(document).on "pageshow", "[data-role=page]", (event, ui) ->
     _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]
 
   #Lyt service error handling (events)    

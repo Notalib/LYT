@@ -110,8 +110,8 @@ LYT.control =
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
 
-    Modernizr.on 'playbackrate', (playbackrate) ->
-      if not playbackrate
+    Modernizr.on 'playbackratelive', (playbackratelive) ->
+      if not Modernizr.playbackrate and not playbackratelive
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->
@@ -358,66 +358,72 @@ LYT.control =
 
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
-    
+    if not params? or not params.book?
+      return
+
     if type is 'pagebeforeshow'
       # Stop playback if we are going to switch to another book
-      if params?.book and LYT.player.book?.id and params.book isnt LYT.player.book.id
+      if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
         LYT.render.clearBookPlayer()
+
+    # Don't do anything if the requested book is already playing
+    if LYT.player.book?.id is params.book
+      return
 
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
-        if params?.book
-          # Switch to different (part of) book
-          if params?.section
-            segmentUrl = params.section
-            segmentUrl += "##{params.segment}" if params.segment
-            offset = if params.offset then LYT.utils.parseTime(params.offset) else null
-          play = (params.play is 'true') or false
-          LYT.render.content.focusEasing params.focusEasing if params.focusEasing
-          LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
-          
-          log.message "Control: bookPlay: loading book #{params.book}"
-        
-          process = LYT.player.load params.book, segmentUrl, offset, play
-          process.done (book) ->
-            LYT.render.bookPlayer book, $(page)
-            # See if there are any service announcements every time a new book has been loaded
-            LYT.service.getAnnouncements()
-            LYT.player.refreshContent()
-            LYT.player.setFocus()
-            LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
-  
-          process.fail (error) ->
-            log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"
-            
-            # Hack to fix books not loading when being redirected directly from login page
-            if LYT.session.getCredentials()?
-              if LYT.var.next? and ui.prevPage[0]?.id is 'login'
-                window.location.reload()
-              else
-                parameters =
-                  mode:                'bool'
-                  prompt:              LYT.i18n('Unable to retrieve book')
-                  subTitle:            LYT.i18n('')
-                  animate:             false
-                  useDialogForceFalse: true
-                  allowReopen:         true
-                  useModal:            true
-                  buttons: {}
-                parameters.buttons[LYT.i18n('Try again')] =
-                  click: -> window.location.reload()
-                  icon:  'refresh'
-                  theme: 'c'
-                parameters.buttons[LYT.i18n('Cancel')] =
-                  click: -> $.mobile.changePage LYT.config.defaultPage.hash
-                  icon:  'delete'
-                  theme: 'c'
-                LYT.render.showDialog($.mobile.activePage, parameters)
+        # Switch to different (part of) book
+        if params.section
+          segmentUrl = params.section
+          segmentUrl += "##{params.segment}" if params.segment
+          offset = if params.offset then LYT.utils.parseTime(params.offset) else null
+
+        play = (params.play is 'true') or false
+        LYT.render.content.focusEasing params.focusEasing if params.focusEasing
+        LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
+
+        log.message "Control: bookPlay: loading book #{params.book}"
+
+        process = LYT.player.load params.book, segmentUrl, offset, play
+        process.done (book) ->
+          LYT.render.bookPlayer book, $(page)
+          # See if there are any service announcements every time a new book has been loaded
+          LYT.service.getAnnouncements()
+          LYT.player.refreshContent()
+          LYT.player.setFocus()
+          LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+
+        process.fail (error) ->
+          log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"
+
+          # Hack to fix books not loading when being redirected directly from login page
+          if LYT.session.getCredentials()?
+            if LYT.var.next? and ui.prevPage[0]?.id is 'login'
+              window.location.reload()
+            else
+              parameters =
+                mode:                'bool'
+                prompt:              LYT.i18n('Unable to retrieve book')
+                subTitle:            LYT.i18n('')
+                animate:             false
+                useDialogForceFalse: true
+                allowReopen:         true
+                useModal:            true
+                buttons: {}
+              parameters.buttons[LYT.i18n('Try again')] =
+                click: -> window.location.reload()
+                icon:  'refresh'
+                theme: 'c'
+              parameters.buttons[LYT.i18n('Cancel')] =
+                click: -> $.mobile.changePage LYT.config.defaultPage.hash
+                icon:  'delete'
+                theme: 'c'
+              LYT.render.showDialog($.mobile.activePage, parameters)
         # else just show book player (done by default by the router)
-  
+
   search: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
