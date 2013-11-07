@@ -1,6 +1,7 @@
 fs      = require "fs"
 fs.path = require "path"
 w3cjs   = require "w3cjs"
+{exec}  = require 'child_process'
 
 # # Configuration
 
@@ -10,7 +11,7 @@ config =
   docco:         "docco"     # Path to docco (if not in PATH)
   compass:       "compass"   # Path to compass (if not in PATH)
   minify:        "uglifyjs2" # Path to minifier
-  maxHtmlErrors: 13          # Maximum number of acceptable HTML validation errors
+  maxHtmlErrors: 1           # Only "Bad value X-UA-Compatible for attribute http-equiv on element meta." is allowed.
 
 # --------------------------------------
 
@@ -26,6 +27,11 @@ option "-n", "--no-validate", "Don't validate build"
 # --------------------------------------
 
 # # Tasks
+
+task "all", "Run everything", (options) ->
+  invoke "app"
+  invoke "docs"
+  invoke "spec"
 
 task "app", "Same as `cake assets src html scss`", (options) ->
   invoke task for task in ["assets", "src", "html", "scss"]
@@ -117,21 +123,8 @@ task "docs", "Run Docco on src/*.coffee", (options) ->
     boast "docco'd", "src", "build/docs"
 
 
-task "tests", "Compile the test suite", (options) ->
-  cleanDir "build/test/javascript"
-  files = coffee.grind "test/src", "src"
-  coffee.brew files, ".", "build/test/javascript", false, ->
-    boast "compiled", "test/src", "build/test/javascript"
-    template = html.readFile "test/index.html"
-    scripts = coffee.filter files, ".", "javascript"
-    scripts = html.scriptTags scripts
-    template = html.interpolate template, scripts, "scripts"
-    fs.writeFile "build/test/index.html", template, (err) ->
-      throw err if err?
-      boast "rendered", "test/index.html", "build/test/index.html"
-      sync "test/fixtures", "build/test/fixtures", (copied) ->
-        boast "synced", "test/fixtures", "build/test/fixtures"
-
+task "spec", "Run the specifications", (options) ->
+  execOut 'vows spec/*.coffee'
 
 task "clean", "Remove the build dir", ->
   removeDir "build"
@@ -449,3 +442,10 @@ walk = (directory) ->
 glob = (directory, pattern) ->
   (file for file in walk(directory) when pattern.test fs.path.basename(file))
 
+ 
+execOut = (commandLine) ->
+  exec(commandLine, (err, stdout, stderr) ->
+    console.log("> #{commandLine}")
+    console.log(stdout)
+    console.log(stderr)
+  )
