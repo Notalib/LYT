@@ -191,11 +191,11 @@ Also, [read the style guide](https://github.com/Notalib/LYT/wiki/Style-Guide).
 
 ### Building
 
-To compile the app, issue the following from the repo's root:
+To build everything issue the following from the repo's root:
 
-    $ cake app
+    $ cake all
 
-This will compile the CoffeeScript files to `build/javascript`, concatenate the HTML files to `build/index.html`, and compile the SASS files to `build/css`. It also syncs the contents of `assets/` with the `build/` directory.
+This will compile the CoffeeScript files to `build/javascript`, concatenate the HTML files to `build/index.html`, and compile the SASS files to `build/css`. It also syncs the contents of `assets/` with the `build/` directory. Finally it will build the documentation and run the test suite.
 
 To see what else you can build, issue `cake` with no arguments:
 
