@@ -468,6 +468,9 @@ img.e17-logo {
   }
 }
 
+.mail-button-wrapper {
+  @include action-button(#5c9dd5, a);
+}
 
 /* ************************************************************************* *
    Share page
@@ -506,9 +509,6 @@ img.e17-logo {
     background: #fff;
     height: 1px;
     border-width: 1px 0 0 0;
-  }
-  #mail-button-wrapper {
-    @include action-button(#5c9dd5, a);
   }
 }
 
@@ -601,10 +601,6 @@ img.e17-logo {
     max-width: 500px;
     height: 67px;
   }
-
-  #mail-button-wrapper {
-    @include action-button(#5c9dd5, a);
-  }
 }
 
 
@@ -684,10 +680,6 @@ img.e17-logo {
     background: #fff;
     height: 1px;
     border-width: 1px 0 0 0;
-  }
-
-  #mail-button-wrapper {
-    @include action-button(#5c9dd5, a);
   }
 }
 
