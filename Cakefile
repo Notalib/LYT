@@ -10,7 +10,7 @@ config =
   docco:         "docco"     # Path to docco (if not in PATH)
   compass:       "compass"   # Path to compass (if not in PATH)
   minify:        "uglifyjs2" # Path to minifier
-  maxHtmlErrors: 13          # Maximum number of acceptable HTML validation errors
+  maxHtmlErrors: 1           # Only "Bad value X-UA-Compatible for attribute http-equiv on element meta." is accepted
 
 # --------------------------------------
 
