@@ -75,6 +75,8 @@ do ->
             segment.fail -> deferred.reject("Section found for url #{url}, but couldn't find segment with id #{id}")
       return deferred.promise()
       
+    getSectionIndexByNumber: (id) ->
+      return i for section, i in @sections when section.id is id
     
   # -------
   
@@ -124,13 +126,10 @@ do ->
       isBlacklisted = (section) ->
         (return true if section[type] is value) for value, type of metaSectionList
         false
-      
-      index = sections.length
-      until --index <= -1
-        section = sections[index]
+      for section in sections
         if isBlacklisted section
           section.metadataSection = true
-        else
+        if section.children.length
           markMetaSections section.children
     
     structure = []
@@ -145,7 +144,6 @@ do ->
     getConsecutive headings, level, structure
     # Mark all meta sections so we don't play them per default
     markMetaSections structure
-
     # Number sections
     numberSections structure
 

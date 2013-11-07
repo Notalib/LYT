@@ -130,20 +130,23 @@ LYT.config =
   nccDocument:
     metaSections:
       # Note: the format is "attribute value": "attribute type"
-      "dbbintro":        "class" # elements whose `class` attribute is "dbbintro"
-      #"dbbcopyright":    "class" # elements whose `class` attribute is "dbbcopyright"
-      #"rearcover":       "class" # elements whose `class` attribute is "rearcover"
-      #"summary":         "class" # elements whose `class` attribute is "summary"
-      #"rightflap":       "class" # elements whose `class` attribute is "rightflap"
-      #"leftflap":        "class" # elements whose `class` attribute is "leftflap"
-      #"extract":         "class" # elements whose `class` attribute is "extract"
-      #"authorbiography": "class" # elements whose `class` attribute is "authorbiography"
-      #"title":           "class" # elements whose `class` attribute is "title"
-      
+      #"title":           "class"
+      "dbbintro":        "class"
+      "dbbcopyright":    "class"
+      "rearcover":       "class"
+      "summary":         "class"
+      "rightflap":       "class"
+      "leftflap":        "class"
+      "extract":         "class"
+      "authorbiography": "class"
+      "kolofon":          "class"
+      "andre oplysninger":"class"
+      "oplysninger":      "class"
+
       #"GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
       #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
       #"GFLAP":    "ref"   # elements whose `ID` attribute is "GFLAP"
-  
+
   # default page redirect page
   defaultPage:
     hash: '#bookshelf'
