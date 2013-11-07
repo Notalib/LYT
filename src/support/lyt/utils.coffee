@@ -1,9 +1,9 @@
-# Requires `/lyt`  
+# Requires `/lyt`
 
 # -------------------
 
 LYT.utils =
-  
+
   # Convert seconds to a timecode string, e.g.
   #     LYT.utils.formatTime(3723) #=> "1:02:03"
   formatTime: (seconds) ->
@@ -13,7 +13,7 @@ LYT.utils =
     minutes = "0" + (((seconds % 3600 ) / 60) >>> 0)
     seconds = "0" + (seconds % 60)
     "#{hours}:#{minutes.slice -2}:#{seconds.slice -2}"
-  
+
   # Convert a timecode string ("H:MM:SS" or "MM:SS") to seconds, e.g.
   #     LYT.utils.parseTime("1:02:03") #=> 3723
   parseTime: (string) ->
@@ -22,14 +22,14 @@ LYT.utils =
     components.shift()
     components = (parseInt(component, 10) || 0 for component in components)
     components[0] * 3600 + components[1] * 60 + components[2]
-  
+
   toSentence: (array) ->
     return "" if not (array instanceof Array) or array.length is 0
     return String(array[0]) if array.length is 1
     "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
-  
-  
-  # This utility function converts the arguments given to well-formed XML  
+
+
+  # This utility function converts the arguments given to well-formed XML
   # CHANGED: This function now _will_ re-encode encoded entities.
   # I.e. "&amp;" becomes "&amp;amp;"
   toXML: do ->
@@ -47,16 +47,16 @@ LYT.utils =
         nsid = 'ns1:'
         if jQuery.inArray(':', nodeName) > -1
           nsid = ''
-        
+
         xml += "<#{nsid}#{nodeName}>#{toXML data}</#{nsid}#{nodeName}>"
-      
+
       switch typeof hash
         when "string", "number", "boolean"
           # If the argument is a string, number or boolean,
           # then coerce it to a string and use a pseudo element
           # to handle the escaping of special chars
           return jQuery("<div>").text(String(hash)).html()
-      
+
         when "object"
           # If the argument is an object, go through its members
           for own key, value of hash
@@ -69,4 +69,4 @@ LYT.utils =
               # on to `append`
               append key, value
       xml
-  
+

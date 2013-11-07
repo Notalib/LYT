@@ -1,7 +1,7 @@
-# Requires `/common`  
-# Requires `/controllers/player`  
-# Requires `/models/member/settings`  
-# Requires `/models/service/lists`  
+# Requires `/common`
+# Requires `/controllers/player`
+# Requires `/models/member/settings`
+# Requires `/models/service/lists`
 
 # -------------------
 
@@ -9,9 +9,9 @@
 #console.log 'Load LYT.render'
 
 LYT.render = do ->
-  
+
   # ## Privileged API
-  
+
   # Default book cover image
   defaultCover = '/images/icons/default-cover.png'
 
@@ -21,10 +21,10 @@ LYT.render = do ->
     info.push book.author if book.author?
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
-    
+
     if String(book.id) is String(LYT.player.book?.id)
       nowPlaying = '<div class="book-now-playing"></div>'
-    
+
     element = jQuery """
       <li data-book-id="#{book.id}">
         <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
@@ -42,7 +42,7 @@ LYT.render = do ->
       element.attr 'data-icon', 'arrow-right'
 
     loadCover element.find('img.cover-image'), book.id
-    
+
     return element
 
   didYouMeanItem = (item) ->
@@ -54,7 +54,7 @@ LYT.render = do ->
     </li>
     """
     return element
-  
+
   loadCover = (img, id) ->
     # if periodical, use periodical code (first 4 letters of id)
     imageid = if $.isNumeric(id) then id else id.substring(0, 4)
@@ -117,7 +117,7 @@ LYT.render = do ->
     notification.hide()
     notification.css 'visibility', ''
     notification.fadeIn()
-    remove = -> 
+    remove = ->
       notification.removeAttr('role')
       notification.fadeOut ->
         notification.remove()
@@ -127,17 +127,16 @@ LYT.render = do ->
       setTimeout(remove, timeout or 5000)
     remove
 
-
   showDetailsPopup = (el, text, timeout) ->
     if not text? or text is ''
       text = LYT.i18n('This book has no description')
     el.find('p:first').text text
     el.popup 'open'
-  
+
   # ---------------------------
-  
+
   # ## Public API
-  
+
   bubbleNotification: bubbleNotification
   showDetailsPopup: showDetailsPopup
   
@@ -152,13 +151,13 @@ LYT.render = do ->
     $('#textarea-example, #book-stack-content, #book-plain-content').css LYT.settings.get('textStyle')
     $('#book-player').css
       'background-color': $('#book-stack-content').css('background-color')
-      
+
   setInfo: ->
     $('.lyt-version').html LYT.VERSION
     $('.current-year').html (new Date()).getFullYear()
-  
+
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), 'Bogmærke tilføjet', 5
-  
+
   bookshelf: (books, view, page, zeroAndUp) ->
     #todo: add pagination
     list = view.find('ul')
@@ -170,11 +169,11 @@ LYT.render = do ->
       attachClickEvent removeLink, book, li
       li.append removeLink
       list.append li
-    
+
     # if the list i empty -> bookshelf is empty -> show icon...
     if(list.length is 1)
       $('.bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
-    
+
     list.listview('refresh')
     list.find('a').first().focus()
 
@@ -195,7 +194,6 @@ LYT.render = do ->
         deferred.reject()
         
       LYT.loader.register 'Loading bookshelf', process
-
     deferred.promise()
     
   disablePlaybackRate: ->
@@ -213,11 +211,11 @@ LYT.render = do ->
       $('#book-unavailable-message').hide()
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
         $('#add-to-bookshelf-button').hide()
-        $('#details-play-button').hide() 
+        $('#details-play-button').hide()
       else
         $('#add-to-bookshelf-button').show()
-        $('#details-play-button').show() 
-  
+        $('#details-play-button').show()
+
   clearBookPlayer: (view) ->
     @clearTextContent()
     $('#player-book-title').text ''
@@ -225,7 +223,7 @@ LYT.render = do ->
     $('#currentbook-image img').attr 'src', defaultCover
     $('#player-info h1, .player-chapter-title').hide()
     @disablePlayerNavigation()
-    
+
   clearContent: (content) ->
     # Removes anything in content
     content.children('ol').listview('childPages').remove()
@@ -233,10 +231,10 @@ LYT.render = do ->
 
   enablePlayerNavigation: ->
     $('#book-play-menu').find('a').removeClass 'ui-disabled'
-    
+
   disablePlayerNavigation: ->
     $('#book-play-menu').find('a').addClass 'ui-disabled'
-    
+
   bookPlayer: (book, view) ->
     $('#player-book-title').text book.title
     $('#player-book-author').text book.author
@@ -255,7 +253,7 @@ LYT.render = do ->
   bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
 
   clearTextContent: -> LYT.render.content.renderSegment()
-  
+
   textContent: (segment) ->
     return unless segment
     # Set enable or disable add bookmark button depending on we can bookmark
@@ -267,7 +265,7 @@ LYT.render = do ->
       $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
 
-      
+
   bookDetails: (details, view) ->
     $('#details-book-title').text details.title
     $('#details-book-author').text details.author
@@ -277,9 +275,9 @@ LYT.render = do ->
     $('#add-to-bookshelf-button').attr 'data-book-id', details.id
     $('#details-play-button').attr 'href', "#book-player?book=#{details.id}"
     loadCover view.find('img.cover-image'), details.id
-    
 
-  bookIndex: (book, view) ->  
+
+  bookIndex: (book, view) ->
     # Create an ordered list wrapper for the list
     # FIXME: We should be using the playlist here - any reference to NCC- or
     # SMIL documents from this class is not good design.
@@ -291,7 +289,7 @@ LYT.render = do ->
       return unless String(book.id) is String(LYT.player.book.id)
       return unless item.url is LYT.player.segment().section.url
       return true
-    
+
     $('#index-back-button').removeAttr 'nodeid'
 
     if root?.title?
@@ -307,16 +305,16 @@ LYT.render = do ->
 
     for item in items
       if item.children.length > 0
-        element = jQuery '<li data-icon="arrow-right"></li>' 
+        element = jQuery '<li data-icon="arrow-right"></li>'
         element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true">
               #{item.title}
             </a>"""
         element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
       else
         element = jQuery '<li data-icon="false"></li>'
         element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true"> 
+            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true">
               #{item.title}
             </a>"""
         element.attr 'id', item.id
@@ -331,7 +329,7 @@ LYT.render = do ->
     list.show()
 
 
-  bookmarks: (book, view) ->  
+  bookmarks: (book, view) ->
     # Create an ordered list wrapper for the list
     view.children().remove()
     list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="lyt-more"></ol>').hide()
@@ -340,7 +338,7 @@ LYT.render = do ->
     list.attr 'data-author', book.author
     list.attr 'data-totalTime', book.totalTime
     #list.attr 'id', 'NccRootElement'
-    
+
     generateMoreItem = (bookmark, index) ->
       more = $('<a class="subsection" href="#">Mere</a>')
       more.on 'click', ->
@@ -368,7 +366,7 @@ LYT.render = do ->
         listItem.after actionsItem
         list.listview('refresh')
       return more
-    
+
     # if book.bookmarks is empty -> display message
     if book.bookmarks.length is 0
       element = jQuery '<li></li>'
@@ -376,13 +374,13 @@ LYT.render = do ->
       list.append element
     else
       for bookmark, index in book.bookmarks
-        element = jQuery '<li></li>' 
+        element = jQuery '<li></li>'
         element.attr 'id', bookmark.id
         element.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
             <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{bookmark.id}"
-               href="#book-player?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true"> 
+               href="#book-player?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """
@@ -391,7 +389,7 @@ LYT.render = do ->
 
     list.parent().trigger('create')
     list.show()
- 
+
 
   searchResults: (results, view) ->
     list = view.find 'ul'
@@ -401,17 +399,17 @@ LYT.render = do ->
       list.append jQuery """"<li><h3 class="no-search-results">#{LYT.i18n('No search results')}</h3></li>"""
     else
       list.append bookListItem('book-details', result) for result in results
-    
+
     if results.loadNextPage?
       $('#more-search-results').show()
     else
       $('#more-search-results').hide()
-    
-    $('#listshow-btn').show()#show button list 
+
+    $('#listshow-btn').show()#show button list
     list.listview('refresh')
     view.children().show()
 
-  
+
   # TODO: Simple, rough implementation
   catalogLists: (view) ->
     list = view.find 'ul'
@@ -421,11 +419,11 @@ LYT.render = do ->
       listItem = jQuery """<li id="#{key}" data-icon="arrow-right">
                            <a href="##{value.hash}?#{value.param}=#{key}" class="ui-link-inherit">
                            <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
-      list.append listItem   
+      list.append listItem
     list.listview('refresh')
     view.children().show()
 
-  setHeader: (page, text) -> 
+  setHeader: (page, text) ->
     header = $(page).children(':jqmData(role=header)').find('h1')
     header.text LYT.i18n text
 
@@ -443,15 +441,15 @@ LYT.render = do ->
       listItem.find('a').click (event) ->
         $.mobile.changePage "#search?term=#{encodeURI item}" , transition: 'none'
       list.append listItem
-      
-    $('#listshow-btn').show()#show button list 
-    list.listview('refresh')  
 
-    
+    $('#listshow-btn').show()#show button list
+    list.listview('refresh')
+
+
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
       $('#current-user-name').text LYT.i18n('guest')
-    else 
+    else
       $('#current-user-name').text LYT.session.getInfo().realname
 
 
@@ -460,7 +458,7 @@ LYT.render = do ->
     parent.simpledialog parameters
 
     # simpleDialog does not have aria labels on the output elements, so screenreaders has
-    # no chance of finding out what the dialog is saying without going into advanced 
+    # no chance of finding out what the dialog is saying without going into advanced
     # formular or cursor modes (usually not used by not-so-advanced users)
     #
     # Modify the created ui-simpledialog-container so that the screenreader knows this is an alert
@@ -477,7 +475,7 @@ LYT.render = do ->
 
   showInstrumentation: (view) ->
     view.children().detach()
-    
+
     fields = LYT.instrumentation.fieldInfo()
 
     colors = [
@@ -532,7 +530,7 @@ LYT.render = do ->
         if value then 0 else 1
       else
         NaN # Everything else
-      
+
     # Chrome doesn't render the svg items if the DOM is manipulated, so
     # everything is built up as one large string
     svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" class=\"graph-canvas\" viewBox=\"0 0 #{canvasWidth} #{canvasHeight}\">"
@@ -540,19 +538,19 @@ LYT.render = do ->
     graph =
       fields: fields
       entries: {}
-      
+
       saveEntry: (entry) ->
         @entries[entry.event.delta.toString()] = entry
-        
+
       getEntry: (delta) ->
         @entries[delta.toString()]
-        
+
       nextEntry: ->
         @highlight @currentEntry.next if @currentEntry.next
-        
+
       previousEntry: ->
         @highlight @currentEntry.previous if @currentEntry.previous
-        
+
       firstEntry: ->
         @currentEntry = @currentEntry.previous while @currentEntry.previous?
         @highlight @currentEntry
@@ -560,7 +558,7 @@ LYT.render = do ->
       lastEntry: ->
         @currentEntry = @currentEntry.next while @currentEntry.next?
         @highlight @currentEntry
-      
+
       # Highlight an entry
       # Input: delta timestamp (as Number or String) or an entry
       highlight: (data) ->
@@ -576,7 +574,7 @@ LYT.render = do ->
         #       in Chrome.
         $('.delta-marker').attr 'class', 'delta-marker'
         $("#delta-marker-#{entry.event.delta}").attr 'class', 'delta-marker highlight'
-          
+
     makePolyLine = (key, coords) -> "<polyline id=\"line-#{key}\" class=\"graph-line\" stroke=\"#{fields[key].color}\" points=\"#{coords}\"></polyline>"
 
     polyLines    = {}
@@ -594,7 +592,7 @@ LYT.render = do ->
         lastEntry.next = entry
       lastEntry = entry
       deltaMarkers += "<polyline id=\"delta-marker-#{event.delta}\" class=\"delta-marker\" stroke=\"blue\" points=\"#{mapValue 'delta', event.delta},0 #{mapValue 'delta', event.delta},1\"></polyline>"
-      deltaMarkers += "<rect class=\"delta-timeline-marker\" fill=\"blue\" stroke=\"none\" width=\"0.01\" height=\"#{timelineHeight}\" x=\"#{mapValue('delta', event.delta) - 0.005}\" y=\"#{canvasHeight - timelineHeight}\"></rect>" 
+      deltaMarkers += "<rect class=\"delta-timeline-marker\" fill=\"blue\" stroke=\"none\" width=\"0.01\" height=\"#{timelineHeight}\" x=\"#{mapValue('delta', event.delta) - 0.005}\" y=\"#{canvasHeight - timelineHeight}\"></rect>"
       for key, value of event
         continue if key is 'delta'
         entry.description += "#{key}: #{event[key]}<br/>"
@@ -608,7 +606,7 @@ LYT.render = do ->
           circles        += "<circle data-point=\"(delta, #{key}): (#{event.delta}, #{value})\" data-delta=\"#{event.delta}\" class=\"graph-point point-#{key}\" cx=\"#{mapValue 'delta', event.delta}\" cy=\"#{mappedValue}\" r=\"0.005\" stroke=\"none\" stroke-width=\"2\"></circle>"
       graph.saveEntry entry
       graph.currentEntry or= entry
-    
+
     polyLinesStr += makePolyLine key, coords for key, coords of polyLines
 
     svg += "<polyline stroke=\"none\" fill=\"#CCC\" points=\"0,#{canvasHeight} #{canvasWidth},#{canvasHeight} #{canvasWidth},#{canvasHeight - timelineHeight} 0,#{canvasHeight - timelineHeight} 0,#{canvasHeight}\"></polyline>"
@@ -629,5 +627,5 @@ LYT.render = do ->
       )
 
     $('circle.graph-point').click -> graph.highlight $(this).attr 'data-delta'
-    
+
     graph.highlight graph.currentEntry if graph.currentEntry

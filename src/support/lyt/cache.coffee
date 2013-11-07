@@ -1,4 +1,4 @@
-# Requires `/common`  
+# Requires `/common`
 
 # -------------------
 
@@ -7,34 +7,34 @@
 # Objects are stored under a namespace and an ID. The namespace is intended
 # to collect similar objects, whereas the ID is unique within the given
 # namespace.
-# 
+#
 # The objects are stored as JSON strings along with a timestamp. Should the
 # `localStorage` object run out of space, other objects in the namespace
 # will be deleted from oldest to newest until there's room.
 
 LYT.cache = do =>
-  
+
   # ## Privileged API
-  
+
   getCache = (key) ->
     return null unless window.localStorage?
     cache = localStorage.getItem key
     return null unless cache and (cache = JSON.parse(cache))
     cache
-  
+
   removeCache = (key) ->
     try
       localStorage.removeItem key
     catch error
       return
-  
+
   getTimestamp = -> (new Date).getTime()
-  
+
   # TODO: Save timestamps elsewhere for quicker/lighter lookup?
   removeOldest = (prefix) ->
     oldestTimestamp = getTimestamp()
     oldestKey       = false
-    
+
     for index in [0...localStorage.length]
       key = localStorage.key(index)
       if key?.indexOf(prefix) is 0
@@ -42,28 +42,28 @@ LYT.cache = do =>
         if cache.timestamp < oldestTimestamp
           oldestTimestamp = cache.timestamp
           oldestKey = key
-    
+
     if oldestKey then removeCache key
-  
+
   # --------------------
-  
+
   # ## Public API
-  
+
   # Retrieve the object with the given namspace (prefix) and ID
   read: (prefix, id) ->
     return null unless window.localStorage?
     cache = getCache "#{prefix}/#{id}"
     cache?.data or null
-  
+
   # Store an object under the given namspace (prefix) and ID
   write: (prefix, id, data) ->
     return null unless window.localStorage?
     log.message "Cache: Writing '#{prefix}/#{id}'"
     removeCache "#{prefix}/#{id}"
-    
+
     if typeof data isnt "object"
       data = String data
-    
+
     cache =
       type:      typeof data
       data:      data
@@ -71,7 +71,7 @@ LYT.cache = do =>
     success = false
     until success
       try
-        # FIXME: Check that the JSON-object is available on all targeted platforms  
+        # FIXME: Check that the JSON-object is available on all targeted platforms
         # Otherwise it's available as a script from json.org
         localStorage.setItem "#{prefix}/#{id}", JSON.stringify(cache)
         success = true
@@ -80,12 +80,12 @@ LYT.cache = do =>
           removeOldest prefix
         else
           break
-    
-    success 
-  
+
+    success
+
   # Delete the given object from `localStorage`
   remove: (prefix, id) ->
     return null unless window.localStorage?
     log.message "Cache: Deleting '#{prefix}/#{id}'"
     removeCache "#{prefix}/#{id}"
-  
+

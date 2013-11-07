@@ -1,4 +1,4 @@
-# Requires `catalog`  
+# Requires `catalog`
 
 # -------------------
 
@@ -8,7 +8,7 @@ list = (term = "", params = {}) ->
   [term, params] = ["", term] if arguments.length is 1
   -> LYT.catalog.search term, 1, params, 10
 
-LYT.predefinedSearches = 
+LYT.predefinedSearches =
   anbefalinger:
     hash: "search"
     param: "list"

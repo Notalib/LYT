@@ -1,4 +1,4 @@
-# Requires `/lyt`  
+# Requires `/lyt`
 
 # -------------------
 
@@ -65,7 +65,7 @@ fieldInfo = ->
       fieldInfo = fields[key] or {}
       fields[key] = fieldInfo
       continue if fieldInfo.type is 'unknown'
-      continue if typeof value is 'undefined' 
+      continue if typeof value is 'undefined'
       if typeof value is 'object' or typeof value is 'function' or typeof value is 'boolean'
         fieldInfo.type = typeof value
       continue if fieldInfo.type is 'object' or fieldInfo.type is 'function' or typeof value is 'boolean'
@@ -93,4 +93,4 @@ LYT.instrumentation =
   iterateArrays:  iterateArrays
   iterateObjects: iterateObjects
   fieldInfo:      fieldInfo
-  setEvents:      (newEvents) -> events = newEvents 
+  setEvents:      (newEvents) -> events = newEvents

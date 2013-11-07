@@ -1,13 +1,13 @@
-# Requires `/common`  
-# Requires `/support/lyt/loader`  
-# Requires `/models/book/book`  
-# Requires `/models/member/bookshelf`  
-# Requires `/models/member/settings`  
-# Requires `/models/service/service`  
-# Requires `/models/service/catalog`  
-# Requires `/models/service/lists`  
-# Requires `/view/render`  
-# Requires `player`  
+# Requires `/common`
+# Requires `/support/lyt/loader`
+# Requires `/models/book/book`
+# Requires `/models/member/bookshelf`
+# Requires `/models/member/settings`
+# Requires `/models/service/service`
+# Requires `/models/service/catalog`
+# Requires `/models/service/lists`
+# Requires `/view/render`
+# Requires `player`
 
 # -------------------
 
@@ -17,10 +17,10 @@
 # TODO: Rename to controller (not control)
 
 LYT.control =
-  
+
   # ---------------
   # Utility methods
-  
+
   init: ->
     # This disables the iphone default webkitTouchCallout.
     document.documentElement.style.webkitTouchCallout = 'none';
@@ -38,7 +38,7 @@ LYT.control =
         return version
       if LYT.cache.read 'session', 'credentials' or LYT.cache.read 'lyt', 'settings'
         return '0.0.2'
-          
+
     if lastVersion() and lastVersion() isnt LYT.VERSION
       LYT.var.next = window.location.hash
       window.location.hash = '#splash-upgrade'
@@ -48,7 +48,7 @@ LYT.control =
     $("#bookmark-add-button").on 'click', ->
       if LYT.player.segment().canBookmark
         LYT.player.book.addBookmark LYT.player.segment(), LYT.player.getStatus().currentTime
-        LYT.render.bookmarkAddedNotification() 
+        LYT.render.bookmarkAddedNotification()
 
     $("#log-off").on 'click',  -> LYT.service.logOff()
 
@@ -66,7 +66,7 @@ LYT.control =
     # the nested list view in jQuery Mobile.
     # This click handler does several things:
     #  - Make the back button (currently "Tilbage") go back
-    #  - Make navigation to lower levels of the book index work 
+    #  - Make navigation to lower levels of the book index work
     #  - Leave it to the normal list view to handle other click events
     #
     # The click handler is on #book-index because selecting .create-listview,
@@ -84,7 +84,7 @@ LYT.control =
               break
             else if item.children.length > 0
               iterate item.children
-        if ev.attr("nodeid")?      
+        if ev.attr("nodeid")?
           if ev.attr("nodeid") is "0"
             LYT.render.createbookIndex book.nccDocument.structure, view, book
           else
@@ -93,7 +93,7 @@ LYT.control =
           # The back button was clicked
           $.mobile.changePage "#book-player"
 
-    $("#share-link-textarea").on 'click', -> 
+    $("#share-link-textarea").on 'click', ->
       this.focus()
       this.selectionStart = 0
       this.selectionEnd = this.value.length
@@ -118,7 +118,7 @@ LYT.control =
       target = $(event.target)
       name = target.attr 'name'
       val = target.val()
-      
+
       style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
 
       switch name
@@ -133,7 +133,7 @@ LYT.control =
           val = Number(val)
           LYT.settings.set('playbackRate', val)
           LYT.player.setPlaybackRate val
-                  
+
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
 
@@ -164,7 +164,7 @@ LYT.control =
     QUnit.testDone (test) ->
       $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
       $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
-      
+
     QUnit.log (event) ->
       method = if event.result then log.message else log.error
       method "Test: #{event.message}: passed: #{event.result}"
@@ -175,12 +175,12 @@ LYT.control =
 
     Mousetrap.bind 'alt+ctrl+m', ->
       $("#bookmark-add-button").click()
-      
+
     $('.open-log-console').on 'click', ->
-        log.receiver = 'devconsole'
-        log.level = 3
-        log.message 'Opened developer console'
-      
+      log.receiver = 'devconsole'
+      log.level = 3
+      log.message 'Opened developer console'
+
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
@@ -197,7 +197,7 @@ LYT.control =
         $.mobile.changePage '#login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
-      
+
     deferred.promise()
 
   showMouseOver: (el) ->
@@ -233,68 +233,66 @@ LYT.control =
 
   # ----------------
   # Control handlers
-  
+
   login: (type, match, ui, page, event) ->
     $('#username').focus()
-    
+
     $("#login-form").submit (event) ->
       $("#password").blur()
-    
+
       process = LYT.service.logOn($("#username").val(), $("#password").val())
-        .done ->
-          log.message 'control: login: logOn done'
-          next = LYT.var.next
-          LYT.var.next = null
-          next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
-          $.mobile.changePage next
-        
-        .fail ->
-          log.warn 'control: login: logOn failed'
-          parameters =
-            mode:                'bool'
-            prompt:              LYT.i18n('Incorrect username or password')
-            subTitle:            LYT.i18n('')
-            animate:             false
-            useDialogForceFalse: true
-            allowReopen:         true
-            useModal:            true
-            buttons:             {}
-          parameters.buttons[LYT.i18n('OK')] =
-            click: -> # Nop
-            theme: 'c'
-          LYT.render.showDialog($("#login-form"), parameters)
+      .done ->
+        log.message 'control: login: logOn done'
+        next = LYT.var.next
+        LYT.var.next = null
+        next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
+        $.mobile.changePage next
+
+      .fail ->
+        log.warn 'control: login: logOn failed'
+        parameters =
+          mode:                'bool'
+          prompt:              LYT.i18n('Incorrect username or password')
+          subTitle:            LYT.i18n('')
+          animate:             false
+          useDialogForceFalse: true
+          allowReopen:         true
+          useModal:            true
+          buttons:             {}
+        parameters.buttons[LYT.i18n('OK')] =
+          click: -> # Nop
+          theme: 'c'
+        LYT.render.showDialog($("#login-form"), parameters)
 
       # Clear password field
       $('#password').val ''
-      
+
       LYT.loader.register "Logging in", process
-      
+
       event.preventDefault()
       event.stopPropagation()
-  
+
   bookshelf: (type, match, ui, page, event) ->
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookshelf: unable to log in'
     promise.done =>
       content = $(page).children(":jqmData(role=content)")
-      
       if LYT.bookshelf.nextPage is false
         loadbookshelf = LYT.render.loadBookshelfPage content
         loadbookshelf.done =>
-          @showMouseOver $('#detailsPopup1')
-          
+          @showMouseOver $('#detailsPopup1')  
       else
         #loadBookshelfPage is called with view, page count and zeroAndUp set to true...  
         loadbookshelf = LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true 
         loadbookshelf.done =>
           @showMouseOver $('#detailsPopup1')
-
+          
   bookDetails: (type, match, ui, page, event) ->
     content = $(page).children( ":jqmData(role=content)" )
     if type is 'pagebeforeshow'
       content.children().hide()
-    
+
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookDetails: unable to log in'
@@ -304,16 +302,16 @@ LYT.control =
           .done (details) ->
             LYT.render.hideOrShowButtons(details)
         LYT.loader.register "Loading book", process, 10
-  
+
       if type is 'pageshow'
         process = LYT.catalog.getDetails(params.book)
-          .fail (error, msg) ->
-            log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
-          .done (details) ->
-            LYT.render.bookDetails(details, content)
-            LYT.render.setPageTitle details.title
-            content.children().show()
-  
+        .fail (error, msg) ->
+          log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
+        .done (details) ->
+          LYT.render.bookDetails(details, content)
+          LYT.render.setPageTitle details.title
+          content.children().show()
+
   # TODO: Move bookmarks list to separate page
   # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
   bookIndex: (type, match, ui, page, event) ->
@@ -327,14 +325,14 @@ LYT.control =
         $.mobile.changePage LYT.config.defaultPage.hash
         return
       content = $(page).children ':jqmData(role=content)'
-  
+
       # Remove any previously generated index (may be from another book)
       LYT.render.clearContent content
-  
+
       activate = (active, inactive, handler) ->
         $(active).addClass 'ui-btn-active'
         $(inactive).removeClass 'ui-btn-active'
-  
+
       renderBookmarks = ->
         #TODO:  Check if book is different than last time we checked...
         #return if $("#bookmark-list-button.ui-btn-active").length != 0
@@ -342,7 +340,7 @@ LYT.control =
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
-  
+
       renderIndex = ->
         #TODO:  Check if book is different than last time we checked...
         #return if $("#book-toc-button.ui-btn-active").length != 0
@@ -350,10 +348,10 @@ LYT.control =
         promise = LYT.Book.load bookId
         promise.done (book) -> LYT.render.bookIndex book, content
         LYT.loader.register "Loading index", promise
-  
+
       $("#bookmark-list-button").click -> renderBookmarks()
       $("#book-toc-button").click -> renderIndex()
-  
+
       renderIndex()
 
   bookPlayer: (type, match, ui, page, event) ->
@@ -366,10 +364,6 @@ LYT.control =
       if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
         LYT.render.clearBookPlayer()
-
-    # Don't do anything if the requested book is already playing
-    if LYT.player.book?.id is params.book
-      return
 
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
@@ -442,7 +436,7 @@ LYT.control =
               handleResults results.loadNextPage() if results.loadNextPage?
               event.preventDefault()
               event.stopImmediatePropagation()
-            
+
             LYT.render.searchResults results, content
             @showMouseOver $('#detailsPopup2')
 
@@ -457,7 +451,7 @@ LYT.control =
 
         content = $(page).children( ":jqmData(role=content)" )
         header = $(page).children( ":jqmData(role=header)" ).find("h1")
-        
+
         switch action
           when "predefinedView"
             $('#listshow-btn').hide()
@@ -470,7 +464,7 @@ LYT.control =
             $('#searchterm').val term
             handleResults LYT.catalog.search(term)
           when "showList"
-            LYT.render.setHeader page, LYT.predefinedSearches[list].title 
+            LYT.render.setHeader page, LYT.predefinedSearches[list].title
             handleResults LYT.predefinedSearches[list].callback()
 
         LYT.catalog.attachAutocomplete $('#searchterm')
@@ -488,8 +482,8 @@ LYT.control =
           event.stopImmediatePropagation()
 
         $('#searchterm').focus()
-      
-  settings: (type, match, ui, page, event) ->    
+
+  settings: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: settings: unable to log in'
@@ -502,26 +496,26 @@ LYT.control =
 
       if type is 'pageshow'
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
-        
+
         $("#style-settings").find("input").each ->
           name = $(this).attr 'name'
           val = $(this).val()
-          
+
           # Setting the GUI
-          switch name 
+          switch name
             when 'font-size', 'font-family'
               if val is style[name]
-                $(this).attr("checked", true).checkboxradio("refresh");
+                $(this).attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
               if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
-                $(this).attr("checked", true).checkboxradio("refresh");
-            when 'playback-rate'  
+                $(this).attr("checked", true).checkboxradio("refresh")
+            when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
-                $(this).attr("checked", true).checkboxradio("refresh");
+                $(this).attr("checked", true).checkboxradio("refresh")
 
-        
-  
+
+
   profile: (type, match, ui, page, event) ->
     # Not passing params since it is currently only being used to indicate
     # whether the user should be logged in as guest.
@@ -530,7 +524,7 @@ LYT.control =
     promise.done ->
       if type is 'pageshow'
         LYT.render.profile()
-        
+
   splashUpgrade: (type, match, ui, page, event) ->
     params = if match[1] then LYT.router.getParams(match[1]) else {}
     # Display deprecation notice in case browser support is going to stop
@@ -552,7 +546,7 @@ LYT.control =
         params = LYT.router.getParams match[1]
         if jQuery.isEmptyObject params
           if segment = LYT.player.segment()
-            params = 
+            params =
               title:   segment.section.nccDocument.book.title
               book:    segment.section.nccDocument.book.id
               section: segment.section.url
@@ -566,16 +560,16 @@ LYT.control =
         subject = LYT.i18n 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
         body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape urlEmail}"
-        
+
         $("#email-bookmark").attr('href', "mailto: ?subject=#{subject}&body=#{body}")
-        
+
         $("#share-link-textarea").text url
-        
-        
+
+
   instrumentation: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
-      LYT.render.showInstrumentation $('#instrumentation-content') 
-      
+      LYT.render.showInstrumentation $('#instrumentation-content')
+
   test:  (type, match, ui, page, event) ->
     if type is 'pageshow'
       LYT.render.hideTestTab()
