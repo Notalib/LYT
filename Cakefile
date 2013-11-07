@@ -6,12 +6,13 @@ w3cjs   = require "w3cjs"
 # # Configuration
 
 config =
-  concatName:    "lyt"       # Name of concatenated script, when using the --concat option
-  coffee:        "coffee"    # Path to CoffeeScript compiler (if not in PATH)
-  docco:         "docco"     # Path to docco (if not in PATH)
-  compass:       "compass"   # Path to compass (if not in PATH)
-  minify:        "uglifyjs2" # Path to minifier
-  maxHtmlErrors: 20          # Maximum number of acceptable HTML validation errors
+  concatName:     "lyt"       # Name of concatenated script, when using the --concat option
+  coffee:         "coffee"    # Path to CoffeeScript compiler (if not in PATH)
+  docco:          "docco"     # Path to docco (if not in PATH)
+  compass:        "compass"   # Path to compass (if not in PATH)
+  minify:         "uglifyjs2" # Path to minifier
+  coffeelint:     "node_modules/coffeelint/bin/coffeelint"
+  maxHtmlErrors:  20          # Maximum number of acceptable HTML validation errors
 
 # --------------------------------------
 
@@ -136,7 +137,7 @@ task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
 
 task "lint:coffee", "Validate the source style of all .coffee files", ->
   files = glob "src", /\.coffee$/i
-  command = "coffeelint -f .coffeelint.json"
+  command = config.coffeelint + " -f .coffeelint.json"
   for file in files
     command += " \"#{file}\""
 
