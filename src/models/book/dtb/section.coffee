@@ -1,7 +1,7 @@
-# Requires `/common`  
-# Requires `textcontentdocument`  
-# Requires `smildocument`  
-# Requires `segment`  
+# Requires `/common`
+# Requires `textcontentdocument`
+# Requires `smildocument`
+# Requires `segment`
 
 # -------------------
 
@@ -11,7 +11,7 @@ class LYT.Section
   constructor: (heading, @resources) ->
     @_deferred = jQuery.Deferred()
     @_deferred.promise this
-    
+
     # Wrap the heading in a jQuery object
     heading = jQuery heading
     # Get the basic attributes
@@ -27,7 +27,7 @@ class LYT.Section
     @url   = (anchor.attr "href").split('#')[0]
     # We get some weird uris from IE8 due to missing documentElement substituted with iframe contentDocument.
     # Here we trim away everything before the filename.
-    @url   = @url.substr @url.lastIndexOf('/') + 1 unless @url.lastIndexOf('/') == -1 
+    @url   = @url.substr @url.lastIndexOf('/') + 1 unless @url.lastIndexOf('/') == -1
     # Create an array to collect any sub-headings
     @children = []
     # The SMIL document (not loaded initially)
@@ -35,7 +35,7 @@ class LYT.Section
     # If this is a "metadata" section (listed in src/config/config.coffee)
     # this property will be set to true
     @metadataSection = false
-  
+
   load: ->
     return this if @loading or @state() is "resolved"
     @loading = true
@@ -53,15 +53,15 @@ class LYT.Section
     @document.fail =>
       log.error "Section: Failed to load SMIL-file #{@url.replace /#.*$/, ""}"
       @_deferred.reject()
-    
+
     this
-  
+
   segments: -> @document.segments
-  
+
   getOffset: ->
     return null unless @document?.state() is "resolved"
     @document.absoluteOffset
-  
+
   getAudioUrls: ->
     return [] unless @document?.state() is "resolved"
     urls = []
@@ -69,13 +69,13 @@ class LYT.Section
       url = @resources[file]?.url
       urls.push url if url
     urls
-  
+
   hasNext: -> @next?
-  
+
   hasPrevious: -> @previous?
 
   hasParent: -> @parent?
-  
+
   # Since segments are sub-components of this class, we ensure that loading
   # is complete before returning them.
 
@@ -102,7 +102,7 @@ class LYT.Section
   firstSegment: -> @_getSegment (segments) -> segments[0]
 
   lastSegment: -> @_getSegment (segments) -> segments[segments.length - 1]
-  
+
   getSegmentById: (id) ->
     @_getSegment (segments) ->
       for segment in segments
@@ -114,11 +114,11 @@ class LYT.Section
     jQuery.grep @document.segments, (segment) ->
       if segment.audio is audio
         return true
-  
+
   getSegmentsByAudioOffset: (audio, offset) ->
     for segment in @getUnloadedSegmentsByAudio(audio)
       return segment if segment.containsOffset offset
-  
+
   getSegmentBySmilOffset: (offset = 0) ->
     @_getSegment (segments) ->
       currentOffset = 0
@@ -127,12 +127,12 @@ class LYT.Section
           return segment
         currentOffset += segment.duration
 
-  getSegmentByOffset: (offset = 0) -> 
+  getSegmentByOffset: (offset = 0) ->
     @_getSegment (segments) ->
       for segment in segments
         if segment.start <= offset < segment.end
           return segment
-  
+
   # Flattens the structure from this section and "downwards"
   flatten: ->
     flat = [this]

@@ -3,7 +3,7 @@
 startTime = new Date()
 clickHandler = ->
   element = $(this)
-  
+
   category = element.parents('div:jqmData(role="page")').jqmData('title')
   unless category
     log.error 'gatrack: class handler: can not track: no title for page.'

@@ -8,10 +8,9 @@ LYT is copyright [Nota](http://nota.nu/) and distritributed under [LGPL version 
 
 ## Technologies used
 
-Source written in [CoffeeScript](http://jashkenas.github.com/coffee-script/)  
-Stylesheets written in [SASS](http://sass-lang.com/)  
-Inline docs written for [Docco](http://jashkenas.github.com/docco/)  
-Tests built with [QUnit](http://docs.jquery.com/QUnit)
+Source written in [CoffeeScript](http://jashkenas.github.com/coffee-script/)
+Stylesheets written in [SASS](http://sass-lang.com/)
+Inline docs written for [Docco](http://jashkenas.github.com/docco/)
 
 ## Change log
 
@@ -86,7 +85,7 @@ This version didn't have it version bumped in LYT.VERSION.
     users of JAWS and other similar screen readers.
 
 #### Improvements and bugfixes
-  
+
   * Redirect to support page if platform unsupported.
   * Improved display of book index.
   * Navigation bug found when switching between search result pages.
@@ -140,7 +139,7 @@ Versions 1.1.1, 1.1.2 and 1.1.3 were never released.
   * Make it possible to link to most pages and log the user in if necessary.
   * Removed hard wired Danish strings from coffeescript source.
   * Rewrote search related pages to handle some glitches and better clarity.
- 
+
 
 ### Version 1.0.1
 
@@ -179,16 +178,16 @@ Versions 1.1.1, 1.1.2 and 1.1.3 were never released.
   * Improvements of preloading of images.
   * Cleanup: unused code removed and rewriting to minimize long dependencies.
   * Terse logging.
-   
+
 
 ### Version 0.2
 
 Released june 2012. Historic.
 
 ## Development
-You'll need a few things [so check out these instructions](/Notalib/LYT/wiki/Prerequisites).
+You'll need a few things [so check out these instructions](https://github.com/Notalib/LYT/wiki/Prerequisites).
 
-Also, [read the style guide](/Notalib/coffeescript-style-guide).
+Also, [read the style guide](https://github.com/Notalib/LYT/wiki/Style-Guide).
 
 ### Building
 
@@ -201,26 +200,3 @@ This will compile the CoffeeScript files to `build/javascript`, concatenate the 
 To see what else you can build, issue `cake` with no arguments:
 
     $ cake
-
-### Test Server
-
-To run a local webserver for testing purposes, issue the following (again from the repo's root):
-
-    $ tools/server
-
-This will start a (very simple) webserver that listens on http://127.0.0.1:7357, so you can check things out in a browser.
-
-_Note:_ If you're using Windows' DOS prompt, you'll have to explicitly invoke the `coffee` command, i.e. `coffee tools/server`
-
-The test server also serves test fixtures (i.e. simulated responses) for use with the QUnit test suite. To compile the test suite run: 
-
-    $ cake tests
-    $ tools/server
-
-And then go to http://127.0.0.1:7357/test in your browser.
-
-To see what else the server can do:
-
-    $ tools/server -h
-
-_Note: The server's proxy functionality is somewhat buggy_

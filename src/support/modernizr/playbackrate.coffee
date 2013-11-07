@@ -49,9 +49,9 @@ playbackLiveTest = (audio) ->
 
   # Just fail the test on timeout
   failTimer = setTimeout( ->
-      Modernizr.addTest 'playbackratelive', Modernizr.playbackratelive?
-      audio.pause()
-    , (duration + 1) * 1000
+    Modernizr.addTest 'playbackratelive', Modernizr.playbackratelive?
+    audio.pause()
+  , (duration + 1) * 1000
   )
 
   audio.play()
@@ -103,9 +103,9 @@ playbackTest = ->
 
   # Just fail the test on timeout
   setTimeout( ->
-      Modernizr.addTest 'playbackrate', Modernizr.playbackrate?
-      audio.pause()
-    , (duration + 1) * 1000
+    Modernizr.addTest 'playbackrate', Modernizr.playbackrate?
+    audio.pause()
+  , (duration + 1) * 1000
   )
 
   # Start playback

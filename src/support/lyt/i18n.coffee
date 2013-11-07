@@ -1,13 +1,13 @@
-# Requires `/lyt`  
+# Requires `/lyt`
 
 # -------------------
 
-# This module contains localized strings  
+# This module contains localized strings
 # (Note: OK, so it's not really i18n-like, since it's
 # just a dictionary, but 'i18n' is short and sweet)
 
 LYT.i18n = do ->
-  
+
   # The strings themselves, as a hash
   strings =
     'Loading':                          'Indlæser'
@@ -25,7 +25,7 @@ LYT.i18n = do ->
     'Most popular - Kids':              'Top 10 - børn & unge'
     'Most popular - Adults':            'Top 10 - voksne'
     'Coming':                           'Kommer snart'
-    'No bookmarks defined yet':         'Der er ingen bogmærker endnu' 
+    'No bookmarks defined yet':         'Der er ingen bogmærker endnu'
     'No search results':                'Din søgning gav ingen resultater, prøv igen'
     'Incorrect username or password':   'Forkert brugernummer eller kodeord'
     'Unable to retrieve book':          'Bogen kunne ikke hentes'
@@ -54,7 +54,7 @@ LYT.i18n = do ->
     'Search':                           'Søgning'
     'Sitename':                         'E17 Direkte'
     'Now playing':                      'Afspiller'
-  
+
   # The i18n function. Returns either the translated string, or - if no
   # translation was found - the input string.
   (string) -> strings[string] or string

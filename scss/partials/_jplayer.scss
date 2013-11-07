@@ -7,7 +7,7 @@
   background-color: #000;
   position: absolute;
   top: 22px;
-  height: 3px; 
+  height: 3px;
   left: 0;
   right: 0; }
 
@@ -16,7 +16,7 @@
   width: 0px;
   height: 100%;
   cursor: pointer; }
-    
+
 .jp-play-bar {
   background: #8cbbe2;
   width: 0px;
@@ -29,7 +29,7 @@
 .jp-play, .jp-pause {
   display: block;
 }
- 
+
 #player-duration {
   text-align: right;
   right: 0;
@@ -54,7 +54,7 @@
 h2.player-chapter-title {
     text-align: center;
     color: #cbcbcb;
-    text-overflow: ellipsis;  
+    text-overflow: ellipsis;
     text-shadow: none;
     font-size: 11px;
     line-height: 14px;
@@ -62,7 +62,7 @@ h2.player-chapter-title {
     overflow: hidden;
     z-index: 0;
     font-weight: normal;
-    
+
     position: absolute;
     left: 40px;
     right: 40px;
@@ -79,7 +79,7 @@ h2.player-chapter-title {
   font-size: 13px;
   padding: 0;
 }
-  
+
 #author {
     font-weight: normal;
 }
@@ -88,14 +88,14 @@ h2.player-chapter-title {
 #player-info {
   height: 45px;
   @include clearfix;
- 
+
   h1, h2, span {
     margin: 0;
     color: #cbcbcb;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
- 
+
   .info {
     position: relative;
     height: 45px;
@@ -104,7 +104,7 @@ h2.player-chapter-title {
   }
 }
 
-.jp-time-holder { 
+.jp-time-holder {
   span {
     text-shadow: none;
   }
@@ -121,13 +121,13 @@ h2.player-chapter-title {
 #jp_container_1 {
   background-color: #292929;
 }
-  
+
 #currentbook-image {
   width: 29px;
   margin: 0;
   float: left;
 }
-  
+
 #player-info h1 {
   position: absolute;
   width: 100%;

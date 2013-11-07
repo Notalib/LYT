@@ -1,17 +1,17 @@
-# Requires `/common`  
-# Requires `/support/lyt/loader`  
+# Requires `/common`
+# Requires `/support/lyt/loader`
 # Requires `/models/member/settings`
 # ----------------------------------
 
 # ########################################################################### #
 # Handles playback of current media and timing of transcript updates          #
-# ########################################################################### # 
+# ########################################################################### #
 
-LYT.player = 
-  
+LYT.player =
+
   # Attributes ############################################################## #
 
-  ready: false 
+  ready: false
   el: null
   book: null #reference to an instance of book class
   playing: null
@@ -20,13 +20,13 @@ LYT.player =
   playbackRate: 1
   lastBookmark: (new Date).getTime()
   inSkipState: false
-  
+
   # Short utility methods ################################################### #
 
   playlist: -> @book?.playlist
-  
+
   segment: -> @playlist().currentSegment
-  
+
   section: -> @playlist().currentSection()
 
   # Be cautious only read from the returned status object
@@ -40,8 +40,8 @@ LYT.player =
       callback()
     else
       @el.bind $.jPlayer.event.ready, callback
-      
-  
+
+
   # Initialization ########################################################## #
 
   # General initialization
@@ -64,7 +64,7 @@ LYT.player =
     jPlayerParams.warning = (event) =>
       LYT.instrumentation.record 'warning', event.jPlayer.status
       log.error "Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}", event
-    
+
     jPlayerParams.error = (event) =>
       LYT.instrumentation.record 'error', event.jPlayer.status
       log.error "Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}", event
@@ -92,7 +92,7 @@ LYT.player =
           LYT.render.showDialog($.mobile.activePage, parameters)
 
           # reopen the dialog...
-          # TODO: this is usually because something is wrong with the session or the internet connection, 
+          # TODO: this is usually because something is wrong with the session or the internet connection,
           # tell people to try and login again, check their internet connection or try again later
         when $.jPlayer.error.NO_SOLUTION
           log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
@@ -104,14 +104,14 @@ LYT.player =
               $.mobile.changePage '#support'
             theme: 'c'
           LYT.render.showDialog($.mobile.activePage, parameters)
-      
+
     # Instrument every possible event that jPlayer offers that doesn't already
     # have a handler.
     instrument = (eventName) ->
       jPlayerParams[eventName] or= (event) ->
         LYT.instrumentation.record eventName, event.jPlayer.status
     instrument eventName for eventName, jPlayerName of $.jPlayer.event
-    
+
     @el.jPlayer jPlayerParams
 
   # Sets up instrumentation on the audio element inside jPlayer
@@ -125,7 +125,7 @@ LYT.player =
     for name, value of audio
       proxy audio, name, value if typeof value is 'function'
 
-    jPlayer = @el.jPlayer         
+    jPlayer = @el.jPlayer
     @el.jPlayer = (command) =>
       LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
       jPlayer.apply @el, arguments
@@ -133,9 +133,9 @@ LYT.player =
   # Sets up bindings for the user interface
   setupUi: ->
     $.jPlayer.timeFormat.showHour = true
-    
+
     @showPlayButton()
-    
+
     $('.lyt-pause').click =>
       LYT.instrumentation.record 'ui:stop'
       @stop()
@@ -146,32 +146,32 @@ LYT.player =
         @playClickHook().done => @play()
       else
         @play()
-    
+
     $('a.next-section').click =>
       log.message "Player: next: #{@segment().next?.url()}"
       LYT.instrumentation.record 'ui:next'
       @nextSegment()
-        
+
     $('a.previous-section').click =>
       log.message "Player: previous: #{@segment().previous?.url()}"
       LYT.instrumentation.record 'ui:previous'
       @previousSegment()
 
     Mousetrap.bind 'alt+ctrl+space', =>
-      if @playing 
+      if @playing
         @stop()
-      else 
+      else
         @play()
       return false
 
     Mousetrap.bind 'alt+right', =>
       @nextSegment()
       return false
-    
+
     Mousetrap.bind 'alt+left', =>
       @previousSegment()
       return false
-  
+
     # FIXME: add handling of section jumps
     Mousetrap.bind 'alt+ctrl+n', ->
       log.message "next section"
@@ -180,11 +180,11 @@ LYT.player =
     Mousetrap.bind 'alt+ctrl+o', ->
       log.message "previous section"
       return false
-      
+
 
   # Main methods ############################################################ #
-  
-  # Load a book and seek to position provided by:  
+
+  # Load a book and seek to position provided by:
   # url:        url pointing to par or seq element in SMIL file.
   # smilOffset: SMIL offset relative to url.
   # play:       flag indicating if the book should start playing after loading
@@ -196,11 +196,11 @@ LYT.player =
     # Wait for jPlayer to get ready
     ready = jQuery.Deferred()
     @whenReady -> ready.resolve()
-    
+
     # Stop any playback
     result = ready.then => @stop()
-  
-    # Get the right book  
+
+    # Get the right book
     result = result.then =>
       if book is @book?.id
         jQuery.Deferred().resolve @book
@@ -313,27 +313,27 @@ LYT.player =
       command.always => @showPlayButton() unless @playing
 
     progressHandler = (status) =>
-      
+
       @showPauseButton()
-  
+
       time = status.currentTime
-      
+
       # FIXME: Pause due unloaded segments should be improved with a visual
       #        notification.
       # FIXME: Handling of resume when the segment has been loaded can be
       #        mixed with user interactions, causing an undesired resume
       #        after the user has clicked pause.
-  
+
       # Don't do anything else if we're already moving to a new segment
       if nextSegment?.state() is 'pending'
         log.message 'Player: play: progress: nextSegment set and pending.'
         log.message "Player: play: progress: Next segment: #{nextSegment.state()}. Pause until resolved."
         return
-      
+
       # This method is idempotent - will not do anything if last update was
       # recent enough.
       @updateLastMark()
-  
+
       # Move one segment forward if no current segment or no longer in the
       # interval of the current segment and within two seconds past end of
       # current segment (otherwise we are seeking ahead).
@@ -465,17 +465,17 @@ LYT.player =
     else
       promise = promise.then => @playlist().rewind()
       promise = promise.then (segment) => @seekSegmentOffset segment, 0
-      
+
     promise.fail -> log.error "Player: failed to find segment: #{url}"
-    
+
     promise
-    
+
 
   seekSegmentOffset: (segment, offset) ->
     log.message "Player: seekSegmentOffset: #{segment.url?()}, offset #{offset}"
 
     segment or= @segment()
-    
+
     result = jQuery.Deferred().resolve()
     if @playCommand and @playCommand.state is 'pending'
       # Stop playback and ensure that this part of the deferred chain resolves
@@ -538,10 +538,10 @@ LYT.player =
     result
 
   playSegment: (segment) -> @playSegmentOffset segment, null
-  
+
   # Will display the provided segment, load (if necessary) and play the
   # associated audio file starting att offset. If offset isn't provided, start
-  # at the beginning of the segment. It is an error to provide an offset not 
+  # at the beginning of the segment. It is an error to provide an offset not
   # within the bounds of segment.start and segment.end. In this case, the
   # offset is capped to segment.start or segment.end - 1 (one second before
   # the segment ends).
@@ -585,7 +585,7 @@ LYT.player =
   previousSegment: ->
     return unless @playlist()?.hasPreviousSegment()
     @navigate @playlist().previousSegment()
-  
+
   updateLastMark: (force = false, segment) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
     return unless (segment or= @segment())
@@ -612,7 +612,7 @@ LYT.player =
     $('.lyt-pause').css 'display', 'none'
     $('.lyt-play').css('display', '')
     @setFocus()
-    
+
   showPauseButton: ->
     $('.lyt-play').css 'display', 'none'
     $('.lyt-pause').css('display', '')
@@ -623,7 +623,7 @@ LYT.player =
     refreshHandler = => @updateHtml segment if @playlist() and segment = @segment()
     clearTimeout @refreshTimer if @refreshTimer
     @refreshTimer = setTimeout refreshHandler, 500
-      
+
  # Update player content with provided segment
   updateHtml: (segment) ->
     if not segment?

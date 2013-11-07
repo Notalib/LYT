@@ -1,11 +1,11 @@
-# Requires `/common`  
-# Requires `textcontentdocument`  
-# Requires `section`  
+# Requires `/common`
+# Requires `textcontentdocument`
+# Requires `section`
 
 # -------------------
 
 do ->
-  
+
   # This class models a Daisy Navigation Control Center document
   # FIXME: Don't carry the @sections array around. @structure should be used.
   #        At the same time, the flattenStructure procedure can be replaced by
@@ -45,7 +45,7 @@ do ->
         for section, index in sections
           return section if section.url is baseUrl
 
-    firstSegment: -> 
+    firstSegment: ->
       deferred = jQuery.Deferred()
       this.fail -> deferred.reject()
       this.done (document) ->
@@ -56,7 +56,7 @@ do ->
           segment.done (segment) -> deferred.resolve(segment)
           segment.fail -> deferred.reject()
       deferred.promise()
-          
+
     getSegmentByURL: (url) ->
       deferred = jQuery.Deferred()
       deferred.fail -> log.message "NccDocument: getSegmentByURL failed with url #{url}"
@@ -74,21 +74,22 @@ do ->
             segment.done (segment) -> deferred.resolve(segment)
             segment.fail -> deferred.reject("Section found for url #{url}, but couldn't find segment with id #{id}")
       return deferred.promise()
-      
+ 
     getSectionIndexByNumber: (id) ->
       return i for section, i in @sections when section.id is id
-    
+
+
   # -------
-  
+
   # ## Privileged
-  
+
   # Internal helper function to parse the (flat) heading structure of an NCC document
   # into a nested collection of `NCCSection` objects
   parseStructure = (xml, resources) ->
-    # Collects consecutive heading of the given level or higher in the `collector`.  
+    # Collects consecutive heading of the given level or higher in the `collector`.
     # I.e. given a level of 3, it will collect all `H3` elements until it hits an `H1`
     # element. Each higher level (i.e. `H4`) heading encountered along the way will be
-    # collected recursively.  
+    # collected recursively.
     # Returns the number of headings collected.
     # FIXME: Doesn't take changes in level with more than one into account, e.g. from h1 to h3.
     getConsecutive = (headings, level, collector) ->
@@ -107,10 +108,10 @@ do ->
         # Add the section to the collector array
         collector.push section
         index++
-      
+
       # If the loop ran to the end of the `headings` array, return the array's length
       return headings.length
-    
+
     # TODO: See if we can remove this, since all sections are being addressed
     # using URLs
     numberSections = (sections, prefix = "") ->
@@ -119,7 +120,7 @@ do ->
         number = "#{prefix}#{index+1}"
         section.id = number
         numberSections section.children, number
-    
+
     markMetaSections = (sections) ->
       metaSectionList = LYT.config.nccDocument.metaSections
 
@@ -148,8 +149,8 @@ do ->
     numberSections structure
 
     return structure
- 
- 
+
+
   flattenStructure = (structure) ->
     flat = []
     for section in structure
@@ -157,7 +158,7 @@ do ->
       flat = flat.concat flattenStructure(section.children)
     flat
 
-  # Initializes previous and next attributes on section objects  
+  # Initializes previous and next attributes on section objects
   linkSections = (sections) ->
     previous = null
     for section in sections

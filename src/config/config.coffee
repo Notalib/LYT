@@ -1,11 +1,11 @@
-# Requires `/lyt`  
-# Requires `/support/globals/log`  
+# Requires `/lyt`
+# Requires `/support/globals/log`
 
 # -------------------
 
 # This file contains various configuration options for different parts of the app
 
-# ## The level of logging:  
+# ## The level of logging:
 #     0 = No logging
 #     1 = Errors
 #     2 = Errors & warnings
@@ -14,16 +14,16 @@
 
 # ## Central system configuration
 LYT.config =
-  
+
   # ### LYT.rpc function config
   rpc:
     # The service's server-side URL
     url: "/DodpMobile/Service.svc" # No default - must be present
-  
+
   # ### LYT.protocol config
   protocol:
     # The reading system attrs to send with
-    # the `setReadingSystemAttributes` request  
+    # the `setReadingSystemAttributes` request
     # (No default - must be present)
     readingSystemAttributes:
       manufacturer: "NOTA"
@@ -31,7 +31,7 @@ LYT.config =
       serialNumber: "1"
       version:      "1"
       config:       null
-  
+
   # ### LYT.service config
   service:
     # The number of attempts to make when logging on
@@ -43,19 +43,19 @@ LYT.config =
     logOnAttempts: 3 # default: 3
     guestUser: "guest"
     guestLogin: "guest"
-  
+
   # ### LYT.book module config
 
   book:
     states:
       pending:    'InProduction'
       available:  'Available'
-      
+
   # ### LYT.bookshelf module config
   bookshelf:
     # Number of books to load per page
     pageSize: 5 # default: 5
-    # Number of books to show on bookshelf (whitout show more)... 
+    # Number of books to show on bookshelf (whitout show more)...
     maxShow: 20
 
 
@@ -74,35 +74,35 @@ LYT.config =
     autocomplete:
       # The URL to request results from
       url: "http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q="
-  
+
   # ### LYT.catalog config
   catalog:
     # Full (free text) search options
     search:
       url: "/CatalogSearch/search.asmx/SearchCatalog" # No default - must be present
       pageSize: 10 # Default: 10
-    
+
     # Autocomplete options
     autocomplete:
       # The URL to request results from
       url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
       # If suggestions from Autocomplete is léss than 'google_trigger' ask google
       google_trigger: 6
-      
+
       # The options to pass to jQuery UI's `.autocomplete()`
       options:
         # Minimum length of text before autocompleting
         minLength: 2   # default: 1
-        
+
         # Delay before autocompleting (milliseconds)
         delay:     300 # default: 300
-    
+
     suggestions:
       url: "/CatalogSearch/search.asmx/GetPushItems"
-    
+
     details:
       url: "/CatalogSearch/search.asmx/GetItemById"
-  
+
   # ### LYT.player config
   player:
     # The minimum time between lastmark updates (milliseconds)
@@ -118,14 +118,14 @@ LYT.config =
     imagePreload:
       timeout: 1000000000
       attempts: 5
-  
+
   # ### LYT.DTBDocument config
   dtbDocument:
     # Whether to use the `forceclose=true` parameter
     useForceClose: yes # Default: yes
     # Number of attempts to make when fetching a file
     attempts:      3   # Default: 3
-  
+
   # ### LYT.NCCDocument config
   nccDocument:
     metaSections:
@@ -152,7 +152,7 @@ LYT.config =
   # default page redirect page
   defaultPage:
     hash: '#bookshelf'
-    
+
   settings:
     showAdvanced: no
 
