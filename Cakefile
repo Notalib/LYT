@@ -12,7 +12,8 @@ config =
   compass:        "compass"   # Path to compass (if not in PATH)
   minify:         "uglifyjs2" # Path to minifier
   coffeelint:     "node_modules/coffeelint/bin/coffeelint"
-  maxHtmlErrors:  20          # Maximum number of acceptable HTML validation errors
+  maxHtmlErrors:  1           # Only "Bad value X-UA-Compatible for attribute
+                              # http-equiv on element meta." is accepted
 
 # --------------------------------------
 
