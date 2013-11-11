@@ -1,4 +1,4 @@
-# Requires `/common`  
+# Requires `/common`
 
 # -------------------
 
@@ -6,7 +6,7 @@
 # Responsible for navigation in- and load of segments (and their sections)
 
 class LYT.Playlist
-  
+
   constructor: (@book) ->
     # Make the playlist a promise waiting for the ncc document to load
     deferred = jQuery.Deferred()
@@ -48,7 +48,7 @@ class LYT.Playlist
     # each segment belongs to.
     @currentSection().previous.load()
     @load @currentSection().previous.firstSegment()
-    
+
   nextSegment: ->
     if @currentSegment.hasNext()
       # FIXME: loading segments is the responsibility of the section each
@@ -57,7 +57,7 @@ class LYT.Playlist
       return @load @currentSegment.next
     else
       return @nextSection()
-    
+
   previousSegment: ->
     if @currentSegment.hasPrevious()
       # FIXME: loading segments is the responsibility of the section each
@@ -119,7 +119,7 @@ class LYT.Playlist
   searchSections: (handler, start = @currentSection()) ->
 
     # The use of iterators below can easily be adapted to the Strategy
-    # design pattern, accommodating other search orders. 
+    # design pattern, accommodating other search orders.
 
     # Generate an iterator with start value start and nextOp to generate
     # the next value.
@@ -165,7 +165,7 @@ class LYT.Playlist
             return searchNext()
       else
         return jQuery.Deferred().reject()
-     
+
     searchNext()
 
   segmentBySectionOffset: (section, offset = 0) ->

@@ -26,7 +26,7 @@
         "[#{new Date() - started}] #{messages[0]}"
       else
         message
-    
+
   logMethodMessages = (method, messages) ->
     return unless messages.length > 0 and messages[0] isnt null
     if log.receiver in ['all', 'local']
@@ -38,7 +38,7 @@
         # if method
         #   method message for message in setTime messages
         messageArray = setTime messages
-        if method 
+        if method
           for message in messageArray
             method message
 
@@ -52,7 +52,7 @@
           return '__stub__' if jQuery.inArray(value, seen) >= 0
           seen.push value
         return value
-        
+
       options =
         url:         LYT.config.mobileMessage.LogError.url
         dataType:    'json'
@@ -60,10 +60,10 @@
         contentType: 'application/json; charset=utf-8'
         error:       (jqXHR, description, error) -> console?.log 'Logging to server failed: ' + description + ', ' + JSON.stringify error
         data:        jsonData
-          
+
       # Perform the request
       jQuery.ajax options
-    
+
     if log.receiver in ['all', 'devconsole']
       $('#devconsole-container').show()
       for message in setTime messages
@@ -72,7 +72,7 @@
         $('#devconsole').append '<br/>' + message
         $('#devconsole-container').scrollTop $('#devconsole').height()
 
-  # The level of logging:  
+  # The level of logging:
   #     0 = No logging
   #     1 = Errors
   #     2 = Errors & warnings
@@ -90,47 +90,47 @@
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
   filter: null
-  
+
   _filter: (type, messages, title) ->
     try
       return log.filter type, messages, title
     return true
 
-  # Error-checking alias for `console.log()`  
+  # Error-checking alias for `console.log()`
   # Logging level: 3 or higher
   message: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'message', messages
     logMethodMessages console?.log, messages
-  
-  # Error-checking alias for `console.error()` (falls back to `console.log`)  
+
+  # Error-checking alias for `console.error()` (falls back to `console.log`)
   # Logging level: 1 or higher
   error: (messages...) ->
     return unless log.level > 0
     return unless log._filter 'error', messages
     logMethodMessages console?.error, messages
-  
-  # Error-checking alias for `console.warn()` (falls back to `console.log`)  
+
+  # Error-checking alias for `console.warn()` (falls back to `console.log`)
   # Logging level: 2 or higher
   warn: (messages...) ->
     return unless log.level > 1
     return unless log._filter 'warn', messages
     logMethodMessages console?.warn, messages
-  
-  # Error-checking alias for `console.info()` (falls back to `console.log`)  
+
+  # Error-checking alias for `console.info()` (falls back to `console.log`)
   # Logging level: 3 or higher
   info: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'info', messages
     logMethodMessages console?.info, messages
-  
+
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
   # than `console.group()`. If neither function exists, it'll fake it with `log.message`
-  # 
-  # The first argument is the title of the group. If you pass more than 1 argument, 
+  #
+  # The first argument is the title of the group. If you pass more than 1 argument,
   # the remaining arguments will each be logged inside the group by `log.message`, and
   # the group will be "closed" with `log.groupEnd`
-  # 
+  #
   # Logging level: 3 or higher
   group: (title = "", messages...) ->
     return unless log.level > 2
@@ -140,12 +140,12 @@
       method.call console, title
     else
       @message "=== #{title} ==="
-    
+
     if messages.length > 0
       @message message for message in messages
       @closeGroup()
-  
-  # Same as `group` except it'll log when `config.logging` is 1 or higher  
+
+  # Same as `group` except it'll log when `config.logging` is 1 or higher
   # Logging level: 1 or higher and messages will be logged as errors
   errorGroup: (title = "", messages...) ->
     return unless log.level > 0
@@ -157,11 +157,11 @@
       console.group title
     else
       @error "=== #{title} ==="
-    
+
     if messages.length > 0
       @error message for message in messages
       @closeGroup()
-  
+
   # Closes an open group
   # Logging level: 1 or higher
   closeGroup: ->
@@ -170,8 +170,8 @@
       console.groupEnd "=== *** ==="
     else
       @message "=== *** ==="
-  
-  # Error-checking alias for `console.trace`  
+
+  # Error-checking alias for `console.trace`
   # Logging level: 1 or higher
   trace: ->
     return unless log._filter 'trace', messages, title

@@ -1,16 +1,19 @@
 fs      = require "fs"
 fs.path = require "path"
 w3cjs   = require "w3cjs"
+{exec}  = require "child_process"
 
 # # Configuration
 
 config =
-  concatName:    "lyt"       # Name of concatenated script, when using the --concat option
-  coffee:        "coffee"    # Path to CoffeeScript compiler (if not in PATH)
-  docco:         "docco"     # Path to docco (if not in PATH)
-  compass:       "compass"   # Path to compass (if not in PATH)
-  minify:        "uglifyjs2" # Path to minifier
-  maxHtmlErrors: 13          # Maximum number of acceptable HTML validation errors
+  concatName:     "lyt"       # Name of concatenated script, when using the --concat option
+  coffee:         "coffee"    # Path to CoffeeScript compiler (if not in PATH)
+  docco:          "docco"     # Path to docco (if not in PATH)
+  compass:        "compass"   # Path to compass (if not in PATH)
+  minify:         "uglifyjs2" # Path to minifier
+  coffeelint:     "node_modules/coffeelint/bin/coffeelint"
+  maxHtmlErrors:  1           # Only "Bad value X-UA-Compatible for attribute
+                              # http-equiv on element meta." is accepted
 
 # --------------------------------------
 
@@ -85,21 +88,11 @@ task "html", "Build HTML", (options) ->
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'
   template = html.interpolate template, html.scriptTags(scripts), "cake:scripts"
 
-  fs.writeFile "build/index.html", template, (err) ->
-    throw err if err?
-    boast "rendered", "html", "build/index.html"
-    unless options['no-validate']
-      w3cjs.validate
-        file: 'build/index.html'
-        callback: (res) ->
-          if res.messages?.length > 0
-            console.warn "There were #{res.messages.length} HTML validation error messages:"
-            console.warn ''
-            console.warn '<line>, <column>: <message>'
-            for message in res.messages
-              console.warn "#{message.lastLine}, #{message.lastColumn}: #{message.message}"
-            if res.messages.length > config.maxHtmlErrors
-              throw 'Refusing to continue build: it seems that the number of errors has increased'
+  fs.writeFileSync "build/index.html", template
+
+  boast "rendered", "html", "build/index.html"
+  unless options['no-validate']
+    invoke "lint:html"
 
 
 task "scss", "Compile scss source", (options) ->
@@ -143,6 +136,33 @@ task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
     console.error "Can't build: coffeescript contains tabs:\n" + errors
     process.exit 1
 
+task "lint:coffee", "Validate the source style of all .coffee files", ->
+  files = glob "src", /\.coffee$/i
+  command = config.coffeelint + " -f .coffeelint.json"
+  for file in files
+    command += " \"#{file}\""
+
+  exec command, (err, stdout) ->
+    console.log stdout
+
+task "lint:html", "Validate build/index.html", ->
+  if not fs.existsSync "build/index.html"
+    return console.warn "Cannot find build/index.html. Try running `cake html`"
+
+  w3cjs.validate
+    file: 'build/index.html'
+    callback: (res) ->
+      errorCount = res.messages?.length
+      if errorCount > 0
+        console.warn "There were #{errorCount} HTML validation error messages:\n"
+        console.warn '<line>,\t<col>:\t<message>'
+        for msg in res.messages
+          console.warn "#{msg.lastLine},\t#{msg.lastColumn}:\t#{msg.message}"
+
+        if errorCount > config.maxHtmlErrors
+          throw 'Refusing to continue build: it seems that the number of errors has increased'
+
+
 # --------------------------------------
 
 # # CoffeeScript Support
@@ -150,7 +170,6 @@ task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
 coffee = do ->
   # ### Privileged methods
   # -----------------
-  {exec} = require "child_process"
 
   # Group files by their directory
   group = (files, base) ->
@@ -211,9 +230,8 @@ coffee = do ->
   # Kinda hard to explain
   filter: (files, base, relpath = "") ->
     {join, relative} = fs.path
-    base = base
     files = (join relpath, relative(base, file) for file in files)
-    (file.replace /\.coffee$/i, ".js" for file in files)
+    file.replace /\.coffee$/i, ".js" for file in files
 
 
 # --------------------------------------
@@ -232,7 +250,7 @@ checkForTabs = ->
 
 # # HTML Support
 
-html = do ->
+html =
   # Read a file into memory
   readFile: (path) ->
     path = resolve path
@@ -258,10 +276,9 @@ html = do ->
 
 # # SCSS Support
 
-scss = do ->
+scss =
   # Compile scss files in the given dir using compass
   compile: (dir, output, options, callback) ->
-    {exec} = require "child_process"
     exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
       fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
       console.log stderr if stderr
@@ -271,10 +288,9 @@ scss = do ->
 
 # # Docco Support
 
-docco = do ->
+docco =
   # Run the docco command on some files
   parse: (files, output, callback) ->
-    {exec} = require "child_process"
     files = ("#{q resolve(file)}" for file in files).join " "
     exec "#{config.docco} #{files}", cwd: resolve(output), (err, stdout, stderr) ->
       fatal err, config.docco, "You may need to install docco via npm. See http://jashkenas.github.com/docco/" if err?

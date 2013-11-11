@@ -3,7 +3,7 @@
 
 # ########################################################################### #
 # Abstract base class that encapsulates low level audio commands              #
-# ########################################################################### # 
+# ########################################################################### #
 
 # This class encapsulates low level audio related commands inside a
 # jQuery.Deferred mixin. When the deferred is resolved, the command has
@@ -31,14 +31,14 @@
 nextId = 1
 
 class LYT.player.command extends jQuery.Deferred
-  
+
   constructor: (@el, deferred) ->
     jQuery.extend this, (deferred or jQuery.Deferred())
     @id = nextId++
     # Filter out progress events after cancel()
     progress = @progress
     @progress = => progress.apply this, arguments unless @cancelled
-    
+
   _attach: ->
     @_attached or= []
     for name, handler of @handles()

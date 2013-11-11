@@ -3,7 +3,7 @@
 
 # ########################################################################### #
 # Seek to provided offset in current audio file                               #
-# ########################################################################### # 
+# ########################################################################### #
 
 class LYT.player.command.seek extends LYT.player.command
 
@@ -25,7 +25,7 @@ class LYT.player.command.seek extends LYT.player.command
         offset = @offset
         offset = 0.000001 if offset == 0
         @seekAttempts = 0
-        # Chrome chokes if the seek command is sent too fast after a load 
+        # Chrome chokes if the seek command is sent too fast after a load
         # This is handled by retrying the seek until it works
         # TODO: [play-controllers] find out if there is a more elegant way
         #       to avoid this - maybe by having the load command wait for
@@ -58,6 +58,6 @@ class LYT.player.command.seek extends LYT.player.command
     stalled: (event) =>
       return unless event.jPlayer.status.src is @src
       @seek()
-      
+
     seeking: (event) =>
       clearInterval @seekInterval
