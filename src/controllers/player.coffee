@@ -19,6 +19,7 @@ LYT.player =
   firstPlay: true
   playbackRate: 1
   lastBookmark: (new Date).getTime()
+  inSkipState: false
 
   # Short utility methods ################################################### #
 
@@ -211,6 +212,11 @@ LYT.player =
       # Setting @book should be done after seeking has completed, but the
       # dependency on the books playlist and firstplay issue prohibits this.
       @book = book
+
+      # If the book doesn't have a lastmark, we're in skip state which
+      # mean that we'll skip all "meta-content" sections in the book when
+      # played chronologically
+      @inSkipState = not book.lastmark?
       jQuery("#book-duration").text book.totalTime
 
     result = result.then (book) =>
@@ -293,16 +299,19 @@ LYT.player =
   # Starts playback
   play: ->
     command = null
+    nextSegment = null
     getPlayCommand = =>
       command = new LYT.player.command.play @el
       command.progress progressHandler
       command.done =>
         log.group 'Player: play: play command done.', command.status()
         # Audio stream finished. Put on the next one.
-        @nextSegment()
+        if nextSegment?.state() is 'pending'
+          log.message 'Player: play: play: waiting for next segment'
+        else
+          @nextSegment()
       command.always => @showPlayButton() unless @playing
 
-    nextSegment = null
     progressHandler = (status) =>
 
       @showPauseButton()
@@ -343,14 +352,33 @@ LYT.player =
           # This block uses the current segment for synchronization.
           log.message "Player: play: progress: queue for offset #{time}"
           log.message "Player: play: progress: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}], no segment at #{time}, skipping to next segment."
-          nextSegment = @playlist().nextSegment segment
-          timeoutHandler = =>
+
+          timeoutHandler = ->
             LYT.loader.register 'Loading book', nextSegment
             LYT.render.disablePlayerNavigation()
             nextSegment.done -> LYT.render.enablePlayerNavigation()
             command.cancel()
-            nextSegment.done => getPlayCommand()
+            nextSegment.done -> getPlayCommand()
             nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
+
+          # If we're in skip state, and are about to change section
+          if @inSkipState and not segment.hasNext()
+            log.message "Player: play: progress: In skip state"
+            curSection = segment.section
+            ncc = curSection.nccDocument
+
+            # Get index of next section (which apparently is meta-content)
+            index = ncc.getSectionIndexById curSection.id
+            skips = 1
+            while (nextSection = ncc.sections[index + skips]).metaContent
+              skips++
+
+            log.message "Player: play: Skipping #{skips - 1} meta-content sections"
+            nextSegment = nextSection.load().firstSegment()
+            @playlist().load nextSegment
+          else
+            nextSegment = @playlist().nextSegment()
+
           timer = setTimeout timeoutHandler, 1000
           nextSegment.done (next) =>
             clearTimeout timer
@@ -362,7 +390,7 @@ LYT.player =
               else
                 # The segment next requires a seek and maybe loading a
                 # different audio stream.
-                log.message 'Player: play: progress: switching audio file: playSegment #{next.url()}'
+                log.message "Player: play: progress: switching audio file: playSegment #{next.url()}"
                 # This stops playback and should ensure that we won't skip more
                 # than one segment ahead if this progressHandler is called
                 # again. Once playback has stopped, play the segment next.
