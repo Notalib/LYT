@@ -144,6 +144,7 @@ LYT.config =
       "andre titler":     "class"
       "oplysninger":      "class"
       "forord":           "class"
+      "indhold":          "class"
 
       #"GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
       #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
