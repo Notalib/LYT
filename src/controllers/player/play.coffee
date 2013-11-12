@@ -19,14 +19,10 @@ class LYT.player.command.play extends LYT.player.command
   cancel: ->
     super()
     @el.jPlayer 'pause'
-    # @justCancelled is introduced because we (for whatever reason) still receive
-    # "timeupdate" events after having paused the jPlayer element. We use this
-    # to "soak up" any "timeupdate" events after pause, so we don't mess up
-    # the play() method in the player
-    # # @justCancelled is introduced because we (for whatever reason) still receive
-    # "timeupdate" events after having paused the jPlayer element. We use this
-    # to "soak up" any "timeupdate" events after pause, so we don't mess up
-    # the play() method in the player
+
+    # We still receive "timeupdate" events after having paused the jPlayer
+    # element. @justCancelled is used to soak up any "timeupdate" events after
+    # pause, so we don't mess up the play() method in the player
     @justCancelled = true
 
   _stop: (event) ->

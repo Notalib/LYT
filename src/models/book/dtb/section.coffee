@@ -32,9 +32,9 @@ class LYT.Section
     @children = []
     # The SMIL document (not loaded initially)
     @document = null
-    # If this is a "metadata" section (listed in src/config/config.coffee)
+    # If this is a "meta-content" section (listed in src/config/config.coffee)
     # this property will be set to true
-    @metadataSection = false
+    @metaContent = false
 
   load: ->
     return this if @loading or @state() is "resolved"

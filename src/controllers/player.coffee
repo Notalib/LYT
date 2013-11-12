@@ -212,10 +212,10 @@ LYT.player =
       # Setting @book should be done after seeking has completed, but the
       # dependency on the books playlist and firstplay issue prohibits this.
       @book = book
-      # If the book doesn't have a lastmark, we're in skip state which
-      # mean that we'll skip all "metadata" sections in the book when
-      # played chronologically
 
+      # If the book doesn't have a lastmark, we're in skip state which
+      # mean that we'll skip all "meta-content" sections in the book when
+      # played chronologically
       @inSkipState = not book.lastmark?
       jQuery("#book-duration").text book.totalTime
 
@@ -362,17 +362,18 @@ LYT.player =
             nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
 
           # If we're in skip state, and are about to change section
-          if @inSkipState && not segment.hasNext()
+          if @inSkipState and not segment.hasNext()
             log.message "Player: play: progress: In skip state"
             curSection = segment.section
             ncc = curSection.nccDocument
-              # Get index of next section (which apparently is metadata)
-            index = ncc.getSectionIndexByNumber curSection.id
+
+            # Get index of next section (which apparently is meta-content)
+            index = ncc.getSectionIndexById curSection.id
             skips = 1
-            while (nextSection = ncc.sections[index + skips]).metadataSection
+            while (nextSection = ncc.sections[index + skips]).metaContent
               skips++
 
-            log.message "Player: play: Skipping #{skips - 1} metadata sections"
+            log.message "Player: play: Skipping #{skips - 1} meta-content sections"
             nextSegment = nextSection.load().firstSegment()
             @playlist().load nextSegment
           else
@@ -491,8 +492,7 @@ LYT.player =
     result = result.then (segment) =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        (new LYT.player.command.load @el, segment.audio).then ->
-          segment
+        (new LYT.player.command.load @el, segment.audio).then -> segment
       else
         jQuery.Deferred().resolve segment
 

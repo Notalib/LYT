@@ -75,7 +75,7 @@ do ->
             segment.fail -> deferred.reject("Section found for url #{url}, but couldn't find segment with id #{id}")
       return deferred.promise()
  
-    getSectionIndexByNumber: (id) ->
+    getSectionIndexById: (id) ->
       return i for section, i in @sections when section.id is id
 
 
@@ -129,7 +129,7 @@ do ->
         false
       for section in sections
         if isBlacklisted section
-          section.metadataSection = true
+          section.metaContent = true
         if section.children.length
           markMetaSections section.children
     
