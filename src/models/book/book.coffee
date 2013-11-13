@@ -1,7 +1,6 @@
 # Requires `/common`
 # Requires `/support/lyt/utils`
 # Requires `/models/service/service`
-# Requires `playlist`
 # Requires `dtb/nccdocument`
 
 # -------------------
@@ -28,9 +27,10 @@ class LYT.Book
 
       # Book is loaded; load its playlist
       loaded[id].done (book) ->
-        book.playlist or= new LYT.Playlist book
-        book.playlist.fail (error) -> deferred.reject error
-        book.playlist.done -> deferred.resolve book
+        #book.playlist or= new LYT.Playlist book
+        #book.playlist.fail (error) -> deferred.reject error
+        #book.playlist.done -> 
+        deferred.resolve book
 
       # Book failed
       loaded[id].fail (error) ->
@@ -90,6 +90,7 @@ class LYT.Book
 
     @resources   = {}
     @nccDocument = null
+    @_smils = {}
 
     pending = 2
     resolve = =>
@@ -133,7 +134,8 @@ class LYT.Book
 
           # If the url of the resource is the NCC document,
           # save the resource for later
-          if (/^ncc\.x?html?$/i).test localUri then ncc = @resources[localUri]
+          if /^ncc\.x?html?$/i.test localUri
+            ncc = @resources[localUri]
 
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
@@ -148,7 +150,7 @@ class LYT.Book
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument obj.url, @resources
+      ncc = new LYT.NCCDocument obj.url, @
 
       # Propagate a failure
       ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
@@ -195,10 +197,51 @@ class LYT.Book
           @_normalizeBookmarks()
         resolve()
 
+
+
+
     # Kick the whole process off
     issue @id
 
   # ----------
+
+  getSMIL: (url) ->
+    deferred = jQuery.Deferred()
+
+    @_smils[url] or= new LYT.SMILDocument @resources[url]?.url, @
+
+    @_smils[url].done (smil) ->
+      deferred.resolve smil
+
+    @_smils[url].fail (error) =>
+      @_smils[url] = null
+      deferred.reject error
+
+    deferred.promise()
+
+  getSectionBySegment: (segment) ->
+    refs = (section.fragment for section in @nccDocument.sections)
+    first = true
+    current = segment
+    id = null
+
+    # Inclusive backwards search
+    iterator = () ->
+      if first
+        first = false
+        current
+      else
+        current = current.previous
+
+    first = segment.search iterator, (seg) ->
+      if seg.id in refs
+        id = seg.id
+      else
+        jQuery.makeArray(jQuery(seg.el).find "[id]").some (el) ->
+          if el.id in refs then id = el.id
+
+    section = @nccDocument.sections[refs.indexOf id]
+
 
   # Gets the book's metadata (as stated in the NCC document)
   getMetadata: ->
@@ -246,11 +289,143 @@ class LYT.Book
   # TODO: Sort bookmarks in reverse chronological order
   # TODO: Add remove bookmark method
   addBookmark: (segment, offset = 0) ->
+    bookmark = segment.bookmark offset
+    section = @getSectionBySegment segment
+
+    # Add closest section's title as bookmark title
+    bookmark.note = text: section.title
+
+    # Add to bookmarks and save
     @bookmarks or= []
-    @bookmarks.push segment.bookmark offset
+    @bookmarks.push bookmark
     @_normalizeBookmarks()
     @saveBookmarks()
 
   setLastmark: (segment, offset = 0) ->
     @lastmark = segment.bookmark offset
     @saveBookmarks()
+
+  segmentByURL: (url) ->
+    deferred = jQuery.Deferred()
+
+    #TODO: is this robust?
+    [smil, fragment] = url.split '#'
+    smil = smil.split('/')
+    smil = smil[smil.length - 1]
+
+    @getSMIL(smil).done (document) ->
+      # We've got a fragment
+      if fragment
+
+        # Which might be a segment id
+        segment = document.getSegmentById fragment
+
+        # or might be an element encapsulated by a segment
+        if not segment
+          segment = document.getContainingSegment fragment
+      else
+        segment = document.segments[0]
+
+      if segment
+        segment.load().done (segment) -> deferred.resolve segment
+      else
+        deferred.reject segment
+
+    deferred.promise()
+
+  # Get the following segment if we are very close to the end of the current
+  # segment and the following segment starts within the fudge limit.
+  _fudgeFix: (offset, segment, fudge = 0.1) ->
+    segment = segment.next if segment.end - offset < fudge and segment.next and offset - segment.next.start < fudge
+    return segment
+
+  segmentByAudioOffset: (audio, offset = 0, fudge = 0.1, start) ->
+    if not audio
+      log.error 'Book: segmentByAudioOffset: audio not provided'
+      return jQuery.Deferred().reject('audio not provided')
+
+    deferred = jQuery.Deferred()
+    promise = @searchSections start, (section) =>
+      for segment in section.document.segments
+        # Using 0.01s to cover rounding errors (yes, they do occur)
+        if segment.audio is audio and segment.start - 0.01 <= offset < segment.end + 0.01
+          segment = @_fudgeFix offset, segment
+          # FIXME: loading segments is the responsibility of the section each
+          # each segment belongs to.
+          log.message "Book: segmentByAudioOffset: load segment #{segment.url()}"
+          segment.load()
+          return segment
+
+    promise.done (segment) ->
+      segment.done -> deferred.resolve segment
+    promise.fail -> deferred.reject()
+    deferred.promise()
+
+  # Search for sections using a callback handler
+  # Returns a jQuery promise.
+  # handler: callback that will be called with one section at a time.
+  #          If handler returns anything trueish, the search will stop
+  #          and the promise will resolve with the returned trueish.
+  #          If the handler returns anything falseish, the search will
+  #          continue by calling handler once again with a new section.
+  #
+  #          If the handler exhausts all sections, the promise will reject
+  #          with no return value.
+  #
+  # start:   the section to start searching from (default: current section).
+  searchSections: (start, handler) ->
+    # The use of iterators below can easily be adapted to the Strategy
+    # design pattern, accommodating other search orders.
+
+    # Generate an iterator with start value start and nextOp to generate
+    # the next value.
+    # Will stop calling nextOp as soon as nextOp returns null or undefined
+    makeIterator = (start, nextOp) ->
+      current = start
+      return ->
+        result = current
+        current = nextOp current if current?
+        return result
+
+    # This iterator configuration will make the iterator return this:
+    # this
+    # this.next
+    # this.previous
+    # this.next.next
+    # this.previous.previous
+    # ...
+    iterators = [
+      makeIterator start, (section) -> section.previous
+      makeIterator start, (section) -> section.next
+    ]
+
+    # This iterator will query the iterators in the iterators array one at a
+    # time and remove them from the array if they stop returning anything.
+    i = 0
+    iterator = ->
+      result = null
+      while not result? and i < iterators.length
+        result = iterators[i].apply()
+        iterators.splice(i) if not result?
+        i++
+        i %= iterators.length
+        return result if result
+
+    searchNext = () ->
+      section = iterator()
+      if section
+        section.load()
+        return section.pipe (section) ->
+          if result = handler section
+            return jQuery.Deferred().resolve(result)
+          else
+            return searchNext()
+      else
+        return jQuery.Deferred().reject()
+
+    searchNext()
+
+  segmentBySectionOffset: (section, offset = 0) ->
+    #@updateCurrentSegment section.pipe (section) -> @_fudgeFix offset, section.getSegmentByOffset offset
+
+

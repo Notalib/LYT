@@ -320,10 +320,18 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+
         # Switch to different (part of) book
+        # Because of bad naming, sections are here actually SMIL
+        # files with an optional fragment
         if params.section
-          segmentUrl = params.section
-          segmentUrl += "##{params.segment}" if params.segment
+          smil = params.section
+          smilOffset = smil
+          if params.fragment
+            smilOffset += "##{params.fragment}"
+          else if params.segment
+            smilOffset += "##{params.segment}"
+
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
 
         play = (params.play is 'true') or false
@@ -332,7 +340,7 @@ LYT.control =
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
-        process = LYT.player.load params.book, segmentUrl, offset, play
+        process = LYT.player.load params.book, smilOffset, offset, play
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
           # See if there are any service announcements every time a new book has been loaded

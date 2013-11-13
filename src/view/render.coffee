@@ -267,17 +267,27 @@ LYT.render = do ->
 
 
   bookIndex: (book, view) ->
-    # Create an ordered list wrapper for the list
-    # FIXME: We should be using the playlist here - any reference to NCC- or
-    # SMIL documents from this class is not good design.
+    # FIXME: We should be using asking the book for a TOC, not the NCC directly
+    # since this is a sign of lack of decoupling
     @createbookIndex book.nccDocument.structure, view, book
 
 
   createbookIndex: (items, view, book, root = null) ->
-    isPlaying = (sectionId) ->
+    isPlaying = (item) ->
       return unless String(book.id) is String(LYT.player.book.id)
-      return unless item.url is LYT.player.segment().section.url
+      return unless item.ref is LYT.player.currentSection().ref
       return true
+
+    sectionLink = (section, play = 'true') ->
+      title = section.title?.replace("\"", "") or ""
+      link = "section=#{section.url}"
+      if section.fragment
+        link += "&fragment=#{section.fragment}"
+
+      "<a class=\"gatrack\" ga-action=\"Link\" " +
+      "data-ga-book-id=\"#{book.id}\" data-ga-book-title=\"#{title}\" " +
+      "href=\"#book-player?book=#{book.id}&#{link}" +
+      "&play=#{play}\">#{title}</a>"
 
     $('#index-back-button').removeAttr 'nodeid'
 
@@ -295,21 +305,15 @@ LYT.render = do ->
     for item in items
       if item.children.length > 0
         element = jQuery '<li data-icon="arrow-right"></li>'
-        element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true">
-              #{item.title}
-            </a>"""
+        element.append sectionLink item
         element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
       else
         element = jQuery '<li data-icon="false"></li>'
-        element.append """
-            <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true">
-              #{item.title}
-            </a>"""
+        element.append sectionLink item
         element.attr 'id', item.id
         element.attr 'data-href', item.id
 
-      if isPlaying item.id
+      if isPlaying item
         element.append """<div class="section-now-playing"></div>"""
 
       list.append element
