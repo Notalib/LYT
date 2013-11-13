@@ -351,22 +351,28 @@ LYT.player =
             nextSegment.done -> getPlayCommand()
             nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
 
-          # If we're in skip state, and about to change section
-          if @inSkipState and not segment.hasNext()
-            log.message "Player: play: progress: In skip state"
-            curSection = @book.getSectionBySegment segment
-            ncc = curSection.nccDocument
+          if @hasNextSegment()
+            # If we're in skip state, and about to change section
+            if @inSkipState and not segment.hasNext()
+              log.message "Player: play: progress: In skip state"
+              curSection = @book.getSectionBySegment segment
+              ncc = curSection.nccDocument
 
-            # Get index of next section (which apparently is meta-content)
-            index = ncc.getSectionIndexById curSection.id
-            skips = 1
-            while (nextSection = ncc.sections[index + skips]).metaContent
-              skips++
+              # Get index of next section (which apparently is meta-content)
+              index = ncc.getSectionIndexById curSection.id
+              skips = 1
+              while (nextSection = ncc.sections[index + skips]).metaContent
+                skips++
 
-            log.message "Player: play: Skipping #{skips - 1} meta-content sections"
-            nextSegment = nextSection.load().firstSegment()
+              log.message "Player: play: Skipping #{skips - 1} meta-content sections"
+              nextSegment = nextSection.load().firstSegment()
+            else
+              nextSegment = @getNextSegment()
           else
-            nextSegment = @getNextSegment()
+            command.cancel()
+            LYT.render.bookEnd()
+            log.message 'Player: play: book has ended'
+            return
 
           timer = setTimeout timeoutHandler, 1000
           nextSegment.done (next) =>
