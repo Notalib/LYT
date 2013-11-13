@@ -20,14 +20,7 @@ LYT.player =
   playbackRate: 1
   lastBookmark: (new Date).getTime()
   inSkipState: false
-
-  # Short utility methods ################################################### #
-
-
-  #segment: -> @book?.currentSegment
-
-  #section: -> @book?.currentSection()
-
+  
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
 
@@ -594,12 +587,20 @@ LYT.player =
 
   nextSection: ->
     if @currentSection().next
-      @currentSection().next.load()
-      @updateCurrentSegment @currentSection().next.firstSegment()
+      @updateCurrentSegment @getNextSection().firstSegment()
 
   previousSection: ->
     @currentSection().previous.load()
     @updateCurrentSegment @currentSection().previous.firstSegment()
+
+  getNextSegment: ->
+    if @currentSegment.hasNext()
+      # FIXME: loading segments is the responsibility of the section each
+      # each segment belongs to.
+      @currentSegment.next.load()
+      return @currentSegment.next
+    else
+      return @getNextSection().firstSegment()
 
   nextSegment: ->
     if not @hasNextSegment()
@@ -610,15 +611,6 @@ LYT.player =
       next = @getNextSegment()
       @updateCurrentSegment next
       @navigate next
-
-  getNextSegment: ->
-    if @currentSegment.hasNext()
-      # FIXME: loading segments is the responsibility of the section each
-      # each segment belongs to.
-      @currentSegment.next.load()
-      return @currentSegment.next
-    else
-      return @getNextSection().firstSegment()
 
   previousSegment: ->
     return unless @hasPreviousSegment()
