@@ -53,7 +53,7 @@ class LYT.Segment
     @end         = data.end
     @canBookmark = data.canBookmark
     @section     = section
-    @audio       = @section.resources[data.audio.src]?.url
+    @audio       = @section.resources[data.audio?.src?.toLowerCase()]?.url
     @data        = data
     # Will be initialized in the load() method:
     @text        = null
@@ -73,7 +73,8 @@ class LYT.Segment
       log.message "Segment: loading #{@url()}"
       # Parse transcript content
       [@contentUrl, @contentId] = @data.text.src.split "#"
-      resource = section.resources[@contentUrl]
+      resource = section.resources[@contentUrl.toLowerCase()]
+
       if not resource
         log.error "Segment: no absolute URL for content #{@contentUrl}"
         @_deferred.reject()
