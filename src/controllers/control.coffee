@@ -503,7 +503,7 @@ LYT.control =
       if type is 'pageshow'
         params = LYT.router.getParams match[1]
         if jQuery.isEmptyObject params
-          if segment = LYT.player.segment()
+          if segment = LYT.player.currentSection
             params =
               title:   segment.section.nccDocument.book.title
               book:    segment.section.nccDocument.book.id
