@@ -233,12 +233,13 @@ class LYT.Book
       else
         current = current.previous
 
-    first = segment.search iterator, (seg) ->
+    segment.search iterator, (seg) ->
       if seg.id in refs
         id = seg.id
       else
-        jQuery.makeArray(jQuery(seg.el).find "[id]").some (el) ->
-          if el.id in refs then id = el.id
+        jQuery.makeArray(seg.el.find "[id]").some (child) ->
+          childID = jQuery(child).attr "id"
+          if childID in refs then id = childID
 
     section = @nccDocument.sections[refs.indexOf id]
 
