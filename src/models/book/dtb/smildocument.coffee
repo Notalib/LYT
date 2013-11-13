@@ -15,6 +15,7 @@ do ->
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @segments    = parseMainSeqNode mainSequence, @
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
+        @filename = @url.substr @url.lastIndexOf('/') + 1
 
     getSegmentById: (id) ->
       for segment, index in @segments

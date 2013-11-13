@@ -42,8 +42,8 @@ LYT.control =
 
   setupEventHandlers: ->
     $("#bookmark-add-button").on 'click', ->
-      if LYT.player.segment().canBookmark
-        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.getStatus().currentTime
+      if (segment = LYT.player.currentSegment) and segment.canBookmark
+        LYT.player.book.addBookmark segment, LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification()
 
     $("#log-off").on 'click',  -> LYT.service.logOff()

@@ -85,7 +85,7 @@ class LYT.Segment
 
     return @_deferred.promise()
 
-  url: -> "#{@document.url}##{@id}"
+  url: -> "#{@document.filename}##{@id}"
 
   ready: -> @_deferred.state() isnt "pending"
 
