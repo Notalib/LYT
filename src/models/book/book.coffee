@@ -29,7 +29,7 @@ class LYT.Book
       loaded[id].done (book) ->
         #book.playlist or= new LYT.Playlist book
         #book.playlist.fail (error) -> deferred.reject error
-        #book.playlist.done -> 
+        #book.playlist.done ->
         deferred.resolve book
 
       # Book failed
@@ -90,7 +90,6 @@ class LYT.Book
 
     @resources   = {}
     @nccDocument = null
-    @_smils = {}
 
     pending = 2
     resolve = =>
@@ -205,16 +204,32 @@ class LYT.Book
 
   # ----------
 
+  # Returns all .smil files in the @resources array
+  getSMILFiles: () ->
+    smil for smil of @resources when /\.smil$/i.test @resources[smil].url
+
+  # Returns all SMIL files which is referred to by the NCC document in order
+  getSMILFilesInNCC: () ->
+    ordered = []
+    for section in @nccDocument.sections
+      if not (section.url in ordered)
+        ordered.push section.url
+
+    ordered
+
   getSMIL: (url) ->
     deferred = jQuery.Deferred()
+    if not (url of @resources)
+      return deferred.promise().reject()
 
-    @_smils[url] or= new LYT.SMILDocument @resources[url]?.url, @
+    smil = @resources[url]
+    smil.document or= new LYT.SMILDocument smil.url, @
 
-    @_smils[url].done (smil) ->
-      deferred.resolve smil
+    smil.document.done (smilDocument) ->
+      deferred.resolve smilDocument
 
-    @_smils[url].fail (error) =>
-      @_smils[url] = null
+    smil.document.fail (error) =>
+      smil.document = null
       deferred.reject error
 
     deferred.promise()
