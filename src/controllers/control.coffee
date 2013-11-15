@@ -327,11 +327,11 @@ LYT.control =
         # for backwards-compatibility
         if params.smil or params.section
           smil = params.smil or params.section
-          smilOffset = smil
+          smilReference = smil
           if params.fragment
-            smilOffset += "##{params.fragment}"
+            smilReference += "##{params.fragment}"
           else if params.segment
-            smilOffset += "##{params.segment}"
+            smilReference += "##{params.segment}"
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
 
@@ -341,7 +341,7 @@ LYT.control =
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
-        process = LYT.player.load params.book, smilOffset, offset, play
+        process = LYT.player.load params.book, smilReference, offset, play
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
           # See if there are any service announcements every time a new book has been loaded
@@ -504,12 +504,13 @@ LYT.control =
       if type is 'pageshow'
         params = LYT.router.getParams match[1]
         if jQuery.isEmptyObject params
-          if segment = LYT.player.currentSection
+          if segment = LYT.player.currentSegment
+            [smil, segmentID] = segment.url().split("#")
             params =
-              title:   segment.section.nccDocument.book.title
-              book:    segment.section.nccDocument.book.id
-              section: segment.section.url
-              segment: segment.id
+              title:   LYT.player.book.title
+              book:    LYT.player.book.id
+              section: smil
+              segment: segmentID
               offset:  LYT.utils.formatTime(LYT.player.time)
           else
             defaultPage()

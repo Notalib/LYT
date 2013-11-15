@@ -373,7 +373,7 @@ LYT.player =
             if next?
               if next.audio is status.src and next.start - 0.1 < time < next.end + 0.1
                 # Audio has progressed to next segment, so just update
-                @updateCurrentSegment next
+                @setCurrentSegment next
                 @updateHtml next
               else
                 # The segment next requires a seek and maybe loading a
@@ -407,7 +407,7 @@ LYT.player =
         nextSegment.done (next) =>
           if next
             log.message "Player: play: progress: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
-            @updateCurrentSegment next
+            @setCurrentSegment next
             @updateHtml next
           else
             log.error "Player: play: progress: Unable to load any segment for #{status.src}, offset #{time}."
@@ -444,7 +444,7 @@ LYT.player =
         (segment) =>
           log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
           offset = segment.audioOffset(smilOffset) if smilOffset
-          @updateCurrentSegment segment
+          @setCurrentSegment segment
           @seekSegmentOffset segment, offset
         (error) =>
           if url.match /__LYT_auto_/
@@ -511,7 +511,7 @@ LYT.player =
 
     # Once the seek has completed, render the segment
     result.done (segment) =>
-      @updateCurrentSegment segment
+      @setCurrentSegment segment
       @updateHtml segment
 
     # If this takes a long time, put up the loader
@@ -571,15 +571,15 @@ LYT.player =
 
   hasPreviousSection: -> @currentSection()?.previous?
 
-  updateCurrentSegment: (segment) ->
-    log.message "Player: updateCurrentSegment: queue segment #{segment.url?() or '(N/A)'}"
+  setCurrentSegment: (segment) ->
+    log.message "Player: setCurrentSegment: queue segment #{segment.url?() or '(N/A)'}"
     segment.done (segment) =>
       if segment?
-        log.message "Player: updateCurrentSegment: set currentSegment to [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}]"
+        log.message "Player: setCurrentSegment: set currentSegment to [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}]"
         @currentSegment = segment
     segment
 
-  rewind: -> @updateCurrentSegment @book.nccDocument.firstSegment()
+  rewind: -> @setCurrentSegment @book.nccDocument.firstSegment()
 
   getNextSection: ->
     if @currentSection().next
@@ -587,11 +587,11 @@ LYT.player =
 
   nextSection: ->
     if @currentSection().next
-      @updateCurrentSegment @getNextSection().firstSegment()
+      @setCurrentSegment @getNextSection().firstSegment()
 
   previousSection: ->
     @currentSection().previous.load()
-    @updateCurrentSegment @currentSection().previous.firstSegment()
+    @setCurrentSegment @currentSection().previous.firstSegment()
 
   getNextSegment: ->
     if @currentSegment.hasNext()
@@ -609,13 +609,13 @@ LYT.player =
       @book.saveBookmarks()
     else
       next = @getNextSegment()
-      @updateCurrentSegment next
+      @setCurrentSegment next
       @navigate next
 
   previousSegment: ->
     return unless @hasPreviousSegment()
     prev = @getPreviousSegment()
-    @updateCurrentSegment prev
+    @setCurrentSegment prev
     @navigate prev
 
   getPreviousSegment: ->

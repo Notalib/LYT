@@ -27,9 +27,6 @@ class LYT.Book
 
       # Book is loaded; load its playlist
       loaded[id].done (book) ->
-        #book.playlist or= new LYT.Playlist book
-        #book.playlist.fail (error) -> deferred.reject error
-        #book.playlist.done ->
         deferred.resolve book
 
       # Book failed
@@ -133,8 +130,7 @@ class LYT.Book
 
           # If the url of the resource is the NCC document,
           # save the resource for later
-          if /^ncc\.x?html?$/i.test localUri
-            ncc = @resources[localUri]
+          ncc = @resources[localUri] if localUri.match /^ncc\.x?html?$/i
 
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
@@ -149,7 +145,7 @@ class LYT.Book
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument obj.url, @
+      ncc = new LYT.NCCDocument obj.url, this
 
       # Propagate a failure
       ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
@@ -196,9 +192,6 @@ class LYT.Book
           @_normalizeBookmarks()
         resolve()
 
-
-
-
     # Kick the whole process off
     issue @id
 
@@ -223,7 +216,7 @@ class LYT.Book
       return deferred.promise().reject()
 
     smil = @resources[url]
-    smil.document or= new LYT.SMILDocument smil.url, @
+    smil.document or= new LYT.SMILDocument smil.url, this
 
     smil.document.done (smilDocument) ->
       deferred.resolve smilDocument
@@ -236,17 +229,14 @@ class LYT.Book
 
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)
-    first = true
     current = segment
     id = null
 
     # Inclusive backwards search
     iterator = () ->
-      if first
-        first = false
-        current
-      else
-        current = current.previous
+      result = current
+      current = current.previous
+      return result
 
     segment.search iterator, (seg) ->
       if seg.id in refs
@@ -440,8 +430,4 @@ class LYT.Book
         return jQuery.Deferred().reject()
 
     searchNext()
-
-  segmentBySectionOffset: (section, offset = 0) ->
-    #@updateCurrentSegment section.pipe (section) -> @_fudgeFix offset, section.getSegmentByOffset offset
-
 
