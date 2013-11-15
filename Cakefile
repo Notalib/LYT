@@ -279,7 +279,7 @@ html =
 scss =
   # Compile scss files in the given dir using compass
   compile: (dir, output, options, callback) ->
-    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
+    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output} --config config.rb", (err, stdout, stderr) ->
       fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
       console.log stderr if stderr
       callback?()

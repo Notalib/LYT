@@ -45,15 +45,55 @@
   src: url("open_dyslexic/OpenDyslexic-Bold.otf") format("opentype");
 }
 
+$icons-spacing: 10px;
+@import "spriteicons/icons/ui-icon/*.png";
+@include all-ui-icon-sprites;
 
 @import "partials/base";
 @import "partials/jplayer";
-@import "partials/icons";
+@import "partials/icons"; 
+
+.ui-icon {
+  position: relative;
+  left: 50%;
+  top: 50% !important;
+  margin-left: -15px !important;
+  margin-top: -15px !important;
+  height: 30px;
+  width: 30px;
+}
+
+.ui-header .ui-btn-icon-notext .ui-btn-inner .ui-icon {
+  margin-top: -20px !important;
+}
+
+.ui-btn-icon-right>.ui-btn-inner>.ui-icon {
+  left: inherit;
+}
+
+.ui-loader .ui-icon {
+  top: 15px !important;
+  padding-bottom: 10px;
+  background-repeat: no-repeat;
+}
+
+/* theese icons are default from jquery mobile, so we are not spriting them. */
+.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus {
+  height: 18px !important;
+  width: 18px !important;
+  margin-left: 0px !important;
+  margin-left: 0px !important;
+  margin-top: -8px !important;
+}
 
 
 /* ************************************************************************* *
    Various jQuery Mobile fixes
  * ************************************************************************* */
+
+.ui-btn-icon-notext .ui-btn-inner .ui-icon {
+  margin: 0px;
+}
 
 .ui-bar-c {
   border: none;
@@ -79,11 +119,11 @@
     width: 65px;
     background: none;
   }
-  .ui-icon {
+  /*.ui-icon {
     width: 30px;
     left: 21px;
     @include border-radius(0, 0);
-  }
+  }*/
   .ui-btn-active {
     background-color: #262626;
     border: 1px solid black;
@@ -450,9 +490,9 @@ img.e17-logo {
       .ui-btn-inner {
         padding: 0.8em 45px;
       }
-      .ui-icon {
+      /*.ui-icon {
         top: 1.35em;
-      }
+      }*/
     }
     .ui-btn, .ui-btn-up-c {
       border-color: #636363;
@@ -776,10 +816,11 @@ img.e17-logo {
       background-color: darken($highlightcolor, 16%);
       @include box-shadow(none);
     }
+    /*
     .ui-icon {
       width: 25px;
       height: 25px;
-    }
+    }*/
     .ui-btn-inner {
       padding: 5px 0 0 2px;
       height: 32px;
@@ -806,13 +847,13 @@ img.e17-logo {
       @include box-shadow(none);
       background-image: none;
     }
-    .ui-icon {
+    /*.ui-icon {
       background-image: url(../images/icons/delete_icn_16.png);
       background-position: 0;
       #width: 16px;
       #height: 16px;
       @include border-radius(0);
-    }
+    }*/
     .ui-btn-inner {
       border: none;
       padding: 0;
@@ -1037,10 +1078,11 @@ li.ui-li h3.no-search-results {
 
 #book-play-menu {
   .ui-btn {
+    margin: 0 !important;
     border-color: #000;
     border-top: none;
-    margin: 0 !important;
-    border-right-width: 0px !important;
+    border-left:none;
+    border-right:none;
   }
   .ui-btn-up-a, .ui-btn-hover-a {
     background: $darkbuttoncolor;
@@ -1048,19 +1090,17 @@ li.ui-li h3.no-search-results {
   .ui-btn-down-a {
     background: $highlightcolor !important;
   }
+  /*
   .ui-icon {
     top: 10px !important;
     width: 25px;
     @include border-radius(0, 0);
-  }
+  }*/
   .ui-block-a, .ui-block-b, .ui.block-c {
     margin-right: 0px !important;
   }
-  .ui-block-a, .ui-block-c {
-    width: 33%;
-  }
-  .ui-block-b {
-    width: 34%;
+  .ui-block-a, .ui-block-b, .ui-block-c  {
+    width: 20%;
   }
 }
 
