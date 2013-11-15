@@ -280,7 +280,7 @@ LYT.render = do ->
 
     sectionLink = (section, play = 'true') ->
       title = section.title?.replace("\"", "") or ""
-      link = "section=#{section.url}"
+      link = "smil=#{section.url}"
       if section.fragment
         link += "&fragment=#{section.fragment}"
 
@@ -373,7 +373,7 @@ LYT.render = do ->
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
             <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{bookmark.id}"
-               href="#book-player?book=#{book.id}&section=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
+               href="#book-player?book=#{book.id}&smil=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """

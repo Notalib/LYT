@@ -323,9 +323,10 @@ LYT.control =
 
         # Switch to different (part of) book
         # Because of bad naming, sections are here actually SMIL
-        # files with an optional fragment
-        if params.section
-          smil = params.section
+        # files with an optional fragment. We're keeping params.section
+        # for backwards-compatibility
+        if params.smil or params.section
+          smil = params.smil or params.section
           smilOffset = smil
           if params.fragment
             smilOffset += "##{params.fragment}"
