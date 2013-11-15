@@ -397,7 +397,7 @@ LYT.player =
           log.group "Player: play: progress: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}]: ", segment
         else
           log.message 'Player: play: progress: no current segment set.'
-        nextSegment = @book.segmentByAudioOffset status.src, time, 0.1, @currentSection()
+        nextSegment = @book.segmentByAudioOffset @currentSection, status.src, time, 0.1
         nextSegment.fail (error) ->
           # TODO: The user may have navigated to a place in the audio stream
           #       that isn't included in the book. This should be handled by

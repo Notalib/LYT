@@ -345,7 +345,7 @@ class LYT.Book
     segment = segment.next if segment.end - offset < fudge and segment.next and offset - segment.next.start < fudge
     return segment
 
-  segmentByAudioOffset: (audio, offset = 0, fudge = 0.1, start) ->
+  segmentByAudioOffset: (start, audio, offset = 0, fudge = 0.1) ->
     if not audio
       log.error 'Book: segmentByAudioOffset: audio not provided'
       return jQuery.Deferred().reject('audio not provided')
