@@ -109,10 +109,10 @@ $(document).bind "mobileinit", ->
   # - action: what action to use in the url (defaults to 'book-player')
   # - absolute: boolean indicating if the url should be absolute or relative
   LYT.router.getBookActionUrl = (bookReference, action = 'book-player', absolute=true) ->
-    return null unless bookReference and bookReference.book
+    return null unless bookReference?.book?
     url = "##{action}?book=#{bookReference.book}"
-    if bookReference.section
-      url += "&section=#{bookReference.section}"
+    if bookReference.smil or bookReference.section
+      url += "&smil=#{bookReference.smil or bookReference.section}"
       if bookReference.segment
         url += "&segment=#{bookReference.segment}"
         if bookReference.smilOffset
