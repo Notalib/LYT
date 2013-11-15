@@ -21,3 +21,9 @@ end
 
 Before do
 end
+
+After do
+  ## This is a workaround for https://github.com/jnicklas/capybara/issues/1001
+  ## Solution found on https://groups.google.com/d/msg/selenium-users/qahuzVl1svQ/hR6FO3GGzDMJ
+  page.execute_script("window.localStorage.clear()")
+end
