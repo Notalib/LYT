@@ -9,10 +9,17 @@ When(/^I click "(.*?)"$/) do |link_name|
   click_link link_name
 end
 
+When(/^I wait for the hourglass$/) do
+  sleep 5
+end
 
 
 #Verifications:
 
 Then(/^I see a link "(.*?)" to "(.*?)"$/) do |text, url|
   page.should have_link(text, href: url)
+end
+
+Then(/^I see "(.*?)"$/) do |text|
+  page.should have_text(text)
 end
