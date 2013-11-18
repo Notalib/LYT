@@ -187,7 +187,7 @@ class LYT.Book
 
   # Returns all .smil files in the @resources array
   getSMILFiles: () ->
-    smil for smil of @resources when /\.smil$/i.test @resources[smil].url
+    res for res of @resources when @resources[res].url.match /\.smil$/i
 
   # Returns all SMIL files which is referred to by the NCC document in order
   getSMILFilesInNCC: () ->
@@ -218,19 +218,18 @@ class LYT.Book
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)
     current = segment
-    id = null
 
     # Inclusive backwards search
     iterator = () ->
       result = current
-      current = current.previous
+      current = current?.previous
       return result
 
-    segment.search iterator, (seg) ->
-      if seg.id in refs
-        id = seg.id
+    while not id and item = iterator()
+      if item.id in refs
+        id = item.id
       else
-        jQuery.makeArray(seg.el.find "[id]").some (child) ->
+        jQuery.makeArray(item.el.find "[id]").some (child) ->
           childID = jQuery(child).attr "id"
           if childID in refs then id = childID
 
