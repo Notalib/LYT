@@ -37,9 +37,9 @@ class LYT.Section
     @metaContent = false
 
   load: ->
-    return @ if @loading or @state() is "resolved"
+    return this if @loading or @state() is "resolved"
     @loading = true
-    @.always => @.loading = false
+    @always => @loading = false
 
     log.message "Section: loading(\"#{@url}\")"
     # trim away everything after the filename.
@@ -50,12 +50,12 @@ class LYT.Section
     @book.getSMIL(file)
     .done (document) =>
       @document = document
-      @_deferred.resolve @
+      @_deferred.resolve this
     .fail =>
       log.error "Section: Failed to load SMIL-file #{@url.replace /#.*$/, ""}"
       @_deferred.reject()
 
-    @
+    this
 
   segments: -> @document.segments
 

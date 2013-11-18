@@ -77,7 +77,7 @@ class LYT.Segment
         resource.document = new LYT.TextContentDocument resource.url
         # TODO: The initialization below should belong in LYT.TextContentDocument
         resource.document.done (document) => document.resolveUrls @document.book.resources
-      promise = resource.document.pipe (document) => @parseContent document
+      promise = resource.document.then (document) => @parseContent document
       promise.done => @_deferred.resolve this
       promise.fail (status, error) =>
         log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
@@ -149,10 +149,10 @@ class LYT.Segment
 
   # Will load this segment and the next preloadCount segments
   preloadNext: (preloadCount = LYT.config.segment.preload.queueSize) ->
-    @.load()
+    @load()
     return if not (preloadCount > 0)
 
-    @.done (segment) =>
+    @done (segment) =>
       if next = segment.next
         next.preloadNext(preloadCount - 1)
       else
@@ -162,7 +162,7 @@ class LYT.Segment
             next.preloadNext(preloadCount - 1)
 
   # Parse content document and extract segment data
-  # Used in pipe, so should return this (the segment itself) or a failed
+  # Used with deferreds, so should return this (the segment itself) or a failed
   # promise in order to reject processing.
   parseContent: (document) ->
     source = document.source

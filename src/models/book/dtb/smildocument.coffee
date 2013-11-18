@@ -13,9 +13,9 @@ do ->
         mainSequence = @source.find("body > seq:first")
         @book        = book
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
-        @segments    = parseMainSeqNode mainSequence, @
+        @segments    = parseMainSeqNode mainSequence, this
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
-        @filename = @url.substr @url.lastIndexOf('/') + 1
+        @filename = @url.split('/').pop()
 
     getSegmentById: (id) ->
       for segment, index in @segments
@@ -26,7 +26,7 @@ do ->
     # Returns the segment with the given id, or the segment
     # containing the element (often a <text>) with the given id
     getContainingSegment: (id) ->
-      segment = @getSegmentByID id
+      segment = @getSegmentById id
       return segment if segment
 
       for segment, index in @segments
@@ -53,16 +53,16 @@ do ->
   # Parse the main `<seq>` element's `<par>`s (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
   parseMainSeqNode = (sequence, smil) ->
     segments = []
-    pars = sequence.children "par"
-    pars.each ->
-      segments = segments.concat parseParNode jQuery(@)
+    parData = []
+    sequence.children("par").each ->
+      parData = parData.concat parseParNode jQuery(this)
     previous = null
-    for segment, index in segments
+    for segment, index in parData
       segment = new LYT.Segment segment, smil
       segment.index = index
       segment.previous = previous
       previous?.next = segment
-      segments[index] = segment
+      segments.push segment
       previous = segment
 
     segments

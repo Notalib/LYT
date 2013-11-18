@@ -396,8 +396,7 @@ class LYT.Book
         return result if result
 
     searchNext = () ->
-      section = iterator()
-      if section
+      if section = iterator()
         section.load()
         return section.pipe (section) ->
           if result = handler section
