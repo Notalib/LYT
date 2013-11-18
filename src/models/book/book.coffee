@@ -301,28 +301,19 @@ class LYT.Book
   segmentByURL: (url) ->
     deferred = jQuery.Deferred()
 
-    #TODO: is this robust?
     [smil, fragment] = url.split '#'
-    smil = smil.split('/')
-    smil = smil[smil.length - 1]
+    smil = smil.split('/').pop()
 
     @getSMIL(smil).done (document) ->
-      # We've got a fragment
       if fragment
-
-        # Which might be a segment id
-        segment = document.getSegmentById fragment
-
-        # or might be an element encapsulated by a segment
-        if not segment
-          segment = document.getContainingSegment fragment
+        segment = document.getContainingSegment fragment
       else
         segment = document.segments[0]
 
       if segment
         segment.load().done (segment) -> deferred.resolve segment
       else
-        deferred.reject segment
+        deferred.reject
 
     deferred.promise()
 

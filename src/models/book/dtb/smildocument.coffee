@@ -23,7 +23,12 @@ do ->
 
       return null
 
+    # Returns the segment with the given id, or the segment
+    # containing the element (often a <text>) with the given id
     getContainingSegment: (id) ->
+      segment = @getSegmentByID id
+      return segment if segment
+
       for segment, index in @segments
         return segment if segment.el.find("##{id}").length > 0
 
