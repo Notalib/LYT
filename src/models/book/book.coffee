@@ -21,20 +21,8 @@ class LYT.Book
     loaded = {}
 
     (id) ->
-      deferred = jQuery.Deferred()
-
       loaded[id] or= new LYT.Book id
-
-      # Book is loaded; load its playlist
-      loaded[id].done (book) ->
-        deferred.resolve book
-
-      # Book failed
-      loaded[id].fail (error) ->
-        loaded[id] = null
-        deferred.reject error
-
-      deferred.promise()
+      loaded[id].promise()
 
 
   # "Class"/"static" method for retrieving a
