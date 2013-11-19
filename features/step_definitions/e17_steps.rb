@@ -5,13 +5,21 @@ When(/^I login as E17 test user$/) do
   }
   fill_in "CPR / Brugernummer", with: @user[:login]
   fill_in "Kodeord", with: @user[:password]
-  click_button "Log på"
+  click_on "Log på"
+end
+
+
+When(/I wait for hourglass to appear and disappear/) do
+  ##This Step is really stupid... It is a workaround for the fact that
+  ##LYT displays elements that do not work at the time they are shown.
+  page.should have_selector('.ui-loader')
+  page.should_not have_selector('.ui-loader')
 end
 
 When(/^I search for "(.*?)"$/) do |search_term|
-  click_link "Søg"
+  click_on "Søg"
   fill_in "Søg på titel, forfatter eller genre", :with => search_term
-  click_button "søg"
+  click_on "søg"
 end
 
 

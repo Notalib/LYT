@@ -3,6 +3,7 @@ Feature: An anonymous user navigates LYT.
 
   Background: I am an anonymous user.
     Given I visit '/'
+    And I wait for the login screen
 
   Scenario: I read the support page.
     When I click "Support"
@@ -12,7 +13,7 @@ Feature: An anonymous user navigates LYT.
 
   Scenario: I read the support page.
     When I click "Prøv E17 Direkte uden login"
-    And I wait for the hourglass
+    And I wait for hourglass to appear and disappear
     And I search for "Harry potter"
     And I see a link "Harry Potter og fangen fra Azkaban" to "#book-details?book=13984"
     When I click "Harry Potter og fangen fra Azkaban"

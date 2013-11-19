@@ -4,6 +4,7 @@ Feature: An E17 member can navigate through bookshelf and more.
   Background: I log in using member login
     Given I visit '/'
     And I login as E17 test user
+    And I wait for hourglass to appear and disappear
 
   Scenario: See bookshelf
     Then I see a list of books
