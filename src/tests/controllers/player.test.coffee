@@ -37,29 +37,24 @@ asyncTest 'Player starts playing when clicking play', ->
       promise.done ->
         return if bail
         ok not LYT.player.playing, 'Player has playing flag to off when book has been loaded'
-        loadstartHandler = ->
-          ok not LYT.player.playing, 'Player has playing flag to off at loadstart event'
-          playHandler = ->
-            ok LYT.player.playing, 'Player has set playing flag at play event'
-            setTimeout(
-              ->
-                ok LYT.player.playing, 'Player has set playing flag 1 second after play event'
-                ok not LYT.player.getStatus().paused, 'jPlayer is playing'
-                cleanup()
-              1000
-            )
-          $('#jplayer').one $.jPlayer.event.play, playHandler
-          cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.play, playHandler
-
+        playHandler = ->
+          ok LYT.player.playing, 'Player has set playing flag at play event'
           setTimeout(
             ->
-              log.message 'Test: player starts playing when clicking play: clicking play button'
-              $('.lyt-play').trigger 'click'
-            2000
+              ok LYT.player.playing, 'Player has set playing flag 1 second after play event'
+              ok not LYT.player.getStatus().paused, 'jPlayer is playing'
+              cleanup()
+            1000
           )
+        $('#jplayer').one $.jPlayer.event.play, playHandler
+        cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.play, playHandler
 
-        $('#jplayer').one $.jPlayer.event.loadstart, loadstartHandler
-        cleanupHandlers.push -> $('#jplayer').off $.jPlayer.event.loadstart, loadstartHandler
+        setTimeout(
+          ->
+            log.message 'Test: player starts playing when clicking play: clicking play button'
+            $('.lyt-play').trigger 'click'
+          2000
+        )
 
       cleanupHandlers.push -> bail = true
 
