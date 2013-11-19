@@ -13,5 +13,5 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       return if item.data("resolved")?
       url = item.attr("src")
       url = url.substr url.lastIndexOf('/') + 1 unless url.lastIndexOf('/') == -1
-      item.attr "src", resources[url]?.url
+      item.attr "src", resources[url.toLowerCase()]?.url
       item.data "resolved", "yes" # Mark as already-processed

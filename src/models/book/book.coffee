@@ -115,11 +115,15 @@ class LYT.Book
       # If fail, then fail
       got.fail -> deferred.reject BOOK_CONTENT_RESOURCES_ERROR
 
-      got.then (@resources) =>
+      got.then (resources) =>
         ncc = null
 
         # Process the resources hash
-        for own localUri, uri of @resources
+        for own localUri, uri of resources
+
+          # We lowercase all resource lookups to avoid general case-issues
+          localUri = localUri.toLowerCase()
+
           # Each resource is identified by its relative path,
           # and contains the properties `url` and `document`
           # (the latter initialized to `null`)

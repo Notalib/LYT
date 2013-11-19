@@ -44,7 +44,7 @@ class LYT.Section
     log.message "Section: loading(\"#{@url}\")"
     # trim away everything after the filename.
     file = @url.replace /#.*$/, ""
-    url  = @resources[file]?.url
+    url  = @resources[file.toLowerCase()]?.url
     if url is undefined
       log.error "Section: load: url is undefined"
     @document = new LYT.SMILDocument this, url
@@ -66,7 +66,7 @@ class LYT.Section
     return [] unless @document?.state() is "resolved"
     urls = []
     for file in @document.getAudioReferences()
-      url = @resources[file]?.url
+      url = @resources[file.toLowerCase()]?.url
       urls.push url if url
     urls
 
