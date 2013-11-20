@@ -1,6 +1,8 @@
 fs      = require "fs"
 fs.path = require "path"
 w3cjs   = require "w3cjs"
+{exec}  = require "child_process"
+ftpkick = require "ftpkick"
 
 # # Configuration
 
@@ -29,6 +31,27 @@ option "-n", "--no-validate", "Don't validate build"
 
 task "app", "Same as `cake assets src html scss`", (options) ->
   invoke task for task in ["assets", "src", "html", "scss"]
+
+task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR for each host in $LYT_FTP_HOSTS. using FTP with password $LYT_FTP_PASSWORD", (options) ->
+
+  dev_hosts = process.env.LYT_FTP_HOSTS?.split(',') || ["localhost"]
+  destination_dir = process.env.LYT_DESTINATION_DIR || process.env.USER
+  ftp_user  = process.env.LYT_FTP_USER || "anonymous"
+  ftp_password = process.env.LYT_FTP_PASSWORD
+
+  for host in dev_hosts
+    do (host) ->
+      console.log "Connecting to #{host}"
+      ftpkick.connect(
+        host: host
+        user: ftp_user
+        password: ftp_password
+      ).then (kicker) ->
+        console.log "Uploading to #{host}"
+        kicker.kick("build", destination_dir).then(
+          ()  -> console.log "Successfully uploaded for #{host}",
+          (e) -> console.error "An error occurred", e if e.code isnt 550
+        )
 
 task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"

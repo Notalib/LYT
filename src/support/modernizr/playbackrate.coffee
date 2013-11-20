@@ -4,10 +4,10 @@
 
 # Modernizr tests:
 # - playbackrate: Does the browser support changing playback rate
-#   when the music is already playing (e.g. not IOS)
+#   when the music is already playing (e.g. not iOS)
 #
 # - playbackratelive: Does the browser support changing playback rate
-#   if the music is stopped and consequently started after setting it (IOS)
+#   if the music is stopped and consequently started after setting it (iOS)
 #
 # Note that these tests are asynchronous (use Modernizr.on)
 
@@ -21,7 +21,7 @@ playbackLiveTest = (audio) ->
 
   started = null
   rateSet = false
-  audio.addEventListener 'timeupdate', ->
+  timeHandler = ->
     return if audio.paused or isNaN(audio.currentTime) or audio.currentTime <= 0
 
     # Set playback rate when currentTime > 0
@@ -41,16 +41,21 @@ playbackLiveTest = (audio) ->
     # Calculate the actual playback rate and set test result
     playbackRate = audio.currentTime / delta
     if (rate - margin) < playbackRate < (rate + margin)
-      Modernizr.addTest 'playbackratelive', true
-
       # Clear fail timer and pause the audio
       clearTimeout failTimer
       audio.pause()
+      audio.removeEventListener 'timeupdate', timeHandler, false
+
+      Modernizr.addTest 'playbackratelive', true
+
+  audio.addEventListener 'timeupdate', timeHandler, false
 
   # Just fail the test on timeout
   failTimer = setTimeout( ->
-      Modernizr.addTest 'playbackratelive', Modernizr.playbackratelive?
       audio.pause()
+      audio.removeEventListener 'timeupdate', timeHandler, false
+
+      Modernizr.addTest 'playbackratelive', Modernizr.playbackratelive?
     , (duration + 1) * 1000
   )
 
@@ -73,7 +78,7 @@ playbackTest = ->
   # Handler that checks if the playbackRate is correct and tells Modernizr
   started = null
   rateSet = false
-  audio.addEventListener 'timeupdate', ->
+  timeHandler = ->
     # Don't do anything if the test has finished
     return if Modernizr.playbackrate?
 
@@ -98,13 +103,21 @@ playbackTest = ->
     # Calculate the actual playback rate and set test result
     playbackRate = audio.currentTime / delta
     if (rate - margin) < playbackRate < (rate + margin)
-      Modernizr.addTest 'playbackrate', true
+      # Clear fail timer and pause the audio
       audio.pause()
+      audio.removeEventListener 'timeupdate', timeHandler, false
+      clearTimeout failTimer
+
+      # Set test result, and kick off "playbackratelive" test
+      Modernizr.addTest 'playbackrate', true
+
+  audio.addEventListener 'timeupdate', timeHandler, false
 
   # Just fail the test on timeout
-  setTimeout( ->
-      Modernizr.addTest 'playbackrate', Modernizr.playbackrate?
+  failTimer = setTimeout( ->
       audio.pause()
+      audio.removeEventListener 'timeupdate', timeHandler, false
+      Modernizr.addTest 'playbackrate', Modernizr.playbackrate?
     , (duration + 1) * 1000
   )
 
