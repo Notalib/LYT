@@ -215,8 +215,13 @@ LYT.render = do ->
     
   clearContent: (content) ->
     # Removes anything in content
-    content.children('ol').listview('childPages').remove()
-    content.children('ol').listview('refresh')
+    list = content.children 'ol, ul'
+    if list.length > 0 and list.hasClass 'ui-listview'
+      if list.listview('childPages').length > 0
+        list.listview('childPages').remove()
+        list.listview 'refresh'
+      else
+        list.listview().children().remove()
 
   enablePlayerNavigation: ->
     $('#book-play-menu').find('a').removeClass 'ui-disabled'
