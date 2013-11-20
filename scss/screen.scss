@@ -45,13 +45,22 @@
   src: url("open_dyslexic/OpenDyslexic-Bold.otf") format("opentype");
 }
 
-$icons-spacing: 10px;
+@import "partials/base";
+@import "partials/jplayer";
+
+/* background size needed for correct retina icon sprite sizing */
+@import "compass/css3/background-size";
+@import "partials/compass-retina-sprites";
+
+/* standard icon sprite */
+$ui-icon-spacing: 20px;
 @import "spriteicons/icons/ui-icon/*.png";
 @include all-ui-icon-sprites;
 
-@import "partials/base";
-@import "partials/jplayer";
-@import "partials/icons"; 
+/* retina icon sprite */
+$ui-icon2x-spacing: 20px;
+@import "spriteicons/icons-2x/ui-icon2x/*.png";
+@include all-retina-sprites($ui-icon-sprites, $ui-icon2x-sprites);
 
 .ui-icon {
   position: relative;
@@ -78,7 +87,7 @@ $icons-spacing: 10px;
 }
 
 /* theese icons are default from jquery mobile, so we are not spriting them. */
-.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus {
+.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check {
   height: 18px !important;
   width: 18px !important;
   margin-left: 0px !important;
@@ -504,6 +513,15 @@ img.e17-logo {
   }
 }
 
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+  #profile {
+    .logged-in-as {
+      background-image: transparent url(../images/icons/settings_profile_icn_64.png) no-repeat 0 50%;
+      background-size: 32px 32px;
+    }
+  }
+}
+
 #textarea-example {
   width: 100%;
   overflow: hidden;
@@ -655,6 +673,14 @@ img.e17-logo {
   }
 }
 
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+  #about {
+    .nota-logo {
+      background-image: url(../images/nota-logo-hires.png);
+      background-size: 200px 67px;
+    }
+  }
+}
 
 /* ************************************************************************* *
    Splash upgrade page
