@@ -129,16 +129,22 @@ LYT.config =
   # ### LYT.NCCDocument config
   nccDocument:
     metaSections:
-      # Note: the format is "attribute value": "attribute type"
-      "dbbintro":        "class" # elements whose `class` attribute is "dbbintro"
-      #"dbbcopyright":    "class" # elements whose `class` attribute is "dbbcopyright"
-      #"rearcover":       "class" # elements whose `class` attribute is "rearcover"
-      #"summary":         "class" # elements whose `class` attribute is "summary"
-      #"rightflap":       "class" # elements whose `class` attribute is "rightflap"
-      #"leftflap":        "class" # elements whose `class` attribute is "leftflap"
-      #"extract":         "class" # elements whose `class` attribute is "extract"
-      #"authorbiography": "class" # elements whose `class` attribute is "authorbiography"
-      #"title":           "class" # elements whose `class` attribute is "title"
+      # Format is "attribute value": "attribute type"
+      #"title":             "class" # Don't skip the title and booknumber
+      #"dbbcopyright":      "class" # Don't skip copyright disclaimer
+      "dbbintro":           "class"
+      "rearcover":          "class"
+      "summary":            "class"
+      "rightflap":          "class"
+      "leftflap":           "class"
+      "extract":            "class"
+      "authorbiography":    "class"
+      "kolofon":            "class"
+      "andre oplysninger":  "class"
+      "andre titler":       "class"
+      "oplysninger":        "class"
+      "forord":             "class"
+      "indhold":            "class"
 
       #"GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
       #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
