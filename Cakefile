@@ -44,6 +44,7 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
   ftp_password = process.env.LYT_FTP_PASSWORD
 
   for host in dev_hosts
+    console.log "Deploying to #{ftp_user}@#{host}/#{destination_dir}"
     do (host) ->
       console.log "Connecting to #{host}"
       ftpkick.connect(
