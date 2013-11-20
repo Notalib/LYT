@@ -8,16 +8,29 @@ do ->
 
   # Class to model a SMIL document
   class LYT.SMILDocument extends LYT.DTBDocument
-    constructor: (section, url) ->
+    constructor: (url, book) ->
       super url, (deferred) =>
         mainSequence = @source.find("body > seq:first")
+        @book        = book
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
-        @segments    = parseMainSeqNode section, mainSequence
+        @segments    = parseMainSeqNode mainSequence, this
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
+        @filename = @url.split('/').pop()
 
     getSegmentById: (id) ->
       for segment, index in @segments
         return segment if segment.id == id
+
+      return null
+
+    # Returns the segment with the given id, or the segment
+    # containing the element (often a <text>) with the given id
+    getContainingSegment: (id) ->
+      segment = @getSegmentById id
+      return segment if segment
+
+      for segment, index in @segments
+        return segment if segment.el.find("##{id}").length > 0
 
       return null
 
@@ -38,33 +51,27 @@ do ->
   # ## Privileged
 
   # Parse the main `<seq>` element's `<par>`s (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
-  parseMainSeqNode = (section, sequence) ->
-    clips = []
+  parseMainSeqNode = (sequence, smil) ->
+    segments = []
+    parData = []
     sequence.children("par").each ->
-      clips = clips.concat parseParNode(section, jQuery(this))
+      parData = parData.concat parseParNode jQuery(this)
     previous = null
-    for clip, index in clips
-      clip = new LYT.Segment section, clip
-      clip.index = index
-      clip.previous = previous
-      previous?.next = clip
-      clips[index] = clip
-      previous = clip
-    clips
+    for segment, index in parData
+      segment = new LYT.Segment segment, smil
+      segment.index = index
+      segment.previous = previous
+      previous?.next = segment
+      segments.push segment
+      previous = segment
+
+    segments
 
   # Parse a `<par>` node
   idCounts = {}
-  parseParNode = (section, par) ->
+  parseParNode = (par) ->
     # Find the `text` node, and parse it separately
     text = parseTextNode par.find("text:first")
-
-    # TODO: This function has to be rewritten so it can take the following
-    # into account when collapsing clips into one:
-    #  - Changing source file
-    #  - Changing id
-    #  - Non-adjacent clips (i.e. some parts of an audio file that should
-    #    be skipped)
-    #  - Changing text
 
     # Find all nested `audio` nodes
     clips = par.find("> audio, seq > audio").map ->
@@ -74,10 +81,10 @@ do ->
       start:       parseNPT audio.attr("clip-begin")
       end:         parseNPT audio.attr("clip-end")
       text:        text
-      section:     section
       canBookmark: par.attr('id')?
       audio:       src: audio.attr "src"
       smil:        element: audio
+      par:         par
 
     clips = jQuery.makeArray clips
 
@@ -94,12 +101,6 @@ do ->
         if Math.abs(clip.start - lastClip.end) < 0.001
           lastClip.end = clip.end
           continue
-      if clip.id?
-        clip.canBookmark = true
-      else
-        clip.canBookmark = false
-        idCounts[clip.audio.src] or= 1
-        clip.id = "__LYT_auto_#{clip.audio.src + '_' + idCounts[clip.audio.src]++}"
       lastClip = clip
       reducedClips.push clip
 

@@ -141,16 +141,24 @@ LYT.render.content = do ->
 
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
 
-    bookSection = (segment) -> "#{segment.section.nccDocument.book.id}:#{segment.section.url}"
-    contentContainerId = (segment) -> "content-#{segment.contentUrl}--#{segment.contentId}"
-    missingContainerId = (segment) -> "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
+    bookSection = (segment) ->
+      book = segment.document.book
+      "#{book.id}:#{book.getSectionBySegment(segment).url}"
+
+    contentContainerId = (segment) ->
+      "content-#{segment.contentUrl}--#{segment.contentId}"
+
+    missingContainerId = (segment) ->
+      "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
+
+    renderedSection = view.data "LYT-render-book-section"
 
     # Empty view if book or section has changed
-    if not view.data('LYT-render-book-section') or view.data('LYT-render-book-section') isnt bookSection currentSegment
+    if not renderedSection or renderedSection isnt bookSection currentSegment
       log.message 'Render: content: renderStack: empty view - wrong section'
       view.data 'LYT-render-book-section', bookSection currentSegment
       view.children().detach()
-      view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.section.document.segments
+      view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.document.segments
 
     view.css('overflow-x', 'scroll')
 
@@ -274,7 +282,8 @@ LYT.render.content = do ->
     renderDelta = now - lastRender if lastRender
 
     if segment
-      $('.player-chapter-title').text segment.section.title
+      section = segment.document.book.getSectionBySegment segment # lol
+      $('.player-chapter-title').text section.title
       switch segment.type
         when 'cartoon'
           renderCartoon segment, selectView(segment.type), renderDelta
