@@ -15,20 +15,12 @@ LYT.google = do ->
           jsonResults.push(val)
 
       if jsonResults.length is 0
-        deferred.reject()
+        deferred.resolve resultsMatch
 
-      jQuery.each jsonResults, (i)->
-        # Look up google suggestions in Nota autocomplete
-        lookup = LYT.catalog.getAutoComplete(this)
+      LYT.catalog.LookUpAutocompleteWords(jsonResults)
         .done (data) ->
-          if data.length > 0
-            # If google suggestions hits something in nota autocomplete (aka. Catalogsearch).
-            resultsMatch.push(jsonResults[i])
-          if i is jsonResults.length-1
-            deferred.resolve resultsMatch
-
+          deferred.resolve data
         .fail ->
-          # Something went wrong in notaautocomplete -> normal search
           deferred.reject()
     catch e
       log.message 'Google: GotValues: error from google autocomplete'+e

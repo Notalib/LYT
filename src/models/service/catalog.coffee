@@ -239,6 +239,27 @@ LYT.catalog = do ->
       deferred.reject()
 
     deferred.promise()
+
+  LookUpAutocompleteWords = (terms) ->
+    deferred = jQuery.Deferred()
+
+    data = '{terms:["' + terms.join('","') + '"]}'
+    url = LYT.config.catalog.LookUpAutocompleteWords.url
+
+    options = getAjaxOptions url, data
+    options.async = true
+    options.data = data
+
+    jQuery.ajax(options)
+      .done (data) ->
+        results = data.d or []
+        deferred.resolve results
+        
+      .fail ->
+        deferred.reject()
+
+
+    deferred.promise()
   # Get autocomplete surgestions...direct...
   getAutoComplete = (term) ->
     deferred = jQuery.Deferred()
@@ -259,9 +280,7 @@ LYT.catalog = do ->
 
 
     deferred.promise()
-
-
-
+    
   getDetails = (bookId) ->
     deferred = jQuery.Deferred()
 
@@ -298,4 +317,5 @@ LYT.catalog = do ->
   getSuggestions:         getSuggestions
   getDetails:             getDetails
   getAutoComplete:        getAutoComplete
+  LookUpAutocompleteWords:LookUpAutocompleteWords
 

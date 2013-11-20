@@ -22,6 +22,10 @@ LYT.control =
   # Utility methods
 
   init: ->
+    # This disables the iphone default webkitTouchCallout.
+    document.documentElement.style.webkitTouchCallout = 'none';
+    # This disables reloading the page when a popup is closed.
+    $.mobile.popup.prototype.options.history = false;
     @versionCheck()
     @setupEventHandlers()
 
@@ -53,6 +57,16 @@ LYT.control =
       content = $("#bookshelf").children ':jqmData(role=content)'
       LYT.render.clearContent content
       LYT.service.logOff()
+
+    $("#bookshelf").on 'click', (event) ->
+      # We catch the event and prevent it to bubble up - else it will close the popup if the popup is open.
+      if $("#detailsPopup1-popup.ui-popup-active").length > 0
+        event.stopPropagation()
+
+    $("#search").on 'click', (event) ->
+      # We catch the event and prevent it to bubble up - else it will close the popup if the popup is open.
+      if $("#detailsPopup2-popup.ui-popup-active").length > 0
+        event.stopPropagation()
 
     # Hacking away on book index page that is mostly being rendered by
     # the nested list view in jQuery Mobile.
@@ -90,10 +104,12 @@ LYT.control =
       this.selectionStart = 0
       this.selectionEnd = this.value.length
 
-    $("#more-bookshelf-entries").on 'click', ->
+    $("#more-bookshelf-entries").on 'click', =>
       content = $.mobile.activePage.children(":jqmData(role=content)")
-      LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
-
+      loadbookshelf = LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
+      loadbookshelf.done =>
+        @showMouseOver $('#detailsPopup1')
+        
     $(window).resize -> LYT.player.refreshContent()
 
     $("#add-to-bookshelf-button").on 'click', ->
@@ -126,7 +142,6 @@ LYT.control =
 
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
-
 
     $('#instrumentation').find('button.first').on 'click', ->
       LYT.render.instrumentationGraph()?.firstEntry()
@@ -191,6 +206,37 @@ LYT.control =
 
     deferred.promise()
 
+  showMouseOver: (el) ->
+    $("[data-book-id]").unbind 'hover'
+    $("[data-book-id]").unbind 'taphold'
+    el.unbind 'touchend'
+    el.unbind 'vmousedown'
+
+    $("[data-book-id]").hover ->
+      process = LYT.catalog.getDetails $(this).attr('data-book-id')
+      process.done (details) =>
+        unless this.title
+          this.title = details.teaser
+      process.fail =>
+        unless this.title
+          this.title = LYT.i18n('This book has no description')
+
+    $("[data-book-id]").on 'taphold', (event) ->
+      event.preventDefault()
+      event.stopPropagation() 
+      process = LYT.catalog.getDetails $(this).attr('data-book-id')
+      process.done (details) =>
+        LYT.render.showDetailsPopup el, details.teaser
+      process.fail ->
+        LYT.render.showDetailsPopup el, ''
+
+    el.on 'touchend', (event) -> 
+      el.popup 'close'
+
+    el.on 'vmousedown', ->
+      event.preventDefault()
+      event.stopPropagation()
+
   # ----------------
   # Control handlers
 
@@ -236,15 +282,18 @@ LYT.control =
     params = LYT.router.getParams match[1]
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: bookshelf: unable to log in'
-    promise.done ->
+    promise.done =>
       content = $(page).children(":jqmData(role=content)")
-
       if LYT.bookshelf.nextPage is false
-        LYT.render.loadBookshelfPage content
+        loadbookshelf = LYT.render.loadBookshelfPage content
+        loadbookshelf.done =>
+          @showMouseOver $('#detailsPopup1')  
       else
-        #loadBookshelfPage is called with view, page count and zeroAndUp set to true...
-        LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true
-
+        #loadBookshelfPage is called with view, page count and zeroAndUp set to true...  
+        loadbookshelf = LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true 
+        loadbookshelf.done =>
+          @showMouseOver $('#detailsPopup1')
+          
   bookDetails: (type, match, ui, page, event) ->
     content = $(page).children( ":jqmData(role=content)" )
     if type is 'pagebeforeshow'
@@ -388,15 +437,15 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
     promise.fail -> log.error 'Control: search: unable to log in'
-    promise.done ->
+    promise.done =>
       if type is 'pagebeforeshow'
         content = $(page).children(":jqmData(role=content)")
         content.children().hide()
 
       if type is 'pageshow'
-        handleResults = (process) ->
+        handleResults = (process) =>
           LYT.loader.register "Searching", process
-          process.done (results) ->
+          process.done (results) =>
             $("#more-search-results").unbind "click"
             $("#more-search-results").click (event) ->
               handleResults results.loadNextPage() if results.loadNextPage?
@@ -404,6 +453,7 @@ LYT.control =
               event.stopImmediatePropagation()
 
             LYT.render.searchResults results, content
+            @showMouseOver $('#detailsPopup2')
 
         # determine action and parse params: predefinedView, search, predefinedSearch
         action = "predefinedView"
