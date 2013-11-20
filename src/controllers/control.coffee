@@ -46,7 +46,13 @@ LYT.control =
         LYT.player.book.addBookmark LYT.player.segment(), LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification() 
 
-    $("#log-off").on 'click',  -> LYT.service.logOff()
+    $("#log-off").on 'click',  ->
+      if LYT.player.book?
+        LYT.player.stop()
+        LYT.render.clearBookPlayer()
+      content = $("#bookshelf").children ':jqmData(role=content)'
+      LYT.render.clearContent content
+      LYT.service.logOff()
 
     # Hacking away on book index page that is mostly being rendered by
     # the nested list view in jQuery Mobile.
