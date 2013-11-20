@@ -11,14 +11,11 @@
 # A Segment instance has the following properties:
 #
 # - id:              The id of the <par> element in the SMIL document
-# - index:           (Internal.) Index of this segment in the section
-#                    it belongs to.
 # - start:           The start time, in seconds, relative to the audio
 # - end:             The end time, in seconds, relative to the audio
 # - audio:           The url of the audio file (or null)
 # - html:            The HTML to display (or null)
 # - text:            The text content of the HTML content (or null)
-# - section:         The section this segment belongs to.
 # - type:            Type of this segment. The following two types are
 #                    currently supported:
 #                     - cartoon:  Display one large image.
@@ -39,9 +36,7 @@
 
 
 class LYT.Segment
-  # Number of segments to preload
-
-  constructor: (section, data) ->
+  constructor: (data, document) ->
     # Set up deferred load of images
     @_deferred = jQuery.Deferred()
     @_deferred.promise this
@@ -52,9 +47,10 @@ class LYT.Segment
     @start       = data.start
     @end         = data.end
     @canBookmark = data.canBookmark
-    @section     = section
-    @audio       = @section.resources[data.audio.src]?.url
+    @audio       = document.book.resources[data.audio.src]?.url
     @data        = data
+    @el          = data.par
+    @document    = document
     # Will be initialized in the load() method:
     @text        = null
     @html        = null
@@ -68,29 +64,28 @@ class LYT.Segment
     @always => @loading = false
     @fail   => log.error "Segment: failed loading segment #{this.url()}"
 
-    # First make sure that the section we belong to has finished loading
-    @section.done (section) =>
-      log.message "Segment: loading #{@url()}"
-      # Parse transcript content
-      [@contentUrl, @contentId] = @data.text.src.split "#"
-      resource = section.resources[@contentUrl]
-      if not resource
-        log.error "Segment: no absolute URL for content #{@contentUrl}"
+    log.message "Segment: loading #{@url()}"
+
+    # Parse transcript content
+    [@contentUrl, @contentId] = @data.text.src.split "#"
+    resource = @document.book.resources[@contentUrl]
+    if not resource
+      log.error "Segment: no absolute URL for content #{@contentUrl}"
+      @_deferred.reject()
+    else
+      unless resource.document
+        resource.document = new LYT.TextContentDocument resource.url
+        # TODO: The initialization below should belong in LYT.TextContentDocument
+        resource.document.done (document) => document.resolveUrls @document.book.resources
+      promise = resource.document.then (document) => @parseContent document
+      promise.done => @_deferred.resolve this
+      promise.fail (status, error) =>
+        log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
         @_deferred.reject()
-      else
-        unless resource.document
-          resource.document = new LYT.TextContentDocument resource.url
-          # TODO: The initialization below should belong in LYT.TextContentDocument
-          resource.document.done (document) -> document.resolveUrls section.resources
-        promise = resource.document.pipe (document) => @parseContent document
-        promise.done => @_deferred.resolve this
-        promise.fail (status, error) =>
-          log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
-          @_deferred.reject()
 
     return @_deferred.promise()
 
-  url: -> "#{@section.url}##{@id}"
+  url: -> "#{@document.filename}##{@id}"
 
   ready: -> @_deferred.state() isnt "pending"
 
@@ -106,8 +101,7 @@ class LYT.Segment
 
   search: (iterator, filter, onlyOne = true) ->
     if onlyOne
-      found = false
-      while not found and item = iterator()
+      while item = iterator()
         return item if filter item
     else
       result = []
@@ -133,7 +127,6 @@ class LYT.Segment
     new LYT.Bookmark
       URI:        @url()
       timeOffset: @smilOffset audioOffset
-      note:       text: @section.title
 
   smilStart: ->
     return @smil.start if @smil.start?
@@ -156,17 +149,20 @@ class LYT.Segment
 
   # Will load this segment and the next preloadCount segments
   preloadNext: (preloadCount = LYT.config.segment.preload.queueSize) ->
-    this.load()
-    if preloadCount > 0
-      this.done (segment) ->
-        if next = segment.next
-          next.preloadNext(preloadCount - 1)
-        else if segment.section.next?
-          segment.section.next.firstSegment().done (next) ->
+    @load()
+    return if not (preloadCount > 0)
+
+    @done (segment) =>
+      if next = segment.next
+        next.preloadNext(preloadCount - 1)
+      else
+        nextSection = (@document.book.getSectionBySegment segment)?.next
+        if nextSection
+          nextSection.firstSegment().done (next) ->
             next.preloadNext(preloadCount - 1)
 
   # Parse content document and extract segment data
-  # Used in pipe, so should return this (the segment itself) or a failed
+  # Used with deferreds, so should return this (the segment itself) or a failed
   # promise in order to reject processing.
   parseContent: (document) ->
     source = document.source

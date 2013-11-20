@@ -7,8 +7,5 @@
 # the attribute timeOffset is a SMIL offset, not an audio offset.
 
 class LYT.Bookmark
-
-  # Class methods ########################################################### #
-
   constructor: (data) ->
-    this[key] = data[key] for key in ['note', 'URI', 'timeOffset']
+    @[key] = data[key] for key in ['note', 'URI', 'timeOffset']

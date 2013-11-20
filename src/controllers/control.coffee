@@ -42,11 +42,17 @@ LYT.control =
 
   setupEventHandlers: ->
     $("#bookmark-add-button").on 'click', ->
-      if LYT.player.segment().canBookmark
-        LYT.player.book.addBookmark LYT.player.segment(), LYT.player.getStatus().currentTime
+      if (segment = LYT.player.currentSegment) and segment.canBookmark
+        LYT.player.book.addBookmark segment, LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification()
 
-    $("#log-off").on 'click',  -> LYT.service.logOff()
+    $("#log-off").on 'click',  ->
+      if LYT.player.book?
+        LYT.player.stop()
+        LYT.render.clearBookPlayer()
+      content = $("#bookshelf").children ':jqmData(role=content)'
+      LYT.render.clearContent content
+      LYT.service.logOff()
 
     # Hacking away on book index page that is mostly being rendered by
     # the nested list view in jQuery Mobile.
@@ -320,10 +326,19 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+
         # Switch to different (part of) book
-        if params.section
-          segmentUrl = params.section
-          segmentUrl += "##{params.segment}" if params.segment
+        # Because of bad naming, sections are here actually SMIL
+        # files with an optional fragment. We're keeping params.section
+        # for backwards-compatibility
+        if params.smil or params.section
+          smil = params.smil or params.section
+          smilReference = smil
+          if params.fragment
+            smilReference += "##{params.fragment}"
+          else if params.segment
+            smilReference += "##{params.segment}"
+
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
 
         play = (params.play is 'true') or false
@@ -332,7 +347,7 @@ LYT.control =
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
-        process = LYT.player.load params.book, segmentUrl, offset, play
+        process = LYT.player.load params.book, smilReference, offset, play
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
           # See if there are any service announcements every time a new book has been loaded
@@ -495,12 +510,13 @@ LYT.control =
       if type is 'pageshow'
         params = LYT.router.getParams match[1]
         if jQuery.isEmptyObject params
-          if segment = LYT.player.segment()
+          if segment = LYT.player.currentSegment
+            [smil, segmentID] = segment.url().split("#")
             params =
-              title:   segment.section.nccDocument.book.title
-              book:    segment.section.nccDocument.book.id
-              section: segment.section.url
-              segment: segment.id
+              title:   LYT.player.book.title
+              book:    LYT.player.book.id
+              section: smil
+              segment: segmentID
               offset:  LYT.utils.formatTime(LYT.player.time)
           else
             defaultPage()

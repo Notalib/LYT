@@ -3,7 +3,7 @@ fs      = require "fs"
 fs.path = require "path"
 w3cjs   = require "w3cjs"
 {exec}  = require "child_process"
-ftp     = require "ftp"
+ftpkick = require "ftpkick"
 
 # # Configuration
 
@@ -36,93 +36,26 @@ task "app", "Same as `cake assets src html scss`", (options) ->
   invoke task for task in ["assets", "src", "html", "scss"]
 
 
-ftp.prototype.rmdir_recursive = (dest, callback) ->
-  client = this
-  client.list dest, (err, list) ->
-    throw err if err?
-    delete_serial = (file_list, cb) ->
-      if file_list.length == 0
-        cb()
-      else
-        file = file_list.pop()
-        switch file.type
-          when "d" ##Directory
-#            console.log "Deleting dir : #{dest}/#{file.name}"
-            client.rmdir_recursive("#{dest}/#{file.name}", -> delete_serial(file_list, cb))
-          when "-" ##File
-#            console.log "Deleting file: #{dest}/#{file.name}"
-            client.delete("#{dest}/#{file.name}", -> delete_serial(file_list, cb))
-          else
-            console.error "Does not handle the file type for #{file.type}"
-    delete_serial list, ->
-      client.rmdir dest, (e) ->
-        throw e if e?
-        callback?()
-
-ftp.prototype.put_recursive = (source, dest, callback) ->
-  client = this
-  fs.stat source, (err, status) ->
-    throw err if err?
-    if status.isFile()
-#      console.log "Uploading: #{source} -> #{dest}"
-      client.put source, dest, (e) ->
-        throw e if e?
-        callback?()
-    else if status.isDirectory()
-#      console.log "Traversing: #{source}"
-      client.mkdir dest, true, (e) ->
-        throw e if e?
-        fs.readdir source, (e, files) ->
-          throw e if err?
-          put_serial = (file_list, cb) ->
-            if file_list.length == 0
-              cb()
-            else
-              file = file_list.pop()
-              client.put_recursive "#{source}/#{file}" , "#{dest}/#{file}", -> put_serial(file_list, cb)
-          put_serial files, -> callback?()
-    else
-      console.log "Does not handle the file type for #{source}"
-      callback?()
-
 task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR for each host in $LYT_FTP_HOSTS. using FTP with password $LYT_FTP_PASSWORD", (options) ->
+
   dev_hosts = process.env.LYT_FTP_HOSTS?.split(',') || ["localhost"]
   destination_dir = process.env.LYT_DESTINATION_DIR || process.env.USER
   ftp_user  = process.env.LYT_FTP_USER || "anonymous"
-  ftp_password = process.env.LYT_FTP_PASSWORD || undefined
+  ftp_password = process.env.LYT_FTP_PASSWORD
 
-  ((host) ->
-    c = new ftp
-    # c.on 'end', ->
-    #   console.log "Ended"
-    # c.on 'close', (hadErr) ->
-    #   console.log "Closed: " + hadErr
-    c.on 'error', (error) ->
-      console.log "Erred: " + error
-    c.on 'ready', ->
-      put_rec = ->
-        console.log "For #{host}: Start uploading."
-        c.put_recursive "build", destination_dir, ->
-          console.log "For #{host}: Completed uploading."
-          c.end()
-      try
-        c.list destination_dir, (err, list)->
-          if err?
-            put_rec()
-          else
-            console.log "For #{host}: Deleting existing deployment."
-            c.rmdir_recursive destination_dir, ->
-              put_rec()
-      catch error
-        console.log error.stack
-    console.log "For #{host}: Deploying to #{ftp_user}@#{host}/#{destination_dir}"
-    c.connect(
-      host: host
-      user: ftp_user
-      password: ftp_password
-#      debug: console.log
-    )
-  )(h) for h in dev_hosts
+  for host in dev_hosts
+    do (host) ->
+      console.log "Connecting to #{host}"
+      ftpkick.connect(
+        host: host
+        user: ftp_user
+        password: ftp_password
+      ).then (kicker) ->
+        console.log "Uploading to #{host}"
+        kicker.kick("build", destination_dir).then(
+          ()  -> console.log "Successfully uploaded for #{host}",
+          (e) -> console.error "An error occurred", e if e.code isnt 550
+        )
 
 task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
@@ -370,7 +303,7 @@ html =
 scss =
   # Compile scss files in the given dir using compass
   compile: (dir, output, options, callback) ->
-    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output}", (err, stdout, stderr) ->
+    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output} --config config.rb", (err, stdout, stderr) ->
       fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
       console.log stderr if stderr
       callback?()
