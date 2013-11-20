@@ -215,9 +215,9 @@ LYT.render = do ->
     
   clearContent: (content) ->
     # Removes anything in content
-    list = if content.children('ol')[0]? then content.children('ol') else content.children('ul')
-    if list.length > 0
-      if list.listview('childPages').length > 0 
+    list = content.children 'ol, ul'
+    if list.length > 0 and list.hasClass 'ui-listview'
+      if list.listview('childPages').length > 0
         list.listview('childPages').remove()
         list.listview 'refresh'
       else
