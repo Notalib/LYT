@@ -96,6 +96,9 @@ LYT.config =
 
         # Delay before autocompleting (milliseconds)
         delay:     300 # default: 300
+        
+    LookUpAutocompleteWords:
+      url: "/CatalogSearch/search.asmx/LookUpAutocompleteWords"    
 
     suggestions:
       url: "/CatalogSearch/search.asmx/GetPushItems"
