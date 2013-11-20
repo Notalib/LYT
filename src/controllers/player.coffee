@@ -230,8 +230,7 @@ LYT.player =
     result.done =>
       log.message "Player: book #{@book.id} loaded"
       # Never start playing if firstplay flag set
-      if not @firstPlay
-        @play() if play
+      @play if not @firstPlay and play
 
     result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
 
