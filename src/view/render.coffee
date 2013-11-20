@@ -39,7 +39,7 @@ LYT.render = do ->
       """
 
     if String(target) is 'book-details'
-      element.attr 'data-icon', 'arrow_icn_30'
+      element.attr 'data-icon', 'arrow_icn'
 
     loadCover element.find('img.cover-image'), book.id
 
@@ -298,7 +298,7 @@ LYT.render = do ->
 
     for item in items
       if item.children.length > 0
-        element = jQuery '<li data-icon="arrow_icn_30"></li>'
+        element = jQuery '<li data-icon="arrow_icn"></li>'
         element.append """
             <a class="gatrack" ga-action="Link" data-ga-book-id="#{book.id}" data-ga-book-title="#{(item.title or '').replace '"', ''}" href="#book-player?book=#{book.id}&section=#{item.url}&play=true">
               #{item.title}
@@ -325,7 +325,7 @@ LYT.render = do ->
   bookmarks: (book, view) ->
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="more_icn_30"></ol>').hide()
+    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="more_icn"></ol>').hide()
     view.append list
     list.attr 'data-title', book.title
     list.attr 'data-author', book.author
@@ -409,7 +409,7 @@ LYT.render = do ->
     list.empty()
 
     for key, value of LYT.predefinedSearches
-      listItem = jQuery """<li id="#{key}" data-icon="arrow_icn_30">
+      listItem = jQuery """<li id="#{key}" data-icon="arrow_icn">
                            <a href="##{value.hash}?#{value.param}=#{key}" class="ui-link-inherit">
                            <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
       list.append listItem
