@@ -287,7 +287,7 @@ LYT.render = do ->
     $('#index-back-button').removeAttr 'nodeid'
 
     if root?.title?
-      $('#index-back-button').attr 'nodeid','#{root.parent}'
+      $('#index-back-button').attr 'nodeid', String(root.parent)
 
     view.children().remove()
     list = $('<ul data-role="listview" data-split-theme="a"></ul>').hide()
