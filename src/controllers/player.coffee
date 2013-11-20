@@ -288,9 +288,6 @@ LYT.player =
 
   # Starts playback
   play: ->
-    if @firstPlay
-      @firstPlay = false
-
     command = null
     nextSegment = null
     getPlayCommand = =>
@@ -306,6 +303,7 @@ LYT.player =
       command.always => @showPlayButton() unless @playing
 
     progressHandler = (status) =>
+      @firstPlay = false if @firstPlay
 
       @showPauseButton()
 
