@@ -1099,8 +1099,11 @@ li.ui-li h3.no-search-results {
   .ui-block-a, .ui-block-b, .ui.block-c {
     margin-right: 0px !important;
   }
-  .ui-block-a, .ui-block-b, .ui-block-c  {
-    width: 20%;
+  .ui-block-a, .ui-block-c  {
+    width: 33%;
+  }
+  .ui-block-b {
+    width: 34%;
   }
 }
 
