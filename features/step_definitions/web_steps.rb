@@ -9,11 +9,6 @@ When(/^I click "(.*?)"$/) do |link_name|
   click_on link_name
 end
 
-When(/^I wait for the login screen$/) do
-  page.title.should have_text("Log ind")
-end
-
-
 #Verifications:
 
 Then(/^I see a link "(.*?)" to "(.*?)"$/) do |text, url|

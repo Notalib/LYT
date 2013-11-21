@@ -18,5 +18,7 @@ Feature: An anonymous user navigates LYT.
     And I see a link "Harry Potter og fangen fra Azkaban" to "#book-details?book=13984"
     When I click "Harry Potter og fangen fra Azkaban"
     Then I see "Harry Potter og fangen fra Azkaban (3)"
+    And I see "Joanne K. Rowling"
+    And I see "Harry Potter er elev på trolddomsskolen på tredje år."
     And I see "Indlæst af: Thomas Gulstad"
 

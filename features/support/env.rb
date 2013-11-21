@@ -4,6 +4,8 @@ require 'capybara'
 require 'capybara/dsl'
 require 'capybara/cucumber'
 
+#Capybara.default_wait_time = 5
+
 Capybara.configure do |config|
   config.run_server = false
   config.default_driver = :selenium

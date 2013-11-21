@@ -8,6 +8,9 @@ When(/^I login as E17 test user$/) do
   click_on "Log på"
 end
 
+When(/^I wait for the login screen$/) do
+  page.title.should have_text("Log ind")
+end
 
 When(/I wait for hourglass to appear and disappear/) do
   ##This Step is really stupid... It is a workaround for the fact that
