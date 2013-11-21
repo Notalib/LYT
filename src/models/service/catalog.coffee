@@ -197,14 +197,14 @@ LYT.catalog = do ->
 
       # Perform the request
       jQuery.ajax(options)
+
         # On success, extract the results
         .done (data) ->
           results = data.d or []
           autocompleteCache[request.term] = results
           complete results
         # On fail, just call `complete` (i.e. fail silently)
-        .fail -> complete []
-
+        .fail -> emit "Server:internalServerError"
     # Return the setup object
     setup
 

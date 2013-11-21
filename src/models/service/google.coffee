@@ -35,9 +35,3 @@ LYT.google = do ->
         log.message 'Google: DoAutoComplete: error from google autocomplete link'
     # Return deffered to listen on....
     deferred.promise()
-
-  #http://suggestqueries.google.com/complete/search?hl=en&ds=yt&json=t&jsonp=callbackfunction&q=orange+county+ca
-  #http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q=
-  #http://suggestqueries.google.com/complete/search?output=firefox&client=firefox&hl=dk&json=t&jsonp=callbackfunction&q=harp
-  #http://suggestqueries.google.com/complete/search?ds=yt&output=toolbar&hl=dk&q=harry
-  #http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q=harry&callback=arne
