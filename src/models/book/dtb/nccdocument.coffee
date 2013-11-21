@@ -13,7 +13,7 @@ do ->
   #        handled by flattenStructure followed by linkSections.
   class LYT.NCCDocument extends LYT.TextContentDocument
     constructor: (url, book) ->
-      super url, (deferred) =>
+      super url, book.resources, =>
         @structure = parseStructure @source, book
         @sections  = flattenStructure @structure
         linkSections @sections

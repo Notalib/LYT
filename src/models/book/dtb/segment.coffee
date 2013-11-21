@@ -68,15 +68,15 @@ class LYT.Segment
 
     # Parse transcript content
     [@contentUrl, @contentId] = @data.text.src.split "#"
-    resource = @document.book.resources[@contentUrl.toLowerCase()]
+    resources = @document.book.resources
+    resource = resources[@contentUrl.toLowerCase()]
     if not resource
       log.error "Segment: no absolute URL for content #{@contentUrl}"
       @_deferred.reject()
     else
-      unless resource.document
-        resource.document = new LYT.TextContentDocument resource.url
-        # TODO: The initialization below should belong in LYT.TextContentDocument
-        resource.document.done (document) => document.resolveUrls @document.book.resources
+      if not resource.document
+        resource.document = new LYT.TextContentDocument resource.url, resources
+
       promise = resource.document.then (document) => @parseContent document
       promise.done => @_deferred.resolve this
       promise.fail (status, error) =>
