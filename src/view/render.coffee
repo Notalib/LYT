@@ -39,7 +39,7 @@ LYT.render = do ->
       """
 
     if String(target) is 'book-details'
-      element.attr 'data-icon', 'arrow_icn_30'
+      element.attr 'data-icon', 'arrow_icn'
 
     loadCover element.find('img.cover-image'), book.id
 
@@ -308,7 +308,7 @@ LYT.render = do ->
 
     for item in items
       if item.children.length > 0
-        element = jQuery '<li data-icon="arrow-right"></li>'
+        element = jQuery '<li data-icon="arrow_icn"></li>'
         element.append sectionLink item
         element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
       else
@@ -329,7 +329,7 @@ LYT.render = do ->
   bookmarks: (book, view) ->
     # Create an ordered list wrapper for the list
     view.children().remove()
-    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="more_icn_30"></ol>').hide()
+    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="more_icn"></ol>').hide()
     view.append list
     list.attr 'data-title', book.title
     list.attr 'data-author', book.author
@@ -413,7 +413,7 @@ LYT.render = do ->
     list.empty()
 
     for key, value of LYT.predefinedSearches
-      listItem = jQuery """<li id="#{key}" data-icon="arrow_icn_30">
+      listItem = jQuery """<li id="#{key}" data-icon="arrow_icn">
                            <a href="##{value.hash}?#{value.param}=#{key}" class="ui-link-inherit">
                            <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
       list.append listItem
