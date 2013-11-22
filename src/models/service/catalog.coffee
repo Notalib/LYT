@@ -242,8 +242,8 @@ LYT.catalog = do ->
 
   LookUpAutocompleteWords = (terms) ->
     deferred = jQuery.Deferred()
-
-    data = '{terms:["' + terms.join('","') + '"]}'
+    
+    data = JSON.stringify terms: terms
     url = LYT.config.catalog.LookUpAutocompleteWords.url
 
     options = getAjaxOptions url, data
