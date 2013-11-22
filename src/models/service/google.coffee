@@ -16,6 +16,8 @@ LYT.google = do ->
 
       if jsonResults.length is 0
         deferred.resolve resultsMatch
+      if jsonResults.length > LYT.config.catalog.autocomplete.google_answer_limit
+        jsonResults = jsonResults.slice 0, LYT.config.catalog.autocomplete.google_answer_limit
 
       LYT.catalog.LookUpAutocompleteWords(jsonResults)
         .done (data) ->
