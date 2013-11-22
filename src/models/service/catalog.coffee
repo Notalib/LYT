@@ -197,14 +197,14 @@ LYT.catalog = do ->
 
       # Perform the request
       jQuery.ajax(options)
+
         # On success, extract the results
         .done (data) ->
           results = data.d or []
           autocompleteCache[request.term] = results
           complete results
         # On fail, just call `complete` (i.e. fail silently)
-        .fail -> complete []
-
+        .fail -> emit "Server:internalServerError"
     # Return the setup object
     setup
 
@@ -239,6 +239,28 @@ LYT.catalog = do ->
       deferred.reject()
 
     deferred.promise()
+
+  LookUpAutocompleteWords = (terms) ->
+    deferred = jQuery.Deferred()
+    
+    data = JSON.stringify terms: terms
+    url = LYT.config.catalog.LookUpAutocompleteWords.url
+
+    options = getAjaxOptions url, data
+    options.async = true
+    options.data = data
+
+    jQuery.ajax(options)
+      .done (data) ->
+        results = data.d or []
+        deferred.resolve results
+        
+      .fail ->
+        deferred.reject()
+
+
+    deferred.promise()
+
   # Get autocomplete surgestions...direct...
   getAutoComplete = (term) ->
     deferred = jQuery.Deferred()
@@ -298,4 +320,5 @@ LYT.catalog = do ->
   getSuggestions:         getSuggestions
   getDetails:             getDetails
   getAutoComplete:        getAutoComplete
+  LookUpAutocompleteWords:LookUpAutocompleteWords
 
