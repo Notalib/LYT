@@ -22,3 +22,10 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       resolveURLs @source, resources
       callback() if typeof callback is "function"
 
+  veilImages: () ->
+    @source.find("img[src]").each ->
+      el = jQuery this
+      return if el.attr "data-src"
+
+      el.attr "data-src", el.attr "src"
+      el.attr "src", "/jmm/css/images/ajax-loader.gif"

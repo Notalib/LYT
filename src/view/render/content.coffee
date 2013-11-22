@@ -262,9 +262,55 @@ LYT.render.content = do ->
       img.click -> img.toggleClass('zoom')
     view.empty().append segment.dom
 
+  segmentIntoView = (view, segment) ->
+    el = jQuery(view).find "##{segment.contentId}"
+    el.get(0).scrollIntoView() if el.length
+
+  renderContext = (segment, view, delta) ->
+    book = segment.document.book
+    html = book.resources[segment.contentUrl].document
+    source = html.source[0]
+    viewer = view.find('iframe')
+    viewDoc = viewer.get(0).contentDocument
+
+    if viewer.data("htmldoc") isnt segment.contentUrl
+      log.message "Render: Changing context to #{segment.contentUrl}"
+      viewer.data "htmldoc", segment.contentUrl
+
+      # Don't load all images from document
+      html.veilImages()
+
+      # Change to new document
+      viewDoc.replaceChild(
+        viewDoc.importNode(source.documentElement, true),
+        viewDoc.documentElement
+      )
+
+      # Enable hardware acceleration
+      jQuery(viewDoc.documentElement)
+        .find('body')
+        .css
+          "transform": "translate3d(0, 0, 0)"
+          "-webkit-transform": "translate3d(0, 0, 0)"
+
+      # Lazy-load images
+      images = jQuery(viewDoc.documentElement).find "img"
+      doc = viewer.contents()
+      doc.scroll jQuery.throttle 200, ->
+        ct = doc.scrollTop()
+        cb = ct + viewer.height()
+        images.each ->
+          image = jQuery(this)
+          if ct < image.offset().top < cb and image.attr("data-src")?
+            image.attr "src", image.attr "data-src"
+            image.removeAttr "data-src"
+
+    # Scroll the segment into view
+    segmentIntoView viewDoc, segment
+
   selectView = (type) ->
     result
-    viewTypes = ['stack', 'cartoon', 'plain']
+    viewTypes = ['stack', 'cartoon', 'plain', 'context']
     for viewType in viewTypes
       view = $("#book-#{viewType}-content")
       if viewType is type
@@ -284,11 +330,13 @@ LYT.render.content = do ->
     if segment
       section = segment.document.book.getSectionBySegment segment # lol
       $('.player-chapter-title').text section.title
+
       switch segment.type
         when 'cartoon'
           renderCartoon segment, selectView(segment.type), renderDelta
         else
-          renderStack segment, selectView('stack'), renderDelta
+          renderContext segment, selectView('context'), renderDelta
+          #renderStack segment, selectView('stack'), renderDelta
     else
       selectView null # Clears the content area
 
