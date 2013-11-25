@@ -15,6 +15,7 @@ Feature: An E17 member can navigate through bookshelf and more.
     Then I click "Harry Potter og fangen fra Azkaban"
     Then I see "Harry Potter og fangen fra Azkaban (3)"
     And I see "Indlæst af: Thomas Gulstad"
+    And I see a link "Afspil" to "#book-player?book=13984"
     When I click "Tilføj til mine bøger"
     Then I see "Mine bøger"
     Then I see a link "Harry Potter og fangen fra Azkaban" to "#book-player?book=13984"
