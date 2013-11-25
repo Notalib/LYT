@@ -442,7 +442,6 @@ LYT.player =
         (segment) =>
           log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
           offset = segment.audioOffset(smilOffset) if smilOffset
-          @_setCurrentSegment segment
           @seekSegmentOffset segment, offset
         (error) =>
           if url.match /__LYT_auto_/
@@ -538,14 +537,12 @@ LYT.player =
       @book.saveBookmarks()
     else
       next = @_getNextSegment()
-      @_setCurrentSegment next
       @navigate next
 
   # Plays the previous segment in queue, and updates currentSegment
   playPreviousSegment: ->
     return unless @hasPreviousSegment()
     prev = @_getPreviousSegment()
-    @_setCurrentSegment prev
     @navigate prev
 
   # Will display the provided segment, load (if necessary) and play the
