@@ -9,14 +9,17 @@
 # This module serves as a router to the rest of the application and contains url entrypoints and event listeners
 
 
-#     bc  => pagebeforecreate 1 time event
-#     c   => pagecreate 1 time event
+#     bc  => pagebeforecreate
+#     c   => pagecreate
 #     i   => pageinit
 #     bs  => pagebeforeshow
 #     s   => pageshow
 #     bh  => pagebeforehide
 #     h   => pagehide
 #     rm  => pageremove
+#     bC  => pagebeforechange
+#     bl  => pagebeforeload
+#     l   => pageload
 
 # -------------------
 
@@ -39,6 +42,10 @@ $(document).bind "mobileinit", ->
     "#default-page":
       handler: "defaultPage"
       events: "bs"
+    "#(profile|book.|share|settings|search).*": # Pages that requires login.
+      handler: "loginFilter"
+      events: "bC"
+      step: "all"
     "#book-details([?].*)?":
       handler: "bookDetails"
       events: "s,bs"

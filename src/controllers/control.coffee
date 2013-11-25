@@ -180,19 +180,21 @@ LYT.control =
     else
       if params?.guest?
         promise = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
-        LYT.loader.register 'Logging in', deferred.promise()
         promise.done -> deferred.resolve()
         promise.fail -> deferred.reject()
-      else
-        LYT.var.next = window.location.hash
-        $.mobile.changePage '#login'
-        $(LYT.service).one 'logon:resolved', -> deferred.done()
-        $(LYT.service).one 'logon:rejected', -> deferred.fail()
-
+        LYT.loader.register 'Logging in', deferred.promise()
     deferred.promise()
 
   # ----------------
   # Control handlers
+
+  loginFilter: (type, match, ui, page, event) ->
+    params = LYT.router.getParams(match[0])
+    if !(LYT.session.getCredentials()? || params?.guest?)
+      event.preventDefault()
+      LYT.var.next = window.location.hash
+      ui.toPage = '#login'
+      ui.bCDeferred.resolve()
 
   login: (type, match, ui, page, event) ->
     $('#username').focus()
