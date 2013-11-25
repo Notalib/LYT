@@ -2,7 +2,7 @@ Feature: An anonymous user navigates LYT.
   As an anonymous user I navigate around LYT.
 
   Background: I am an anonymous user.
-    Given I visit '/'
+    Given I visit "/"
     And I wait for the login screen
 
   Scenario: I read the support page.
