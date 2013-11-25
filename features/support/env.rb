@@ -4,7 +4,7 @@ require 'capybara'
 require 'capybara/dsl'
 require 'capybara/cucumber'
 
-#Capybara.default_wait_time = 5
+Capybara.default_wait_time = 20 #The application can be really slow.
 
 Capybara.configure do |config|
   config.run_server = false

@@ -9,7 +9,7 @@ When(/^I login as E17 test user$/) do
 end
 
 When(/^I wait for the login screen$/) do
-  page.title.should have_text("Log ind")
+  page.should have_selector('h1', text: "Log ind")
 end
 
 When(/I wait for hourglass to appear and disappear/) do
