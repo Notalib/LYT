@@ -128,117 +128,7 @@ LYT.render.content = do ->
         x: left + div.width()
         y: top  + div.height()
 
-#    console.log "Area: #{area.width}x#{area.height}, (#{area.tl.x}, #{area.tl.y})"
-
     panZoomImage segment, image, area, renderDelta
-
-    return true
-
-  # Stack renderer - stack segments
-  renderStack = (currentSegment, view, renderDelta) ->
-
-    log.message "Render: content: renderStack: renderDelta #{renderDelta}, vspace: #{vspace()}"
-
-    timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
-
-    bookSection = (segment) ->
-      book = segment.document.book
-      "#{book.id}:#{book.getSectionBySegment(segment).url}"
-
-    contentContainerId = (segment) ->
-      "content-#{segment.contentUrl}--#{segment.contentId}"
-
-    missingContainerId = (segment) ->
-      "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
-
-    renderedSection = view.data "LYT-render-book-section"
-
-    # Empty view if book or section has changed
-    if not renderedSection or renderedSection isnt bookSection currentSegment
-      log.message 'Render: content: renderStack: empty view - wrong section'
-      view.data 'LYT-render-book-section', bookSection currentSegment
-      view.children().detach()
-      view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.document.segments
-
-    view.css('overflow-x', 'scroll')
-
-    segment = currentSegment
-    while segment and segment.state() is "resolved"
-      log.message "Render: content: renderStack: rendering #{segment.url()}"
-      # Using getElementById in this loop for performance reasons
-      element = $(document.getElementById contentContainerId segment)
-      if element.length == 0
-        # There is no content container for this segment, so it should be
-        # rendered now. First see if we have an HTML element cached from
-        # before (in segment.element). If that fails, render it again.
-        element = segment.element
-        unless element
-          element = $(document.createElement('div'))
-          element.attr 'id', contentContainerId segment
-          element.attr 'class', 'segmentContainer'
-          element.html segment.html
-          element.find('img').each ->
-            image = $(this)
-            image.click -> image.toggleClass('zoom')
-          segment.element = element
-
-        $(document.getElementById missingContainerId(segment)).replaceWith element
-        element.css 'display', 'none'
-      else
-        # The element may already have been created by a previous segment, so
-        # set a reference to it here.
-        segment.element = element
-        # TODO: The following should be possible to remove because the missing
-        #       segment containers are removed in the block above.
-        if missingContainer = $(document.getElementById missingContainerId(segment))
-          missingContainer.remove()
-
-      segment = segment.next
-
-    view.find('img').each ->
-      image = $(this)
-      image.css translate(image, wholeImageArea(image), view)
-
-    # Hide segments that follow missing segments (this would confuse the reader)
-    currentSegment.element.nextAll('.missingSegment ~ .segmentContainer').css 'display', 'none'
-    # Halt all animations
-    view.children('.current').stop true, true
-
-    # Set current container and hide all content containers before it
-    before = currentSegment.element.prevAll(':visible')
-    view.children('.current').removeClass 'current'
-    currentSegment.element.addClass 'current'
-    before.hide()
-    show = (el) ->
-      el.css
-        visibility: 'visible'
-        display: 'block'
-        opacity: 1
-    show currentSegment.element
-    show currentSegment.element.nextAll '.segmentContainer'
-
-    # Function that calculates the available vertical space and preloads if
-    # there is any space available
-    preload = ->
-      totalHeight = currentSegment.element.height()
-      maxHeight = totalHeight
-      currentSegment.element.nextAll('.segmentContainer').each ->
-        height = $(this).height()
-        totalHeight += height
-        maxHeight or= height
-        maxHeight = height if height > maxHeight
-      if segment and totalHeight < vspace() + 2*maxHeight
-        log.message "Render: content: renderStack: preloading #{Math.floor(totalHeight / maxHeight + 1)} segments"
-        segment.preloadNext Math.floor(totalHeight / maxHeight + 1)
-
-    # Fade in all segments from the current and up to the first missing segment
-    currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'
-    hiddenContainers = currentSegment.element.nextUntil('.missingSegment', '.segmentContainer:hidden')
-    if hiddenContainers.length > 0
-      hiddenContainers.fadeIn 1000*timeScale, preload
-    else
-      preload()
-
 
   # Plain renderer - render everything in the segment
   renderPlain = (segment, view) ->
@@ -266,11 +156,13 @@ LYT.render.content = do ->
     el = jQuery(view).find "##{segment.contentId}"
     el.get(0).scrollIntoView() if el.length
 
+  # Context viewer - Shows the entire DOM of the content document and
+  # scrolls around when appropriate
   renderContext = (segment, view, delta) ->
     book = segment.document.book
     html = book.resources[segment.contentUrl].document
     source = html.source[0]
-    viewer = view.find('iframe')
+    viewer = view.find "iframe"
     viewDoc = viewer.get(0).contentDocument
 
     if viewer.data("htmldoc") isnt segment.contentUrl
@@ -294,14 +186,17 @@ LYT.render.content = do ->
           "-webkit-transform": "translate3d(0, 0, 0)"
 
       # Lazy-load images
+      margin = 200 #TODO: Should be configurable
       images = jQuery(viewDoc.documentElement).find "img"
       doc = viewer.contents()
       doc.scroll jQuery.throttle 200, ->
-        ct = doc.scrollTop()
-        cb = ct + viewer.height()
+        ct = doc.scrollTop() - margin
+        cb = ct + viewer.height() + margin
         images.each ->
           image = jQuery(this)
-          if ct < image.offset().top < cb and image.attr("data-src")?
+          offset = image.offset()
+          if ((ct < offset.top < cb) or
+              (ct < offset.bottom < cb)) and image.attr("data-src")?
             image.attr "src", image.attr "data-src"
             image.removeAttr "data-src"
 
@@ -309,9 +204,7 @@ LYT.render.content = do ->
     segmentIntoView viewDoc, segment
 
   selectView = (type) ->
-    result
-    viewTypes = ['stack', 'cartoon', 'plain', 'context']
-    for viewType in viewTypes
+    for viewType in ['stack', 'cartoon', 'plain', 'context']
       view = $("#book-#{viewType}-content")
       if viewType is type
         result = view
@@ -336,7 +229,6 @@ LYT.render.content = do ->
           renderCartoon segment, selectView(segment.type), renderDelta
         else
           renderContext segment, selectView('context'), renderDelta
-          #renderStack segment, selectView('stack'), renderDelta
     else
       selectView null # Clears the content area
 
