@@ -12,10 +12,14 @@ Capybara.configure do |config|
   config.default_wait_time = 20 #The application can be really slow.
 end
 
-#To use Chrome
-#Capybara.register_driver :selenium do |app|
-#  Capybara::Selenium::Driver.new(app, :browser => :chrome)
-#end
+case ENV['LYT_BROWSER']
+when "chrome", "firefox"
+  Capybara.register_driver :selenium do |app|
+    Capybara::Selenium::Driver.new(app, :browser => ENV['LYT_BROWSER'].to_sym)
+  end
+else
+  raise "Uknown browser '#{ENV['LYT_BROWSER']}', please set LYT_BROWSER environmentvariable."
+end
 
 
 Before do
