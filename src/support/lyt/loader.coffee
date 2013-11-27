@@ -61,7 +61,8 @@ LYT.loader = do ->
       setTimeout setMessage, delay
     else
       setMessage()
-    $(".ui-loader h1").attr("role", "alert")
+    $('.ui-loader').attr "role", "alert"
+    $(".ui-loader h1").toggle().attr("role", "alert").toggle()
 
   # Close loader with id and unlock interface if all loaders are closed
   close: (id) ->
