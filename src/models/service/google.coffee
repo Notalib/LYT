@@ -9,7 +9,7 @@ LYT.google = do ->
 
     # JsonResults results from google....
     jsonResults = []
-
+    # We look in json[]
     jQuery.each json[1], (i, val) ->
       # TODO: There is an ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not
       if val.indexOf('//') is -1

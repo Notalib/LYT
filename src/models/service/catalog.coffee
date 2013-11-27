@@ -161,7 +161,7 @@ LYT.catalog = do ->
 
           gresult.done (data) =>
             r = {}
-            for i in results.concat data
+            for i in results.concat $.trim data
               if r[i.toLowerCase()] is undefined
                 r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1)
             p = []
@@ -203,7 +203,6 @@ LYT.catalog = do ->
           results = data.d or []
           autocompleteCache[request.term] = results
           complete results
-        # On fail, just call `complete` (i.e. fail silently)
         .fail -> emit "Server:internalServerError"
     # Return the setup object
     setup
@@ -267,7 +266,7 @@ LYT.catalog = do ->
     url = LYT.config.catalog.autocomplete.url
 
     options = getAjaxOptions url, data
-    options.async = false
+    options.async = true
 
     jQuery.ajax(options)
     .done (data) ->
