@@ -671,9 +671,8 @@ LYT.player =
       section
         .previous
         .load()
-        .then (section) -> 
-          section.lastSegment().then (last) ->
-            last.load()
+        .then (section) -> section.lastSegment()
+        .then (last) -> last.load()
 
   updateLastMark: (force = false, segment) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
