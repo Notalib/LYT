@@ -553,30 +553,37 @@ LYT.player =
         .then =>
           @play() if @playing
     
-    else if seekTime < 0 && @hasPreviousSegment()
+    else if seekTime < 0
+      
       # if seekTime is less than 0 we are seeking a segment in previous section if available
       seekTime = seekTime - currTime
       seekTime = seekTime + (currTime - @currentSegment.start)
       @wait().then =>
         prevSegment = (seg) =>
           prev = @_getPreviousSegment seg
-          prev.then (prev) =>
+          prev.done (prev) =>
             seekTime = seekTime + prev.duration()
-            if (seekTime > 0)
-              #segment found
+            if (seekTime >= 0)
               @seekSegmentOffset(prev, seekTime+prev.start).then =>
                 @play() if @playing
             else
               prevSegment prev
-        prevSegment()
+          
+          # If no previous section found and still seconds left to rewind play from start
+          prev.fail =>
+            @seekSegmentOffset(seg, seg.start).then =>
+              @play() if @playing
 
-    else if seekTime > duration && @hasNextSection()
+        prevSegment @currentSegment
+
+    else if seekTime > duration
+      
       # if seekTime greater than current section duration we are seeking a segment in next section if available
       @wait().then =>
         seconds = seconds - (@currentSegment.end - currTime)
         nextSegment = (seg) =>
           next = @_getNextSegment seg
-          next.then (next) =>
+          next.done (next) =>
             if (seconds < next.duration())
               # segment found
               @seekSegmentOffset(next, seconds).then =>
@@ -584,7 +591,11 @@ LYT.player =
             else
               seconds = seconds-next.duration()
               nextSegment next
-        nextSegment()
+          next.fail =>
+            @seekSegmentOffset(seg, seg.end).then =>
+              @play() if @playing
+        
+        nextSegment @currentSegment
           
   # Plays the next segment in queue, and updates currentSegment
   playNextSegment: ->
@@ -661,13 +672,16 @@ LYT.player =
     if currsegment.hasNext()
       currsegment.next.load()
     else
-      @_getNextSection(@book.getSectionBySegment currsegment).firstSegment()
+      section = @_getNextSection @book.getSectionBySegment currsegment
+      return jQuery.Deferred().reject() if not section?.next
+      section.firstSegment()
 
   _getPreviousSegment: (currsegment = @currentSegment) ->
     if currsegment.hasPrevious()
       currsegment.previous.load()
     else
       section = @book.getSectionBySegment (currsegment)
+      return jQuery.Deferred().reject() if not section.previous
       section
         .previous
         .load()
