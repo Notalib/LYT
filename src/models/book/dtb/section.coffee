@@ -43,7 +43,7 @@ class LYT.Section
 
     log.message "Section: loading(\"#{@url}\")"
     # trim away everything after the filename.
-    file = @url.replace /#.*$/, ""
+    file = (@url.replace /#.*$/, "").toLowerCase()
     if not file of @book.resources
       log.error "Section: load: url not found in resources: #{file}"
 
@@ -67,7 +67,7 @@ class LYT.Section
     return [] unless @document?.state() is "resolved"
     urls = []
     for file in @document.getAudioReferences()
-      url = @resources[file]?.url
+      url = @resources[file.toLowerCase()]?.url
       urls.push url if url
     urls
 
