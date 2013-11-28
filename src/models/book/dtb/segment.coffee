@@ -47,7 +47,7 @@ class LYT.Segment
     @start       = data.start
     @end         = data.end
     @canBookmark = data.canBookmark
-    @audio       = @section.resources[data.audio?.src?.toLowerCase()]?.url
+    @audio       = document.book.resources[data.audio?.src?.toLowerCase()]?.url
     @data        = data
     @el          = data.par
     @document    = document
