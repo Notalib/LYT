@@ -561,10 +561,7 @@ LYT.player =
         prevSegment = (seg) =>
           prev = @_getPreviousSegment seg
           prev.then (prev) =>
-            console.log "seekTime", seekTime
             seekTime = seekTime + prev.duration()
-            console.log "seekTime + duration", seekTime
-            console.log "previous: ", prev
             if (seekTime > 0)
               #segment found
               @seekSegmentOffset(prev, seekTime+prev.start).then =>
