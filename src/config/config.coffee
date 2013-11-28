@@ -87,7 +87,10 @@ LYT.config =
       # The URL to request results from
       url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
       # If suggestions from Autocomplete is léss than 'google_trigger' ask google
-      google_trigger: 6
+      google_trigger: 3
+
+      # If we get answers from google, we only want as many as defined in google_answer_limit
+      google_answer_limit:5
 
       # The options to pass to jQuery UI's `.autocomplete()`
       options:
@@ -96,6 +99,9 @@ LYT.config =
 
         # Delay before autocompleting (milliseconds)
         delay:     300 # default: 300
+
+    LookUpAutocompleteWords:
+      url: "/CatalogSearch/search.asmx/LookUpAutocompleteWords"
 
     suggestions:
       url: "/CatalogSearch/search.asmx/GetPushItems"
