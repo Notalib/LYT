@@ -48,6 +48,11 @@
 @import "partials/base";
 @import "partials/jplayer";
 
+
+/* ************************************************************************* *
+   ICON SPRITE GENERATION AND STYLES
+ * ************************************************************************* */
+
 /* background size needed for correct retina icon sprite sizing */
 @import "compass/css3/background-size";
 @import "partials/compass-retina-sprites";
@@ -95,6 +100,11 @@ $ui-icon2x-spacing: 20px;
   margin-top: -8px !important;
 }
 
+.ui-btn-icon-notext {
+  &[data-icon='search_menu_icn'] {
+    @include background-image(linear-gradient(#8cbbe2, #4c95d1));
+  }
+}
 
 /* ************************************************************************* *
    Various jQuery Mobile fixes
@@ -170,7 +180,7 @@ $ui-icon2x-spacing: 20px;
     height: 30px !important;
     top: 5px !important;
     &.ui-btn-icon-notext {
-      width: 60px;
+      width: 63px;
       font-family: "Arial";
     }
   }
@@ -179,6 +189,11 @@ $ui-icon2x-spacing: 20px;
     background-image: -webkit-linear-gradient( #5D5B5B /*{b-bup-background-start}*/, #434141 /*{b-bup-background-end}*/);
     color: white /*{b-bup-color}*/;
     border: 1px solid black /*{b-bup-border}*/;
+  }
+  .menu {
+    .ui-btn-active {
+      background-image: -webkit-linear-gradient( #262626 /*{b-bup-background-start}*/, #262626 /*{b-bup-background-end}*/);
+    }
   }
   .ui-btn-right {
     right: 10px !important;
@@ -289,7 +304,7 @@ img.e17-logo {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  padding-botton: 10px;
+  padding-bottom: 18px;
 }
 
 /* ************************************************************************* *
@@ -334,6 +349,11 @@ img.e17-logo {
   .ui-listview {
     margin-bottom: 0;
   }
+}
+
+.ui-li-link-alt {
+  border-width: 0;
+  border-left-width: 1px;
 }
 
 .bookshelf-content, #book-index {
@@ -692,7 +712,6 @@ img.e17-logo {
   }
 }
 
-
 /* ************************************************************************* *
    Support and splash upgrade page
  * ************************************************************************* */
@@ -818,9 +837,10 @@ img.e17-logo {
   @include clearfix();
 
   .ui-input-search {
-    height: 43px;
+    height: 42px;
     margin: 0 60px 0 0;
     border: 1px solid #3b73b3;
+    background: #FFFFFF;
   }
 
   .ui-icon-searchfield::after {
@@ -1092,7 +1112,7 @@ li.ui-li h3.no-search-results {
   width: 18px;
   position: absolute;
   right: 50px;
-  top:12px;
+  top:19px;
   left: auto;
   background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
 }
@@ -1124,12 +1144,6 @@ li.ui-li h3.no-search-results {
   }*/
   .ui-block-a, .ui-block-b, .ui.block-c {
     margin-right: 0px !important;
-  }
-  .ui-block-a, .ui-block-c  {
-    width: 33%;
-  }
-  .ui-block-b {
-    width: 34%;
   }
 }
 
@@ -1271,12 +1285,18 @@ li.ui-li h3.no-search-results {
     margin: 0 auto;
     max-width: 320px;
     text-align: center;
+    padding:15px;
   }
   #loginwrapper {
     padding: 12px;
   }
   div.ui-input-text {
     margin: 4px;
+    border: 1px solid #636363;
+    background: #FFFFFF;
+  }
+  .ui-input-text {
+    width:90%
   }
 }
 
@@ -1304,6 +1324,7 @@ img.nota-full {
 
 .ui-content {
   padding:0;
+  border-width: 0;
 }
 .ui-li-icon.ui-li-thumb {
   max-width: 25px;
