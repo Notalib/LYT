@@ -7,8 +7,16 @@ Feature: An anonymous user navigates LYT.
     And I wait for hourglass to appear and disappear
     Given I visit "/#test"
 
+  @supported_browsers
   Scenario: I run the internal tests
     When I click "Kør tests"
     Then I see the test result in the corner
     And I click "Unit test"
     And I verify that tests have passed
+
+  @unsupported_browsers
+  Scenario: I run the internal tests
+    When I click "Kør tests"
+    Then I see the test result in the corner
+    And I click "Unit test"
+    And I verify that at least one test has failed

@@ -1,0 +1,11 @@
+<%
+std_opts = "--color --tags ~@wip"
+supported_browser_opts   = std_opts + " --tags ~@unsupported_browsers "
+
+unsupported_browser_opts = std_opts + " --tags ~@supported_browsers "
+
+wip_opts = "--color --tags @wip:3"
+%>
+default: <%= supported_browser_opts %>
+wip: --wip <%= wip_opts %>
+unsupported_browser: <%= unsupported_browser_opts %>
