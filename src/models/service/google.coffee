@@ -21,7 +21,7 @@ LYT.google = do ->
     if jsonResults.length > LYT.config.catalog.autocomplete.google_answer_limit
       jsonResults = jsonResults.slice 0, LYT.config.catalog.autocomplete.google_answer_limit
 
-    LYT.catalog.LookUpAutocompleteWords(jsonResults)
+    LYT.catalog.lookUpAutocompleteWords(jsonResults)
       .done (data) ->
         deferred.resolve data
       .fail ->

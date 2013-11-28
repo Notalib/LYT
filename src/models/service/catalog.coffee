@@ -240,7 +240,7 @@ LYT.catalog = do ->
 
     deferred.promise()
 
-  LookUpAutocompleteWords = (terms) ->
+  lookUpAutocompleteWords = (terms) ->
     deferred = jQuery.Deferred()
 
     data = JSON.stringify terms: terms
@@ -318,5 +318,5 @@ LYT.catalog = do ->
   getSuggestions:         getSuggestions
   getDetails:             getDetails
   getAutoComplete:        getAutoComplete
-  LookUpAutocompleteWords:LookUpAutocompleteWords
+  lookUpAutocompleteWords:lookUpAutocompleteWords
 
