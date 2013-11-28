@@ -7,7 +7,7 @@ Feature: An anonymous user navigates LYT.
     And I wait for hourglass to appear and disappear
     Given I visit "/#test"
 
-  Scenario: I read the support page.
+  Scenario: I run the internal tests
     When I click "Kør tests"
     Then I see the test result in the corner
     And I click "Unit test"

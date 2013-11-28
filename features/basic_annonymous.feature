@@ -11,7 +11,7 @@ Feature: An anonymous user navigates LYT.
     Then I see a link "kontakte E17 Support på mail" to "mailto:e17support@nota.nu"
     Then I see a link "Ring: 39 13 46 00" to "tel:+4539134600"
 
-  Scenario: I read the support page.
+  Scenario: I try out E17 direkte annonymous user.
     When I click "Prøv E17 Direkte uden login"
     And I wait for hourglass to appear and disappear
     And I search for "Harry potter"
