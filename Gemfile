@@ -4,7 +4,7 @@ gem "rake"
 
 gem "compass"
 gem "cucumber"
-gem "capybara", "~> 2.1"
+gem "capybara", "~> 2.2"
 gem "aruba", "~>0.5.3"
 gem "debugger", "~>1.6.2"
 gem "tiny_tds", ">= 0.6.0.rc1"

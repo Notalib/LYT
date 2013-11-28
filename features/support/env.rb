@@ -9,7 +9,7 @@ Capybara.configure do |config|
   config.default_driver = :selenium
   target_dir = ENV['LYT_DESTINATION_DIR'] || ENV['USER']
   config.app_host = "http://#{ENV['LYT_HOST']}/#{target_dir}"
-  config.default_wait_time = 20 #The application can be really slow.
+  config.default_wait_time = 2 #Default
 end
 
 case ENV['LYT_BROWSER']
