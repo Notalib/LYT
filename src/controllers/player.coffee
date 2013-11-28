@@ -149,6 +149,15 @@ LYT.player =
       LYT.instrumentation.record 'ui:previous'
       @playPreviousSegment()
 
+    $('a.forward15').click =>
+      log.message "Player: forward15:"
+      LYT.instrumentation.record 'ui:fastforward15'
+      @playheadSeek(15)
+    $('a.back15').click =>
+      log.message "Player: rewind15:"
+      LYT.instrumentation.record 'ui:rewind15'
+      @playheadSeek(-15)
+
     Mousetrap.bind 'alt+ctrl+space', =>
       if @playing
         @stop()
@@ -529,7 +538,54 @@ LYT.player =
 
   # Plays the given segment
   playSegment: (segment) -> @playSegmentOffset segment, null
+  
+  # Seeks seconds forward or backward
+  playheadSeek: (seconds) ->
+    currTime = @getStatus().currentTime
+    duration = @getStatus().duration
+    seekTime = currTime + seconds
+    
+    # if time is within boundaries of current section
+    if(seekTime >= 0 && seekTime < duration) 
+      @wait()
+        .then =>
+          new LYT.player.command.seek @el, seekTime
+        .then =>
+          @play() if @playing
+    
+    else if seekTime < 0 && @hasPreviousSegment()
+      # if seekTime is less than 0 we are seeking a segment in previous section if available
+      seekTime = seekTime - currTime
+      seekTime = seekTime + (currTime - @currentSegment.start)
+      @wait().then =>
+        prevSegment = (seg) =>
+          prev = @_getPreviousSegment seg
+          prev.then (prev) =>
+            seekTime = seekTime + prev.duration()
+            if (seekTime > 0)
+              #segment found
+              @seekSegmentOffset(prev, seekTime+prev.start).then =>
+                @play() if @playing
+            else
+              prevSegment prev
+        prevSegment()
 
+    else if seekTime > duration && @hasNextSection()
+      # if seekTime greater than current section duration we are seeking a segment in next section if available
+      @wait().then =>
+        seconds = seconds - (@currentSegment.end - currTime)
+        nextSegment = (seg) =>
+          next = @_getNextSegment seg
+          next.then (next) =>
+            if (seconds < next.duration())
+              # segment found
+              @seekSegmentOffset(next, seconds).then =>
+                @play() if @playing
+            else
+              seconds = seconds-next.duration()
+              nextSegment next
+        nextSegment()
+          
   # Plays the next segment in queue, and updates currentSegment
   playNextSegment: ->
     if not @hasNextSegment()
@@ -597,24 +653,26 @@ LYT.player =
         @currentSegment = segment
     segment
 
-  _getNextSection: ->
-    if @currentSection().next
-      @currentSection().next.load()
+  _getNextSection: (section = @currentSection()) ->
+    if section.next
+      section.next.load()
 
-  _getNextSegment: ->
-    if @currentSegment.hasNext()
-      @currentSegment.next.load()
+  _getNextSegment: (currsegment = @currentSegment) ->
+    if currsegment.hasNext()
+      currsegment.next.load()
     else
-      @_getNextSection().firstSegment()
+      @_getNextSection(@book.getSectionBySegment currsegment).firstSegment()
 
-  _getPreviousSegment: ->
-    if @currentSegment.hasPrevious()
-      @currentSegment.previous.load()
-    else if @currentSection().previous
-      @currentSection()
+  _getPreviousSegment: (currsegment = @currentSegment) ->
+    if currsegment.hasPrevious()
+      currsegment.previous.load()
+    else
+      section = @book.getSectionBySegment (currsegment)
+      section
         .previous
         .load()
         .then (section) -> section.lastSegment()
+        .then (last) -> last.load()
 
   updateLastMark: (force = false, segment) ->
     return unless LYT.session.getCredentials() and LYT.session.getCredentials().username isnt LYT.config.service.guestLogin
