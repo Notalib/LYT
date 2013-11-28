@@ -539,22 +539,22 @@ LYT.player =
   # Plays the given segment
   playSegment: (segment) -> @playSegmentOffset segment, null
   
-  #Seeks seconds forward or backward
+  # Seeks seconds forward or backward
   playheadSeek: (seconds) ->
     currTime = @getStatus().currentTime
     duration = @getStatus().duration
     seekTime = currTime + seconds
     
-    #if time is within boundaries of current section
+    # if time is within boundaries of current section
     if(seekTime >= 0 && seekTime < duration) 
       @wait()
-        .then () => 
+        .then =>
           new LYT.player.command.seek @el, seekTime
-        .then () =>
+        .then =>
           @play() if @playing
     
-    #if seekTime is less than 0 we are seeking a segment in previous section if available
     else if seekTime < 0 && @hasPreviousSegment()
+      # if seekTime is less than 0 we are seeking a segment in previous section if available
       seekTime = seekTime - currTime
       seekTime = seekTime + (currTime - @currentSegment.start)
       @wait().then =>
@@ -570,15 +570,15 @@ LYT.player =
               prevSegment prev
         prevSegment()
 
-    #if seekTime greater than current section duration we are seeking a segment in next section if available
     else if seekTime > duration && @hasNextSection()
+      # if seekTime greater than current section duration we are seeking a segment in next section if available
       @wait().then =>
         seconds = seconds - (@currentSegment.end - currTime)
         nextSegment = (seg) =>
           next = @_getNextSegment seg
           next.then (next) =>
             if (seconds < next.duration())
-              #segment found
+              # segment found
               @seekSegmentOffset(next, seconds).then =>
                 @play() if @playing
             else
@@ -667,7 +667,7 @@ LYT.player =
     if currsegment.hasPrevious()
       currsegment.previous.load()
     else
-      section=@book.getSectionBySegment (currsegment)
+      section = @book.getSectionBySegment (currsegment)
       section
         .previous
         .load()
