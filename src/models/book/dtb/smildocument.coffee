@@ -47,6 +47,18 @@ do ->
         urls.push segment.audio.src if urls.indexOf(segment.audio.src) is -1
       urls
 
+    orderSegmentsByID: (id1, id2) ->
+      return 0 if id1 is id2
+
+      seg1 = @getSegmentById id1
+      seg2 = @getSegmentById id2
+
+      for segment in @segments
+        if segment.id is seg1.id
+          return -1
+        else if segment.id is seg2.id
+          return 1
+
 
   # ## Privileged
 
