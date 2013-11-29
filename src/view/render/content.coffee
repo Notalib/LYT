@@ -179,7 +179,8 @@ LYT.render.content = do ->
       )
 
       # Enable hardware acceleration
-      jQuery(viewDoc.documentElement)
+      docEl = jQuery viewDoc.documentElement
+      docEl
         .find('body')
         .css
           "transform": "translate3d(0, 0, 0)"
@@ -187,7 +188,7 @@ LYT.render.content = do ->
 
       # Lazy-load images
       margin = 200 #TODO: Should be configurable
-      images = jQuery(viewDoc.documentElement).find "img"
+      images = docEl.find "img"
       doc = viewer.contents()
       doc.scroll jQuery.throttle 200, ->
         ct = doc.scrollTop() - margin
@@ -199,6 +200,12 @@ LYT.render.content = do ->
               (ct < offset.bottom < cb)) and image.attr("data-src")?
             image.attr "src", image.attr "data-src"
             image.removeAttr "data-src"
+
+      # Catch links
+      doc.ready ->
+        docEl.find("a[href]").click (e) ->
+          e.preventDefault()
+          LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
 
     # Scroll the segment into view
     segmentIntoView viewDoc, segment
