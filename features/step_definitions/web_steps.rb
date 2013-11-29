@@ -2,11 +2,17 @@
 When(/^I visit "(.*?)"$/) do |url|
   raise "page must start with '/'" unless url[0] == ?/
   visit "#{url}"
+  page.should have_css("body")
+  page.execute_script('window.onerror=function(msg){ $("body").attr("JSError",msg); };')
 end
 
 
 When(/^I click "(.*?)"$/) do |link_name|
-  click_on link_name
+  begin
+    click_on link_name, :wait => 2
+  rescue Capybara::ElementNotFound
+    find(:xpath, "//a[@title='#{link_name}']").click
+  end
 end
 
 #Verifications:
