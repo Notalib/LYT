@@ -1,9 +1,9 @@
 When(/^I login as E17 test user$/) do
   @user = {
-    login:    ENV['LYT_TEST_USER'],
+    username:    ENV['LYT_TEST_USER'],
     password: ENV['LYT_TEST_USER_PASSWORD']
   }
-  fill_in "CPR / Brugernummer", with: @user[:login]
+  fill_in "CPR / Brugernummer", with: @user[:username]
   fill_in "Kodeord", with: @user[:password]
   click_on "Log på"
 end
@@ -44,4 +44,22 @@ Then(/^the book is playing file at (\d+):(\d+)$/) do |min, sec|
   end
   puts page.execute_script('return LYT.player.getStatus().currentTime')
   page.execute_script('return LYT.player.getStatus().currentTime').to_f.should be_between(seconds-0.5, seconds+0.5)
+end
+
+When(/^I login as "(.*?)" with password "(.*?)"$/) do |user, pass|
+  @user = {
+    username: user,
+    password: pass
+  }
+
+  fill_in "CPR / Brugernummer", with: @user[:username]
+  fill_in "Kodeord", with: @user[:password]
+  click_on "Log på"
+end
+
+Then(/^I see an error message "(.*?)"$/) do |msg|
+  page.should have_selector('.ui-simpledialog-header',
+    :wait => 5,
+    :text => "Forkert brugernummer eller kodeord"
+  )
 end

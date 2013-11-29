@@ -24,3 +24,11 @@ end
 Then(/^I see "(.*?)"$/) do |text|
   page.should have_text(text)
 end
+
+Given(/^I close the tab$/) do
+    pending # express the regexp above with the code you wish you had
+end
+
+Given(/^I open a tab$/) do
+    pending # express the regexp above with the code you wish you had
+end
