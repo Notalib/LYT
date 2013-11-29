@@ -247,9 +247,7 @@ LYT.catalog = do ->
     options.async = true
     options.data = data
 
-    jQuery.ajax(options).then (data) ->
-      results = data.d or []
-      results
+    jQuery.ajax(options).then (data) -> data.d or []
   # Get autocomplete surgestions...direct...
   getAutoComplete = (term) ->
     data = term: String(term)
@@ -257,9 +255,7 @@ LYT.catalog = do ->
     options = getAjaxOptions url, data
     options.async = true
 
-    jQuery.ajax(options).then (data) ->
-      results = data.d or []
-      results
+    jQuery.ajax(options).then (data) -> data.d or []
 
   getDetails = (bookId) ->
     data = itemid: String( bookId )
