@@ -203,9 +203,10 @@ class LYT.Book
     ordered
 
   getSMIL: (url) ->
+    url = url.toLowerCase()
     deferred = jQuery.Deferred()
     if not (url of @resources)
-      return deferred.promise().reject()
+      return deferred.reject()
 
     smil = @resources[url]
     smil.document or= new LYT.SMILDocument smil.url, this
