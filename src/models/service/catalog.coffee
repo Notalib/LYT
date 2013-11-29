@@ -162,12 +162,11 @@ LYT.catalog = do ->
           gresult.done (data) =>
             list = []
 
-            for i in results.concat $.trim data
-              if i isnt ""
-                capitalized = i.charAt(0).toUpperCase() + i.substr(1)
-                list.push capitalized if list.indexOf(capitalized) is -1
+            for i in results.concat $.trim data when i
+              capitalized = i.charAt(0).toUpperCase() + i.substr(1)
+              list.push capitalized if list.indexOf(capitalized) is -1
 
-              response list
+            response list
 
           gresult.fail ->
             # No results from Google that match entries in catalogsearch
@@ -318,5 +317,5 @@ LYT.catalog = do ->
   getSuggestions:         getSuggestions
   getDetails:             getDetails
   getAutoComplete:        getAutoComplete
-  lookUpAutocompleteWords:lookUpAutocompleteWords
+  lookUpAutocompleteWords: lookUpAutocompleteWords
 
