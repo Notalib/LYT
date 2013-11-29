@@ -47,7 +47,7 @@ class LYT.Segment
     @start       = data.start
     @end         = data.end
     @canBookmark = data.canBookmark
-    @audio       = document.book.resources[data.audio.src]?.url
+    @audio       = document.book.resources[data.audio?.src?.toLowerCase()]?.url
     @data        = data
     @el          = data.par
     @document    = document
@@ -68,7 +68,7 @@ class LYT.Segment
 
     # Parse transcript content
     [@contentUrl, @contentId] = @data.text.src.split "#"
-    resource = @document.book.resources[@contentUrl]
+    resource = @document.book.resources[@contentUrl.toLowerCase()]
     if not resource
       log.error "Segment: no absolute URL for content #{@contentUrl}"
       @_deferred.reject()
@@ -83,7 +83,7 @@ class LYT.Segment
         log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
         @_deferred.reject()
 
-    return @_deferred.promise()
+    @_deferred.promise()
 
   url: -> "#{@document.filename}##{@id}"
 
