@@ -36,7 +36,7 @@ Feature: An anonymous user playing books.
     Then the book is playing file at 0:00
     And I click "Tilbage 15 sekunder"
     Then the book is playing file at 0:17
-    
+
   Scenario: I am skipping backward less than 15 seconds into the book
     When I click "Gangsta rap Benjamin Zephaniah"
     And I wait for hourglass to appear and disappear
@@ -47,6 +47,4 @@ Feature: An anonymous user playing books.
     Then the book is playing file at 0:00
     And I click "Tilbage 15 sekunder"
     Then the book is playing file at 0:00
-    
-
 
