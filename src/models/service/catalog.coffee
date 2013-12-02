@@ -160,13 +160,13 @@ LYT.catalog = do ->
           gresult = LYT.google.doAutoComplete (request.term)
 
           gresult.done (data) =>
-            r = {}
-            for i in results.concat data
-              if r[i.toLowerCase()] is undefined
-                r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1)
-            p = []
-            p.push j for i, j of r
-            response p
+            list = []
+
+            for i in results.concat $.trim data when i
+              capitalized = i.charAt(0).toUpperCase() + i.substr(1)
+              list.push capitalized if list.indexOf(capitalized) is -1
+
+            response list
 
           gresult.fail ->
             # No results from Google that match entries in catalogsearch
