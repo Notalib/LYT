@@ -12,7 +12,7 @@ config =
   coffee:         "coffee"    # Path to CoffeeScript compiler (if not in PATH)
   docco:          "docco"     # Path to docco (if not in PATH)
   compass:        "compass"   # Path to compass (if not in PATH)
-  minify:         "uglifyjs2" # Path to minifier
+  minify:         "node_modules/uglify-js/bin/uglifyjs" # Path to minifier
   coffeelint:     "node_modules/coffeelint/bin/coffeelint"
   maxHtmlErrors:  1           # Only "Bad value X-UA-Compatible for attribute
                               # http-equiv on element meta." is accepted
@@ -71,6 +71,8 @@ task "src", "Compile CoffeeScript source", (options) ->
 
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
+    if options.minify
+      boast "minified", "src", "build/javascript#{config.concatName}.min.js"
 
 task "html", "Build HTML", (options) ->
   createDir "build"
@@ -221,10 +223,18 @@ coffee = do ->
       throw err if err?
       console.log stderr if stderr
       if concat
+        bin = fs.path.relative output, config.minify
+        minCmd =
+          "#{bin} " +
+          "--source-map #{concat}.map " +
+          "-o #{concat}.min.js #{concat}.js"
+
         process.chdir output
-        exec "#{config.minify} --source-map #{concat}.map -o #{concat}.min.js #{concat}.js"
-        process.chdir '..'
-      callback()
+        exec minCmd, (err, stdout, stderr) ->
+          throw err if err?
+          process.chdir '..'
+          console.log stderr if stderr
+          callback() if typeof callback is 'function'
 
   # ### Public methods
   # ---------------
