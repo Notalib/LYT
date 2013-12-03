@@ -5,6 +5,12 @@ w3cjs   = require "w3cjs"
 {exec}  = require "child_process"
 ftpkick = require "ftpkick"
 
+# These are only required to make sure that they exist
+# If not, the user should run a `npm install` command to resolve
+# these dependencies
+uglify  = require "uglify-js"
+coffeelint = require "coffeelint"
+
 # # Configuration
 
 config =
@@ -71,7 +77,7 @@ task "src", "Compile CoffeeScript source", (options) ->
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
     if options.minify
-      boast "minified", "src", "build/javascript#{config.concatName}.min.js"
+      boast "minified", "src", "build/javascript/#{config.concatName}.min.js"
 
 task "html", "Build HTML", (options) ->
   createDir "build"
@@ -168,7 +174,7 @@ task "clean", "Remove the build dir", ->
 
 task "lint:coffee", "Validate the source style of all .coffee files", ->
   files = glob "src", /\.coffee$/i
-  command = config.coffeelint + " -f .coffeelint.json"
+  command = "node #{config.coffeelint} -f .coffeelint.json"
   for file in files
     command += " \"#{file}\""
 
@@ -224,7 +230,7 @@ coffee = do ->
       if concat
         bin = fs.path.relative output, config.minify
         minCmd =
-          "#{bin} " +
+          "node #{bin} " +
           "--source-map #{concat}.map " +
           "-o #{concat}.min.js #{concat}.js"
 
