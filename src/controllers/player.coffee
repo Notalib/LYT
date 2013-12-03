@@ -629,7 +629,7 @@ LYT.player =
     else
       handler()
 
-  rewind: -> @_setCurrentSegment @book.nccDocument.firstSegment()
+  rewind: -> @_setCurrentSegment @book.firstSegment()
 
   currentSection: -> @book.getSectionBySegment @currentSegment
 

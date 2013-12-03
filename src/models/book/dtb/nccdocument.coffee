@@ -45,18 +45,6 @@ do ->
         for section, index in sections
           return section if section.url is baseUrl
 
-    firstSegment: ->
-      deferred = jQuery.Deferred()
-      this.fail -> deferred.reject()
-      this.done (document) ->
-        section = document.firstSection()
-        section.fail -> deferred.reject()
-        section.done (section) ->
-          segment = section.firstSegment()
-          segment.done (segment) -> deferred.resolve(segment)
-          segment.fail -> deferred.reject()
-      deferred.promise()
-
     getSectionIndexById: (id) ->
       return i for section, i in @sections when section.id is id
 
@@ -114,7 +102,7 @@ do ->
           section.metaContent = true
         if section.children.length
           markMetaSections section.children
-    
+
     structure = []
 
     # Find all headings as a plain array

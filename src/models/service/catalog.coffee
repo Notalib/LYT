@@ -160,13 +160,13 @@ LYT.catalog = do ->
           gresult = LYT.google.doAutoComplete (request.term)
 
           gresult.done (data) =>
-            r = {}
-            for i in results.concat data
-              if r[i.toLowerCase()] is undefined
-                r[i.toLowerCase()] = i.charAt(0).toUpperCase() + i.slice(1)
-            p = []
-            p.push j for i, j of r
-            response p
+            list = []
+
+            for i in results.concat $.trim data when i
+              capitalized = i.charAt(0).toUpperCase() + i.substr(1)
+              list.push capitalized if list.indexOf(capitalized) is -1
+
+            response list
 
           gresult.fail ->
             # No results from Google that match entries in catalogsearch
@@ -241,72 +241,36 @@ LYT.catalog = do ->
     deferred.promise()
 
   LookUpAutocompleteWords = (terms) ->
-    deferred = jQuery.Deferred()
-
     data = JSON.stringify terms: terms
     url = LYT.config.catalog.LookUpAutocompleteWords.url
-
     options = getAjaxOptions url, data
     options.async = true
     options.data = data
 
-    jQuery.ajax(options)
-      .done (data) ->
-        results = data.d or []
-        deferred.resolve results
-      .fail ->
-        deferred.reject()
-
-    deferred.promise()
-
+    jQuery.ajax(options).then (data) -> data.d or []
   # Get autocomplete surgestions...direct...
   getAutoComplete = (term) ->
-    deferred = jQuery.Deferred()
-
     data = term: String(term)
     url = LYT.config.catalog.autocomplete.url
-
     options = getAjaxOptions url, data
-    options.async = false
+    options.async = true
 
-    jQuery.ajax(options)
-    .done (data) ->
-      results = data.d or []
-      deferred.resolve results
-
-    .fail ->
-      deferred.reject()
-
-
-    deferred.promise()
-
-
+    jQuery.ajax(options).then (data) -> data.d or []
 
   getDetails = (bookId) ->
-    deferred = jQuery.Deferred()
-
     data = itemid: String( bookId )
     url  = LYT.config.catalog.details.url
-
     options = getAjaxOptions url, data
 
     # Perform the request
-    jQuery.ajax(options)
+    jQuery.ajax(options).then (data) ->
       # On success, extract the results and pass them on
-    .done (data) ->
       if not data.d? or data.d.length isnt 1
-        return deferred.reject()
+        return $.Deferred().reject()
 
       info = data.d.pop()
       info.id = info.itemid
-
-      deferred.resolve info
-
-      # On fail, reject the deferred
-    .fail ->
-      deferred.reject()
-
-    deferred.promise()
+      info
 
   # ## Public API
 
