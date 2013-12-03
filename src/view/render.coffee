@@ -260,11 +260,20 @@ LYT.render = do ->
 
 
   bookDetails: (details, view) ->
+    media = $('#details-book-media span')
+    media.removeClass()
+    if details.media is 'AA'
+      media.addClass 'ui-icon-audiobook'
+    else if details.media is 'AT'
+      media.addClass 'ui-icon-audiobook_text'
+    media.text details.mediaString
+
     $('#details-book-title').text details.title
     $('#details-book-author').text details.author
     $('#details-book-description').text details.teaser
     $('#details-book-narrator').text details.speaker
     $('#details-book-totaltime').text "#{details.playtime}:00"
+    $('#details-book-pubyear').text details.pubyear or ''
     $('#add-to-bookshelf-button').attr 'data-book-id', details.id
     $('#details-play-button').attr 'href', "#book-player?book=#{details.id}"
     loadCover view.find('img.cover-image'), details.id

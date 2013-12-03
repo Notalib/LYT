@@ -299,6 +299,13 @@ LYT.catalog = do ->
 
       info = data.d.pop()
       info.id = info.itemid
+      info.mediaString =
+        if info.media is "AA"
+          "Lyd uden tekst"
+        else if info.media is "AT"
+          "Lyd med tekst"
+        else
+          "Ukendt"
 
       deferred.resolve info
 
