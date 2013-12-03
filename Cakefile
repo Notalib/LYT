@@ -53,7 +53,7 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
       ).then (kicker) ->
         console.log "Uploading to #{host}"
         kicker.kick("build", destination_dir).then(
-          ()  -> console.log "Successfully uploaded for #{host}",
+              -> console.log "Successfully uploaded for #{host}",
           (e) -> console.error "An error occurred", e if e.code isnt 550
         )
 
@@ -61,7 +61,6 @@ task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
 
 task "src", "Compile CoffeeScript source", (options) ->
-  invoke "notabs"
   cleanDir "build/javascript"
   files = coffee.grind "src", null, (file) ->
     if options.development
@@ -126,9 +125,15 @@ task "html", "Build HTML", (options) ->
 
 task "scss", "Compile scss source", (options) ->
   createDir "build/css"
-  scss.compile "scss", "build/css", options, ->
-    boast "compiled", "scss", "build/css"
+  minify = if options.minify then "--output-style compressed" else ""
+  command = "#{config.compass} compile --config config.rb #{minify}"
+  exec command, (err, stdout, stderr) ->
+    if err
+      fatal err, config.compass,
+        "You may need to install compass. See http://compass-style.org/"
 
+    console.log stderr if stderr
+    boast "compiled", "scss", "build/css"
 
 task "docs", "Run Docco on src/*.coffee", (options) ->
   cleanDir "build/docs"
@@ -158,12 +163,6 @@ task "tests", "Compile the test suite", (options) ->
 task "clean", "Remove the build dir", ->
   removeDir "build"
   boast "removed", "build"
-
-task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
-  errors = checkForTabs()
-  if errors
-    console.error "Can't build: coffeescript contains tabs:\n" + errors
-    process.exit 1
 
 task "lint:coffee", "Validate the source style of all .coffee files", ->
   files = glob "src", /\.coffee$/i
@@ -264,19 +263,7 @@ coffee = do ->
 
 
 # --------------------------------------
-
-# # Coffeescript validation
-
-checkForTabs = ->
-  result = null
-  for path in glob 'src', /\.coffee$/
-    file = fs.readFileSync path, 'utf8'
-    if match = file.match(/^.*\t.*$/m)
-      result += "#{path}: #{match[0]}\n"
-  return result
-
-# --------------------------------------
-
+#
 # # HTML Support
 
 html =
@@ -300,18 +287,6 @@ html =
     urls = [urls] if typeof urls is "string"
     ("""<link rel="stylesheet" type="text/css" href="#{url}">""" for url in urls).join "\n"
 
-
-# --------------------------------------
-
-# # SCSS Support
-
-scss =
-  # Compile scss files in the given dir using compass
-  compile: (dir, output, options, callback) ->
-    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output} --config config.rb", (err, stdout, stderr) ->
-      fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
-      console.log stderr if stderr
-      callback?()
 
 # --------------------------------------
 
