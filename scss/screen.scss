@@ -1050,6 +1050,24 @@ li.ui-li h3.no-search-results {
     font-size: 13px;
     text-shadow: none;
   }
+  .content {
+    margin-left: 10px;
+    @include clearfix;
+    figure {
+      float: left;
+      margin: 0;
+    }
+    .details {
+      padding-left: 97px;
+      margin-right: 10px;
+
+      // Content of detail fields
+      span {
+        font-weight: normal;
+        color: #464646;
+      }
+    }
+  }
   #details-book-title {
     font-size: 1.3em;
     font-weight: bold;
@@ -1063,33 +1081,26 @@ li.ui-li h3.no-search-results {
     margin: 2px 10px 10px 10px;
     color: #464646;
   }
-  .content {
-    margin-left: 10px;
-    @include clearfix;
-    figure {
-      float: left;
-      margin: 0;
-    }
-    .details {
-      padding-left: 97px;
-      margin-right: 10px;
-    }
-  }
   #details-book-description {
     margin-top: 0;
     font-weight: normal;
     text-align: left;
   }
-  #details-book-type {
 
-  }
-  #details-book-totaltime {
-    font-weight: normal;
-    color: #464646;
-  }
-  #details-book-narrator {
-    font-weight: normal;
-    color: #464646;
+  #details-book-media {
+    height: 30px;
+    line-height: 30px;
+    margin: 0px;
+
+    span {
+      font-weight: bold;
+      font-size: 13pt;
+      padding-left: 30px;
+      display: inline-block;
+      height: 100%;
+      vertical-align: middle;
+      margin-left: -9px;
+    }
   }
 }
 
