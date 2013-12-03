@@ -220,6 +220,13 @@ class LYT.Book
 
     deferred.promise()
 
+  firstSegment: ->
+    @nccDocument.then (document) ->
+      document.firstSection().then (section) ->
+        section.firstSegment().then (segment) ->
+          return segment
+  
+
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)
     current = segment
@@ -400,7 +407,7 @@ class LYT.Book
         section.load()
         return section.pipe (section) ->
           if result = handler section
-            return jQuery.Deferred().resolve(result)
+            return jQuery.Deferred().resolve result
           else
             return searchNext()
       else
