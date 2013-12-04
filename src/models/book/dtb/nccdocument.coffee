@@ -44,7 +44,7 @@ do ->
       @_getSection (sections) ->
         for section, index in sections
           return section if section.url is baseUrl
-  
+
     getSectionIndexById: (id) ->
       return i for section, i in @sections when section.id is id
 
@@ -102,7 +102,7 @@ do ->
           section.metaContent = true
         if section.children.length
           markMetaSections section.children
-    
+
     structure = []
 
     # Find all headings as a plain array

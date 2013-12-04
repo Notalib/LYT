@@ -270,6 +270,17 @@ LYT.catalog = do ->
 
       info = data.d.pop()
       info.id = info.itemid
+<<<<<<< HEAD
+=======
+      info.mediaString =
+        if info.media is "AA"
+          "Lyd uden tekst"
+        else if info.media is "AT"
+          "Lyd med tekst"
+        else
+          "Ukendt"
+
+>>>>>>> notalib/master
       info
 
   # ## Public API

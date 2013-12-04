@@ -221,11 +221,11 @@ class LYT.Book
     deferred.promise()
 
   firstSegment: ->
-    @nccDocument.then (document) ->
-      document.firstSection().then (section) ->
-        section.firstSegment().then (segment) ->
-          return segment
-  
+    @nccDocument
+    .then (document) ->
+      document.firstSection()
+    .then (section) ->
+      section.firstSegment()
 
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)

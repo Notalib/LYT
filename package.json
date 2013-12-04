@@ -1,6 +1,6 @@
 {
   "name": "LYT",
-  "version": "1.2.5",
+  "version": "2.1.0",
   "description": "A DAISY Online Delivery Protocol compatible book player for handheld devices",
   "private": true,
   "directories": {

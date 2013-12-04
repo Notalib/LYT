@@ -20,6 +20,7 @@ LYT.player =
   playbackRate: 1
   lastBookmark: (new Date).getTime()
   inSkipState: false
+  showingPlay: true # true if the play triangle button is shown, false otherwise
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -130,6 +131,9 @@ LYT.player =
 
     $('.lyt-pause').click =>
       LYT.instrumentation.record 'ui:stop'
+      if not @showingPlay
+        @showPauseButton()
+
       @stop()
 
     $('.lyt-play').click =>
@@ -308,12 +312,13 @@ LYT.player =
           log.message 'Player: play: play: waiting for next segment'
         else
           @playNextSegment()
-      command.always => @showPlayButton() unless @playing
+      command.always => @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
       @firstPlay = false if @firstPlay
 
-      @showPauseButton()
+      if @showingPlay
+        @showPauseButton()
 
       time = status.currentTime
 
@@ -694,11 +699,13 @@ LYT.player =
         button.addClass('ui-btn-active').focus()
 
   showPlayButton: ->
+    @showingPlay = true
     $('.lyt-pause').css 'display', 'none'
     $('.lyt-play').css('display', '')
     @setFocus()
 
   showPauseButton: ->
+    @showingPlay = false
     $('.lyt-play').css 'display', 'none'
     $('.lyt-pause').css('display', '')
     @setFocus()
