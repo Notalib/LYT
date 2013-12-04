@@ -86,8 +86,11 @@ LYT.rpc = do ->
 
     if faultcode or faultstring or Fault
       fault = identifyDODPError faultcode, faultstring
-      log.errorGroup "RPC: Resource error: #{faultcode}: #{faultstring}", data
+      log.errorGroup "RPC: Resource error: #{faultcode}: #{faultstring}"
       deferred.reject fault, faultstring
+      return true
+    else
+      return false  
 
   (action, args...) ->
     # Throw a fit if the argument isn't a string
@@ -132,7 +135,8 @@ LYT.rpc = do ->
       if not data or not ($xml = jQuery data)
         deferred.reject DODP_UNKNOWN_ERROR, "Unknown error"
         return
-      isTherefault $xml, deferred
+      if isTherefault $xml, deferred
+        return  
 
       log.group "RPC: Response for action \"#{action}\"", data
 
@@ -179,4 +183,3 @@ LYT.rpc = do ->
     jQuery.ajax options
     # Return the deferred's promise
     deferred.promise()
-    
