@@ -151,6 +151,7 @@ LYT.config =
       "oplysninger":        "class"
       "forord":             "class"
       "indhold":            "class"
+      "acknowledgements":   "class"
 
       #"GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
       #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
