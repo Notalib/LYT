@@ -179,3 +179,4 @@ LYT.rpc = do ->
     jQuery.ajax options
     # Return the deferred's promise
     deferred.promise()
+    
