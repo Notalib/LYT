@@ -163,7 +163,8 @@ LYT.rpc = do ->
       # it will parse the response (which contains fault
       # codes etc), and handle it appropriately.
       if jqXHR.status is 500 and jqXHR.responseXML?
-        isTherefault jqXHR.responseXML, deferred
+        if isTherefault jqXHR.responseXML, deferred
+          return
         
       switch status
         when "timeout"
