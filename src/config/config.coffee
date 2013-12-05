@@ -153,9 +153,9 @@ LYT.config =
       "indhold":            "class"
       "acknowledgements":   "class"
 
-      #"GBIB":     "ref"   # elements whose `ID` attribute is "GBIB"
-      #"GINFO":    "ref"   # elements whose `ID` attribute is "GINFO"
-      #"GFLAP":    "ref"   # elements whose `ID` attribute is "GFLAP"
+      "GBIB":               "id"
+      "GINFO":              "id"
+      "GFLAP":              "id"
 
   # default page redirect page
   defaultPage:
