@@ -152,6 +152,7 @@ LYT.config =
       "forord":             "class"
       "indhold":            "class"
       "acknowledgements":   "class"
+      "tak":                "class"
 
       "GBIB":               "id"
       "GINFO":              "id"
