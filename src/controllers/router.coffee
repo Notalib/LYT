@@ -105,7 +105,7 @@ $(document).bind "mobileinit", ->
   #    - book:       id of book
   #    - section:    section in book (optional)
   #    - segment:    id of par element in section (optional)
-  #    - smilOffset: time offset relative to start of par element in section (optional)
+  #    - offset: time offset relative to start of par element in section (optional)
   # - action: what action to use in the url (defaults to 'book-player')
   # - absolute: boolean indicating if the url should be absolute or relative
   LYT.router.getBookActionUrl = (bookReference, action = 'book-player', absolute=true) ->
@@ -115,8 +115,11 @@ $(document).bind "mobileinit", ->
       url += "&smil=#{bookReference.smil or bookReference.section}"
       if bookReference.segment
         url += "&segment=#{bookReference.segment}"
-        if bookReference.smilOffset
-          url += "&offset=#{LYT.utils.formatTime bookReference.smilOffset}"
+        if bookReference.offset
+          offset = bookReference.offset
+          if not isNaN offset
+            offset = LYT.utils.formatTime offset
+          url += "&offset=#{offset}"
 
     url = if absolute
       if document.baseURI?
@@ -127,22 +130,6 @@ $(document).bind "mobileinit", ->
       url
 
     return url
-
-  # Generate url for provided segment given:
-  # - segment: a segment instance
-  # - offset: audio offset (i.e. relative to start of segment.audio file).
-  # - action: what action to use in the url (defaults to 'book-player')
-  # - absolute: boolean indicating if the url should be absolute or relative
-  LYT.router.getSegmentUrl = (segment, offset, action = 'book-player', resolution='segment', absolute=true) ->
-    reference = {book: segment.section.nccDocument.book.id}
-    unless resolution is 'book'
-      reference.section = segment.section.url
-      unless resolution is 'section'
-        reference.segment = segment.id
-        if offset
-          reference.smilOffset = segment.smilOffset(offset)
-
-    return LYT.router.getBookActionUrl reference, action, absolute
 
   # If LYT.service, LYT.session or LYT.catalog emits a logon:rejected, prompt
   # the user to log back in.
