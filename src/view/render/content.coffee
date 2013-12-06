@@ -167,9 +167,12 @@ LYT.render.content = do ->
     viewer = view.find "iframe"
     viewDoc = viewer.get(0).contentDocument
 
-    if viewer.data("htmldoc") isnt segment.contentUrl
-      log.message "Render: Changing context to #{segment.contentUrl}"
-      viewer.data "htmldoc", segment.contentUrl
+    contentID = "#{segment.document.book.id}/#{segment.contentUrl}"
+    if viewer.data("htmldoc") is contentID
+      segmentIntoView viewDoc, segment
+    else
+      log.message "Render: Changing context to #{contentID}"
+      viewer.data "htmldoc", contentID
 
       # Don't load all images from document
       html.veilImages()
@@ -207,12 +210,10 @@ LYT.render.content = do ->
 
       # Catch links
       doc.ready ->
+        segmentIntoView viewDoc, segment
         docEl.find("a[href]").click (e) ->
           e.preventDefault()
           LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
-
-    # Scroll the segment into view
-    segmentIntoView viewDoc, segment
 
   selectView = (type) ->
     for viewType in ['stack', 'cartoon', 'plain', 'context']
