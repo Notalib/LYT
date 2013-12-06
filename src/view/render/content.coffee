@@ -154,7 +154,9 @@ LYT.render.content = do ->
 
   segmentIntoView = (view, segment) ->
     el = jQuery(view).find "##{segment.contentId}"
-    el.get(0).scrollIntoView() if el.length
+    if el.length
+      el.get(0).scrollIntoView()
+      view.defaultView.scrollBy 0, -15
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
