@@ -184,29 +184,49 @@ LYT.render.content = do ->
       )
 
       docEl = jQuery viewDoc.documentElement
-      # Enable hardware acceleration
-      # For whatever reason this chrashes iOS devices
-      # I think this is a legit case for browser-sniffing
-      #docEl
-      #  .find('body')
-      #  .css
-      #    "transform": "translate3d(0, 0, 0)"
-      #    "-webkit-transform": "translate3d(0, 0, 0)"
 
-      # Lazy-load images
-      margin = 200 #TODO: Should be configurable
-      images = docEl.find "img"
+
+      # The #document of the <iframe>
       doc = viewer.contents()
-      doc.scroll jQuery.throttle 200, ->
-        ct = doc.scrollTop() - margin
-        cb = ct + viewer.height() + margin
-        images.each ->
-          image = jQuery(this)
-          offset = image.offset()
-          if ((ct < offset.top < cb) or
-              (ct < offset.bottom < cb)) and image.attr("data-src")?
-            image.attr "src", image.attr "data-src"
-            image.removeAttr "data-src"
+      margin = 200 # TODO Should be configurable
+      images = docEl.find "img"
+
+      showImage = (image, ct, cb) ->
+        image = jQuery image
+        offset = image.offset()
+        if ((ct < offset.top < cb) or
+            (ct < offset.bottom < cb)) and image.attr("data-src")?
+          image.attr "src", image.attr "data-src"
+          image.removeAttr "data-src"
+
+
+      # iOS devices adjusts the <iframe>'s height so that *all* of its content
+      # is visible. Due to this *bug* we need to get scroll information from
+      # the top-most body
+      if /(iPad|iPhone|iPod)/g.test navigator.userAgent
+        body = jQuery "body"
+        scrollHandler = ->
+          ct = body.scrollTop() - margin
+          cb = ct + body.height() + 2 * margin
+          images.each -> showImage this, ct, cb
+
+        body.scroll jQuery.throttle 150, scrollHandler
+      else
+        scrollHandler = ->
+          ct = doc.scrollTop() - margin
+          cb = ct + viewer.height() + 2 * margin
+          images.each -> showImage this, ct, cb
+
+        doc.scroll jQuery.throttle 150, scrollHandler
+
+        # Enable hardware acceleration
+        # For whatever reason this chrashes iOS devices
+        docEl
+          .find('body')
+          .css
+            "transform": "translate3d(0, 0, 0)"
+            "-webkit-transform": "translate3d(0, 0, 0)"
+
 
       # Catch links
       doc.ready ->
