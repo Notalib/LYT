@@ -5,6 +5,12 @@ w3cjs   = require "w3cjs"
 {exec}  = require "child_process"
 ftpkick = require "ftpkick"
 
+# These are only required to make sure that they exist
+# If not, the user should run a `npm install` command to resolve
+# these dependencies
+uglify  = require "uglify-js"
+coffeelint = require "coffeelint"
+
 # # Configuration
 
 config =
@@ -12,7 +18,7 @@ config =
   coffee:         "coffee"    # Path to CoffeeScript compiler (if not in PATH)
   docco:          "docco"     # Path to docco (if not in PATH)
   compass:        "compass"   # Path to compass (if not in PATH)
-  minify:         "uglifyjs2" # Path to minifier
+  minify:         "node_modules/uglify-js/bin/uglifyjs" # Path to minifier
   coffeelint:     "node_modules/coffeelint/bin/coffeelint"
   maxHtmlErrors:  1           # Only "Bad value X-UA-Compatible for attribute
                               # http-equiv on element meta." is accepted
@@ -53,7 +59,7 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
       ).then (kicker) ->
         console.log "Uploading to #{host}"
         kicker.kick("build", destination_dir).then(
-          ()  -> console.log "Successfully uploaded for #{host}",
+              -> console.log "Successfully uploaded for #{host}",
           (e) -> console.error "An error occurred", e if e.code isnt 550
         )
 
@@ -61,7 +67,6 @@ task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
 
 task "src", "Compile CoffeeScript source", (options) ->
-  invoke "notabs"
   cleanDir "build/javascript"
   files = coffee.grind "src", null, (file) ->
     if options.development
@@ -71,6 +76,8 @@ task "src", "Compile CoffeeScript source", (options) ->
 
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
+    if options.minify
+      boast "minified", "src", "build/javascript/#{config.concatName}.min.js"
 
 task "html", "Build HTML", (options) ->
   createDir "build"
@@ -126,9 +133,15 @@ task "html", "Build HTML", (options) ->
 
 task "scss", "Compile scss source", (options) ->
   createDir "build/css"
-  scss.compile "scss", "build/css", options, ->
-    boast "compiled", "scss", "build/css"
+  minify = if options.minify then "--output-style compressed" else ""
+  command = "#{config.compass} compile --config config.rb #{minify}"
+  exec command, (err, stdout, stderr) ->
+    if err
+      fatal err, config.compass,
+        "You may need to install compass. See http://compass-style.org/"
 
+    console.log stderr if stderr
+    boast "compiled", "scss", "build/css"
 
 task "docs", "Run Docco on src/*.coffee", (options) ->
   cleanDir "build/docs"
@@ -159,15 +172,9 @@ task "clean", "Remove the build dir", ->
   removeDir "build"
   boast "removed", "build"
 
-task 'notabs', 'Make sure the coffescript files are tab free', (options) ->
-  errors = checkForTabs()
-  if errors
-    console.error "Can't build: coffeescript contains tabs:\n" + errors
-    process.exit 1
-
 task "lint:coffee", "Validate the source style of all .coffee files", ->
   files = glob "src", /\.coffee$/i
-  command = config.coffeelint + " -f .coffeelint.json"
+  command = "node #{config.coffeelint} -f .coffeelint.json"
   for file in files
     command += " \"#{file}\""
 
@@ -221,10 +228,18 @@ coffee = do ->
       throw err if err?
       console.log stderr if stderr
       if concat
+        bin = fs.path.relative output, config.minify
+        minCmd =
+          "node #{bin} " +
+          "--source-map #{concat}.map " +
+          "-o #{concat}.min.js #{concat}.js"
+
         process.chdir output
-        exec "#{config.minify} --source-map #{concat}.map -o #{concat}.min.js #{concat}.js"
-        process.chdir '..'
-      callback()
+        exec minCmd, (err, stdout, stderr) ->
+          throw err if err?
+          process.chdir '..'
+          console.log stderr if stderr
+          callback() if typeof callback is 'function'
 
   # ### Public methods
   # ---------------
@@ -264,19 +279,7 @@ coffee = do ->
 
 
 # --------------------------------------
-
-# # Coffeescript validation
-
-checkForTabs = ->
-  result = null
-  for path in glob 'src', /\.coffee$/
-    file = fs.readFileSync path, 'utf8'
-    if match = file.match(/^.*\t.*$/m)
-      result += "#{path}: #{match[0]}\n"
-  return result
-
-# --------------------------------------
-
+#
 # # HTML Support
 
 html =
@@ -300,18 +303,6 @@ html =
     urls = [urls] if typeof urls is "string"
     ("""<link rel="stylesheet" type="text/css" href="#{url}">""" for url in urls).join "\n"
 
-
-# --------------------------------------
-
-# # SCSS Support
-
-scss =
-  # Compile scss files in the given dir using compass
-  compile: (dir, output, options, callback) ->
-    exec "#{config.compass} compile #{if options.minify then '--output-style compressed' else ''} --sass-dir #{q dir} --css-dir #{q output} --config config.rb", (err, stdout, stderr) ->
-      fatal err, config.compass, "You may need to install compass. See http://compass-style.org/" if err?
-      console.log stderr if stderr
-      callback?()
 
 # --------------------------------------
 
