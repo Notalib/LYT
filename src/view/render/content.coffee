@@ -175,7 +175,7 @@ LYT.render.content = do ->
       viewer.data "htmldoc", contentID
 
       # Don't load all images from document
-      html.veilImages()
+      html.hideImages()
 
       # Change to new document
       viewDoc.replaceChild(
