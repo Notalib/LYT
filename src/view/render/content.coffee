@@ -216,7 +216,7 @@ LYT.render.content = do ->
           LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
 
   selectView = (type) ->
-    for viewType in ['stack', 'cartoon', 'plain', 'context']
+    for viewType in ['cartoon', 'plain', 'context']
       view = $("#book-#{viewType}-content")
       if viewType is type
         result = view

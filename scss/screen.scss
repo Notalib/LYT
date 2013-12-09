@@ -1160,7 +1160,6 @@ li.ui-li h3.no-search-results {
 
 #book-cartoon-content,
 #textarea-example,
-#book-stack-content,
 #book-plain-content,
 #book-context-content {
   position: relative;
@@ -1203,14 +1202,7 @@ li.ui-li h3.no-search-results {
   overflow: scroll;
 }
 
-#book-stack-content .segmentContainer.current {
-
-  p, h1, h2, h3, img, image, a, span {
-    opacity: 1.0;
-  }
-}
-
-#book-stack-content, #book-plain-content {
+#book-plain-content {
   overflow: hidden;
   text-shadow: none;
   text-align: center;
