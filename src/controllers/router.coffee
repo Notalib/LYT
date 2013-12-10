@@ -117,6 +117,9 @@ $(document).bind "mobileinit", ->
         url += "&segment=#{bookReference.segment}"
         if bookReference.offset
           offset = bookReference.offset
+
+          # If we've got an unformatted number (in seconds instead of hh:mm:ss),
+          # we need to format it
           if not isNaN offset
             offset = LYT.utils.formatTime offset
           url += "&offset=#{offset}"
