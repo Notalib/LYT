@@ -347,10 +347,10 @@ LYT.render = do ->
         share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
         remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
         share.on 'click', ->
-          [section, segment] = bookmark.URI.split '#'
+          [smil, segment] = bookmark.URI.split '#'
           reference =
             book: book.id
-            section: section
+            smil: smil
             segment: segment
             offset: bookmark.timeOffset
           jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
