@@ -227,7 +227,6 @@ class LYT.Book
     .then (section) ->
       section.firstSegment()
 
-
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)
     current = segment
