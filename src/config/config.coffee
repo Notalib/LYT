@@ -153,7 +153,7 @@ LYT.config =
       "indhold":            "class"
       "acknowledgements":   "class"
       "tak":                "class"
-      "dedication"          "class"
+      "dedication":         "class"
 
       "GBIB":               "id"
       "GINFO":              "id"
