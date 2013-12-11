@@ -79,15 +79,15 @@ LYT.rpc = do ->
       window.DODP_UNKNOWN_ERROR
 
 
-  isTherefault = (xml, deferred)->
+  isTherefault = (xml, deferred) ->
     faultstring = jQuery.trim xml.find("faultstring").text()
     faultcode   = jQuery.trim xml.find("faultcode").text()
-    Fault       = jQuery.trim xml.find("Fault").text()
+    fault       = jQuery.trim xml.find("Fault").text()
 
-    if faultcode or faultstring or Fault
-      fault = identifyDODPError faultcode, faultstring
+    if faultcode or faultstring or fault
+      dodpFault = identifyDODPError faultcode, faultstring
       log.errorGroup "RPC: Resource error: #{faultcode}: #{faultstring}"
-      deferred.reject fault, faultstring
+      deferred.reject dodpFault, faultstring
       return true
     else
       return false
