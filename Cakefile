@@ -42,6 +42,7 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
   destination_dir = process.env.LYT_DESTINATION_DIR || process.env.USER
   ftp_user  = process.env.LYT_FTP_USER || "anonymous"
   ftp_password = process.env.LYT_FTP_PASSWORD
+  checkfile = process.env.LYT_FTP_CHECKFILE || "lyt.checkfile"
 
   for host in dev_hosts
     do (host) ->
@@ -52,10 +53,11 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
         password: ftp_password
       ).then (kicker) ->
         console.log "Uploading to #{host}"
-        kicker.kick("build", destination_dir).then(
-          ()  -> console.log "Successfully uploaded for #{host}",
+        kicker.kick("build", destination_dir, checkfile).then(
+          (f) -> console.log "Successfully uploaded #{f.length} files for #{host}",
           (e) -> console.error "An error occurred", e if e.code isnt 550
-        )
+        ).then ->
+          kicker.disconnect()
 
 task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
