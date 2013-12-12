@@ -132,10 +132,10 @@ LYT.player =
       LYT.instrumentation.record 'ui:stop'
       @stop()
 
-    $('.lyt-play').click =>
+    $('.lyt-play').click (e) =>
       LYT.instrumentation.record 'ui:play'
       if @playClickHook
-        @playClickHook().done => @play()
+        @playClickHook(e).done => @play()
       else
         @play()
 
@@ -224,7 +224,16 @@ LYT.player =
       if @firstPlay and not Modernizr.autoplayback
         # The play click handler will call @playClickHook which enables the
         # player to start seeking.
-        @playClickHook = =>
+        @playClickHook = (e) =>
+
+          # If this is the first click by the user (on an iOS device), the
+          # playbackrate tests will fire off at the same time as this. For
+          # whatever reason, that makes the silentplay command stall after two
+          # timeupdate/progress events, and we never get any further. Therefore
+          # we need to stop the bubbling of the event
+          e.stopPropagation()
+          e.preventDefault()
+
           @playClickHook = null
           silentplay = new LYT.player.command.silentplay @el
           playPromise = silentplay.then =>
