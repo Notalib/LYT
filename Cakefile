@@ -27,12 +27,13 @@ config =
 
 # # Options/Switches
 
-option "-c", "--concat",      "Concatenate CoffeeScript"
-option "-m", "--minify",      "Concatenate CoffeeScript and then minify"
-option "-v", "--verbose",     "Be more talkative"
-option "-d", "--development", "Use development settings"
-option "-t", "--test",        "Use test environment"
-option "-n", "--no-validate", "Don't validate build"
+option "-c", "--concat",        "Concatenate CoffeeScript"
+option "-m", "--minify",        "Concatenate CoffeeScript and then minify"
+option "-v", "--verbose",       "Be more talkative"
+option "-d", "--development",   "Use development settings"
+option "-t", "--test",          "Use test environment"
+option "-n", "--no-validate",   "Don't validate build"
+option "-f", "--force-deploy",  "Force a fresh re-deployment of all files"
 
 # --------------------------------------
 
@@ -48,8 +49,12 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
   destination_dir = process.env.LYT_DESTINATION_DIR || process.env.USER
   ftp_user  = process.env.LYT_FTP_USER || "anonymous"
   ftp_password = process.env.LYT_FTP_PASSWORD
+  checkfile = process.env.LYT_FTP_CHECKFILE || ".lyt.checkfile."
+
+  force = options['force-deploy']
 
   for host in dev_hosts
+    chkfile = checkfile + host
     do (host) ->
       console.log "Connecting to #{host}"
       ftpkick.connect(
@@ -58,10 +63,14 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
         password: ftp_password
       ).then (kicker) ->
         console.log "Uploading to #{host}"
-        kicker.kick("build", destination_dir).then(
-              -> console.log "Successfully uploaded for #{host}",
+        kicker.kick("build", destination_dir, chkfile, force).then(
+          (f) -> console.log "Successfully uploaded #{f.length} files for #{host}",
           (e) -> console.error "An error occurred", e if e.code isnt 550
-        )
+        ).then ->
+          kicker.disconnect()
+
+        kicker.on "savedcheckfile", (chk) ->
+          console.log "Saved to checkfile: '#{chk}'"
 
 task "assets", "Sync assets to build", (options) ->
   sync "assets", "build", (copied) -> boast "synced", "assets", "build"
