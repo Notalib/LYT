@@ -49,13 +49,12 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
   destination_dir = process.env.LYT_DESTINATION_DIR || process.env.USER
   ftp_user  = process.env.LYT_FTP_USER || "anonymous"
   ftp_password = process.env.LYT_FTP_PASSWORD
-  checkfile = process.env.LYT_FTP_CHECKFILE || ".lyt.checkfile"
+  checkfile = process.env.LYT_FTP_CHECKFILE || ".lyt.checkfile."
 
-  if options['force-deploy']
-    checkfile = null
+  force = options['force-deploy']
 
   for host in dev_hosts
-    checkfile = host + checkfile if checkfile
+    chkfile = checkfile + host
     do (host) ->
       console.log "Connecting to #{host}"
       ftpkick.connect(
@@ -64,7 +63,7 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
         password: ftp_password
       ).then (kicker) ->
         console.log "Uploading to #{host}"
-        kicker.kick("build", destination_dir, checkfile).then(
+        kicker.kick("build", destination_dir, chkfile, force).then(
           (f) -> console.log "Successfully uploaded #{f.length} files for #{host}",
           (e) -> console.error "An error occurred", e if e.code isnt 550
         ).then ->
