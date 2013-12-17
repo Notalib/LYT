@@ -48,8 +48,8 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
   force = options['force-deploy']
 
   for host in dev_hosts
-    chkfile = checkfile + host
     do (host) ->
+      chkfile = checkfile + host
       console.log "Connecting to #{host}"
       ftpkick.connect(
         host: host
