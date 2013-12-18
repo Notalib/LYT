@@ -2,19 +2,64 @@
 
 A DAISY Online Delivery Protocol compatible book player for handheld devices.
 
-# License and copyright
-
 LYT is copyright [Nota](http://nota.nu/) and distritributed under [LGPL version 3](LICENSE).
 
-## Technologies used
 
-Source written in [CoffeeScript](http://jashkenas.github.com/coffee-script/)
-Stylesheets written in [SASS](http://sass-lang.com/)
-Inline docs written for [Docco](http://jashkenas.github.com/docco/)
+## Development
+You'll need a few things, namely Node.js, CoffeeScript and Compass. [So check out these instructions](https://github.com/Notalib/LYT/wiki/Prerequisites) if you need help installing them.
+
+Also, [please read the style guide](https://github.com/Notalib/LYT/wiki/Style-Guide).
+
+### Building
+
+To compile the app, issue the following from the repo's root:
+
+    $ cake app
+
+This will compile the CoffeeScript files to `build/javascript`, concatenate the HTML files to `build/index.html`, and compile the SASS files to `build/css`. It also syncs the contents of `assets/` with the `build/` directory.
+
+To see what else you can build, issue `cake` with no arguments:
+
+    $ cake
+
+## Supported platforms
+
+HTML5 audio playback support has proved to be extremely incosistent across
+different platforms. But we believe that we've managed to support most modern
+browsers (IE9+). Sadly **Firefox** support is very limited, since their mp3
+implementation is only present on some platforms. We hope, however, to support
+Firefox in the near future.
+
 
 ## Change log
 
-All releases are available from Github using the tag format lyt-&lt;version&gt;.
+All releases are available from Github using the tag format `lyt-<version>`.
+
+### Version 2.1.0
+
+#### Features
+
+  * The LYT player now has two new controls that enables the user to skip
+    forwards or backwards 15 seconds at a time.
+  * Working playback rate changing on all platforms that natively supports it
+  * A "Skip Mode" that skips all meta-content sections, such as the summary,
+    flaps, dedication, etc. if the books is played for the first time
+  * A new "Dyslexia" font, that should be easier for dyslecixs to read.
+
+#### Improvements and bugfixes
+
+  * Implemented a "command-based" architecture where the player can issue
+    different commands and wait for them to resolve/reject
+  * A lot of edge-cases that would leave the loader hanging has been fixed
+  * Major refactoring of the internals, resulting in removal of the `Playlist`
+    class, and decoupling the `Section`s from the `SMILDocument`s. This also
+    meant removing *a lot* of legacy code
+  * A bug where the last logged-in user's bookshelf would still be visible to
+    new users
+  * A `cake deploy` task, that deploys a build to an FTP server
+  * A `cake lint:coffee` task that lints the source code
+  * Standardized icon sizes, and sprites used to reduce latency
+  * ... And a thousand other things
 
 
 ### Version 1.2.5-nvb
@@ -183,20 +228,3 @@ Versions 1.1.1, 1.1.2 and 1.1.3 were never released.
 ### Version 0.2
 
 Released june 2012. Historic.
-
-## Development
-You'll need a few things [so check out these instructions](https://github.com/Notalib/LYT/wiki/Prerequisites).
-
-Also, [read the style guide](https://github.com/Notalib/LYT/wiki/Style-Guide).
-
-### Building
-
-To compile the app, issue the following from the repo's root:
-
-    $ cake app
-
-This will compile the CoffeeScript files to `build/javascript`, concatenate the HTML files to `build/index.html`, and compile the SASS files to `build/css`. It also syncs the contents of `assets/` with the `build/` directory.
-
-To see what else you can build, issue `cake` with no arguments:
-
-    $ cake
