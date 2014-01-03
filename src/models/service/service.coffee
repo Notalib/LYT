@@ -160,6 +160,7 @@ LYT.service = do ->
       emit 'logon:resolved'
       LYT.session.setCredentials username, password
       LYT.session.setInfo data
+      LYT.session.settings data.memberId
       LYT.rpc("getServiceAttributes")
         .done(gotServiceAttrs)
         .fail(failed)

@@ -1,14 +1,12 @@
 # Requires `/common`
-# Requires `/support/lyt/cache`
+# Requires `/support/lyt/store`
 
 # -------------------
 
 # This module sets and retrieves user specific settings
 
-LYT.settings = do ->
-
+class LYT.Settings
   # Default settings
-  # TODO: How much of this is actually used?
   defaults =
     playbackRate: 1
     textPresentation: "full"
@@ -19,38 +17,28 @@ LYT.settings = do ->
       'font-size':        "16px"
       'font-family':      "Helvetica, sans-serif"
 
-  # Load settings if they are set in localstorage
-  settings = jQuery.extend {}, defaults, LYT.cache.read("lyt", "settings") or {}
+  constructor: (memberID) ->
+    log.message "Settings: New settings manager for member #{memberID}"
+    @store = JSON.parse(LYT.store.read("settings") or "{}")
 
-  # Save the settings in local storage
-  save = ->
-    LYT.cache.write "lyt", "settings", settings
-
-  # Emit a "value changed" event
-  emit = (key, newValue, previousValue)->
-    event = jQuery.Event "changed"
-    event.key           = key
-    event.newValue      = newValue
-    event.previousValue = previousValue
-    jQuery(LYT.settings).trigger event
-
-  # ## Public API
+    @memberID = memberID
+    if @memberID of @store
+      @settings = @store[@memberID]
+    else
+      @settings = $.extend {}, defaults
 
   get: (key) ->
-    # TODO: key not found error
-    settings[key]
+    @settings[key]
 
   set: (key, value) ->
-    prev = settings[key]
-    if value isnt prev
-      settings[key] = value
-      save()
-      emit key, value, prev
+    @settings[key] = value
+    @save()
 
-  save: save
+  save: ->
+    @store[@memberID] = @settings
+    LYT.store.write "settings", JSON.stringify @store
 
   reset: ->
-    settings = jQuery.extend {}, defaults
-    save()
-
+    @settings = jQuery.extend {}, defaults
+    @save()
 

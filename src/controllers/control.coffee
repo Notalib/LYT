@@ -30,15 +30,15 @@ LYT.control =
       # For debugging: let the user specify lastVersion in the address
       if match = window.location.hash.match /lastVersion=([0-9\.]+)/
         return match[1]
-      if version = LYT.cache.read 'lyt', 'lastVersion'
+      if version = LYT.store.read 'lyt/lastVersion'
         return version
-      if LYT.cache.read 'session', 'credentials' or LYT.cache.read 'lyt', 'settings'
+      if LYT.store.read 'session/credentials' or LYT.store.read 'lyt/settings'
         return '0.0.2'
 
     if lastVersion() and lastVersion() isnt LYT.VERSION
       LYT.var.next = window.location.hash
       window.location.hash = '#splash-upgrade'
-    LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
+    LYT.store.write 'lyt/lastVersion', LYT.VERSION
 
   setupEventHandlers: ->
     $("#bookmark-add-button").on 'click', ->
@@ -109,7 +109,7 @@ LYT.control =
       name = target.attr 'name'
       val = target.val()
 
-      style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+      style = jQuery.extend {}, (LYT.session.settings().get "textStyle" or {})
 
       switch name
         when 'font-size', 'font-family'
@@ -121,10 +121,10 @@ LYT.control =
           # TODO: use lower case just like all the other parameters
         when 'playback-rate'
           val = Number(val)
-          LYT.settings.set('playbackRate', val)
+          LYT.session.settings().set('playbackRate', val)
           LYT.player.setPlaybackRate val
 
-      LYT.settings.set('textStyle', style)
+      LYT.session.settings().set('textStyle', style)
       LYT.render.setStyle()
 
 
@@ -313,6 +313,9 @@ LYT.control =
       return
 
     if type is 'pagebeforeshow'
+      # Make sure we're looking good
+      LYT.render.setStyle()
+
       # Stop playback if we are going to switch to another book
       if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
@@ -456,25 +459,27 @@ LYT.control =
           $('.advanced-settings').hide()
 
       if type is 'pageshow'
-        style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+        style = jQuery.extend {}, (LYT.session.settings().get "textStyle" or {})
 
         $("#style-settings").find("input").each ->
           name = $(this).attr 'name'
           val = $(this).val()
 
+          # Let's turn it off by default, and only check it if necessary
+          $(this).prop("checked", false).checkboxradio "refresh"
+
           # Setting the GUI
           switch name
             when 'font-size', 'font-family'
               if val is style[name]
-                $(this).attr("checked", true).checkboxradio("refresh")
+                $(this).prop("checked", true).checkboxradio "refresh"
             when 'marking-color'
               colors = val.split(';')
-              if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
-                $(this).attr("checked", true).checkboxradio("refresh")
+              if style['background-color'] is colors[0] and style['color'] is colors[1]
+                $(this).prop("checked", true).checkboxradio "refresh"
             when 'playback-rate'
-              if Number(val) is LYT.settings.get('playbackRate')
-                $(this).attr("checked", true).checkboxradio("refresh")
-
+              if Number(val) is LYT.session.settings().get('playbackRate')
+                $(this).prop("checked", true).checkboxradio("refresh")
 
 
   profile: (type, match, ui, page, event) ->

@@ -142,7 +142,7 @@ LYT.render = do ->
   setStyle: ->
     log.message 'Render: setting custom style'
     # TODO: Dynamic modification of a CSS class in stead of this
-    $('#textarea-example, #book-stack-content, #book-plain-content').css LYT.settings.get('textStyle')
+    $('#textarea-example, #book-stack-content, #book-plain-content').css LYT.session.settings().get('textStyle')
     $('#book-player').css
       'background-color': $('#book-stack-content').css('background-color')
 
