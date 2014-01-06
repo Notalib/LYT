@@ -130,28 +130,6 @@ LYT.render.content = do ->
 
     panZoomImage segment, image, area, renderDelta
 
-  # Plain renderer - render everything in the segment
-  renderPlain = (segment, view) ->
-    view.css 'text-align', 'center'
-    segment.dom or= $(document.createElement('div')).html segment.html
-    segment.dom.find('img').each ->
-      img = $(this)
-
-      return if img.data("vspace-processed")? == "yes"
-
-      img.data "vspace-processed", "yes" # Mark as already-processed
-
-      if img.height() > vspace()
-        img.height vspace()
-        img.width 'auto'
-
-      if img.width() > view.width()
-        img.width '100%'
-        img.height 'auto'
-
-      img.click -> img.toggleClass('zoom')
-    view.empty().append segment.dom
-
   segmentIntoView = (view, segment) ->
     el = jQuery(view).find "##{segment.contentId}"
     if el.length
