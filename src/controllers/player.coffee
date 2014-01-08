@@ -383,7 +383,8 @@ LYT.player =
           nextSegment.done (next) =>
             clearTimeout timer
             if next?
-              if next.audio is status.src and next.start - 0.1 < time < next.end + 0.1
+              # Timeupdate events fire with approx 250ms intervals
+              if next.audio is status.src and next.start - 0.25 < time < next.end + 0.25
                 # Audio has progressed to next segment, so just update
                 @_setCurrentSegment next
                 @updateHtml next
