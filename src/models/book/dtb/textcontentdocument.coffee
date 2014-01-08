@@ -19,22 +19,28 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       item.attr "src", resources[url]?.url
       item.data "resolved", "yes" # Mark as processed
 
+    ###
     # Resolve stylesheets
     source.find("link[href]").each (index, item) ->
       item = jQuery item
       url = item.attr("href").split("/").pop()
       item.attr("href", resources[url]?.url)
+    ###
 
+  stripTags = (source) ->
+    source.remove("link").remove("script")
 
   constructor: (url, resources, callback) ->
     super url, =>
       resolveURLs @source, resources
+      stripTags @source
       callback() if typeof callback is "function"
 
-  hideImages: ->
+  hideImages: (altSrc) ->
     @source.find("img[src]").each ->
       el = jQuery this
       return if el.attr "data-src"
 
       el.attr "data-src", el.attr "src"
-      el.attr "src", "css/images/ajax-loader.gif"
+      el.removeAttr "src"
+      el.attr "src", altSrc if altSrc

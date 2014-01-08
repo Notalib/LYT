@@ -153,7 +153,7 @@ LYT.render.content = do ->
       viewer.data "htmldoc", contentID
 
       # Don't load all images from document
-      html.hideImages()
+      html.hideImages "css/images/ajax-loader.gif"
 
       # Change to new document
       viewDoc.replaceChild(
