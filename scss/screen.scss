@@ -1124,6 +1124,14 @@ li.ui-li h3.no-search-results {
    Book player page
  * ************************************************************************* */
 
+#control-header {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  z-index: 1;
+}
+
 #book-play-menu {
   .ui-btn {
     margin: 0 !important;
