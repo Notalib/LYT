@@ -208,6 +208,7 @@ LYT.render.content = do ->
 
       # Catch links
       doc.ready ->
+        LYT.render.setStyle()
         segmentIntoView viewDoc, segment
         docEl.find("a[href]").click (e) ->
           e.preventDefault()

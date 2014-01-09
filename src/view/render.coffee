@@ -143,8 +143,13 @@ LYT.render = do ->
     log.message 'Render: setting custom style'
     # TODO: Dynamic modification of a CSS class in stead of this
     $('#textarea-example, #book-plain-content').css LYT.settings.get('textStyle')
+
+    # Get the body element of the nested document in the <iframe>
+    body = $($('#context-viewer').get(0).contentDocument) .find("body")
+    body.css LYT.settings.get('textStyle')
+
     $('#book-player').css
-      'background-color': $('#book-context-content').css('background-color')
+      'background-color': body.css('background-color')
 
   setInfo: ->
     $('.lyt-version').html LYT.VERSION

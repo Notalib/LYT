@@ -313,6 +313,9 @@ LYT.control =
       return
 
     if type is 'pagebeforeshow'
+      # Make sure we're looking good
+      LYT.render.setStyle()
+
       # Stop playback if we are going to switch to another book
       if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
