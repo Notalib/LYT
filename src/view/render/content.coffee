@@ -130,11 +130,20 @@ LYT.render.content = do ->
 
     panZoomImage segment, image, area, renderDelta
 
+  prevActive = null
   segmentIntoView = (view, segment) ->
     el = jQuery(view).find "##{segment.contentId}"
+
+    # Remove highlighting of previous element
+    if prevActive
+      prevActive.removeClass 'active'
+
     if el.length
+      # Highlight element
+      prevActive = el.addClass 'active'
       el.get(0).scrollIntoView()
       view.defaultView.scrollBy 0, -15
+
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
