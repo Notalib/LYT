@@ -162,6 +162,7 @@ LYT.render.content = do ->
       )
 
       docEl = jQuery viewDoc.documentElement
+      docEl.find("head").append "<link rel='stylesheet' href='css/context.css' />"
 
 
       # The #document of the <iframe>
