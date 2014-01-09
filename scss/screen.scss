@@ -83,10 +83,9 @@ $ui-icon2x-spacing: 20px;
 }
 
 /* theese icons are default from jquery mobile, so we are not spriting them. */
-.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check {
+.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check, .ui-icon.ui-icon-checkbox-off, .ui-icon.ui-icon-checkbox-on {
   height: 18px !important;
   width: 18px !important;
-  margin-left: 0px !important;
   margin-left: 0px !important;
   margin-top: -8px !important;
 }

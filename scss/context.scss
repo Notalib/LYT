@@ -14,10 +14,12 @@ p {
   margin-top: 0.3em;
 }
 
-span.word {
-  opacity: 0.4;
-}
+body.word-highlight {
+  span.word {
+    opacity: 0.4;
+  }
 
-span.word.active {
-  opacity: 1;
+  span.word.active {
+    opacity: 1;
+  }
 }

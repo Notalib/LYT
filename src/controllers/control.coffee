@@ -123,6 +123,11 @@ LYT.control =
           val = Number(val)
           LYT.settings.set('playbackRate', val)
           LYT.player.setPlaybackRate val
+        when 'word-highlighting'
+          isOn = target.prop "checked"
+          LYT.render.setHighlighting isOn
+          LYT.settings.set('wordHighlighting', isOn)
+
 
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
@@ -472,11 +477,14 @@ LYT.control =
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
-              if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
+              if style['background-color'] is colors[0] and style['color'] is colors[1]
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
                 $(this).attr("checked", true).checkboxradio("refresh")
+            when 'word-highlighting'
+              $(this).prop("checked", LYT.settings.get("wordHighlighting"))
+                .checkboxradio("refresh")
 
 
 
