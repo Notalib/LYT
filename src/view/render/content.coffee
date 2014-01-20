@@ -131,18 +131,26 @@ LYT.render.content = do ->
     panZoomImage segment, image, area, renderDelta
 
   prevActive = null
+  lastScroll = null
   segmentIntoView = (view, segment) ->
     el = jQuery(view).find "##{segment.contentId}"
 
     # Remove highlighting of previous element
     if prevActive
-      prevActive.removeClass 'active'
+      prevActive.removeClass "active"
 
     if el.length
       # Highlight element
-      prevActive = el.addClass 'active'
-      el.get(0).scrollIntoView()
-      view.defaultView.scrollBy 0, -15
+      prevActive = el.addClass "active"
+
+      # Workaround silly iOS bug
+      if /(iPad|iPhone|iPod)/g.test navigator.userAgent
+        if (top = el.position().top) isnt lastScroll
+          jQuery("body").scrollTop top
+          lastScroll = top
+      else
+        el.get(0).scrollIntoView()
+        view.defaultView.scrollBy 0, -15
 
 
   # Context viewer - Shows the entire DOM of the content document and
@@ -242,7 +250,8 @@ LYT.render.content = do ->
     renderDelta = now - lastRender if lastRender
 
     if segment
-      section = segment.document.book.getSectionBySegment segment # lol
+      #TODO Fix this madness
+      section = segment.document.book.getSectionBySegment segment
       $('.player-chapter-title').text section.title
 
       switch segment.type
