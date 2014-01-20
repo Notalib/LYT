@@ -322,85 +322,92 @@ LYT.player =
 
       time = status.currentTime
 
-      # FIXME: Pause due unloaded segments should be improved with a visual
-      #        notification.
-      # FIXME: Handling of resume when the segment has been loaded can be
-      #        mixed with user interactions, causing an undesired resume
-      #        after the user has clicked pause.
-
       # Don't do anything else if we're already moving to a new segment
       if nextSegment?.state() is 'pending'
-        log.message 'Player: play: progress: nextSegment set and pending.'
-        log.message "Player: play: progress: Next segment: #{nextSegment.state()}. Pause until resolved."
+        log.message "Player: play: progress: nextSegment set and pending."
+        log.message "Player: play: progress: Next segment: " +
+          "#{nextSegment.state()}. Pause until resolved."
         return
 
-      # This method is idempotent - will not do anything if last update was
-      # recent enough.
+      # Update lastmark if necessary
       @updateLastMark()
 
-      # Move one segment forward if no current segment or no longer in the
-      # interval of the current segment and within two seconds past end of
-      # current segment (otherwise we are seeking ahead).
+      # We move to the segment at the current time interval if the current
+      # segment is in the past or the current time is within two seconds in the
+      # past of the current segment - If not we assume that the user has seeked
       segment = @currentSegment
-      if segment? and status.src == segment.audio and segment.start < time + 0.1 < segment.end + 2
-        if time >= segment.end
-          # Segment and audio are not in sync, move to next segment
-          # This block uses the current segment for synchronization.
-          log.message "Player: play: progress: queue for offset #{time}"
-          log.message "Player: play: progress: current segment: [#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}], no segment at #{time}, skipping to next segment."
-          timeoutHandler = =>
-            LYT.loader.register 'Loading book', nextSegment
-            LYT.render.disablePlayerNavigation()
-            nextSegment.done -> LYT.render.enablePlayerNavigation()
-            command.cancel()
-            nextSegment.done -> getPlayCommand()
-            nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
+      if segment? and status.src == segment.audio and
+         segment.start < time + 0.1 < segment.end + 2
+        # Do nothing if we're playing the right segment
+        return if time < segment.end
 
-          if @hasNextSegment()
-            # If we're in skip state, and about to change section
-            if @inSkipState and not segment.hasNext()
-              log.message "Player: play: progress: In skip state"
-              curSection = @book.getSectionBySegment segment
-              ncc = curSection.nccDocument
+        # If there're no more segments to play, the book has finished
+        if not @hasNextSegment()
+          command.cancel()
+          LYT.render.bookEnd()
+          log.message 'Player: play: book has ended'
+          return
 
-              # Get index of next section (which apparently is meta-content)
-              index = ncc.getSectionIndexById curSection.id
-              skips = 1
-              while (nextSection = ncc.sections[index + skips]).metaContent
-                skips++
+        # Segment and audio are not in sync, move to next segment
+        # This block uses the current segment for synchronization.
+        log.message "Player: play: progress: queue for offset #{time}"
+        log.message "Player: play: progress: current segment: " +
+          "[#{segment.url()}, #{segment.start}, #{segment.end}, " +
+          "#{segment.audio}], no segment at #{time}, skipping to next segment."
 
-              log.message "Player: play: Skipping #{skips - 1} meta-content sections"
-              nextSegment = nextSection.load().firstSegment()
-            else
-              nextSegment = @_getNextSegment()
-          else
-            command.cancel()
-            LYT.render.bookEnd()
-            log.message 'Player: play: book has ended'
-            return
+        # A timeout handler if the next segment is loading slowly (over 1000ms)
+        timeoutHandler = =>
+          LYT.loader.register 'Loading book', nextSegment
+          LYT.render.disablePlayerNavigation()
+          nextSegment.done -> LYT.render.enablePlayerNavigation()
+          command.cancel()
+          nextSegment.done -> getPlayCommand()
+          nextSegment.fail -> log.error "Player: play: progress: unable to " +
+                                        "load next segment after pause."
 
-          timer = setTimeout timeoutHandler, 1000
-          nextSegment.done (next) =>
-            clearTimeout timer
-            if next?
-              # Timeupdate events fire with approx 250ms intervals
-              if next.audio is status.src and next.start - 0.25 < time < next.end + 0.25
-                # Audio has progressed to next segment, so just update
-                @_setCurrentSegment next
-                @updateHtml next
-              else
-                # The segment next requires a seek and maybe loading a
-                # different audio stream.
-                log.message "Player: play: progress: switching audio file: playSegment #{next.url()}"
-                # This stops playback and should ensure that we won't skip more
-                # than one segment ahead if this progressHandler is called
-                # again. Once playback has stopped, play the segment next.
-                command.always => @playSegment next
-                command.cancel()
-            else
+        # If we're in skip state, and about to change section
+        if @inSkipState and not segment.hasNext()
+          log.message "Player: play: progress: In skip state"
+          curSection = @book.getSectionBySegment segment
+          ncc = curSection.nccDocument
+
+          # Get index of next section (which apparently is meta-content)
+          index = ncc.getSectionIndexById curSection.id
+          skips = 1
+          while (nextSection = ncc.sections[index + skips]).metaContent
+            skips++
+
+          log.message "Player: play: Skipping #{skips - 1} meta-content sections"
+          nextSegment = nextSection.load().firstSegment()
+          command.always => @playSegment next
+          command.cancel()
+          return
+
+        isNextInSync = (seg) =>
+          next = @_getNextSegment seg
+          next.then (next) =>
+            # If the segment fits in the time interval we simply update the view
+            if next.start <= time < next.end
+              clearTimeout timer
+              @_setCurrentSegment next
+              @updateHtml next
+
+            # If the audio file has changed, or the next segment jumps more
+            # than two seconds forwards or backwards, we skip/seek to it
+            else if next.audio isnt status.src or
+                    next.end < time - 2 or
+                    next.start > time + 2
+              clearTimeout timer
+              command.always => @playSegment next
               command.cancel()
-              LYT.render.bookEnd()
-              log.message 'Player: play: book has ended'
+
+            # If neither of above we try the next segment
+            else
+              isNextInSync next
+
+        # Kick it off
+        timer = setTimeout timeoutHandler, 1000
+        isNextInSync segment
       else
         # This block uses the current offset in the audio stream for
         # synchronization - a strategy that fails if there is no segment for

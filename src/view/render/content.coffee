@@ -250,7 +250,7 @@ LYT.render.content = do ->
     renderDelta = now - lastRender if lastRender
 
     if segment
-      #TODO Fix this madness
+      #TODO Fix this madness - this is too heavy for iOS
       section = segment.document.book.getSectionBySegment segment
       $('.player-chapter-title').text section.title
 
