@@ -18,7 +18,7 @@ class LYT.player.command.play extends LYT.player.command
     @pollTimer = setInterval =>
       audio = @el.data('jPlayer').htmlElement.audio
       @notify currentTime: audio.currentTime, src: audio.src
-    , 1000/30
+    , 1000/60
 
   cancel: ->
     super()

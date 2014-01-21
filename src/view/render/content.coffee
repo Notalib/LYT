@@ -133,7 +133,8 @@ LYT.render.content = do ->
   prevActive = null
   lastScroll = null
   segmentIntoView = (view, segment) ->
-    el = jQuery(view).find "##{segment.contentId}"
+    view = jQuery view
+    el = view.find "##{segment.contentId}"
 
     # Remove highlighting of previous element
     if prevActive
@@ -149,9 +150,7 @@ LYT.render.content = do ->
           jQuery("body").scrollTop top
           lastScroll = top
       else
-        el.get(0).scrollIntoView()
-        view.defaultView.scrollBy 0, -15
-
+        view.find("body").scrollTop el.offset().top - 10
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
@@ -178,43 +177,43 @@ LYT.render.content = do ->
         viewDoc.documentElement
       )
 
+      # Append context-viewer stylesheet
       docEl = jQuery viewDoc.documentElement
       docEl.find("head").append "<link rel='stylesheet' href='css/context.css' />"
 
-
-      # The #document of the <iframe>
-      doc = viewer.contents()
-      margin = 200 # TODO Should be configurable
+      doc = jQuery viewDoc
       images = docEl.find "img"
 
-      showImage = (image, ct, cb) ->
-        image = jQuery image
-        offset = image.offset()
-        if ((ct < offset.top < cb) or
-            (ct < offset.bottom < cb)) and image.attr("data-src")?
-          image.attr "src", image.attr "data-src"
-          image.removeAttr "data-src"
+      if images.length
+        margin = 200 # TODO Should be configurable
+        showImage = (image, ct, cb) ->
+          image = jQuery image
+          offset = image.offset()
+          if ((ct < offset.top < cb) or
+              (ct < offset.bottom < cb)) and image.attr("data-src")?
+            image.attr "src", image.attr "data-src"
+            image.removeAttr "data-src"
 
+        # iOS devices adjusts the <iframe>'s height so that *all* of its content
+        # is visible. Due to this *bug* we need to get scroll information from
+        # the top-most body
+        if /(iPad|iPhone|iPod)/g.test navigator.userAgent
+          body = jQuery "body"
+          scrollHandler = ->
+            ct = body.scrollTop() - margin
+            cb = ct + body.height() + 2 * margin
+            images.each -> showImage this, ct, cb
 
-      # iOS devices adjusts the <iframe>'s height so that *all* of its content
-      # is visible. Due to this *bug* we need to get scroll information from
-      # the top-most body
-      if /(iPad|iPhone|iPod)/g.test navigator.userAgent
-        body = jQuery "body"
-        scrollHandler = ->
-          ct = body.scrollTop() - margin
-          cb = ct + body.height() + 2 * margin
-          images.each -> showImage this, ct, cb
+          body.scroll jQuery.throttle 150, scrollHandler
+        else
+          scrollHandler = ->
+            ct = doc.scrollTop() - margin
+            cb = ct + viewer.height() + 2 * margin
+            images.each -> showImage this, ct, cb
 
-        body.scroll jQuery.throttle 150, scrollHandler
-      else
-        scrollHandler = ->
-          ct = doc.scrollTop() - margin
-          cb = ct + viewer.height() + 2 * margin
-          images.each -> showImage this, ct, cb
+          doc.scroll jQuery.throttle 150, scrollHandler
 
-        doc.scroll jQuery.throttle 150, scrollHandler
-
+      if not /(iPad|iPhone|iPod)/g.test navigator.userAgent
         # Enable hardware acceleration
         # For whatever reason this chrashes iOS devices
         docEl
@@ -223,11 +222,11 @@ LYT.render.content = do ->
             "transform": "translate3d(0, 0, 0)"
             "-webkit-transform": "translate3d(0, 0, 0)"
 
-
-      # Catch links
       doc.ready ->
         LYT.render.setStyle()
         segmentIntoView viewDoc, segment
+
+        # Catch links
         docEl.find("a[href]").click (e) ->
           e.preventDefault()
           LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
@@ -258,7 +257,8 @@ LYT.render.content = do ->
         when 'cartoon'
           renderCartoon segment, selectView(segment.type), renderDelta
         else
-          renderContext segment, selectView('context'), renderDelta
+          requestAnimationFrame ->
+            renderContext segment, selectView('context'), renderDelta
     else
       selectView null # Clears the content area
 
