@@ -142,17 +142,12 @@ LYT.render = do ->
   setStyle: ->
     log.message 'Render: setting custom style'
     # TODO: Dynamic modification of a CSS class in stead of this
-    $('#textarea-example, #book-plain-content').css LYT.settings.get('textStyle')
-
-    # Get the body element of the nested document in the <iframe>
-    body = $($('#context-viewer').get(0).contentDocument) .find("body")
-    body.css LYT.settings.get('textStyle')
+    $('#textarea-example, #book-context-content, #book-plain-content').css(
+      LYT.settings.get('textStyle')
+    )
 
     # Set word highlighting if appropriate
     LYT.render.setHighlighting LYT.settings.get('wordHighlighting')
-
-    $('#book-player').css
-      'background-color': body.css('background-color')
 
   setHighlighting: (highlight) ->
     # Set highlight on by default
@@ -160,11 +155,11 @@ LYT.render = do ->
       LYT.settings.set 'wordHighlighting', true
       highlight = true
 
-    body = $($('#context-viewer').get(0).contentDocument) .find("body")
-    if body.hasClass 'word-highlight'
-      body.removeClass 'word-highlight' if not highlight
+    viewer = $('#book-context-content')
+    if viewer.hasClass 'word-highlight'
+      viewer.removeClass 'word-highlight' if not highlight
     else
-      body.addClass 'word-highlight' if highlight
+      viewer.addClass 'word-highlight' if highlight
 
   setInfo: ->
     $('.lyt-version').html LYT.VERSION

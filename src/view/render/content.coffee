@@ -131,26 +131,18 @@ LYT.render.content = do ->
     panZoomImage segment, image, area, renderDelta
 
   prevActive = null
-  lastScroll = null
   segmentIntoView = (view, segment) ->
-    view = jQuery view
+    view = $(view)
     el = view.find "##{segment.contentId}"
 
     # Remove highlighting of previous element
     if prevActive
       prevActive.removeClass "active"
 
+    # Highlight element and scroll to element
     if el.length
-      # Highlight element
       prevActive = el.addClass "active"
-
-      # Workaround silly iOS bug
-      if /(iPad|iPhone|iPod)/g.test navigator.userAgent
-        if (top = el.position().top) isnt lastScroll
-          jQuery("body").scrollTop top
-          lastScroll = top
-      else
-        view.find("body").scrollTop el.offset().top - 10
+      el[0].scrollIntoView()
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
@@ -158,31 +150,26 @@ LYT.render.content = do ->
     book = segment.document.book
     html = book.resources[segment.contentUrl].document
     source = html.source[0]
-    viewer = view.find "iframe"
-    viewDoc = viewer.get(0).contentDocument
+    view = view[0]
 
-    contentID = "#{segment.document.book.id}/#{segment.contentUrl}"
-    if viewer.data("htmldoc") is contentID
-      segmentIntoView viewDoc, segment
+    contentID = "#{book.id}/#{segment.contentUrl}"
+    if $(view).data("htmldoc") is contentID
+      segmentIntoView view, segment
     else
       log.message "Render: Changing context to #{contentID}"
-      viewer.data "htmldoc", contentID
+      $(view).data "htmldoc", contentID
 
       # Don't load all images from document
       html.hideImages "css/images/ajax-loader.gif"
 
       # Change to new document
-      viewDoc.replaceChild(
-        viewDoc.importNode(source.documentElement, true),
-        viewDoc.documentElement
+      view.replaceChild(
+        document.importNode(source.body.firstChild, true),
+        view.firstChild
       )
 
-      # Append context-viewer stylesheet
-      docEl = jQuery viewDoc.documentElement
-      docEl.find("head").append "<link rel='stylesheet' href='css/context.css' />"
-
-      doc = jQuery viewDoc
-      images = docEl.find "img"
+      view = $(view)
+      images = view.find "img"
 
       if images.length
         margin = 200 # TODO Should be configurable
@@ -194,42 +181,20 @@ LYT.render.content = do ->
             image.attr "src", image.attr "data-src"
             image.removeAttr "data-src"
 
-        # iOS devices adjusts the <iframe>'s height so that *all* of its content
-        # is visible. Due to this *bug* we need to get scroll information from
-        # the top-most body
-        if /(iPad|iPhone|iPod)/g.test navigator.userAgent
-          body = jQuery "body"
-          scrollHandler = ->
-            ct = body.scrollTop() - margin
-            cb = ct + body.height() + 2 * margin
-            images.each -> showImage this, ct, cb
+        scrollHandler = ->
+          ct = view.scrollTop() - margin
+          cb = ct + view.height() + 2 * margin
+          images.each -> showImage this, ct, cb
 
-          body.scroll jQuery.throttle 150, scrollHandler
-        else
-          scrollHandler = ->
-            ct = doc.scrollTop() - margin
-            cb = ct + viewer.height() + 2 * margin
-            images.each -> showImage this, ct, cb
+        view.scroll jQuery.throttle 150, scrollHandler
 
-          doc.scroll jQuery.throttle 150, scrollHandler
+      LYT.render.setStyle()
+      segmentIntoView view, segment
 
-      if not /(iPad|iPhone|iPod)/g.test navigator.userAgent
-        # Enable hardware acceleration
-        # For whatever reason this chrashes iOS devices
-        docEl
-          .find('body')
-          .css
-            "transform": "translate3d(0, 0, 0)"
-            "-webkit-transform": "translate3d(0, 0, 0)"
-
-      doc.ready ->
-        LYT.render.setStyle()
-        segmentIntoView viewDoc, segment
-
-        # Catch links
-        docEl.find("a[href]").click (e) ->
-          e.preventDefault()
-          LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
+      # Catch links
+      view.find("a[href]").click (e) ->
+        e.preventDefault()
+        LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']
@@ -250,8 +215,8 @@ LYT.render.content = do ->
 
     if segment
       #TODO Fix this madness - this is too heavy for iOS
-      section = segment.document.book.getSectionBySegment segment
-      $('.player-chapter-title').text section.title
+      #section = segment.document.book.getSectionBySegment segment
+      #$('.player-chapter-title').text section.title
 
       switch segment.type
         when 'cartoon'
