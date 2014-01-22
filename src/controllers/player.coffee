@@ -320,14 +320,10 @@ LYT.player =
       if @showingPlay
         @showPauseButton()
 
-      time = status.currentTime
-
       # Don't do anything else if we're already moving to a new segment
-      if nextSegment?.state() is 'pending'
-        log.message "Player: play: progress: nextSegment set and pending."
-        log.message "Player: play: progress: Next segment: " +
-          "#{nextSegment.state()}. Pause until resolved."
-        return
+      return if nextSegment?.state() is 'pending'
+
+      time = status.currentTime
 
       # Update lastmark if necessary
       @updateLastMark()
@@ -384,8 +380,8 @@ LYT.player =
           return
 
         isNextInSync = (seg) =>
-          next = @_getNextSegment seg
-          next.then (next) =>
+          nextSegment = @_getNextSegment seg
+          nextSegment.then (next) =>
             # If the segment fits in the time interval we simply update the view
             if next.start <= time < next.end
               clearTimeout timer

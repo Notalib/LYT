@@ -242,9 +242,11 @@ class LYT.Book
       if item.id in refs
         id = item.id
       else
+        items = item.el.find("[id]")
         item.el.find("[id]").each ->
-          if @id in refs
-            id = @id
+          childID = @getAttribute "id"
+          if childID in refs
+            id = childID
             false # Break out early
 
     section = @nccDocument.sections[refs.indexOf id]
