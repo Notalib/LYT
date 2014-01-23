@@ -119,6 +119,11 @@ task "html", "Build HTML", (options) ->
     scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'
+
+  # We don't want Windows builds to have backward-slashes
+  if process.platform is 'win32' or fs.path.sep is "\\"
+    scripts = (script.replace(/\\/g, "/") for script in scripts)
+
   template = html.interpolate template, html.scriptTags(scripts), "cake:scripts"
 
   fs.writeFileSync "build/index.html", template
