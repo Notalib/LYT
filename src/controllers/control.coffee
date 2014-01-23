@@ -345,6 +345,11 @@ LYT.control =
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
 
+        # If this section is already playing, don't do anything
+        if LYT.player.book? and params.fragment? and
+           params.fragment is LYT.player.currentSection().fragment
+          return
+
         log.message "Control: bookPlay: loading book #{params.book}"
 
         process = LYT.player.load params.book, smilReference, offset, play
