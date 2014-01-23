@@ -34,17 +34,8 @@
 
 */
 
-@font-face {
-  font-family: "Dyslexic";
-  src: url("open_dyslexic/OpenDyslexic-Regular.otf") format("opentype");
-}
 
-@font-face {
-  font-family: "Dyslexic";
-  font-weight: bold;
-  src: url("open_dyslexic/OpenDyslexic-Bold.otf") format("opentype");
-}
-
+@import "partials/fonts";
 @import "partials/base";
 @import "partials/jplayer";
 
@@ -92,10 +83,9 @@ $ui-icon2x-spacing: 20px;
 }
 
 /* theese icons are default from jquery mobile, so we are not spriting them. */
-.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check {
+.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check, .ui-icon.ui-icon-checkbox-off, .ui-icon.ui-icon-checkbox-on {
   height: 18px !important;
   width: 18px !important;
-  margin-left: 0px !important;
   margin-left: 0px !important;
   margin-top: -8px !important;
 }
@@ -1158,13 +1148,42 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#book-cartoon-content, #textarea-example, #book-stack-content, #book-plain-content {
+#book-context-content {
+  overflow: scroll;
+
+  a {
+    text-decoration: none;
+  }
+
+  p {
+    margin-top: 0.3em;
+  }
+}
+
+#book-context-content.word-highlight {
+  span.word {
+    opacity: 0.4;
+  }
+
+  span.word.active {
+    opacity: 1;
+  }
+}
+
+#book-context-content > div {
+  margin: 2em;
+}
+
+#book-cartoon-content,
+#textarea-example,
+#book-plain-content,
+#book-context-content {
   position: relative;
   height: 100%;
+  text-shadow: none;
 }
 
 #book-cartoon-content, #textarea-example {
-  text-shadow: none;
   overflow: hidden;
 }
 
@@ -1191,14 +1210,7 @@ li.ui-li h3.no-search-results {
   display: inline;
 }
 
-#book-stack-content .segmentContainer.current {
-
-  p, h1, h2, h3, img, image, a, span {
-    opacity: 1.0;
-  }
-}
-
-#book-stack-content, #book-plain-content {
+#book-plain-content {
   overflow: hidden;
   text-shadow: none;
   text-align: center;

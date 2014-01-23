@@ -15,17 +15,18 @@ class LYT.player.command.play extends LYT.player.command
   constructor: (el) ->
     super el
     @_run => @el.jPlayer 'play'
+    @pollTimer = setInterval =>
+      audio = @el.data('jPlayer').htmlElement.audio
+      @notify currentTime: audio.currentTime, src: audio.src
+    , 1000/60
 
   cancel: ->
     super()
+    @pollTimer = clearInterval @pollTimer
     @el.jPlayer 'pause'
 
-    # We still receive "timeupdate" events after having paused the jPlayer
-    # element. @justCancelled is used to soak up any "timeupdate" events after
-    # pause, so we don't mess up the play() method in the player
-    @justCancelled = true
-
   _stop: (event) ->
+    clearInterval @pollTimer if @pollTimer
     method = if @cancelled then @reject else @resolve
     method.apply this, event.jPlayer.status
 
@@ -33,12 +34,6 @@ class LYT.player.command.play extends LYT.player.command
     playing: (event) =>
       @playing = true
       @notify event.jPlayer.status
-
-    timeupdate: (event) =>
-      if @playing and (event.jPlayer.status.paused or @justCancelled)
-        @_stop event
-      else
-        @notify event.jPlayer.status
 
     ended: (event) => @_stop event
 

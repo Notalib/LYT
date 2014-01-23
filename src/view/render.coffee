@@ -142,9 +142,24 @@ LYT.render = do ->
   setStyle: ->
     log.message 'Render: setting custom style'
     # TODO: Dynamic modification of a CSS class in stead of this
-    $('#textarea-example, #book-stack-content, #book-plain-content').css LYT.settings.get('textStyle')
-    $('#book-player').css
-      'background-color': $('#book-stack-content').css('background-color')
+    $('#textarea-example, #book-context-content, #book-plain-content').css(
+      LYT.settings.get('textStyle')
+    )
+
+    # Set word highlighting if appropriate
+    LYT.render.setHighlighting LYT.settings.get('wordHighlighting')
+
+  setHighlighting: (highlight) ->
+    # Set highlight on by default
+    if not highlight?
+      LYT.settings.set 'wordHighlighting', true
+      highlight = true
+
+    viewer = $('#book-context-content')
+    if viewer.hasClass 'word-highlight'
+      viewer.removeClass 'word-highlight' if not highlight
+    else
+      viewer.addClass 'word-highlight' if highlight
 
   setInfo: ->
     $('.lyt-version').html LYT.VERSION

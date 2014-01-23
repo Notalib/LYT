@@ -123,6 +123,11 @@ LYT.control =
           val = Number(val)
           LYT.settings.set('playbackRate', val)
           LYT.player.setPlaybackRate val
+        when 'word-highlighting'
+          isOn = target.prop "checked"
+          LYT.render.setHighlighting isOn
+          LYT.settings.set('wordHighlighting', isOn)
+
 
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
@@ -313,6 +318,9 @@ LYT.control =
       return
 
     if type is 'pagebeforeshow'
+      # Make sure we're looking good
+      LYT.render.setStyle()
+
       # Stop playback if we are going to switch to another book
       if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
@@ -337,7 +345,7 @@ LYT.control =
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
 
-        play = (params.play is 'true') or false
+        play = params.play is 'true'
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
 
@@ -469,11 +477,14 @@ LYT.control =
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
-              if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
+              if style['background-color'] is colors[0] and style['color'] is colors[1]
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
                 $(this).attr("checked", true).checkboxradio("refresh")
+            when 'word-highlighting'
+              $(this).prop("checked", LYT.settings.get("wordHighlighting"))
+                .checkboxradio("refresh")
 
 
 

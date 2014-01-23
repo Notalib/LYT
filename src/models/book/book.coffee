@@ -236,15 +236,18 @@ class LYT.Book
     iterator = () ->
       result = current
       current = current?.previous
-      return result
+      result
 
     while not id and item = iterator()
       if item.id in refs
         id = item.id
       else
-        jQuery.makeArray(item.el.find "[id]").some (child) ->
-          childID = jQuery(child).attr "id"
-          if childID in refs then id = childID
+        items = item.el.find("[id]")
+        item.el.find("[id]").each ->
+          childID = @getAttribute "id"
+          if childID in refs
+            id = childID
+            false # Break out early
 
     section = @nccDocument.sections[refs.indexOf id]
 
