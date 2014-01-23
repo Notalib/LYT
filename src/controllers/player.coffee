@@ -364,19 +364,19 @@ LYT.player =
         # If we're in skip state, and about to change section
         if @inSkipState and not segment.hasNext()
           log.message "Player: play: progress: In skip state"
-          curSection = @book.getSectionBySegment segment
-          ncc = curSection.nccDocument
+          nextSection = @book.getSectionBySegment segment
 
-          # Get index of next section (which apparently is meta-content)
-          index = ncc.getSectionIndexById curSection.id
-          skips = 1
-          while (nextSection = ncc.sections[index + skips]).metaContent
+          skips = 0
+          while (nextSection = nextSection.next)?.metaContent
             skips++
 
-          log.message "Player: play: Skipping #{skips - 1} meta-content sections"
+          log.message "Player: play: Skipping #{skips} meta-content sections"
           nextSegment = nextSection.load().firstSegment()
-          command.always => @playSegment next
-          command.cancel()
+          nextSegment.then =>
+            command.cancel()
+            command.always =>
+              clearTimeout timer
+              @playSegment nextSegment
           return
 
         isNextInSync = (seg) =>

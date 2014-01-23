@@ -190,6 +190,7 @@ LYT.render.content = do ->
 
       LYT.render.setStyle()
       segmentIntoView view, segment
+      scrollHandler() if scrollHandler? # Show images which visible initially
 
       # Catch links
       view.find("a[href]").click (e) ->
