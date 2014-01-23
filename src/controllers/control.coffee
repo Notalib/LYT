@@ -345,7 +345,7 @@ LYT.control =
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
 
-        play = (params.play is 'true') or false
+        play = params.play is 'true'
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
 

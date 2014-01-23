@@ -214,8 +214,8 @@ LYT.render.content = do ->
     renderDelta = now - lastRender if lastRender
 
     if segment
-      if segment.beginSection
-        $('.player-chapter-title').text segment.beginSection.title
+      if segment.sectionTitle or segment.beginSection
+        $('.player-chapter-title').text segment.sectionTitle or segment.beginSection.title
 
       switch segment.type
         when 'cartoon'

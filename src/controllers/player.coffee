@@ -460,6 +460,11 @@ LYT.player =
         (segment) =>
           log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
           offset = segment.audioOffset(smilOffset) if smilOffset
+          # Check if it has beginSection or not. If not we need to set the
+          # correct section title
+          if not segment.beginSection?
+            segment.sectionTitle = @book.getSectionBySegment(segment)?.title
+
           @seekSegmentOffset segment, offset
         (error) =>
           if url.match /__LYT_auto_/
@@ -571,7 +576,9 @@ LYT.player =
           prev.then (prev) =>
             seekTime = seekTime + prev.duration()
             if (seekTime > 0)
-              #segment found
+              # Found the right segment - now we need to find the title of the
+              # section
+              prev.sectionTitle = @book.getSectionBySegment(prev)?.title
               @seekSegmentOffset(prev, seekTime+prev.start).then =>
                 @play() if @playing
             else
@@ -586,7 +593,9 @@ LYT.player =
           next = @_getNextSegment seg
           next.then (next) =>
             if (seconds < next.duration())
-              # segment found
+              # Found the right segment - now we need to find the title of the
+              # section
+              next.sectionTitle = @book.getSectionBySegment(next)?.title
               @seekSegmentOffset(next, seconds).then =>
                 @play() if @playing
             else
