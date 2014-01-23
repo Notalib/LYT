@@ -19,16 +19,8 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       item.attr "src", resources[url]?.url
       item.data "resolved", "yes" # Mark as processed
 
-    ###
-    # Resolve stylesheets
-    source.find("link[href]").each (index, item) ->
-      item = jQuery item
-      url = item.attr("href").split("/").pop()
-      item.attr("href", resources[url]?.url)
-    ###
-
   stripTags = (source) ->
-    source.remove("link").remove("script")
+    source.find("link, script, style").remove()
 
   constructor: (url, resources, callback) ->
     super url, =>
