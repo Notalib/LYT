@@ -277,7 +277,6 @@ LYT.catalog = do ->
           "Lyd med tekst"
         else
           "Ukendt"
-
       info
 
   # ## Public API
