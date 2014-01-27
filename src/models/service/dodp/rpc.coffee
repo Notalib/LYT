@@ -149,7 +149,7 @@ LYT.rpc = do ->
         deferred.reject RPC_UNEXPECTED_RESPONSE_ERROR, "#{error}"
 
       if not (results instanceof Array) then results = [results]
-      deferred.resolve.apply null, results
+      deferred.resolve results...
 
 
     # FIXME: Structure this better, so the errorHandler doesn't need to
