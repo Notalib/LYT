@@ -22,14 +22,15 @@ LYT.render = do ->
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
 
-    if String(book.id) is String(LYT.player.book?.id)
+    if book.id is LYT.player.book?.id
       nowPlaying = '<div class="book-now-playing"></div>'
 
+    title = book.title?.replace /\"/g, ""
     element = jQuery """
       <li data-book-id="#{book.id}">
-        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
+        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{title}" href="##{target}?book=#{book.id}">
           <div class="cover-image-frame">
-            <img class="ui-li-icon cover-image">
+            <img class="ui-li-icon cover-image" role="presentation"">
           </div>
           <h3>#{book.title or "&nbsp;"}</h3>
           <p>#{info or "&nbsp;"}</p>
