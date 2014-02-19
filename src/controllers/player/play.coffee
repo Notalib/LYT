@@ -14,7 +14,26 @@ class LYT.player.command.play extends LYT.player.command
 
   constructor: (el) ->
     super el
-    @_run => @el.jPlayer 'play'
+    @audio = @el.find('audio')[0]
+    @_run =>
+      if @audio.readyState is 4
+        # If we've got the canplaythrough event, we just play
+        @el.jPlayer 'play'
+      else
+        # Otherwise we apply a different strategy, by waiting a couple of
+        # seconds, but still ensuring responsivenes
+        @firstplay = true
+        @el.jPlayer 'play'
+        setTimeout(
+          => @el.jPlayer 'pause'
+          200
+        )
+        setTimeout(
+          =>
+            @firstplay = false
+            @el.jPlayer 'play'
+          4000
+        )
 
   cancel: ->
     super()
@@ -28,17 +47,22 @@ class LYT.player.command.play extends LYT.player.command
       @resolve()
 
   handles: ->
+    canplaythrough: (event) =>
+      log.message "Command play: Received canplaythrough event"
+
     playing: (event) =>
+      return if @firstplay
+      log.message "Command play: Now playing audio"
       @playing = true
       @notify event.jPlayer.status
 
     timeupdate: (event) =>
-      if @playing and (event.jPlayer.status.paused or @cancelled)
-        @_stop()
-      else
-        @notify event.jPlayer.status
+      @notify event.jPlayer.status
 
-    ended: (event) => @_stop()
+    ended: (event) =>
+      log.message "Command play: Audio playing ended"
+      @_stop()
 
-    pause: (event) => @_stop()
+    pause: (event) =>
+      log.message "Command play: paused due to buffering"
 

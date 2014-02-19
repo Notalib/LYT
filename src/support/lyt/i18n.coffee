@@ -10,6 +10,7 @@ LYT.i18n = do ->
 
   # The strings themselves, as a hash
   strings =
+    'Initializing':                     'Starter op'
     'Loading':                          'Indlæser'
     'Loading sound':                    'Henter lyd'
     'Loading book':                     'Indlæser bog'
