@@ -24,15 +24,16 @@ class LYT.player.command.play extends LYT.player.command
         # seconds, but still ensuring responsivenes
         @firstplay = true
         @el.jPlayer 'play'
-        setTimeout(
-          => @el.jPlayer 'pause'
-          200
-        )
-        setTimeout(
+        @timer = setTimeout(
           =>
-            @firstplay = false
-            @el.jPlayer 'play'
-          4000
+            @el.jPlayer 'pause'
+            @timer = setTimeout(
+              =>
+                @firstplay = false
+                @el.jPlayer 'play'
+              3000
+            )
+          200
         )
 
   cancel: ->
@@ -49,6 +50,13 @@ class LYT.player.command.play extends LYT.player.command
   handles: ->
     canplaythrough: (event) =>
       log.message "Command play: Received canplaythrough event"
+
+      # If we've applied the "slow" strategy, we cancel it out and start
+      # playing if necessary
+      if @timer
+        clearTimeout @timer
+        @firstplay = false
+        @el.jPlayer('play') if @audio.paused
 
     playing: (event) =>
       return if @firstplay
