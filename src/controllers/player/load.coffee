@@ -22,7 +22,7 @@ class LYT.player.command.load extends LYT.player.command
       @el.jPlayer 'load'
     else
       # Give up - we pretend that we have got the duration
-      @resolve event.jPlayer.status
+      @resolve()
 
   handles: ->
     loadedmetadata: (event) =>
