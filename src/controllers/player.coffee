@@ -486,7 +486,8 @@ LYT.player =
               "generated bookmarks - rewinding to start"
           else
             log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
-          @rewind()
+
+          @seekSegmentOffset @book.nccDocument.firstSegment()
     else
       promise
         .then =>
