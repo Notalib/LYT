@@ -538,8 +538,8 @@ LYT.control =
     else if type is 'pagehide'
       LYT.render.showTestTab()
 
-  suggestions: -> $.mobile.changePage("#search?list=anbe")
+  suggestions: -> $.mobile.changePage('#search?list=anbe')
 
-  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)
