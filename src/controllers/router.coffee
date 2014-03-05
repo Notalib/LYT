@@ -42,8 +42,8 @@ $(document).bind "mobileinit", ->
     "#book-details([?].*)?":
       handler: "bookDetails"
       events: "s,bs"
-    "#book-play([?].*)?$":
-      handler: "bookPlayer"
+    "#book-play([?].*)?$": # Deprecated - use book-player in stead
+      handler: "bookPlay"
       events: "bs,s"
     "#book-player([?].*)?":
       handler: "bookPlayer"
