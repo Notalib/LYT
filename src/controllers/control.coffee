@@ -311,6 +311,10 @@ LYT.control =
 
       renderIndex()
 
+  bookPlay: (type, match, ui, page, event) ->
+    log.message match
+    $.mobile.changePage '#book-player' + match[1]
+
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
