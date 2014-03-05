@@ -79,72 +79,19 @@ LYT.rpc = do ->
       window.DODP_UNKNOWN_ERROR
 
 
-  # Error-handler-factory-function-and-I-like-hyphens
-  createErrorHandler = (deferred, successHandler) ->
-    (jqXHR, status, error) ->
-      # A status 500 by default invokes this error handler,
-      # but if there's responseXML the response should
-      # instead be handled by the success handler, since
-      # it will parse the response (which contains fault
-      # codes etc), and handle it appropriately.
-      if jqXHR.status is 500 and jqXHR.responseXML?
-        successHandler jqXHR.responseXML, jqXHR.status, jqXHR
-        return
+  isTherefault = (xml, deferred) ->
+    faultstring = jQuery.trim xml.find("faultstring").text()
+    faultcode   = jQuery.trim xml.find("faultcode").text()
+    fault       = jQuery.trim xml.find("Fault").text()
 
-      switch status
-        when "timeout"
-          deferred.reject RPC_TIMEOUT_ERROR, error
-          return
-        when "error", null
-          deferred.reject RPC_GENERAL_ERROR, error
-          return
-        when "abort"
-          deferred.reject RPC_ABORT_ERROR, error
-          return
-        when "parsererror"
-          deferred.reject RPC_PARSER_ERROR, error
-          return
-      deferred.reject RPC_HTTP_ERROR, error
+    if faultcode or faultstring or fault
+      dodpFault = identifyDODPError faultcode, faultstring
+      log.errorGroup "RPC: Resource error: #{faultcode}: #{faultstring}"
+      deferred.reject dodpFault, faultstring
+      return true
+    else
+      return false
 
-
-  createResponseHandler = (action, deferred) ->
-    handlers = LYT.protocol[action]
-
-    (data, status, xhr) ->
-      if not data or not ($xml = jQuery data)
-        deferred.reject DODP_UNKNOWN_ERROR, "Unknown error"
-        return
-
-      # TODO: This is kinda brittle. Unless the server totally respects the
-      # DODP/SOAP specifications, there're all kinds of ways this code will
-      # fail to find a fault in the response...
-      faultstring = jQuery.trim $xml.find("faultstring").text()
-      faultcode   = jQuery.trim $xml.find("faultcode").text()
-
-      if faultcode or faultstring or $xml.find("Fault").length > 0
-        fault = identifyDODPError faultcode, faultstring
-        log.errorGroup "RPC: Resource error: #{faultcode}: #{faultstring}", data
-        deferred.reject fault, faultstring
-        return
-
-      log.group "RPC: Response for action \"#{action}\"", data
-
-      unless handlers.receive?
-        deferred.resolve data, status, xhr
-        return
-
-      # Call the RPC's `receive` function, if it exists
-      try
-        results = handlers.receive $xml, data, status, xhr
-      catch error
-        log.errorGroup "RPC: #{error}", data
-        deferred.reject RPC_UNEXPECTED_RESPONSE_ERROR, "#{error}"
-
-      if not (results instanceof Array) then results = [results]
-      deferred.resolve.apply null, results
-
-
-  # The actual `rpc` function
   (action, args...) ->
     # Throw a fit if the argument isn't a string
     unless typeof action is "string"
@@ -184,14 +131,49 @@ LYT.rpc = do ->
     log.group "RPC: Calling \"#{action}\"", soap, options.data
 
     # Set up the success/error handlers
-    options.success = createResponseHandler action, deferred
+    options.success = (data, status, xhr) ->
+      if not data or not (xml = jQuery data)
+        return deferred.reject DODP_UNKNOWN_ERROR, "Unknown error"
 
-    # FIXME: Structure this better, so the errorHandler doesn't need to be passed the success-handler
-    options.error   = createErrorHandler deferred, options.success
+      return if isTherefault xml, deferred
+
+      log.group "RPC: Response for action \"#{action}\"", data
+
+      return deferred.resolve data, status, xhr unless handlers.receive?
+
+      # Call the RPC's `receive` function, if it exists
+      try
+        results = handlers.receive xml, data, status, xhr
+      catch error
+        log.errorGroup "RPC: #{error}", data
+        deferred.reject RPC_UNEXPECTED_RESPONSE_ERROR, "#{error}"
+
+      if not (results instanceof Array) then results = [results]
+      deferred.resolve results...
+
+
+    # FIXME: Structure this better, so the errorHandler doesn't need to
+    # be passed the success-handler
+    options.error =  (jqXHR, status, error) ->
+      # A status 500 by default invokes this error handler,
+      # but if there's responseXML the response should
+      # instead be handled by the success handler, since
+      # it will parse the response (which contains fault
+      # codes etc), and handle it appropriately.
+      if jqXHR.status is 500 and jqXHR.responseXML?
+        if isTherefault jqXHR.responseXML, deferred
+          return
+
+      errCode = switch status
+        when "timeout"     then RPC_TIMEOUT_ERROR
+        when "abort"       then RPC_ABORT_ERROR
+        when "parsererror" then RPC_PARSER_ERROR
+        when "error", null then RPC_GENERAL_ERROR
+        else                    RPC_HTTP_ERROR
+
+      deferred.reject errCode, error
 
     # Perform the request
     jQuery.ajax options
-
     # Return the deferred's promise
     deferred.promise()
-

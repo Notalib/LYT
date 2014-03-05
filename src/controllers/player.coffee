@@ -20,6 +20,7 @@ LYT.player =
   playbackRate: 1
   lastBookmark: (new Date).getTime()
   inSkipState: false
+  showingPlay: true # true if the play triangle button is shown, false otherwise
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -130,6 +131,9 @@ LYT.player =
 
     $('.lyt-pause').click =>
       LYT.instrumentation.record 'ui:stop'
+      if not @showingPlay
+        @showPauseButton()
+
       @stop()
 
     $('.lyt-play').click =>
@@ -308,12 +312,13 @@ LYT.player =
           log.message 'Player: play: play: waiting for next segment'
         else
           @playNextSegment()
-      command.always => @showPlayButton() unless @playing
+      command.always => @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
       @firstPlay = false if @firstPlay
 
-      @showPauseButton()
+      if @showingPlay
+        @showPauseButton()
 
       time = status.currentTime
 
@@ -451,7 +456,6 @@ LYT.player =
         (segment) =>
           log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
           offset = segment.audioOffset(smilOffset) if smilOffset
-          @_setCurrentSegment segment
           @seekSegmentOffset segment, offset
         (error) =>
           if url.match /__LYT_auto_/
@@ -594,14 +598,12 @@ LYT.player =
       @book.saveBookmarks()
     else
       next = @_getNextSegment()
-      @_setCurrentSegment next
       @navigate next
 
   # Plays the previous segment in queue, and updates currentSegment
   playPreviousSegment: ->
     return unless @hasPreviousSegment()
     prev = @_getPreviousSegment()
-    @_setCurrentSegment prev
     @navigate prev
 
   # Will display the provided segment, load (if necessary) and play the
@@ -632,7 +634,7 @@ LYT.player =
     else
       handler()
 
-  rewind: -> @_setCurrentSegment @book.nccDocument.firstSegment()
+  rewind: -> @_setCurrentSegment @book.firstSegment()
 
   currentSection: -> @book.getSectionBySegment @currentSegment
 
@@ -697,11 +699,13 @@ LYT.player =
         button.addClass('ui-btn-active').focus()
 
   showPlayButton: ->
+    @showingPlay = true
     $('.lyt-pause').css 'display', 'none'
     $('.lyt-play').css('display', '')
     @setFocus()
 
   showPauseButton: ->
+    @showingPlay = false
     $('.lyt-play').css 'display', 'none'
     $('.lyt-pause').css('display', '')
     @setFocus()

@@ -203,9 +203,10 @@ class LYT.Book
     ordered
 
   getSMIL: (url) ->
+    url = url.toLowerCase()
     deferred = jQuery.Deferred()
     if not (url of @resources)
-      return deferred.promise().reject()
+      return deferred.reject()
 
     smil = @resources[url]
     smil.document or= new LYT.SMILDocument smil.url, this
@@ -218,6 +219,13 @@ class LYT.Book
       deferred.reject error
 
     deferred.promise()
+
+  firstSegment: ->
+    @nccDocument
+    .then (document) ->
+      document.firstSection()
+    .then (section) ->
+      section.firstSegment()
 
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)
@@ -333,8 +341,7 @@ class LYT.Book
       log.error 'Book: segmentByAudioOffset: audio not provided'
       return jQuery.Deferred().reject('audio not provided')
 
-    deferred = jQuery.Deferred()
-    promise = @searchSections start, (section) =>
+    @searchSections start, (section) =>
       for segment in section.document.segments
         # Using 0.01s to cover rounding errors (yes, they do occur)
         if segment.audio is audio and segment.start - 0.01 <= offset < segment.end + 0.01
@@ -344,11 +351,6 @@ class LYT.Book
           log.message "Book: segmentByAudioOffset: load segment #{segment.url()}"
           segment.load()
           return segment
-
-    promise.done (segment) ->
-      segment.done -> deferred.resolve segment
-    promise.fail -> deferred.reject()
-    deferred.promise()
 
   # Search for sections using a callback handler
   # Returns a jQuery promise.
@@ -405,7 +407,7 @@ class LYT.Book
         section.load()
         return section.pipe (section) ->
           if result = handler section
-            return jQuery.Deferred().resolve(result)
+            return jQuery.Deferred().resolve result
           else
             return searchNext()
       else
