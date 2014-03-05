@@ -312,7 +312,6 @@ LYT.control =
       renderIndex()
 
   bookPlay: (type, match, ui, page, event) ->
-    log.message match
     $.mobile.changePage '#book-player' + match[1]
 
   bookPlayer: (type, match, ui, page, event) ->
