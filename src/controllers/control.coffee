@@ -185,7 +185,7 @@ LYT.control =
         promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
-        $.mobile.changePage '#login'
+        $.mobile.path.set 'login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
 
@@ -326,6 +326,10 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+        # If we're already playing this book, and we're coming from the
+        # bookshelf, we just continue playing
+        if LYT.player.book?.id is params.book and params.from is 'bookshelf'
+          return
 
         # Switch to different (part of) book
         # Because of bad naming, sections are here actually SMIL
@@ -344,6 +348,11 @@ LYT.control =
         play = (params.play is 'true') or false
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
+
+        # If this section is already playing, don't do anything
+        if LYT.player.book? and params.fragment? and
+           params.fragment is LYT.player.currentSection().fragment
+          return
 
         log.message "Control: bookPlay: loading book #{params.book}"
 

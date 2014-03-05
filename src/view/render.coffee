@@ -16,20 +16,22 @@ LYT.render = do ->
   defaultCover = '/images/icons/default-cover.png'
 
   # Create a book list-item which links to the `target` page
-  bookListItem = (target, book) ->
+  bookListItem = (target, book, from = "") ->
     info = []
     info.push book.author if book.author?
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
+    from = "&from=#{from}" if from isnt ""
 
-    if String(book.id) is String(LYT.player.book?.id)
+    if book.id is LYT.player.book?.id
       nowPlaying = '<div class="book-now-playing"></div>'
 
+    title = book.title?.replace /\"/g, ""
     element = jQuery """
       <li data-book-id="#{book.id}">
-        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id}">
+        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id + from}">
           <div class="cover-image-frame">
-            <img class="ui-li-icon cover-image">
+            <img class="ui-li-icon cover-image" role="presentation"">
           </div>
           <h3>#{book.title or "&nbsp;"}</h3>
           <p>#{info or "&nbsp;"}</p>
@@ -157,7 +159,7 @@ LYT.render = do ->
     list.empty() if page is 1 or zeroAndUp
 
     for book in books
-      li = bookListItem 'book-player', book
+      li = bookListItem 'book-player', book, 'bookshelf'
       removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink

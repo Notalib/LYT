@@ -20,6 +20,7 @@ LYT.player =
   playbackRate: 1
   lastBookmark: (new Date).getTime()
   inSkipState: false
+  showingPlay: true # true if the play triangle button is shown, false otherwise
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -130,6 +131,9 @@ LYT.player =
 
     $('.lyt-pause').click =>
       LYT.instrumentation.record 'ui:stop'
+      if not @showingPlay
+        @showPauseButton()
+
       @stop()
 
     $('.lyt-play').click (e) =>
@@ -231,15 +235,19 @@ LYT.player =
           # whatever reason, that makes the silentplay command stall after two
           # timeupdate/progress events, and we never get any further. Therefore
           # we need to stop the bubbling of the event
-          e.stopPropagation()
+          e.stopImmediatePropagation()
           e.preventDefault()
 
           @playClickHook = null
           silentplay = new LYT.player.command.silentplay @el
-          playPromise = silentplay.then =>
+          LYT.loader.register 'Initializing', silentplay
+          LYT.render.disablePlayerNavigation()
+
+          silentplay.then =>
             log.message 'Player: load: silentplay done - will load (and possibly seek) now'
-            @seekSmilOffsetOrLastmark url, smilOffset
-          return @playCommand = new LYT.player.command.deferred @el, playPromise
+            @seekSmilOffsetOrLastmark(url, smilOffset).then ->
+              LYT.render.disablePlayerNavigation()
+
         return jQuery.Deferred().resolve book
       else
         log.message 'Player: chaining seeked because we are not in firstPlay mode'
@@ -307,7 +315,11 @@ LYT.player =
   play: ->
     command = null
     nextSegment = null
+    loader = null
     getPlayCommand = =>
+      loader = jQuery.Deferred()
+      LYT.loader.register 'Loading sound', loader
+      LYT.render.disablePlayerNavigation()
       command = new LYT.player.command.play @el
       command.progress progressHandler
       command.done =>
@@ -317,12 +329,18 @@ LYT.player =
           log.message 'Player: play: play: waiting for next segment'
         else
           @playNextSegment()
-      command.always => @showPlayButton() unless @playing
+      command.always => @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
+      if loader
+        LYT.render.enablePlayerNavigation()
+        loader.resolve()
+        loader = null
+
       @firstPlay = false if @firstPlay
 
-      @showPauseButton()
+      if @showingPlay
+        @showPauseButton()
 
       time = status.currentTime
 
@@ -438,8 +456,8 @@ LYT.player =
       oldCommand.cancel()
     else
       previous.resolve()
-    result = previous.then => @playCommand = getPlayCommand()
-    result
+
+    previous.then => @playCommand = getPlayCommand()
 
   seekSmilOffsetOrLastmark: (url, smilOffset) ->
     log.message "Player: seekSmilOffsetOrLastmark: #{url}, #{smilOffset}"
@@ -455,27 +473,28 @@ LYT.player =
     # TODO: [play-controllers] Make sure to call updateHtml once book-player
     #       is displayed.
     if url
-      promise = promise.then => @book.segmentByURL url
-      promise = promise.then(
-        (segment) =>
+      promise
+        .then =>
+          @book.segmentByURL url
+        .then (segment) =>
           log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
           offset = segment.audioOffset(smilOffset) if smilOffset
-          @_setCurrentSegment segment
           @seekSegmentOffset segment, offset
-        (error) =>
+        .fail (error) =>
           if url.match /__LYT_auto_/
-            log.message "Player: failed to load #{url} containing auto generated bookmarks - rewinding to start"
+            log.message "Player: failed to load #{url} containing auto " +
+              "generated bookmarks - rewinding to start"
           else
             log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
-          @rewind()
-      )
+
+          @seekSegmentOffset @book.nccDocument.firstSegment()
     else
-      promise = promise.then => @rewind()
-      promise = promise.then (segment) => @seekSegmentOffset segment, 0
-
-    promise.fail -> log.error "Player: failed to find segment: #{url}"
-
-    promise
+      promise
+        .then =>
+          @rewind()
+        .then (segment) =>
+          @seekSegmentOffset segment, 0
+        .fail -> log.error "Player: failed to find segment: #{url}"
 
 
   seekSegmentOffset: (segment, offset) ->
@@ -737,11 +756,13 @@ LYT.player =
         button.addClass('ui-btn-active').focus()
 
   showPlayButton: ->
+    @showingPlay = true
     $('.lyt-pause').css 'display', 'none'
     $('.lyt-play').css('display', '')
     @setFocus()
 
   showPauseButton: ->
+    @showingPlay = false
     $('.lyt-play').css 'display', 'none'
     $('.lyt-pause').css('display', '')
     @setFocus()
