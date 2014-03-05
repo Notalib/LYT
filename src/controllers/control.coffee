@@ -311,6 +311,9 @@ LYT.control =
 
       renderIndex()
 
+  bookPlay: (type, match, ui, page, event) ->
+    $.mobile.changePage '#book-player' + match[1]
+
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
@@ -551,8 +554,8 @@ LYT.control =
     else if type is 'pagehide'
       LYT.render.showTestTab()
 
-  suggestions: -> $.mobile.changePage("#search?list=anbe")
+  suggestions: -> $.mobile.changePage('#search?list=anbe')
 
-  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)
