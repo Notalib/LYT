@@ -1187,6 +1187,12 @@ li.ui-li h3.no-search-results {
   display: inline;
 }
 
+.segmentContainer > span.sentence {
+  display: block;
+  text-align: left;
+  margin: 2% 6% 0 5%;
+}
+
 #book-stack-content .segmentContainer.current {
 
   p, h1, h2, h3, img, image, a, span {
