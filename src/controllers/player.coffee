@@ -275,8 +275,8 @@ LYT.player =
     @playing = false
     @wait()
 
-  setPlaybackRate: (playbackRate = 1) ->
-    log.message "Player: setPlaybackRate: #{@playbackRate}"
+  setPlaybackRate: (playbackRate = @playbackRate) ->
+    log.message "Player: setPlaybackRate: (#{@playbackRate} -> #{playbackRate})"
 
     jPlayer = @el.data 'jPlayer'
     audio = jPlayer.htmlElement.audio
@@ -316,6 +316,11 @@ LYT.player =
 
     progressHandler = (status) =>
       @firstPlay = false if @firstPlay
+
+      # If this is a newly loaded file, we set the user's playback rate
+      if @newAudioLoaded
+        @setPlaybackRate()
+        @newAudioLoaded = false
 
       if @showingPlay
         @showPauseButton()
@@ -493,7 +498,9 @@ LYT.player =
     result = result.then (segment) =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        (new LYT.player.command.load @el, segment.audio).then -> segment
+        (new LYT.player.command.load @el, segment.audio).then =>
+          @newAudioLoaded = true
+          segment
       else
         jQuery.Deferred().resolve segment
 
