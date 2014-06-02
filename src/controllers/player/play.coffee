@@ -14,33 +14,63 @@ class LYT.player.command.play extends LYT.player.command
 
   constructor: (el) ->
     super el
-    @_run => @el.jPlayer 'play'
+    @audio = @el.find('audio')[0]
+    @_run =>
+      if @audio.readyState is 4
+        # If we've got the canplaythrough event, we just play
+        @el.jPlayer 'play'
+      else
+        # Otherwise we apply a different strategy, by waiting a couple of
+        # seconds, but still ensuring responsivenes
+        @firstplay = true
+        @el.jPlayer 'play'
+        @timer = setTimeout(
+          =>
+            @el.jPlayer 'pause'
+            @timer = setTimeout(
+              =>
+                @firstplay = false
+                @el.jPlayer 'play'
+              3000
+            )
+          200
+        )
 
   cancel: ->
     super()
     @el.jPlayer 'pause'
+    @_stop()
 
-    # We still receive "timeupdate" events after having paused the jPlayer
-    # element. @justCancelled is used to soak up any "timeupdate" events after
-    # pause, so we don't mess up the play() method in the player
-    @justCancelled = true
-
-  _stop: (event) ->
-    method = if @cancelled then @reject else @resolve
-    method.apply this, event.jPlayer.status
+  _stop: ->
+    if @cancelled
+      @reject()
+    else
+      @resolve()
 
   handles: ->
+    canplaythrough: (event) =>
+      log.message "Command play: Received canplaythrough event"
+
+      # If we've applied the "slow" strategy, we cancel it out and start
+      # playing if necessary
+      if @timer
+        clearTimeout @timer
+        @firstplay = false
+        @el.jPlayer('play') if @audio.paused
+
     playing: (event) =>
+      return if @firstplay
+      log.message "Command play: Now playing audio"
       @playing = true
       @notify event.jPlayer.status
 
     timeupdate: (event) =>
-      if @playing and (event.jPlayer.status.paused or @justCancelled)
-        @_stop event
-      else
-        @notify event.jPlayer.status
+      @notify event.jPlayer.status
 
-    ended: (event) => @_stop event
+    ended: (event) =>
+      log.message "Command play: Audio playing ended"
+      @_stop()
 
-    pause: (event) => @_stop event
+    pause: (event) =>
+      log.message "Command play: paused due to buffering"
 

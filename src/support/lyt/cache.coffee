@@ -13,11 +13,16 @@
 # will be deleted from oldest to newest until there's room.
 
 LYT.cache = do =>
+  supported = do ->
+    try
+      window.localStorage?
+    catch
+      false
 
   # ## Privileged API
 
   getCache = (key) ->
-    return null unless window.localStorage?
+    return null unless supported
     cache = localStorage.getItem key
     return null unless cache and (cache = JSON.parse(cache))
     cache
@@ -51,13 +56,13 @@ LYT.cache = do =>
 
   # Retrieve the object with the given namspace (prefix) and ID
   read: (prefix, id) ->
-    return null unless window.localStorage?
+    return null unless supported
     cache = getCache "#{prefix}/#{id}"
     cache?.data or null
 
   # Store an object under the given namspace (prefix) and ID
   write: (prefix, id, data) ->
-    return null unless window.localStorage?
+    return null unless supported
     log.message "Cache: Writing '#{prefix}/#{id}'"
     removeCache "#{prefix}/#{id}"
 
@@ -71,12 +76,10 @@ LYT.cache = do =>
     success = false
     until success
       try
-        # FIXME: Check that the JSON-object is available on all targeted platforms
-        # Otherwise it's available as a script from json.org
         localStorage.setItem "#{prefix}/#{id}", JSON.stringify(cache)
         success = true
       catch error
-        if error is QUOTA_EXCEEDED_ERR
+        if error.name is "QUOTA_EXCEEDED_ERR"
           removeOldest prefix
         else
           break
@@ -85,7 +88,7 @@ LYT.cache = do =>
 
   # Delete the given object from `localStorage`
   remove: (prefix, id) ->
-    return null unless window.localStorage?
+    return null unless supported
     log.message "Cache: Deleting '#{prefix}/#{id}'"
     removeCache "#{prefix}/#{id}"
 

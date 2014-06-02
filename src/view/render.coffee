@@ -16,11 +16,12 @@ LYT.render = do ->
   defaultCover = '/images/icons/default-cover.png'
 
   # Create a book list-item which links to the `target` page
-  bookListItem = (target, book) ->
+  bookListItem = (target, book, from = "") ->
     info = []
     info.push book.author if book.author?
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
+    from = "&from=#{from}" if from isnt ""
 
     if book.id is LYT.player.book?.id
       nowPlaying = '<div class="book-now-playing"></div>'
@@ -28,7 +29,7 @@ LYT.render = do ->
     title = book.title?.replace /\"/g, ""
     element = jQuery """
       <li data-book-id="#{book.id}">
-        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{title}" href="##{target}?book=#{book.id}">
+        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id + from}">
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image" role="presentation"">
           </div>
@@ -158,7 +159,7 @@ LYT.render = do ->
     list.empty() if page is 1 or zeroAndUp
 
     for book in books
-      li = bookListItem 'book-player', book
+      li = bookListItem 'book-player', book, 'bookshelf'
       removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
@@ -360,10 +361,10 @@ LYT.render = do ->
         share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
         remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
         share.on 'click', ->
-          [section, segment] = bookmark.URI.split '#'
+          [smil, segment] = bookmark.URI.split '#'
           reference =
             book: book.id
-            section: section
+            smil: smil
             segment: segment
             offset: bookmark.timeOffset
           jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
