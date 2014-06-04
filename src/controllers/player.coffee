@@ -53,7 +53,11 @@ LYT.player =
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         console.log 'DEEEEEEEFFFFAAAAAuuuuuLT', @playbackRate
-        $('audio')[0].defaultPlaybackRate = @playbackRate
+
+        # IE needs defaultPlaybackRate to start/resume playing at the given
+        # playbackrate
+        audio = @el.data('jPlayer').htmlElement.audio
+        audio.defaultPlaybackRate = @playbackRate
         @ready = true
 
     jPlayerParams.warning = (event) =>
@@ -298,7 +302,9 @@ LYT.player =
           @stop()
     else
       $(@el).one $.jPlayer.event.timeupdate, =>
-        audio.playbackRate = @playbackRate
+        # IE needs defaultPlaybackRate to start/resume playing at the given
+        # playbackrate
+        audio.defaultPlaybackRate = audio.playbackRate = @playbackRate
 
   # Starts playback
   play: ->
@@ -551,21 +557,21 @@ LYT.player =
 
   # Plays the given segment
   playSegment: (segment) -> @playSegmentOffset segment, null
-  
+
   # Seeks seconds forward or backward
   playheadSeek: (seconds) ->
     currTime = @getStatus().currentTime
     duration = @getStatus().duration
     seekTime = currTime + seconds
-    
+
     # if time is within boundaries of current section
-    if(seekTime >= 0 && seekTime < duration) 
+    if(seekTime >= 0 && seekTime < duration)
       @wait()
         .then =>
           new LYT.player.command.seek @el, seekTime
         .then =>
           @play() if @playing
-    
+
     else if seekTime < 0 && @hasPreviousSegment()
       # if seekTime is less than 0 we are seeking a segment in previous section if available
       seekTime = seekTime - currTime
@@ -598,7 +604,7 @@ LYT.player =
               seconds = seconds-next.duration()
               nextSegment next
         nextSegment()
-          
+
   # Plays the next segment in queue, and updates currentSegment
   playNextSegment: ->
     if not @hasNextSegment()
