@@ -195,7 +195,8 @@ LYT.render.content = do ->
       # Catch links
       view.find("a[href]").click (e) ->
         e.preventDefault()
-        LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
+        segment = LYT.player.book.segmentByURL(@getAttribute "href")
+        LYT.player.navigate segment
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']
