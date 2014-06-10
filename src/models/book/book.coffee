@@ -227,7 +227,6 @@ class LYT.Book
     .then (section) ->
       section.firstSegment()
 
-
   getSectionBySegment: (segment) ->
     refs = (section.fragment for section in @nccDocument.sections)
     current = segment
@@ -321,7 +320,8 @@ class LYT.Book
     [smil, fragment] = url.split '#'
     smil = smil.split('/').pop()
 
-    @getSMIL(smil).done (document) ->
+    @getSMIL(smil)
+    .done (document) ->
       if fragment
         segment = document.getContainingSegment fragment
       else
@@ -330,7 +330,9 @@ class LYT.Book
       if segment
         segment.load().done (segment) -> deferred.resolve segment
       else
-        deferred.reject
+        deferred.reject()
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 

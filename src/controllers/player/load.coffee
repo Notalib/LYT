@@ -22,7 +22,7 @@ class LYT.player.command.load extends LYT.player.command
       @el.jPlayer 'load'
     else
       # Give up - we pretend that we have got the duration
-      @resolve event.jPlayer.status
+      @resolve()
 
   handles: ->
     loadedmetadata: (event) =>
@@ -34,15 +34,13 @@ class LYT.player.command.load extends LYT.player.command
       # Caveat emptor: for this reason, the player will wrongly assume that
       # there is an error if the player is ever asked to play a zero length
       # audio stream.
-      log.message "Player command: load: loadedmetadata: duration #{event.jPlayer.status.duration}"
-      if event.jPlayer.status.src is @src
-        if event.jPlayer.status.duration is 0 or isNaN event.jPlayer.status.duration
+      status = event.jPlayer.status
+      log.message "Player command: load: loadedmetadata: duration #{status.duration}"
+      if status.src is @src
+        if status.duration is 0 or isNaN status.duration
           @load()
         else
-          @notify event.jPlayer.status
-      # else: nothing to do because this event is from the wrong file
-
-    canplaythrough: (event) =>
-      status = event.jPlayer.status
-      @resolve status if status.src is @src
+          @resolve status
+      else
+        @reject() # This load command has been superseded by another
 

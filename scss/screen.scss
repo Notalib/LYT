@@ -331,6 +331,12 @@ img.e17-logo {
    Bookshelf
  * ************************************************************************* */
 
+/* The cross icons for removing book */
+.ui-li-link-alt {
+  border-width: 0;
+  border-left-width: 1px;
+}
+
 .bookshelf-content, #book-index {
   .ui-li, .ui-li.ui-field-contain {
     border-top: none;
@@ -339,20 +345,22 @@ img.e17-logo {
   .ui-listview {
     margin-bottom: 0;
   }
-}
 
-.ui-li-link-alt {
-  border-width: 0;
-  border-left-width: 1px;
-}
-
-.bookshelf-content, #book-index {
-  /* background: transparent url(../images/icons/empty_bookshelf.png) no-repeat; */
   background-position: left top;
   min-height: 40px;
 
   ul {
     li {
+      .book-now-playing {
+        height: 18px;
+        width: 18px;
+        position: absolute;
+        right: 50px;
+        top: 20px;
+        left: auto;
+        background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
+      }
+
       .cover-image {
         height: 58px;
         max-height: none;
@@ -362,8 +370,7 @@ img.e17-logo {
         top: 0;
       }
       .ui-btn-text .book-play-link {
-        padding-left: 45px;
-        padding-top: 0.2em;
+        padding: 0.2em 0 0 45px;
       }
 
       .cover-image {
@@ -1211,6 +1218,22 @@ li.ui-li h3.no-search-results {
 }
 
 #book-plain-content {
+  .segmentContainer {
+    &.current {
+      p, h1, h2, h3, img, image, a, span {
+        opacity: 1.0;
+      }
+    }
+
+    & > span.sentence {
+      display: block;
+      text-align: left;
+      margin: 2% 6% 0 5%;
+    }
+  }
+}
+
+#book-stack-content, #book-plain-content {
   overflow: hidden;
   text-shadow: none;
   text-align: center;
