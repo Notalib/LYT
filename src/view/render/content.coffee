@@ -195,8 +195,12 @@ LYT.render.content = do ->
       # Catch links
       view.find("a[href]").click (e) ->
         e.preventDefault()
-        segment = LYT.player.book.segmentByURL(@getAttribute "href")
-        LYT.player.navigate segment
+        url = @getAttribute "href"
+        if /^https?:\/\//i.test url
+          window.open url, "_blank" # Open external URLs
+        else
+          segment = LYT.player.book.segmentByURL url
+          LYT.player.navigate segment
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']
