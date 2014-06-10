@@ -1,0 +1,108 @@
+PlaybackRate - http://jsbin.com/yuhakiga/4
+
+Description:
+audio.playbackRate behavior differs in the browsers.
+The key-points are:
+- Initial play
+- Skip in file
+- Next file
+
+In some browsers playbackRate must be set before play in others after play.
+
+audio.playbackRate will be reset in all browsers on pause/next file/reset.
+In some browsers defaultPlaybackRate is meant to solve this problem.
+defaultPlaybackRate is only respected in initial play in some browsers, others you have to skip to the next file.
+
+Some browsers will report one value for playbackRate but play at another rate (the default). Some of these browser will do nothing, if you reset the playbackRate to the value it already have.
+
+Browsers:
+
+Chrome:
+  v35 (Linux)
+    defaultPlaybackRate:
+      Initial play: Not effect
+      Next file: Works
+    bothBeforePlay:
+      Initial play: Works
+      Next file: Works
+    playbackRate - before play:
+      Initial play: Works
+      Next file: Reset to default (1)
+    playbackRate - after play:
+      Initial play: Works
+      Next file:  Reset to default (1)
+    playbackRate - after playing:
+      Initial play: Works
+      Next file: Works
+
+Firefox:
+  v29 (linux)
+    defaultPlaybackRate:
+      Initial play: Not effect
+      Next file: Works
+    bothBeforePlay:
+      Initial play: Won't start
+      Next file: Won't start
+    playbackRate - before play:
+      Initial play: Won't start
+      Next file: Won't start
+    playbackRate - after play:
+      Initial play: Won't start
+      Next file: Won't start
+    playbackRate - after playing:
+      Initial play: Works
+      Next file: Works
+
+IE:
+  v11.0.8
+    defaultPlaybackRate:
+      Initial play: Works
+      Next file: Works
+    bothBeforePlay:
+      Initial play: Works
+      Next file: Works
+    playbackRate - before play:
+      Initial play: Reset to default (1)
+      Next file: Reset to default (1)
+    playbackRate - after play:
+      Initial play: Reset to default (1)
+      Next file:  Reset to default (1)
+    playbackRate - after playing:
+      Initial play: Works
+      Next file: Works
+  v10.0.16
+    defaultPlaybackRate:
+      Initial play: Works
+      Next file: Works
+    bothBeforePlay:
+      Initial play: Works
+      Next file: Works
+    playbackRate - before play:
+      Initial play: Reset to default (1)
+      Next file: Reset to default (1)
+    playbackRate - after play:
+      Initial play: Reset to default (1)
+      Next file: Reset to default (1)
+    playbackRate - after playing:
+      Initial play: Works
+      Next file: Works
+
+-----------------------------------------
+Foobrowser:
+  vBar
+    defaultPlaybackRate:
+      Initial play:
+      Next file:
+    bothBeforePlay:
+      Initial play:
+      Next file:
+    playbackRate - before play:
+      Initial play:
+      Next file:
+    playbackRate - after play:
+      Initial play:
+      Next file:
+    playbackRate - after playing:
+      Initial play:
+      Next file:
+
