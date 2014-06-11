@@ -196,75 +196,62 @@ LYT.player =
   #             has finished.
   # Returns a promise that resolves with a loaded book.
   load: (book, url = null, smilOffset, play) ->
-    log.message "Player: Load: book #{book}, segment #{url}, smilOffset: #{smilOffset}, play #{play}"
+    log.message "Player: Load: book #{book}, " +
+      "segment #{url}, smilOffset: #{smilOffset}, play #{play}"
 
-    # Wait for jPlayer to get ready
-    ready = jQuery.Deferred()
-    @whenReady -> ready.resolve()
+    loading = @stop()
+      .then =>
+        if book is @book?.id then book else LYT.Book.load book
+      .then (book) =>
+        # Setting @book should be done after seeking has completed, but the
+        # dependency on the books playlist and firstplay issue prohibits this.
+        @book = book
 
-    # Stop any playback
-    result = ready.then => @stop()
+        # If the book doesn't have a lastmark, we're in skip state which
+        # mean that we'll skip all "meta-content" sections in the book when
+        # played chronologically
+        @inSkipState = not book.lastmark?
+        jQuery("#book-duration").text book.totalTime
+      .then =>
+        if @firstPlay and not Modernizr.autoplayback
+          # The play click handler will call @playClickHook which enables the
+          # player to start seeking.
+          @playClickHook = (e) =>
 
-    # Get the right book
-    result = result.then =>
-      if book is @book?.id
-        jQuery.Deferred().resolve @book
-      else
-        # Load the book since we haven't loaded it already
-        LYT.Book.load book
+            # If this is the first click by the user (on an iOS device), the
+            # playbackrate tests will fire off at the same time as this. For
+            # whatever reason, that makes the silentplay command stall after two
+            # timeupdate/progress events, and we never get any further. Therefore
+            # we need to stop the bubbling of the event
+            e.stopImmediatePropagation()
+            e.preventDefault()
 
-    result.done (book) =>
-      # Setting @book should be done after seeking has completed, but the
-      # dependency on the books playlist and firstplay issue prohibits this.
-      @book = book
+            @playClickHook = null
+            silentplay = new LYT.player.command.silentplay @el
+            LYT.loader.register 'Initializing', silentplay
+            LYT.render.disablePlayerNavigation()
 
-      # If the book doesn't have a lastmark, we're in skip state which
-      # mean that we'll skip all "meta-content" sections in the book when
-      # played chronologically
-      @inSkipState = not book.lastmark?
-      jQuery("#book-duration").text book.totalTime
+            silentplay.then =>
+              log.message 'Player: load: silentplay done - will load (and possibly seek) now'
+              @seekSmilOffsetOrLastmark(url, smilOffset).always ->
+                LYT.render.disablePlayerNavigation()
+        else
+          log.message 'Player: chaining seeked because we are not in firstPlay mode'
+          @seekSmilOffsetOrLastmark url, smilOffset
+          return true
+      .then =>
+        log.message "Player: book #{@book.id} loaded"
+        # Never start playing if firstplay flag set
+        @play() if play and not @firstPlay
+      .then =>
+        LYT.render.enablePlayerNavigation()
+        @book
+      .fail (err) ->
+        log.error "Player: failed to load book, reason #{error}"
 
-    result = result.then (book) =>
-      if @firstPlay and not Modernizr.autoplayback
-        # The play click handler will call @playClickHook which enables the
-        # player to start seeking.
-        @playClickHook = (e) =>
-
-          # If this is the first click by the user (on an iOS device), the
-          # playbackrate tests will fire off at the same time as this. For
-          # whatever reason, that makes the silentplay command stall after two
-          # timeupdate/progress events, and we never get any further. Therefore
-          # we need to stop the bubbling of the event
-          e.stopImmediatePropagation()
-          e.preventDefault()
-
-          @playClickHook = null
-          silentplay = new LYT.player.command.silentplay @el
-          LYT.loader.register 'Initializing', silentplay
-          LYT.render.disablePlayerNavigation()
-
-          silentplay.then =>
-            log.message 'Player: load: silentplay done - will load (and possibly seek) now'
-            @seekSmilOffsetOrLastmark(url, smilOffset).then ->
-              LYT.render.disablePlayerNavigation()
-
-        return jQuery.Deferred().resolve book
-      else
-        log.message 'Player: chaining seeked because we are not in firstPlay mode'
-        return (@seekSmilOffsetOrLastmark url, smilOffset).then -> book
-
-    result.done =>
-      log.message "Player: book #{@book.id} loaded"
-      # Never start playing if firstplay flag set
-      @play() if play and not @firstPlay
-
-    result.fail (error) -> log.error "Player: failed to load book, reason #{error}"
-
-    LYT.loader.register 'Loading book', result.promise()
-    LYT.render.disablePlayerNavigation()
-    result.done -> LYT.render.enablePlayerNavigation()
-
-    result.promise()
+    # Register loading spinner
+    LYT.loader.register 'Loading book', loading.promise()
+    loading
 
   # Stops playback but doesn't change the playing flag
   wait: ->
@@ -464,45 +451,29 @@ LYT.player =
 
   seekSmilOffsetOrLastmark: (url, smilOffset) ->
     log.message "Player: seekSmilOffsetOrLastmark: #{url}, #{smilOffset}"
-    promise = jQuery.Deferred().resolve()
+
     # Now seek to the right point in the book
     if not url and @book.lastmark?
       url = @book.lastmark.URI
       smilOffset = @book.lastmark.timeOffset
       log.message "Player: resuming from lastmark #{url}, smilOffset #{smilOffset}"
 
-    # TODO: [play-controllers] Test all various cases of this structure and
-    #       see if it can be simplified.
-    # TODO: [play-controllers] Make sure to call updateHtml once book-player
-    #       is displayed.
-    if url
-      promise
-        .then =>
-          @book.segmentByURL url
-        .then (segment) =>
-          log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
-          offset = segment.audioOffset(smilOffset) if smilOffset
-          # Check if it has beginSection or not. If not we need to set the
-          # correct section title
-          if not segment.beginSection?
-            segment.sectionTitle = @book.getSectionBySegment(segment)?.title
+    $.when(url)
+      .then (url) =>
+        if url then @book.segmentByURL(url) else @book.firstSegment()
+      .then (segment) =>
+        log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
+        offset = segment.audioOffset(smilOffset) if smilOffset
 
-          @seekSegmentOffset segment, offset
-        .fail (error) =>
-          if url.match /__LYT_auto_/
-            log.message "Player: failed to load #{url} containing auto " +
-              "generated bookmarks - rewinding to start"
-          else
-            log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
+        # Check if it has beginSection or not. If not we need to set the
+        # correct section title
+        if not segment.beginSection?
+          segment.sectionTitle = @book.getSectionBySegment(segment)?.title
 
-          @seekSegmentOffset @book.nccDocument.firstSegment()
-    else
-      promise
-        .then =>
-          @rewind()
-        .then (segment) =>
-          @seekSegmentOffset segment, 0
-        .fail -> log.error "Player: failed to find segment: #{url}"
+        @seekSegmentOffset segment, offset
+      .fail (error) =>
+        log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
+        @seekSegmentOffset @book.firstSegment()
 
 
   seekSegmentOffset: (segment, offset) ->
@@ -693,8 +664,6 @@ LYT.player =
       @playCommand.then handler, handler
     else
       handler()
-
-  rewind: -> @_setCurrentSegment @book.firstSegment()
 
   currentSection: -> @book.getSectionBySegment @currentSegment
 
