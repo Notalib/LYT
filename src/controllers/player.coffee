@@ -201,7 +201,7 @@ LYT.player =
 
     loading = @stop()
       .then =>
-        if book is @book?.id then book else LYT.Book.load book
+        if book is @book?.id then @book else LYT.Book.load book
       .then (book) =>
         # Setting @book should be done after seeking has completed, but the
         # dependency on the books playlist and firstplay issue prohibits this.
@@ -238,7 +238,6 @@ LYT.player =
         else
           log.message 'Player: chaining seeked because we are not in firstPlay mode'
           @seekSmilOffsetOrLastmark url, smilOffset
-          return true
       .then =>
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
@@ -247,7 +246,7 @@ LYT.player =
         LYT.render.enablePlayerNavigation()
         @book
       .fail (err) ->
-        log.error "Player: failed to load book, reason #{error}"
+        log.error "Player: failed to load book, reason #{err}"
 
     # Register loading spinner
     LYT.loader.register 'Loading book', loading.promise()
@@ -428,7 +427,7 @@ LYT.player =
           #       changing the seek bar to make it impossible to click on
           #       points in the stream that aren't in the book.
           log.error "Player: play: progress: Unable to load next segment: #{error}."
-        nextSegment.done (next) =>
+        nextSegment.then (next) =>
           if next
             log.message "Player: play: progress: (#{status.currentTime}s) moved to #{next.url()}: [#{next.start}, #{next.end}]"
             @_setCurrentSegment next
@@ -458,6 +457,7 @@ LYT.player =
       smilOffset = @book.lastmark.timeOffset
       log.message "Player: resuming from lastmark #{url}, smilOffset #{smilOffset}"
 
+    promise = $.Deferred()
     $.when(url)
       .then (url) =>
         if url then @book.segmentByURL(url) else @book.firstSegment()
@@ -470,10 +470,12 @@ LYT.player =
         if not segment.beginSection?
           segment.sectionTitle = @book.getSectionBySegment(segment)?.title
 
-        @seekSegmentOffset segment, offset
+        @seekSegmentOffset(segment, offset).then -> promise.resolve()
       .fail (error) =>
         log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
-        @seekSegmentOffset @book.firstSegment()
+        @seekSegmentOffset(@book.firstSegment()).then -> promise.resolve()
+
+    promise
 
 
   seekSegmentOffset: (segment, offset) ->
@@ -505,9 +507,7 @@ LYT.player =
     result = initial
 
     # Wait for the segment to be fully loaded
-    .then ->
-      jQuery.when(segment).then (loaded) -> segment = loaded
-
+    .then -> $.when(segment)
     .then =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"

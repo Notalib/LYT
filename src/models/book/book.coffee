@@ -411,13 +411,13 @@ class LYT.Book
     searchNext = () ->
       if section = iterator()
         section.load()
-        return section.pipe (section) ->
+        section.then (section) ->
           if result = handler section
-            return jQuery.Deferred().resolve result
+            result
           else
-            return searchNext()
+            searchNext()
       else
-        return jQuery.Deferred().reject()
+        jQuery.Deferred().reject()
 
     searchNext()
 
