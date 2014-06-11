@@ -242,6 +242,11 @@ LYT.player =
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
         @play() if play and not @firstPlay
+
+        # We don't want to return the result of @play() since that is a
+        # promise that resolves when playing *ends* (We should reconsider how
+        # fortunate this is)
+        return true
       .then =>
         LYT.render.enablePlayerNavigation()
         @book
@@ -303,6 +308,8 @@ LYT.player =
     nextSegment = null
     loader = null
     getPlayCommand = =>
+      loader.resolve() if loader && loader.state() != 'resolved'
+
       loader = jQuery.Deferred()
       LYT.loader.register 'Loading sound', loader
       LYT.render.disablePlayerNavigation()
@@ -318,10 +325,9 @@ LYT.player =
       command.always => @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
-      if loader
+      if loader && loader.state() != 'resolved'
         LYT.render.enablePlayerNavigation()
         loader.resolve()
-        loader = null
 
       @firstPlay = false if @firstPlay
 
