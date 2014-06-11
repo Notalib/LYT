@@ -151,6 +151,7 @@ LYT.render.content = do ->
     html = book.resources[segment.contentUrl].document
     source = html.source[0]
     view = view[0]
+    isCartoon = html.isCartoon()
 
     contentID = "#{book.id}/#{segment.contentUrl}"
     if $(view).data("htmldoc") is contentID
@@ -159,8 +160,9 @@ LYT.render.content = do ->
       log.message "Render: Changing context to #{contentID}"
       $(view).data "htmldoc", contentID
 
-      # Don't load all images from document
-      html.hideImages "css/images/ajax-loader.gif"
+      if not isCartoon
+        # Don't load all images from document
+        html.hideImages "css/images/ajax-loader.gif"
 
       # Change to new document
       view.replaceChild(
@@ -169,24 +171,25 @@ LYT.render.content = do ->
       )
 
       view = $(view)
-      images = view.find "img"
 
-      if images.length
-        margin = 200 # TODO Should be configurable
-        showImage = (image, ct, cb) ->
-          image = jQuery image
-          offset = image.offset()
-          if ((ct < offset.top < cb) or
-              (ct < offset.bottom < cb)) and image.attr("data-src")?
-            image.attr "src", image.attr "data-src"
-            image.removeAttr "data-src"
+      if not isCartoon
+        images = view.find "img"
+        if images.length
+          margin = 200 # TODO Should be configurable
+          showImage = (image, ct, cb) ->
+            image = jQuery image
+            offset = image.offset()
+            if ((ct < offset.top < cb) or
+                (ct < offset.bottom < cb)) and image.attr("data-src")?
+              image.attr "src", image.attr "data-src"
+              image.removeAttr "data-src"
 
-        scrollHandler = ->
-          ct = view.scrollTop() - margin
-          cb = ct + view.height() + 2 * margin
-          images.each -> showImage this, ct, cb
+          scrollHandler = ->
+            ct = view.scrollTop() - margin
+            cb = ct + view.height() + 2 * margin
+            images.each -> showImage this, ct, cb
 
-        view.scroll jQuery.throttle 150, scrollHandler
+          view.scroll jQuery.throttle 150, scrollHandler
 
       LYT.render.setStyle()
       segmentIntoView view, segment

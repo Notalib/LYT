@@ -215,11 +215,12 @@ class LYT.Segment
           else
             log.error "Segment: parseContent: unable to preload image #{image.src}"
             image.deferred.reject image, event
+
         doneHandler = (event) ->
           clearTimeout image.timer
           log.message "Segment: parseContent: loaded image #{image.src}"
-
           image.deferred.resolve image, event
+
         # Set timeout, so we can retry again if the load stalls
         image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
         # 1998 called; they want their preloading technique back
@@ -239,7 +240,7 @@ class LYT.Segment
       @div = sourceContent.clone().wrap('<p>').parent().html()
       @canvasSize = getCanvasSize image
       imageData =
-        src: image[0].src
+        src: image.attr('src')
         element: image[0]
         attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
