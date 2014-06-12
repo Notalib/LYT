@@ -36,6 +36,7 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       el.attr "data-src", el.attr "src"
       el.removeAttr "src"
       el.attr "src", altSrc if altSrc
+      el.addClass "loading-icon"
 
   isCartoon: () ->
     pages = @source.find('.page').toArray()

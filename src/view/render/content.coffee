@@ -155,7 +155,7 @@ LYT.render.content = do ->
 
       if not isCartoon
         # Don't load all images from document
-        html.hideImages "css/images/ajax-loader.gif"
+        html.hideImages "css/images/loading-spinning-bubbles.svg"
 
       # Change to new document
       view.replaceChild(
@@ -182,6 +182,7 @@ LYT.render.content = do ->
             if (src = image.attr "data-src") and isVisible image, viewHeight
               image.attr "src", src
               image.removeAttr "data-src"
+              image.removeClass "loading-icon"
 
           scrollHandler = ->
             height = view.height()
