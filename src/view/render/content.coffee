@@ -169,26 +169,29 @@ LYT.render.content = do ->
         images = view.find "img"
         if images.length
           margin = 200 # TODO Should be configurable
-          showImage = (image, ct, cb) ->
-            if not image.attr "data-src"
-              return
-            image = jQuery image
-            offset = image.offset()
-            if (ct < offset.top < cb) or (ct < offset.bottom < cb) or
-              (ct > offset.top and cb < offset.bottom)
-              image.attr "src", image.attr "data-src"
+
+          isVisible = (image, viewHeight) ->
+            top = image.position().top
+            bottom = top + image.height()
+
+            (-margin < top < (viewHeight + margin)) or
+            (-margin < bottom < (viewHeight + margin)) or
+            (top < -margin and (viewHeight + margin) < bottom)
+
+          showImage = (image, viewHeight) ->
+            if (src = image.attr "data-src") and isVisible image, viewHeight
+              image.attr "src", src
               image.removeAttr "data-src"
 
           scrollHandler = ->
-            ct = view.scrollTop() - margin
-            cb = ct + view.height() + 2 * margin
-            images.each -> showImage this, ct, cb
+            height = view.height()
+            images.each -> showImage $(this), height
 
           view.scroll jQuery.throttle 150, scrollHandler
 
       LYT.render.setStyle()
       segmentIntoView view, segment
-      scrollHandler() if scrollHandler? # Show images which visible initially
+      scrollHandler() if scrollHandler? # Show initially visible images
 
       # Catch links
       view.find("a[href]").click (e) ->
@@ -201,7 +204,7 @@ LYT.render.content = do ->
           segment.done (segment) =>
             LYT.player.navigate segment
           segment.fail =>
-            # Do nothing
+            # Do nothing if it doesn't link to anything in the document
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']
