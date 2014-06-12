@@ -1217,53 +1217,6 @@ li.ui-li h3.no-search-results {
   display: inline;
 }
 
-#book-plain-content {
-  .segmentContainer {
-    &.current {
-      p, h1, h2, h3, img, image, a, span {
-        opacity: 1.0;
-      }
-    }
-
-    & > span.sentence {
-      display: block;
-      text-align: left;
-      margin: 2% 6% 0 5%;
-    }
-  }
-}
-
-#book-stack-content, #book-plain-content {
-  overflow: hidden;
-  text-shadow: none;
-  text-align: center;
-
-  p, h1, h2, h3, img, image, a, span {
-    opacity: 0.6;
-  }
-
-  p {
-    margin: 2% 6% 0 5%;
-    text-align: left;
-    line-height: 1.32em;
-  }
-  h1, h2, h3 {
-    margin: 2% 6% 1% 5%;
-    text-align: left;
-  }
-  img, .image {
-    margin: 0 auto;
-    text-align: center;
-    &.zoom {
-      width: auto !important;
-      height: auto !important;
-    }
-  }
-  h1 a, h2 a {
-    text-decoration: none;
-  }
-}
-
 /* Book index style hacks ************************************************** */
 
 #NccRootElement {
