@@ -21,6 +21,7 @@ LYT.player =
   lastBookmark: (new Date).getTime()
   inSkipState: false
   showingPlay: true # true if the play triangle button is shown, false otherwise
+  playLoader: null
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -306,12 +307,11 @@ LYT.player =
   play: ->
     command = null
     nextSegment = null
-    loader = null
     getPlayCommand = =>
-      loader.resolve() if loader && loader.state() != 'resolved'
+      @playLoader.resolve() if @playLoader && @playLoader.state() != 'resolved'
 
-      loader = jQuery.Deferred()
-      LYT.loader.register 'Loading sound', loader
+      @playLoader = jQuery.Deferred()
+      LYT.loader.register 'Loading sound', @playLoader
       LYT.render.disablePlayerNavigation()
       command = new LYT.player.command.play @el
       command.progress progressHandler
@@ -325,9 +325,9 @@ LYT.player =
       command.always => @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
-      if loader && loader.state() != 'resolved'
+      if @playLoader && @playLoader.state() != 'resolved'
         LYT.render.enablePlayerNavigation()
-        loader.resolve()
+        @playLoader.resolve()
 
       @firstPlay = false if @firstPlay
 
