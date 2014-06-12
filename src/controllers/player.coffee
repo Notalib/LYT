@@ -479,7 +479,8 @@ LYT.player =
         @seekSegmentOffset(segment, offset).then -> promise.resolve()
       .fail (error) =>
         log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
-        @seekSegmentOffset(@book.firstSegment()).then -> promise.resolve()
+        @book.firstSegment().then (segment) =>
+          @seekSegmentOffset(segment).then -> promise.resolve()
 
     promise
 
