@@ -4,7 +4,6 @@
 # -------------------
 
 # This module handles rendering of book content
-#console.log 'Load LYT.render.content'
 LYT.render.content = do ->
 
   _focusEasing   = 'easeInOutQuint'
@@ -42,11 +41,6 @@ LYT.render.content = do ->
     scale = 1
     scale = view.width() / area.width if scale > view.width() / area.width
     scale = vspace() / area.height if scale > vspace() / area.height
-#    console.log "render.content: page dimensions: #{$(window).width()}x#{$(window).height()}"
-#    console.log "render.content: translate: scale: #{scale}"
-#    console.log "render.content: translate: display area: #{JSON.stringify area}"
-#    console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
-#    console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
     centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
 
@@ -66,7 +60,6 @@ LYT.render.content = do ->
   panZoomImage = (segment, image, area, renderDelta) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     nextFocus = translate image, area
-    #console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.stop true
     image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
@@ -177,10 +170,12 @@ LYT.render.content = do ->
         if images.length
           margin = 200 # TODO Should be configurable
           showImage = (image, ct, cb) ->
+            if not image.attr "data-src"
+              return
             image = jQuery image
             offset = image.offset()
-            if ((ct < offset.top < cb) or
-                (ct < offset.bottom < cb)) and image.attr("data-src")?
+            if (ct < offset.top < cb) or (ct < offset.bottom < cb) or
+              (ct > offset.top and cb < offset.bottom)
               image.attr "src", image.attr "data-src"
               image.removeAttr "data-src"
 
@@ -203,7 +198,10 @@ LYT.render.content = do ->
           window.open url, "_blank" # Open external URLs
         else
           segment = LYT.player.book.segmentByURL url
-          LYT.player.navigate segment
+          segment.done (segment) =>
+            LYT.player.navigate segment
+          segment.fail =>
+            # Do nothing
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']
