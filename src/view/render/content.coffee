@@ -195,17 +195,22 @@ LYT.render.content = do ->
       scrollHandler() if scrollHandler? # Show initially visible images
 
       # Catch links
-      view.find("a[href]").click (e) ->
-        e.preventDefault()
+      view.find("a[href]").each ->
+        link = $(this)
         url = @getAttribute "href"
-        if /^https?:\/\//i.test url
-          window.open url, "_blank" # Open external URLs
-        else
-          segment = LYT.player.book.segmentByURL url
-          segment.done (segment) =>
-            LYT.player.navigate segment
-          segment.fail =>
-            # Do nothing if it doesn't link to anything in the document
+        if (external = /^https?:\/\//i.test url)
+          link.addClass "external"
+
+        link.click (e) ->
+          e.preventDefault()
+          if external
+            window.open url, "_blank" # Open external URLs
+          else
+            segment = LYT.player.book.segmentByURL url
+            segment.done (segment) =>
+              LYT.player.navigate segment
+            segment.fail =>
+              # Do nothing if it doesn't link to anything in the document
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']

@@ -1159,7 +1159,12 @@ li.ui-li h3.no-search-results {
   overflow: scroll;
 
   a {
+    color: inherit;
     text-decoration: none;
+
+    &.external {
+      color: crimson;
+    }
   }
 
   p {
