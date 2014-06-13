@@ -288,9 +288,7 @@ LYT.player =
 
   setPlaybackRate: (playbackRate = @playbackRate) ->
     log.message "Player: setPlaybackRate: (#{@playbackRate} -> #{playbackRate})"
-
-    jPlayer = @el.data 'jPlayer'
-    audio = jPlayer.htmlElement.audio
+    # playbackRate is set on the audio element on the timeupdate-event defined in @init-function
 
     @playbackRate = playbackRate
 
@@ -299,6 +297,8 @@ LYT.player =
       # before starting and stopping the audio (issue #480)
       unless @playing
         @play().progress (event) =>
+          jPlayer = @el.data 'jPlayer'
+          audio = jPlayer.htmlElement.audio
           audio.playbackRate = @playbackRate
           @stop()
 
