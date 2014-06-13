@@ -55,13 +55,15 @@ LYT.player =
         log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
 
 
-        # Learned from our tests http://jsbin.com/yuhakiga
-        # The most consistent way to get playbackRate to work in most browser
-        # is updating it on every timeupdate-event
-        audio = @el.data('jPlayer').htmlElement.audio
-        $(audio).on 'timeupdate', () =>
-          audio.playbackRate = @playbackRate
-          return
+        if Modernizr.playbackrate
+          # Learned from our tests http://jsbin.com/yuhakiga
+          # The most consistent way to get playbackRate to work in most browser
+          # is updating it on every timeupdate-event
+          audio = @el.data('jPlayer').htmlElement.audio
+          $(audio).on 'timeupdate', () =>
+            if not isNaN( audio.currentTime )
+              audio.playbackRate = @playbackRate
+            return
 
         @ready = true
 
