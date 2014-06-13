@@ -52,12 +52,17 @@ LYT.player =
         @setupUi()
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
-        console.log 'DEEEEEEEFFFFAAAAAuuuuuLT', @playbackRate
+        log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
 
-        # IE needs defaultPlaybackRate to start/resume playing at the given
-        # playbackrate
+
+        # Learned from our tests http://jsbin.com/yuhakiga
+        # The most consistent way to get playbackRate to work in most browser
+        # is updating it on every timeupdate-event
         audio = @el.data('jPlayer').htmlElement.audio
-        audio.defaultPlaybackRate = @playbackRate
+        $(audio).on 'timeupdate', () =>
+          audio.playbackRate = @playbackRate
+          return
+
         @ready = true
 
     jPlayerParams.warning = (event) =>
@@ -292,19 +297,10 @@ LYT.player =
     if not Modernizr.playbackrate and Modernizr.playbackratelive
       # Workaround for IOS6 that doesn't alter the perceived playback rate
       # before starting and stopping the audio (issue #480)
-      if @playing
-        $(@el).one $.jPlayer.event.timeupdate, =>
-          audio.playbackRate = @playbackRate
-          @stop().then => @play()
-      else
+      unless @playing
         @play().progress (event) =>
           audio.playbackRate = @playbackRate
           @stop()
-    else
-      $(@el).one $.jPlayer.event.timeupdate, =>
-        # IE needs defaultPlaybackRate to start/resume playing at the given
-        # playbackrate
-        audio.defaultPlaybackRate = audio.playbackRate = @playbackRate
 
   # Starts playback
   play: ->
