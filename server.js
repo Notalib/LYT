@@ -5,7 +5,7 @@
     proxy = require('http-proxy').createProxyServer(),
     apiProxy = function( host, port ) {
       return function( req, res, next ) {
-        if ( req.url.match( /^\/Dodp(Mobile|Files)/ ) ) {
+        if ( req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch)/ ) ) {
           proxy.proxyRequest(req, res, {
             target: 'http://' + host + ':' + port
           });
