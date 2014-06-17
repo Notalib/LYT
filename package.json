@@ -15,7 +15,8 @@
     "express": "~4.4.3",
     "http-proxy": "~1.1.4",
     "morgan": "~1.1.1",
-    "stdio": "~0.1.6"
+    "optimist": "~0.6.1",
+    "watchr": "~2.4.11"
   },
   "repository": {
     "type": "git",
