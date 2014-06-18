@@ -9,7 +9,7 @@ LYT.google = do ->
 
     # JsonResults results from google....
     jsonResults = []
-
+    # The searchterm is located in json[0] - We look in json[1] to see the results. 
     jQuery.each json[1], (i, val) ->
       # TODO: There is an ERROR in CatalogSearch -> AutoComplete will give result on "http://xxxx/xxxx.xxx" -> Search will not
       if val.indexOf('//') is -1
@@ -21,7 +21,7 @@ LYT.google = do ->
     if jsonResults.length > LYT.config.catalog.autocomplete.google_answer_limit
       jsonResults = jsonResults.slice 0, LYT.config.catalog.autocomplete.google_answer_limit
 
-    LYT.catalog.LookUpAutocompleteWords(jsonResults)
+    LYT.catalog.lookUpAutocompleteWords(jsonResults)
       .done (data) ->
         deferred.resolve data
       .fail ->

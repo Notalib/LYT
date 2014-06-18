@@ -15,10 +15,8 @@ To compile the app, run the following command from the repo's root:
 
 To see what else you can build, just run `cake` with no arguments:
 
-    $ cake  
+    $ cake
 
 ## License and copyright
 
 LYT is copyright [Nota](http://nota.nu/) and distritributed under [LGPL version 3](LICENSE).
-
-

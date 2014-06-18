@@ -136,10 +136,10 @@ LYT.player =
 
       @stop()
 
-    $('.lyt-play').click =>
+    $('.lyt-play').click (e) =>
       LYT.instrumentation.record 'ui:play'
       if @playClickHook
-        @playClickHook().done => @play()
+        @playClickHook(e).done => @play()
       else
         @play()
 
@@ -228,13 +228,26 @@ LYT.player =
       if @firstPlay and not Modernizr.autoplayback
         # The play click handler will call @playClickHook which enables the
         # player to start seeking.
-        @playClickHook = =>
+        @playClickHook = (e) =>
+
+          # If this is the first click by the user (on an iOS device), the
+          # playbackrate tests will fire off at the same time as this. For
+          # whatever reason, that makes the silentplay command stall after two
+          # timeupdate/progress events, and we never get any further. Therefore
+          # we need to stop the bubbling of the event
+          e.stopImmediatePropagation()
+          e.preventDefault()
+
           @playClickHook = null
           silentplay = new LYT.player.command.silentplay @el
-          playPromise = silentplay.then =>
+          LYT.loader.register 'Initializing', silentplay
+          LYT.render.disablePlayerNavigation()
+
+          silentplay.then =>
             log.message 'Player: load: silentplay done - will load (and possibly seek) now'
-            @seekSmilOffsetOrLastmark url, smilOffset
-          return @playCommand = new LYT.player.command.deferred @el, playPromise
+            @seekSmilOffsetOrLastmark(url, smilOffset).then ->
+              LYT.render.disablePlayerNavigation()
+
         return jQuery.Deferred().resolve book
       else
         log.message 'Player: chaining seeked because we are not in firstPlay mode'
@@ -302,7 +315,11 @@ LYT.player =
   play: ->
     command = null
     nextSegment = null
+    loader = null
     getPlayCommand = =>
+      loader = jQuery.Deferred()
+      LYT.loader.register 'Loading sound', loader
+      LYT.render.disablePlayerNavigation()
       command = new LYT.player.command.play @el
       command.progress progressHandler
       command.done =>
@@ -315,6 +332,11 @@ LYT.player =
       command.always => @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
+      if loader
+        LYT.render.enablePlayerNavigation()
+        loader.resolve()
+        loader = null
+
       @firstPlay = false if @firstPlay
 
       if @showingPlay
@@ -351,10 +373,10 @@ LYT.player =
           timeoutHandler = =>
             LYT.loader.register 'Loading book', nextSegment
             LYT.render.disablePlayerNavigation()
-            nextSegment.done -> LYT.render.enablePlayerNavigation()
-            command.cancel()
+            nextSegment.always -> LYT.render.enablePlayerNavigation()
             nextSegment.done -> getPlayCommand()
             nextSegment.fail -> log.error 'Player: play: progress: unable to load next segment after pause.'
+            command.cancel()
 
           if @hasNextSegment()
             # If we're in skip state, and about to change section
@@ -434,8 +456,8 @@ LYT.player =
       oldCommand.cancel()
     else
       previous.resolve()
-    result = previous.then => @playCommand = getPlayCommand()
-    result
+
+    previous.then => @playCommand = getPlayCommand()
 
   seekSmilOffsetOrLastmark: (url, smilOffset) ->
     log.message "Player: seekSmilOffsetOrLastmark: #{url}, #{smilOffset}"
@@ -451,26 +473,28 @@ LYT.player =
     # TODO: [play-controllers] Make sure to call updateHtml once book-player
     #       is displayed.
     if url
-      promise = promise.then => @book.segmentByURL url
-      promise = promise.then(
-        (segment) =>
+      promise
+        .then =>
+          @book.segmentByURL url
+        .then (segment) =>
           log.message "Player: seekSmilOffsetOrLastmark: got segment - seeking"
           offset = segment.audioOffset(smilOffset) if smilOffset
           @seekSegmentOffset segment, offset
-        (error) =>
+        .fail (error) =>
           if url.match /__LYT_auto_/
-            log.message "Player: failed to load #{url} containing auto generated bookmarks - rewinding to start"
+            log.message "Player: failed to load #{url} containing auto " +
+              "generated bookmarks - rewinding to start"
           else
             log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
-          @rewind()
-      )
+
+          @seekSegmentOffset @book.nccDocument.firstSegment()
     else
-      promise = promise.then => @rewind()
-      promise = promise.then (segment) => @seekSegmentOffset segment, 0
-
-    promise.fail -> log.error "Player: failed to find segment: #{url}"
-
-    promise
+      promise
+        .then =>
+          @rewind()
+        .then (segment) =>
+          @seekSegmentOffset segment, 0
+        .fail -> log.error "Player: failed to find segment: #{url}"
 
 
   seekSegmentOffset: (segment, offset) ->
@@ -478,27 +502,40 @@ LYT.player =
 
     segment or= @currentSegment
 
-    result = jQuery.Deferred().resolve()
+    # If this takes a long time, put up the loader
+    # The timeout ensures that we don't display the loader if seeking
+    # without switching audio stream, since that is a very fast operation
+    # which would cause the loader to flicker.
+    # TODO: Only set the loader if switching audio is necessary.
+    setTimeout(
+      =>
+        LYT.loader.register 'Loading sound', result
+        LYT.render.disablePlayerNavigation()
+        result.always -> LYT.render.enablePlayerNavigation()
+      500
+    )
+
+    # Stop playback and ensure that this part of the deferred chain resolves
+    # once playback has stopped
     if @playCommand and @playCommand.state is 'pending'
-      # Stop playback and ensure that this part of the deferred chain resolves
-      # once playback has stopped
-      result = result.then =>
-        @stop().then(
-          -> jQuery.Deferred().resolve()
-          -> jQuery.Deferred().resolve()
-        )
+      initial = @stop()
+    else
+      initial = jQuery.Deferred().resolve()
 
     # See if we need to initiate loading of a new audio file
-    result = result.then => segment
-    result = result.then (segment) =>
+    result = initial
+
+    # Wait for the segment to be fully loaded
+    .then ->
+      jQuery.when(segment).then (loaded) -> segment = loaded
+
+    .then =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        (new LYT.player.command.load @el, segment.audio).then -> segment
-      else
-        jQuery.Deferred().resolve segment
+        load = new LYT.player.command.load @el, segment.audio
 
     # Now move the play head
-    result = result.then (segment) =>
+    .then =>
       log.message 'Player: seekSegmentOffset: check if it is necessary to seek'
       # Ensure that offset has a useful value
       if offset?
@@ -514,82 +551,98 @@ LYT.player =
       if offset - 0.1 < @getStatus().currentTime < offset + 0.1
         # We're already at the right point in the audio stream
         log.message "Player: seekSegmentOffset: already at offset #{offset} - not seeking"
-        jQuery.Deferred().resolve segment
       else
         # Not at the right point - seek
         log.message 'Player: seekSegmentOffset: seek'
-        (new LYT.player.command.seek @el, offset).then -> segment
+        seek = new LYT.player.command.seek @el, offset
 
     # Once the seek has completed, render the segment
-    result.done (segment) =>
-      @_setCurrentSegment segment
+    .then =>
       @updateHtml segment
-
-    # If this takes a long time, put up the loader
-    # The timeout ensures that we don't display the loader if seeking
-    # without switching audio stream, since that is a very fast operation
-    # which would cause the loader to flicker.
-    # TODO: Only set the loader if switching audio is necessary.
-    setTimeout(
-      =>
-        LYT.loader.register 'Loading sound', result
-        LYT.render.disablePlayerNavigation()
-        result.done -> LYT.render.enablePlayerNavigation()
-      500
-    )
-
-    result
+      @_setCurrentSegment segment
 
   # Plays the given segment
   playSegment: (segment) -> @playSegmentOffset segment, null
-  
+
   # Seeks seconds forward or backward
   playheadSeek: (seconds) ->
-    currTime = @getStatus().currentTime
-    duration = @getStatus().duration
-    seekTime = currTime + seconds
-    
-    # if time is within boundaries of current section
-    if(seekTime >= 0 && seekTime < duration) 
-      @wait()
-        .then =>
-          new LYT.player.command.seek @el, seekTime
-        .then =>
-          @play() if @playing
-    
-    else if seekTime < 0 && @hasPreviousSegment()
-      # if seekTime is less than 0 we are seeking a segment in previous section if available
-      seekTime = seekTime - currTime
-      seekTime = seekTime + (currTime - @currentSegment.start)
-      @wait().then =>
-        prevSegment = (seg) =>
-          prev = @_getPreviousSegment seg
-          prev.then (prev) =>
-            seekTime = seekTime + prev.duration()
-            if (seekTime > 0)
-              #segment found
-              @seekSegmentOffset(prev, seekTime+prev.start).then =>
-                @play() if @playing
-            else
-              prevSegment prev
-        prevSegment()
+    seek = =>
+      currTime = @getStatus().currentTime
+      duration = @getStatus().duration
+      seekTime = currTime + seconds
 
-    else if seekTime > duration && @hasNextSection()
-      # if seekTime greater than current section duration we are seeking a segment in next section if available
-      @wait().then =>
-        seconds = seconds - (@currentSegment.end - currTime)
-        nextSegment = (seg) =>
-          next = @_getNextSegment seg
-          next.then (next) =>
-            if (seconds < next.duration())
-              # segment found
-              @seekSegmentOffset(next, seconds).then =>
+      deferred = $.Deferred()
+      # if time is within boundaries of current section
+      if(seekTime >= 0 && seekTime < duration)
+        @wait()
+          .then =>
+            new LYT.player.command.seek @el, seekTime
+          .done =>
+            @play() if @playing
+            deferred.resolve()
+          .fail =>
+            @play() if @playing
+            deferred.reject()
+
+      else if seekTime < 0
+
+        # if seekTime is less than 0 we are seeking a segment in previous section if available
+        seekTime = seekTime - currTime
+        seekTime = seekTime + (currTime - @currentSegment.start)
+        @wait().then =>
+          prevSegment = (seg) =>
+            prev = @_getPreviousSegment seg
+            prev.done (prev) =>
+              seekTime = seekTime + prev.duration()
+              if (seekTime >= 0)
+                @seekSegmentOffset(prev, seekTime+prev.start).then =>
+                  @play() if @playing
+                  deferred.resolve()
+              else
+                prevSegment prev
+
+            # If no previous section found and still seconds left to rewind play from start
+            prev.fail =>
+              @seekSegmentOffset(seg, seg.start).then =>
                 @play() if @playing
-            else
-              seconds = seconds-next.duration()
-              nextSegment next
-        nextSegment()
-          
+                deferred.reject()
+
+          prevSegment @currentSegment
+
+      else if seekTime > duration
+
+        # if seekTime greater than current section duration we are seeking a segment in next section if available
+        @wait().then =>
+          seconds = seconds - (@currentSegment.end - currTime)
+          nextSegment = (seg) =>
+            next = @_getNextSegment seg
+            next.done (next) =>
+              if (seconds < next.duration())
+                # segment found
+                @seekSegmentOffset(next, seconds).then =>
+                  @play() if @playing
+                  deferred.resolve()
+              else
+                seconds = seconds-next.duration()
+                nextSegment next
+            next.fail =>
+              @seekSegmentOffset(seg, seg.end).then =>
+                @play() if @playing
+                deferred.reject()
+
+          nextSegment @currentSegment
+
+      deferred.promise()
+
+    # We're chaining seek calls, so that they don't mess each other up.
+    # If multiple seek calls are active at the same time, they'll all
+    # interact with the same jPlayer audio element, which is bad news
+    if @currentSeek
+      @currentSeek = @currentSeek.then(seek, seek)
+    else
+      @currentSeek = seek()
+
+
   # Plays the next segment in queue, and updates currentSegment
   playNextSegment: ->
     if not @hasNextSegment()
@@ -655,21 +708,23 @@ LYT.player =
         @currentSegment = segment
     segment
 
-  _getNextSection: (section = @currentSection()) ->
-    if section.next
-      section.next.load()
-
   _getNextSegment: (currsegment = @currentSegment) ->
     if currsegment.hasNext()
       currsegment.next.load()
     else
-      @_getNextSection(@book.getSectionBySegment currsegment).firstSegment()
+      section = @book.getSectionBySegment currsegment
+      return jQuery.Deferred().reject() if not section.next
+      section
+        .next
+        .load()
+        .firstSegment()
 
   _getPreviousSegment: (currsegment = @currentSegment) ->
     if currsegment.hasPrevious()
       currsegment.previous.load()
     else
       section = @book.getSectionBySegment (currsegment)
+      return jQuery.Deferred().reject() if not section.previous
       section
         .previous
         .load()

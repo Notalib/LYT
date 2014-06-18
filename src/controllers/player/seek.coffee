@@ -15,7 +15,7 @@ class LYT.player.command.seek extends LYT.player.command
     # jPlayer sets duration to 0 in stead of NaN when duration is unavailable?!
     log.message "Command seek: started - duration: #{@status.duration}"
     if @offset < 0 or @status.duration and @offset > @status.duration + 0.1
-      this.reject "Offset #{@offset} is out of bounds"
+      @reject "Offset #{@offset} is out of bounds"
     else
       @src = @status().src
       @always => clearInterval @seekInterval
@@ -41,13 +41,18 @@ class LYT.player.command.seek extends LYT.player.command
       log.message "Seek command #{@id} trying to seek to #{@offset} in #{@src} (duration is: #{@status.duration})"
       @el.jPlayer 'pause', Math.floor(@offset * 10)/10
     else
-      @reject 'Failed to seek after reaching attempt limit'
+      # TODO: We're resolving for now, because failure isn't handled properly
+      # in the seekSegmentOffset method. We ought to reject here, and handle
+      # it properly elsewhere
+      @resolve 'Failed to seek after reaching attempt limit'
 
   handles: ->
     seeked: (event) =>
-      return unless event.jPlayer.status.src is @src
-      if -0.5 < @offset - event.jPlayer.status.currentTime < 0.5
-        @resolve event.jPlayer.status
+      status = event.jPlayer.status
+      @reject 'This seek has been superseded' unless status.src is @src
+
+      if -0.5 < @offset - status.currentTime < 0.5
+        @resolve status
       else
         @seek()
 
@@ -56,7 +61,8 @@ class LYT.player.command.seek extends LYT.player.command
     # the start of the stream. We detect this here and do another seek
     # if it is the case.
     stalled: (event) =>
-      return unless event.jPlayer.status.src is @src
+      status = event.jPlayer.status
+      @reject 'This seek has been superseded' unless status.src is @src
       @seek()
 
     seeking: (event) =>

@@ -185,7 +185,7 @@ LYT.control =
         promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
-        $.mobile.changePage '#login'
+        $.mobile.path.set 'login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
 
@@ -307,6 +307,9 @@ LYT.control =
 
       renderIndex()
 
+  bookPlay: (type, match, ui, page, event) ->
+    $.mobile.changePage '#book-player' + match[1]
+
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
@@ -322,6 +325,10 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+        # If we're already playing this book, and we're coming from the
+        # bookshelf, we just continue playing
+        if LYT.player.book?.id is params.book and params.from is 'bookshelf'
+          return
 
         # Switch to different (part of) book
         # Because of bad naming, sections are here actually SMIL
@@ -340,6 +347,11 @@ LYT.control =
         play = (params.play is 'true') or false
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
+
+        # If this section is already playing, don't do anything
+        if LYT.player.book? and params.fragment? and
+           params.fragment is LYT.player.currentSection().fragment
+          return
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
@@ -538,8 +550,8 @@ LYT.control =
     else if type is 'pagehide'
       LYT.render.showTestTab()
 
-  suggestions: -> $.mobile.changePage("#search?list=anbe")
+  suggestions: -> $.mobile.changePage('#search?list=anbe')
 
-  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)
