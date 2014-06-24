@@ -54,16 +54,16 @@ LYT.player =
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
 
-
-        if Modernizr.playbackrate
-          # Learned from our tests http://jsbin.com/yuhakiga
-          # The most consistent way to get playbackRate to work in most browser
-          # is updating it on every timeupdate-event
-          audio = @el.data('jPlayer').htmlElement.audio
-          $(audio).on 'timeupdate', () =>
-            if not isNaN( audio.currentTime )
-              audio.playbackRate = @playbackRate
-            return
+        Modernizr.on 'playbackrate', (supported) =>
+          if supported
+            # Learned from our tests http://jsbin.com/yuhakiga
+            # The most consistent way to get playbackRate to work in most browser
+            # is updating it on every timeupdate-event
+            audio = @el.data('jPlayer').htmlElement?.audio
+            $(audio).on 'timeupdate', =>
+              if not isNaN( audio.currentTime )
+                log.message "onTimeupdate: playbackRate changed from #{audio.playbackRate} to #{@playbackRate}" if audio.playbackRate isnt @playbackRate
+                audio.playbackRate = @playbackRate
 
         @ready = true
 
@@ -293,16 +293,6 @@ LYT.player =
     # playbackRate is set on the audio element on the timeupdate-event defined in @init-function
 
     @playbackRate = playbackRate
-
-    if not Modernizr.playbackrate and Modernizr.playbackratelive
-      # Workaround for IOS6 that doesn't alter the perceived playback rate
-      # before starting and stopping the audio (issue #480)
-      unless @playing
-        @play().progress (event) =>
-          jPlayer = @el.data 'jPlayer'
-          audio = jPlayer.htmlElement.audio
-          audio.playbackRate = @playbackRate
-          @stop()
 
   # Starts playback
   play: ->
