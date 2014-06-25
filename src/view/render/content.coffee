@@ -166,6 +166,10 @@ LYT.render.content = do ->
       view = $(view)
 
       if not isCartoon
+        if view.find( 'span.word' ).length
+          view.addClass 'is-word-marked'
+        else
+          view.removeClass 'is-word-marked'
         images = view.find "img"
         if images.length
           margin = 200 # TODO Should be configurable

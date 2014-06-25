@@ -1169,16 +1169,26 @@ li.ui-li h3.no-search-results {
 
   p {
     margin-top: 0.3em;
+    opacity: 0.4;
+    &.active {
+     opacity: 1;
+    }
   }
 }
 
 #book-context-content.word-highlight {
-  span.word {
-    opacity: 0.4;
-  }
+  &.is-word-marked {
+    p {
+      opacity: 1;
+    }
 
-  span.word.active {
-    opacity: 1;
+    span.word {
+      opacity: 0.4;
+    }
+
+    span.word.active {
+      opacity: 1;
+    }
   }
 }
 
