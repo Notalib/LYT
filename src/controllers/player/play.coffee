@@ -16,31 +16,63 @@ class LYT.player.command.play extends LYT.player.command
     super el
     @_run => @el.jPlayer 'play'
 
+    @pollTimer = setInterval =>
+      audio = @el.data('jPlayer').htmlElement.audio
+      @notify currentTime: audio.currentTime, src: audio.src
+    , 1000/60
+
+    @audio = @el.find('audio')[0]
+    @_run =>
+      if @audio.readyState is 4
+        # If we've got the canplaythrough event, we just play
+        @el.jPlayer 'play'
+      else
+        # Otherwise we apply a different strategy, by waiting a couple of
+        # seconds, but still ensuring responsivenes
+        @firstplay = true
+        @el.jPlayer 'play'
+        @timer = setTimeout(
+          =>
+            @el.jPlayer 'pause'
+            @timer = setTimeout(
+              =>
+                @firstplay = false
+                @el.jPlayer 'play'
+              3000
+            )
+          200
+        )
+
   cancel: ->
     super()
+    @pollTimer = clearInterval @pollTimer
     @el.jPlayer 'pause'
-
-    # We still receive "timeupdate" events after having paused the jPlayer
-    # element. @justCancelled is used to soak up any "timeupdate" events after
-    # pause, so we don't mess up the play() method in the player
-    @justCancelled = true
+    @_stop()
 
   _stop: (event) ->
+    clearInterval @pollTimer if @pollTimer
     method = if @cancelled then @reject else @resolve
-    method.apply this, event.jPlayer.status
+    method.apply this, event?.jPlayer.status
 
   handles: ->
+    canplaythrough: (event) =>
+      log.message "Command play: Received canplaythrough event"
+
+      # If we've applied the "slow" strategy, we cancel it out and start
+      # playing if necessary
+      if @timer
+        clearTimeout @timer
+        @firstplay = false
+        @el.jPlayer('play') if @audio.paused
+
     playing: (event) =>
+      return if @firstplay
+      log.message "Command play: Now playing audio"
       @playing = true
       @notify event.jPlayer.status
 
-    timeupdate: (event) =>
-      if @playing and (event.jPlayer.status.paused or @justCancelled)
-        @_stop event
-      else
-        @notify event.jPlayer.status
-
     ended: (event) => @_stop event
 
-    pause: (event) => @_stop event
+    pause: (event) =>
+      log.message "Command play: paused due to buffering"
 

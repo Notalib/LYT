@@ -4,7 +4,6 @@
 # -------------------
 
 # This module handles rendering of book content
-#console.log 'Load LYT.render.content'
 LYT.render.content = do ->
 
   _focusEasing   = 'easeInOutQuint'
@@ -42,11 +41,6 @@ LYT.render.content = do ->
     scale = 1
     scale = view.width() / area.width if scale > view.width() / area.width
     scale = vspace() / area.height if scale > vspace() / area.height
-#    console.log "render.content: page dimensions: #{$(window).width()}x#{$(window).height()}"
-#    console.log "render.content: translate: scale: #{scale}"
-#    console.log "render.content: translate: display area: #{JSON.stringify area}"
-#    console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
-#    console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
     centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
 
@@ -66,7 +60,6 @@ LYT.render.content = do ->
   panZoomImage = (segment, image, area, renderDelta) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     nextFocus = translate image, area
-    #console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.stop true
     image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
@@ -128,144 +121,99 @@ LYT.render.content = do ->
         x: left + div.width()
         y: top  + div.height()
 
-#    console.log "Area: #{area.width}x#{area.height}, (#{area.tl.x}, #{area.tl.y})"
-
     panZoomImage segment, image, area, renderDelta
 
-    return true
+  prevActive = null
+  segmentIntoView = (view, segment) ->
+    view = $(view)
+    el = view.find "##{segment.contentId}"
 
-  # Stack renderer - stack segments
-  renderStack = (currentSegment, view, renderDelta) ->
+    # Remove highlighting of previous element
+    if prevActive
+      prevActive.removeClass "active"
 
-    log.message "Render: content: renderStack: renderDelta #{renderDelta}, vspace: #{vspace()}"
+    # Highlight element and scroll to element
+    if el.length
+      prevActive = el.addClass "active"
+      el[0].scrollIntoView()
 
-    timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
+  # Context viewer - Shows the entire DOM of the content document and
+  # scrolls around when appropriate
+  renderContext = (segment, view, delta) ->
+    book = segment.document.book
+    html = book.resources[segment.contentUrl].document
+    source = html.source[0]
+    view = view[0]
+    isCartoon = html.isCartoon()
 
-    bookSection = (segment) ->
-      book = segment.document.book
-      "#{book.id}:#{book.getSectionBySegment(segment).url}"
-
-    contentContainerId = (segment) ->
-      "content-#{segment.contentUrl}--#{segment.contentId}"
-
-    missingContainerId = (segment) ->
-      "missing-segment-#{segment.url().replace /[#.]/g, '--'}"
-
-    renderedSection = view.data "LYT-render-book-section"
-
-    # Empty view if book or section has changed
-    if not renderedSection or renderedSection isnt bookSection currentSegment
-      log.message 'Render: content: renderStack: empty view - wrong section'
-      view.data 'LYT-render-book-section', bookSection currentSegment
-      view.children().detach()
-      view.append $("<div class=\"missingSegment\" id=\"#{missingContainerId missingSegment}\">⋮</div>") for missingSegment in currentSegment.document.segments
-
-    view.css('overflow-x', 'scroll')
-
-    segment = currentSegment
-    while segment and segment.state() is "resolved"
-      log.message "Render: content: renderStack: rendering #{segment.url()}"
-      # Using getElementById in this loop for performance reasons
-      element = $(document.getElementById contentContainerId segment)
-      if element.length == 0
-        # There is no content container for this segment, so it should be
-        # rendered now. First see if we have an HTML element cached from
-        # before (in segment.element). If that fails, render it again.
-        element = segment.element
-        unless element
-          element = $(document.createElement('div'))
-          element.attr 'id', contentContainerId segment
-          element.attr 'class', 'segmentContainer'
-          element.html segment.html
-          element.find('img').each ->
-            image = $(this)
-            image.click -> image.toggleClass('zoom')
-          segment.element = element
-
-        $(document.getElementById missingContainerId(segment)).replaceWith element
-        element.css 'display', 'none'
-      else
-        # The element may already have been created by a previous segment, so
-        # set a reference to it here.
-        segment.element = element
-        # TODO: The following should be possible to remove because the missing
-        #       segment containers are removed in the block above.
-        if missingContainer = $(document.getElementById missingContainerId(segment))
-          missingContainer.remove()
-
-      segment = segment.next
-
-    view.find('img').each ->
-      image = $(this)
-      image.css translate(image, wholeImageArea(image), view)
-
-    # Hide segments that follow missing segments (this would confuse the reader)
-    currentSegment.element.nextAll('.missingSegment ~ .segmentContainer').css 'display', 'none'
-    # Halt all animations
-    view.children('.current').stop true, true
-
-    # Set current container and hide all content containers before it
-    before = currentSegment.element.prevAll(':visible')
-    view.children('.current').removeClass 'current'
-    currentSegment.element.addClass 'current'
-    before.hide()
-    show = (el) ->
-      el.css
-        visibility: 'visible'
-        display: 'block'
-        opacity: 1
-    show currentSegment.element
-    show currentSegment.element.nextAll '.segmentContainer'
-
-    # Function that calculates the available vertical space and preloads if
-    # there is any space available
-    preload = ->
-      totalHeight = currentSegment.element.height()
-      maxHeight = totalHeight
-      currentSegment.element.nextAll('.segmentContainer').each ->
-        height = $(this).height()
-        totalHeight += height
-        maxHeight or= height
-        maxHeight = height if height > maxHeight
-      if segment and totalHeight < vspace() + 2*maxHeight
-        log.message "Render: content: renderStack: preloading #{Math.floor(totalHeight / maxHeight + 1)} segments"
-        segment.preloadNext Math.floor(totalHeight / maxHeight + 1)
-
-    # Fade in all segments from the current and up to the first missing segment
-    currentSegment.element.fadeIn(500*timeScale) if currentSegment.element.is ':hidden'
-    hiddenContainers = currentSegment.element.nextUntil('.missingSegment', '.segmentContainer:hidden')
-    if hiddenContainers.length > 0
-      hiddenContainers.fadeIn 1000*timeScale, preload
+    contentID = "#{book.id}/#{segment.contentUrl}"
+    if $(view).data("htmldoc") is contentID
+      segmentIntoView view, segment
     else
-      preload()
+      log.message "Render: Changing context to #{contentID}"
+      $(view).data "htmldoc", contentID
 
+      if not isCartoon
+        # Don't load all images from document
+        html.hideImages "css/images/loading-spinning-bubbles.svg"
 
-  # Plain renderer - render everything in the segment
-  renderPlain = (segment, view) ->
-    view.css 'text-align', 'center'
-    segment.dom or= $(document.createElement('div')).html segment.html
-    segment.dom.find('img').each ->
-      img = $(this)
+      # Change to new document
+      view.replaceChild(
+        document.importNode(source.body.firstChild, true),
+        view.firstChild
+      )
 
-      return if img.data("vspace-processed")? == "yes"
+      view = $(view)
 
-      img.data "vspace-processed", "yes" # Mark as already-processed
+      if not isCartoon
+        images = view.find "img"
+        if images.length
+          margin = 200 # TODO Should be configurable
 
-      if img.height() > vspace()
-        img.height vspace()
-        img.width 'auto'
+          isVisible = (image, viewHeight) ->
+            top = image.position().top
+            bottom = top + image.height()
 
-      if img.width() > view.width()
-        img.width '100%'
-        img.height 'auto'
+            (-margin < top < (viewHeight + margin)) or
+            (-margin < bottom < (viewHeight + margin)) or
+            (top < -margin and (viewHeight + margin) < bottom)
 
-      img.click -> img.toggleClass('zoom')
-    view.empty().append segment.dom
+          showImage = (image, viewHeight) ->
+            if (src = image.attr "data-src") and isVisible image, viewHeight
+              image.attr "src", src
+              image.removeAttr "data-src"
+              image.removeClass "loading-icon"
+
+          scrollHandler = ->
+            height = view.height()
+            images.each -> showImage $(this), height
+
+          view.scroll jQuery.throttle 150, scrollHandler
+
+      LYT.render.setStyle()
+      segmentIntoView view, segment
+      scrollHandler() if scrollHandler? # Show initially visible images
+
+      # Catch links
+      view.find("a[href]").each ->
+        link = $(this)
+        url = @getAttribute "href"
+        if (external = /^https?:\/\//i.test url)
+          link.addClass "external"
+
+        link.click (e) ->
+          e.preventDefault()
+          if external
+            window.open url, "_blank" # Open external URLs
+          else
+            segment = LYT.player.book.segmentByURL url
+            segment.done (segment) =>
+              LYT.player.navigate segment
+            segment.fail =>
+              # Do nothing if it doesn't link to anything in the document
 
   selectView = (type) ->
-    result
-    viewTypes = ['stack', 'cartoon', 'plain']
-    for viewType in viewTypes
+    for viewType in ['cartoon', 'plain', 'context']
       view = $("#book-#{viewType}-content")
       if viewType is type
         result = view
@@ -282,13 +230,15 @@ LYT.render.content = do ->
     renderDelta = now - lastRender if lastRender
 
     if segment
-      section = segment.document.book.getSectionBySegment segment # lol
-      $('.player-chapter-title').text section.title
+      if segment.sectionTitle or segment.beginSection
+        $('.player-chapter-title').text segment.sectionTitle or segment.beginSection.title
+
       switch segment.type
         when 'cartoon'
           renderCartoon segment, selectView(segment.type), renderDelta
         else
-          renderStack segment, selectView('stack'), renderDelta
+          requestAnimationFrame ->
+            renderContext segment, selectView('context'), renderDelta
     else
       selectView null # Clears the content area
 

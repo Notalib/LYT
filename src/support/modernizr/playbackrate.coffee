@@ -12,6 +12,7 @@
 # Note that these tests are asynchronous (use Modernizr.on)
 
 playbackLiveTest = (audio) ->
+  log.message "Tests: Playback live test (playbackratelive) is running"
   # Reset audio
   audio.currentTime = 0
   margin = 0.1
@@ -62,6 +63,7 @@ playbackLiveTest = (audio) ->
   audio.play()
 
 playbackTest = ->
+  log.message "Tests: Playback test (playbackrate) is running"
   margin = 0.1    # Margin that the measured playback rate should be within
   rate = 0.5      # Test rate
   duration = 7    # How long time to play the audio before measuring playback rate

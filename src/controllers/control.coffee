@@ -123,6 +123,11 @@ LYT.control =
           val = Number(val)
           LYT.settings.set('playbackRate', val)
           LYT.player.setPlaybackRate val
+        when 'word-highlighting'
+          isOn = target.prop "checked"
+          LYT.render.setHighlighting isOn
+          LYT.settings.set('wordHighlighting', isOn)
+
 
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
@@ -185,7 +190,7 @@ LYT.control =
         promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
-        $.mobile.changePage '#login'
+        $.mobile.path.set 'login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
 
@@ -307,12 +312,18 @@ LYT.control =
 
       renderIndex()
 
+  bookPlay: (type, match, ui, page, event) ->
+    $.mobile.changePage '#book-player' + match[1]
+
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
       return
 
     if type is 'pagebeforeshow'
+      # Make sure we're looking good
+      LYT.render.setStyle()
+
       # Stop playback if we are going to switch to another book
       if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
@@ -322,6 +333,10 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+        # If we're already playing this book, and we're coming from the
+        # bookshelf, we just continue playing
+        if LYT.player.book?.id is params.book and params.from is 'bookshelf'
+          return
 
         # Switch to different (part of) book
         # Because of bad naming, sections are here actually SMIL
@@ -337,9 +352,14 @@ LYT.control =
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
 
-        play = (params.play is 'true') or false
+        play = params.play is 'true'
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
+
+        # If this section is already playing, don't do anything
+        if LYT.player.book? and params.fragment? and
+           params.fragment is LYT.player.currentSection().fragment
+          return
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
@@ -469,11 +489,14 @@ LYT.control =
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
-              if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
+              if style['background-color'] is colors[0] and style['color'] is colors[1]
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
                 $(this).attr("checked", true).checkboxradio("refresh")
+            when 'word-highlighting'
+              $(this).prop("checked", LYT.settings.get("wordHighlighting"))
+                .checkboxradio("refresh")
 
 
 
@@ -538,8 +561,8 @@ LYT.control =
     else if type is 'pagehide'
       LYT.render.showTestTab()
 
-  suggestions: -> $.mobile.changePage("#search?list=anbe")
+  suggestions: -> $.mobile.changePage('#search?list=anbe')
 
-  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)
