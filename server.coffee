@@ -38,10 +38,22 @@ server = app.listen argv.port, ->
   if not argv.silence
     console.log 'Listening on port %d', server.address().port
 
-watchr.watch
-  paths: [ 'html', 'src', 'sass' ],
-  listeners:
-    change: ( changeType, filePath, fileCurrentStat, filePreviousStat ) ->
+changedTimeout = null
+
+fileChanged = (filePath) ->
+  clearTimeout( changedTimeout ) if changedTimeout
+  if not argv.silence
+    console.log 'Rebuild after change to ' + filePath
+  changedTimeout = setTimeout(
+    =>
       exec 'cake -dnt app', ->
         if not argv.silence
-          console.log 'Rebuild after change to ' + filePath
+          console.log 'Fininshed rebuild'
+    , 100
+  )
+
+watchr.watch
+  paths: [ 'html', 'src', 'scss' ],
+  listeners:
+    change: ( changeType, filePath, fileCurrentStat, filePreviousStat ) ->
+      fileChanged filePath
