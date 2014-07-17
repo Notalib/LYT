@@ -519,6 +519,8 @@ LYT.player =
     .then =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
+        throw 'Player: seekSegmentOffset: segment has no audio' unless segment.audio
+
         (new LYT.player.command.load @el, segment.audio).then =>
           @newAudioLoaded = true
           segment
@@ -663,12 +665,12 @@ LYT.player =
   navigate: (segmentPromise) ->
     if @playing
       handler = =>
-        @playSegment segmentPromise
-        segmentPromise
+        segmentPromise.done (segment) =>
+          @playSegment segment or segmentPromise
     else
       handler = =>
-        @seekSegmentOffset segmentPromise
-        segmentPromise
+        segmentPromise.done (segment)=>
+          @seekSegmentOffset segment or segmentPromise
 
     if @playCommand
       # Stop playback and set up both done and fail handlers
