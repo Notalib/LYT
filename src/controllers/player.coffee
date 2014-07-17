@@ -41,7 +41,7 @@ LYT.player =
   init: ->
     log.message 'Player: starting initialization'
     @el = jQuery('#jplayer')
-    @playbackRate = LYT.settings.get('playbackRate')
+    @playbackRate = LYT.session.settings().get('playbackRate')
 
     jPlayerParams =
       swfPath: "./lib/jPlayer/"

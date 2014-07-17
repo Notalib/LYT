@@ -1,5 +1,5 @@
 # Requires `/common`
-# Requires `/support/lyt/cache`
+# Requires `/support/lyt/store`
 
 # -------------------
 
@@ -10,7 +10,10 @@ LYT.session = do ->
   credentials = null
 
   # Member info (memberId, name, email, etc.)
-  memberInfo  = null
+  memberInfo = null
+
+  # Settings
+  settings = null
 
   # ## Public API
 
@@ -24,28 +27,37 @@ LYT.session = do ->
     else
       log.warn 'Session: init: getNotaAuthToken is undefined'
 
-  getCredentials: -> LYT.cache.read "session", "credentials"
+  getCredentials: ->
+    credentials or= JSON.parse LYT.store.read("session/credentials") or "{}"
 
   setCredentials: (username, password) ->
     credentials or= {}
     [credentials.username, credentials.password] = [username, password]
     # FIXME: This should respect the automatic log-on option in the user's settings
-    LYT.cache.write "session", "credentials", credentials
+    LYT.store.write "session/credentials", credentials
+
+  settings: () ->
+    id = @getMemberId()
+    if not settings? or id isnt settings.memberID
+      settings = new LYT.Settings id
+
+    settings
 
   getInfo: ->
-    memberInfo or= LYT.cache.read "session", "memberinfo"
+    memberInfo or= JSON.parse LYT.store.read "session/memberinfo"
 
   setInfo: (info) ->
     memberInfo or= {}
     jQuery.extend memberInfo, info
-    LYT.cache.write "session", "memberinfo", memberInfo
+    LYT.store.write "session/memberinfo", memberInfo
 
   getMemberId: ->
     @getInfo()?.memberId
 
   clear: ->
     credentials = null
-    memberInfo  = null
-    LYT.cache.remove "session", "credentials"
-    LYT.cache.remove "session", "memberinfo"
+    memberInfo = null
+    settings = null
+    LYT.store.remove "session/credentials"
+    LYT.store.remove "session/memberinfo"
 
