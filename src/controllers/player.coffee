@@ -53,6 +53,19 @@ LYT.player =
         @setupUi()
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
+        log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
+
+        Modernizr.on 'playbackrate', (supported) =>
+          if supported
+            # Learned from our tests http://jsbin.com/yuhakiga
+            # The most consistent way to get playbackRate to work in most browser
+            # is updating it on every timeupdate-event
+            audio = @el.data('jPlayer').htmlElement?.audio
+            $(audio).on 'timeupdate', =>
+              if not isNaN( audio.currentTime )
+                log.message "onTimeupdate: playbackRate changed from #{audio.playbackRate} to #{@playbackRate}" if audio.playbackRate isnt @playbackRate
+                audio.playbackRate = @playbackRate
+
         @ready = true
 
     jPlayerParams.warning = (event) =>
@@ -280,28 +293,11 @@ LYT.player =
     @playing = false
     @wait()
 
-  setPlaybackRate: (playbackRate = 1) ->
-    log.message "Player: setPlaybackRate: #{@playbackRate}"
-
-    jPlayer = @el.data 'jPlayer'
-    audio = jPlayer.htmlElement.audio
+  setPlaybackRate: (playbackRate = @playbackRate) ->
+    log.message "Player: setPlaybackRate: (#{@playbackRate} -> #{playbackRate})"
+    # playbackRate is set on the audio element on the timeupdate-event defined in @init-function
 
     @playbackRate = playbackRate
-
-    if not Modernizr.playbackrate and Modernizr.playbackratelive
-      # Workaround for IOS6 that doesn't alter the perceived playback rate
-      # before starting and stopping the audio (issue #480)
-      if @playing
-        $(@el).one $.jPlayer.event.timeupdate, =>
-          audio.playbackRate = @playbackRate
-          @stop().then => @play()
-      else
-        @play().progress (event) =>
-          audio.playbackRate = @playbackRate
-          @stop()
-    else
-      $(@el).one $.jPlayer.event.timeupdate, =>
-        audio.playbackRate = @playbackRate
 
   # Starts playback
   play: ->
@@ -330,6 +326,11 @@ LYT.player =
         @playLoader.resolve()
 
       @firstPlay = false if @firstPlay
+
+      # If this is a newly loaded file, we set the user's playback rate
+      if @newAudioLoaded
+        #@setPlaybackRate()
+        @newAudioLoaded = false
 
       if @showingPlay
         @showPauseButton()
@@ -518,7 +519,11 @@ LYT.player =
     .then =>
       if @getStatus().src != segment.audio
         log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        load = new LYT.player.command.load @el, segment.audio
+        (new LYT.player.command.load @el, segment.audio).then =>
+          @newAudioLoaded = true
+          segment
+      else
+        jQuery.Deferred().resolve segment
 
     # Now move the play head
     .then =>
