@@ -127,6 +127,25 @@ LYT.render.content = do ->
   segmentIntoView = (view, segment) ->
     view = $(view)
     el = view.find "##{segment.contentId}"
+    isWordMarked = !!view.find( 'span.word' ).length
+    # Is this a word-marked book?
+    if isWordMarked
+      # Is wordHighlighting enabled?
+      if LYT.settings.get("wordHighlighting")
+        # In that case set the required style
+        view.addClass 'is-word-marked'
+      else
+        # wordHighlighting is disabled, this would disable highlighting completely
+        # for this book. Therfor we find the closest p-element and treat it like
+        # it's the active element.
+        # We assume that the book structure is <p> -> <span id="#{segment.contentId}">,
+        # so we select the closest p parent to the el.
+        isWordMarked = false
+        el = el.closest "p"
+
+    if not isWordMarked
+      # Not a word-marked book, set style to highlight paragraphs
+      view.removeClass 'is-word-marked'
 
     # Remove highlighting of previous element
     if prevActive
@@ -166,10 +185,6 @@ LYT.render.content = do ->
       view = $(view)
 
       if not isCartoon
-        if view.find( 'span.word' ).length
-          view.addClass 'is-word-marked'
-        else
-          view.removeClass 'is-word-marked'
         images = view.find "img"
         if images.length
           margin = 200 # TODO Should be configurable

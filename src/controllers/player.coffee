@@ -699,6 +699,8 @@ LYT.player =
     segment
 
   _getNextSegment: (currsegment = @currentSegment) ->
+    return jQuery.Deferred().reject() unless currsegment
+
     if currsegment.hasNext()
       currsegment.next.load()
     else
@@ -710,6 +712,8 @@ LYT.player =
         .firstSegment()
 
   _getPreviousSegment: (currsegment = @currentSegment) ->
+    return jQuery.Deferred().reject() unless currsegment
+
     if currsegment.hasPrevious()
       currsegment.previous.load()
     else
