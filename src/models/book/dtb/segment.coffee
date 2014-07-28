@@ -60,8 +60,10 @@ class LYT.Segment
     # Skip if already finished
     return this if @loading? or @state() is "resolved"
     @loading = true
-    @always => @loading = false
-    @fail   => log.error "Segment: failed loading segment #{this.url()}"
+    @always =>
+      @loading = false
+    @fail   =>
+      log.error "Segment: failed loading segment #{this.url()}"
 
     log.message "Segment: loading #{@url()}"
 
@@ -82,7 +84,7 @@ class LYT.Segment
         log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
         @_deferred.reject()
 
-    @_deferred.promise()
+    @_deferred.promise( this )
 
   url: -> "#{@document.filename}##{@id}"
 
