@@ -47,7 +47,7 @@ LYT.player =
     jPlayerParams =
       swfPath: "./lib/jPlayer/"
       supplied: "mp3"
-      solution: 'html, flash'
+      solution: 'html'
       ready: =>
         @setupAudioInstrumentation()
         @setupUi()
