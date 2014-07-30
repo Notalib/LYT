@@ -349,6 +349,9 @@ LYT.control =
             smilReference += "##{params.segment}"
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
+        else if LYT.player.book?.id is params.book and LYT.player.playing
+          # We're already playing this book, so we just continue playing.
+          return
 
         play = params.play is 'true'
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
@@ -368,7 +371,23 @@ LYT.control =
           LYT.service.getAnnouncements()
           LYT.player.refreshContent()
           LYT.player.setFocus()
-          LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          pageTitle = "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          LYT.render.setPageTitle pageTitle
+
+          if params.smil? or params.section? or params.offset?
+            # When the user selects a 'chapter' or bookmark in #book-index and afterwars open #settings
+            # and clicks 'back'-button, the player would go back to the last selected 'chapter' or
+            # bookmark.
+            # We solve this by updating the hash to only include the params book and from.
+            newPath = "book-player?book=#{params.book}" + if params.from? then "&from=#{params.from?}" else ""
+            if $.mobile.pushStateEnabled
+              # Browsers that support pushState, replace the history entry with the new hash,
+              # this prevents double entries in our history.
+              window.history.replaceState {}, pageTitle, "##{newPath}"
+            else
+              # Browser without support for pushStat (e.g. IE9) will have to live with
+              # the double entry in history.
+              window.location.hash = newPath
 
         process.fail (error) ->
           log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"

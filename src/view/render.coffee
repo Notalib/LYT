@@ -405,7 +405,7 @@ LYT.render = do ->
         element.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{bookmark.id}"
+            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
                href="#book-player?book=#{book.id}&smil=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
