@@ -154,7 +154,7 @@ LYT.render.content = do ->
     # Highlight element and scroll to element
     if el.length
       prevActive = el.addClass "active"
-      el[0].scrollIntoView()
+      view.scrollTo( el, 100, { offset: -10 } )
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
