@@ -77,13 +77,11 @@ LYT.control =
             else if item.children.length > 0
               iterate item.children
         if ev.attr("nodeid")?
+          event.stopPropagation()
           if ev.attr("nodeid") is "0"
             LYT.render.createbookIndex book.nccDocument.structure, view, book
           else
             iterate book.nccDocument.structure
-        else
-          # The back button was clicked
-          $.mobile.changePage "#book-player"
 
     $("#share-link-textarea").on 'click', ->
       this.focus()
