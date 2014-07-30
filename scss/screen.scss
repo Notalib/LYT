@@ -1091,7 +1091,7 @@ li.ui-li h3.no-search-results {
 
     span {
       font-weight: bold;
-      font-size: 13pt;
+      font-size: 13px;
       padding-left: 30px;
       display: inline-block;
       height: 100%;
@@ -1170,6 +1170,7 @@ li.ui-li h3.no-search-results {
   p {
     margin-top: 0.3em;
     opacity: 0.4;
+    line-height: 1.37;
     &.active {
      opacity: 1;
     }
