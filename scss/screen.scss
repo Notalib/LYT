@@ -1053,6 +1053,10 @@ li.ui-li h3.no-search-results {
     figure {
       float: left;
       margin: 0;
+      .cover-image {
+        max-width: 200px;
+        margin-right: 1em;
+      }
     }
     .details {
       padding-left: 97px;
@@ -1508,4 +1512,17 @@ svg.graph-canvas {
   &:hover {
     stroke-width: 0.005;
   }
+}
+
+@media screen and (max-width: 420px) {
+ #book-details {
+   .content {
+     figure {
+       .cover-image {
+         max-width: 90px;
+         margin-right: 0.5em;
+       }
+     }
+   }
+ }
 }

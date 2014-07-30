@@ -60,7 +60,7 @@ LYT.render = do ->
   loadCover = (img, id) ->
     # if periodical, use periodical code (first 4 letters of id)
     imageid = if $.isNumeric(id) then id else id.substring(0, 4)
-    img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h80.jpg"
+    img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h200.jpg"
 
 
   getMediaType = (mediastring) ->
