@@ -22,6 +22,13 @@ argv = require 'optimist'
   .default 'p', 8080
   .argv
 
+proxy.off( 'error' ).on 'error', (e) ->
+  unless argv.quiet or argv.silence
+    if e.code is 'ECONNRESET'
+      console.log 'The client reset connect'
+    else
+      console.log 'proxy error:', e
+
 app = express()
 app.use require('morgan')() if not (argv.quiet or argv.silence)
 app
