@@ -316,6 +316,8 @@ LYT.player =
         # Audio stream finished. Put on the next one.
         if nextSegment?.state() is 'pending'
           log.message 'Player: play: play: waiting for next segment'
+          nextSegment.done ( segment ) =>
+            @playSegment segment
         else
           @playNextSegment()
       command.always => @showPlayButton() unless @playing or @showingPlay
