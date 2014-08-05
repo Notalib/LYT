@@ -316,11 +316,12 @@ LYT.player =
         # Audio stream finished. Put on the next one.
         if nextSegment?.state() is 'pending'
           log.message 'Player: play: play: waiting for next segment'
-          nextSegment.done ( segment ) =>
+          nextSegment.done (segment) =>
             @playSegment segment
         else
           @playNextSegment()
-      command.always => @showPlayButton() unless @playing or @showingPlay
+      command.always =>
+        @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
       if @playLoader && @playLoader.state() != 'resolved'
@@ -338,7 +339,9 @@ LYT.player =
         @showPauseButton()
 
       # Don't do anything else if we're already moving to a new segment
-      return if nextSegment?.state() is 'pending'
+      if nextSegment?.state() is 'pending'
+        log.message "play: progressHandler: nextSegment is pending"
+        return
 
       time = status.currentTime
 
@@ -373,7 +376,8 @@ LYT.player =
           LYT.loader.register 'Loading book', nextSegment
           LYT.render.disablePlayerNavigation()
           nextSegment.always -> LYT.render.enablePlayerNavigation()
-          nextSegment.done -> getPlayCommand()
+          nextSegment.done ->
+            getPlayCommand()
           nextSegment.fail -> log.error "Player: play: progress: unable to " +
                                         "load next segment after pause."
           command.cancel()
@@ -397,10 +401,11 @@ LYT.player =
           return
 
         isNextInSync = (seg) =>
+          log.message "Player: play: isNextInSync: #{seg.audio}"
           nextSegment = @_getNextSegment seg
           nextSegment.then (next) =>
             # If the segment fits in the time interval we simply update the view
-            if next.start <= time < next.end
+            if next.start - 0.01 <= time < next.end + 0.01 and next.audio is status.src
               clearTimeout timer
               @_setCurrentSegment next
               @updateHtml next
@@ -455,7 +460,8 @@ LYT.player =
     else
       previous.resolve()
 
-    previous.then => @playCommand = getPlayCommand()
+    previous.then =>
+      @playCommand = getPlayCommand()
 
   seekSmilOffsetOrLastmark: (url, smilOffset) ->
     log.message "Player: seekSmilOffsetOrLastmark: #{url}, #{smilOffset}"
