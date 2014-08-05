@@ -155,7 +155,9 @@ do ->
         return null unless markup.length > 0
 
         # Android innerHTML takes out <head></head>...so cheat...
-        markup = markup[0].replace /<\/?head[^>]*>/gi, ""
+        markup = markup[0]
+          .replace( /<\/?head[^>]*>/gi, "" )
+          .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi, '<$1 $2></$1>' )
 
         # Create the DOM document
         doc = createHTMLDocument()
