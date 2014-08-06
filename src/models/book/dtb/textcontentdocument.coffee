@@ -15,7 +15,7 @@ class LYT.TextContentDocument extends LYT.DTBDocument
     source.find("*[src]").each (index, item) ->
       item = jQuery item
       return if item.data("resolved")?
-      url = item.attr("src").split("/").pop()
+      url = item.attr("src").replace( /^\//, '' )
       item.attr "src", resources[url]?.url
       item.data "resolved", "yes" # Mark as processed
 
