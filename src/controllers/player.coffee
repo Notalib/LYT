@@ -508,10 +508,8 @@ LYT.player =
     promise
 
 
-  seekSegmentOffset: (segment, offset) ->
-    log.message "Player: seekSegmentOffset: #{segment.url?()}, offset #{offset}"
-
-    segment or= @currentSegment
+  seekSegmentOffset: (segmentPromise = @currentSegment, offset) ->
+    log.message "Player: seekSegmentOffset: #{segmentPromise.url?()}, offset #{offset}"
 
     # If this takes a long time, put up the loader
     # The timeout ensures that we don't display the loader if seeking
@@ -535,46 +533,42 @@ LYT.player =
 
     # See if we need to initiate loading of a new audio file
     result = initial
+      .then -> segmentPromise # Wait for the segmentPromise to be fully loaded
+      .then (segment) =>
+        if @getStatus().src != segment.audio
+          log.message "Player: seekSegmentOffset: load #{segment.audio}"
+          throw 'Player: seekSegmentOffset: segment has no audio' unless segment.audio
 
-    # Wait for the segment to be fully loaded
-    .then -> $.when(segment)
-    .then =>
-      if @getStatus().src != segment.audio
-        log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        throw 'Player: seekSegmentOffset: segment has no audio' unless segment.audio
-
-        (new LYT.player.command.load @el, segment.audio).then =>
-          @newAudioLoaded = true
-          segment
-      else
-        jQuery.Deferred().resolve segment
-
-    # Now move the play head
-    .then =>
-      log.message 'Player: seekSegmentOffset: check if it is necessary to seek'
-      # Ensure that offset has a useful value
-      if offset?
-        if offset > segment.end
-          log.warn "Player: seekSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
-          offset = segment.end - 1
-          offset = segment.start if offset < segment.start
-        else if offset < segment.start
-          log.warn "Player: seekSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
+          (new LYT.player.command.load @el, segment.audio).then =>
+            @newAudioLoaded = true
+            segment
+        else
+          jQuery.Deferred().resolve segment
+      .then (segment) => # Now move the play head
+        log.message 'Player: seekSegmentOffset: check if it is necessary to seek'
+        # Ensure that offset has a useful value
+        if offset?
+          if offset > segment.end
+            log.warn "Player: seekSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
+            offset = segment.end - 1
+            offset = segment.start if offset < segment.start
+          else if offset < segment.start
+            log.warn "Player: seekSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
+            offset = segment.start
+        else
           offset = segment.start
-      else
-        offset = segment.start
-      if offset - 0.1 < @getStatus().currentTime < offset + 0.1
-        # We're already at the right point in the audio stream
-        log.message "Player: seekSegmentOffset: already at offset #{offset} - not seeking"
-      else
-        # Not at the right point - seek
-        log.message 'Player: seekSegmentOffset: seek'
-        seek = new LYT.player.command.seek @el, offset
+        if offset - 0.1 < @getStatus().currentTime < offset + 0.1
+          # We're already at the right point in the audio stream
+          log.message "Player: seekSegmentOffset: already at offset #{offset} - not seeking"
+        else
+          # Not at the right point - seek
+          log.message 'Player: seekSegmentOffset: seek'
+          seek = new LYT.player.command.seek @el, offset
 
-    # Once the seek has completed, render the segment
-    .then =>
-      @updateHtml segment
-      @_setCurrentSegment segment
+      .then => # Once the seek has completed, render the segment
+        segmentPromise.done (segment) =>
+          @updateHtml segment
+          @_setCurrentSegment segment
 
   # Plays the given segment
   playSegment: (segment) -> @playSegmentOffset segment, null
