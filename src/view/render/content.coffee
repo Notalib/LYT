@@ -125,7 +125,6 @@ LYT.render.content = do ->
 
   prevActive = null
   segmentIntoView = (view, segment) ->
-    view = $(view)
     el = view.find "##{segment.contentId}"
     isWordMarked = !!view.find( 'span.word' ).length
     # Is this a word-marked book?
@@ -162,32 +161,32 @@ LYT.render.content = do ->
     book = segment.document.book
     html = book.resources[segment.contentUrl].document
     source = html.source[0]
-    view = view[0]
     isCartoon = html.isCartoon()
 
     contentID = "#{book.id}/#{segment.contentUrl}"
-    if $(view).data("htmldoc") is contentID
+    if view.data("htmldoc") is contentID
       segmentIntoView view, segment
     else
       log.message "Render: Changing context to #{contentID}"
-      $(view).data "htmldoc", contentID
+      view.data "htmldoc", contentID
 
       if not isCartoon
         # Don't load all images from document
         html.hideImages "css/images/loading-spinning-bubbles.svg"
 
       # Change to new document
-      view.replaceChild(
+      view[0].replaceChild(
         document.importNode(source.body.firstChild, true),
-        view.firstChild
+        view[0].firstChild
       )
-
-      view = $(view)
 
       if not isCartoon
         images = view.find "img"
         if images.length
           margin = 200 # TODO Should be configurable
+          images.css
+            'height': 'auto'
+            'max-width': '100%'
 
           isVisible = (image, viewHeight) ->
             top = image.position().top
@@ -208,6 +207,10 @@ LYT.render.content = do ->
             images.each -> showImage $(this), height
 
           view.scroll jQuery.throttle 150, scrollHandler
+      else
+        view.find( '.page,.page img' ).css
+          'max-width': '100%'
+          'height': 'auto'
 
       LYT.render.setStyle()
       segmentIntoView view, segment
