@@ -777,7 +777,9 @@ LYT.player =
 
   refreshContent: ->
     # Using timeout to ensure that we don't call updateHtml too often
-    refreshHandler = => @updateHtml segment if @book and segment = @currentSegment
+    refreshHandler = =>
+      if @book and segment = @currentSegment
+        @updateHtml segment
     clearTimeout @refreshTimer if @refreshTimer
     @refreshTimer = setTimeout refreshHandler, 500
 
