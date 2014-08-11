@@ -15,7 +15,7 @@ class LYT.TextContentDocument extends LYT.DTBDocument
     source.find("*[src]").each (index, item) ->
       item = jQuery item
       return if item.data("resolved")?
-      url = item.attr("src").split("/").pop()
+      url = item.attr("src").replace( /^\//, '' )
       item.attr "src", resources[url]?.url
       item.data "resolved", "yes" # Mark as processed
 
@@ -36,3 +36,9 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       el.attr "data-src", el.attr "src"
       el.removeAttr "src"
       el.attr "src", altSrc if altSrc
+      el.addClass "loading-icon"
+
+  isCartoon: () ->
+    pages = @source.find('.page').toArray()
+    pages.length != 0 && pages.every (page) -> $(page).children('img').length == 1
+

@@ -4,7 +4,6 @@
 # -------------------
 
 # This module handles rendering of book content
-#console.log 'Load LYT.render.content'
 LYT.render.content = do ->
 
   _focusEasing   = 'easeInOutQuint'
@@ -42,11 +41,6 @@ LYT.render.content = do ->
     scale = 1
     scale = view.width() / area.width if scale > view.width() / area.width
     scale = vspace() / area.height if scale > vspace() / area.height
-#    console.log "render.content: page dimensions: #{$(window).width()}x#{$(window).height()}"
-#    console.log "render.content: translate: scale: #{scale}"
-#    console.log "render.content: translate: display area: #{JSON.stringify area}"
-#    console.log "render.content: translate: view dimensions: #{view.width()}x#{vspace()}"
-#    console.log "render.content: translate: image natural dimensions: #{image[0].naturalWidth}x#{image[0].naturalHeight}"
     # FIXME: resizing div to fit content in case div is too large
     centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
 
@@ -66,7 +60,6 @@ LYT.render.content = do ->
   panZoomImage = (segment, image, area, renderDelta) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     nextFocus = translate image, area
-    #console.log "render.content: panZoomImage: nextFocus: #{JSON.stringify nextFocus}"
     thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
     image.stop true
     image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
@@ -132,8 +125,26 @@ LYT.render.content = do ->
 
   prevActive = null
   segmentIntoView = (view, segment) ->
-    view = $(view)
     el = view.find "##{segment.contentId}"
+    isWordMarked = !!view.find( 'span.word' ).length
+    # Is this a word-marked book?
+    if isWordMarked
+      # Is wordHighlighting enabled?
+      if LYT.settings.get("wordHighlighting")
+        # In that case set the required style
+        view.addClass 'is-word-marked'
+      else
+        # wordHighlighting is disabled, this would disable highlighting completely
+        # for this book. Therfor we find the closest p-element and treat it like
+        # it's the active element.
+        # We assume that the book structure is <p> -> <span id="#{segment.contentId}">,
+        # so we select the closest p parent to the el.
+        isWordMarked = false
+        el = el.closest "p"
+
+    if not isWordMarked
+      # Not a word-marked book, set style to highlight paragraphs
+      view.removeClass 'is-word-marked'
 
     # Remove highlighting of previous element
     if prevActive
@@ -142,7 +153,7 @@ LYT.render.content = do ->
     # Highlight element and scroll to element
     if el.length
       prevActive = el.addClass "active"
-      el[0].scrollIntoView()
+      view.scrollTo( el, 100, { offset: -10 } )
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
@@ -150,52 +161,78 @@ LYT.render.content = do ->
     book = segment.document.book
     html = book.resources[segment.contentUrl].document
     source = html.source[0]
-    view = view[0]
+    isCartoon = html.isCartoon()
 
     contentID = "#{book.id}/#{segment.contentUrl}"
-    if $(view).data("htmldoc") is contentID
+    if view.data("htmldoc") is contentID
       segmentIntoView view, segment
     else
       log.message "Render: Changing context to #{contentID}"
-      $(view).data "htmldoc", contentID
+      view.data "htmldoc", contentID
 
-      # Don't load all images from document
-      html.hideImages "css/images/ajax-loader.gif"
+      if not isCartoon
+        # Don't load all images from document
+        html.hideImages "css/images/loading-spinning-bubbles.svg"
 
       # Change to new document
-      view.replaceChild(
+      view[0].replaceChild(
         document.importNode(source.body.firstChild, true),
-        view.firstChild
+        view[0].firstChild
       )
 
-      view = $(view)
-      images = view.find "img"
+      if not isCartoon
+        images = view.find "img"
+        if images.length
+          margin = 200 # TODO Should be configurable
+          images.css
+            'height': 'auto'
+            'max-width': '100%'
 
-      if images.length
-        margin = 200 # TODO Should be configurable
-        showImage = (image, ct, cb) ->
-          image = jQuery image
-          offset = image.offset()
-          if ((ct < offset.top < cb) or
-              (ct < offset.bottom < cb)) and image.attr("data-src")?
-            image.attr "src", image.attr "data-src"
-            image.removeAttr "data-src"
+          isVisible = (image, viewHeight) ->
+            top = image.position().top
+            bottom = top + image.height()
 
-        scrollHandler = ->
-          ct = view.scrollTop() - margin
-          cb = ct + view.height() + 2 * margin
-          images.each -> showImage this, ct, cb
+            (-margin < top < (viewHeight + margin)) or
+            (-margin < bottom < (viewHeight + margin)) or
+            (top < -margin and (viewHeight + margin) < bottom)
 
-        view.scroll jQuery.throttle 150, scrollHandler
+          showImage = (image, viewHeight) ->
+            if (src = image.attr "data-src") and isVisible image, viewHeight
+              image.attr "src", src
+              image.removeAttr "data-src"
+              image.removeClass "loading-icon"
+
+          scrollHandler = ->
+            height = view.height()
+            images.each -> showImage $(this), height
+
+          view.scroll jQuery.throttle 150, scrollHandler
+      else
+        view.find( '.page,.page img' ).css
+          'max-width': '100%'
+          'height': 'auto'
 
       LYT.render.setStyle()
       segmentIntoView view, segment
-      scrollHandler() if scrollHandler? # Show images which visible initially
+      scrollHandler() if scrollHandler? # Show initially visible images
 
       # Catch links
-      view.find("a[href]").click (e) ->
-        e.preventDefault()
-        LYT.player.seekSmilOffsetOrLastmark @getAttribute "href"
+      view.find("a[href]").each ->
+        link = $(this)
+        url = @getAttribute "href"
+        if (external = /^https?:\/\//i.test url)
+          link.addClass "external"
+
+        link.click (e) ->
+          e.preventDefault()
+          if external
+            window.open url, "_blank" # Open external URLs
+          else
+            segment = LYT.player.book.segmentByURL url
+            segment.done (segment) =>
+              LYT.player.navigate segment
+            segment.fail =>
+              # Do nothing if it doesn't link to anything in the document
 
   selectView = (type) ->
     for viewType in ['cartoon', 'plain', 'context']
