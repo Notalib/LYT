@@ -66,6 +66,8 @@ class LYT.player.command.play extends LYT.player.command
         @el.jPlayer('play') if @audio.paused
 
     playing: (event) =>
+      @audio.playbackRate = 1
+
       return if @firstplay
       log.message "Command play: Now playing audio"
       @playing = true
@@ -76,3 +78,16 @@ class LYT.player.command.play extends LYT.player.command
     pause: (event) =>
       log.message "Command play: paused due to buffering"
 
+    # Learned from our tests http://jsbin.com/yuhakiga
+    # The most consistent way to get playbackRate to work in most browser
+    # is updating it on every timeupdate-event
+    timeupdate: (event) =>
+      log.message "timeuptime: #{@audio.currentTime} - from playbackRate #{@audio.playbackRate} to #{@playbackRate} - paused = #{@audio.paused}"
+      if not isNaN( @audio.currentTime )
+        log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}" if @audio.playbackRate isnt @playbackRate
+        @audio.playbackRate = @playbackRate
+
+  setPlaybackRate: (playbackRate = 1) =>
+    @playbackRate = playbackRate
+
+    @audio.playbackRate = @playbackRate

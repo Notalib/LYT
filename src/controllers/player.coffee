@@ -55,17 +55,7 @@ LYT.player =
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
 
-
-        # Learned from our tests http://jsbin.com/yuhakiga
-        # The most consistent way to get playbackRate to work in most browser
-        # is updating it on every timeupdate-event
-        audio = @el.data('jPlayer').htmlElement?.audio
-        $(audio).on 'timeupdate', =>
-          if not isNaN( audio.currentTime )
-            log.message "onTimeupdate: playbackRate changed from #{audio.playbackRate} to #{@playbackRate}" if audio.playbackRate isnt @playbackRate
-            audio.playbackRate = @playbackRate
-            audio.defaultPlaybackRate = @playbackRate
-
+        @setPlaybackRate @playbackRate
         @ready = true
 
     jPlayerParams.warning = (event) =>
@@ -228,6 +218,7 @@ LYT.player =
         jQuery("#book-duration").text book.totalTime
       .then =>
         if @firstPlay and not Modernizr.autoplayback
+          log.message "Player: We are in firstPlay mode and no Modernizr.autoplayback"
           # The play click handler will call @playClickHook which enables the
           # player to start seeking.
           @playClickHook = (e) =>
@@ -251,7 +242,8 @@ LYT.player =
                 LYT.render.disablePlayerNavigation()
         else
           log.message 'Player: chaining seeked because we are not in firstPlay mode'
-          @seekSmilOffsetOrLastmark url, smilOffset
+          @seekSmilOffsetOrLastmark(url, smilOffset).always ->
+            LYT.render.disablePlayerNavigation()
       .then =>
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
@@ -304,6 +296,7 @@ LYT.player =
       # before starting and stopping the audio (issue #480)
       jPlayer = @el.data 'jPlayer'
       audio = jPlayer.htmlElement.audio
+
       if @playing
         @stop().then =>
           audio.playbackRate = @playbackRate
@@ -313,6 +306,8 @@ LYT.player =
           audio.playbackRate = @playbackRate
           @stop()
 
+     if command = @playCommand
+       command.setPlaybackRate @playbackRate
 
   # Starts playback
   play: ->
@@ -325,6 +320,7 @@ LYT.player =
       LYT.loader.register 'Loading sound', @playLoader
       LYT.render.disablePlayerNavigation()
       command = new LYT.player.command.play @el
+      command.setPlaybackRate @playbackRate
       command.progress progressHandler
       command.done =>
         log.group 'Player: play: play command done.', command.status()
