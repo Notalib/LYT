@@ -64,6 +64,7 @@ LYT.player =
           if not isNaN( audio.currentTime )
             log.message "onTimeupdate: playbackRate changed from #{audio.playbackRate} to #{@playbackRate}" if audio.playbackRate isnt @playbackRate
             audio.playbackRate = @playbackRate
+            audio.defaultPlaybackRate = @playbackRate
 
         @ready = true
 
