@@ -103,7 +103,7 @@ LYT.control =
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->
-      target = $(event.target)
+      target = $(this)
       name = target.attr 'name'
       val = target.val()
 
@@ -172,7 +172,6 @@ LYT.control =
       log.receiver = 'devconsole'
       log.level = 3
       log.message 'Opened developer console'
-
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
