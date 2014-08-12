@@ -331,6 +331,7 @@ LYT.control =
         # If we're already playing this book, and we're coming from the
         # bookshelf, we just continue playing
         if LYT.player.book?.id is params.book and params.from is 'bookshelf'
+          LYT.player.refreshContent()
           return
 
         # Switch to different (part of) book
