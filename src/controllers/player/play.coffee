@@ -82,7 +82,6 @@ class LYT.player.command.play extends LYT.player.command
     # The most consistent way to get playbackRate to work in most browser
     # is updating it on every timeupdate-event
     timeupdate: (event) =>
-      log.message "timeuptime: #{@audio.currentTime} - from playbackRate #{@audio.playbackRate} to #{@playbackRate} - paused = #{@audio.paused}"
       if not isNaN( @audio.currentTime )
         log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}" if @audio.playbackRate isnt @playbackRate
         @audio.playbackRate = @playbackRate
