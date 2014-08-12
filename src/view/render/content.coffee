@@ -93,6 +93,31 @@ LYT.render.content = do ->
       x: scale * area.br.x
       y: scale * area.br.y
 
+  # Resizes the images to fit inside with view.
+  # If the image is narrower than the view, the image
+  # isn't resized.
+  # If the image is wider than the view, it will be
+  # resized to the view width
+  scaleImage = (image, viewHeight, viewWidth) ->
+    imgData = image.data()
+    return unless imgData
+    if imgData.realHeight? and imgData.realWidth? and ( imgData.lastViewHeight isnt viewHeight or imgData.lastViewWidth isnt viewWidth )
+      imgHeight = imgData.realHeight
+      imgWidth  = imgData.realWidth
+      if imgHeight and imgWidth
+        ratio = imgHeight / imgWidth
+        if imgWidth <= viewWidth
+          image.css
+            width:  imgWidth
+            height: imgHeight
+        else
+          image.css
+            width:  viewWidth
+            height: viewWidth * ratio
+      image.data
+        lastViewHeight: viewHeight
+        lastViewWidth:  viewWidth
+
   # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
@@ -184,9 +209,20 @@ LYT.render.content = do ->
         images = view.find "img"
         if images.length
           margin = 200 # TODO Should be configurable
-          images.css
-            'height': 'auto'
-            'max-width': '100%'
+
+          images.filter( '[height]' ).each ->
+            image = $(@)
+            imgWidth = image.attr( 'width' )
+            imgHeight = image.attr( 'height' )
+            if imgWidth and imgHeight
+              image.data
+                realHeight: imgHeight
+                realWidth: imgWidth
+
+              viewHeight = view.children().height()
+              viewWidth = view.children().width()
+
+              scaleImage image, viewHeight, viewWidth
 
           isVisible = (image, viewHeight) ->
             top = image.position().top
@@ -196,15 +232,24 @@ LYT.render.content = do ->
             (-margin < bottom < (viewHeight + margin)) or
             (top < -margin and (viewHeight + margin) < bottom)
 
-          showImage = (image, viewHeight) ->
+          showImage = (image, viewHeight, viewWidth) ->
+            scaleImage image, viewHeight, viewWidth
             if (src = image.attr "data-src") and isVisible image, viewHeight
               image.attr "src", src
               image.removeAttr "data-src"
               image.removeClass "loading-icon"
+              unless image.data( 'realHeight' ) and image.data( 'realWidth' )
+                image.one( 'load', ->
+                  if @.naturalHeight? and @.naturalWidth?
+                    image.data
+                      realHeight: @.naturalHeight
+                      realWidth: @.naturalWidth
+                )
 
           scrollHandler = ->
-            height = view.height()
-            images.each -> showImage $(this), height
+            height = view.children().height()
+            width = view.children().width()
+            images.each -> showImage $(this), height, width
 
           view.scroll jQuery.throttle 150, scrollHandler
       else

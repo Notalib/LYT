@@ -1202,6 +1202,9 @@ li.ui-li h3.no-search-results {
 
     .page {
       margin: 0 auto;
+      .area {
+       display: none;
+      }
     }
   }
 }
