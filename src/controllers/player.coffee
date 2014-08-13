@@ -55,17 +55,7 @@ LYT.player =
         log.message "Player: event ready: paused: #{@getStatus().paused}"
         log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
 
-        Modernizr.on 'playbackrate', (supported) =>
-          if supported
-            # Learned from our tests http://jsbin.com/yuhakiga
-            # The most consistent way to get playbackRate to work in most browser
-            # is updating it on every timeupdate-event
-            audio = @el.data('jPlayer').htmlElement?.audio
-            $(audio).on 'timeupdate', =>
-              if not isNaN( audio.currentTime )
-                log.message "onTimeupdate: playbackRate changed from #{audio.playbackRate} to #{@playbackRate}" if audio.playbackRate isnt @playbackRate
-                audio.playbackRate = @playbackRate
-
+        @setPlaybackRate @playbackRate
         @ready = true
 
     jPlayerParams.warning = (event) =>
@@ -228,6 +218,7 @@ LYT.player =
         jQuery("#book-duration").text book.totalTime
       .then =>
         if @firstPlay and not Modernizr.autoplayback
+          log.message "Player: We are in firstPlay mode and no Modernizr.autoplayback"
           # The play click handler will call @playClickHook which enables the
           # player to start seeking.
           @playClickHook = (e) =>
@@ -251,7 +242,8 @@ LYT.player =
                 LYT.render.disablePlayerNavigation()
         else
           log.message 'Player: chaining seeked because we are not in firstPlay mode'
-          @seekSmilOffsetOrLastmark url, smilOffset
+          @seekSmilOffsetOrLastmark(url, smilOffset).always ->
+            LYT.render.disablePlayerNavigation()
       .then =>
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
@@ -299,6 +291,24 @@ LYT.player =
 
     @playbackRate = playbackRate
 
+    if not Modernizr.playbackrate and Modernizr.playbackratelive
+      # Workaround for IOS6 that doesn't alter the perceived playback rate
+      # before starting and stopping the audio (issue #480)
+      jPlayer = @el.data 'jPlayer'
+      audio = jPlayer.htmlElement.audio
+
+      if @playing
+        @stop().then =>
+          audio.playbackRate = @playbackRate
+          @play()
+      else
+        @play().progress =>
+          audio.playbackRate = @playbackRate
+          @stop()
+
+     if command = @playCommand
+       command.setPlaybackRate @playbackRate
+
   # Starts playback
   play: ->
     command = null
@@ -313,17 +323,19 @@ LYT.player =
       LYT.loader.register 'Loading sound', @playLoader
       LYT.render.disablePlayerNavigation()
       command = new LYT.player.command.play @el
+      command.setPlaybackRate @playbackRate
       command.progress progressHandler
       command.done =>
         log.group 'Player: play: play command done.', command.status()
         # Audio stream finished. Put on the next one.
         if nextSegment?.state() is 'pending'
           log.message 'Player: play: play: waiting for next segment'
-          nextSegment.done ( segment ) =>
+          nextSegment.done (segment) =>
             @playSegment segment
         else
           @playNextSegment()
-      command.always => @showPlayButton() unless @playing or @showingPlay
+      command.always =>
+        @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
       if @playLoader && @playLoader.state() != 'resolved'
@@ -341,7 +353,9 @@ LYT.player =
         @showPauseButton()
 
       # Don't do anything else if we're already moving to a new segment
-      return if nextSegment?.state() is 'pending'
+      if nextSegment?.state() is 'pending'
+        log.message "play: progressHandler: nextSegment is pending"
+        return
 
       time = status.currentTime
 
@@ -376,7 +390,8 @@ LYT.player =
           LYT.loader.register 'Loading book', nextSegment
           LYT.render.disablePlayerNavigation()
           nextSegment.always -> LYT.render.enablePlayerNavigation()
-          nextSegment.done -> getPlayCommand()
+          nextSegment.done ->
+            getPlayCommand()
           nextSegment.fail -> log.error "Player: play: progress: unable to " +
                                         "load next segment after pause."
           command.cancel()
@@ -400,10 +415,11 @@ LYT.player =
           return
 
         isNextInSync = (seg) =>
+          log.message "Player: play: isNextInSync: #{seg.audio}"
           nextSegment = @_getNextSegment seg
           nextSegment.then (next) =>
             # If the segment fits in the time interval we simply update the view
-            if next.start <= time < next.end
+            if next.start - 0.01 <= time < next.end + 0.01 and next.audio is status.src
               clearTimeout timer
               @_setCurrentSegment next
               @updateHtml next
@@ -458,7 +474,8 @@ LYT.player =
     else
       previous.resolve()
 
-    previous.then => @playCommand = getPlayCommand()
+    previous.then =>
+      @playCommand = getPlayCommand()
 
   seekSmilOffsetOrLastmark: (url, smilOffset) ->
     log.message "Player: seekSmilOffsetOrLastmark: #{url}, #{smilOffset}"
@@ -491,10 +508,8 @@ LYT.player =
     promise
 
 
-  seekSegmentOffset: (segment, offset) ->
-    log.message "Player: seekSegmentOffset: #{segment.url?()}, offset #{offset}"
-
-    segment or= @currentSegment
+  seekSegmentOffset: (segmentPromise = @currentSegment, offset) ->
+    log.message "Player: seekSegmentOffset: #{segmentPromise.url?()}, offset #{offset}"
 
     # If this takes a long time, put up the loader
     # The timeout ensures that we don't display the loader if seeking
@@ -518,46 +533,42 @@ LYT.player =
 
     # See if we need to initiate loading of a new audio file
     result = initial
+      .then -> segmentPromise # Wait for the segmentPromise to be fully loaded
+      .then (segment) =>
+        if @getStatus().src != segment.audio
+          log.message "Player: seekSegmentOffset: load #{segment.audio}"
+          throw 'Player: seekSegmentOffset: segment has no audio' unless segment.audio
 
-    # Wait for the segment to be fully loaded
-    .then -> $.when(segment)
-    .then =>
-      if @getStatus().src != segment.audio
-        log.message "Player: seekSegmentOffset: load #{segment.audio}"
-        throw 'Player: seekSegmentOffset: segment has no audio' unless segment.audio
-
-        (new LYT.player.command.load @el, segment.audio).then =>
-          @newAudioLoaded = true
-          segment
-      else
-        jQuery.Deferred().resolve segment
-
-    # Now move the play head
-    .then =>
-      log.message 'Player: seekSegmentOffset: check if it is necessary to seek'
-      # Ensure that offset has a useful value
-      if offset?
-        if offset > segment.end
-          log.warn "Player: seekSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
-          offset = segment.end - 1
-          offset = segment.start if offset < segment.start
-        else if offset < segment.start
-          log.warn "Player: seekSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
+          (new LYT.player.command.load @el, segment.audio).then =>
+            @newAudioLoaded = true
+            segment
+        else
+          jQuery.Deferred().resolve segment
+      .then (segment) => # Now move the play head
+        log.message 'Player: seekSegmentOffset: check if it is necessary to seek'
+        # Ensure that offset has a useful value
+        if offset?
+          if offset > segment.end
+            log.warn "Player: seekSegmentOffset: got offset out of bounds: segment end is #{segment.end}"
+            offset = segment.end - 1
+            offset = segment.start if offset < segment.start
+          else if offset < segment.start
+            log.warn "Player: seekSegmentOffset: got offset out of bounds: segment start is #{segment.start}"
+            offset = segment.start
+        else
           offset = segment.start
-      else
-        offset = segment.start
-      if offset - 0.1 < @getStatus().currentTime < offset + 0.1
-        # We're already at the right point in the audio stream
-        log.message "Player: seekSegmentOffset: already at offset #{offset} - not seeking"
-      else
-        # Not at the right point - seek
-        log.message 'Player: seekSegmentOffset: seek'
-        seek = new LYT.player.command.seek @el, offset
+        if offset - 0.1 < @getStatus().currentTime < offset + 0.1
+          # We're already at the right point in the audio stream
+          log.message "Player: seekSegmentOffset: already at offset #{offset} - not seeking"
+        else
+          # Not at the right point - seek
+          log.message 'Player: seekSegmentOffset: seek'
+          seek = new LYT.player.command.seek @el, offset
 
-    # Once the seek has completed, render the segment
-    .then =>
-      @updateHtml segment
-      @_setCurrentSegment segment
+      .then => # Once the seek has completed, render the segment
+        segmentPromise.done (segment) =>
+          @updateHtml segment
+          @_setCurrentSegment segment
 
   # Plays the given segment
   playSegment: (segment) -> @playSegmentOffset segment, null
@@ -766,7 +777,9 @@ LYT.player =
 
   refreshContent: ->
     # Using timeout to ensure that we don't call updateHtml too often
-    refreshHandler = => @updateHtml segment if @book and segment = @currentSegment
+    refreshHandler = =>
+      if @book and segment = @currentSegment
+        @updateHtml segment
     clearTimeout @refreshTimer if @refreshTimer
     @refreshTimer = setTimeout refreshHandler, 500
 

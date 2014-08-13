@@ -63,8 +63,8 @@ LYT.control =
     #
     # The click handler is on #book-index because selecting .create-listview,
     # doesn't capture clicks, since the list is dynamically created.
-    $('#book-index').on 'click', (event) ->
-      ev = $(event.srcElement).closest('.create-listview')
+    $('#book-index').on 'click', '.create-listview', (event) ->
+      ev = $(this)
       if ev.length isnt 0
         # The click is for us
         view = $.mobile.activePage.children ':jqmData(role=content)'
@@ -103,7 +103,7 @@ LYT.control =
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->
-      target = $(event.target)
+      target = $(this)
       name = target.attr 'name'
       val = target.val()
 
@@ -126,10 +126,8 @@ LYT.control =
           LYT.render.setHighlighting isOn
           LYT.settings.set('wordHighlighting', isOn)
 
-
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
-
 
     $('#instrumentation').find('button.first').on 'click', ->
       LYT.render.instrumentationGraph()?.firstEntry()
@@ -174,7 +172,6 @@ LYT.control =
       log.receiver = 'devconsole'
       log.level = 3
       log.message 'Opened developer console'
-
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()

@@ -257,6 +257,28 @@ class LYT.Book
 
   saveBookmarks: -> LYT.service.setBookmarks this
 
+  _sortBookmarks: ->
+    log.message "Book: _sortBookmarks"
+    smils = @getSMILFilesInNCC()
+
+    tmpBookmarks = ( @bookmarks or [] ).slice 0
+    tmpBookmarks.sort (aMark, bMark) ->
+      [aMarkSmil, aMarkID] = aMark.URI.split '#'
+      aMarkIndex = smils.indexOf aMarkSmil
+
+      [bMarkSmil, bMarkID] = bMark.URI.split '#'
+      bMarkIndex = smils.indexOf bMarkSmil
+
+      if aMarkIndex < bMarkIndex
+        return -1
+      else if aMarkIndex is bMarkIndex
+        return aMark.timeOffset - bMark.timeOffset
+      else if aMarkIndex > bMarkIndex
+        return 1
+
+    @bookmarks = tmpBookmarks
+
+
   # Delete all bookmarks that are very close to each other
   _normalizeBookmarks: ->
     temp = {}
@@ -277,6 +299,7 @@ class LYT.Book
 
   # TODO: Add remove bookmark method
   addBookmark: (segment, offset = 0) ->
+    log.message "Book: addBookmark"
     bookmark = segment.bookmark offset
     section = @getSectionBySegment segment
 
@@ -285,29 +308,11 @@ class LYT.Book
 
     # Add to bookmarks and save
     @bookmarks or= []
-    tmpMarks = @bookmarks.slice 0
 
-    # Sort in reverse chronologically order in book time
-    smils = @getSMILFilesInNCC()
-    index = smils.indexOf bookmark.URI.split("#")[0]
-    for mark, i in tmpMarks
-      [markSMIL, markID] = mark.URI.split("#")
-      markIndex = smils.indexOf markSMIL
-
-      if markIndex < index
-        insertIndex = i
-      else if markIndex is index
-        order = segment.document.orderSegmentsByID segment.id, markID
-        insertIndex = if order <= 0 then i + 1 else i
-
-      if insertIndex?
-        @bookmarks.splice insertIndex, 0,  bookmark
-        break
-
-    if not insertIndex?
-      @bookmarks.push bookmark
+    @bookmarks.push bookmark
 
     @_normalizeBookmarks()
+    @_sortBookmarks()
     @saveBookmarks()
 
   setLastmark: (segment, offset = 0) ->

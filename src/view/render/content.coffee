@@ -93,6 +93,31 @@ LYT.render.content = do ->
       x: scale * area.br.x
       y: scale * area.br.y
 
+  # Resizes the images to fit inside with view.
+  # If the image is narrower than the view, the image
+  # isn't resized.
+  # If the image is wider than the view, it will be
+  # resized to the view width
+  scaleImage = (image, viewHeight, viewWidth) ->
+    imgData = image.data()
+    return unless imgData
+    if imgData.realHeight? and imgData.realWidth? and ( imgData.lastViewHeight isnt viewHeight or imgData.lastViewWidth isnt viewWidth )
+      imgHeight = imgData.realHeight
+      imgWidth  = imgData.realWidth
+      if imgHeight and imgWidth
+        ratio = imgHeight / imgWidth
+        if imgWidth <= viewWidth
+          image.css
+            width:  imgWidth
+            height: imgHeight
+        else
+          image.css
+            width:  viewWidth
+            height: viewWidth * ratio
+      image.data
+        lastViewHeight: viewHeight
+        lastViewWidth:  viewWidth
+
   # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
@@ -125,7 +150,6 @@ LYT.render.content = do ->
 
   prevActive = null
   segmentIntoView = (view, segment) ->
-    view = $(view)
     el = view.find "##{segment.contentId}"
     isWordMarked = !!view.find( 'span.word' ).length
     # Is this a word-marked book?
@@ -162,32 +186,43 @@ LYT.render.content = do ->
     book = segment.document.book
     html = book.resources[segment.contentUrl].document
     source = html.source[0]
-    view = view[0]
     isCartoon = html.isCartoon()
 
     contentID = "#{book.id}/#{segment.contentUrl}"
-    if $(view).data("htmldoc") is contentID
+    if view.data("htmldoc") is contentID
       segmentIntoView view, segment
     else
       log.message "Render: Changing context to #{contentID}"
-      $(view).data "htmldoc", contentID
+      view.data "htmldoc", contentID
 
       if not isCartoon
         # Don't load all images from document
         html.hideImages "css/images/loading-spinning-bubbles.svg"
 
       # Change to new document
-      view.replaceChild(
+      view[0].replaceChild(
         document.importNode(source.body.firstChild, true),
-        view.firstChild
+        view[0].firstChild
       )
-
-      view = $(view)
 
       if not isCartoon
         images = view.find "img"
         if images.length
           margin = 200 # TODO Should be configurable
+
+          images.filter( '[height]' ).each ->
+            image = $(@)
+            imgWidth = image.attr( 'width' )
+            imgHeight = image.attr( 'height' )
+            if imgWidth and imgHeight
+              image.data
+                realHeight: imgHeight
+                realWidth: imgWidth
+
+              viewHeight = view.children().height()
+              viewWidth = view.children().width()
+
+              scaleImage image, viewHeight, viewWidth
 
           isVisible = (image, viewHeight) ->
             top = image.position().top
@@ -197,17 +232,30 @@ LYT.render.content = do ->
             (-margin < bottom < (viewHeight + margin)) or
             (top < -margin and (viewHeight + margin) < bottom)
 
-          showImage = (image, viewHeight) ->
+          showImage = (image, viewHeight, viewWidth) ->
+            scaleImage image, viewHeight, viewWidth
             if (src = image.attr "data-src") and isVisible image, viewHeight
               image.attr "src", src
               image.removeAttr "data-src"
               image.removeClass "loading-icon"
+              unless image.data( 'realHeight' ) and image.data( 'realWidth' )
+                image.one( 'load', ->
+                  if @.naturalHeight? and @.naturalWidth?
+                    image.data
+                      realHeight: @.naturalHeight
+                      realWidth: @.naturalWidth
+                )
 
           scrollHandler = ->
-            height = view.height()
-            images.each -> showImage $(this), height
+            height = view.children().height()
+            width = view.children().width()
+            images.each -> showImage $(this), height, width
 
           view.scroll jQuery.throttle 150, scrollHandler
+      else
+        view.find( '.page,.page img' ).css
+          'max-width': '100%'
+          'height': 'auto'
 
       LYT.render.setStyle()
       segmentIntoView view, segment

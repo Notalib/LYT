@@ -20,6 +20,8 @@ playbackLiveTest = (audio) ->
   duration = 12
   minDuration = 3
 
+  return Modernizr.addTest( 'playbackratelive', false ) unless "playbackRate" of audio
+
   started = null
   rateSet = false
   timeHandler = ->
@@ -69,12 +71,18 @@ playbackTest = ->
   duration = 7    # How long time to play the audio before measuring playback rate
   minDuration = 3 # Shortest duration in seconds before testing
 
+  # Second test - test whether playbackrate works if start/stopped (IOS bug)
+  Modernizr.on 'playbackrate', (playbackrate) ->
+    playbackLiveTest audio
+
   # Structure setup
   source = document.createElement 'source'
   source.setAttribute 'type', 'audio/mpeg'
   source.setAttribute 'src', 'audio/silence.mp3'
   audio = document.createElement 'audio'
   audio.appendChild source
+
+  return Modernizr.addTest( 'playbackrate', false ) unless "playbackRate" of audio
 
   # Test block
   # Handler that checks if the playbackRate is correct and tells Modernizr
@@ -125,10 +133,6 @@ playbackTest = ->
 
   # Start playback
   audio.play()
-
-  # Second test - test whether playbackrate works if start/stopped (IOS bug)
-  Modernizr.on 'playbackrate', (playbackrate) ->
-    playbackLiveTest audio
 
 Modernizr.on 'autoplayback', (autoplayback) ->
   if not autoplayback

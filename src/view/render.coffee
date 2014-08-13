@@ -204,9 +204,17 @@ LYT.render = do ->
 
   disablePlaybackRate: ->
     # Wait with disabling until it's actually created
-    $('#playback-rate .message.disabled').show()
-    $('#playback-rate input[type="radio"]').on 'checkboxradiocreate', ->
-      $(@).checkboxradio('disable')
+    $playbackRate = $('#playback-rate')
+    $playbackRate.find('.message.disabled').show()
+    $playbackRate
+      .find('input[type="radio"]').on( 'checkboxradiocreate', ->
+        $(@).checkboxradio('disable')
+      ).each ->
+        el = $(@)
+        if el.data('mobileCheckboxradio')?
+          el.checkboxradio('disable')
+        else
+          el.prop('disabled',true)
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
