@@ -66,8 +66,6 @@ class LYT.player.command.play extends LYT.player.command
         @el.jPlayer('play') if @audio.paused
 
     playing: (event) =>
-      @audio.playbackRate = 1
-
       return if @firstplay
       log.message "Command play: Now playing audio"
       @playing = true
@@ -83,8 +81,18 @@ class LYT.player.command.play extends LYT.player.command
     # is updating it on every timeupdate-event
     timeupdate: (event) =>
       if not isNaN( @audio.currentTime )
-        log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}" if @audio.playbackRate isnt @playbackRate
-        @audio.playbackRate = @playbackRate
+        ## msn: This is ugly.
+        # Sometimes IE will play an audio-file at playbackRate == 1, but have playbackRate
+        # set to another value.
+        #
+        # Unfortunately if you set the playbackRate to the same value nothing happens.
+        # Therfor if playbackRate is the same value subtract 0.0001 from the wanted value and
+        # update the value again in the next timeupdate-event. Alternating between the two values.
+        if @audio.playbackRate is @playbackRate
+          @audio.playbackRate = @playbackRate - 0.0001
+        else
+          log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}" if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
+          @audio.playbackRate = @playbackRate
 
   setPlaybackRate: (playbackRate = 1) =>
     @playbackRate = playbackRate
