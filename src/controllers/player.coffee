@@ -335,6 +335,10 @@ LYT.player =
         @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
+      unless @book?
+        log.message "play: progressHandler: no @book"
+        return
+
       if @playLoader && @playLoader.state() != 'resolved'
         LYT.render.enablePlayerNavigation()
         @playLoader.resolve()
