@@ -68,10 +68,17 @@
       $('#devconsole-container').show()
       for message in setTime messages
         if typeof message is 'object'
+          txtMessage = null
           if JSON?
-            message = JSON.stringify message
-          else
-            message = Object.prototype.toString.call message
+            try
+              txtMessage = JSON.stringify $.extend {}, message
+            catch err
+              txtMessage = null
+
+          unless txtMessage?
+            txtMessage = Object.prototype.toString.call message
+
+          message = txtMessage
         $('#devconsole').append '<br/>' + message
         $('#devconsole-container').scrollTop $('#devconsole').height()
 
