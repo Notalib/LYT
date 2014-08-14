@@ -55,6 +55,10 @@ class LYT.player.command.play extends LYT.player.command
     method.apply this, event?.jPlayer.status
 
   handles: ->
+    canplay: (event) =>
+      log.message "Command play: Received canplay event #{@audio.playbackRate} != #{@playbackRate} == #{@audio.playbackRate = @playbackRate}"
+      @audio.playbackRate = @playbackRate
+
     canplaythrough: (event) =>
       log.message "Command play: Received canplaythrough event"
 
@@ -97,4 +101,14 @@ class LYT.player.command.play extends LYT.player.command
   setPlaybackRate: (playbackRate = 1) =>
     @playbackRate = playbackRate
 
-    @audio.playbackRate = @playbackRate
+    if not Modernizr.playbackrate and Modernizr.playbackratelive
+      # Workaround for IOS6 that doesn't alter the perceived playback rate
+      # before starting and stopping the audio (issue #480)
+      if @playing
+        log.message "Command play: Stop -> set playbackRate -> resume"
+        @audio.pause()
+        @audio.playbackRate = @playbackRate
+        @audio.play()
+        return
+
+    @audio.defaultPlaybackRate = @audio.playbackRate = @playbackRate

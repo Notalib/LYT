@@ -75,10 +75,10 @@
             catch err
               txtMessage = null
 
-          unless txtMessage?
-            txtMessage = Object.prototype.toString.call message
+          txtMessage = Object.prototype.toString.call message unless txtMessage?
 
           message = txtMessage
+
         $('#devconsole').append '<br/>' + message
         $('#devconsole-container').scrollTop $('#devconsole').height()
 
