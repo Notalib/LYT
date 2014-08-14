@@ -776,13 +776,16 @@ LYT.player =
     $('.lyt-pause').css('display', '')
     @setFocus()
 
-  refreshContent: ->
+  refreshContent: (now = false) ->
     # Using timeout to ensure that we don't call updateHtml too often
     refreshHandler = =>
       if @book and segment = @currentSegment
         @updateHtml segment
     clearTimeout @refreshTimer if @refreshTimer
-    @refreshTimer = setTimeout refreshHandler, 500
+    if now
+      refreshHandler.call @
+    else
+      @refreshTimer = setTimeout refreshHandler, 500
 
  # Update player content with provided segment
   updateHtml: (segment) ->
