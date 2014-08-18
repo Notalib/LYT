@@ -328,10 +328,11 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+        LYT.player.refreshContent(true) if LYT.player.book?.id is params.book
+
         # If we're already playing this book, and we're coming from the
         # bookshelf, we just continue playing
         if LYT.player.book?.id is params.book and params.from is 'bookshelf'
-          LYT.player.refreshContent(true)
           return
 
         # Switch to different (part of) book
