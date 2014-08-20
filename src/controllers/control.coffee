@@ -379,7 +379,7 @@ LYT.control =
             # bookmark.
             # We solve this by updating the hash to only include the params book and from.
             newPath = "book-player?book=#{params.book}" + if params.from? then "&from=#{params.from?}" else ""
-            if $.mobile.pushStateEnabled
+            if $.mobile.pushStateEnabled and $.isFunction( window.history?.replaceState? )
               # Browsers that support pushState, replace the history entry with the new hash,
               # this prevents double entries in our history.
               window.history.replaceState {}, pageTitle, "##{newPath}"
