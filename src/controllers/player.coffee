@@ -313,6 +313,9 @@ LYT.player =
   play: ->
     command = null
     nextSegment = null
+    # TODO: Refactor to make getPlayCommand take a segment as argument
+    #       This should eliminate the complicated logic inside getPlayCommand
+    #       that has to take into account that nextSegment may have changed.
     getPlayCommand = =>
       @playLoader.resolve() if @playLoader && @playLoader.state() != 'resolved'
 
