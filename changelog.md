@@ -2,6 +2,33 @@
 
 All releases are available from Github using the tag format lyt-&lt;version&gt;.
 
+### Version 2.2.0
+
+#### Major features
+
+  * Introduced context viewer that displays the entire book content in stead
+    of the old stack viewer that would sometimes skip content.
+  * Proper playing of word-highlighted books.
+
+#### Improvements and bugfixes
+
+  * Chronological sorting of bookmarks.
+  * Usability tweaks of book index.
+  * A large number of bugfixes related to playback, including setting playback
+    rate. Playback rate should now be supported where possible.
+  * A number of navigation related bugfixes causing some buttons to misbehave.
+  * Fixed a bug where the "loading" spinner wouldn't go away.
+
+#### Development features and internal tweaks
+
+  * Introduced server.coffee that makes it possible to run LYT locally,
+    proxying DODP requests to a remote server when needed.
+  * Internal cleanup of shorthand HTML elements in book content.
+  * Added optional upload to server option to Cakefile.
+  * jQuery Mobile upgraded to 1.3.2.
+  * jQuery upgraded to 1.9.1.
+  * jPlayer upgraded to 2.5.4.
+
 ### Version 1.2.5-nvb
 
 This version didn't have it version bumped in LYT.VERSION.
