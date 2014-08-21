@@ -14,7 +14,6 @@
 # - start:           The start time, in seconds, relative to the audio
 # - end:             The end time, in seconds, relative to the audio
 # - audio:           The url of the audio file (or null)
-# - html:            The HTML to display (or null)
 # - text:            The text content of the HTML content (or null)
 # - type:            Type of this segment. The following two types are
 #                    currently supported:
@@ -51,9 +50,9 @@ class LYT.Segment
     @data        = data
     @el          = data.par
     @document    = document
+
     # Will be initialized in the load() method:
     @text        = null
-    @html        = null
     @smil        = data.smil
 
   # Loads all resources
@@ -61,29 +60,31 @@ class LYT.Segment
     # Skip if already finished
     return this if @loading? or @state() is "resolved"
     @loading = true
-    @always => @loading = false
-    @fail   => log.error "Segment: failed loading segment #{this.url()}"
+    @always =>
+      @loading = false
+    @fail   =>
+      log.error "Segment: failed loading segment #{this.url()}"
 
     log.message "Segment: loading #{@url()}"
 
     # Parse transcript content
     [@contentUrl, @contentId] = @data.text.src.split "#"
-    resource = @document.book.resources[@contentUrl.toLowerCase()]
+    resources = @document.book.resources
+    resource = resources[@contentUrl.toLowerCase()]
     if not resource
       log.error "Segment: no absolute URL for content #{@contentUrl}"
       @_deferred.reject()
     else
-      unless resource.document
-        resource.document = new LYT.TextContentDocument resource.url
-        # TODO: The initialization below should belong in LYT.TextContentDocument
-        resource.document.done (document) => document.resolveUrls @document.book.resources
+      if not resource.document
+        resource.document = new LYT.TextContentDocument resource.url, resources
+
       promise = resource.document.then (document) => @parseContent document
       promise.done => @_deferred.resolve this
       promise.fail (status, error) =>
         log.error "Unable to get TextContentDocument for #{resource.url}: #{status}, #{error}"
         @_deferred.reject()
 
-    @_deferred.promise()
+    @_deferred.promise( this )
 
   url: -> "#{@document.filename}##{@id}"
 
@@ -118,10 +119,6 @@ class LYT.Segment
     current = this
     iterator = () -> current = current.next
     return @search iterator, filter, onlyOne
-
-  _status: ->
-    for image in @_images
-      log.message "Segment: image queue: #{image.src}: #{image.deferred.state()}"
 
   bookmark: (audioOffset) ->
     new LYT.Bookmark
@@ -168,17 +165,10 @@ class LYT.Segment
     source = document.source
     sourceContent = source.find("##{@contentId}")
 
-    # Find images in the HTML and set up preloading
-    # Use Deferreds to set up a `when` trigger
-    images = []
-
     # Check if the source document is using whole page cartoon html or not
     if sourceContent.parent().hasClass('page') and sourceContent.is('div') and image = sourceContent.parent().children('img')
-      @type  = 'cartoon' # Cartoon html
-      if image.length != 1
-        log.error "Segment: parseContent: can't create reliable cartoon type with multiple or zero images: #{this.url()}"
-        throw 'Segment: parseContent: unable to find exactly one image in cartoon display div'
 
+      @type  = 'cartoon' # Cartoon html
       getCanvasSize = (image) ->
         result = {}
         for type in ['height', 'width']
@@ -212,13 +202,47 @@ class LYT.Segment
         else
           return 1
 
-      # The stuff below simply gets the complete html as a string, as jQuery
-      # doesn't have a method for this
+      loadImage = (image) =>
+        log.message "Segment: #{this.url()}: parseContent: initiate preload of image #{image.src}"
+        # Note that clearing the timeout has to be done as the first thing in
+        # both handlers. We still have a race condition where the timer may
+        # fire just before being cleared.
+        errorHandler = (event) ->
+          clearTimeout image.timer
+          if image.attempts-- > 0
+            backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50)
+            log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left. Waiting for #{backoff} ms."
+            doLoad = -> loadImage image
+            setTimeout doLoad, backoff
+          else
+            log.error "Segment: parseContent: unable to preload image #{image.src}"
+            image.deferred.reject image, event
+
+        doneHandler = (event) ->
+          clearTimeout image.timer
+          log.message "Segment: parseContent: loaded image #{image.src}"
+          image.deferred.resolve image, event
+
+        # Set timeout, so we can retry again if the load stalls
+        image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
+        # 1998 called; they want their preloading technique back
+        tmp = new Image
+        $(tmp).load(doneHandler).error(errorHandler)
+        tmp.src = image.src
+
+      if image.length != 1
+        log.error "Segment: parseContent: can't create reliable cartoon type " +
+          "with multiple or zero images: #{this.url()}"
+        throw "Segment: parseContent: unable to find exactly one image in " +
+          "cartoon display div"
+
+      # FIXME: We're basically cloning the image and div elements. This should
+      # be fixed when we move to a better rendering architecture
       @image = image.clone().wrap('<p>').parent().html()
-      @div   = sourceContent.clone().wrap('<p>').parent().html()
+      @div = sourceContent.clone().wrap('<p>').parent().html()
       @canvasSize = getCanvasSize image
       imageData =
-        src: image[0].src
+        src: image.attr('src')
         element: image[0]
         attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
@@ -226,80 +250,14 @@ class LYT.Segment
         @canvasScale = getCanvasScale @canvasSize,
           width:  event.target.width
           height: event.target.height
-      images.push imageData
+
+      loadImage imageData
+      return imageData.deferred.done =>
+        log.group "Segment: #{@url()} finished extracting text, html and loading images",
+          @text, image
+        this
     else
       @type = 'standard' # Standard html
-      if sourceContent.parent('div').prev('img').parent('div').length > 0
-        sourceContent = sourceContent.parent('div').prev('img').parent('div')
-        imageIncludeHack = true
 
-      element = jQuery source.get(0).createElement("DIV")
-      element.append sourceContent.first().clone()
+    $.Deferred().resolve()
 
-      unless imageIncludeHack
-        sibling = element.next()
-        until sibling.length is 0 or sibling.attr "id"
-          element.append sibling.clone()
-          sibling = sibling.next()
-
-      # Remove links.
-      # This will fall apart on nested links, I think.
-      # Then again, nested links are very illegal anyway
-      element.find("a").each (index, item) ->
-        item = jQuery item
-        item.replaceWith item.html()
-      @text = jQuery.trim element?.text() or ""
-      # Assuming that we
-      @html = element?.html()
-
-      jQuery.each element.find('img'), (i, img) ->
-        images.push
-          src: img.src
-          element: img
-          attempts: LYT.config.segment.imagePreload.attempts
-          deferred: jQuery.Deferred()
-
-    loadImage = (image) =>
-      log.message "Segment: #{this.url()}: parseContent: initiate preload of image #{image.src}"
-      # Note that clearing the timeout has to be done as the first thing in
-      # both handlers. We still have a race condition where the timer may
-      # fire just before being cleared.
-      errorHandler = (event) ->
-        clearTimeout image.timer
-        if image.attempts-- > 0
-          backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50)
-          log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left. Waiting for #{backoff} ms."
-          doLoad = -> loadImage image
-          setTimeout doLoad, backoff
-        else
-          log.error "Segment: parseContent: unable to preload image #{image.src}"
-          image.deferred.reject image, event
-      doneHandler = (event) ->
-        clearTimeout image.timer
-        log.message "Segment: parseContent: loaded image #{image.src}"
-        image.deferred.resolve image, event
-      # Set timeout, so we can retry again if the load stalls
-      image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
-      # 1998 called; they want their preloading technique back
-      tmp = new Image
-      $(tmp).load(doneHandler).error(errorHandler)
-      tmp.src = image.src
-
-    for image in images
-      log.message "Segment: queue image for preload: #{image.src}"
-      unless prevImage?
-        loadImage image
-      else
-        image.deferred.done () ->
-          loadImage image
-      prevImage = image
-
-    @_images = images
-
-    # When all images have loaded (or failed)...
-    jQuery.when.apply(null, jQuery.map images, (image) -> image.deferred)
-    .done =>
-      log.group "Segment: #{@url()} finished extracting text, html and loading images", (@text or ''), @html, images
-      return this
-    .fail =>
-      return jQuery.Deferred().reject()

@@ -13,7 +13,7 @@ do ->
         mainSequence = @source.find("body > seq:first")
         @book        = book
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
-        @segments    = parseMainSeqNode mainSequence, this
+        @segments    = parseMainSeqNode mainSequence, this, book.nccDocument.sections
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
         @filename = @url.split('/').pop()
 
@@ -62,10 +62,14 @@ do ->
 
   # ## Privileged
 
-  # Parse the main `<seq>` element's `<par>`s (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
-  parseMainSeqNode = (sequence, smil) ->
+  # Parse the main `<seq>` element's `<par>`s
+  # See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
+  parseMainSeqNode = (sequence, smil, sections) ->
     segments = []
     parData = []
+    refs = {}
+    sections.forEach (section) -> refs[section.fragment] = section
+
     sequence.children("par").each ->
       parData = parData.concat parseParNode jQuery(this)
     previous = null
@@ -73,6 +77,21 @@ do ->
       segment = new LYT.Segment segment, smil
       segment.index = index
       segment.previous = previous
+
+      # Mark if this segment is beginning a new section
+      if segment.id of refs
+        sectionID = segment.el.id
+      else
+        segment.el.find("[id]").each ->
+          childID = @getAttribute "id"
+          if childID of refs
+            sectionID = childID
+            false
+
+      if sectionID
+        segment.beginSection = refs[sectionID]
+        sectionID = null
+
       previous?.next = segment
       segments.push segment
       previous = segment
@@ -125,7 +144,8 @@ do ->
     src: text.attr "src"
 
 
-  # Parse the Normal Play Time format (npt=ss.s) (c.f. [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi))
+  # Parse the Normal Play Time format (npt=ss.s)
+  # See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
   parseNPT = (string) ->
     time = string.match /^npt=([\d.]+)s?$/i
     parseFloat(time?[1]) or 0

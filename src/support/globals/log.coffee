@@ -68,7 +68,17 @@
       $('#devconsole-container').show()
       for message in setTime messages
         if typeof message is 'object'
-          message = Object.prototype.toString.call message
+          txtMessage = null
+          if JSON?
+            try
+              txtMessage = JSON.stringify $.extend {}, message
+            catch err
+              txtMessage = null
+
+          txtMessage = Object.prototype.toString.call message unless txtMessage?
+
+          message = txtMessage
+
         $('#devconsole').append '<br/>' + message
         $('#devconsole-container').scrollTop $('#devconsole').height()
 
@@ -143,7 +153,8 @@
 
     if messages.length > 0
       @message message for message in messages
-      @closeGroup()
+
+    @closeGroup()
 
   # Same as `group` except it'll log when `config.logging` is 1 or higher
   # Logging level: 1 or higher and messages will be logged as errors
@@ -160,7 +171,8 @@
 
     if messages.length > 0
       @error message for message in messages
-      @closeGroup()
+
+    @closeGroup()
 
   # Closes an open group
   # Logging level: 1 or higher

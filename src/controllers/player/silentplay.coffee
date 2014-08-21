@@ -27,5 +27,4 @@ class LYT.player.command.silentplay extends LYT.player.command
     timeupdate: metadataHandler
     loadedmetadata: metadataHandler
     progress: metadataHandler
-
     pause: (event) => @resolve event.jPlayer.status

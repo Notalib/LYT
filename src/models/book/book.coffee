@@ -235,15 +235,18 @@ class LYT.Book
     iterator = () ->
       result = current
       current = current?.previous
-      return result
+      result
 
     while not id and item = iterator()
       if item.id in refs
         id = item.id
       else
-        jQuery.makeArray(item.el.find "[id]").some (child) ->
-          childID = jQuery(child).attr "id"
-          if childID in refs then id = childID
+        items = item.el.find("[id]")
+        item.el.find("[id]").each ->
+          childID = @getAttribute "id"
+          if childID in refs
+            id = childID
+            false # Break out early
 
     section = @nccDocument.sections[refs.indexOf id]
 
@@ -253,6 +256,28 @@ class LYT.Book
     @nccDocument?.getMetadata() or null
 
   saveBookmarks: -> LYT.service.setBookmarks this
+
+  _sortBookmarks: ->
+    log.message "Book: _sortBookmarks"
+    smils = @getSMILFilesInNCC()
+
+    tmpBookmarks = ( @bookmarks or [] ).slice 0
+    tmpBookmarks.sort (aMark, bMark) ->
+      [aMarkSmil, aMarkID] = aMark.URI.split '#'
+      aMarkIndex = smils.indexOf aMarkSmil
+
+      [bMarkSmil, bMarkID] = bMark.URI.split '#'
+      bMarkIndex = smils.indexOf bMarkSmil
+
+      if aMarkIndex < bMarkIndex
+        return -1
+      else if aMarkIndex is bMarkIndex
+        return aMark.timeOffset - bMark.timeOffset
+      else if aMarkIndex > bMarkIndex
+        return 1
+
+    @bookmarks = tmpBookmarks
+
 
   # Delete all bookmarks that are very close to each other
   _normalizeBookmarks: ->
@@ -274,6 +299,7 @@ class LYT.Book
 
   # TODO: Add remove bookmark method
   addBookmark: (segment, offset = 0) ->
+    log.message "Book: addBookmark"
     bookmark = segment.bookmark offset
     section = @getSectionBySegment segment
 
@@ -282,29 +308,11 @@ class LYT.Book
 
     # Add to bookmarks and save
     @bookmarks or= []
-    tmpMarks = @bookmarks.slice 0
 
-    # Sort in reverse chronologically order in book time
-    smils = @getSMILFilesInNCC()
-    index = smils.indexOf bookmark.URI.split("#")[0]
-    for mark, i in tmpMarks
-      [markSMIL, markID] = mark.URI.split("#")
-      markIndex = smils.indexOf markSMIL
-
-      if markIndex < index
-        insertIndex = i
-      else if markIndex is index
-        order = segment.document.orderSegmentsByID segment.id, markID
-        insertIndex = if order <= 0 then i + 1 else i
-
-      if insertIndex?
-        @bookmarks.splice insertIndex, 0,  bookmark
-        break
-
-    if not insertIndex?
-      @bookmarks.push bookmark
+    @bookmarks.push bookmark
 
     @_normalizeBookmarks()
+    @_sortBookmarks()
     @saveBookmarks()
 
   setLastmark: (segment, offset = 0) ->
@@ -317,7 +325,8 @@ class LYT.Book
     [smil, fragment] = url.split '#'
     smil = smil.split('/').pop()
 
-    @getSMIL(smil).done (document) ->
+    @getSMIL(smil)
+    .done (document) ->
       if fragment
         segment = document.getContainingSegment fragment
       else
@@ -326,7 +335,9 @@ class LYT.Book
       if segment
         segment.load().done (segment) -> deferred.resolve segment
       else
-        deferred.reject
+        deferred.reject()
+    .fail ->
+      deferred.reject()
 
     deferred.promise()
 
@@ -405,13 +416,13 @@ class LYT.Book
     searchNext = () ->
       if section = iterator()
         section.load()
-        return section.pipe (section) ->
+        section.then (section) ->
           if result = handler section
-            return jQuery.Deferred().resolve result
+            result
           else
-            return searchNext()
+            searchNext()
       else
-        return jQuery.Deferred().reject()
+        jQuery.Deferred().reject()
 
     searchNext()
 

@@ -63,8 +63,8 @@ LYT.control =
     #
     # The click handler is on #book-index because selecting .create-listview,
     # doesn't capture clicks, since the list is dynamically created.
-    $('#book-index').on 'click', (event) ->
-      ev = $(event.srcElement).closest('.create-listview')
+    $('#book-index').on 'click', '.create-listview', (event) ->
+      ev = $(this)
       if ev.length isnt 0
         # The click is for us
         view = $.mobile.activePage.children ':jqmData(role=content)'
@@ -77,13 +77,11 @@ LYT.control =
             else if item.children.length > 0
               iterate item.children
         if ev.attr("nodeid")?
+          event.stopPropagation()
           if ev.attr("nodeid") is "0"
             LYT.render.createbookIndex book.nccDocument.structure, view, book
           else
             iterate book.nccDocument.structure
-        else
-          # The back button was clicked
-          $.mobile.changePage "#book-player"
 
     $("#share-link-textarea").on 'click', ->
       this.focus()
@@ -105,7 +103,7 @@ LYT.control =
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->
-      target = $(event.target)
+      target = $(this)
       name = target.attr 'name'
       val = target.val()
 
@@ -123,10 +121,13 @@ LYT.control =
           val = Number(val)
           LYT.settings.set('playbackRate', val)
           LYT.player.setPlaybackRate val
+        when 'word-highlighting'
+          isOn = target.prop "checked"
+          LYT.render.setHighlighting isOn
+          LYT.settings.set('wordHighlighting', isOn)
 
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
-
 
     $('#instrumentation').find('button.first').on 'click', ->
       LYT.render.instrumentationGraph()?.firstEntry()
@@ -172,7 +173,6 @@ LYT.control =
       log.level = 3
       log.message 'Opened developer console'
 
-
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
     if credentials = LYT.session.getCredentials()
@@ -185,7 +185,7 @@ LYT.control =
         promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
-        $.mobile.changePage '#login'
+        $.mobile.path.set 'login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
 
@@ -307,12 +307,18 @@ LYT.control =
 
       renderIndex()
 
+  bookPlay: (type, match, ui, page, event) ->
+    $.mobile.changePage '#book-player' + match[1]
+
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
       return
 
     if type is 'pagebeforeshow'
+      # Make sure we're looking good
+      LYT.render.setStyle()
+
       # Stop playback if we are going to switch to another book
       if LYT.player.book?.id and params.book isnt LYT.player.book.id
         LYT.player.stop()
@@ -322,6 +328,12 @@ LYT.control =
     promise.fail -> log.error 'Control: bookPlay: unable to get login'
     promise.done ->
       if type is 'pageshow'
+        LYT.player.refreshContent(true) if LYT.player.book?.id is params.book
+
+        # If we're already playing this book, and we're coming from the
+        # bookshelf, we just continue playing
+        if LYT.player.book?.id is params.book and params.from is 'bookshelf'
+          return
 
         # Switch to different (part of) book
         # Because of bad naming, sections are here actually SMIL
@@ -336,10 +348,18 @@ LYT.control =
             smilReference += "##{params.segment}"
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
+        else if LYT.player.book?.id is params.book and LYT.player.playing
+          # We're already playing this book, so we just continue playing.
+          return
 
-        play = (params.play is 'true') or false
+        play = params.play is 'true'
         LYT.render.content.focusEasing params.focusEasing if params.focusEasing
         LYT.render.content.focusDuration parseInt params.focusDuration if params.focusDuration
+
+        # If this section is already playing, don't do anything
+        if LYT.player.book? and params.fragment? and
+           params.fragment is LYT.player.currentSection().fragment
+          return
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
@@ -350,7 +370,23 @@ LYT.control =
           LYT.service.getAnnouncements()
           LYT.player.refreshContent()
           LYT.player.setFocus()
-          LYT.render.setPageTitle "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          pageTitle = "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          LYT.render.setPageTitle pageTitle
+
+          if params.smil? or params.section? or params.offset?
+            # When the user selects a 'chapter' or bookmark in #book-index and afterwars open #settings
+            # and clicks 'back'-button, the player would go back to the last selected 'chapter' or
+            # bookmark.
+            # We solve this by updating the hash to only include the params book and from.
+            newPath = "book-player?book=#{params.book}" + if params.from? then "&from=#{params.from?}" else ""
+            if $.mobile.pushStateEnabled and $.isFunction( window.history?.replaceState? )
+              # Browsers that support pushState, replace the history entry with the new hash,
+              # this prevents double entries in our history.
+              window.history.replaceState {}, pageTitle, "##{newPath}"
+            else
+              # Browser without support for pushStat (e.g. IE9) will have to live with
+              # the double entry in history.
+              window.location.hash = newPath
 
         process.fail (error) ->
           log.error "Control: bookPlay: Failed to load book ID #{params.book}, reason: #{error}"
@@ -469,11 +505,14 @@ LYT.control =
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
-              if style['background-color'] is String(colors[0]) and style['color'] is String(colors[1])
+              if style['background-color'] is colors[0] and style['color'] is colors[1]
                 $(this).attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
                 $(this).attr("checked", true).checkboxradio("refresh")
+            when 'word-highlighting'
+              $(this).prop("checked", LYT.settings.get("wordHighlighting"))
+                .checkboxradio("refresh")
 
 
 
@@ -538,8 +577,8 @@ LYT.control =
     else if type is 'pagehide'
       LYT.render.showTestTab()
 
-  suggestions: -> $.mobile.changePage("#search?list=anbe")
+  suggestions: -> $.mobile.changePage('#search?list=anbe')
 
-  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash+'?guest=true')
+  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)

@@ -1,82 +1,83 @@
 <div data-role="page" id="book-player" data-theme="a" data-title="Afspil bog | E17 Direkte">
 
-  <div data-role="header" data-theme="b">
-    <a class="gatrack" data-icon="" href="#bookshelf" data-role="button" data-inline="true" title="Tilbage til boghylde" role="button">Mine bøger</a>
-    <div data-role="controlgroup" class="menu" data-type="horizontal">
-      <a class="gatrack" href="#book-index" data-role="button" role="button" id="book-index-button" data-icon="index_icn" data-iconpos="notext" data-iconshadow="false">Indholdsfortegnelse</a>
-      <a class="gatrack" href="#bookmark-add" data-role="button" role="button" id="bookmark-add-button" data-icon="add_bookmark_icn" data-iconpos="notext" data-iconshadow="false">Sæt bogmærke</a>
-      <a class="gatrack" href="#settings" data-role="button" role="button" id="book-settings-button" data-icon="book_settings_icn" data-iconpos="notext" data-iconshadow="false">Bogindstillinger</a>
+  <header id="control-header">
+    <div data-role="header" data-theme="b">
+      <a class="gatrack" data-icon="" href="#bookshelf" data-role="button" data-inline="true" title="Tilbage til boghylde" role="button">Mine bøger</a>
+      <div data-role="controlgroup" class="menu" data-type="horizontal">
+        <a class="gatrack" href="#book-index" data-role="button" role="button" id="book-index-button" data-icon="index_icn" data-iconpos="notext" data-iconshadow="false">Indholdsfortegnelse</a>
+        <a class="gatrack" href="#bookmark-add" data-role="button" role="button" id="bookmark-add-button" data-icon="add_bookmark_icn" data-iconpos="notext" data-iconshadow="false">Sæt bogmærke</a>
+        <a class="gatrack" href="#settings" data-role="button" role="button" id="book-settings-button" data-icon="book_settings_icn" data-iconpos="notext" data-iconshadow="false">Bogindstillinger</a>
+      </div>
     </div>
-  </div>
-  
-  <div id="jp_container_1" class="jp-audio">  
-    <div id="player-info">
-    <figure id="currentbook-image">
-      <img height="45" src="/images/icons/default-cover.png" alt=""/>
-    </figure>
-      <div class="info"><header>
-        <h1>
-            <span id="player-book-title">titel</span> 
-             af 
-            <span id="player-book-author">forfatter</span>
-        </h1>
-      </header>
-  
-        <div class="jp-time-holder" id="book-chapter-menu">
-          <div id="player-current-time">
-            <span class="jp-current-time">-</span>
+
+    <div id="jp_container_1" class="jp-audio">
+      <div id="player-info">
+      <figure id="currentbook-image">
+        <img height="45" src="/images/icons/default-cover.png" alt=""/>
+      </figure>
+        <div class="info">
+          <h1>
+              <span id="player-book-title">titel</span>
+               af
+              <span id="player-book-author">forfatter</span>
+          </h1>
+
+          <div class="jp-time-holder" id="book-chapter-menu">
+            <div id="player-current-time">
+              <span class="jp-current-time">-</span>
+            </div>
+            <div>
+              <h2 class="player-chapter-title">Kapitel</h2>
+            </div>
+            <div id="player-duration">
+              <span class="jp-duration">-</span>
+            </div>
           </div>
-          <div>
-            <h2 class="player-chapter-title">Kapitel</h2>
+
+          <div class="jp-progress">
+            <div class="jp-seek-bar">
+              <div class="jp-play-bar"></div>
+            </div>
           </div>
-          <div id="player-duration">
-            <span class="jp-duration">-</span>
-          </div>
+         </div>
         </div>
-    
-        <div class="jp-progress">
-          <div class="jp-seek-bar">
-            <div class="jp-play-bar"></div>
-          </div>
-        </div>
-       </div>
+
+      <div data-role="navbar" id="book-play-menu">
+        <ul class="jp-controls">
+          <li>
+            <a href="" data-role="button" role="button" data-icon="back_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack previous-section" tabindex="1" title="Tilbage (Alt+venstrepil)" aria-label="Tilbage"></a>
+          </li>
+          <li>
+            <a href="" data-role="button" role="button" data-icon="rewind15_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack back15" tabindex="1" title="Tilbage 15 sekunder"></a>
+          </li>
+          <li>
+            <a href="" data-role="button" role="button" data-icon="play_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-play" tabindex="1" title="Afspil (Ctrl+Alt+mellemrum)" aria-label="Afspil"></a>
+            <a href="" data-role="button" role="button" data-icon="pause_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-pause" tabindex="1" title="Pause (Ctrl+Alt+mellemrum)" aria-label="Pause"></a>
+          </li>
+          <li>
+            <a href="" data-role="button" role="button" data-icon="forward15_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack forward15" tabindex="1" title="Frem 15 sekunder"></a>
+          </li>
+          <li>
+            <a href="" data-role="button" role="button" data-icon="forward_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack next-section" tabindex="1" title="Frem (Alt+højrepil)" aria-label="Frem"></a>
+          </li>
+        </ul>
       </div>
 
-    <div data-role="navbar" id="book-play-menu">
-      <ul class="jp-controls">
-        <li>    
-          <a href="" data-role="button" role="button" data-icon="back_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack previous-section" tabindex="1" title="Tilbage (Alt+venstrepil)" aria-label="Tilbage"></a>
-        </li>
-        <li>
-          <a href="" data-role="button" role="button" data-icon="rewind15_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack back15" tabindex="1" title="Tilbage 15 sekunder"></a>
-        </li>
-        <li>
-          <a href="" data-role="button" role="button" data-icon="play_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-play" tabindex="1" title="Afspil (Ctrl+Alt+mellemrum)" aria-label="Afspil"></a>
-          <a href="" data-role="button" role="button" data-icon="pause_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-pause" tabindex="1" title="Pause (Ctrl+Alt+mellemrum)" aria-label="Pause"></a>
-        </li>
-        <li>
-          <a href="" data-role="button" role="button" data-icon="forward15_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack forward15" tabindex="1" title="Frem 15 sekunder"></a>
-        </li>
-        <li>
-          <a href="" data-role="button" role="button" data-icon="forward_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack next-section" tabindex="1" title="Frem (Alt+højrepil)" aria-label="Frem"></a>
-        </li>
-      </ul>
+      <div class="jp-no-solution" style="display: none;">
+        <span>Update Required</span>
+        To play the media you will need to either update your browser to a recent version or update your
+        <a class="gatrack" target="_blank" href="http://get.adobe.com/flashplayer/">Flash plugin</a>.
+      </div>
     </div>
-    
-    <div class="jp-no-solution" style="display: none;">
-      <span>Update Required</span>
-      To play the media you will need to either update your browser to a recent version or update your
-      <a class="gatrack" target="_blank" href="http://get.adobe.com/flashplayer/">Flash plugin</a>.
-    </div>
-  </div>
-  
+  </header>
+
   <div id="book-content">
-    <div id="book-stack-content">
+    <div id="book-context-content">
     </div>
-  
+
     <div id="book-cartoon-content">
     </div>
-  
+
     <div id="book-plain-content">
     </div>
   </div>

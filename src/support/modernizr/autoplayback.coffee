@@ -5,6 +5,8 @@
 # Note that this test is asynchronous
 # - it won't set result until after a few seconds
 try
+  log.message "Tests: autoplayback test is running"
+
   source = document.createElement 'source'
   source.setAttribute 'type', 'audio/mpeg'
   source.setAttribute 'src', 'audio/silence.mp3'
@@ -15,17 +17,25 @@ try
   # $(document).ready event (without jQuery).
   audio = document.createElement 'audio'
   audio.appendChild source
-  audio.play()
 
-  # Just fail the test on timeout
-  setTimeout(
-    -> Modernizr.addTest 'autoplayback', false unless Modernizr.autoplayback?
-    5000
-  )
-
-  audio.addEventListener 'timeupdate', ->
+  timeHandler = ->
     if not Modernizr.autoplayback? and not isNaN(audio.currentTime) and audio.currentTime > 0
+      log.message "Tests: autoplayback: is playing"
       Modernizr.addTest 'autoplayback', true
       audio.pause()
+      audio.removeEventListener 'timeupdate', timeHandler
+      clearTimeout failTimeout
+
+  # Just fail the test on timeout
+  failTimeout = setTimeout( ->
+    Modernizr.addTest 'autoplayback', false unless Modernizr.autoplayback?
+
+    log.message "Tests: autoplayback: failTimeout: #{Modernizr.autoplayback}"
+    audio.removeEventListener 'timeupdate', timeHandler
+  , 2000
+  )
+
+  audio.play()
+  audio.addEventListener 'timeupdate', timeHandler
 catch e
   # NOP

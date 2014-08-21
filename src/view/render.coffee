@@ -16,11 +16,12 @@ LYT.render = do ->
   defaultCover = '/images/icons/default-cover.png'
 
   # Create a book list-item which links to the `target` page
-  bookListItem = (target, book) ->
+  bookListItem = (target, book, from = "") ->
     info = []
     info.push book.author if book.author?
     info.push getMediaType(book.media) if book.media?
     info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
+    from = "&from=#{from}" if from isnt ""
 
     if book.id is LYT.player.book?.id
       nowPlaying = '<div class="book-now-playing"></div>'
@@ -28,7 +29,7 @@ LYT.render = do ->
     title = book.title?.replace /\"/g, ""
     element = jQuery """
       <li data-book-id="#{book.id}">
-        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{title}" href="##{target}?book=#{book.id}">
+        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id + from}">
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image" role="presentation"">
           </div>
@@ -59,7 +60,7 @@ LYT.render = do ->
   loadCover = (img, id) ->
     # if periodical, use periodical code (first 4 letters of id)
     imageid = if $.isNumeric(id) then id else id.substring(0, 4)
-    img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h80.jpg"
+    img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h200.jpg"
 
 
   getMediaType = (mediastring) ->
@@ -142,9 +143,24 @@ LYT.render = do ->
   setStyle: ->
     log.message 'Render: setting custom style'
     # TODO: Dynamic modification of a CSS class in stead of this
-    $('#textarea-example, #book-stack-content, #book-plain-content').css LYT.settings.get('textStyle')
-    $('#book-player').css
-      'background-color': $('#book-stack-content').css('background-color')
+    $('#textarea-example, #book-context-content, #book-plain-content').css(
+      LYT.settings.get('textStyle')
+    )
+
+    # Set word highlighting if appropriate
+    LYT.render.setHighlighting LYT.settings.get('wordHighlighting')
+
+  setHighlighting: (highlight) ->
+    # Set highlight on by default
+    if not highlight?
+      LYT.settings.set 'wordHighlighting', true
+      highlight = true
+
+    viewer = $('#book-context-content')
+    if viewer.hasClass 'word-highlight'
+      viewer.removeClass 'word-highlight' if not highlight
+    else
+      viewer.addClass 'word-highlight' if highlight
 
   setInfo: ->
     $('.lyt-version').html LYT.VERSION
@@ -158,7 +174,7 @@ LYT.render = do ->
     list.empty() if page is 1 or zeroAndUp
 
     for book in books
-      li = bookListItem 'book-player', book
+      li = bookListItem 'book-player', book, 'bookshelf'
       removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
       attachClickEvent removeLink, book, li
       li.append removeLink
@@ -188,9 +204,17 @@ LYT.render = do ->
 
   disablePlaybackRate: ->
     # Wait with disabling until it's actually created
-    $('#playback-rate .message.disabled').show()
-    $('#playback-rate input[type="radio"]').on 'checkboxradiocreate', ->
-      $(@).checkboxradio('disable')
+    $playbackRate = $('#playback-rate')
+    $playbackRate.find('.message.disabled').show()
+    $playbackRate
+      .find('input[type="radio"]').on( 'checkboxradiocreate', ->
+        $(@).checkboxradio('disable')
+      ).each ->
+        el = $(@)
+        if el.data('mobileCheckboxradio')?
+          el.checkboxradio('disable')
+        else
+          el.prop('disabled',true)
 
   hideOrShowButtons: (details) ->
     if details.state is LYT.config.book.states.pending
@@ -360,10 +384,10 @@ LYT.render = do ->
         share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
         remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
         share.on 'click', ->
-          [section, segment] = bookmark.URI.split '#'
+          [smil, segment] = bookmark.URI.split '#'
           reference =
             book: book.id
-            section: section
+            smil: smil
             segment: segment
             offset: bookmark.timeOffset
           jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
@@ -389,7 +413,7 @@ LYT.render = do ->
         element.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{bookmark.id}"
+            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
                href="#book-player?book=#{book.id}&smil=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>

@@ -34,17 +34,8 @@
 
 */
 
-@font-face {
-  font-family: "Dyslexic";
-  src: url("open_dyslexic/OpenDyslexic-Regular.otf") format("opentype");
-}
 
-@font-face {
-  font-family: "Dyslexic";
-  font-weight: bold;
-  src: url("open_dyslexic/OpenDyslexic-Bold.otf") format("opentype");
-}
-
+@import "partials/fonts";
 @import "partials/base";
 @import "partials/jplayer";
 
@@ -92,10 +83,9 @@ $ui-icon2x-spacing: 20px;
 }
 
 /* theese icons are default from jquery mobile, so we are not spriting them. */
-.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check {
+.ui-icon.ui-icon-radio-on, .ui-icon.ui-icon-radio-off, .ui-icon.ui-icon-minus, .ui-icon.ui-icon-plus, .ui-icon.ui-icon-refresh, .ui-icon.ui-icon-delete, .ui-icon.ui-icon-check, .ui-icon.ui-icon-checkbox-off, .ui-icon.ui-icon-checkbox-on {
   height: 18px !important;
   width: 18px !important;
-  margin-left: 0px !important;
   margin-left: 0px !important;
   margin-top: -8px !important;
 }
@@ -341,6 +331,12 @@ img.e17-logo {
    Bookshelf
  * ************************************************************************* */
 
+/* The cross icons for removing book */
+.ui-li-link-alt {
+  border-width: 0;
+  border-left-width: 1px;
+}
+
 .bookshelf-content, #book-index {
   .ui-li, .ui-li.ui-field-contain {
     border-top: none;
@@ -349,20 +345,22 @@ img.e17-logo {
   .ui-listview {
     margin-bottom: 0;
   }
-}
 
-.ui-li-link-alt {
-  border-width: 0;
-  border-left-width: 1px;
-}
-
-.bookshelf-content, #book-index {
-  /* background: transparent url(../images/icons/empty_bookshelf.png) no-repeat; */
   background-position: left top;
   min-height: 40px;
 
   ul {
     li {
+      .book-now-playing {
+        height: 18px;
+        width: 18px;
+        position: absolute;
+        right: 50px;
+        top: 20px;
+        left: auto;
+        background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
+      }
+
       .cover-image {
         height: 58px;
         max-height: none;
@@ -372,8 +370,7 @@ img.e17-logo {
         top: 0;
       }
       .ui-btn-text .book-play-link {
-        padding-left: 45px;
-        padding-top: 0.2em;
+        padding: 0.2em 0 0 45px;
       }
 
       .cover-image {
@@ -1056,6 +1053,11 @@ li.ui-li h3.no-search-results {
     figure {
       float: left;
       margin: 0;
+      .cover-image {
+        max-width: 200px;
+        margin-right: 1em;
+        margin-bottom: 10px;
+      }
     }
     .details {
       padding-left: 97px;
@@ -1094,7 +1096,7 @@ li.ui-li h3.no-search-results {
 
     span {
       font-weight: bold;
-      font-size: 13pt;
+      font-size: 13px;
       padding-left: 30px;
       display: inline-block;
       height: 100%;
@@ -1158,13 +1160,65 @@ li.ui-li h3.no-search-results {
   }
 }
 
-#book-cartoon-content, #textarea-example, #book-stack-content, #book-plain-content {
+#book-context-content {
+  overflow-y: scroll;
+  a {
+    color: inherit;
+
+    &.external {
+      color: crimson;
+    }
+  }
+
+  p {
+    margin-top: 0.3em;
+    opacity: 0.4;
+    line-height: 1.37;
+    &.active {
+     opacity: 1;
+    }
+  }
+}
+
+#book-context-content {
+  &.word-highlight {
+    &.is-word-marked {
+      p {
+        opacity: 1;
+      }
+
+      span.word {
+        opacity: 0.4;
+      }
+
+      span.word.active {
+        opacity: 1;
+      }
+    }
+  }
+
+  > div {
+    margin: 2%;
+
+    .page {
+      margin: 0 auto;
+      .area {
+       display: none;
+      }
+    }
+  }
+}
+
+#book-cartoon-content,
+#textarea-example,
+#book-plain-content,
+#book-context-content {
   position: relative;
   height: 100%;
+  text-shadow: none;
 }
 
 #book-cartoon-content, #textarea-example {
-  text-shadow: none;
   overflow: hidden;
 }
 
@@ -1189,44 +1243,6 @@ li.ui-li h3.no-search-results {
 
 .segmentContainer + .missingSegment {
   display: inline;
-}
-
-#book-stack-content .segmentContainer.current {
-
-  p, h1, h2, h3, img, image, a, span {
-    opacity: 1.0;
-  }
-}
-
-#book-stack-content, #book-plain-content {
-  overflow: hidden;
-  text-shadow: none;
-  text-align: center;
-
-  p, h1, h2, h3, img, image, a, span {
-    opacity: 0.6;
-  }
-
-  p {
-    margin: 2% 6% 0 5%;
-    text-align: left;
-    line-height: 1.32em;
-  }
-  h1, h2, h3 {
-    margin: 2% 6% 1% 5%;
-    text-align: left;
-  }
-  img, .image {
-    margin: 0 auto;
-    text-align: center;
-    &.zoom {
-      width: auto !important;
-      height: auto !important;
-    }
-  }
-  h1 a, h2 a {
-    text-decoration: none;
-  }
 }
 
 /* Book index style hacks ************************************************** */
@@ -1503,5 +1519,18 @@ svg.graph-canvas {
 
   &:hover {
     stroke-width: 0.005;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #book-details {
+    .content {
+      figure {
+        .cover-image {
+          max-width: 90px;
+          margin-right: 0.5em;
+        }
+      }
+    }
   }
 }
