@@ -15,6 +15,10 @@ defaultPlaybackRate is only respected in initial play in some browsers, others y
 
 Some browsers will report one value for playbackRate but play at another rate (the default). Some of these browser will do nothing, if you reset the playbackRate to the value it already have.
 
+Future tests?
+- Safari mutes the audio when you alter the playbackRate for a second or two.
+- IE9 - Will play a new file at playbackRate = 1 but list playbackRate as another value. Setting the value to the same it already is, is ignored.
+
 Browsers:
 
 Chrome:

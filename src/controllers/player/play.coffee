@@ -93,9 +93,14 @@ class LYT.player.command.play extends LYT.player.command
         # Therfor if playbackRate is the same value subtract 0.0001 from the wanted value and
         # update the value again in the next timeupdate-event. Alternating between the two values.
         if @audio.playbackRate is @playbackRate
-          @audio.playbackRate = @playbackRate - 0.0001
+          ## Don't do this on Safari on OSX, it mutes for a second or two after we alter the playbackRate
+          # TODO: Find a better way to do this, so we don't have to rely on browser sniffing
+          userAgent = navigator.userAgent
+          unless ( userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|Chrome/i ) )
+            @audio.playbackRate = @playbackRate - 0.0001
         else
-          log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}" if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
+          if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
+            log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}"
           @audio.playbackRate = @playbackRate
 
   setPlaybackRate: (playbackRate = 1) =>
