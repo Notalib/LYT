@@ -4,6 +4,7 @@ express = require 'express'
 watchr = require 'watchr'
 exec = require('child_process').exec
 proxy = require('http-proxy').createProxyServer()
+Q = require 'q'
 argv = require 'optimist'
   .usage 'Starts a local dev server that proxies DODP calls'
   .demand 'r'
@@ -29,6 +30,8 @@ proxy.off( 'error' ).on 'error', (e) ->
     else
       console.log 'proxy error:', e
 
+building = Q()
+
 app = express()
 app.use require('morgan')() if not (argv.quiet or argv.silence)
 app
@@ -37,9 +40,7 @@ app
     if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch)/ )
       proxy.proxyRequest req, res, target: argv['remote-host']
     else
-      next()
-
-
+      building.finally -> next()
 
 server = app.listen argv.port, ->
   if not argv.silence
@@ -51,13 +52,16 @@ fileChanged = (filePath) ->
   clearTimeout( changedTimeout ) if changedTimeout
   if not argv.silence
     console.log 'Rebuild after change to ' + filePath
-  changedTimeout = setTimeout(
-    =>
-      exec 'cake -dnt app', ->
-        if not argv.silence
-          console.log 'Fininshed rebuild'
-    , 100
-  )
+  building.finally =>
+    changedTimeout = setTimeout(
+      =>
+        building = new Promise (resolve) ->
+          exec 'cake -dnt app', (err) ->
+            resolve()
+            if not argv.silence
+              console.log "Fininshed rebuild: #{err || 'ok'}"
+      100
+    )
 
 watchr.watch
   paths: [ 'html', 'src', 'scss' ],
