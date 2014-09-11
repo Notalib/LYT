@@ -42,7 +42,6 @@ option "-f", "--force-deploy",  "Force a fresh re-deployment of all files"
 task "app", "Same as `cake assets src html scss`", (options) ->
   invoke task for task in ["assets", "src", "html", "scss"]
 
-
 task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR for each host in $LYT_FTP_HOSTS. using FTP with password $LYT_FTP_PASSWORD", (options) ->
 
   dev_hosts = process.env.LYT_FTP_HOSTS?.split(',') || ["localhost"]
@@ -122,7 +121,7 @@ task "html", "Build HTML", (options) ->
       if options.development
         return true
       else
-        return not file.match /config.dev.coffee$/
+        return not file.match /config.dev.coffee$/ and not file.match /reloader.coffee$/
     scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'

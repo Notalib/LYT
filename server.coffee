@@ -29,6 +29,7 @@ proxy.off( 'error' ).on 'error', (e) ->
     else
       console.log 'proxy error:', e
 
+
 app = express()
 app.use require('morgan')() if not (argv.quiet or argv.silence)
 app
@@ -36,10 +37,11 @@ app
   .use (req, res, next) ->
     if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch)/ )
       proxy.proxyRequest req, res, target: argv['remote-host']
+    else if req.url.match /\.buildnumber$/
+      res.write "" + buildnumber
+      res.end()
     else
       next()
-
-
 
 server = app.listen argv.port, ->
   if not argv.silence
@@ -56,7 +58,8 @@ fileChanged = (filePath) ->
       exec 'cake -dnt app', ->
         if not argv.silence
           console.log 'Fininshed rebuild'
-    , 100
+      buildnumber++
+    100
   )
 
 watchr.watch
