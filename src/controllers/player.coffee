@@ -53,7 +53,6 @@ LYT.player =
         @setupUi()
         LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
-        log.message "DEEEEEEEFFFFAAAAAuuuuuLT: #{@playbackRate}"
 
         @setPlaybackRate @playbackRate
         @ready = true

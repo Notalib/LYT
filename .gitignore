@@ -10,3 +10,4 @@ DEADJOE
 .externalToolBuilders
 .settings
 .lyt.checkfile.*
+fixtures.json
