@@ -48,7 +48,7 @@ server = app.listen argv.port, ->
     console.log 'Listening on port %d', server.address().port
 
 changedTimeout = null
-
+buildnumber = 1
 fileChanged = (filePath) ->
   clearTimeout( changedTimeout ) if changedTimeout
   if not argv.silence
