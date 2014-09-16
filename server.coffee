@@ -38,10 +38,24 @@ app
     if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch)/ )
       proxy.proxyRequest req, res, target: argv['remote-host']
     else if req.url.match /\.buildnumber$/
-      res.write "" + buildnumber
-      res.end()
+      tries = 0
+      delay = 10
+      maxTries = 60*1000/delay
+
+      old_buildnumber = buildnumber
+      interval = setInterval( () ->
+        tries += 1
+        if old_buildnumber isnt buildnumber or tries >= maxTries
+          res.write "" + buildnumber
+          res.end()
+          clearInterval interval
+      , delay )
     else
       next()
+
+exec 'cake -dnt app', ->
+  if not argv.silence
+    console.log 'Fininshed build'
 
 server = app.listen argv.port, ->
   if not argv.silence
