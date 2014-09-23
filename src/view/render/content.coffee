@@ -219,8 +219,8 @@ LYT.render.content = do ->
                 realHeight: imgHeight
                 realWidth: imgWidth
 
-              viewHeight = view.children().height()
-              viewWidth = view.children().width()
+              viewHeight = view.height()
+              viewWidth = view.width()
 
               scaleImage image, viewHeight, viewWidth
 
@@ -234,22 +234,25 @@ LYT.render.content = do ->
 
           showImage = (image, viewHeight, viewWidth) ->
             scaleImage image, viewHeight, viewWidth
-            if (src = image.attr "data-src") and isVisible image, viewHeight
-              image.attr "src", src
-              image.removeAttr "data-src"
-              image.removeClass "loading-icon"
-              unless image.data( 'realHeight' ) and image.data( 'realWidth' )
-                image.one( 'load', ->
-                  if @.naturalHeight? and @.naturalWidth?
-                    image.data
-                      realHeight: @.naturalHeight
-                      realWidth: @.naturalWidth
-                )
+            if (src = image.attr "data-src")
+              if isVisible image, viewHeight
+                image.attr "src", src
+                image.removeAttr "data-src"
+                image.removeClass "loading-icon"
+                unless image.data( 'realHeight' ) and image.data( 'realWidth' )
+                  image.one( 'load', ->
+                    if @.naturalHeight? and @.naturalWidth?
+                      image.data
+                        realHeight: @.naturalHeight
+                        realWidth: @.naturalWidth
+                  )
+              else
+                false
 
           scrollHandler = ->
-            height = view.children().height()
-            width = view.children().width()
-            images.each -> showImage $(this), height, width
+            height = view.height()
+            width = view.width()
+            images.each -> showImage $(@), height, width
 
           view.scroll jQuery.throttle 150, scrollHandler
       else
