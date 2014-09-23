@@ -129,6 +129,37 @@ LYT.render = do ->
       setTimeout(remove, timeout or 5000)
     remove
 
+  setSelectSectionEvent = (list) ->
+    # event for opening a section/bookmark in a given book
+    list.on 'click', '.section-link', (e) ->
+      # A section/bookmark link was clicked, skip to that section in the book
+      el = $(e.target)
+      book = "#{el.data 'book'}"
+
+      # Not the same book, just return
+      unless book and book is LYT.player.book?.id
+        log.message "LYT.render: setSelectSectionEvent: not the current book #{book} isn't #{LYT.player.book?.id}"
+        return
+
+      smilReference = el.data 'smil'
+      if fragment = el.data 'fragment'
+        smilReference += "##{fragment}"
+
+      if segment = el.data 'segment'
+        smilReference += "##{segment}"
+
+      if offset = el.data 'offset'
+        offset = LYT.utils.parseTime(offset)
+      else
+        offset = null
+
+      # TODO: Workout why LYT.player.load won't respect play == true from here
+      progress = LYT.player.load LYT.player.book?.id, smilReference, offset, true
+      progress.done ->
+        # TODO: For some reason LYT.player.load() won't respect play === true from this event
+        # I assume it has something to do with the bookPlayer controller.
+        LYT.player.play()
+
   # ---------------------------
 
   # ## Public API
@@ -319,16 +350,14 @@ LYT.render = do ->
       return unless item.ref is curSection.ref or curParentID is item.id
       return true
 
-    sectionLink = (section, play = 'true') ->
+    sectionLink = (section) ->
       title = section.title?.replace("\"", "") or ""
-      link = "smil=#{section.url}"
-      if section.fragment
-        link += "&fragment=#{section.fragment}"
 
-      "<a class=\"gatrack\" ga-action=\"Link\" " +
+      "<a class=\"gatrack section-link\" ga-action=\"Link\" " +
+      "data-book=\"#{book.id}\" data-smil=\"#{section.url}\" " +
+      "data-fragment=\"#{section.fragment}\" " +
       "data-ga-book-id=\"#{book.id}\" data-ga-book-title=\"#{title}\" " +
-      "href=\"#book-player?book=#{book.id}&#{link}" +
-      "&play=#{play}\">#{title}</a>"
+      "href=\"#book-player?book=#{book.id}\">#{title}</a>"
 
     $('#index-back-button').removeAttr 'nodeid'
 
@@ -360,6 +389,7 @@ LYT.render = do ->
       list.append element
 
     list.parent().trigger('create')
+    setSelectSectionEvent list
     list.show()
 
 
@@ -413,8 +443,10 @@ LYT.render = do ->
         element.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
-               href="#book-player?book=#{book.id}&smil=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
+            <a class="gatrack section-link" data-ga-action="Link" data-ga-book-id="#{book.id}"
+               data-book=\"#{book.id}\" data-smil=\"#{baseUrl}\" data-segment=\"#{id}\"
+               data-offset=\"#{LYT.utils.formatTime bookmark.timeOffset}\"
+               href="#book-player?book=#{book.id}">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """
@@ -422,6 +454,7 @@ LYT.render = do ->
         list.append element
 
     list.parent().trigger('create')
+    setSelectSectionEvent list
     list.show()
 
 

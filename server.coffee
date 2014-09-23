@@ -74,7 +74,7 @@ fileChanged = (filePath) ->
       exec 'cake -dnt app', ->
         if not argv.silence
           console.log 'Fininshed rebuild'
-      buildnumber++
+        buildnumber++
     100
   )
 
