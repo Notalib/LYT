@@ -4,7 +4,7 @@
 $(document).on 'mobileinit', ->
   fixtures = LYT.test.fixtures
   util = $.mobile.util
-  
+
   login = (type) ->
     username = fixtures.data.users[type].username
     if LYT.session.getMemberId() isnt username
@@ -12,27 +12,27 @@ $(document).on 'mobileinit', ->
         .then ->
           $('#username').val username
           $('#password').val fixtures.data.users[type].password
-          $('#submit').trigger 'click'
+          $('#submit').simulate 'click'
         .then -> util.waitForPage 'bookshelf'
     else
       deferred = util.changePage 'bookshelf'
-  
+
     deferred
-  
+
   logout = ->
     deferred = null
     a = null
     if LYT.session.getMemberId()
       deferred = util.changePage 'profile'
-        .then -> $('#log-off').trigger 'click'
+        .then -> $('#log-off').simulate 'click'
         .then -> console.log "trigger called (#{deferred.state()})"
         .then -> util.waitForPage 'login'
     else
       deferred = $.Deferred().resolve()
-  
+
     deferred
-  
+
   fixtures.user =
     login: login
     logout: logout
-  
+
