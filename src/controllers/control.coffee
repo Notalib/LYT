@@ -348,7 +348,7 @@ LYT.control =
             smilReference += "##{params.segment}"
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
-        else if LYT.player.book?.id is params.book and LYT.player.playing
+        else if LYT.player.book?.id is params.book
           # We're already playing this book, so we just continue playing.
           return
 

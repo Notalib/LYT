@@ -22,7 +22,10 @@ $(document).on 'mobileinit', ->
       # FIXME: for some reason, the audio object may claim it is paused even when playing?!
       # .assert 'Audio is not paused', -> !LYT.player.getStatus().paused
       .assert 'Audio has a trueish currentTime', ->
-        LYT.player.getStatus().currentTime
+        util.waitForTrue(
+          -> LYT.player.getStatus().currentTime
+          100
+        )
       .then -> fixtures.book.pause()
       .assert 'Player not in playing mode', -> !LYT.player.playing
       .assert 'Audio is paused', -> LYT.player.getStatus().paused
