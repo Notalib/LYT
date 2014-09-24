@@ -25,7 +25,7 @@ $(document).on 'mobileinit', ->
     if LYT.session.getMemberId()
       deferred = util.changePage 'profile'
         .then -> $('#log-off').simulate 'click'
-        .then -> console.log "trigger called (#{deferred.state()})"
+        .then -> log.message "trigger called (#{deferred.state()})"
         .then -> util.waitForPage 'login'
     else
       deferred = $.Deferred().resolve()

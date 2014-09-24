@@ -7,8 +7,8 @@ LYT.test.fixtures or= {}
 # Where <module name> is the name of a specific QUnit module,
 # such as LYT.feature.authentication.
 
-jQuery.ajax('test/fixtures.json')
+jQuery.getJSON('test/fixtures.json')
   .done (data) ->
     LYT.test.fixtures.data = data
   .fail (error) ->
-    console.log error
+    log.message error

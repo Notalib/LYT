@@ -64,7 +64,7 @@ LYT.control =
     # The click handler is on #book-index because selecting .create-listview,
     # doesn't capture clicks, since the list is dynamically created.
     $('#book-index').on 'click', '.create-listview', (event) ->
-      ev = $(this)
+      ev = $(@)
       if ev.length isnt 0
         # The click is for us
         view = $.mobile.activePage.children ':jqmData(role=content)'
@@ -84,9 +84,9 @@ LYT.control =
             iterate book.nccDocument.structure
 
     $("#share-link-textarea").on 'click', ->
-      this.focus()
-      this.selectionStart = 0
-      this.selectionEnd = this.value.length
+      @.focus()
+      @.selectionStart = 0
+      @.selectionEnd = @.value.length
 
     $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
@@ -103,7 +103,7 @@ LYT.control =
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change (event) ->
-      target = $(this)
+      target = $(@)
       name = target.attr 'name'
       val = target.val()
 
@@ -156,6 +156,8 @@ LYT.control =
     QUnit.testDone (test) ->
       $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
       $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
+
+    QUnit.done -> window.location.hash = "#test"
 
     QUnit.log (event) ->
       method = if event.result then log.message else log.error
@@ -495,26 +497,25 @@ LYT.control =
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
 
         $("#style-settings").find("input").each ->
-          name = $(this).attr 'name'
-          val = $(this).val()
+          el = $(@)
+          name = el.attr 'name'
+          val = el.val()
 
           # Setting the GUI
           switch name
             when 'font-size', 'font-family'
               if val is style[name]
-                $(this).attr("checked", true).checkboxradio("refresh")
+                el.attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
               if style['background-color'] is colors[0] and style['color'] is colors[1]
-                $(this).attr("checked", true).checkboxradio("refresh")
+                el.attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
-                $(this).attr("checked", true).checkboxradio("refresh")
+                el.attr("checked", true).checkboxradio("refresh")
             when 'word-highlighting'
-              $(this).prop("checked", LYT.settings.get("wordHighlighting"))
+              el.prop("checked", LYT.settings.get("wordHighlighting"))
                 .checkboxradio("refresh")
-
-
 
   profile: (type, match, ui, page, event) ->
     # Not passing params since it is currently only being used to indicate
@@ -573,6 +574,7 @@ LYT.control =
 
   test:  (type, match, ui, page, event) ->
     if type is 'pageshow'
+      $(page).trigger 'create'
       LYT.render.hideTestTab()
     else if type is 'pagehide'
       LYT.render.showTestTab()

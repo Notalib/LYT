@@ -7,10 +7,10 @@
 $(document).on 'mobileinit', ->
   fixtures = LYT.test.fixtures
   util = $.mobile.util
-  
+
   QUnit.module 'LYT.feature.authentication'
   asyncTest 'Logging in and out', ->
-    console.log 'Start logging in and out test'
+    log.message 'Start logging in and out test'
     QUnit.Chain fixtures.user.login 'standard'
       .assert 'Login fixture'
       .assert 'Logged in', -> LYT.session.getMemberId()
