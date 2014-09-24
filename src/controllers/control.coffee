@@ -567,14 +567,17 @@ LYT.control =
 
         $("#share-link-textarea").text url
 
-
   instrumentation: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
       LYT.render.showInstrumentation $('#instrumentation-content')
 
   test:  (type, match, ui, page, event) ->
     if type is 'pageshow'
-      $(page).trigger 'create'
+      setTimeout(
+        ->
+          $(page).trigger 'create'
+        100
+      )
       LYT.render.hideTestTab()
     else if type is 'pagehide'
       LYT.render.showTestTab()

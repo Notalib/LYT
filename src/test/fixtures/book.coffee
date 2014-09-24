@@ -22,6 +22,9 @@ $(document).on 'mobileinit', ->
         $('#searchresult .book-play-link').simulate 'click'
         util.waitForPage 'book-details'
       deferred = deferred.then ->
+        util.waitForTrue ->
+          $('#details-play-button').attr('href').indexOf("#book-player?book=#{bookId}") isnt -1
+      deferred = deferred.then ->
         $('#details-play-button').simulate 'click'
         util.waitForPage 'book-player'
       # FIXME: It seems that the play button may be active before the book has been loaded. This should be fixed in the player.
