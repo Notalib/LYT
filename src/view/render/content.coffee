@@ -132,13 +132,15 @@ LYT.render.content = do ->
     bottom = top + image.height()
 
     if (top < -margin) and (bottom < -margin)
-      isVisible.aboveView
+      res = isVisible.aboveView
     else if (-margin < top < (viewHeight + margin)) or
         (-margin < bottom < (viewHeight + margin)) or
         (top < -margin and (viewHeight + margin) < bottom)
-      isVisible.visible
+      res = isVisible.visible
     else
-      isVisible.belowView
+      res = isVisible.belowView
+
+    res
 
   isVisible.aboveView = -1
   isVisible.visible   = 0
@@ -221,10 +223,6 @@ LYT.render.content = do ->
       log.message "Render: Changing context to #{contentID}"
       view.data "htmldoc", contentID
 
-      if not isCartoon
-        # Don't load all images from document
-        html.hideImages "css/images/loading-spinning-bubbles.svg"
-
       # Change to new document
       view[0].replaceChild(
         document.importNode(source.body.firstChild, true),
@@ -275,9 +273,11 @@ LYT.render.content = do ->
 
           view.scroll jQuery.throttle 150, scrollHandler
       else
-        view.find( '.page,.page img' ).css
-          'max-width': '100%'
-          'height': 'auto'
+        view
+          .find('.page,.page img')
+          .css
+            'max-width': '100%'
+            'height': 'auto'
 
       LYT.render.setStyle()
       segmentIntoView view, segment
