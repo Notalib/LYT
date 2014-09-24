@@ -9,26 +9,37 @@ $(document).on 'mobileinit', ->
     bookId = fixtures.data.books[type].id
 
     if LYT.player.book?.id isnt bookId
+      # Go to search page
       deferred = util.changePage 'search'
       deferred = deferred.then ->
+        # Wait untill the searchterm button is visible
         util.waitForTrue ->
           $('#searchterm').is ':visible'
       deferred = deferred.then ->
+        # Perform the search for id=bookId and submit
         $('#searchterm').val "id=#{bookId}"
         $('#search-submit').simulate 'click'
+
+        # Wait for search result by waiting for
         util.waitForTrue ->
           $('#searchresult .book-play-link').length is 1
       deferred = deferred.then ->
+        # Load book details by clicking on .book-play-link button
         $('#searchresult .book-play-link').simulate 'click'
+
+        # Wait for player to load
         util.waitForPage 'book-details'
       deferred = deferred.then ->
+        # Wait for the render to update the href-attribute on the #details-play-button
         util.waitForTrue ->
           $('#details-play-button').attr('href').indexOf("#book-player?book=#{bookId}") isnt -1
       deferred = deferred.then ->
+        # Load book by clicking on #details-play-button button
         $('#details-play-button').simulate 'click'
         util.waitForPage 'book-player'
       # FIXME: It seems that the play button may be active before the book has been loaded. This should be fixed in the player.
       deferred = deferred.then ->
+        # Wait for the book to finish loading e.g. for the loader widget to go away
         util.waitForTrue ->
           !$('.ui-loader').is ':visible'
       deferred = deferred.then ->
