@@ -118,6 +118,32 @@ LYT.render.content = do ->
         lastViewHeight: viewHeight
         lastViewWidth:  viewWidth
 
+  isVisible = (image, margin, viewHeight) ->
+    # View has position relative, so the position
+    # of the image is relative to the visible area
+    # of the view. Negative values are above and values
+    # larger than viewHeight is below
+    #
+    # This function returns:
+    # -1, if the image isn't visible and is above the visible area
+    #  0, if within the visible area
+    #  1, if below the visible area
+    top = image.position().top
+    bottom = top + image.height()
+
+    if (top < -margin) and (bottom < -margin)
+      isVisible.aboveView
+    else if (-margin < top < (viewHeight + margin)) or
+        (-margin < bottom < (viewHeight + margin)) or
+        (top < -margin and (viewHeight + margin) < bottom)
+      isVisible.visible
+    else
+      isVisible.belowView
+
+  isVisible.aboveView = -1
+  isVisible.visible   = 0
+  isVisible.belowView = 1
+
   # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
@@ -224,18 +250,11 @@ LYT.render.content = do ->
 
               scaleImage image, viewHeight, viewWidth
 
-          isVisible = (image, viewHeight) ->
-            top = image.position().top
-            bottom = top + image.height()
-
-            (-margin < top < (viewHeight + margin)) or
-            (-margin < bottom < (viewHeight + margin)) or
-            (top < -margin and (viewHeight + margin) < bottom)
-
           showImage = (image, viewHeight, viewWidth) ->
             scaleImage image, viewHeight, viewWidth
             if (src = image.attr "data-src")
-              if isVisible image, viewHeight
+              visibility = isVisible image, margin, viewHeight
+              if visibility is isVisible.visible
                 image.attr "src", src
                 image.removeAttr "data-src"
                 image.removeClass "loading-icon"
@@ -246,7 +265,7 @@ LYT.render.content = do ->
                         realHeight: @.naturalHeight
                         realWidth: @.naturalWidth
                   )
-              else
+              else if visibility is isVisible.belowView
                 false
 
           scrollHandler = ->
