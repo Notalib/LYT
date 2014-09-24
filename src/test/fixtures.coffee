@@ -1,5 +1,6 @@
 LYT.test or= {}
 LYT.test.fixtures or= {}
+LYT.test.fixtures.results or= {}
 
 # To test a specific module, use an URL like this:
 # http://your.host.somewhere/?module=<module name>

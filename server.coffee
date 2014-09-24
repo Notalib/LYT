@@ -31,6 +31,8 @@ proxy.off( 'error' ).on 'error', (e) ->
 
 
 app = express()
+app.use require('body-parser').urlencoded
+  extended: false
 app.use require('morgan')() if not (argv.quiet or argv.silence)
 app
   .use express.static( process.cwd() + '/build' )
@@ -52,6 +54,10 @@ app
             clearInterval interval
         delay
       )
+    else if req.url.match /test\/results/
+      console.log req.body
+      res.write "ok"
+      res.end()
     else
       next()
 

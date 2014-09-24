@@ -156,8 +156,16 @@ LYT.control =
     QUnit.testDone (test) ->
       $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
       $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
+      test_name = test.name.replace /\s+/g, '_'
+      LYT.test.fixtures.results[test_name] or= []
+      (test.assertions or []).forEach (assertion) ->
+        LYT.test.fixtures.results[test_name].push assertion
 
-    QUnit.done -> window.location.hash = "#test"
+    QUnit.done ->
+      $.post '/test/results',
+        userAgent: navigator.userAgent
+        testResults: LYT.test.fixtures.results
+      $.mobile.changePage "#test"
 
     QUnit.log (event) ->
       method = if event.result then log.message else log.error
