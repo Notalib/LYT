@@ -43,6 +43,33 @@ do (jQuery) ->
           deferred.resolve()
     return deferred
 
+  waitForConfirmDialog = (msg) ->
+    deferred = $.Deferred()
+    status = null
+    parameters =
+      mode:                'bool'
+      prompt:              msg
+      subTitle:            ''
+      animate:             false
+      useDialogForceFalse: true
+      allowReopen:         true
+      useModal:            true
+      onClosed:            ->
+        if status is 'yes'
+          deferred.resolve()
+        else if status is 'no'
+          deferred.reject()
+      buttons:             {}
+    parameters.buttons[LYT.i18n('Yes')] =
+      click: -> status = 'yes'
+      theme: 'c'
+    parameters.buttons[LYT.i18n('No')] =
+      click: -> status = 'no'
+      theme: 'a'
+    LYT.render.showDialog($.mobile.activePage, parameters)
+
+    deferred
+
   waitForClosedLoader = (interval = 100, timeout = 10000) ->
     waitForTrue(
       -> !isLoaderVisible()
@@ -84,3 +111,4 @@ do (jQuery) ->
       pageShowDeferred: pageShowDeferred
       activePage: activePage
       waitForClosedLoader: waitForClosedLoader
+      waitForConfirmDialog: waitForConfirmDialog
