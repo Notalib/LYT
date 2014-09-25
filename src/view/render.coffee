@@ -69,7 +69,7 @@ LYT.render = do ->
     else
       LYT.i18n('Talking book with text')
 
-  attachClickEvent = (aElement, book, list) ->
+  attachRemoveBookClickEvent = (aElement, book, li, list, view) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         parameters =
@@ -94,7 +94,11 @@ LYT.render = do ->
           useModal:            true
           buttons:             {}
         parameters.buttons[LYT.i18n('Remove book')] =
-          click: -> LYT.bookshelf.remove(book.id).done -> list.remove()
+          click: ->
+            LYT.bookshelf.remove(book.id).done ->
+              li.remove()
+
+              view.addClass('bookshelf-empty') if list.children().length is 0
           id:    'ok-btn'
           theme: 'c'
         parameters.buttons[LYT.i18n('Cancel')] =
@@ -207,13 +211,15 @@ LYT.render = do ->
     for book in books
       li = bookListItem 'book-player', book, 'bookshelf'
       removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
-      attachClickEvent removeLink, book, li
+      attachRemoveBookClickEvent removeLink, book, li, list, view
       li.append removeLink
       list.append li
 
     # if the list i empty -> bookshelf is empty -> show icon...
-    if(list.length is 1)
-      $('.bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
+    if(list.children().length is 0)
+      view.addClass 'bookshelf-empty'
+    else
+      view.removeClass 'bookshelf-empty'
 
     list.listview('refresh')
     list.find('a').first().focus()
@@ -229,7 +235,6 @@ LYT.render = do ->
 
     .fail (error, msg) ->
       log.message "failed with error #{error} and msg #{msg}"
-
 
     LYT.loader.register 'Loading bookshelf', process
 

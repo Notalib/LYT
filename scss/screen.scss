@@ -440,6 +440,12 @@ img.e17-logo {
   }
 }
 
+.bookshelf-content {
+  &.bookshelf-empty {
+    background: transparent url(../images/icons/empty_bookshelf.png) no-repeat
+  }
+}
+
 #more-bookshelf-entries {
   display: block;
   margin: 0 -15px;
