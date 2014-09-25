@@ -1,10 +1,12 @@
 do (jQuery) ->
   $ = jQuery
 
+  isLoaderVisible = -> $('.ui-loader').is ':visible'
+
   activePage = ->
     $activePage = $.mobile.activePage
     if $activePage and $activePage.attr( 'id' ) isnt '#default-page'
-      if $activePage.is(':visible') and Number($activePage.css( 'opacity' )) is 1
+      if $activePage.is(':visible') and Number($activePage.css( 'opacity' )) is 1 and not isLoaderVisible()
         return $activePage.attr 'id'
 
   timeoutDeferred = (timeout) ->
@@ -41,6 +43,13 @@ do (jQuery) ->
           deferred.resolve()
     return deferred
 
+  waitForClosedLoader = (interval = 100, timeout = 10000) ->
+    waitForTrue(
+      -> !isLoaderVisible()
+      interval
+      timeout
+    )
+
   pingDeferred = (timeout = 10000, interval = 100) ->
     deferred = timeoutDeferred timeout
     intervalHandle = setInterval(
@@ -74,3 +83,4 @@ do (jQuery) ->
       waitForPage: waitForPage
       pageShowDeferred: pageShowDeferred
       activePage: activePage
+      waitForClosedLoader: waitForClosedLoader

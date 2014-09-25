@@ -14,8 +14,12 @@ $(document).on 'mobileinit', ->
           $('#password').val fixtures.data.users[type].password
           $('#submit').simulate 'click'
         .then -> util.waitForPage 'bookshelf'
+        .then ->
+          util.waitForClosedLoader()
     else
       deferred = util.changePage 'bookshelf'
+        .then ->
+          util.waitForClosedLoader()
 
     deferred
 

@@ -40,8 +40,7 @@ $(document).on 'mobileinit', ->
       # FIXME: It seems that the play button may be active before the book has been loaded. This should be fixed in the player.
       deferred = deferred.then ->
         # Wait for the book to finish loading e.g. for the loader widget to go away
-        util.waitForTrue ->
-          !$('.ui-loader').is ':visible'
+        util.waitForClosedLoader()
       deferred = deferred.then ->
         util.waitForTrue ->
           LYT.player.book?.id is bookId
@@ -59,8 +58,7 @@ $(document).on 'mobileinit', ->
       $('#NccRootElement li:first div.ui-li a').simulate 'click'
       util.waitForPage 'book-player'
     deferred = deferred.then ->
-      util.waitForTrue ->
-        !$('.ui-loader').is ':visible'
+      util.waitForClosedLoader()
     deferred = deferred.then ->
       util.waitForTrue ->
         LYT.player.playing
