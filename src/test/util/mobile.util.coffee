@@ -45,28 +45,26 @@ do (jQuery) ->
 
   waitForConfirmDialog = (msg) ->
     deferred = $.Deferred()
-    status = null
-    parameters =
-      mode:                'bool'
-      prompt:              msg
-      subTitle:            ''
-      animate:             false
-      useDialogForceFalse: true
-      allowReopen:         true
-      useModal:            true
-      onClosed:            ->
-        if status is 'yes'
-          deferred.resolve()
-        else if status is 'no'
-          deferred.reject()
-      buttons:             {}
-    parameters.buttons[LYT.i18n('Yes')] =
-      click: -> status = 'yes'
-      theme: 'c'
-    parameters.buttons[LYT.i18n('No')] =
-      click: -> status = 'no'
-      theme: 'a'
-    LYT.render.showDialog($.mobile.activePage, parameters)
+
+    testDialog = $('#test-dialog')
+    testDialog.find('.test-dialog-msg').html(msg)
+
+    buttonsContainer = testDialog.find('.test-dialog-buttons')
+    buttonsContainer.empty()
+
+    yesBtn = $("<a href='#{window.location.hash or '#'}' data-role='button' data-rel='back' data-theme='b'>#{LYT.i18n('Yes')}</a>")
+    noBtn = $("<a href='#{window.location.hash or '#'}' data-role='button' data-rel='back' data-theme='c'>#{LYT.i18n('No')}</a>")
+    buttonsContainer
+      .append(yesBtn)
+      .append(noBtn)
+
+    yesBtn.on 'click', ->
+      deferred.resolve()
+
+    noBtn.on 'click', ->
+      deferred.reject()
+
+    $.mobile.changePage '#test-dialog'
 
     deferred
 

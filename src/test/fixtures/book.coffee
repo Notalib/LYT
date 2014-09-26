@@ -61,6 +61,23 @@ $(document).on 'mobileinit', ->
         util.waitForTrue ->
           LYT.player.playing
 
+  playbackRate = (type) ->
+    deferred = load type
+      .then ->
+        $('#book-settings-button').simulate 'click'
+        util.waitForPage 'settings'
+      .then ->
+        util.waitForTrue -> Modernizr.playbackrate?
+      .then ->
+        unless (Modernizr.playbackrate?)
+          deferred.reject()
+      .then ->
+        $('#settings #playback-rate-5').simulate 'click'
+        $('#settings .ui-header a:first').simulate 'click'
+        util.waitForPage 'book-player'
+      .then ->
+        util.waitForConfirmDialog "Afspiller bogen med dobbelt hastighed?"
+
   pause = ->
     deferred = util.changePage 'book-player'
       .then ->
@@ -72,4 +89,5 @@ $(document).on 'mobileinit', ->
     load: load
     play: play
     pause: pause
+    playbackRate: playbackRate
 

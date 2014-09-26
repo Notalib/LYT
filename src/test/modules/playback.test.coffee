@@ -26,7 +26,12 @@ $(document).on 'mobileinit', ->
           -> LYT.player.getStatus().currentTime
           100
         )
-      .then -> fixtures.book.pause()
+      .then ->
+        util.waitForConfirmDialog "Afspiller bogen med ønsket hastighed?<br/>Ved første forsøg, almindelig hastighed, ved andet forsøg dobbelt hastighed."
+      .assert 'Initial playbackRate support'
+      .then -> fixtures.book.playbackRate 'standard'
+      .assert 'PlaybackRate support'
+      .always -> fixtures.book.pause()
       .assert 'Player not in playing mode', -> !LYT.player.playing
       .assert 'Audio is paused', -> LYT.player.getStatus().paused
       .always -> QUnit.start()
