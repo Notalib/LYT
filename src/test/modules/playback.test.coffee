@@ -13,6 +13,15 @@ $(document).on 'mobileinit', ->
     QUnit.Chain fixtures.user.login 'standard'
       .assert 'Login fixture'
       .then ->
+        util.waitForTrue(
+          ->
+            res = Modernizr.autoplayback? and Modernizr.playbackrate? and Modernizr.playbackratelive?
+            console.log 'Modernizr tests done', res
+
+            res
+        )
+      .assert 'Modernizr tests done'
+      .then ->
         fixtures.book.play 'standard'
       .assert 'Play fixture'
       .assert 'Player in playing mode', ->

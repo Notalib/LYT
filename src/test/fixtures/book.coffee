@@ -46,6 +46,27 @@ $(document).on 'mobileinit', ->
         util.waitForClosedLoader()
       .then ->
         util.waitForTrue -> LYT.player.book?.id is bookId
+      .then ->
+        util.waitForTrue -> LYT.render.isPlayerNavigationEnabled()
+      .then ->
+        if LYT.player.playClickHook
+          $('.lyt-play').one 'click', ->
+            deferred.resolve()
+
+          alert 'Click play'
+          deferred
+            .then ->
+              util.waitForTrue(
+                -> LYT.player.playing
+                100
+                30000
+              )
+            .then ->
+              util.waitForTrue -> LYT.player.currentSegment
+            .then ->
+              util.waitForClosedLoader()
+        else
+          true
 
   play = (type) ->
     deferred = load type

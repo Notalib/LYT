@@ -284,10 +284,14 @@ LYT.render = do ->
         list.listview().children().remove()
 
   enablePlayerNavigation: ->
-    $('#book-play-menu').find('a').removeClass 'ui-disabled'
+    $('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button').removeClass 'ui-disabled'
 
   disablePlayerNavigation: ->
-    $('#book-play-menu').find('a').addClass 'ui-disabled'
+    $('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button').addClass 'ui-disabled'
+
+  isPlayerNavigationEnabled: ->
+    $.makeArray($('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button')).some (el) ->
+      !$(el).hasClass 'ui-disabled'
 
   bookPlayer: (book, view) ->
     $('#player-book-title').text book.title
