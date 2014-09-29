@@ -122,4 +122,10 @@ class LYT.player.command.play extends LYT.player.command
         @audio.play()
         return
 
-    @audio.defaultPlaybackRate = @audio.playbackRate = @playbackRate
+    userAgent = navigator.userAgent
+    if ( userAgent.match( /Trident\/7\.0/i ) and userAgent.match( /rv:11\.0/i ) )
+      # Force change on IE11 is doesn't, this makes it register change even if paused.
+      @audio.playbackRate = 1
+      @audio.defaultPlaybackRate = @playbackRate
+    else
+      @audio.defaultPlaybackRate = @audio.playbackRate = @playbackRate
