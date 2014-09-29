@@ -14,11 +14,9 @@ $(document).on 'mobileinit', ->
       .assert 'Login fixture'
       .then ->
         util.waitForTrue(
-          ->
-            res = Modernizr.autoplayback? and Modernizr.playbackrate? and Modernizr.playbackratelive?
-            console.log 'Modernizr tests done', res
-
-            res
+          -> Modernizr.autoplayback? and Modernizr.playbackrate? and Modernizr.playbackratelive?
+          10
+          30000
         )
       .assert 'Modernizr tests done'
       .then ->
@@ -28,19 +26,28 @@ $(document).on 'mobileinit', ->
         LYT.player.playing
       .assert 'Audio has src set', ->
         LYT.player.getStatus().src
-      # FIXME: for some reason, the audio object may claim it is paused even when playing?!
-      # .assert 'Audio is not paused', -> !LYT.player.getStatus().paused
       .assert 'Audio has a trueish currentTime', ->
         util.waitForTrue(
           -> LYT.player.getStatus().currentTime
-          100
+          10
+          5000
         )
       .then ->
-        util.waitForConfirmDialog "Afspiller bogen med ønsket hastighed?<br/>Ved første forsøg, almindelig hastighed, ved andet forsøg dobbelt hastighed."
+        if Modernizr.playbackrate
+          util.waitForConfirmDialog "Afspiller bogen med ønsket hastighed?<br/>Ved første forsøg, almindelig hastighed<br/>Ved andet forsøg dobbelt hastighed."
+        else
+          false
       .assert 'Initial playbackRate support'
-      .then -> fixtures.book.playbackRate 'standard'
-      .assert 'PlaybackRate support'
-      .always -> fixtures.book.pause()
-      .assert 'Player not in playing mode', -> !LYT.player.playing
-      .assert 'Audio is paused', -> LYT.player.getStatus().paused
-      .always -> QUnit.start()
+      .always ->
+        QUnit.Chain fixtures.book.playbackRate 'standard'
+          .assert 'PlaybackRate support'
+          .always ->
+            QUnit.Chain fixtures.book.pause()
+              .assert 'Player not in playing mode', -> !LYT.player.playing
+              .then -> util.waitForTrue(
+                -> LYT.player.getStatus().paused
+                1
+                500
+              )
+              .assert 'Audio is paused'
+              .always -> QUnit.start()
