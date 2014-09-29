@@ -264,9 +264,15 @@ LYT.render.content = do ->
                         realWidth: @.naturalWidth
                   )
               else if visibility is isVisible.belowView
+                # The image is below the correct view, there is no
+                # point in continueing this loop, returning false.
                 false
 
           scrollHandler = ->
+            unless view.is ':visible'
+              log.message "Render: Context scroll: View isn't visible do nothing"
+              return
+
             height = view.height()
             width = view.width()
             images.each -> showImage $(@), height, width

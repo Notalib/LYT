@@ -10,7 +10,6 @@ class LYT.TextContentDocument extends LYT.DTBDocument
 
   # Private method for resolving URLs
   resolveURLs = (source, resources, isCartoon) ->
-
     # Resolve images
     source.find("*[data-src]").each (index, item) ->
       item = jQuery item
@@ -27,7 +26,7 @@ class LYT.TextContentDocument extends LYT.DTBDocument
 
   constructor: (url, resources, callback) ->
     super url, =>
-      resolveURLs @source, resources, @isCartoon
+      resolveURLs @source, resources, @isCartoon()
       callback() if typeof callback is "function"
 
   isCartoon: () ->

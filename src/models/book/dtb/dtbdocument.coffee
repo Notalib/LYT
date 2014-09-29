@@ -157,11 +157,13 @@ do ->
 
         # Android innerHTML takes out <head></head>...so cheat...
         markup = markup[0]
-          .replace( /<\/?head[^>]*>/gi, "" )
-          .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi, '<$1 $2></$1>' )
-          .replace( /(<img[^>]+)src=['"]([^'"]+)['"]([^>]*>)/gi, "$1 data-src='$2' src='#{@hideImageUrl}'$3" )
-          .replace( /<style[^>]+.*<\/style>/gi, '')
-          .replace( /<link[^>]+>/gi, '')
+          .replace( /<\/?head[^>]*>/gi, "" ) # Remove head tags
+          .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi, '<$1 $2></$1>' ) # Fix illegal shorthand tags
+          .replace( /(<img[^>]+)src=['"]([^'"]+)['"]([^>]*>)/gi, "$1 data-src='$2' src='#{@hideImageUrl}'$3" ) # Swap src to data-src and replace with @hideImageUrl
+          .replace( /<style[^>]+[^]+<\/style>/gi, '') # Remove style tags
+          .replace( /<link[^>]+>/gi, '') # Remove link tags
+          #.replace( /<meta[^>]+>/gi, '') # Remove meta tags
+          #.replace( /<title>[^]+<\/title>/gi, '') # Remove title tags
 
         scriptTagRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi
         while scriptTagRegex.test markup
