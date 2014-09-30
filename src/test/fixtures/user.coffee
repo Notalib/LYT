@@ -9,6 +9,7 @@ $(document).on 'mobileinit', ->
     username = fixtures.data.users[type].username
     if LYT.session.getMemberId() isnt username
       deferred = util.changePage 'login'
+        .then -> util.waitForTrue -> !$('#submit').prop('disabled')
         .then ->
           $('#username').val username
           $('#password').val fixtures.data.users[type].password
