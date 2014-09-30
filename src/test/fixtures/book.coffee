@@ -90,11 +90,11 @@ $(document).on 'mobileinit', ->
       .then ->
         util.waitForTrue -> Modernizr.playbackrate?
       .then ->
-        unless (Modernizr.playbackrate?)
-          deferred.reject()
+        deferred.reject() unless Modernizr.playbackrate
       .then ->
-        $('#settings #playback-rate-5').simulate 'click'
-        $('#settings .ui-header a:first').simulate 'click'
+        settings = $('#settings')
+        settings.find('#playback-rate-5').simulate 'click'
+        settings.find('.ui-header a:first').simulate 'click'
         util.waitForPage 'book-player'
       .then ->
         util.waitForConfirmDialog "Afspiller bogen med dobbelt hastighed?"

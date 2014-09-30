@@ -180,11 +180,11 @@ LYT.control =
     $('#run-tests').one 'click', ->
       $('#run-tests').button 'disable'
       deferred = $.mobile.util.waitForConfirmDialog LYT.i18n('Is this the first test run?')
-      deferred.done ->
-        LYT.settings.reset()
-        LYT.player.setPlaybackRate 1
-      deferred.always ->
-        QUnit.start()
+        .done ->
+          LYT.settings.reset()
+          LYT.player.setPlaybackRate 1
+        .always ->
+          QUnit.start()
 
     QUnit.begin ->
       $('.test-results').text ''
