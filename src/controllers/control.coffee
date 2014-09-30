@@ -94,6 +94,42 @@ LYT.control =
 
     $(window).resize -> LYT.player.refreshContent()
 
+    $("#login-form").submit (e) ->
+      e.preventDefault()
+      e.stopPropagation()
+
+      $form = $(@)
+      $form.find("#password").blur()
+
+      process = LYT.service.logOn($form.find("#username").val(), $form.find("#password").val())
+        .done ->
+          log.message 'control: login: logOn done'
+          next = LYT.var.next
+          LYT.var.next = null
+          next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
+          $.mobile.changePage next
+
+        .fail ->
+          log.warn 'control: login: logOn failed'
+          parameters =
+            mode:                'bool'
+            prompt:              LYT.i18n('Incorrect username or password')
+            subTitle:            LYT.i18n('')
+            animate:             false
+            useDialogForceFalse: true
+            allowReopen:         true
+            useModal:            true
+            buttons:             {}
+          parameters.buttons[LYT.i18n('OK')] =
+            click: -> # Nop
+            theme: 'c'
+          LYT.render.showDialog($("#login-form"), parameters)
+
+      # Clear password field
+      $form.find('#password').val ''
+
+      LYT.loader.register "Logging in", process
+
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
@@ -102,7 +138,7 @@ LYT.control =
       if not Modernizr.playbackrate and not playbackratelive
         LYT.render.disablePlaybackRate()
 
-    $("#style-settings input").change (event) ->
+    $("#style-settings input").change ->
       target = $(@)
       name = target.attr 'name'
       val = target.val()
@@ -210,42 +246,12 @@ LYT.control =
   # Control handlers
 
   login: (type, match, ui, page, event) ->
-    $('#username').focus()
-
-    $("#login-form").submit (event) ->
-      $("#password").blur()
-
-      process = LYT.service.logOn($("#username").val(), $("#password").val())
-      .done ->
-        log.message 'control: login: logOn done'
-        next = LYT.var.next
-        LYT.var.next = null
-        next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
-        $.mobile.changePage next
-
-      .fail ->
-        log.warn 'control: login: logOn failed'
-        parameters =
-          mode:                'bool'
-          prompt:              LYT.i18n('Incorrect username or password')
-          subTitle:            LYT.i18n('')
-          animate:             false
-          useDialogForceFalse: true
-          allowReopen:         true
-          useModal:            true
-          buttons:             {}
-        parameters.buttons[LYT.i18n('OK')] =
-          click: -> # Nop
-          theme: 'c'
-        LYT.render.showDialog($("#login-form"), parameters)
-
-      # Clear password field
-      $('#password').val ''
-
-      LYT.loader.register "Logging in", process
-
-      event.preventDefault()
-      event.stopPropagation()
+    $page = $(page)
+    if type is 'pageshow'
+      $page.find('#username').focus()
+      $page.find('#submit').button('enable')
+    else
+      $page.find('#submit').button('disable')
 
   bookshelf: (type, match, ui, page, event) ->
     params = LYT.router.getParams match[1]

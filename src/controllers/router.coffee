@@ -68,7 +68,7 @@ $(document).bind "mobileinit", ->
       events: "bs,s"
     "#login":
       handler: "login"
-      events: "s"
+      events: "s,h,bs"
     "#profile":
       handler: "profile"
       events: "s"
