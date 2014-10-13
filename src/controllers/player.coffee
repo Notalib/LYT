@@ -22,6 +22,7 @@ LYT.player =
   inSkipState: false
   showingPlay: true # true if the play triangle button is shown, false otherwise
   playLoader: null
+  elements: null
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -130,37 +131,43 @@ LYT.player =
   setupUi: ->
     $.jPlayer.timeFormat.showHour = true
 
+    bookPlayer = $('#book-player')
+    lytPlayPauseBtns = bookPlayer.find( 'a.lyt-play-pause-btn' )
+    @elements =
+      bookPlayer: bookPlayer
+      lytPlayPauseBtns: lytPlayPauseBtns
+      lytPause: lytPlayPauseBtns.filter('a.lyt-pause').click =>
+        LYT.instrumentation.record 'ui:stop'
+        if not @showingPlay
+          @showPlayButton()
+
+        @stop()
+
+      lytPlay: lytPlayPauseBtns.filter('a.lyt-play').click (e) =>
+        LYT.instrumentation.record 'ui:play'
+        if @playClickHook
+          @playClickHook(e).done => @play()
+        else
+          @play()
+
     @showPlayButton()
 
-    $('.lyt-pause').click =>
-      LYT.instrumentation.record 'ui:stop'
-      if not @showingPlay
-        @showPlayButton()
-
-      @stop()
-
-    $('.lyt-play').click (e) =>
-      LYT.instrumentation.record 'ui:play'
-      if @playClickHook
-        @playClickHook(e).done => @play()
-      else
-        @play()
-
-    $('a.next-section').click =>
+    bookPlayer.find('a.next-section').click =>
       log.message "Player: next: #{@currentSegment.next?.url()}"
       LYT.instrumentation.record 'ui:next'
       @playNextSegment()
 
-    $('a.previous-section').click =>
+    bookPlayer.find('a.previous-section').click =>
       log.message "Player: previous: #{@currentSegment.previous?.url()}"
       LYT.instrumentation.record 'ui:previous'
       @playPreviousSegment()
 
-    $('a.forward15').click =>
+    bookPlayer.find('a.forward15').click =>
       log.message "Player: forward15:"
       LYT.instrumentation.record 'ui:fastforward15'
       @playheadSeek(15)
-    $('a.back15').click =>
+
+    bookPlayer.find('a.back15').click =>
       log.message "Player: rewind15:"
       LYT.instrumentation.record 'ui:rewind15'
       @playheadSeek(-15)
@@ -188,7 +195,6 @@ LYT.player =
     Mousetrap.bind 'alt+ctrl+o', ->
       log.message "previous section"
       return false
-
 
   # Main methods ############################################################ #
 
@@ -765,20 +771,18 @@ LYT.player =
   # View related methods - should go into a file akin to render.coffee
 
   setFocus: ->
-    for button in [$('.lyt-pause'), $('.lyt-play')]
-      if button.is ':visible'
-        button.addClass('ui-btn-active').focus()
+    @elements.lytPlayPauseBtns.filter(':visible').addClass('ui-btn-active').focus()
 
   showPlayButton: ->
     @showingPlay = true
-    $('.lyt-pause').hide()
-    $('.lyt-play').show()
+    @elements.lytPause.hide()
+    @elements.lytPlay.show()
     @setFocus()
 
   showPauseButton: ->
     @showingPlay = false
-    $('.lyt-play').hide()
-    $('.lyt-pause').show()
+    @elements.lytPlay.hide()
+    @elements.lytPause.show()
     @setFocus()
 
   refreshContent: (now = false) ->
