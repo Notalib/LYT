@@ -135,7 +135,7 @@ LYT.player =
     $('.lyt-pause').click =>
       LYT.instrumentation.record 'ui:stop'
       if not @showingPlay
-        @showPauseButton()
+        @showPlayButton()
 
       @stop()
 
@@ -267,7 +267,9 @@ LYT.player =
     log.message 'Player: wait'
     ok = jQuery.Deferred().resolve()
     if command = @playCommand
-      command.done => @playCommand = null if @playCommand is command
+      log.group "Player: wait command = @playCommand", command.status(), command.state?()
+      command.always =>
+        @playCommand = null if @playCommand is command
       command.cancel()
       return command.then(
         -> ok
@@ -334,6 +336,7 @@ LYT.player =
         else
           @playNextSegment()
       command.always =>
+        log.group 'Player: play: play command always.', command.status(), @playing, @showingPlay
         @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
@@ -763,19 +766,19 @@ LYT.player =
 
   setFocus: ->
     for button in [$('.lyt-pause'), $('.lyt-play')]
-      unless button.css('display') is 'none'
+      if button.is ':visible'
         button.addClass('ui-btn-active').focus()
 
   showPlayButton: ->
     @showingPlay = true
-    $('.lyt-pause').css 'display', 'none'
-    $('.lyt-play').css('display', '')
+    $('.lyt-pause').hide()
+    $('.lyt-play').show()
     @setFocus()
 
   showPauseButton: ->
     @showingPlay = false
-    $('.lyt-play').css 'display', 'none'
-    $('.lyt-pause').css('display', '')
+    $('.lyt-play').hide()
+    $('.lyt-pause').show()
     @setFocus()
 
   refreshContent: (now = false) ->

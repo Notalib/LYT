@@ -29,6 +29,7 @@
 
 LYT.service = do ->
   # # Privileged API
+  lastBookmark = null
 
   # optional service operations
   operations =
@@ -293,6 +294,17 @@ LYT.service = do ->
     withLogOn -> LYT.rpc("getBookmarks", bookId)
 
   setBookmarks: (bookmarks) ->
+    if lastBookmark and lastBookmark.bookId is bookmarks.id and
+        lastBookmark.URI is bookmarks.lastmark?.URI and
+        lastBookmark.timeOffset is bookmarks.lastmark?.timeOffse
+      log.message "setBookmarks: same as last time"
+      return
+
+    lastBookmark =
+      bookId: bookmarks.id
+      URI: bookmarks.lastmark?.URI
+      timeOffset: bookmarks.lastmark?.timeOffset
+
     withLogOn -> LYT.rpc("setBookmarks", bookmarks)
 
   announcementsSupported: ->
