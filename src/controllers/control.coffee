@@ -236,7 +236,7 @@ LYT.control =
         promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
-        $.mobile.path.set 'login'
+        $.mobile.changePage '#login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
 
