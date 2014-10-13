@@ -132,7 +132,12 @@
   info: (messages...) ->
     return unless log.level > 2
     return unless log._filter 'info', messages
-    logMethodMessages console?.info, messages
+
+    if messages.length >= 2
+      title = messages.pop()
+      @group title, messages
+    else
+      logMethodMessages console?.info, messages
 
   # Log a group of messages. By default, it'll try to call `console.groupCollapsed()` rather
   # than `console.group()`. If neither function exists, it'll fake it with `log.message`
