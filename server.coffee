@@ -43,13 +43,15 @@ app
       maxTries = 60*1000/delay
 
       old_buildnumber = buildnumber
-      interval = setInterval( () ->
-        tries += 1
-        if old_buildnumber isnt buildnumber or tries >= maxTries
-          res.write "" + buildnumber
-          res.end()
-          clearInterval interval
-      , delay )
+      interval = setInterval(
+        ->
+          tries += 1
+          if old_buildnumber isnt buildnumber or tries >= maxTries
+            res.write "" + buildnumber
+            res.end()
+            clearInterval interval
+        delay
+      )
     else
       next()
 
