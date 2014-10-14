@@ -1,143 +1,122 @@
-.jp-audio {
-  position: relative;
-}
-
-.jp-progress {
-  overflow: hidden;
-  background-color: #000;
-  position: absolute;
-  top: 22px;
-  height: 3px;
-  left: 0;
-  right: 0; }
-
-.jp-seek-bar {
-  background: #464646;
-  width: 0px;
-  height: 100%;
-  cursor: pointer; }
-
-.jp-play-bar {
-  background: #8cbbe2;
-  width: 0px;
-  height: 100%; }
-
-.jp-seeking-bg {
-  background: url("../images/player/jplayer.blue.monday.seeking.gif");
-}
-
-.jp-play, .jp-pause {
-  display: block;
-}
-
-#player-duration {
-  text-align: right;
-  right: 0;
-  position: absolute;
-  top: 0;
-}
-
-#player-duration, #player-current-time {
-  span {
-    background: #292929;
-    z-index: 200;
-  }
-}
-
-#player-current-time {
-  text-align: left;
-  left: 0;
-  position: absolute;
-  top: 0;
-}
-
-h2.player-chapter-title {
-    text-align: center;
-    color: #cbcbcb;
-    text-overflow: ellipsis;
-    text-shadow: none;
-    font-size: 11px;
-    line-height: 14px;
-    height: 14px;
-    overflow: hidden;
-    z-index: 0;
-    font-weight: normal;
-
-    position: absolute;
-    left: 40px;
-    right: 40px;
-}
-
-#book-play {
-  background: #fff;
-}
-
-#book-middle-menu {
-  background-color: #292929;
-  /*border-top: 1px solid #000;*/
-  height: 44px;
-  font-size: 13px;
-  padding: 0;
-}
-
-#author {
-    font-weight: normal;
-}
-
-
-#player-info {
-  height: 45px;
-  @include clearfix;
-
-  h1, h2, span {
-    margin: 0;
-    color: #cbcbcb;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .info {
-    position: relative;
-    height: 45px;
-    margin-left: 39px;
-    margin-right: 10px;
-  }
-}
-
-.jp-time-holder {
-  span {
-    text-shadow: none;
-  }
-}
-
-#book-chapter-menu {
-  font-size: 10px;
-  position: absolute;
-  bottom: 0;
-  height: 17px;
-  width: 100%;
-}
-
 #jp_container_1 {
-  background-color: #292929;
-}
+  $bar-height: 45px;
+  $cover-height: $bar-height;
+  $cover-width: 55px;
+  $progress-bg-color: #464646;
+  $progress-seek-color: #8cbbe2;
+  $text-color: #cbcbcb;
+  $background-color: #292929;
 
-#currentbook-image {
-  width: 29px;
-  margin: 0;
-  float: left;
-}
+  background-color: $background-color;;
 
-#player-info h1 {
-  position: absolute;
-  width: 100%;
-  top: 4px;
-  font-size: 13px;
-  line-height: 13px;
-  height: 18px;
-  font-weight: normal;
-  text-overflow: ellipsis;
-  text-align: center;
-  text-shadow: none;
-  color: #cbcbcb;
+  .jp-seeking-bg {
+    background: url("../images/player/jplayer.blue.monday.seeking.gif");
+  }
+
+  .jp-play, .jp-pause {
+    display: block;
+  }
+
+  #player-info {
+    height: $bar-height;
+    @include clearfix;
+
+    #currentbook-image {
+      min-width: $cover-width/3*2;
+      max-width: $cover-width;
+      height: $cover-height;
+      margin: 0;
+      margin-right: 0.4em;
+      float: left;
+      img {
+        max-height: $cover-height;
+        max-width: $cover-width;
+      }
+    }
+
+    .player-book-info {
+      h1, h2, span {
+        margin: 0;
+        color: $text-color;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      h1 {
+        padding-top: 4px;
+        font-size: 13px;
+        line-height: 13px;
+        height: 18px;
+        font-weight: normal;
+        text-overflow: ellipsis;
+        text-align: center;
+        text-shadow: none;
+        color: $text-color;
+      }
+
+      height: $bar-height;
+      margin-right: 10px;
+      .jp-progress {
+        overflow: hidden;
+        background-color: #000;
+        height: 3px;
+        .jp-seek-bar {
+          background: $progress-bg-color;
+          width: 0px;
+          height: 100%;
+          cursor: pointer;
+          .jp-play-bar {
+            background: $progress-seek-color;
+            width: 0px;
+            height: 100%;
+          }
+        }
+      }
+
+      .jp-time-holder {
+        span {
+          text-shadow: none;
+        }
+      }
+
+      #book-chapter-menu {
+        font-size: 10px;
+        height: 17px;
+        margin-top: 3px;
+
+        h2.player-chapter-title {
+            text-align: center;
+            color: $text-color;
+            text-overflow: ellipsis;
+            text-shadow: none;
+            font-size: 11px;
+            line-height: 14px;
+            height: 14px;
+            overflow: hidden;
+            z-index: 0;
+            font-weight: normal;
+
+            margin-left: 40px;
+            margin-right: 40px;
+        }
+
+        #player-duration {
+          text-align: right;
+          float: right;
+        }
+
+        #player-duration, #player-current-time {
+          span {
+            background: $background-color;;
+            z-index: 200;
+          }
+        }
+
+        #player-current-time {
+          text-align: left;
+          float: left;
+        }
+      }
+    }
+  }
 }
