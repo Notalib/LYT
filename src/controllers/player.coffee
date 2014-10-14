@@ -63,6 +63,15 @@ LYT.player =
       log.error "Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}", event
 
     jPlayerParams.error = (event) =>
+      audio = @el.find('audio')[0]
+      if event.jPlayer.error.type is $.jPlayer.error.URL and
+          audio.networkState? and audio.NETWORK_LOADING? and
+          audio.networkState is audio.NETWORK_LOADING
+        log.message "Player: event error: jPlayer: the audio is still loading this isn't an actual error."
+        if @playing
+          # Reset the state of the player, or playbackRate will be broken.
+          @stop().then => @play()
+        return
       LYT.instrumentation.record 'error', event.jPlayer.status
       log.error "Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}", event
 

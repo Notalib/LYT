@@ -75,8 +75,10 @@ class LYT.player.command.play extends LYT.player.command
         log.message "Command play: playing: return due to firstPlay"
         return
       log.message "Command play: Now playing audio"
-      if not @$audio.data( 'hasPlayed' ) or @browser.IE9 or @browser.IE10
-        log.message "Command play: playing: hasPlayed: #{@$audio.data( 'hasPlayed' )} or IE9: #{@browser.IE9} or IE10: #{@browser.IE10}"
+      if not @$audio.data( 'hasPlayed' ) or @browser.IE
+        # Some "browser"-like software doesn't respect playbackRate if set before playing, for those
+        # "browsers" set playbackRate to 1 and let the timeupdate-event set it.
+        log.message "Command play: playing: hasPlayed: #{@$audio.data( 'hasPlayed' )} or IE: #{@browser.IE}"
         @audio.playbackRate = 1
         @$audio.data 'hasPlayed', true
 
@@ -92,7 +94,9 @@ class LYT.player.command.play extends LYT.player.command
     # The most consistent way to get playbackRate to work in most browser
     # is updating it on every timeupdate-event
     timeupdate: (event) =>
-      if not isNaN( @audio.currentTime )
+      if isNaN( @audio.currentTime )
+        log.messsage "Command play: timeupdate currentTime: #{@audio.currentTime} isNaN"
+      else
         ## msn: This is ugly.
         # Sometimes IE will play an audio-file at playbackRate == 1, but have playbackRate
         # set to another value.
@@ -102,12 +106,13 @@ class LYT.player.command.play extends LYT.player.command
         # update the value again in the next timeupdate-event. Alternating between the two values.
         if @audio.playbackRate is @playbackRate
           ## Don't do this on Safari on OSX, it mutes for a second or two after we alter the playbackRate
+          ## Don't do this on IE11, since it on Win8 pauses the sound a for a second after playbackRate is altered
           # TODO: Find a better way to do this, so we don't have to rely on browser sniffing
           unless @browser.Safari or @browser.IE11
             @audio.playbackRate = @playbackRate - 0.0001
         else
           if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
-            log.message "onTimeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}"
+            log.message "Command play: timeupdate: playbackRate changed from #{@audio.playbackRate} to #{@playbackRate}"
           @audio.playbackRate = @playbackRate
 
   setPlaybackRate: (playbackRate = 1) =>
@@ -136,10 +141,20 @@ class LYT.player.command.play extends LYT.player.command
       @audio.defaultPlaybackRate = @audio.playbackRate = @playbackRate
 
   browser: do ->
+    ## We've had to use browser sniffing due to issues with playbackRate
+    # on certain browsers and "browsers", this is ugly I know but we
+    # need to do this for now.
     userAgent = navigator.userAgent
 
-    IE9: userAgent.match /MSIE 9\.0/i
-    IE10: userAgent.match /MSIE 10\.0/i
-    IE11: userAgent.match( /Trident\/7\.0/i ) and userAgent.match( /rv:11\.0/i )
-    Safari: userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|Chrome/i )
+    IE9    = !!(userAgent.match /MSIE 9\.0/i)
+    IE10   = !!(userAgent.match /MSIE 10\.0/i)
+    IE11   = !!(userAgent.match( /Trident\/7\.0/i ) and userAgent.match( /rv:11\.0/i ))
+    IE     = !!(IE9 or IE10 or IE11)
+    Safari = !!(userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|Chrome/i ))
+
+    IE:     IE
+    IE9:    IE9
+    IE10:   IE10
+    IE11:   IE11
+    Safari: Safari
 
