@@ -244,9 +244,9 @@ LYT.render = do ->
     $playbackRate.find('.message.disabled').show()
     $playbackRate
       .find('input[type="radio"]').on( 'checkboxradiocreate', ->
-        $(@).checkboxradio('disable')
+        $(this).checkboxradio('disable')
       ).each ->
-        el = $(@)
+        el = $(this)
         if el.data('mobileCheckboxradio')?
           el.checkboxradio('disable')
         else

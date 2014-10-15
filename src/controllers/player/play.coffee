@@ -76,8 +76,9 @@ class LYT.player.command.play extends LYT.player.command
         return
       log.message "Command play: Now playing audio"
       if not @$audio.data( 'hasPlayed' ) or @browser.IE
-        # Some "browser"-like software doesn't respect playbackRate if set before playing, for those
-        # "browsers" set playbackRate to 1 and let the timeupdate-event set it.
+        # In some browser like IE, setting playbackRate while paused doesn't work, playback will be at
+        # speed 1 even though the playbackRate attribute is set to the correct value.
+        # This forces these browsers to update the value in the timeupdate event.
         log.message "Command play: playing: hasPlayed: #{@$audio.data( 'hasPlayed' )} or IE: #{@browser.IE}"
         @audio.playbackRate = 1
         @$audio.data 'hasPlayed', true
@@ -119,7 +120,7 @@ class LYT.player.command.play extends LYT.player.command
     @playbackRate = playbackRate
 
     if not Modernizr.playbackrate and Modernizr.playbackratelive
-      # Workaround for IOS6 that doesn't alter the perceived playback rate
+      # Workaround for IOS6+ that doesn't alter the perceived playback rate
       # before starting and stopping the audio (issue #480)
       if @playing
         log.message "Command play: Stop -> set playbackRate -> resume"
@@ -130,7 +131,9 @@ class LYT.player.command.play extends LYT.player.command
 
     if @browser.IE11
       log.message "This is IE11, set @audio.playbackRate = 1 and @audio.defaultPlaybackRate = #{@playbackRate}"
-      # Force change on IE11 is doesn't, this makes it register change even if paused.
+      # Force update value in IE11. We can't use the workaround in timeuptime for IE11 because on Win8 IE11
+      # paused for about a second, therefor set the value to 1 because this forces IE to update the value even
+      # if it's the same.
       try
         @audio.playbackRate = 1
         @audio.defaultPlaybackRate = @playbackRate

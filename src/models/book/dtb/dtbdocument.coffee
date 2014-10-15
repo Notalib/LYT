@@ -162,8 +162,6 @@ do ->
           .replace( /(<img[^>]+)src=['"]([^'"]+)['"]([^>]*>)/gi, "$1 data-src='$2' src='#{@hideImageUrl}'$3" ) # Swap src to data-src and replace with @hideImageUrl
           .replace( /<style[^>]+[^]+<\/style>/gi, '') # Remove style tags
           .replace( /<link[^>]+>/gi, '') # Remove link tags
-          #.replace( /<meta[^>]+>/gi, '') # Remove meta tags
-          #.replace( /<title>[^]+<\/title>/gi, '') # Remove title tags
 
         scriptTagRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi
         while scriptTagRegex.test markup

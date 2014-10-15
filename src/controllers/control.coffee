@@ -64,7 +64,7 @@ LYT.control =
     # The click handler is on #book-index because selecting .create-listview,
     # doesn't capture clicks, since the list is dynamically created.
     $('#book-index').on 'click', '.create-listview', (event) ->
-      ev = $(@)
+      ev = $(this)
       if ev.length isnt 0
         # The click is for us
         view = $.mobile.activePage.children ':jqmData(role=content)'
@@ -84,9 +84,9 @@ LYT.control =
             iterate book.nccDocument.structure
 
     $("#share-link-textarea").on 'click', ->
-      @.focus()
-      @.selectionStart = 0
-      @.selectionEnd = @.value.length
+      this.focus()
+      this.selectionStart = 0
+      this.selectionEnd = this.value.length
 
     $("#more-bookshelf-entries").on 'click', ->
       content = $.mobile.activePage.children(":jqmData(role=content)")
@@ -98,7 +98,7 @@ LYT.control =
       e.preventDefault()
       e.stopPropagation()
 
-      $form = $(@)
+      $form = $(this)
       $form.find("#password").blur()
 
       process = LYT.service.logOn($form.find("#username").val(), $form.find("#password").val())
@@ -139,7 +139,7 @@ LYT.control =
         LYT.render.disablePlaybackRate()
 
     $("#style-settings input").change ->
-      target = $(@)
+      target = $(this)
       name = target.attr 'name'
       val = target.val()
 
@@ -516,7 +516,7 @@ LYT.control =
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
 
         $("#style-settings").find("input").each ->
-          el = $(@)
+          el = $(this)
           name = el.attr 'name'
           val = el.val()
 

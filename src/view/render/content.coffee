@@ -235,7 +235,7 @@ LYT.render.content = do ->
           margin = 200 # TODO Should be configurable
 
           images.filter( '[height]' ).each ->
-            image = $(@)
+            image = $(this)
             imgWidth = image.attr( 'width' )
             imgHeight = image.attr( 'height' )
             if imgWidth and imgHeight
@@ -275,7 +275,7 @@ LYT.render.content = do ->
 
             height = view.height()
             width = view.width()
-            images.each -> showImage $(@), height, width
+            images.each -> showImage $(this), height, width
 
           view.scroll jQuery.throttle 150, scrollHandler
       else
