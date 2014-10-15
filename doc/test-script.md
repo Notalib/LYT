@@ -2,21 +2,36 @@ Test schedule for LYT
 
 Supported platforms:
     - Windows:
-        - Internet explorer:
-            - IE9
-            - IE10
-            - IE11 on Windows 7
-            - IE11 on Windows 8
-        - Google Chrome
-            - Latest
+
+      - Internet explorer:
+
+        - IE9
+
+        - IE10
+
+        - IE11 on Windows 7
+
+        - IE11 on Windows 8
+
+      - Google Chrome
+
+        - Latest
+
     - MacOS X:
-        - Google Chrome
-        - Safari
+
+      - Google Chrome
+
+      - Safari
+
     - Android:
-        - Android Browser
-        - Google Chrome
+
+      - Android Browser
+
+      - Google Chrome
+
     - iPad and iPhone:
-        - Safari
+
+      - Safari
 
 Login:
 
