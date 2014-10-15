@@ -1,35 +1,33 @@
 <div data-role="page" id="search" data-title="Søg efter bog | E17 Direkte">
-	
-	<div data-role="header" data-theme="b">
-		<a id="listshow-btn" href="#search" class="ui-btn-left gatrack"  data-role="button" role="button" data-inline="true">Ny søgning</a>
-		<a href="#bookshelf" data-direction="reverse" class="ui-btn-right gatrack" data-role="button" role="button" title="Tilbage til boghylde">Mine bøger</a>
-		<h1>Søg efter bog</h1>
-	</div>
-	<div data-role="content" class="search-top ui-bar-b" data-theme="a">
-		
-		<div id="search-form-wrapper">
-    		<form action="#" method="get" id="search-form">	
-    			<fieldset>
-				  <div class="ui-grid-solo">
-    			    <div class="ui-block-a">
-    				  <label for="searchterm" class="ui-hidden-accessible">Søg:</label>
-    					<input type="search" id="searchterm" placeholder="Søg på titel, forfatter eller genre" title="Søg på titel, forfatter eller genre"/>
-              		</div>
-					</div>
-	               	<div id="search-icon-btn">
-	                   <input class="gatrack" data-ga-action="Søg-knap" data-inline="true" type="submit" name="search-submit" id="search-submit" data-iconpos="notext" data-icon="search_icn" data-iconshadow="false" value="søg"/>
-	               </div>	
+    <div data-role="header" data-theme="b">
+        <a id="listshow-btn" href="#search" class="ui-btn-left gatrack"  data-role="button" role="button" data-inline="true">Ny søgning</a>
+        <a href="#bookshelf" data-direction="reverse" class="ui-btn-right gatrack" data-role="button" role="button" title="Tilbage til boghylde">Mine bøger</a>
+        <h1>Søg efter bog</h1>
+    </div>
 
-    			</fieldset>
-    		</form>
-		</div>
-		
-		<div class="ui-bar-c" id="searchresult-wrapper">
-			<ul id="searchresult" data-role="listview">
-			</ul>
-		</div>
-		<div data-role="fieldcontain">
-			<a class="gatrack" data-inline="true" id="more-search-results" href="" data-role="button" >Flere resultater</a>
-		</div>	
-	</div>
+    <div data-role="content" class="search-top ui-bar-b" data-theme="a">
+        <div id="search-form-wrapper">
+            <form action="#" method="get" id="search-form">
+                <fieldset>
+                    <div class="ui-grid-solo">
+                        <div class="ui-block-a">
+                            <label for="searchterm" class="ui-hidden-accessible">Søg:</label>
+                            <input type="search" id="searchterm" placeholder="Søg på titel, forfatter eller genre" title="Søg på titel, forfatter eller genre"/>
+                        </div>
+                    </div>
+                    <div id="search-icon-btn">
+                        <input class="gatrack" data-ga-action="Søg-knap" data-inline="true" type="submit" name="search-submit" id="search-submit" data-iconpos="notext" data-icon="search_icn" data-iconshadow="false" value="søg"/>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <div class="ui-bar-c" id="searchresult-wrapper">
+            <ul id="searchresult" data-role="listview"></ul>
+        </div>
+
+        <div data-role="fieldcontain">
+            <a class="gatrack" data-inline="true" id="more-search-results" href="" data-role="button" >Flere resultater</a>
+        </div>
+    </div>
 </div>
