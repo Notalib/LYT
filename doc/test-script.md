@@ -1,6 +1,7 @@
 Test schedule for LYT
 
 Supported platforms:
+
     - Windows:
 
       - Internet explorer:
