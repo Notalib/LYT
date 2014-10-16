@@ -255,7 +255,7 @@ LYT.render.content = do ->
               if visibility is isVisible.visible
                 image.attr "src", src
                 image.removeAttr "data-src"
-                image.removeClass "loading-icon"
+                image.removeClass "loader-icon"
                 unless image.data( 'realHeight' ) and image.data( 'realWidth' )
                   image.one( 'load', ->
                     if @.naturalHeight? and @.naturalWidth?
