@@ -161,6 +161,10 @@ LYT.render.content = do ->
       view.empty().append image
       focusImage image, wholeImageArea image
 
+    unless view.is(':visible')
+      log.message "Render: renderCartoon: while view isn't visible"
+      return
+
     left = parseInt (div[0].style.left.match /\d+/)[0]
     top  = parseInt (div[0].style.top.match /\d+/)[0]
 
@@ -206,7 +210,10 @@ LYT.render.content = do ->
     # Highlight element and scroll to element
     if el.length
       prevActive = el.addClass "active"
-      view.scrollTo( el, 100, { offset: -10 } )
+      if view.is ':visible'
+        view.scrollTo( el, 100, { offset: -10 } )
+      else
+        log.message "Render: segmentIntoView: while view isn't visible"
 
   # Context viewer - Shows the entire DOM of the content document and
   # scrolls around when appropriate
