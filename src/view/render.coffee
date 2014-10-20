@@ -162,7 +162,8 @@ LYT.render = do ->
       progress.done ->
         # TODO: For some reason LYT.player.load() won't respect play === true from this event
         # I assume it has something to do with the bookPlayer controller.
-        LYT.player.play()
+        LYT.player.stop().then ->
+          LYT.player.play()
 
   # ---------------------------
 
