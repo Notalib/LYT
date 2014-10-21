@@ -950,13 +950,13 @@ li.ui-li h3.no-search-results {
 }
 
 /* Looks like it's unused? */
-/* @include predefined-search(anbefalinger, recommend);*/
-/* @include predefined-search(nye, newbooks); */
-/* @include predefined-search(top, top10); */
-/* @include predefined-search(tegneserie, tegneserie); */
-/* @include predefined-search(topung, top10); */
-/* @include predefined-search(topvoksen, top10); */
-/* @include predefined-search(kommersnart, coming); */
+@include predefined-search(anbefalinger, recommend);
+@include predefined-search(nye, newbooks);
+@include predefined-search(top, top10);
+@include predefined-search(tegneserie, tegneserie);
+@include predefined-search(topung, top10);
+@include predefined-search(topvoksen, top10);
+@include predefined-search(kommersnart, coming);
 
 
 #searchresult {
