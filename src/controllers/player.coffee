@@ -256,8 +256,9 @@ LYT.player =
                 LYT.render.disablePlayerNavigation()
         else
           log.message 'Player: chaining seeked because we are not in firstPlay mode'
-          @seekSmilOffsetOrLastmark(url, smilOffset).always ->
-            LYT.render.disablePlayerNavigation()
+
+        @seekSmilOffsetOrLastmark(url, smilOffset).always ->
+          LYT.render.disablePlayerNavigation()
       .then =>
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
