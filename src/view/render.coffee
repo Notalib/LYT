@@ -237,7 +237,7 @@ LYT.render = do ->
     .fail (error, msg) ->
       log.message "failed with error #{error} and msg #{msg}"
 
-    LYT.loader.register 'Loading bookshelf', process
+    LYT.loader.register 'Loading bookshelf', process unless content.find('ul li[data-book-id]').length
 
   disablePlaybackRate: ->
     # Wait with disabling until it's actually created
