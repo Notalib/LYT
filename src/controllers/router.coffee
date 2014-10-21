@@ -98,7 +98,7 @@ $(document).bind "mobileinit", ->
       events: "s,h"
   ], LYT.control, { ajaxApp: false, debugHandler: (err) -> throw err })
 
-  $.mobile.defaultPageTransition = 'fade'
+  $.mobile.defaultPageTransition = 'none'
 
   # Generate an url for a point in a book given:
   # - bookReference: an object with the following properties:
