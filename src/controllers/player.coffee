@@ -219,6 +219,8 @@ LYT.player =
 
     loading = @stop()
       .then =>
+        LYT.render.disablePlayerNavigation()
+      .then =>
         if book is @book?.id then @book else LYT.Book.load book
       .then (book) =>
         # Setting @book should be done after seeking has completed, but the
@@ -252,13 +254,11 @@ LYT.player =
 
             silentplay.then =>
               log.message 'Player: load: silentplay done - will load (and possibly seek) now'
-              @seekSmilOffsetOrLastmark(url, smilOffset).always ->
-                LYT.render.disablePlayerNavigation()
+              @seekSmilOffsetOrLastmark(url, smilOffset)
         else
           log.message 'Player: chaining seeked because we are not in firstPlay mode'
 
-        @seekSmilOffsetOrLastmark(url, smilOffset).always ->
-          LYT.render.disablePlayerNavigation()
+        @seekSmilOffsetOrLastmark(url, smilOffset)
       .then =>
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
