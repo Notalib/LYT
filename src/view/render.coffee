@@ -267,12 +267,14 @@ LYT.render = do ->
         $('#add-to-bookshelf-button').show()
         $('#details-play-button').show()
 
-  clearBookPlayer: (view) ->
+  clearBookPlayer: ->
     @clearTextContent()
-    $('#player-book-title').text ''
-    $('#player-book-author').text ''
-    $('#currentbook-image img').attr 'src', defaultCover
-    $('#player-info h1, .player-chapter-title').hide()
+    playerInfo = $('#player-info')
+
+    playerInfo.find('#player-book-title').text ''
+    playerInfo.find('#player-book-author').text ''
+    playerInfo.find('#currentbook-image img').attr 'src', defaultCover
+    playerInfo.find('.player-book-info h1 .player-book-title-author, .player-chapter-title').hide()
     @disablePlayerNavigation()
 
   clearContent: (content) ->
@@ -295,10 +297,12 @@ LYT.render = do ->
       !$(el).hasClass 'ui-disabled'
 
   bookPlayer: (book, view) ->
-    $('#player-book-title').text book.title
-    $('#player-book-author').text book.author
-    $('#player-info h1, .player-chapter-title').show()
-    loadCover $('#currentbook-image img'), book.id
+    playerInfo = $('#player-info')
+
+    playerInfo.find('#player-book-title').text book.title
+    playerInfo.find('#player-book-author').text book.author
+    playerInfo.find('.player-book-info h1 .player-book-title-author, .player-chapter-title').show()
+    loadCover playerInfo.find('#currentbook-image img'), book.id
     @enablePlayerNavigation()
 
   showAnnouncements: (announcements) ->
