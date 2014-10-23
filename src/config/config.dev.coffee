@@ -9,6 +9,7 @@
 jQuery.extend log,
   level: 3
   receiver: 'local'
+  allowDevConsoleEvent: true
 
 jQuery.extend LYT.config,
   settings:

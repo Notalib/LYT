@@ -9,6 +9,7 @@
     reset = -> clicks = 0
     timer = null
     $(':jqmData(role=header)').bind 'click', ->
+      return unless log.allowDevConsoleEvent
       clicks++
       if clicks == 6
         log.receiver = 'devconsole'
@@ -100,6 +101,10 @@
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
   filter: null
+
+  # Click on header-bar 6 times within 2s opens the devconsole
+  # allowDevConsoleEvent controls that behavior, true allows it
+  allowDevConsoleEvent: false
 
   _filter: (type, messages, title) ->
     try
