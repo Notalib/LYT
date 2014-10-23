@@ -141,7 +141,7 @@ task "html", "Build HTML", (options) ->
 
 task "scss", "Compile scss source", (options) ->
   createDir "build/css"
-  minify = if options.minify then "--output-style compressed" else ""
+  minify = if options.minify then "--output-style compressed --force" else ""
   command = "#{config.compass} compile --config config.rb #{minify}"
   exec command, (err, stdout, stderr) ->
     if err

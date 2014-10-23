@@ -22,6 +22,7 @@ LYT.player =
   inSkipState: false
   showingPlay: true # true if the play triangle button is shown, false otherwise
   playLoader: null
+  elements: null
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -62,6 +63,15 @@ LYT.player =
       log.error "Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}", event
 
     jPlayerParams.error = (event) =>
+      audio = @el.find('audio')[0]
+      if event.jPlayer.error.type is $.jPlayer.error.URL and
+          audio.networkState? and audio.NETWORK_LOADING? and
+          audio.networkState is audio.NETWORK_LOADING
+        log.message "Player: event error: jPlayer: the audio is still loading this isn't an actual error."
+        if @playing
+          # Reset the state of the player, or playbackRate will be broken.
+          @stop().then => @play()
+        return
       LYT.instrumentation.record 'error', event.jPlayer.status
       log.error "Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}", event
 
@@ -130,37 +140,43 @@ LYT.player =
   setupUi: ->
     $.jPlayer.timeFormat.showHour = true
 
+    bookPlayer = $('#book-player')
+    lytPlayPauseBtns = bookPlayer.find( 'a.lyt-play-pause-btn' )
+    @elements =
+      bookPlayer: bookPlayer
+      lytPlayPauseBtns: lytPlayPauseBtns
+      lytPause: lytPlayPauseBtns.filter('a.lyt-pause').click =>
+        LYT.instrumentation.record 'ui:stop'
+        if not @showingPlay
+          @showPlayButton()
+
+        @stop()
+
+      lytPlay: lytPlayPauseBtns.filter('a.lyt-play').click (e) =>
+        LYT.instrumentation.record 'ui:play'
+        if @playClickHook
+          @playClickHook(e).done => @play()
+        else
+          @play()
+
     @showPlayButton()
 
-    $('.lyt-pause').click =>
-      LYT.instrumentation.record 'ui:stop'
-      if not @showingPlay
-        @showPauseButton()
-
-      @stop()
-
-    $('.lyt-play').click (e) =>
-      LYT.instrumentation.record 'ui:play'
-      if @playClickHook
-        @playClickHook(e).done => @play()
-      else
-        @play()
-
-    $('a.next-section').click =>
+    bookPlayer.find('a.next-section').click =>
       log.message "Player: next: #{@currentSegment.next?.url()}"
       LYT.instrumentation.record 'ui:next'
       @playNextSegment()
 
-    $('a.previous-section').click =>
+    bookPlayer.find('a.previous-section').click =>
       log.message "Player: previous: #{@currentSegment.previous?.url()}"
       LYT.instrumentation.record 'ui:previous'
       @playPreviousSegment()
 
-    $('a.forward15').click =>
+    bookPlayer.find('a.forward15').click =>
       log.message "Player: forward15:"
       LYT.instrumentation.record 'ui:fastforward15'
       @playheadSeek(15)
-    $('a.back15').click =>
+
+    bookPlayer.find('a.back15').click =>
       log.message "Player: rewind15:"
       LYT.instrumentation.record 'ui:rewind15'
       @playheadSeek(-15)
@@ -189,7 +205,6 @@ LYT.player =
       log.message "previous section"
       return false
 
-
   # Main methods ############################################################ #
 
   # Load a book and seek to position provided by:
@@ -203,6 +218,8 @@ LYT.player =
       "segment #{url}, smilOffset: #{smilOffset}, play #{play}"
 
     loading = @stop()
+      .then =>
+        LYT.render.disablePlayerNavigation()
       .then =>
         if book is @book?.id then @book else LYT.Book.load book
       .then (book) =>
@@ -237,12 +254,11 @@ LYT.player =
 
             silentplay.then =>
               log.message 'Player: load: silentplay done - will load (and possibly seek) now'
-              @seekSmilOffsetOrLastmark(url, smilOffset).always ->
-                LYT.render.disablePlayerNavigation()
+              @seekSmilOffsetOrLastmark(url, smilOffset)
         else
           log.message 'Player: chaining seeked because we are not in firstPlay mode'
-          @seekSmilOffsetOrLastmark(url, smilOffset).always ->
-            LYT.render.disablePlayerNavigation()
+
+        @seekSmilOffsetOrLastmark(url, smilOffset)
       .then =>
         log.message "Player: book #{@book.id} loaded"
         # Never start playing if firstplay flag set
@@ -267,7 +283,9 @@ LYT.player =
     log.message 'Player: wait'
     ok = jQuery.Deferred().resolve()
     if command = @playCommand
-      command.done => @playCommand = null if @playCommand is command
+      log.group "Player: wait command = @playCommand", command.status(), command.state?()
+      command.always =>
+        @playCommand = null if @playCommand is command
       command.cancel()
       return command.then(
         -> ok
@@ -334,6 +352,7 @@ LYT.player =
         else
           @playNextSegment()
       command.always =>
+        log.group 'Player: play: play command always.', command.status(), @playing, @showingPlay
         @showPlayButton() unless @playing or @showingPlay
 
     progressHandler = (status) =>
@@ -762,20 +781,18 @@ LYT.player =
   # View related methods - should go into a file akin to render.coffee
 
   setFocus: ->
-    for button in [$('.lyt-pause'), $('.lyt-play')]
-      unless button.css('display') is 'none'
-        button.addClass('ui-btn-active').focus()
+    @elements.lytPlayPauseBtns.filter(':visible').addClass('ui-btn-active').focus()
 
   showPlayButton: ->
     @showingPlay = true
-    $('.lyt-pause').css 'display', 'none'
-    $('.lyt-play').css('display', '')
+    @elements.lytPause.hide()
+    @elements.lytPlay.show()
     @setFocus()
 
   showPauseButton: ->
     @showingPlay = false
-    $('.lyt-play').css 'display', 'none'
-    $('.lyt-pause').css('display', '')
+    @elements.lytPlay.hide()
+    @elements.lytPause.show()
     @setFocus()
 
   refreshContent: (now = false) ->

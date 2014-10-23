@@ -12,35 +12,35 @@
 
     <div id="jp_container_1" class="jp-audio">
       <div id="player-info">
-      <figure id="currentbook-image">
-        <img height="45" src="/images/icons/default-cover.png" alt=""/>
-      </figure>
-        <div class="info">
+        <figure id="currentbook-image">
+          <img src="/images/icons/default-cover.png" alt=""/>
+        </figure>
+        <div class="player-book-info">
           <h1>
+            <div class="player-book-title-author">
               <span id="player-book-title">titel</span>
                af
               <span id="player-book-author">forfatter</span>
+            </div>
           </h1>
-
-          <div class="jp-time-holder" id="book-chapter-menu">
-            <div id="player-current-time">
-              <span class="jp-current-time">-</span>
-            </div>
-            <div>
-              <h2 class="player-chapter-title">Kapitel</h2>
-            </div>
-            <div id="player-duration">
-              <span class="jp-duration">-</span>
-            </div>
-          </div>
 
           <div class="jp-progress">
             <div class="jp-seek-bar">
               <div class="jp-play-bar"></div>
             </div>
           </div>
-         </div>
+
+          <div class="jp-time-holder" id="book-chapter-menu">
+            <div id="player-current-time">
+              <span class="jp-current-time">-</span>
+            </div>
+            <div id="player-duration">
+              <span class="jp-duration">-</span>
+            </div>
+            <h2 class="player-chapter-title">Kapitel</h2>
+          </div>
         </div>
+      </div>
 
       <div data-role="navbar" id="book-play-menu">
         <ul class="jp-controls">
@@ -51,8 +51,8 @@
             <a href="" data-role="button" role="button" data-icon="rewind15_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack back15" tabindex="1" title="Tilbage 15 sekunder"></a>
           </li>
           <li>
-            <a href="" data-role="button" role="button" data-icon="play_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-play" tabindex="1" title="Afspil (Ctrl+Alt+mellemrum)" aria-label="Afspil"></a>
-            <a href="" data-role="button" role="button" data-icon="pause_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-pause" tabindex="1" title="Pause (Ctrl+Alt+mellemrum)" aria-label="Pause"></a>
+            <a href="" data-role="button" role="button" data-icon="play_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-play lyt-play-pause-btn" tabindex="1" title="Afspil (Ctrl+Alt+mellemrum)" aria-label="Afspil"></a>
+            <a href="" data-role="button" role="button" data-icon="pause_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack lyt-pause lyt-play-pause-btn" tabindex="1" title="Pause (Ctrl+Alt+mellemrum)" aria-label="Pause"></a>
           </li>
           <li>
             <a href="" data-role="button" role="button" data-icon="forward15_btn" data-iconpos="notext" data-iconshadow="false" class="gatrack forward15" tabindex="1" title="Frem 15 sekunder"></a>

@@ -94,6 +94,42 @@ LYT.control =
 
     $(window).resize -> LYT.player.refreshContent()
 
+    $("#login-form").submit (e) ->
+      e.preventDefault()
+      e.stopPropagation()
+
+      $form = $(this)
+      $form.find("#password").blur()
+
+      process = LYT.service.logOn($form.find("#username").val(), $form.find("#password").val())
+        .done ->
+          log.message 'control: login: logOn done'
+          next = LYT.var.next
+          LYT.var.next = null
+          next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
+          $.mobile.changePage next
+
+        .fail ->
+          log.warn 'control: login: logOn failed'
+          parameters =
+            mode:                'bool'
+            prompt:              LYT.i18n('Incorrect username or password')
+            subTitle:            LYT.i18n('')
+            animate:             false
+            useDialogForceFalse: true
+            allowReopen:         true
+            useModal:            true
+            buttons:             {}
+          parameters.buttons[LYT.i18n('OK')] =
+            click: -> # Nop
+            theme: 'c'
+          LYT.render.showDialog($("#login-form"), parameters)
+
+      # Clear password field
+      $form.find('#password').val ''
+
+      LYT.loader.register "Logging in", process
+
     $("#add-to-bookshelf-button").on 'click', ->
       LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
         .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
@@ -102,7 +138,7 @@ LYT.control =
       if not Modernizr.playbackrate and not playbackratelive
         LYT.render.disablePlaybackRate()
 
-    $("#style-settings input").change (event) ->
+    $("#style-settings input").change ->
       target = $(this)
       name = target.attr 'name'
       val = target.val()
@@ -143,7 +179,12 @@ LYT.control =
 
     $('#run-tests').one 'click', ->
       $('#run-tests').button 'disable'
-      QUnit.start()
+      deferred = $.mobile.util.waitForConfirmDialog LYT.i18n('Is this the first test run?')
+        .done ->
+          LYT.settings.reset()
+          LYT.player.setPlaybackRate 1
+        .always ->
+          QUnit.start()
 
     QUnit.begin ->
       $('.test-results').text ''
@@ -156,6 +197,16 @@ LYT.control =
     QUnit.testDone (test) ->
       $('.test-results').text ": #{test.name}: #{test.passed}/#{test.total}"
       $('.test-tab').addClass if test.failed == 0 then 'done' else 'error'
+      test_name = test.name.replace /\s+/g, '_'
+      LYT.test.fixtures.results[test_name] or= []
+      (test.assertions or []).forEach (assertion) ->
+        LYT.test.fixtures.results[test_name].push assertion
+
+    QUnit.done ->
+      $.post '/test/results',
+        userAgent: navigator.userAgent
+        testResults: LYT.test.fixtures.results
+      $.mobile.changePage "#test"
 
     QUnit.log (event) ->
       method = if event.result then log.message else log.error
@@ -185,7 +236,7 @@ LYT.control =
         promise.fail -> deferred.reject()
       else
         LYT.var.next = window.location.hash
-        $.mobile.path.set 'login'
+        $.mobile.changePage '#login'
         $(LYT.service).one 'logon:resolved', -> deferred.done()
         $(LYT.service).one 'logon:rejected', -> deferred.fail()
 
@@ -195,42 +246,12 @@ LYT.control =
   # Control handlers
 
   login: (type, match, ui, page, event) ->
-    $('#username').focus()
-
-    $("#login-form").submit (event) ->
-      $("#password").blur()
-
-      process = LYT.service.logOn($("#username").val(), $("#password").val())
-      .done ->
-        log.message 'control: login: logOn done'
-        next = LYT.var.next
-        LYT.var.next = null
-        next = LYT.config.defaultPage.hash if not next? or next is "#login" or next is ""
-        $.mobile.changePage next
-
-      .fail ->
-        log.warn 'control: login: logOn failed'
-        parameters =
-          mode:                'bool'
-          prompt:              LYT.i18n('Incorrect username or password')
-          subTitle:            LYT.i18n('')
-          animate:             false
-          useDialogForceFalse: true
-          allowReopen:         true
-          useModal:            true
-          buttons:             {}
-        parameters.buttons[LYT.i18n('OK')] =
-          click: -> # Nop
-          theme: 'c'
-        LYT.render.showDialog($("#login-form"), parameters)
-
-      # Clear password field
-      $('#password').val ''
-
-      LYT.loader.register "Logging in", process
-
-      event.preventDefault()
-      event.stopPropagation()
+    $page = $(page)
+    if type is 'pageshow'
+      $page.find('#username').focus()
+      $page.find('#submit').button('enable')
+    else
+      $page.find('#submit').button('disable')
 
   bookshelf: (type, match, ui, page, event) ->
     params = LYT.router.getParams match[1]
@@ -348,7 +369,7 @@ LYT.control =
             smilReference += "##{params.segment}"
 
           offset = if params.offset then LYT.utils.parseTime(params.offset) else null
-        else if LYT.player.book?.id is params.book and LYT.player.playing
+        else if LYT.player.book?.id is params.book
           # We're already playing this book, so we just continue playing.
           return
 
@@ -379,7 +400,7 @@ LYT.control =
             # bookmark.
             # We solve this by updating the hash to only include the params book and from.
             newPath = "book-player?book=#{params.book}" + if params.from? then "&from=#{params.from?}" else ""
-            if $.mobile.pushStateEnabled and $.isFunction( window.history?.replaceState? )
+            if $.mobile.pushStateEnabled and $.isFunction( window.history.replaceState )
               # Browsers that support pushState, replace the history entry with the new hash,
               # this prevents double entries in our history.
               window.history.replaceState {}, pageTitle, "##{newPath}"
@@ -495,26 +516,25 @@ LYT.control =
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
 
         $("#style-settings").find("input").each ->
-          name = $(this).attr 'name'
-          val = $(this).val()
+          el = $(this)
+          name = el.attr 'name'
+          val = el.val()
 
           # Setting the GUI
           switch name
             when 'font-size', 'font-family'
               if val is style[name]
-                $(this).attr("checked", true).checkboxradio("refresh")
+                el.attr("checked", true).checkboxradio("refresh")
             when 'marking-color'
               colors = val.split(';')
               if style['background-color'] is colors[0] and style['color'] is colors[1]
-                $(this).attr("checked", true).checkboxradio("refresh")
+                el.attr("checked", true).checkboxradio("refresh")
             when 'playback-rate'
               if Number(val) is LYT.settings.get('playbackRate')
-                $(this).attr("checked", true).checkboxradio("refresh")
+                el.attr("checked", true).checkboxradio("refresh")
             when 'word-highlighting'
-              $(this).prop("checked", LYT.settings.get("wordHighlighting"))
+              el.prop("checked", LYT.settings.get("wordHighlighting"))
                 .checkboxradio("refresh")
-
-
 
   profile: (type, match, ui, page, event) ->
     # Not passing params since it is currently only being used to indicate
@@ -566,13 +586,17 @@ LYT.control =
 
         $("#share-link-textarea").text url
 
-
   instrumentation: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
       LYT.render.showInstrumentation $('#instrumentation-content')
 
   test:  (type, match, ui, page, event) ->
     if type is 'pageshow'
+      setTimeout(
+        ->
+          $(page).trigger 'create'
+        100
+      )
       LYT.render.hideTestTab()
     else if type is 'pagehide'
       LYT.render.showTestTab()

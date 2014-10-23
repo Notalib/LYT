@@ -440,6 +440,12 @@ img.e17-logo {
   }
 }
 
+.bookshelf-content {
+  &.bookshelf-empty {
+    background: transparent url(../images/icons/empty_bookshelf.png) no-repeat
+  }
+}
+
 #more-bookshelf-entries {
   display: block;
   margin: 0 -15px;
@@ -943,6 +949,7 @@ li.ui-li h3.no-search-results {
   }
 }
 
+/* Looks like it's unused? */
 @include predefined-search(anbefalinger, recommend);
 @include predefined-search(nye, newbooks);
 @include predefined-search(top, top10);
@@ -1233,18 +1240,6 @@ li.ui-li h3.no-search-results {
   bottom: 0px;
 }
 
-.segmentContainer {
-  overflow: hidden; /* Without this, calling slideUp() on the element, will cause a glitch */
-}
-
-.missingSegment {
-  display: none;
-}
-
-.segmentContainer + .missingSegment {
-  display: inline;
-}
-
 /* Book index style hacks ************************************************** */
 
 #NccRootElement {
@@ -1330,10 +1325,6 @@ li.ui-li h3.no-search-results {
 #login-button-wrapper {
   @include action-button(#5c9dd5, a);
   margin-top:15px;
-}
-
-img.nota-full {
-  max-height: 120px;
 }
 
 #login {

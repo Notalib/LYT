@@ -7,10 +7,10 @@
 $(document).on 'mobileinit', ->
   fixtures = LYT.test.fixtures
   util = $.mobile.util
-  
+
   QUnit.module 'LYT.feature.navigation'
   asyncTest 'Changing pages', ->
-    console.log 'Changing pages'
+    log.message 'Changing pages'
     QUnit.Chain util.changePage 'login'
       .assert 'Changed to login page'
       .then -> util.changePage 'support'

@@ -2,6 +2,29 @@
 
 All releases are available from Github using the tag format lyt-&lt;version&gt;.
 
+### Version 2.2.1
+
+#### Improvements and bugfixes
+  * IE11 on Windows 8 wouldn't play any books
+  * IE11 threw a decoding error on change chapter
+  * Attempt to open book-index before book was fully loaded
+    broke LYT until refresh page.
+  * Play/Pause buttons could get into a bad state where
+    the user couldn't resume playback
+  * Preloader loaded all book images at once, visible or not.
+  * Script/style and link-tags where remove in a unsafe way
+    after DOM initialization.
+  * Progressbar overlapped wide book-covers and used some odd
+    absolute positioning.
+  * Login submit event where bound to the form on every login-page view
+  * requestanimationframe.js wasn't loaded on IE9 due to incorrect path
+
+#### Development features and internal tweaks
+  * Reintroduces automatic tests with QUnit
+  * Adds stracetrace.js (Run printStackTrace() to get stacktrace)
+  * Adds jquery.simulate.js
+  * Automatic reloading under development running through server.coffee
+
 ### Version 2.2.0
 
 #### Major features

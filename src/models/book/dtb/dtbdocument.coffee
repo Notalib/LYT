@@ -119,6 +119,7 @@ do ->
   # This class serves as the parent of the `SMILDocument` and `TextContentDocument` classes.
   # It is not meant for direct instantiation - instantiate the specific subclasses.
   class LYT.DTBDocument
+    hideImageUrl: "css/images/loading-spinning-bubbles.svg"
 
     # The constructor takes 1-2 arguments (the 2nd argument is optional):
     # - url: (string) the URL to retrieve
@@ -156,8 +157,15 @@ do ->
 
         # Android innerHTML takes out <head></head>...so cheat...
         markup = markup[0]
-          .replace( /<\/?head[^>]*>/gi, "" )
-          .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi, '<$1 $2></$1>' )
+          .replace( /<\/?head[^>]*>/gi, "" ) # Remove head tags
+          .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi, '<$1 $2></$1>' ) # Fix illegal shorthand tags
+          .replace( /(<img[^>]+)src=['"]([^'"]+)['"]([^>]*>)/gi, "$1 data-src='$2' src='#{@hideImageUrl}'$3" ) # Swap src to data-src and replace with @hideImageUrl
+          .replace( /<style[^>]+[^]+<\/style>/gi, '') # Remove style tags
+          .replace( /<link[^>]+>/gi, '') # Remove link tags
+
+        scriptTagRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi
+        while scriptTagRegex.test markup
+              markup = markup.replace scriptTagRegex, ""
 
         # Create the DOM document
         doc = createHTMLDocument()
