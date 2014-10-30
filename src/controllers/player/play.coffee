@@ -21,7 +21,8 @@ class LYT.player.command.play extends LYT.player.command
       @notify currentTime: audio.currentTime, src: audio.src
     , 1000/60
 
-    @audio = @el.find('audio')[0]
+    @$audio = @el.find('audio')
+    @audio = @$audio[0]
     @_run =>
       if @audio.readyState is 4
         # If we've got the canplaythrough event, we just play
@@ -72,6 +73,11 @@ class LYT.player.command.play extends LYT.player.command
     playing: (event) =>
       return if @firstplay
       log.message "Command play: Now playing audio"
+      userAgent = navigator.userAgent
+      if not @$audio.data( 'hasPlayed' ) or userAgent.match /MSIE (9|10)\.0/i
+        @audio.playbackRate = 1
+        @$audio.data 'hasPlayed', true
+
       @playing = true
       @notify event.jPlayer.status
 
@@ -96,7 +102,7 @@ class LYT.player.command.play extends LYT.player.command
           ## Don't do this on Safari on OSX, it mutes for a second or two after we alter the playbackRate
           # TODO: Find a better way to do this, so we don't have to rely on browser sniffing
           userAgent = navigator.userAgent
-          unless ( userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|Chrome/i ) )
+          unless ( userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|Chrome/i ) ) or ( userAgent.match( /Trident\/7\.0/i ) and userAgent.match( /rv:11\.0/i ) )
             @audio.playbackRate = @playbackRate - 0.0001
         else
           if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
@@ -116,4 +122,10 @@ class LYT.player.command.play extends LYT.player.command
         @audio.play()
         return
 
-    @audio.defaultPlaybackRate = @audio.playbackRate = @playbackRate
+    userAgent = navigator.userAgent
+    if ( userAgent.match( /Trident\/7\.0/i ) and userAgent.match( /rv:11\.0/i ) )
+      # Force change on IE11 is doesn't, this makes it register change even if paused.
+      @audio.playbackRate = 1
+      @audio.defaultPlaybackRate = @playbackRate
+    else
+      @audio.defaultPlaybackRate = @audio.playbackRate = @playbackRate

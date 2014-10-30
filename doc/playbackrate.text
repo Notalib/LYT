@@ -18,6 +18,8 @@ Some browsers will report one value for playbackRate but play at another rate (t
 Future tests?
 - Safari mutes the audio when you alter the playbackRate for a second or two.
 - IE9 - Will play a new file at playbackRate = 1 but list playbackRate as another value. Setting the value to the same it already is, is ignored.
+- IE11 - Have the same behavior as IE9 expect only for initial play.
+- IE11 on Win8 pauses for a moment when playbackRate is changed.
 
 Browsers:
 

@@ -1,13 +1,13 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 
-<html class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px no-js"> 
+<html class="ui-mobile landscape min-width-320px min-width-480px min-width-768px min-width-1024px no-js">
 
 <head>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />	
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<title>E17 Direkte</title>
 	<link rel="icon" href="images/icons/favicon.ico" type="image/x-icon" />
-	<!-- View fullscreen on iOS devices if added to homescreen --> 
+	<!-- View fullscreen on iOS devices if added to homescreen -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	<meta name="viewport" content="width=device-width, user-scalable=no">
@@ -16,63 +16,64 @@
 	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="apple-touch-icon-72x72-precomposed.png" />
 	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png" />
 	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png" />
-	
+
 	<!-- jQuery UI and jQuery Mobile stylesheets -->
-	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css">
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile.structure-1.3.2.min.css" />
 	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/qunit/qunit-1.15.0.css" />
 	<link rel="stylesheet" type="text/css" href="lib/simpledialog/jquery.mobile.simpledialog.min.css" />
-	
+
 	<!-- App-specific stylesheets -->
 	<!-- cake:stylesheets -->
 
-  <!-- Muscula error tracking -->
-  <script type='text/javascript'>
-    window.Muscula = { settings:{
-        logId:"g6zkpMC-e0oiG", suppressErrors: false, branding: 'none'
-    }};
-    (function () {
-        var m = document.createElement('script'); m.type = 'text/javascript'; m.async = true;
-        m.src = (window.location.protocol == 'https:' ? 'https:' : 'http:') +
-            '//musculahq.appspot.com/Muscula.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(m, s);
-        window.Muscula.run=function(c){eval(c);window.Muscula.run=function(){};};
-        window.Muscula.errors=[];window.onerror=function(){window.Muscula.errors.push(arguments);
-        return window.Muscula.settings.suppressErrors===undefined;}
-    })();
-  </script>
-  
+	<!-- Muscula error tracking -->
+	<script type='text/javascript'>
+		window.Muscula = { settings:{
+			logId:"g6zkpMC-e0oiG", suppressErrors: false, branding: 'none'
+		}};
+		(function () {
+			var m = document.createElement('script'); m.type = 'text/javascript'; m.async = true;
+			m.src = (window.location.protocol == 'https:' ? 'https:' : 'http:') +
+			'//musculahq.appspot.com/Muscula.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(m, s);
+			window.Muscula.run=function(c){eval(c);window.Muscula.run=function(){};};
+			window.Muscula.errors=[];window.onerror=function(){window.Muscula.errors.push(arguments);
+			return window.Muscula.settings.suppressErrors===undefined;}
+		})();
+	</script>
+
 	<!-- Modernizr library, tests for javascript capabilities -->
-  <script src="lib/modernizr/modernizr.js"></script>
-  <script src="lib/modernizr/modernizr-on.min.js"></script>
-	
+	<script src="lib/modernizr/modernizr.js"></script>
+	<script src="lib/modernizr/modernizr-on.min.js"></script>
+
 	<!-- JavaScript libraries -->
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-	<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
 	<script src="http://code.jquery.com/qunit/qunit-1.15.0.js"></script>
 	<script type="text/javascript">QUnit.config.autostart = false</script>
 	<script src="lib/jPlayer/jquery.jplayer.min.js"></script>
 	<script src="lib/router/jquery.mobile.router.js"></script>
 	<script src="lib/Mousetrap/mousetrap.min.js"></script>
 	<script src="lib/jquery.scrollTo/jquery.scrollTo.min.js"></script>
-	
+	<script src="lib/jquery.simulate/jquery.simulate.min.js"></script>
+	<script src="lib/stacktracejs/stacktrace.js"></script>
+
 	<!-- App-specific javascript -->
 	<!-- cake:scripts -->
-	
+
 	<!-- jQuery Mobile -->
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
 	<script type="text/javascript" src="lib/simpledialog/jquery.mobile.simpledialog.min.js"></script>
 	<script type="text/javascript" src="lib/jquery-throttle/throttle.min.js"></script>
-	
+
 	<!--[if lt IE 10]>
-	<script src="support/poly/requestanimationframe.js"></script>
+	<script src="javascript/support/poly/requestanimationframe.js"></script>
 	<![endif]-->
 
 </head>
 
 <body>
-
 	<!-- Shown if the client does not have javascript support enabled -->
 	<div id="no-js">
 		<img class="e17-logo" alt="E17" src="images/logo.png"/>
@@ -87,30 +88,28 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div id="jplayer" class="jp-jplayer"></div>
 
 	<div data-role="page" id="default-page" data-title="">
-    	<header data-role="header" data-theme="b">
-    	</header>
-    	<div data-role="content" data-theme="a">
-    	</div>
-    </div>
-	
+		<header data-role="header" data-theme="b"></header>
+		<div data-role="content" data-theme="a"></div>
+	</div>
+
 	<!-- jQuery mobile page templates are added below -->
 	<!-- cake:body -->
-	
+
 	<!-- Google Analytics -->
 	<!-- TODO: Perhaps it'd be nice to get this out of the HTML - just to keep things clean -->
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-25712607-1']);
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-25712607-1']);
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 
 </body>
 </html>

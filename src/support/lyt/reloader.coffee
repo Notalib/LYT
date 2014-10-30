@@ -10,7 +10,7 @@ do ->
       type: 'GET'
       success: (res) ->
         if buildnumber and buildnumber isnt res
-          $('body').html('<h1>Reloading...</h1>');
+          $('body').html('<h1>Reloading...</h1>')
           location.reload true
         buildnumber = res
         setTimeout check, 250
