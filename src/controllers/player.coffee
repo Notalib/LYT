@@ -220,6 +220,8 @@ LYT.player =
     loading = @stop()
       .then =>
         LYT.render.disablePlayerNavigation()
+        # The .then below can be left out since the call above doesn't return
+        # a promise.
       .then =>
         if book is @book?.id then @book else LYT.Book.load book
       .then (book) =>
