@@ -118,6 +118,34 @@ LYT.render.content = do ->
         lastViewHeight: viewHeight
         lastViewWidth:  viewWidth
 
+  isVisible = (image, margin, viewHeight) ->
+    # View has position relative, so the position
+    # of the image is relative to the visible area
+    # of the view. Negative values are above and values
+    # larger than viewHeight is below
+    #
+    # This function returns:
+    # -1, if the image isn't visible and is above the visible area
+    #  0, if within the visible area
+    #  1, if below the visible area
+    top = image.position().top
+    bottom = top + image.height()
+
+    if (top < -margin) and (bottom < -margin)
+      res = isVisible.aboveView
+    else if (-margin < top < (viewHeight + margin)) or
+        (-margin < bottom < (viewHeight + margin)) or
+        (top < -margin and (viewHeight + margin) < bottom)
+      res = isVisible.visible
+    else
+      res = isVisible.belowView
+
+    res
+
+  isVisible.aboveView = -1
+  isVisible.visible   = 0
+  isVisible.belowView = 1
+
   # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view, renderDelta) ->
     div   = segment.divObj or= jQuery segment.div
@@ -195,10 +223,6 @@ LYT.render.content = do ->
       log.message "Render: Changing context to #{contentID}"
       view.data "htmldoc", contentID
 
-      if not isCartoon
-        # Don't load all images from document
-        html.hideImages "css/images/loading-spinning-bubbles.svg"
-
       # Change to new document
       view[0].replaceChild(
         document.importNode(source.body.firstChild, true),
@@ -219,43 +243,47 @@ LYT.render.content = do ->
                 realHeight: imgHeight
                 realWidth: imgWidth
 
-              viewHeight = view.children().height()
-              viewWidth = view.children().width()
+              viewHeight = view.height()
+              viewWidth = view.width()
 
               scaleImage image, viewHeight, viewWidth
 
-          isVisible = (image, viewHeight) ->
-            top = image.position().top
-            bottom = top + image.height()
-
-            (-margin < top < (viewHeight + margin)) or
-            (-margin < bottom < (viewHeight + margin)) or
-            (top < -margin and (viewHeight + margin) < bottom)
-
           showImage = (image, viewHeight, viewWidth) ->
             scaleImage image, viewHeight, viewWidth
-            if (src = image.attr "data-src") and isVisible image, viewHeight
-              image.attr "src", src
-              image.removeAttr "data-src"
-              image.removeClass "loading-icon"
-              unless image.data( 'realHeight' ) and image.data( 'realWidth' )
-                image.one( 'load', ->
-                  if @.naturalHeight? and @.naturalWidth?
-                    image.data
-                      realHeight: @.naturalHeight
-                      realWidth: @.naturalWidth
-                )
+            if (src = image.attr "data-src")
+              visibility = isVisible image, margin, viewHeight
+              if visibility is isVisible.visible
+                image.attr "src", src
+                image.removeAttr "data-src"
+                image.removeClass "loading-icon"
+                unless image.data( 'realHeight' ) and image.data( 'realWidth' )
+                  image.one( 'load', ->
+                    if @.naturalHeight? and @.naturalWidth?
+                      image.data
+                        realHeight: @.naturalHeight
+                        realWidth: @.naturalWidth
+                  )
+              else if visibility is isVisible.belowView
+                # The image is below the correct view, there is no
+                # point in continueing this loop, returning false.
+                false
 
           scrollHandler = ->
-            height = view.children().height()
-            width = view.children().width()
-            images.each -> showImage $(this), height, width
+            unless view.is ':visible'
+              log.message "Render: Context scroll: View isn't visible do nothing"
+              return
+
+            height = view.height()
+            width = view.width()
+            images.each -> showImage $(@), height, width
 
           view.scroll jQuery.throttle 150, scrollHandler
       else
-        view.find( '.page,.page img' ).css
-          'max-width': '100%'
-          'height': 'auto'
+        view
+          .find('.page,.page img')
+          .css
+            'max-width': '100%'
+            'height': 'auto'
 
       LYT.render.setStyle()
       segmentIntoView view, segment

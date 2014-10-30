@@ -55,6 +55,8 @@ LYT.i18n = do ->
     'Search':                           'Søgning'
     'Sitename':                         'E17 Direkte'
     'Now playing':                      'Afspiller'
+    'Yes':                              'Ja'
+    'No':                               'Nej'
 
   # The i18n function. Returns either the translated string, or - if no
   # translation was found - the input string.

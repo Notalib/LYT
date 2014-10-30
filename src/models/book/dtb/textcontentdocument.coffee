@@ -9,36 +9,29 @@
 class LYT.TextContentDocument extends LYT.DTBDocument
 
   # Private method for resolving URLs
-  resolveURLs = (source, resources) ->
-
+  resolveURLs = (source, resources, isCartoon) ->
     # Resolve images
-    source.find("*[src]").each (index, item) ->
+    source.find("*[data-src]").each (index, item) ->
       item = jQuery item
       return if item.data("resolved")?
-      url = item.attr("src").replace( /^\//, '' )
-      item.attr "src", resources[url]?.url
+      url = item.attr("data-src").replace( /^\//, '' )
+      new_url = resources[url]?.url
       item.data "resolved", "yes" # Mark as processed
-
-  stripTags = (source) ->
-    source.find("link, script, style").remove()
+      if isCartoon
+        item.attr 'src', new_url
+        item.removeAttr 'data-src'
+      else
+        item.attr 'data-src', new_url
+        item.addClass 'loader-icon'
 
   constructor: (url, resources, callback) ->
     super url, =>
-      resolveURLs @source, resources
-      stripTags @source
+      resolveURLs @source, resources, @isCartoon()
       callback() if typeof callback is "function"
 
-  hideImages: (altSrc) ->
-    @source.find("img[src]").each ->
-      el = jQuery this
-      return if el.attr "data-src"
-
-      el.attr "data-src", el.attr "src"
-      el.removeAttr "src"
-      el.attr "src", altSrc if altSrc
-      el.addClass "loading-icon"
-
   isCartoon: () ->
+    return @_isCartoon unless typeof @_isCartoon is 'undefined'
+
     pages = @source.find('.page').toArray()
-    pages.length != 0 && pages.every (page) -> $(page).children('img').length == 1
+    @_isCartoon = pages.length != 0 && pages.every (page) -> $(page).children('img').length == 1
 

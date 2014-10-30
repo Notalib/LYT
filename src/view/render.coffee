@@ -69,7 +69,7 @@ LYT.render = do ->
     else
       LYT.i18n('Talking book with text')
 
-  attachClickEvent = (aElement, book, list) ->
+  attachRemoveBookClickEvent = (aElement, book, li, list, view) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         parameters =
@@ -94,7 +94,11 @@ LYT.render = do ->
           useModal:            true
           buttons:             {}
         parameters.buttons[LYT.i18n('Remove book')] =
-          click: -> LYT.bookshelf.remove(book.id).done -> list.remove()
+          click: ->
+            LYT.bookshelf.remove(book.id).done ->
+              li.remove()
+
+              view.addClass('bookshelf-empty') if list.children().length is 0
           id:    'ok-btn'
           theme: 'c'
         parameters.buttons[LYT.i18n('Cancel')] =
@@ -128,6 +132,37 @@ LYT.render = do ->
     else
       setTimeout(remove, timeout or 5000)
     remove
+
+  setSelectSectionEvent = (list) ->
+    # event for opening a section/bookmark in a given book
+    list.on 'click', '.section-link', (e) ->
+      # A section/bookmark link was clicked, skip to that section in the book
+      el = $(e.target)
+      book = "#{el.data 'book'}"
+
+      # Not the same book, just return
+      unless book and book is LYT.player.book?.id
+        log.message "LYT.render: setSelectSectionEvent: not the current book #{book} isn't #{LYT.player.book?.id}"
+        return
+
+      smilReference = el.data 'smil'
+      if fragment = el.data 'fragment'
+        smilReference += "##{fragment}"
+
+      if segment = el.data 'segment'
+        smilReference += "##{segment}"
+
+      if offset = el.data 'offset'
+        offset = LYT.utils.parseTime(offset)
+      else
+        offset = null
+
+      # TODO: Workout why LYT.player.load won't respect play == true from here
+      progress = LYT.player.load LYT.player.book?.id, smilReference, offset, true
+      progress.done ->
+        # TODO: For some reason LYT.player.load() won't respect play === true from this event
+        # I assume it has something to do with the bookPlayer controller.
+        LYT.player.play()
 
   # ---------------------------
 
@@ -176,13 +211,15 @@ LYT.render = do ->
     for book in books
       li = bookListItem 'book-player', book, 'bookshelf'
       removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
-      attachClickEvent removeLink, book, li
+      attachRemoveBookClickEvent removeLink, book, li, list, view
       li.append removeLink
       list.append li
 
     # if the list i empty -> bookshelf is empty -> show icon...
-    if(list.length is 1)
-      $('.bookshelf-content').css('background', 'transparent url(../images/icons/empty_bookshelf.png) no-repeat')
+    if(list.children().length is 0)
+      view.addClass 'bookshelf-empty'
+    else
+      view.removeClass 'bookshelf-empty'
 
     list.listview('refresh')
     list.find('a').first().focus()
@@ -198,7 +235,6 @@ LYT.render = do ->
 
     .fail (error, msg) ->
       log.message "failed with error #{error} and msg #{msg}"
-
 
     LYT.loader.register 'Loading bookshelf', process
 
@@ -248,10 +284,14 @@ LYT.render = do ->
         list.listview().children().remove()
 
   enablePlayerNavigation: ->
-    $('#book-play-menu').find('a').removeClass 'ui-disabled'
+    $('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button').removeClass 'ui-disabled'
 
   disablePlayerNavigation: ->
-    $('#book-play-menu').find('a').addClass 'ui-disabled'
+    $('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button').addClass 'ui-disabled'
+
+  isPlayerNavigationEnabled: ->
+    $.makeArray($('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button')).some (el) ->
+      !$(el).hasClass 'ui-disabled'
 
   bookPlayer: (book, view) ->
     $('#player-book-title').text book.title
@@ -319,16 +359,14 @@ LYT.render = do ->
       return unless item.ref is curSection.ref or curParentID is item.id
       return true
 
-    sectionLink = (section, play = 'true') ->
+    sectionLink = (section) ->
       title = section.title?.replace("\"", "") or ""
-      link = "smil=#{section.url}"
-      if section.fragment
-        link += "&fragment=#{section.fragment}"
 
-      "<a class=\"gatrack\" ga-action=\"Link\" " +
+      "<a class=\"gatrack section-link\" ga-action=\"Link\" " +
+      "data-book=\"#{book.id}\" data-smil=\"#{section.url}\" " +
+      "data-fragment=\"#{section.fragment}\" " +
       "data-ga-book-id=\"#{book.id}\" data-ga-book-title=\"#{title}\" " +
-      "href=\"#book-player?book=#{book.id}&#{link}" +
-      "&play=#{play}\">#{title}</a>"
+      "href=\"#book-player?book=#{book.id}\">#{title}</a>"
 
     $('#index-back-button').removeAttr 'nodeid'
 
@@ -360,6 +398,7 @@ LYT.render = do ->
       list.append element
 
     list.parent().trigger('create')
+    setSelectSectionEvent list
     list.show()
 
 
@@ -413,8 +452,10 @@ LYT.render = do ->
         element.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack" data-ga-action="Link" data-ga-book-id="#{book.id}"
-               href="#book-player?book=#{book.id}&smil=#{baseUrl}&segment=#{id}&offset=#{LYT.utils.formatTime bookmark.timeOffset}&play=true">
+            <a class="gatrack section-link" data-ga-action="Link" data-ga-book-id="#{book.id}"
+               data-book=\"#{book.id}\" data-smil=\"#{baseUrl}\" data-segment=\"#{id}\"
+               data-offset=\"#{LYT.utils.formatTime bookmark.timeOffset}\"
+               href="#book-player?book=#{book.id}">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """
@@ -422,6 +463,7 @@ LYT.render = do ->
         list.append element
 
     list.parent().trigger('create')
+    setSelectSectionEvent list
     list.show()
 
 
