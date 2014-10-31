@@ -69,13 +69,33 @@ module.exports = function (grunt) {
         port: 9000,
         // Change this to '0.0.0.0' to access the server from outside.
         hostname: 'localhost',
-        livereload: 35729
+        livereload: 35729,
+        middleware: function (connect) {
+          var proxy = require('grunt-connect-proxy/lib/utils').proxyRequest;
+          return [
+            proxy,
+            connect.static('.tmp'),
+            connect().use(
+              '/bower_components',
+              connect.static('./bower_components')
+            ),
+            connect.static(appConfig.app)
+          ];
+        }
       },
+      proxies: [ {
+        context: '/DodpMobile/Service.svc',
+        host: 'test.m.e17.dk',
+        port: 80,
+        https: false,
+        xforward: false,
+      } ],
       livereload: {
         options: {
           open: true,
           middleware: function (connect) {
             return [
+              require('grunt-connect-proxy/lib/utils').proxyRequest,
               connect.static('.tmp'),
               connect().use(
                 '/bower_components',
@@ -91,6 +111,7 @@ module.exports = function (grunt) {
           port: 9001,
           middleware: function (connect) {
             return [
+              require('grunt-connect-proxy/lib/utils').proxyRequest,
               connect.static('.tmp'),
               connect.static('test'),
               connect().use(
@@ -398,8 +419,9 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'autoprefixer',
+      'configureProxies:server',
       'connect:livereload',
-      'watch'
+      'watch',
     ]);
   });
 
@@ -438,4 +460,6 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+
+  grunt.loadNpmTasks('grunt-connect-proxy');
 };

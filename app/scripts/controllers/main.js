@@ -8,7 +8,7 @@
  * Controller of the lyt3App
  */
 angular.module('lyt3App')
-  .controller('MainCtrl', function ($scope) {
+  .controller('MainCtrl', function ($scope, DODP) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
