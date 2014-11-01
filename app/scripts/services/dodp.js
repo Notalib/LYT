@@ -7,26 +7,28 @@
  * # DODP
  * Factory in the lyt3App.
  */
-angular.module('lyt3App')
-  .factory('DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function ($sanitize, $http, $q, xmlParser) {
+angular.module( 'lyt3App' )
+  .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function (
+    $sanitize, $http, $q, xmlParser ) {
     var soapTemplate = '<?xml version="1.0" encoding="UTF-8"?>' +
       '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.daisy.org/ns/daisy-online/" xmlns:ns2="http://www.daisy.org/z3986/2005/bookmark/">' +
       '<SOAP-ENV:Body>SOAPBODY</SOAP-ENV:Body>' +
       '</SOAP-ENV:Envelope>';
 
 
-    var appendToXML = function( xml, nodeName, data ) {
+    var appendToXML = function ( xml, nodeName, data ) {
       var nsid = 'ns1:';
-      if ( nodeName.indexOf(':') > -1 ) {
+      if ( nodeName.indexOf( ':' ) > -1 ) {
         nsid = '';
       }
 
-      xml += '<' + nsid + nodeName + '>' + toXML( data ) + '</' + nsid + nodeName + '>';
+      xml += '<' + nsid + nodeName + '>' + toXML( data ) + '</' + nsid +
+        nodeName + '>';
 
       return xml;
     };
 
-    var toXML = function( hash ) {
+    var toXML = function ( hash ) {
       var xml = '';
       // Handling of namespaces could be done here by initializing a string
       // containing the necessary declarations that can be inserted in append()
@@ -35,21 +37,21 @@ angular.module('lyt3App')
       // on the data
 
       var type = typeof hash;
-      if ( ['string','nunber','boolean'].indexOf(type) > -1 ) {
+      if ( [ 'string', 'nunber', 'boolean' ].indexOf( type ) > -1 ) {
         // If the argument is a string, number or boolean,
         // then coerce it to a string and use a pseudo element
         // to handle the escaping of special chars
-        xml = $sanitize(hash);
+        xml = $sanitize( hash );
       } else if ( type === 'object' && type !== null ) {
         // If the argument is an object, go through its members
-        Object.keys(hash).forEach( function(key) {
-          var value = hash[key];
-          if (value instanceof Array){
-            value.forEach(function(item){
-              xml = appendToXML(xml, key, item);
-            });
+        Object.keys( hash ).forEach( function ( key ) {
+          var value = hash[ key ];
+          if ( value instanceof Array ) {
+            value.forEach( function ( item ) {
+              xml = appendToXML( xml, key, item );
+            } );
           } else {
-            xml = appendToXML(xml, key, value);
+            xml = appendToXML( xml, key, value );
           }
         } );
       }
@@ -57,11 +59,11 @@ angular.module('lyt3App')
       return xml;
     };
 
-    var createRequest = function(action, data) {
+    var createRequest = function ( action, data ) {
       var requestData = {};
-      requestData[action] = data;
+      requestData[ action ] = data;
 
-      var xmlBody = soapTemplate.replace( /SOAPBODY/, toXML(requestData) );
+      var xmlBody = soapTemplate.replace( /SOAPBODY/, toXML( requestData ) );
 
       return $http( {
         url: '/DodpMobile/Service.svc',
@@ -71,79 +73,79 @@ angular.module('lyt3App')
           'Content-Type': 'text/xml; charset=UTF-8'
         },
         data: xmlBody,
-        transformResponse: function(data) {
+        transformResponse: function ( data ) {
           return xmlStr2Json( data );
         }
-      });
+      } );
     };
 
-    var xml2Json = function(xmlDom, json) {
+    var xml2Json = function ( xmlDom, json ) {
       var tagName = xmlDom.tagName.replace( /^s:/, '' );
-      if (xmlDom.children.length > 0) {
-        json[tagName] = json[tagName] || {};
-        Array.prototype.forEach.call( xmlDom.children, function(el){
-          xml2Json(el,json[tagName]);
-        });
+      if ( xmlDom.children.length > 0 ) {
+        json[ tagName ] = json[ tagName ] || {};
+        Array.prototype.forEach.call( xmlDom.children, function ( el ) {
+          xml2Json( el, json[ tagName ] );
+        } );
       } else {
         var textContent = xmlDom.textContent;
         try {
-          json[tagName] = JSON.parse(textContent);
-        } catch( exp ) {
-          json[tagName] = textContent;
+          json[ tagName ] = JSON.parse( textContent );
+        } catch ( exp ) {
+          json[ tagName ] = textContent;
         }
       }
     };
 
-    var xmlStr2Json = function(xmlStr) {
-      var xmlDOM = xmlParser.parse(xmlStr);
+    var xmlStr2Json = function ( xmlStr ) {
+      var xmlDOM = xmlParser.parse( xmlStr );
       var json = {
         Body: {},
         Header: {}
       };
 
-      Array.prototype.forEach.call( xmlDOM.children[0].children, function(domEl){
-        xml2Json(domEl,json);
-      });
+      Array.prototype.forEach.call( xmlDOM.children[ 0 ].children,
+        function ( domEl ) {
+          xml2Json( domEl, json );
+        } );
 
       return json;
     };
 
     // Public API here
     return {
-      logOn: function(username,password) {
-        var defer = $q.defer();
+      logOn: function ( username, password ) {
+        var defer = $q.defer( );
 
-        createRequest('logOn',{
+        createRequest( 'logOn', {
           username: username,
           password: password
-        }).then(function(response){
+        } ).then( function ( response ) {
           var data = response.data;
-          if (data.Body.logOnResponse && data.Body.logOnResponse.logOnResult) {
-            defer.resolve(data.Header);
+          if ( data.Body.logOnResponse && data.Body.logOnResponse.logOnResult ) {
+            defer.resolve( data.Header );
           } else {
-            defer.reject('logOnFailed');
+            defer.reject( 'logOnFailed' );
           }
-        }, function(){
-          defer.reject('logOnFailed');
-        });
+        }, function ( ) {
+          defer.reject( 'logOnFailed' );
+        } );
 
         return defer.promise;
       },
-      logOff: function() {
-        var defer = $q.defer();
-        createRequest('logOff',{
-        }).then(function(response){
+      logOff: function ( ) {
+        var defer = $q.defer( );
+        createRequest( 'logOff', {} ).then( function ( response ) {
           var data = response.data;
-          if (data.Body.logOffResponse && data.Body.logOffResponse.logOffResult) {
-            defer.resolve(data.Header);
+          if ( data.Body.logOffResponse && data.Body.logOffResponse.logOffResult ) {
+            defer.resolve( data.Header );
           } else {
-            defer.reject('logOffFailed');
+            defer.reject( 'logOffFailed' );
           }
-        }, function(){
+        }, function ( ) {
           defer.reject( );
-        });
+        } );
 
         return defer.promise;
       }
     };
-  }]);
+  } ] );

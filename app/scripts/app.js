@@ -9,7 +9,7 @@
  * Main module of the application.
  */
 angular
-  .module('lyt3App', [
+  .module( 'lyt3App', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
@@ -17,18 +17,18 @@ angular
     'ngSanitize',
     'ngTouch',
     'xml',
-  ])
-  .config(function ($routeProvider) {
+  ] )
+  .config( function ( $routeProvider ) {
     $routeProvider
-      .when('/', {
+      .when( '/', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
-      })
-      .when('/about', {
+      } )
+      .when( '/about', {
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl'
-      })
-      .otherwise({
+      } )
+      .otherwise( {
         redirectTo: '/'
-      });
-  });
+      } );
+  } );

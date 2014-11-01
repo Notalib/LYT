@@ -3,10 +3,10 @@
 // Generated on 2014-10-30 using
 // generator-karma 0.8.3
 
-module.exports = function(config) {
+module.exports = function ( config ) {
   'use strict';
 
-  config.set({
+  config.set( {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
@@ -14,7 +14,7 @@ module.exports = function(config) {
     basePath: '../',
 
     // testing framework to use (jasmine/mocha/qunit/...)
-    frameworks: ['jasmine'],
+    frameworks: [ 'jasmine' ],
 
     // list of files / patterns to load in the browser
     files: [
@@ -26,13 +26,14 @@ module.exports = function(config) {
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-sanitize/angular-sanitize.js',
       'bower_components/angular-touch/angular-touch.js',
+      'bower_components/angular-xml/angular-xml.js',
       'app/scripts/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
 
     // list of files / patterns to exclude
-    exclude: [],
+    exclude: [ ],
 
     // web server port
     port: 8080,
@@ -71,5 +72,5 @@ module.exports = function(config) {
     // },
     // URL root prevent conflicts with the site root
     // urlRoot: '_karma_'
-  });
+  } );
 };

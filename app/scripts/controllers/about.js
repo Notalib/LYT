@@ -7,11 +7,11 @@
  * # AboutCtrl
  * Controller of the lyt3App
  */
-angular.module('lyt3App')
-  .controller('AboutCtrl', function ($scope) {
+angular.module( 'lyt3App' )
+  .controller( 'AboutCtrl', function ( $scope ) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
       'Karma'
     ];
-  });
+  } );
