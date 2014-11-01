@@ -70,7 +70,10 @@ angular.module('lyt3App')
           soapaction: '/' + action,
           'Content-Type': 'text/xml; charset=UTF-8'
         },
-        data: xmlBody
+        data: xmlBody,
+        transformResponse: function(data) {
+          return xmlStr2Json( data );
+        }
       });
     };
 
@@ -83,13 +86,20 @@ angular.module('lyt3App')
         });
       } else {
         var textContent = xmlDom.textContent;
-        json[tagName] = textContent;
+        try {
+          json[tagName] = JSON.parse(textContent);
+        } catch( exp ) {
+          json[tagName] = textContent;
+        }
       }
     };
 
     var xmlStr2Json = function(xmlStr) {
       var xmlDOM = xmlParser.parse(xmlStr);
-      var json = {};
+      var json = {
+        Body: {},
+        Header: {}
+      };
 
       Array.prototype.forEach.call( xmlDOM.children[0].children, function(domEl){
         xml2Json(domEl,json);
@@ -102,11 +112,33 @@ angular.module('lyt3App')
     return {
       logOn: function(username,password) {
         var defer = $q.defer();
+
         createRequest('logOn',{
           username: username,
           password: password
         }).then(function(response){
-          console.log(xmlStr2Json(response.data));
+          var data = response.data;
+          if (data.Body.logOnResponse && data.Body.logOnResponse.logOnResult) {
+            defer.resolve(data.Header);
+          } else {
+            defer.reject('logOnFailed');
+          }
+        }, function(){
+          defer.reject('logOnFailed');
+        });
+
+        return defer.promise;
+      },
+      logOff: function() {
+        var defer = $q.defer();
+        createRequest('logOff',{
+        }).then(function(response){
+          var data = response.data;
+          if (data.Body.logOffResponse && data.Body.logOffResponse.logOffResult) {
+            defer.resolve(data.Header);
+          } else {
+            defer.reject('logOffFailed');
+          }
         }, function(){
           defer.reject( );
         });
