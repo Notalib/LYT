@@ -1,50 +1,105 @@
 #!/bin/sh
 
-# Got script from courtesy of http://stackoverflow.com/a/15757989
+#######################################################################
+# This pre-commit hooks checks for changed or new JavaScript files
+# in the commit and tries to validated them with jshint.
+# If any staged file doesn't validate, you don't get to commit the file.
+#
+# Only three things are required for this script:
+# - JSHint must be installed as a commandline tool.
+# - the file jshint.conf must exist at the base of the git repository,
+#    it contains a JSON with the config parameters for node.js scripts.
+# - the file jshint_browser.conf must also exist, this is the same as 
+#    the jshint.conf just for the browser. It'll be used on files in
+#    the path "public/javascripts", all other files will be validated
+#    with the jshint.conf.
+#
+#######################################################################
 
-jshint_path=$PWD/node_modules/.bin/jshint
+has_error=0
 
-if [ ! -x $jshint_path ]; then
-    echo "\033[41mCOMMIT FAILED:\033[0m You need to install jshint\n"
-    exit 1;
+# GIT_WORKING_DIR apparently it's $PWD, cache this path
+WORKING_DIR=$PWD
+
+jshint_path=$(which jshint 2>&1)
+if [ "$jshint_path" = "" ]; then
+	jshint_path="$WORKING_DIR/node_modules/.bin/jshint"
+	if [ ! -e $jshint_path ]; then
+		echo "JSHint isn't installed and it's required";
+		exit 1;
+	fi
 fi
 
-files=$(git diff --cached --name-only --diff-filter=ACM | grep ".js$")
-if [ "$files" = "" ]; then
-    exit 0
+# Generate a tmp-dir-base-that doesn't overlap with others
+TMP_BASEDIR=$WORKING_DIR/.tmp_hooks/$( date | sha1sum | cut -d" " -f1 );
+# echo $WORKING_DIR;
+# echo $TMP_BASEDIR;
+for file in $(git diff-index --name-only --cached HEAD --diff-filter=AMCT); do
+	# echo $file
+
+	echo $file | grep "\.js\$" > /dev/null
+	if [ $? -eq 0 ]; then
+		# Get the staged files hash
+		show=$(git diff-index --cached HEAD --diff-filter=AMCT "$file" | cut -d" " -f4);
+
+		# Make the tmp-path for the file
+		TMP_WORKFILE="${TMP_BASEDIR}/${file}";
+
+		# Create the directory for the TMP_WORKFILE
+		mkdir -p "$( dirname $TMP_WORKFILE )";
+
+		# Find config-file
+		config_file=
+		tpath=$(dirname $file);
+		tpath=$(realpath $tpath);
+		lpath=
+		while [ -d $tpath ] && [ "$lpath" != "$tpath" ]; do
+				tfile=$tpath/.jshintrc
+				if [ -f $tfile ]; then
+						config_file=$tfile
+						break;
+				fi
+
+				tfile=$tpath/jshint.conf
+				if [ -f $tfile ]; then
+						config_file=$tfile
+						break;
+				fi
+				lpath=$tpath
+				tpath=$(dirname $tpath);
+		done
+
+		# Get the staged file from the index and put it in our working dir, keep the path so it's easier to read.
+		git show "$show" > "$TMP_WORKFILE";
+
+		# Go to the tmpbase dir
+		cd "$TMP_BASEDIR";
+
+		# Run jshint on the files
+		if [ "$config_file" != "" ]; then
+			$jshint_path --config "${config_file}" "$file"
+		else
+			$jshint_path "$file"
+		fi
+
+		if [ $? -gt 0 ]; then
+			has_error=1;
+			echo "$file failed to validate in JSHint using ${config_file}"
+		else
+			echo "$file validated with JSHint using ${config_file}"
+		fi
+
+		# Remove the tmp file and the directory we made for it.
+		rm "$TMP_WORKFILE"
+		rmdir "$( dirname $TMP_WORKFILE )";
+
+		# Return to the working dir
+		cd $WORKING_DIR
+	fi
+done;
+
+if [ -d "$TMP_BASEDIR" ]; then
+	find "$TMP_BASEDIR" -empty -delete
 fi
 
-pass=true
-
-echo "\nValidating JavaScript:\n"
-
-for file in ${files}; do
-    config_file=$PWD/.jshintrc
-    tpath=$(dirname $file);
-    while [ -d $tpath ]; do
-        tfile=$tpath/.jshintrc
-        if [ -f $tfile ]; then
-            config_file=$tfile
-            break;
-        fi
-        tpath=$(dirname $tpath);
-    done
-
-    output=$(jshint --config=${config_file} ${file});
-    if [ $? -eq 0 ]; then
-        echo "\t\033[32mjshint Passed: ${file}\033[0m"
-    else
-        echo "\t\033[31mjshint Failed: ${file}\033[0m"
-        echo "$output"
-        pass=false
-    fi
-done
-
-echo "\nJavaScript validation complete\n"
-
-if ! $pass; then
-    echo "\033[41mCOMMIT FAILED:\033[0m Your commit contains files that should pass jshint but do not. Please fix the JSHint errors and try again.\n"
-    exit 1
-else
-    echo "\033[42mCOMMIT SUCCEEDED\033[0m\n"
-fi
+exit $has_error
