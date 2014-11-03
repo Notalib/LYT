@@ -22,7 +22,7 @@ has_error=0
 WORKING_DIR=$PWD
 
 jshint_path=$(which jshint 2>&1)
-if [ "$jshint_path" = "" ]; then
+if [ ! -e "$jshint_path" ]; then
 	jshint_path="$WORKING_DIR/node_modules/.bin/jshint"
 	if [ ! -e $jshint_path ]; then
 		echo "JSHint isn't installed and it's required";
