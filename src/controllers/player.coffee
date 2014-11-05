@@ -321,9 +321,10 @@ LYT.player =
           audio.playbackRate = @playbackRate
           @play()
       else
-        @play().progress =>
-          audio.playbackRate = @playbackRate
-          @stop()
+        unless @firstPlay and not Modernizr.autoplayback
+          @play().progress =>
+            audio.playbackRate = @playbackRate
+            @stop()
 
      if command = @playCommand
        command.setPlaybackRate @playbackRate
@@ -523,7 +524,13 @@ LYT.player =
         if not segment.beginSection?
           segment.sectionTitle = @book.getSectionBySegment(segment)?.title
 
-        @seekSegmentOffset(segment, offset).then -> promise.resolve()
+        @updateHtml segment
+        @_setCurrentSegment segment
+        if @playClickHook
+          # The user has to click before we can call @seekSegmentOffset
+          promise.resolve()
+        else
+          @seekSegmentOffset(segment, offset).then -> promise.resolve()
       .fail (error) =>
         log.error "Player: failed to load url #{url}: #{error} - rewinding to start"
         @book.firstSegment().then (segment) =>
@@ -820,4 +827,5 @@ LYT.player =
 
     log.message "Player: updateHtml: rendering segment #{segment.url()}, start #{segment.start}, end #{segment.end}"
     LYT.render.textContent segment
-    segment.preloadNext()
+    unless @playClickHook
+      segment.preloadNext()
