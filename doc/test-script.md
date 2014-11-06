@@ -30,7 +30,7 @@ Supported platforms:
 
       - Google Chrome
 
-    - iPad and iPhone:
+    - iPad and iPhone (IOS 7 & IOS 8):
 
       - Safari
 
