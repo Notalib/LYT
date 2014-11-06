@@ -35,3 +35,7 @@ for hook in hooks/*.sh; do
 
     ln -vs $PWD/$hook $githook_path || exit $?
 done
+
+if [ ! -f test/mock/data/test-data-local.js ]; then
+    echo "Du need to create test/mock/data/test-data-local.js to run tests\nSee the template file here: test/mock/data/test-data-local.js-tmpl"
+fi

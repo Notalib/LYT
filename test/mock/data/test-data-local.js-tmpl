@@ -1,0 +1,13 @@
+'use strict';
+
+angular.module( 'lytTestUser', [] );
+
+angular.module( 'lytTestUser' )
+  .factory( 'testDataLocal', function() {
+    return {
+      user: {
+        username: 'USERNAME',
+        password: 'PASSWORD'
+      }
+    };
+  } );
