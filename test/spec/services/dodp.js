@@ -38,7 +38,8 @@ describe( 'Service: DODP', function ( ) {
       createExpectXML( data.respond );
 
       DODP.logOn( data.username, data.password )
-        .then( function ( ) {
+        .then( function ( resolved ) {
+          expect( resolved ).toEqual( data.resolved );
           status = 'success';
         }, function ( ) {
           status = 'failed';
@@ -57,7 +58,8 @@ describe( 'Service: DODP', function ( ) {
     var data = testData.logOffData;
     createExpectXML( data.respond );
     DODP.logOff( )
-      .then( function ( ) {
+      .then( function ( resolved ) {
+        expect( resolved ).toEqual( data.resolved );
         status = 'success';
       }, function ( ) {
         status = 'failed';
@@ -75,7 +77,8 @@ describe( 'Service: DODP', function ( ) {
     var data = testData.getServiceAttributesData;
     createExpectXML( data.respond );
     DODP.getServiceAttributes( )
-      .then( function ( ) {
+      .then( function ( resolved ) {
+        expect( resolved ).toEqual( data.resolved );
         status = 'success';
       }, function ( ) {
         status = 'failed';
@@ -131,10 +134,14 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'getContentList:', function ( ) {
+  it( 'getContentList:', function ( ) {
     var status;
-    DODP.getContentList( )
-      .then( function ( ) {
+    var data = testData.getContentListData;
+    createExpectXML( data.respond );
+
+    DODP.getContentList( data.listIdentifier, data.firstTime, data.lastItem )
+      .then( function ( resolved ) {
+        expect( resolved ).toEqual( data.resolved );
         status = 'success';
       }, function ( ) {
         status = 'failed';

@@ -81,10 +81,53 @@ angular.module( 'lyt3App' )
 
     var xml2Json = function ( xmlDom, json ) {
       var tagName = xmlDom.tagName.replace( /^s:/, '' );
+      var attrs;
+      var item;
+      if ( xmlDom.attributes ) {
+        attrs = Array.prototype.reduce.call( xmlDom.attributes, function (
+          attrs, attr ) {
+          var name = attr.name;
+          var idx = name.indexOf( ':' );
+          var ignore = false;
+          if ( idx > -1 ) {
+            var ns = name.substr( 0, idx );
+            if ( [ 'xml', 'xmlns', 'ns1', 'ns2' ].indexOf( ns ) > -1 ) {
+              ignore = true;
+            }
+          }
+
+          if ( [ 'xmlns', 'dir' ].indexOf( name ) > -1 ) {
+            ignore = true;
+          }
+
+          var value;
+          try {
+            value = JSON.parse( attr.value );
+          } catch ( exp ) {
+            value = attr.value;
+          }
+
+          if ( !ignore ) {
+            attrs[ name ] = value;
+          }
+
+          return attrs;
+        }, {} );
+
+        if ( Object.keys( attrs ).length === 0 ) {
+          attrs = undefined;
+        }
+      }
+
       if ( xmlDom.children.length > 0 ) {
-        json[ tagName ] = json[ tagName ] || {};
+        item = {};
+
+        if ( attrs ) {
+          item.attrs = attrs;
+        }
+
         Array.prototype.forEach.call( xmlDom.children, function ( el ) {
-          xml2Json( el, json[ tagName ] );
+          xml2Json( el, item );
         } );
       } else {
         var textContent = xmlDom.textContent;
@@ -95,31 +138,40 @@ angular.module( 'lyt3App' )
           value = textContent;
         }
 
-        if ( json[ tagName ] ) {
-          if ( json[ tagName ] instanceof Array ) {
-            json[ tagName ].push( value );
-          } else {
-            json[ tagName ] = [ json[ tagName ], value ];
-          }
-        } else {
-          json[ tagName ] = value;
+        item = value;
+
+        if ( attrs ) {
+          item = {
+            attrs: attrs,
+            value: value
+          };
         }
+      }
+
+      if ( json[ tagName ] ) {
+        if ( json[ tagName ] instanceof Array ) {
+          json[ tagName ].push( item );
+        } else {
+          json[ tagName ] = [ json[ tagName ], item ];
+        }
+      } else {
+        json[ tagName ] = item;
       }
     };
 
     var xmlStr2Json = function ( xmlStr ) {
       var xmlDOM = xmlParser.parse( xmlStr );
-      var json = {
-        Body: {},
-        Header: {}
-      };
+      var json = {};
 
       Array.prototype.forEach.call( xmlDOM.children[ 0 ].children,
         function ( domEl ) {
           xml2Json( domEl, json );
         } );
 
-      return json;
+      return angular.extend( {
+        Body: {},
+        Header: {}
+      }, json );
     };
 
     // Public API here
@@ -217,9 +269,24 @@ angular.module( 'lyt3App' )
 
         return defer.promise;
       },
-      getContentList: function ( ) {
+      getContentList: function ( listIdentifier, firstItem, lastItem ) {
         var defer = $q.defer( );
-        defer.reject( );
+        createRequest( 'getContentList', {
+            id: listIdentifier,
+            firstItem: firstItem,
+            lastItem: lastItem
+          } )
+          .then( function ( response ) {
+            var data = response.data;
+            if ( data.Body.getContentListResponse && data.Body.getContentListResponse
+              .contentList ) {
+              defer.resolve( data.Body.getContentListResponse.contentList );
+            } else {
+              defer.reject( 'setReadingSystemAttributes failed' );
+            }
+          }, function ( ) {
+            defer.reject( 'setReadingSystemAttributes failed' );
+          } );
 
         return defer.promise;
       },
