@@ -37,7 +37,7 @@ angular.module( 'lyt3App' )
       // on the data
 
       var type = typeof hash;
-      if ( [ 'string', 'nunber', 'boolean' ].indexOf( type ) > -1 ) {
+      if ( [ 'string', 'number', 'boolean' ].indexOf( type ) > -1 ) {
         // If the argument is a string, number or boolean,
         // then coerce it to a string and use a pseudo element
         // to handle the escaping of special chars
@@ -61,7 +61,7 @@ angular.module( 'lyt3App' )
 
     var createRequest = function ( action, data ) {
       var requestData = {};
-      requestData[ action ] = data;
+      requestData[ action ] = data || {};
 
       var xmlBody = soapTemplate.replace( /SOAPBODY/, toXML( requestData ) );
 
@@ -124,28 +124,95 @@ angular.module( 'lyt3App' )
           if ( data.Body.logOnResponse && data.Body.logOnResponse.logOnResult ) {
             defer.resolve( data.Header );
           } else {
-            defer.reject( 'logOnFailed' );
+            defer.reject( data );
           }
         }, function ( ) {
-          defer.reject( 'logOnFailed' );
+          defer.reject( arguments );
         } );
 
         return defer.promise;
       },
       logOff: function ( ) {
         var defer = $q.defer( );
-        createRequest( 'logOff', {} ).then( function ( response ) {
-          var data = response.data;
-          if ( data.Body.logOffResponse && data.Body.logOffResponse.logOffResult ) {
-            defer.resolve( data.Header );
-          } else {
+        createRequest( 'logOff' )
+          .then( function ( response ) {
+            var data = response.data;
+            if ( data.Body.logOffResponse && data.Body.logOffResponse.logOffResult ) {
+              defer.resolve( data.Header );
+            } else {
+              defer.reject( 'logOffFailed' );
+            }
+          }, function ( ) {
             defer.reject( 'logOffFailed' );
-          }
-        }, function ( ) {
-          defer.reject( );
-        } );
+          } );
 
         return defer.promise;
-      }
+      },
+      getServiceAttributes: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      setReadingSystemAttributes: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      getServiceAnnouncements: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      markAnnouncementsAsRead: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      getContentList: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      issueContent: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      returnContent: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      getContentMetadata: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      getContentResources: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      getBookmarks: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
+      setBookmarks: function ( ) {
+        var defer = $q.defer( );
+        defer.reject( );
+
+        return defer.promise;
+      },
     };
   } ] );

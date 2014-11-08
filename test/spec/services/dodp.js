@@ -3,56 +3,216 @@
 describe( 'Service: DODP', function ( ) {
   // load the service's module
   beforeEach( module( 'lyt3App' ) );
+  beforeEach( module( 'lytTest' ) );
 
   // instantiate service
   var DODP;
-  beforeEach( inject( function ( _DODP_ ) {
+  var $rootScope;
+  var mockBackend;
+  var expectPOST;
+  var testData;
+  beforeEach( inject( function ( _$rootScope_, _DODP_, _$httpBackend_,
+    _testData_ ) {
+    $rootScope = _$rootScope_;
     DODP = _DODP_;
+    mockBackend = _$httpBackend_;
+    expectPOST = mockBackend.expectPOST( '/DodpMobile/Service.svc' );
+    testData = _testData_;
   } ) );
 
-  it( 'logOn:', function ( ) {
-    DODP.logOn( );
+  var createExpectXML = function ( respond ) {
+    expectPOST.respond( respond, {
+      'Content-Type': 'text/xml'
+    } );
+  };
+
+  describe( 'logOn:', function ( ) {
+    var logOnData;
+    beforeEach( function ( ) {
+      logOnData = testData.logOnData;
+    } );
+
+    it( 'valid logOn:', function ( ) {
+      var status;
+      var data = logOnData.valid;
+      createExpectXML( data.respond );
+
+      DODP.logOn( data.username, data.password )
+        .then( function ( ) {
+          console.log( arguments );
+          status = 'success';
+        }, function ( ) {
+          console.log( arguments );
+          status = 'failed';
+        } );
+
+      mockBackend.flush( );
+      $rootScope.$digest( );
+
+      expect( status )
+        .toEqual( 'success' );
+    } );
   } );
 
   it( 'logOff:', function ( ) {
-    DODP.logOff( );
-  } );
+    var status;
+    var data = testData.logOffData;
+    createExpectXML( data.respond );
+    DODP.logOff( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
 
-  xit( 'getServiceAttributes:', function ( ) {
-    DODP.getServiceAttributes( );
-  } );
 
-  xit( 'setReadingSystemAttributes:', function ( ) {
-    DODP.setReadingSystemAttributes( );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-
-  xit( 'getServiceAnnouncements:', function ( ) {
-    DODP.getServiceAnnouncements( );
+  it( 'getServiceAttributes:', function ( ) {
+    var status;
+    DODP.getServiceAttributes( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-
-  xit( 'markAnnouncementsAsRead:', function ( ) {
-    DODP.markAnnouncementsAsRead( );
+  it( 'setReadingSystemAttributes:', function ( ) {
+    var status;
+    DODP.setReadingSystemAttributes( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'getContentList:', function ( ) {
-    DODP.getContentList( );
+  it( 'getServiceAnnouncements:', function ( ) {
+    var status;
+    DODP.getServiceAnnouncements( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'issueContent:', function ( ) {
-    DODP.issueContent( );
+  it( 'markAnnouncementsAsRead:', function ( ) {
+    var status;
+    DODP.markAnnouncementsAsRead( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'returnContent:', function ( ) {
-    DODP.returnContent( );
+  it( 'getContentList:', function ( ) {
+    var status;
+    DODP.getContentList( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'getContentMetadata:', function ( ) {
-    DODP.getContentMetadata( );
+  it( 'issueContent:', function ( ) {
+    var status;
+    DODP.issueContent( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'getContentResources:', function ( ) {
-    DODP.getContentResources( );
+  it( 'returnContent:', function ( ) {
+    var status;
+    DODP.returnContent( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'getBookmarks:', function ( ) {
-    DODP.getBookmarks( );
+  it( 'getContentMetadata:', function ( ) {
+    var status;
+    DODP.getContentMetadata( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
-  xit( 'setBookmarks:', function ( ) {
-    DODP.setBookmarks( );
+  it( 'getContentResources:', function ( ) {
+    var status;
+    DODP.getContentResources( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
+  } );
+  it( 'getBookmarks:', function ( ) {
+    var status;
+    DODP.getBookmarks( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
+  } );
+  it( 'setBookmarks:', function ( ) {
+    var status;
+    DODP.setBookmarks( )
+      .then( function ( ) {
+        status = 'success';
+      }, function ( ) {
+        status = 'failed';
+      } );
+    mockBackend.flush( );
+    $rootScope.$digest( );
+    expect( status )
+      .toEqual( 'success' );
   } );
 
 } );
