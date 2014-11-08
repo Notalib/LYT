@@ -259,7 +259,15 @@ angular.module( 'lyt3App' )
       },
       getServiceAnnouncements: function ( ) {
         var defer = $q.defer( );
-        defer.reject( );
+        createRequest( 'getServiceAnnouncements' )
+          .then( function ( response ) {
+            var data = response.data.Body;
+            var announcements = ( ( data.getServiceAnnouncementsResponse || {} )
+              .announcements || {} ).announcement || [ ];
+            defer.resolve( announcements );
+          }, function ( ) {
+            defer.reject( 'getServiceAnnouncements failed' );
+          } );
 
         return defer.promise;
       },

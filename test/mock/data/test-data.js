@@ -69,7 +69,7 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
       var getServiceAttributes = {
         params: {},
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">' +
-          testUser.username +
+          testUser.memberId +
           '</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">' +
           testUser.username +
           '</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/">' +
@@ -122,7 +122,7 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           }
         },
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">' +
-          testUser.username +
+          testUser.memberId +
           '</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">' +
           testUser.username +
           '</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/">' +
@@ -207,6 +207,49 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
         }
       };
 
+      var getServiceAnnouncements = {
+        params: {},
+        respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.memberId +
+          '</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.memberId +
+          ' </Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.realname +
+          '</Realname><Email xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.email +
+          '</Email><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">64</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">MALE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Ordblind</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          DODPVERSION +
+          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getServiceAnnouncementsResponse xmlns="http://www.daisy.org/ns/daisy-online/"><announcements><announcement id="1" type="INFORMATION" priority="1"><label xml:lang="en" dir=""><text>Besked nummer 1 fra Nota</text></label></announcement><announcement id="2" type="INFORMATION" priority="1"><label xml:lang="en" dir=""><text>Besked nummer 2 fra Nota</text></label></announcement><announcement id="3" type="INFORMATION" priority="1"><label xml:lang="en" dir=""><text>Besked nummer 3 fra Nota</text></label></announcement></announcements></getServiceAnnouncementsResponse></s:Body></s:Envelope>',
+        resolved: [ {
+          'attrs': {
+            'id': 1,
+            'type': 'INFORMATION',
+            'priority': 1
+          },
+          'label': {
+            'text': 'Besked nummer 1 fra Nota'
+          }
+        }, {
+          'attrs': {
+            'id': 2,
+            'type': 'INFORMATION',
+            'priority': 1
+          },
+          'label': {
+            'text': 'Besked nummer 2 fra Nota'
+          }
+        }, {
+          'attrs': {
+            'id': 3,
+            'type': 'INFORMATION',
+            'priority': 1
+          },
+          'label': {
+            'text': 'Besked nummer 3 fra Nota'
+          }
+        } ]
+      };
+
       return {
         dodp: {
           get logOnData( ) {
@@ -223,6 +266,9 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           },
           get getContentListData( ) {
             return angular.copy( getContentList );
+          },
+          get getServiceAnnouncementsData( ) {
+            return angular.copy( getServiceAnnouncements );
           }
         }
       };

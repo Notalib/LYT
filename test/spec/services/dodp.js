@@ -106,10 +106,14 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'getServiceAnnouncements:', function ( ) {
+  it( 'getServiceAnnouncements:', function ( ) {
     var status;
+    var data = testData.getServiceAnnouncementsData;
+    createExpectXML( data.respond );
+
     DODP.getServiceAnnouncements( )
-      .then( function ( ) {
+      .then( function ( resolved ) {
+        expect( resolved ).toEqual( data.resolved );
         status = 'success';
       }, function ( ) {
         status = 'failed';
