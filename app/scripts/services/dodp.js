@@ -179,9 +179,29 @@ angular.module( 'lyt3App' )
 
         return defer.promise;
       },
-      setReadingSystemAttributes: function ( ) {
+      setReadingSystemAttributes: function ( readingSystemAttributes ) {
         var defer = $q.defer( );
-        defer.reject( );
+        /* NOTE: input should be:
+        {
+          manufacturer: 'NOTA',
+          model: 'LYT',
+          serialNumber: 1,
+          version: 1,
+          config: ''
+        }
+        */
+        createRequest( 'setReadingSystemAttributes', {
+            readingSystemAttributes: readingSystemAttributes
+          } )
+          .then( function ( response ) {
+            if ( response.data.Body.setReadingSystemAttributesResponse.setReadingSystemAttributesResult ) {
+              defer.resolve( );
+            } else {
+              defer.reject( 'setReadingSystemAttributes failed' );
+            }
+          }, function ( ) {
+            defer.reject( 'setReadingSystemAttributes failed' );
+          } );
 
         return defer.promise;
       },

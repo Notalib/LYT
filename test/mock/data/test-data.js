@@ -24,7 +24,9 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
             testUser.username +
             '</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/">' +
             testUser.realname +
-            '</Realname><Email xmlns="http://www.daisy.org/ns/daisy-online/">user@user.nu</Email><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">90</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">FEMALE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Blind</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
+            '</Realname><Email xmlns="http://www.daisy.org/ns/daisy-online/">' +
+            testUser.email +
+            '</Email><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">90</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">FEMALE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Blind</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
             DODPVERSION +
             '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><logOnResponse xmlns="http://www.daisy.org/ns/daisy-online/"><logOnResult>true</logOnResult></logOnResponse></s:Body></s:Envelope>'
         }
@@ -49,20 +51,50 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           testUser.username +
           '</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/">' +
           testUser.realname +
-          '</Realname><Email xmlns="http://www.daisy.org/ns/daisy-online/">user@user.nu</Email><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">64</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">MALE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Ordblind</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          '</Realname><Email xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.email +
+          '</Email><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">64</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">MALE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Ordblind</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
           DODPVERSION +
           '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getServiceAttributesResponse xmlns="http://www.daisy.org/ns/daisy-online/"><serviceAttributes><serviceProvider id="Nota"><label xml:lang="en" dir=""><text>National library for persons with print disabilities</text></label></serviceProvider><service id="DodpMobile.nota.nu"><label xml:lang="en" dir=""><text>DodpMobile</text></label></service><supportedContentSelectionMethods><method>OUT_OF_BAND</method></supportedContentSelectionMethods><supportsServerSideBack>false</supportsServerSideBack><supportsSearch>false</supportsSearch><supportedUplinkAudioCodecs/><supportsAudioLabels>false</supportsAudioLabels><supportedOptionalOperations><operation>GET_BOOKMARKS</operation><operation>SET_BOOKMARKS</operation><operation>SERVICE_ANNOUNCEMENTS</operation></supportedOptionalOperations></serviceAttributes></getServiceAttributesResponse></s:Body></s:Envelope>'
       };
 
+      var setReadingSystemAttributes = {
+        params: {
+          readingSystemAttributes: {
+            manufacturer: 'NOTA',
+            model: 'LYT',
+            serialNumber: 1,
+            version: 1,
+            config: ''
+          }
+        },
+        respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.username +
+          '</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.username +
+          '</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.realname +
+          '</Realname><Email xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          testUser.email +
+          '</Email><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">64</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">MALE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Ordblind</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
+          DODPVERSION +
+          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><setReadingSystemAttributesResponse xmlns="http://www.daisy.org/ns/daisy-online/"><setReadingSystemAttributesResult>true</setReadingSystemAttributesResult></setReadingSystemAttributesResponse></s:Body></s:Envelope>'
+      };
+
       return {
-        get logOnData( ) {
-          return angular.copy( logOn );
-        },
-        get logOffData( ) {
-          return angular.copy( logOff );
-        },
-        get getServiceAttributesData( ) {
-          return angular.copy( getServiceAttributes );
+        dodp: {
+          get logOnData( ) {
+            return angular.copy( logOn );
+          },
+          get logOffData( ) {
+            return angular.copy( logOff );
+          },
+          get getServiceAttributesData( ) {
+            return angular.copy( getServiceAttributes );
+          },
+          get setReadingSystemAttributesData( ) {
+            return angular.copy( setReadingSystemAttributes );
+          }
         }
       };
     }

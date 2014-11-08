@@ -17,7 +17,7 @@ describe( 'Service: DODP', function ( ) {
     DODP = _DODP_;
     mockBackend = _$httpBackend_;
     expectPOST = mockBackend.expectPOST( '/DodpMobile/Service.svc' );
-    testData = _testData_;
+    testData = _testData_.dodp;
   } ) );
 
   var createExpectXML = function ( respond ) {
@@ -39,10 +39,8 @@ describe( 'Service: DODP', function ( ) {
 
       DODP.logOn( data.username, data.password )
         .then( function ( ) {
-          console.log( arguments );
           status = 'success';
         }, function ( ) {
-          console.log( arguments );
           status = 'failed';
         } );
 
@@ -71,6 +69,7 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
+
   it( 'getServiceAttributes:', function ( ) {
     var status;
     var data = testData.getServiceAttributesData;
@@ -86,9 +85,13 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
+
   it( 'setReadingSystemAttributes:', function ( ) {
     var status;
-    DODP.setReadingSystemAttributes( )
+    var data = testData.setReadingSystemAttributesData;
+    createExpectXML( data.respond );
+
+    DODP.setReadingSystemAttributes( data.params.readingSystemAttributes )
       .then( function ( ) {
         status = 'success';
       }, function ( ) {
@@ -99,7 +102,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'getServiceAnnouncements:', function ( ) {
+
+  xit( 'getServiceAnnouncements:', function ( ) {
     var status;
     DODP.getServiceAnnouncements( )
       .then( function ( ) {
@@ -112,7 +116,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'markAnnouncementsAsRead:', function ( ) {
+
+  xit( 'markAnnouncementsAsRead:', function ( ) {
     var status;
     DODP.markAnnouncementsAsRead( )
       .then( function ( ) {
@@ -125,7 +130,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'getContentList:', function ( ) {
+
+  xit( 'getContentList:', function ( ) {
     var status;
     DODP.getContentList( )
       .then( function ( ) {
@@ -138,7 +144,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'issueContent:', function ( ) {
+
+  xit( 'issueContent:', function ( ) {
     var status;
     DODP.issueContent( )
       .then( function ( ) {
@@ -151,7 +158,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'returnContent:', function ( ) {
+
+  xit( 'returnContent:', function ( ) {
     var status;
     DODP.returnContent( )
       .then( function ( ) {
@@ -164,7 +172,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'getContentMetadata:', function ( ) {
+
+  xit( 'getContentMetadata:', function ( ) {
     var status;
     DODP.getContentMetadata( )
       .then( function ( ) {
@@ -177,7 +186,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'getContentResources:', function ( ) {
+
+  xit( 'getContentResources:', function ( ) {
     var status;
     DODP.getContentResources( )
       .then( function ( ) {
@@ -190,7 +200,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'getBookmarks:', function ( ) {
+
+  xit( 'getBookmarks:', function ( ) {
     var status;
     DODP.getBookmarks( )
       .then( function ( ) {
@@ -203,7 +214,8 @@ describe( 'Service: DODP', function ( ) {
     expect( status )
       .toEqual( 'success' );
   } );
-  it( 'setBookmarks:', function ( ) {
+
+  xit( 'setBookmarks:', function ( ) {
     var status;
     DODP.setBookmarks( )
       .then( function ( ) {
