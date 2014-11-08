@@ -88,10 +88,21 @@ angular.module( 'lyt3App' )
         } );
       } else {
         var textContent = xmlDom.textContent;
+        var value;
         try {
-          json[ tagName ] = JSON.parse( textContent );
+          value = JSON.parse( textContent );
         } catch ( exp ) {
-          json[ tagName ] = textContent;
+          value = textContent;
+        }
+
+        if ( json[ tagName ] ) {
+          if ( json[ tagName ] instanceof Array ) {
+            json[ tagName ].push( value );
+          } else {
+            json[ tagName ] = [ json[ tagName ], value ];
+          }
+        } else {
+          json[ tagName ] = value;
         }
       }
     };
@@ -150,7 +161,21 @@ angular.module( 'lyt3App' )
       },
       getServiceAttributes: function ( ) {
         var defer = $q.defer( );
-        defer.reject( );
+        createRequest( 'getServiceAttributes' )
+          .then( function ( response ) {
+            var getServiceAttributesResponse = response.data.Body.getServiceAttributesResponse || {};
+            var services = getServiceAttributesResponse.serviceAttributes || {};
+
+            if ( Object.keys( services ).length ) {
+              defer.resolve( services );
+            } else {
+              defer.reject(
+                'getServiceAttributes failed, missing response.data.Body.getServiceAttributesResponse.serviceAttributes'
+              );
+            }
+          }, function ( ) {
+            defer.reject( 'getServiceAttributes failed' );
+          } );
 
         return defer.promise;
       },

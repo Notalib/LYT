@@ -73,6 +73,8 @@ describe( 'Service: DODP', function ( ) {
   } );
   it( 'getServiceAttributes:', function ( ) {
     var status;
+    var data = testData.getServiceAttributesData;
+    createExpectXML( data.respond );
     DODP.getServiceAttributes( )
       .then( function ( ) {
         status = 'success';
