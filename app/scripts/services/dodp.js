@@ -316,9 +316,25 @@ angular.module( 'lyt3App' )
 
         return defer.promise;
       },
-      getContentResources: function ( ) {
+      getContentResources: function ( contentId ) {
         var defer = $q.defer( );
-        defer.reject( );
+
+        createRequest( 'getContentResources', {
+            contentId: contentId
+          } )
+          .then( function ( response ) {
+            var data = response.data;
+            var Body = data.Body;
+            var resources = Body.getContentResourcesResponse.resources.resource
+              .reduce( function ( resources, item ) {
+                resources[ item.attrs.localURI ] = item.attrs.uri;
+                return resources;
+              }, {} );
+
+            defer.resolve( resources );
+          }, function ( ) {
+            defer.reject( 'getContentResources failed' );
+          } );
 
         return defer.promise;
       },

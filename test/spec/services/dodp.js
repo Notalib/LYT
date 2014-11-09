@@ -198,10 +198,14 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'getContentResources:', function ( ) {
+  it( 'getContentResources:', function ( ) {
     var status;
+    var data = testData.getContentResourcesData;
+    createExpectXML( data.respond );
+
     DODP.getContentResources( )
-      .then( function ( ) {
+      .then( function ( resources ) {
+        console.log( resources );
         status = 'success';
       }, function ( ) {
         status = 'failed';
