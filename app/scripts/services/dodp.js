@@ -338,12 +338,93 @@ angular.module( 'lyt3App' )
 
         return defer.promise;
       },
-      getBookmarks: function ( ) {
-        var defer = $q.defer( );
-        defer.reject( );
+      getBookmarks: ( function ( ) {
+        /**
+         * Convert from Dodp offset to floating point in seconds
+         * TODO: Implement correct parsing of all time formats provided in
+         *       http://www.daisy.org/z3986/2005/Z3986-2005.html#Clock
+         * Parse offset strings ("HH:MM:SS.ss") to seconds, e. g.
+         *     parseOffset("1:02:03.05") #=> 3723.05
+         * We keep this function as well as parseTime in LYT.utils because they
+         * are used to parse formats that are not completely identical.
+         */
 
-        return defer.promise;
-      },
+        var parseOffset = function ( timeOffset ) {
+          var values = timeOffset.match( /\d+/g );
+          if ( values && values.length === 4 ) {
+            values[ 3 ] = values[ 3 ] || '0';
+            values = values.map( function ( val ) {
+              return parseFloat( val, 10 );
+            } );
+
+            return values[ 0 ] * 3600 + values[ 1 ] * 60 + values[ 2 ] +
+              values[ 3 ];
+          }
+        };
+
+        var deserialize = function ( data ) {
+          if ( !data ) {
+            return;
+          }
+
+          var uri = data.URI;
+
+          var timeOffset = parseOffset( data.timeOffset );
+          var note = ( data.note || {} ).text || '-';
+          if ( uri && timeOffset !== undefined ) {
+            return {
+              ncxRef: null,
+              URI: uri,
+              timeOffset: timeOffset,
+              note: {
+                text: note
+              }
+            };
+          }
+        };
+
+        return function ( contentId ) {
+          var defer = $q.defer( );
+
+          createRequest( 'getContentResources', {
+              contentId: contentId
+            } )
+            .then( function ( response ) {
+              var data = response.data;
+              var Body = data.Body;
+              var getBookmarksResponse = Body.getBookmarksResponse || {};
+              var bookmarkSet = getBookmarksResponse.bookmarkSet || {};
+              var title = bookmarkSet.title;
+              var bookmarks = bookmarkSet.bookmark || [ ];
+              if ( bookmarks ) {
+                if ( !( bookmarks instanceof Array ) ) {
+                  bookmarks = [ bookmarks ];
+                }
+              }
+
+              var res = {
+                bookmarks: bookmarks.map( deserialize ).filter(
+                  function ( bookmark ) {
+                    return !!bookmark;
+                  } ),
+                book: {
+                  uid: bookmarkSet.uid,
+                  title: {
+                    text: title.text,
+                    audio: title.audio
+                  }
+                },
+                lastmark: deserialize( bookmarkSet.lastmark )
+              };
+
+              defer.resolve( res );
+            }, function ( ) {
+              defer.reject( 'getContentResources failed' );
+            } );
+
+          return defer.promise;
+        };
+      } )( ),
       setBookmarks: function ( ) {
         var defer = $q.defer( );
         defer.reject( );

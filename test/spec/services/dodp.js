@@ -203,9 +203,9 @@ describe( 'Service: DODP', function ( ) {
     var data = testData.getContentResourcesData;
     createExpectXML( data.respond );
 
-    DODP.getContentResources( )
-      .then( function ( resources ) {
-        console.log( resources );
+    DODP.getContentResources( data.contentId )
+      .then( function ( resolved ) {
+        expect( resolved ).toEqual( data.resolved );
         status = 'success';
       }, function ( ) {
         status = 'failed';
@@ -216,10 +216,13 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'getBookmarks:', function ( ) {
+  it( 'getBookmarks:', function ( ) {
     var status;
-    DODP.getBookmarks( )
-      .then( function ( ) {
+    var data = testData.getBookmarksData;
+    createExpectXML( data.respond );
+    DODP.getBookmarks( data.contentId )
+      .then( function ( resolved ) {
+        expect( resolved ).toEqual( data.resolved );
         status = 'success';
       }, function ( ) {
         status = 'failed';
