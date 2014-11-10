@@ -31,7 +31,7 @@ angular.module( 'lyt3App' )
        *
        *     # Set up a callback for when the book's done loading
        *     # The callback receives the book object as its argument
-       *     book.done (book) ->
+       *     book.then (book) ->
        *       # Do something with the book
        *
        *     # Set up a callback to handle any failure to load the book
@@ -221,13 +221,14 @@ angular.module( 'lyt3App' )
         if ( !smil.document ) {
           smil.document = new SMILDocument( smil.url, this );
         }
-        smil.document.done( function( smilDocument ) {
-          return deferred.resolve( smilDocument );
-        } );
-        smil.document.catch( function( error ) {
-          smil.document = null;
-          return deferred.reject( error );
-        } );
+        smil.document.promise
+          .then( function( smilDocument ) {
+            return deferred.resolve( smilDocument );
+          } )
+          .catch( function( error ) {
+            smil.document = null;
+            return deferred.reject( error );
+          } );
         return deferred.promise;
       };
 
@@ -393,7 +394,7 @@ angular.module( 'lyt3App' )
           .pop();
         fragment = _ref[ 1 ];
         this.getSMIL( smil )
-          .done( function( document ) {
+          .then( function( document ) {
             var segment;
             if ( fragment ) {
               segment = document.getContainingSegment( fragment );
@@ -402,7 +403,7 @@ angular.module( 'lyt3App' )
             }
             if ( segment ) {
               return segment.load()
-                .done( function( segment ) {
+                .then( function( segment ) {
                   return deferred.resolve( segment );
                 } );
             } else {
