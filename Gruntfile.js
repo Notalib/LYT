@@ -405,6 +405,11 @@ module.exports = function ( grunt ) {
         configFile: 'test/karma.conf.js',
         singleRun: false,
         autoWatch: true
+      },
+      commit: {
+        configFile: 'test/karma.conf.js',
+        singleRun: true,
+        autoWatch: false
       }
     }
   } );

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-grunt karma:unit
+grunt karma:commit
 exit $?
