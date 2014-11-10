@@ -89,6 +89,12 @@ module.exports = function ( grunt ) {
         port: 80,
         https: false,
         xforward: false,
+      }, {
+        context: '/DodpFiles/',
+        host: 'test.m.e17.dk',
+        port: 80,
+        https: false,
+        xforward: false,
       } ],
       livereload: {
         options: {

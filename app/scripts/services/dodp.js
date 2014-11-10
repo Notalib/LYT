@@ -10,10 +10,15 @@
 angular.module( 'lyt3App' )
   .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function (
     $sanitize, $http, $q, xmlParser ) {
-    var soapTemplate = '<?xml version="1.0" encoding="UTF-8"?>' +
-      '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.daisy.org/ns/daisy-online/" xmlns:ns2="http://www.daisy.org/z3986/2005/bookmark/">' +
-      '<SOAP-ENV:Body>SOAPBODY</SOAP-ENV:Body>' +
-      '</SOAP-ENV:Envelope>';
+    /*jshint quotmark: false */
+    var soapTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+      "<SOAP-ENV:Envelope\n" +
+      " xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
+      " xmlns:ns1=\"http://www.daisy.org/ns/daisy-online/\"\n" +
+      " xmlns:ns2=\"http://www.daisy.org/z3986/2005/bookmark/\">\n" +
+      "<SOAP-ENV:Body>SOAPBODY</SOAP-ENV:Body>\n" +
+      "</SOAP-ENV:Envelope>";
+    /*jshint quotmark: single */
 
 
     var appendToXML = function ( xml, nodeName, data ) {
@@ -234,14 +239,15 @@ angular.module( 'lyt3App' )
       setReadingSystemAttributes: function ( readingSystemAttributes ) {
         var defer = $q.defer( );
         /* NOTE: input should be:
-        {
+        */
+        readingSystemAttributes = angular.extend( {
           manufacturer: 'NOTA',
           model: 'LYT',
           serialNumber: 1,
           version: 1,
           config: ''
-        }
-        */
+        }, readingSystemAttributes );
+
         createRequest( 'setReadingSystemAttributes', {
             readingSystemAttributes: readingSystemAttributes
           } )
@@ -298,9 +304,23 @@ angular.module( 'lyt3App' )
 
         return defer.promise;
       },
-      issueContent: function ( ) {
+      issueContent: function ( contentID ) {
         var defer = $q.defer( );
-        defer.reject( );
+
+        createRequest( 'issueContent', {
+            contentID: contentID
+          } )
+          .then( function ( response ) {
+            var data = response.data;
+            var Body = data.Body;
+            if ( Body.issueContentResponse.issueContentResult ) {
+              defer.resolve( );
+            } else {
+            defer.reject( 'issueContent failed' );
+            }
+          }, function ( ) {
+            defer.reject( 'issueContent failed' );
+          } );
 
         return defer.promise;
       },
@@ -316,11 +336,11 @@ angular.module( 'lyt3App' )
 
         return defer.promise;
       },
-      getContentResources: function ( contentId ) {
+      getContentResources: function ( contentID ) {
         var defer = $q.defer( );
 
         createRequest( 'getContentResources', {
-            contentId: contentId
+            contentID: contentID
           } )
           .then( function ( response ) {
             var data = response.data;
@@ -383,11 +403,11 @@ angular.module( 'lyt3App' )
           }
         };
 
-        return function ( contentId ) {
+        return function ( contentID ) {
           var defer = $q.defer( );
 
-          createRequest( 'getContentResources', {
-              contentId: contentId
+          createRequest( 'getBookmarks', {
+              contentID: contentID
             } )
             .then( function ( response ) {
               var data = response.data;
@@ -419,7 +439,7 @@ angular.module( 'lyt3App' )
 
               defer.resolve( res );
             }, function ( ) {
-              defer.reject( 'getContentResources failed' );
+              defer.reject( 'getBookmarks failed' );
             } );
 
           return defer.promise;

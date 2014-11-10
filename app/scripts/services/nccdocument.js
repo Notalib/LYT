@@ -172,7 +172,7 @@ angular.module( 'lyt3App' )
         } )( this ) );
       }
 
-      NCCDocument.prototype = Object.create( TextContentDocument );
+      NCCDocument.prototype = Object.create( TextContentDocument.prototype );
 
       /*
        * The section getters below returns promises that wait for the section

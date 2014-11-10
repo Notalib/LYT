@@ -39,7 +39,7 @@ angular.module( 'lyt3App' )
         } )( this ) );
       }
 
-      TextContentDocument.prototype = Object.create( DtbDocument );
+      TextContentDocument.prototype = Object.create( DtbDocument.prototype );
 
       TextContentDocument.prototype.isCartoon = function() {
         var pages;

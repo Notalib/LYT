@@ -64,8 +64,7 @@ angular.module( 'lyt3App' )
 
       // Emit an event
       emit = function( event, data ) {
-        console.log( arguments );
-        throw data;
+        console.log( event, data );
         /*
       var obj;
       if (!data) {

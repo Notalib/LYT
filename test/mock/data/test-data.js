@@ -329,6 +329,13 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
         }
       };
 
+      var issueContent = {
+        params: {
+          contentID: 37027
+        },
+        respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">DodpCore=1.1.1.19462;DodpBase=3.1.23.24696;MemberCatalog=2.0.32.23097;NotaSecure=1.1.22.17564;DodpMobile=3.1.16.24698</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><issueContentResponse xmlns="http://www.daisy.org/ns/daisy-online/"><issueContentResult>true</issueContentResult></issueContentResponse></s:Body></s:Envelope>'
+      };
+
       return {
         dodp: {
           get logOnData( ) {
@@ -354,6 +361,9 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           },
           get getBookmarksData( ) {
             return angular.copy( getBookmarks );
+          },
+          get issueContentData( ) {
+            return angular.copy( issueContent );
           }
         }
       };

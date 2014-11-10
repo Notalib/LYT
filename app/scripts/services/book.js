@@ -42,6 +42,8 @@ angular.module( 'lyt3App' )
         var getBookmarks, getNCC, getResources, issue, pending, resolve;
         this.id = id;
         var deferred = $q.defer();
+        this.promise = deferred.promise;
+
         this.resources = {};
         this.nccDocument = null;
         pending = 2;
@@ -120,12 +122,13 @@ angular.module( 'lyt3App' )
           return function( obj ) {
             // Instantiate an NCC document
             var ncc = new NCCDocument( obj.url, _this );
+            var nccPromise = ncc.promise;
 
             // Propagate a failure
-            ncc.catch( function() {
+            nccPromise.catch( function() {
               return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
             } );
-            return ncc.then( function( document ) {
+            return nccPromise.then( function( document ) {
               var creators, metadata, _ref, _ref1;
               obj.document = _this.nccDocument = document;
               metadata = _this.nccDocument.getMetadata();
@@ -167,7 +170,7 @@ angular.module( 'lyt3App' )
             process.catch( function() {
               return deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
             } );
-            return process.done( function( data ) {
+            return process.then( function( data ) {
               if ( data ) {
                 _this.lastmark = data.lastmark;
                 _this.bookmarks = data.bookmarks;

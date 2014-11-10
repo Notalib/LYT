@@ -156,10 +156,13 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'issueContent:', function ( ) {
+  it( 'issueContent:', function ( ) {
     var status;
-    DODP.issueContent( )
-      .then( function ( ) {
+    var data = testData.issueContentData;
+    createExpectXML( data.respond );
+
+    DODP.issueContent( data.contentId )
+      .then( function () {
         status = 'success';
       }, function ( ) {
         status = 'failed';
