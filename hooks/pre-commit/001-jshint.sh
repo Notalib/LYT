@@ -34,8 +34,11 @@ fi
 TMP_BASEDIR=$WORKING_DIR/.tmp_hooks/$( date | sha1sum | cut -d" " -f1 );
 # echo $WORKING_DIR;
 # echo $TMP_BASEDIR;
-for file in $(git diff-index --name-only --cached HEAD --diff-filter=AMCT); do
-	# echo $file
+for file in $(git diff-index --name-only --cached HEAD --diff-filter=AMCT | grep "\.js$"); do
+	echo $file
+	if [ ! -f "$file" ]; then
+		continue;
+	fi
 
 	echo $file | grep "\.js\$" > /dev/null
 	if [ $? -eq 0 ]; then
@@ -51,7 +54,7 @@ for file in $(git diff-index --name-only --cached HEAD --diff-filter=AMCT); do
 		# Find config-file
 		config_file=
 		tpath=$(dirname $file);
-		tpath=$(realpath $tpath);
+		tpath=$(readlink -f $tpath);
 		lpath=
 		while [ -d $tpath ] && [ "$lpath" != "$tpath" ]; do
 				tfile=$tpath/.jshintrc
