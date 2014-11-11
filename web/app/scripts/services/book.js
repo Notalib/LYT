@@ -561,6 +561,29 @@ angular.module( 'lyt3App' )
         return searchNext();
       };
 
+      Book.prototype.getBookStructure = function( ) {
+        var defer = $q.defer();
+        var promises = this.nccDocument.structure.reduce( function( flat, section ) {
+          return flat.concat( section.flatten( ) );
+        }, [] ).map( function( section ) {
+          var loadSegment = $q.defer();
+          this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
+            loadSegment.resolve( {
+              title: section.title,
+              offset: segment.getBookOffset()
+            } );
+          } );
+
+          return loadSegment.promise;
+        }, this );
+
+        $q.all(promises).then(function( segments ) {
+          defer.resolve( segments );
+        });
+
+        return defer.promise;
+      };
+
       // Factory-method
       // Note: Instances are cached in memory
       Book.load = ( function() {

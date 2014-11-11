@@ -167,6 +167,7 @@ angular.module( 'lyt3App' )
         this.segments.some( function( _segment ) {
           if ( _segment.el.find( '#' + id ).length > 0 ) {
             segment = _segment;
+            return true;
           }
         } );
 
@@ -186,6 +187,7 @@ angular.module( 'lyt3App' )
         this.segments.some( function( _segment ) {
           if ( _segment.start <= offset && offset < _segment.end ) {
             segment = _segment;
+            return true;
           }
         } );
 

@@ -1,13 +1,6 @@
 /*global $: false */
 'use strict';
 
-/**
- * @ngdoc service
- * @name lyt3App.Segment
- * @description
- * # Segment
- * Factory in the lyt3App.
- */
 angular.module( 'lyt3App' )
   .factory( 'Segment', [ '$q', 'TextContentDocument', 'Bookmark',
     function( $q, TextContentDocument, Bookmark ) {
@@ -109,16 +102,19 @@ angular.module( 'lyt3App' )
           if ( !resource.document ) {
             resource.document = new TextContentDocument( resource.url, resources );
           }
+
           promise = resource.document.promise.then( ( function( _this ) {
             return function( document ) {
               return _this.parseContent( document );
             };
           } )( this ) );
+
           promise.then( ( function( _this ) {
             return function() {
               return _this._deferred.resolve( _this );
             };
           } )( this ) );
+
           promise.catch( ( function( _this ) {
             return function( status, error ) {
               // TODO: log.error('Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error);
@@ -207,7 +203,7 @@ angular.module( 'lyt3App' )
 
       Segment.prototype.smilStart = function() {
         var segment, start;
-        if ( this.smil.start ) {
+        if ( this.smil.start !== undefined ) {
           return this.smil.start;
         }
         start = 0;
@@ -243,10 +239,12 @@ angular.module( 'lyt3App' )
           // TODO: preloadCount = LYT.config.segment.preload.queueSize;
           preloadCount = 10;
         }
+
         this.load();
         if ( preloadCount === 0 ) {
           return;
         }
+
         return this.promise.then( ( function( _this ) {
           return function( segment ) {
             var next = segment.next,
@@ -258,6 +256,7 @@ angular.module( 'lyt3App' )
               if ( segmentSection ) {
                 nextSection = segmentSection.next;
               }
+
               if ( nextSection ) {
                 return nextSection.firstSegment()
                   .promise.then( function( next ) {
@@ -400,6 +399,14 @@ angular.module( 'lyt3App' )
         }
         return $q.defer()
           .resolve();
+      };
+
+      Segment.prototype.getBookOffset = function( ) {
+        if ( !this.document ) {
+          return 0;
+        }
+
+        return this.document.absoluteOffset + this.smilStart();
       };
 
       return Segment;

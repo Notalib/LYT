@@ -32,9 +32,12 @@ angular.module( 'lyt3App' )
                   } );
                 });
               } );
-//              console.log(output);
-//              console.log(JSON.stringify(output));
-            book.firstSegment();
+              console.log(output);
+              console.log(JSON.stringify(output));
+
+              book.getBookStructure().then(function(structure){
+                console.log( structure );
+              } );
             } );
           }, function( ) {
             console.log( 'Load book FAILED', arguments );

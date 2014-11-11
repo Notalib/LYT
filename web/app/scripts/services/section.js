@@ -68,7 +68,8 @@ angular.module('lyt3App')
           return function(document) {
             _this.loaded = true;
             _this.document = document;
-            return _this._deferred.resolve(_this);
+
+            _this._deferred.resolve(_this);
           };
         })(this))
         .catch((function(_this) {
