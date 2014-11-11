@@ -35,7 +35,7 @@ namespace NOTA
 
             if (numRead != 4)
             {
-                registerDecodeProblem("Missing 4 byte frame header");
+                registerDecodeProblem("Missing 4 bytes frame header");
                 return false;
             }
 
