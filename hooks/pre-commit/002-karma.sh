@@ -18,4 +18,4 @@ if [ $changed -eq 1 ]; then
   exit $?
 fi
 
-echo 0
+exit 0
