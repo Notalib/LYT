@@ -86,14 +86,14 @@ angular.module('lyt3App')
     };
 
     Section.prototype.getOffset = function() {
-      if ( !this.document || this.document.promise.state() !== 'resolved' ) {
+      if ( !this.document /* || this.document.promise.state() !== 'resolved' */ ) {
         return null;
       }
       return this.document.absoluteOffset;
     };
 
     Section.prototype.getAudioUrls = function() {
-      if ( !this.document || this.document.promise.state() !== 'resolved' ) {
+      if ( !this.document /* || this.document.promise.state() !== 'resolved' */ ) {
         return [];
       }
       var resources = this.resources;
@@ -179,7 +179,7 @@ angular.module('lyt3App')
     };
 
     Section.prototype.getUnloadedSegmentsByAudio = function(audio) {
-      if (this.state() !== 'resolved') {
+      if ( !!this.document /*this.state() !== 'resolved'*/) {
         throw 'Section: getSegmentsByAudio only works on resolved sections';
       }
       return jQuery.grep(this.document.segments, function(segment) {

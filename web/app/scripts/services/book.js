@@ -27,15 +27,15 @@ angular.module( 'lyt3App' )
        * Here's an example of how to load a book for playback:
        *
        *     # Instantiate the book
-       *     book = new LYT.Book 123
+       *     book = new Book( 123 )
        *
        *     # Set up a callback for when the book's done loading
        *     # The callback receives the book object as its argument
-       *     book.then (book) ->
+       *     book.promise.then (book) ->
        *       # Do something with the book
        *
        *     # Set up a callback to handle any failure to load the book
-       *     book.fail () ->
+       *     book.promise.catch () ->
        *       # Do something about the failure
        */
       function Book( id ) {

@@ -165,13 +165,19 @@ angular.module( 'lyt3App' )
       logOn = function( username, password ) {
         var attemptLogOn, attempts, deferred, failed, gotServiceAnnouncements, gotServiceAttrs, loggedOn, readingSystemAttrsSet;
         // Check for and return any pending logon processes
-        if ( currentLogOnProcess && currentLogOnProcess.state() === 'pending' ) {
+        if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
           return currentLogOnProcess;
         }
-        if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state() === 'pending' ) {
+        if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state === 'pending' ) {
           currentRefreshSessionProcess.reject();
         }
         deferred = currentLogOnProcess = $q.defer();
+        currentLogOnProcess.state = 'pending';
+        currentLogOnProcess.promise.then(function(){
+          currentLogOnProcess.state = 'resolved';
+        }, function() {
+          currentLogOnProcess.state = 'rejected';
+        } );
         if ( !( username && password ) ) {
           /* TODO:
         if ((credentials = LYT.session.getCredentials())) {
@@ -262,13 +268,19 @@ angular.module( 'lyt3App' )
          */
         refreshSession: function() {
           var deferred, fail, gotServiceAttrs, loggedOn, password, readingSystemAttrsSet, username;
-          if ( currentLogOnProcess && currentLogOnProcess.state() === 'pending' ) {
+          if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
             return currentLogOnProcess;
           }
-          if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state() === 'pending' ) {
+          if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state === 'pending' ) {
             return currentRefreshSessionProcess;
           }
           deferred = currentRefreshSessionProcess = $q.defer();
+          currentRefreshSessionProcess.state = 'pending';
+          currentRefreshSessionProcess.promise.then(function(){
+            currentRefreshSessionProcess.state = 'resolved';
+          }, function() {
+            currentRefreshSessionProcess.state = 'rejected';
+          } );
           fail = function() {
             return deferred.reject();
           };
@@ -306,7 +318,7 @@ angular.module( 'lyt3App' )
          */
         logOff: function() {
           return DODP.logOff()
-            .always( function() {
+            .finally( function() {
               // TODO: LYT.session.clear();
               return emit( 'logoff' );
             } );
