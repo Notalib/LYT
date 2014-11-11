@@ -8,6 +8,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "ViewController.h"
+#import "SoundChunk.h"
 
 @interface ViewController () {
     NSArray* chunks;
@@ -29,55 +30,18 @@
 
 #pragma mark -
 
--(NSMutableURLRequest*)requestForURL:(NSURL*)url chunk:(NSDictionary*)chunk {
-    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url];
-    
-    NSNumber* timeOffset = [chunk objectForKey:@"byteOffset"];
-    NSNumber* byteLength = [chunk objectForKey:@"byteLength"];
-    
-    NSString* contentRange = [NSString stringWithFormat:@"bytes=%ld-%ld", timeOffset.longValue,
-                              timeOffset.longValue + byteLength.longValue];
-    [request addValue:contentRange forHTTPHeaderField:@"Range"];
-    return request;
-}
-
--(NSDictionary*)chunkBeforeTime:(NSTimeInterval)time {
-    NSDictionary* best = nil;
-    for (NSDictionary* chunk in chunks) {
-        NSNumber* timeOffset = [chunk objectForKey:@"timeOffset"];
-        if(timeOffset.doubleValue > time) break;
-        if(timeOffset && timeOffset.doubleValue < time) {
-            best = chunk;
-        }
-    }
-    return best;
-}
-
--(NSDictionary*)chunkAfterTime:(NSTimeInterval)time {
-    for (NSDictionary* chunk in chunks) {
-        NSNumber* timeOffset = [chunk objectForKey:@"timeOffset"];
-        if(timeOffset && timeOffset.doubleValue >= time) {
-            return chunk;
-        }
-    }
-    return nil;
-}
-
 -(void)loadTestData {
     NSString* path = [[NSBundle mainBundle] pathForResource:@"3_Grantret.json" ofType:nil];
     NSData* data = [NSData dataWithContentsOfFile:path];
     
-    NSError* error = NULL;
-   chunks = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-    NSLog(@"chunks = %@", chunks == nil ? error : chunks);
-    
-    NSTimeInterval when = 100;
-    NSDictionary* chunk = [self chunkBeforeTime:when];
-    NSLog(@"chunk before %f: %@", when, chunk);
-    NSLog(@"chunk after %f: %@", when, [self chunkAfterTime:when]);
-    
     NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20017/36016/3_Grantret.mp3"];
-    NSURLRequest* request = [self requestForURL:url chunk:chunk];
+    NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+    chunks = [SoundChunk soundChunksForURL:url info:json];
+    
+    NSTimeInterval when = 175;
+    SoundChunk* chunk = [SoundChunk lastBeforeTime:when chunks: chunks];
+    
+    NSURLRequest* request = [chunk makeRequest];
     NSLog(@"request = %@\n%@", request.URL, request.allHTTPHeaderFields);
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue]
@@ -85,7 +49,8 @@
         NSLog(@"response = %@", response);
                                
         player = [[AVAudioPlayer alloc] initWithData:data error:NULL];
-        [player play];
+        //[player play];
+        [player playAtTime: player.deviceCurrentTime + when - chunk.timeOffset];
     }];
 }
 
