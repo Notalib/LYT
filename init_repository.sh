@@ -17,11 +17,15 @@ checkbin 'bower'
 checkbin 'yo'
 checkbin 'grunt'
 
+TMP_DIR=$PWD
+
 echo "Installing node modules via npm: ";
-npm install || exit $?
+cd web && npm install || exit $?
+cd $TMP_DIR
 
 echo "Installing bower components: ";
-bower install || exit $?
+cd web && bower install || exit $?
+cd $TMP_DIR
 
 echo "Installing git hook: ";
 for hook in hooks/*.sh; do
@@ -36,6 +40,6 @@ for hook in hooks/*.sh; do
     ln -vs $PWD/$hook $githook_path || exit $?
 done
 
-if [ ! -f test/mock/data/test-data-local.js ]; then
-    echo "Du need to create test/mock/data/test-data-local.js to run tests\nSee the template file here: test/mock/data/test-data-local.js-tmpl"
+if [ ! -f web/test/mock/data/test-data-local.js ]; then
+    echo "Du need to create web/test/mock/data/test-data-local.js to run tests\nSee the template file here: web/test/mock/data/test-data-local.js-tmpl"
 fi
