@@ -234,7 +234,7 @@ namespace NOTA
                 Console.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1}, \"byteLength\": {2}, \"timeDuration\": {3} }}",
                               byteOffsetBefore, timeOffsetBefore, ByteOffset - byteOffsetBefore, TimeOffset - timeOffsetBefore);
             }
-            Console.WriteLine("];");
+            Console.WriteLine("]");
         }
     }
 }
