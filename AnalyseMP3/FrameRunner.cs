@@ -12,7 +12,7 @@ namespace NOTA
     class AnalyseMP3
     {
         private static long ByteOffset = 0;
-        private static double TimeOffset = 0;
+        private static long MSecOffset = 0;
 
         static void registerDecodeProblem(string reason)
         {
@@ -22,7 +22,6 @@ namespace NOTA
         /// <summary>
         ///  returns whether we should keep on reading
         /// </summary>
-        /// <param name="stream"></param>
         static bool readNextFrame(FileStream stream)
         {
             byte[] header = new byte[4];
@@ -166,7 +165,7 @@ namespace NOTA
             }
 
             ByteOffset += frameLengthInBytes;
-            TimeOffset += duration;
+            MSecOffset += (long)Math.Floor(1000.0 * duration);
 
             return true;
         }
@@ -174,7 +173,6 @@ namespace NOTA
         /// <summary>
         ///  Skip past ID3 in somewhat hackish fashing by looking for 0xff (8 consecutive bits set)
         /// </summary>
-        /// <param name="reader"></param>
         static void skipID3(FileStream stream)
         {
             while(true)
@@ -213,12 +211,12 @@ namespace NOTA
             while (keepGoing)
             {
                 long byteOffsetBefore = ByteOffset;
-                double timeOffsetBefore = TimeOffset;
+                double timeOffsetBefore = MSecOffset;
 
                 while (keepGoing)
                 {
                     keepGoing = readNextFrame(stream);
-                    double secsGone = TimeOffset - timeOffsetBefore;
+                    double secsGone = 0.001 * (MSecOffset - timeOffsetBefore);
                     long bytesSeen = ByteOffset - byteOffsetBefore;
 
                     // we break when we have passed at least 10 seconds or at least 100 KBytes
@@ -232,7 +230,8 @@ namespace NOTA
                 firstLine = false;
 
                 Console.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1}, \"byteLength\": {2}, \"timeDuration\": {3} }}",
-                              byteOffsetBefore, timeOffsetBefore, ByteOffset - byteOffsetBefore, TimeOffset - timeOffsetBefore);
+                              byteOffsetBefore, 0.001 * timeOffsetBefore, 
+                              ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
             }
             Console.WriteLine("];");
         }
