@@ -233,7 +233,7 @@ namespace NOTA
                               byteOffsetBefore, 0.001 * timeOffsetBefore, 
                               ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
             }
-            Console.WriteLine("];");
+            Console.WriteLine("]");
         }
     }
 }
