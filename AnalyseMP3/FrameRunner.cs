@@ -35,7 +35,7 @@ namespace NOTA
 
             if (numRead != 4)
             {
-                registerDecodeProblem("Missing 4 byte frame header");
+                registerDecodeProblem("Missing 4 bytes frame header");
                 return false;
             }
 
@@ -209,6 +209,7 @@ namespace NOTA
             // keep reading until we are out of frames
             Console.Write("[");
             bool keepGoing = true;
+            bool firstLine = true;
             while (keepGoing)
             {
                 long byteOffsetBefore = ByteOffset;
@@ -227,13 +228,13 @@ namespace NOTA
                 // we only output of we actually passed some data
                 if(byteOffsetBefore == ByteOffset) continue;
 
-                Console.Write("{{'byteOffset': {0}, 'timeOffset': {1}, 'byteLength': {2}, 'timeDuration': {3} }}",
+                if (!firstLine) {Console.Write(",\n ");}
+                firstLine = false;
+
+                Console.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1}, \"byteLength\": {2}, \"timeDuration\": {3} }}",
                               byteOffsetBefore, timeOffsetBefore, ByteOffset - byteOffsetBefore, TimeOffset - timeOffsetBefore);
-
-
-                Console.WriteLine(",");
             }
-            Console.WriteLine("];");
+            Console.WriteLine("]");
         }
     }
 }
