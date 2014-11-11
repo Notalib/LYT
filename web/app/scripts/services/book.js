@@ -8,8 +8,8 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'Book', [ '$q', 'BookService', 'BookErrorCodes', 'NCCDocument', 'SMILDocument',
-    function( $q, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
+  .factory( 'Book', [ '$q', 'LYTUtils', 'BookService', 'BookErrorCodes', 'NCCDocument', 'SMILDocument',
+    function( $q, LYTUtils, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
       var __indexOf = [].indexOf || function( item ) {
         for ( var i = 0, l = this.length; i < l; i++ ) {
           if ( i in this && this[ i ] === item ) {
@@ -129,30 +129,20 @@ angular.module( 'lyt3App' )
               return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
             } );
             return nccPromise.then( function( document ) {
-              var creators, metadata, _ref, _ref1;
               obj.document = _this.nccDocument = document;
-              metadata = _this.nccDocument.getMetadata();
-              creators = metadata.creator || [];
+              var metadata = _this.nccDocument.getMetadata();
+              var authors = (metadata.creator || []).forEach(function(creator){
+                return creator.content;
+              });
 
               // Get the author(s)
-              /* TODO:
-              _this.author = LYT.utils.toSentence( ( function() {
-                var _i, _len, _results;
-                _results = [];
-                for ( _i = 0, _len = creators.length; _i < _len; _i++ ) {
-                  creator = creators[ _i ];
-                  _results.push( creator.content );
-                }
-                return _results;
-              } )() );
-              */
-              _this.author = '';
+              _this.author = LYTUtils.toSentence( authors );
 
               // Get the title
-              _this.title = ( ( _ref = metadata.title ) ? _ref.content : void 0 ) || '';
+              _this.title = metadata.title ? metadata.title.content : '';
 
               // Get the total time
-              _this.totalTime = ( ( _ref1 = metadata.totalTime ) ? _ref1.content : void 0 ) || '';
+              _this.totalTime = metadata.totalTime ? metadata.totalTime.content : '';
               ncc.book = _this;
               return resolve();
             } );
@@ -211,6 +201,23 @@ angular.module( 'lyt3App' )
         return ordered;
       };
 
+      Book.prototype.loadAllSMIL = function( ) {
+        var promises = [];
+
+        var defer = $q.defer();
+
+        this.getSMILFiles().forEach(function( url ) {
+          promises.push(this.getSMIL(url));
+        }, this);
+
+        $q.all(promises)
+          .then(function(smildocuments) {
+            defer.resolve(smildocuments);
+          });
+
+        return defer.promise;
+      };
+
       Book.prototype.getSMIL = function( url ) {
         url = url.toLowerCase();
         var deferred = $q.defer();
@@ -220,20 +227,22 @@ angular.module( 'lyt3App' )
         var smil = this.resources[ url ];
         if ( !smil.document ) {
           smil.document = new SMILDocument( smil.url, this );
+          smil.document.promise
+            .then( function( smilDocument ) {
+              return deferred.resolve( smilDocument );
+            } )
+            .catch( function( error ) {
+              smil.document = null;
+              return deferred.reject( error );
+            } );
+        } else {
+          deferred.resolve(smil.document);
         }
-        smil.document.promise
-          .then( function( smilDocument ) {
-            return deferred.resolve( smilDocument );
-          } )
-          .catch( function( error ) {
-            smil.document = null;
-            return deferred.reject( error );
-          } );
         return deferred.promise;
       };
 
       Book.prototype.firstSegment = function() {
-        return this.nccDocument.then( function( document ) {
+        return this.nccDocument.promise.then( function( document ) {
             return document.firstSection();
           } )
           .then( function( section ) {

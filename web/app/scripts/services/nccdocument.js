@@ -183,26 +183,25 @@ angular.module( 'lyt3App' )
        * and the section are loaded.
        */
       NCCDocument.prototype._getSection = function( getter ) {
-        var deferred;
-        deferred = $q.defer();
-        this.catch( function() {
+        var deferred = $q.defer();
+        this.promise.catch( function() {
           return deferred.reject();
         } );
-        this.done( function( document ) {
+        this.promise.then( function( document ) {
           var section = getter( document.sections );
           if ( section ) {
             section.load();
-            section.done( function() {
+            section.promise.done( function() {
               return deferred.resolve( section );
             } );
-            return section.catch( function() {
+            return section.promise.catch( function() {
               return deferred.reject();
             } );
           } else {
             return deferred.reject();
           }
         } );
-        return deferred.promise();
+        return deferred.promise;
       };
 
       NCCDocument.prototype.firstSection = function() {
@@ -212,16 +211,13 @@ angular.module( 'lyt3App' )
       };
 
       NCCDocument.prototype.getSectionByURL = function( url ) {
-        var baseUrl;
-        baseUrl = url.split( '#' )[ 0 ];
+        var baseUrl = url.split( '#' )[ 0 ];
         return this._getSection( function( sections ) {
-          var index, section, _i, _len;
-          for ( index = _i = 0, _len = sections.length; _i < _len; index = ++_i ) {
-            section = sections[ index ];
+          sections.forEach(function(section){
             if ( section.url === baseUrl ) {
               return section;
             }
-          }
+          });
         } );
       };
 

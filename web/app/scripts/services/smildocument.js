@@ -1,16 +1,9 @@
 /*global jQuery: false */
 'use strict';
 
-/**
- * @ngdoc service
- * @name lyt3App.SMILDocument
- * @description
- * # SMILDocument
- * Factory in the lyt3App.
- */
 angular.module( 'lyt3App' )
-  .factory( 'SMILDocument', [ 'DtbDocument', 'Segment',
-    function( DtbDocument, Segment ) {
+  .factory( 'SMILDocument', [ 'LYTUtils', 'DtbDocument', 'Segment',
+    function( LYTUtils, DtbDocument, Segment ) {
       var idCounts, parseMainSeqNode, parseNPT, parseParNode, parseTextNode;
 
       // ## Privileged
@@ -122,8 +115,7 @@ angular.module( 'lyt3App' )
       // Parse the Normal Play Time format (npt=ss.s)
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
       parseNPT = function( string ) {
-        var time;
-        time = string.match( /^npt=([\d.]+)s?$/i );
+        var time = string.match( /^npt=([\d.]+)s?$/i );
         if ( time ) {
           return parseFloat( time[ 1 ], 10 );
         }
@@ -138,7 +130,9 @@ angular.module( 'lyt3App' )
             _this.book = book;
             _this.duration = parseFloat( mainSequence.attr( 'dur' ) ) || 0;
             _this.segments = parseMainSeqNode( mainSequence, _this, book.nccDocument.sections );
-            // TODO: _this.absoluteOffset = LYT.utils.parseTime((_ref = _this.getMetadata().totalElapsedTime) != null ? _ref.content : void 0) || null;
+
+            var totalElapsedTime = _this.getMetadata().totalElapsedTime || void 0;
+            _this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime ) || null;
             _this.filename = _this.url.split( '/' )
               .pop();
           };
@@ -148,54 +142,54 @@ angular.module( 'lyt3App' )
       SMILDocument.prototype = Object.create( DtbDocument.prototype );
 
       SMILDocument.prototype.getSegmentById = function( id ) {
-        var index, segment, _i, _len, _ref;
-        _ref = this.segments;
-        for ( index = _i = 0, _len = _ref.length; _i < _len; index = ++_i ) {
-          segment = _ref[ index ];
+        var res = null;
+        this.segments.some( function( segment ) {
           if ( segment.id === id ) {
-            return segment;
+            res = segment;
+            return true;
           }
-        }
-        return null;
+        } );
+
+        return res;
       };
 
       SMILDocument.prototype.getContainingSegment = function( id ) {
-        var index, segment, _i, _len, _ref;
-        segment = this.getSegmentById( id );
+        var segment = this.getSegmentById( id );
         if ( segment ) {
           return segment;
         }
-        _ref = this.segments;
-        for ( index = _i = 0, _len = _ref.length; _i < _len; index = ++_i ) {
-          segment = _ref[ index ];
-          if ( segment.el.find( '#' + id )
-            .length > 0 ) {
-            return segment;
+
+        this.segments.some( function( _segment ) {
+          if ( _segment.el.find( '#' + id ).length > 0 ) {
+            segment = _segment;
           }
-        }
-        return null;
+        } );
+
+        return segment;
       };
 
       SMILDocument.prototype.getSegmentAtOffset = function( offset ) {
-        var index, segment, _i, _len, _ref;
+        var segment = null;
         if ( !offset ) {
           offset = 0;
         }
+
         if ( offset < 0 ) {
           offset = 0;
         }
-        _ref = this.segments;
-        for ( index = _i = 0, _len = _ref.length; _i < _len; index = ++_i ) {
-          segment = _ref[ index ];
-          if ( ( segment.start <= offset && offset < segment.end ) ) {
-            return segment;
+
+        this.segments.some( function( _segment ) {
+          if ( _segment.start <= offset && offset < _segment.end ) {
+            segment = _segment;
           }
-        }
-        return null;
+        } );
+
+        return segment;
       };
 
       SMILDocument.prototype.getAudioReferences = function() {
         var urls = [];
+
         this.segments.forEach( function( segment ) {
           if ( segment.audio.src ) {
             if ( urls.indexOf( segment.audio.src ) === -1 ) {
@@ -203,25 +197,29 @@ angular.module( 'lyt3App' )
             }
           }
         } );
+
         return urls;
       };
 
       SMILDocument.prototype.orderSegmentsByID = function( id1, id2 ) {
-        var seg1, seg2, segment, _i, _len, _ref;
         if ( id1 === id2 ) {
           return 0;
         }
-        seg1 = this.getSegmentById( id1 );
-        seg2 = this.getSegmentById( id2 );
-        _ref = this.segments;
-        for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-          segment = _ref[ _i ];
+        var seg1 = this.getSegmentById( id1 );
+        var seg2 = this.getSegmentById( id2 );
+
+        var res;
+        this.segments.some( function( segment ) {
           if ( segment.id === seg1.id ) {
-            return -1;
+            res = -1;
+            return true;
           } else if ( segment.id === seg2.id ) {
-            return 1;
+            res = 1;
+            return true;
           }
-        }
+        } );
+
+        return res;
       };
 
       return SMILDocument;
