@@ -14,6 +14,7 @@ angular.module( 'lyt3App' )
         var parData = [];
         var refs = sections.reduce( function( refs, section ) {
           refs[ section.fragment ] = section;
+          return refs;
         }, {} );
 
         sequence.children( 'par' )

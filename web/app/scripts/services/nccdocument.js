@@ -191,14 +191,14 @@ angular.module( 'lyt3App' )
           var section = getter( document.sections );
           if ( section ) {
             section.load();
-            section.promise.done( function() {
-              return deferred.resolve( section );
+            section.promise.then( function() {
+              deferred.resolve( section );
             } );
-            return section.promise.catch( function() {
-              return deferred.reject();
+            section.promise.catch( function() {
+              deferred.reject();
             } );
           } else {
-            return deferred.reject();
+            deferred.reject();
           }
         } );
         return deferred.promise;

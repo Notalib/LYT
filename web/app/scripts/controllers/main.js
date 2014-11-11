@@ -20,7 +20,6 @@ angular.module( 'lyt3App' )
         console.log( 'logOn: then', arguments );
           Book.load(37027).then(function(book) {
             console.log( 'Load book', book );
-            book.firstSegment();
             book.loadAllSMIL().then(function(smildocuments) {
               var output = [];
 
@@ -33,8 +32,9 @@ angular.module( 'lyt3App' )
                   } );
                 });
               } );
-              console.log(output);
-              console.log(JSON.stringify(output));
+//              console.log(output);
+//              console.log(JSON.stringify(output));
+            book.firstSegment();
             } );
           }, function( ) {
             console.log( 'Load book FAILED', arguments );
