@@ -11,3 +11,11 @@ DEADJOE
 .settings
 .lyt.checkfile.*
 fixtures.json
+AnalyseMP3/obj/x86/Debug/FrameRunner.exe
+AnalyseMP3/obj/x86/Debug/FrameRunner.pdb
+AnalyseMP3/obj/x86/Debug/AnalyseMP3.csproj.FileListAbsolute.txt
+AnalyseMP3/obj/x86/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+AnalyseMP3/bin/Debug/FrameRunner.exe
+AnalyseMP3/bin/Debug/FrameRunner.pdb
+AnalyseMP3/bin/Debug/FrameRunner.vshost.exe
+AnalyseMP3/bin/Debug/FrameRunner.vshost.exe.manifest
