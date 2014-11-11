@@ -11,20 +11,20 @@ angular.module( 'lyt3App' )
       // Parse the main `<seq>` element's `<par>`s
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
       parseMainSeqNode = function( sequence, smil, sections ) {
-        var parData, previous, refs, sectionID, segment, segments;
-        segments = [];
-        parData = [];
-        refs = {};
-        sections.forEach( function( section ) {
+        var parData = [];
+        var refs = sections.reduce( function( refs, section ) {
           refs[ section.fragment ] = section;
-        } );
+        }, {} );
+
         sequence.children( 'par' )
           .each( function() {
             parData = parData.concat( parseParNode( jQuery( this ) ) );
           } );
-        previous = null;
-        parData.forEach( function( _segment, index ) {
-          segment = new Segment( _segment, smil );
+
+        var previous = null;
+        var segments = parData.map( function( _segment, index ) {
+          var sectionID;
+          var segment = new Segment( _segment, smil );
           segment.index = index;
           segment.previous = previous;
 
@@ -41,15 +41,19 @@ angular.module( 'lyt3App' )
                 }
               } );
           }
+
           if ( sectionID ) {
             segment.beginSection = refs[ sectionID ];
             sectionID = null;
           }
+
           if ( previous ) {
             previous.next = segment;
           }
-          segments.push( segment );
+
           previous = segment;
+
+          return segment;
         } );
         return segments;
       };
@@ -57,15 +61,14 @@ angular.module( 'lyt3App' )
       // Parse a `<par>` node
       idCounts = {};
       parseParNode = function( par ) {
-        var clip, clips, i, lastClip, reducedClips, text;
+        var lastClip;
         // Find the `text` node, and parse it separately
-        text = parseTextNode( par.find( 'text:first' ) );
+        var text = parseTextNode( par.find( 'text:first' ) );
 
         // Find all nested `audio` nodes
-        clips = par.find( '> audio, seq > audio' )
+        var clips = par.find( '> audio, seq > audio' )
           .map( function() {
-            var audio;
-            audio = jQuery( this );
+            var audio = jQuery( this );
             return {
               id: par.attr( 'id' ) || ( '__LYT_auto_' + ( audio.attr( 'src' ) ) + '_' + ( idCounts[ audio.attr( 'src' ) ]++ ) ),
               start: parseNPT( audio.attr( 'clip-begin' ) ),
@@ -81,26 +84,27 @@ angular.module( 'lyt3App' )
               par: par
             };
           } );
+
         clips = jQuery.makeArray( clips );
         if ( clips.length === 0 ) {
           return [];
         }
+
         // Collapse adjacent audio clips
-        reducedClips = [];
-        i = 0;
-        while ( ( clip = clips[ i ] ) ) {
-          i++;
+        var reducedClips = [];
+        clips.forEach( function( clip ) {
           if ( ( typeof lastClip !== 'undefined' && lastClip !== null ) && clip.audio.src === lastClip.audio.src ) {
             // Ignore small differences between start and end,
             // since this can occur as a result of rounding errors
             if ( Math.abs( clip.start - lastClip.end ) < 0.001 ) {
               lastClip.end = clip.end;
-              continue;
+              return;
             }
           }
+
           lastClip = clip;
           reducedClips.push( clip );
-        }
+        } );
         return reducedClips;
       };
       parseTextNode = function( text ) {
@@ -131,8 +135,8 @@ angular.module( 'lyt3App' )
             _this.duration = parseFloat( mainSequence.attr( 'dur' ) ) || 0;
             _this.segments = parseMainSeqNode( mainSequence, _this, book.nccDocument.sections );
 
-            var totalElapsedTime = _this.getMetadata().totalElapsedTime || void 0;
-            _this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime ) || null;
+            var totalElapsedTime = _this.getMetadata().totalElapsedTime || {};
+            _this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime.content ) || null;
             _this.filename = _this.url.split( '/' )
               .pop();
           };
