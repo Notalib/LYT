@@ -487,13 +487,13 @@ angular.module( 'lyt3App' )
       Book.prototype.searchSections = function( start, handler ) {
         var i, iterator, iterators, makeIterator, searchNext;
         /*
-      * The use of iterators below can easily be adapted to the Strategy
-      * design pattern, accommodating other search orders.
+         * The use of iterators below can easily be adapted to the Strategy
+         * design pattern, accommodating other search orders.
 
-      * Generate an iterator with start value start and nextOp to generate
-      * the next value.
-      * Will stop calling nextOp as soon as nextOp returns null or undefined
-      */
+         * Generate an iterator with start value start and nextOp to generate
+         * the next value.
+         * Will stop calling nextOp as soon as nextOp returns null or undefined
+         */
         makeIterator = function( start, nextOp ) {
           var current;
           current = start;

@@ -73,7 +73,7 @@ angular.module( 'lyt3App' )
         var promise, resource, resources, _ref;
         // Skip if already finished
         if ( this.loading || this.loaded ) {
-          return this;
+          return this.promise;
         }
         this.loading = true;
         this.promise.finally( ( function( _this ) {
