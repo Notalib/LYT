@@ -365,7 +365,7 @@ angular.module( 'lyt3App' )
          *       http://www.daisy.org/z3986/2005/Z3986-2005.html#Clock
          * Parse offset strings ("HH:MM:SS.ss") to seconds, e. g.
          *     parseOffset("1:02:03.05") #=> 3723.05
-         * We keep this function as well as parseTime in LYT.utils because they
+         * We keep this function as well as parseTime in LYTUtils because they
          * are used to parse formats that are not completely identical.
          */
 

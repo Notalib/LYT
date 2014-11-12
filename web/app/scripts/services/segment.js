@@ -1,13 +1,6 @@
 /*global $: false */
 'use strict';
 
-/**
- * @ngdoc service
- * @name lyt3App.Segment
- * @description
- * # Segment
- * Factory in the lyt3App.
- */
 angular.module( 'lyt3App' )
   .factory( 'Segment', [ '$q', 'TextContentDocument', 'Bookmark',
     function( $q, TextContentDocument, Bookmark ) {
@@ -49,6 +42,9 @@ angular.module( 'lyt3App' )
         // Set up deferred load of images
         this._deferred = $q.defer();
         this.promise = this._deferred.promise;
+        this.promise.then(function() {
+          this.ready = true;
+        }.bind(this));
 
         // Properties initialized in the constructor
         this.id = data.id;
@@ -76,16 +72,17 @@ angular.module( 'lyt3App' )
       Segment.prototype.load = function() {
         var promise, resource, resources, _ref;
         // Skip if already finished
-        if ( this.loading || this.state() === 'resolved' ) {
-          return this;
+        if ( this.loading || this.loaded ) {
+          return this.promise;
         }
         this.loading = true;
-        this.always( ( function( _this ) {
+        this.promise.finally( ( function( _this ) {
           return function() {
             _this.loading = false;
+            _this.loaded = true;
           };
         } )( this ) );
-        this.fail( ( function( _this ) {
+        this.promise.catch( ( function( _this ) {
           return function() {
             // TODO: log.error('Segment: failed loading segment ' + (_this.url()));
             console.log.error( 'Segment: failed loading segment ' + ( _this.url() ) );
@@ -105,17 +102,20 @@ angular.module( 'lyt3App' )
           if ( !resource.document ) {
             resource.document = new TextContentDocument( resource.url, resources );
           }
+
           promise = resource.document.promise.then( ( function( _this ) {
             return function( document ) {
               return _this.parseContent( document );
             };
           } )( this ) );
-          promise.done( ( function( _this ) {
+
+          promise.then( ( function( _this ) {
             return function() {
               return _this._deferred.resolve( _this );
             };
           } )( this ) );
-          promise.fail( ( function( _this ) {
+
+          promise.catch( ( function( _this ) {
             return function( status, error ) {
               // TODO: log.error('Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error);
               console.log.error( 'Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error );
@@ -123,16 +123,14 @@ angular.module( 'lyt3App' )
             };
           } )( this ) );
         }
-        return this._deferred.promise( this );
+        return this.promise;
       };
 
       Segment.prototype.url = function() {
         return '' + this.document.filename + '#' + this.id;
       };
 
-      Segment.prototype.ready = function() {
-        return this._deferred.state() !== 'pending';
-      };
+      Segment.prototype.ready = false;
 
       Segment.prototype.hasNext = function() {
         return !!this.next;
@@ -205,7 +203,7 @@ angular.module( 'lyt3App' )
 
       Segment.prototype.smilStart = function() {
         var segment, start;
-        if ( this.smil.start ) {
+        if ( this.smil.start !== undefined ) {
           return this.smil.start;
         }
         start = 0;
@@ -241,11 +239,13 @@ angular.module( 'lyt3App' )
           // TODO: preloadCount = LYT.config.segment.preload.queueSize;
           preloadCount = 10;
         }
+
         this.load();
         if ( preloadCount === 0 ) {
           return;
         }
-        return this.done( ( function( _this ) {
+
+        return this.promise.then( ( function( _this ) {
           return function( segment ) {
             var next = segment.next,
               nextSection;
@@ -256,9 +256,10 @@ angular.module( 'lyt3App' )
               if ( segmentSection ) {
                 nextSection = segmentSection.next;
               }
+
               if ( nextSection ) {
                 return nextSection.firstSegment()
-                  .done( function( next ) {
+                  .promise.then( function( next ) {
                     return next.preloadNext( preloadCount - 1 );
                   } );
               }
@@ -367,14 +368,16 @@ angular.module( 'lyt3App' )
             .parent()
             .html();
           this.canvasSize = getCanvasSize( image );
+          var imageDefer = $q.defer();
+          var imagePromise = imageDefer.promise;
           imageData = {
             src: image.attr( 'src' ),
             element: image[ 0 ],
             //TODO: attempts: LYT.config.segment.imagePreload.attempts,
             attempts: 10,
-            deferred: $q.defer()
+            deferred: imageDefer
           };
-          imageData.deferred.done( ( function( _this ) {
+          imagePromise.done( ( function( _this ) {
             return function( imageData, event ) {
               _this.canvasScale = getCanvasScale( _this.canvasSize, {
                 width: event.target.width,
@@ -383,12 +386,14 @@ angular.module( 'lyt3App' )
             };
           } )( this ) );
           loadImage( imageData );
-          return imageData.deferred.done( ( function( _this ) {
+          imagePromise.done( ( function( _this ) {
             return function() {
               // log.group('Segment: ' + (_this.url()) + ' finished extracting text, html and loading images', _this.text, image);
               return _this;
             };
           } )( this ) );
+
+          return imagePromise;
         } else {
           this.type = 'standard';
         }
@@ -396,7 +401,14 @@ angular.module( 'lyt3App' )
           .resolve();
       };
 
-      return Segment;
+      Segment.prototype.getBookOffset = function( ) {
+        if ( !this.document ) {
+          return 0;
+        }
 
+        return this.document.absoluteOffset + this.smilStart();
+      };
+
+      return Segment;
     }
   ] );

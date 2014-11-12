@@ -8,8 +8,8 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'Book', [ '$q', 'BookService', 'BookErrorCodes', 'NCCDocument', 'SMILDocument',
-    function( $q, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
+  .factory( 'Book', [ '$q', 'LYTUtils', 'BookService', 'BookErrorCodes', 'NCCDocument', 'SMILDocument',
+    function( $q, LYTUtils, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
       var __indexOf = [].indexOf || function( item ) {
         for ( var i = 0, l = this.length; i < l; i++ ) {
           if ( i in this && this[ i ] === item ) {
@@ -27,15 +27,15 @@ angular.module( 'lyt3App' )
        * Here's an example of how to load a book for playback:
        *
        *     # Instantiate the book
-       *     book = new LYT.Book 123
+       *     book = new Book( 123 )
        *
        *     # Set up a callback for when the book's done loading
        *     # The callback receives the book object as its argument
-       *     book.then (book) ->
+       *     book.promise.then (book) ->
        *       # Do something with the book
        *
        *     # Set up a callback to handle any failure to load the book
-       *     book.fail () ->
+       *     book.promise.catch () ->
        *       # Do something about the failure
        */
       function Book( id ) {
@@ -129,30 +129,20 @@ angular.module( 'lyt3App' )
               return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
             } );
             return nccPromise.then( function( document ) {
-              var creators, metadata, _ref, _ref1;
               obj.document = _this.nccDocument = document;
-              metadata = _this.nccDocument.getMetadata();
-              creators = metadata.creator || [];
+              var metadata = _this.nccDocument.getMetadata();
+              var authors = (metadata.creator || []).forEach(function(creator){
+                return creator.content;
+              });
 
               // Get the author(s)
-              /* TODO:
-              _this.author = LYT.utils.toSentence( ( function() {
-                var _i, _len, _results;
-                _results = [];
-                for ( _i = 0, _len = creators.length; _i < _len; _i++ ) {
-                  creator = creators[ _i ];
-                  _results.push( creator.content );
-                }
-                return _results;
-              } )() );
-              */
-              _this.author = '';
+              _this.author = LYTUtils.toSentence( authors );
 
               // Get the title
-              _this.title = ( ( _ref = metadata.title ) ? _ref.content : void 0 ) || '';
+              _this.title = metadata.title ? metadata.title.content : '';
 
               // Get the total time
-              _this.totalTime = ( ( _ref1 = metadata.totalTime ) ? _ref1.content : void 0 ) || '';
+              _this.totalTime = metadata.totalTime ? metadata.totalTime.content : '';
               ncc.book = _this;
               return resolve();
             } );
@@ -211,6 +201,23 @@ angular.module( 'lyt3App' )
         return ordered;
       };
 
+      Book.prototype.loadAllSMIL = function( ) {
+        var promises = [];
+
+        var defer = $q.defer();
+
+        this.getSMILFiles().forEach(function( url ) {
+          promises.push(this.getSMIL(url));
+        }, this);
+
+        $q.all(promises)
+          .then(function(smildocuments) {
+            defer.resolve(smildocuments);
+          });
+
+        return defer.promise;
+      };
+
       Book.prototype.getSMIL = function( url ) {
         url = url.toLowerCase();
         var deferred = $q.defer();
@@ -220,20 +227,22 @@ angular.module( 'lyt3App' )
         var smil = this.resources[ url ];
         if ( !smil.document ) {
           smil.document = new SMILDocument( smil.url, this );
+          smil.document.promise
+            .then( function( smilDocument ) {
+              return deferred.resolve( smilDocument );
+            } )
+            .catch( function( error ) {
+              smil.document = null;
+              return deferred.reject( error );
+            } );
+        } else {
+          deferred.resolve(smil.document);
         }
-        smil.document.promise
-          .then( function( smilDocument ) {
-            return deferred.resolve( smilDocument );
-          } )
-          .catch( function( error ) {
-            smil.document = null;
-            return deferred.reject( error );
-          } );
         return deferred.promise;
       };
 
       Book.prototype.firstSegment = function() {
-        return this.nccDocument.then( function( document ) {
+        return this.nccDocument.promise.then( function( document ) {
             return document.firstSection();
           } )
           .then( function( section ) {
@@ -478,13 +487,13 @@ angular.module( 'lyt3App' )
       Book.prototype.searchSections = function( start, handler ) {
         var i, iterator, iterators, makeIterator, searchNext;
         /*
-      * The use of iterators below can easily be adapted to the Strategy
-      * design pattern, accommodating other search orders.
+         * The use of iterators below can easily be adapted to the Strategy
+         * design pattern, accommodating other search orders.
 
-      * Generate an iterator with start value start and nextOp to generate
-      * the next value.
-      * Will stop calling nextOp as soon as nextOp returns null or undefined
-      */
+         * Generate an iterator with start value start and nextOp to generate
+         * the next value.
+         * Will stop calling nextOp as soon as nextOp returns null or undefined
+         */
         makeIterator = function( start, nextOp ) {
           var current;
           current = start;
@@ -550,6 +559,29 @@ angular.module( 'lyt3App' )
           }
         };
         return searchNext();
+      };
+
+      Book.prototype.getBookStructure = function( ) {
+        var defer = $q.defer();
+        var promises = this.nccDocument.structure.reduce( function( flat, section ) {
+          return flat.concat( section.flatten( ) );
+        }, [] ).map( function( section ) {
+          var loadSegment = $q.defer();
+          this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
+            loadSegment.resolve( {
+              title: section.title,
+              offset: segment.getBookOffset()
+            } );
+          } );
+
+          return loadSegment.promise;
+        }, this );
+
+        $q.all(promises).then(function( segments ) {
+          defer.resolve( segments );
+        });
+
+        return defer.promise;
       };
 
       // Factory-method

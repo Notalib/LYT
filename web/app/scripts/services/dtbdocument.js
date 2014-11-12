@@ -4,8 +4,6 @@
 angular.module( 'lyt3App' )
   .factory( 'DtbDocument', [ '$q', 'BookService',
       function( $q, BookService ) {
-        var __hasProp = {}.hasOwnProperty;
-
         /**
          * Meta-element name attribute values to look for
          * Name attribute values for nodes that may appear 0-1 times per file
@@ -133,24 +131,26 @@ angular.module( 'lyt3App' )
            *
            * `DTBDocument`.promise for the object promise object
            */
-          var attempts, coerceToHTML, dataType, deferred, failed, load, loaded, resolve, useForceClose;
+          var failed, load, loaded, resolve;
           this.url = url;
-          deferred = $q.defer();
+          var deferred = $q.defer();
           this.promise = deferred.promise;
 
           // This instance property will hold the XML/HTML
           // document, once it's been downloaded
           this.source = null;
-          dataType = /\.x?html?$/i.test( this.url ) ? 'html' : 'xml';
+          var dataType = /\.x?html?$/i.test( this.url ) ? 'html' : 'xml';
           // attempts = ((_ref = LYT.config.dtbDocument) != null ? _ref.attempts : void 0) || 3;
-          attempts = 3;
+          var attempts = 3;
+
+          var useForceClose = 0;
           // if ((((_ref1 = LYT.config.dtbDocument) != null ? _ref1.useForceClose : void 0) != null) !== false)
           if ( !useForceClose ) {
             useForceClose = true;
           }
 
           // Internal function to convert raw text to a HTML DOM document
-          coerceToHTML = ( function( _this ) {
+          var coerceToHTML = ( function( _this ) {
             return function( responseText ) {
               var container, doc, e, markup, scriptTagRegex;
               // log.message("DTB: Coercing " + _this.url + " into HTML");
@@ -187,8 +187,11 @@ angular.module( 'lyt3App' )
               container = doc.createElement( 'div' );
               container.innerHTML = markup;
               if ( doc.documentElement ) {
-                if ( doc.documentElement.body ) {
-                  doc.documentElement.body.appendChild( container );
+                var bodyElements = doc.documentElement.getElementsByTagName('body');
+                if ( bodyElements ) {
+                  bodyElements[0].appendChild( container );
+                } else {
+                  doc.appendChild( container );
                 }
               } else {
                 doc.appendChild( container );
@@ -251,6 +254,7 @@ angular.module( 'lyt3App' )
               return deferred.reject( status, error );
             };
           } )( this );
+
           resolve = ( function( _this ) {
             return function() {
               if ( _this.source ) {
@@ -299,7 +303,6 @@ angular.module( 'lyt3App' )
 
         // Parse and return the metadata as an array
         DTBDocument.prototype.getMetadata = function() {
-          var findNodes, found, name, values, xml, _ref, _ref1;
           if ( !this.source ) {
             return {};
           }
@@ -311,23 +314,18 @@ angular.module( 'lyt3App' )
 
           // Find the `meta` elements matching the given name-attribute values.
           // Multiple values are given as an array
-          findNodes = ( function( _this ) {
+          var findNodes = ( function( _this ) {
             return function( values ) {
-              var nodes, selectors, value;
               if ( !( values instanceof Array ) ) {
                 values = [ values ];
               }
-              nodes = [];
-              selectors = ( ( function() {
-                var _i, _len, _results;
-                _results = [];
-                for ( _i = 0, _len = values.length; _i < _len; _i++ ) {
-                  value = values[ _i ];
-                  _results.push( 'meta[name*="' + value + '"]' );
-                }
-                return _results;
-              } )() )
-                .join( ', ' );
+
+              var nodes = [];
+
+              var selectors = values.map(function(value) {
+                return 'meta[name*="' + value + '"]';
+              } ).join(', ');
+
               _this.source.find( selectors )
                 .each( function() {
                   var node = jQuery( this );
@@ -336,36 +334,35 @@ angular.module( 'lyt3App' )
                     scheme: node.attr( 'scheme' ) || null
                   } );
                 } );
+
               if ( nodes.length === 0 ) {
                 return null;
               }
+
               return nodes;
             };
           } )( this );
-          xml = this.source.find( 'meta' );
-          this._metadata = {};
-          _ref = METADATA_NAMES.singular;
-          for ( name in _ref ) {
-            if ( !__hasProp.call( _ref, name ) ) {
-              continue;
-            }
-            values = _ref[ name ];
-            found = findNodes( values );
+
+          this._metadata = Object.keys(METADATA_NAMES.singular).reduce( function( metadata, name ) {
+            var values = METADATA_NAMES.singular[name];
+            var found = findNodes( values );
             if ( found ) {
-              this._metadata[ name ] = found.shift();
+              metadata[ name ] = found.shift();
             }
-          }
-          _ref1 = METADATA_NAMES.plural;
-          for ( name in _ref1 ) {
-            if ( !__hasProp.call( _ref1, name ) ) {
-              continue;
-            }
-            values = _ref1[ name ];
-            found = findNodes( values );
+
+            return metadata;
+          }, {} );
+
+          this._metadata = Object.keys(METADATA_NAMES.plural).reduce( function( metadata, name ) {
+            var values = METADATA_NAMES.plural[name];
+            var found = findNodes( values );
             if ( found ) {
-              this._metadata[ name ] = found;
+              metadata[ name ] = found;
             }
-          }
+
+            return metadata;
+          }, this._metadata );
+
           return this._metadata;
         };
 

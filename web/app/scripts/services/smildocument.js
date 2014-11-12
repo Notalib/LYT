@@ -1,16 +1,9 @@
 /*global jQuery: false */
 'use strict';
 
-/**
- * @ngdoc service
- * @name lyt3App.SMILDocument
- * @description
- * # SMILDocument
- * Factory in the lyt3App.
- */
 angular.module( 'lyt3App' )
-  .factory( 'SMILDocument', [ 'DtbDocument', 'Segment',
-    function( DtbDocument, Segment ) {
+  .factory( 'SMILDocument', [ 'LYTUtils', 'DtbDocument', 'Segment',
+    function( LYTUtils, DtbDocument, Segment ) {
       var idCounts, parseMainSeqNode, parseNPT, parseParNode, parseTextNode;
 
       // ## Privileged
@@ -18,20 +11,21 @@ angular.module( 'lyt3App' )
       // Parse the main `<seq>` element's `<par>`s
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
       parseMainSeqNode = function( sequence, smil, sections ) {
-        var parData, previous, refs, sectionID, segment, segments;
-        segments = [];
-        parData = [];
-        refs = {};
-        sections.forEach( function( section ) {
+        var parData = [];
+        var refs = sections.reduce( function( refs, section ) {
           refs[ section.fragment ] = section;
-        } );
+          return refs;
+        }, {} );
+
         sequence.children( 'par' )
           .each( function() {
             parData = parData.concat( parseParNode( jQuery( this ) ) );
           } );
-        previous = null;
-        parData.forEach( function( _segment, index ) {
-          segment = new Segment( _segment, smil );
+
+        var previous = null;
+        var segments = parData.map( function( _segment, index ) {
+          var sectionID;
+          var segment = new Segment( _segment, smil );
           segment.index = index;
           segment.previous = previous;
 
@@ -48,15 +42,19 @@ angular.module( 'lyt3App' )
                 }
               } );
           }
+
           if ( sectionID ) {
             segment.beginSection = refs[ sectionID ];
             sectionID = null;
           }
+
           if ( previous ) {
             previous.next = segment;
           }
-          segments.push( segment );
+
           previous = segment;
+
+          return segment;
         } );
         return segments;
       };
@@ -64,15 +62,14 @@ angular.module( 'lyt3App' )
       // Parse a `<par>` node
       idCounts = {};
       parseParNode = function( par ) {
-        var clip, clips, i, lastClip, reducedClips, text;
+        var lastClip;
         // Find the `text` node, and parse it separately
-        text = parseTextNode( par.find( 'text:first' ) );
+        var text = parseTextNode( par.find( 'text:first' ) );
 
         // Find all nested `audio` nodes
-        clips = par.find( '> audio, seq > audio' )
+        var clips = par.find( '> audio, seq > audio' )
           .map( function() {
-            var audio;
-            audio = jQuery( this );
+            var audio = jQuery( this );
             return {
               id: par.attr( 'id' ) || ( '__LYT_auto_' + ( audio.attr( 'src' ) ) + '_' + ( idCounts[ audio.attr( 'src' ) ]++ ) ),
               start: parseNPT( audio.attr( 'clip-begin' ) ),
@@ -88,26 +85,27 @@ angular.module( 'lyt3App' )
               par: par
             };
           } );
+
         clips = jQuery.makeArray( clips );
         if ( clips.length === 0 ) {
           return [];
         }
+
         // Collapse adjacent audio clips
-        reducedClips = [];
-        i = 0;
-        while ( ( clip = clips[ i ] ) ) {
-          i++;
+        var reducedClips = [];
+        clips.forEach( function( clip ) {
           if ( ( typeof lastClip !== 'undefined' && lastClip !== null ) && clip.audio.src === lastClip.audio.src ) {
             // Ignore small differences between start and end,
             // since this can occur as a result of rounding errors
             if ( Math.abs( clip.start - lastClip.end ) < 0.001 ) {
               lastClip.end = clip.end;
-              continue;
+              return;
             }
           }
+
           lastClip = clip;
           reducedClips.push( clip );
-        }
+        } );
         return reducedClips;
       };
       parseTextNode = function( text ) {
@@ -122,8 +120,7 @@ angular.module( 'lyt3App' )
       // Parse the Normal Play Time format (npt=ss.s)
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
       parseNPT = function( string ) {
-        var time;
-        time = string.match( /^npt=([\d.]+)s?$/i );
+        var time = string.match( /^npt=([\d.]+)s?$/i );
         if ( time ) {
           return parseFloat( time[ 1 ], 10 );
         }
@@ -138,7 +135,9 @@ angular.module( 'lyt3App' )
             _this.book = book;
             _this.duration = parseFloat( mainSequence.attr( 'dur' ) ) || 0;
             _this.segments = parseMainSeqNode( mainSequence, _this, book.nccDocument.sections );
-            // TODO: _this.absoluteOffset = LYT.utils.parseTime((_ref = _this.getMetadata().totalElapsedTime) != null ? _ref.content : void 0) || null;
+
+            var totalElapsedTime = _this.getMetadata().totalElapsedTime || {};
+            _this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime.content ) || null;
             _this.filename = _this.url.split( '/' )
               .pop();
           };
@@ -148,54 +147,56 @@ angular.module( 'lyt3App' )
       SMILDocument.prototype = Object.create( DtbDocument.prototype );
 
       SMILDocument.prototype.getSegmentById = function( id ) {
-        var index, segment, _i, _len, _ref;
-        _ref = this.segments;
-        for ( index = _i = 0, _len = _ref.length; _i < _len; index = ++_i ) {
-          segment = _ref[ index ];
+        var res = null;
+        this.segments.some( function( segment ) {
           if ( segment.id === id ) {
-            return segment;
+            res = segment;
+            return true;
           }
-        }
-        return null;
+        } );
+
+        return res;
       };
 
       SMILDocument.prototype.getContainingSegment = function( id ) {
-        var index, segment, _i, _len, _ref;
-        segment = this.getSegmentById( id );
+        var segment = this.getSegmentById( id );
         if ( segment ) {
           return segment;
         }
-        _ref = this.segments;
-        for ( index = _i = 0, _len = _ref.length; _i < _len; index = ++_i ) {
-          segment = _ref[ index ];
-          if ( segment.el.find( '#' + id )
-            .length > 0 ) {
-            return segment;
+
+        this.segments.some( function( _segment ) {
+          if ( _segment.el.find( '#' + id ).length > 0 ) {
+            segment = _segment;
+            return true;
           }
-        }
-        return null;
+        } );
+
+        return segment;
       };
 
       SMILDocument.prototype.getSegmentAtOffset = function( offset ) {
-        var index, segment, _i, _len, _ref;
+        var segment = null;
         if ( !offset ) {
           offset = 0;
         }
+
         if ( offset < 0 ) {
           offset = 0;
         }
-        _ref = this.segments;
-        for ( index = _i = 0, _len = _ref.length; _i < _len; index = ++_i ) {
-          segment = _ref[ index ];
-          if ( ( segment.start <= offset && offset < segment.end ) ) {
-            return segment;
+
+        this.segments.some( function( _segment ) {
+          if ( _segment.start <= offset && offset < _segment.end ) {
+            segment = _segment;
+            return true;
           }
-        }
-        return null;
+        } );
+
+        return segment;
       };
 
       SMILDocument.prototype.getAudioReferences = function() {
         var urls = [];
+
         this.segments.forEach( function( segment ) {
           if ( segment.audio.src ) {
             if ( urls.indexOf( segment.audio.src ) === -1 ) {
@@ -203,25 +204,29 @@ angular.module( 'lyt3App' )
             }
           }
         } );
+
         return urls;
       };
 
       SMILDocument.prototype.orderSegmentsByID = function( id1, id2 ) {
-        var seg1, seg2, segment, _i, _len, _ref;
         if ( id1 === id2 ) {
           return 0;
         }
-        seg1 = this.getSegmentById( id1 );
-        seg2 = this.getSegmentById( id2 );
-        _ref = this.segments;
-        for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-          segment = _ref[ _i ];
+        var seg1 = this.getSegmentById( id1 );
+        var seg2 = this.getSegmentById( id2 );
+
+        var res;
+        this.segments.some( function( segment ) {
           if ( segment.id === seg1.id ) {
-            return -1;
+            res = -1;
+            return true;
           } else if ( segment.id === seg2.id ) {
-            return 1;
+            res = 1;
+            return true;
           }
-        }
+        } );
+
+        return res;
       };
 
       return SMILDocument;
