@@ -71,12 +71,12 @@
 }
 
 -(void)testPlay {
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"bunker137.json" ofType:nil];
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"37027.json" ofType:nil];
     NSData* data = [NSData dataWithContentsOfFile:path];
-    NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+    NSDictionary* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
     
     NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20020/37027/"];
-    Book* book = [Book bookFromDictionaries:json baseURL:baseURL];
+    Book* book = [Book bookFromDictionary:json baseURL:baseURL];
     [book joinParts];
     
     queuePlayer = [book makeQueuePlayer];

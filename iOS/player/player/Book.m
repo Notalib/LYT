@@ -11,9 +11,14 @@
 
 @implementation Book
 
-+(Book*)bookFromDictionaries:(NSArray*)dictionaries baseURL:(NSURL*)baseURL {
-    NSMutableArray* parts = [NSMutableArray arrayWithCapacity:dictionaries.count];
-    for (NSDictionary* dictionary in dictionaries) {
+-(NSString*)description {
+    return [NSString stringWithFormat:@"%@ %@: \n%@", self.title, self.author, self.parts];
+}
+
++(Book*)bookFromDictionary:(NSDictionary*)dictionary baseURL:(NSURL*)baseURL {
+    NSArray* partDictionaries = [dictionary objectForKey:@"playlist"];
+    NSMutableArray* parts = [NSMutableArray arrayWithCapacity:partDictionaries.count];
+    for (NSDictionary* dictionary in partDictionaries) {
         NSString* url = [dictionary objectForKey:@"url"];
         NSNumber* start = [dictionary objectForKey:@"start"];
         NSNumber* end = [dictionary objectForKey:@"end"];
@@ -28,6 +33,8 @@
     }
     
     Book* book = [Book new];
+    book.title = [dictionary objectForKey:@"title"];
+    book.author = [dictionary objectForKey:@"author"];
     book->_parts = parts;
     return book;
 }
