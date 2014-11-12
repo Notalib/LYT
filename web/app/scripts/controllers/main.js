@@ -20,7 +20,7 @@ angular.module( 'lyt3App' )
         console.log( 'logOn: then', arguments );
           Book.load(37027).then(function(book) {
             book.getStructure().then(function(bookStructure) {
-              console.log(bookStructure);
+              console.log(JSON.stringify(bookStructure));
             } );
           }, function( ) {
             console.log( 'Load book FAILED', arguments );

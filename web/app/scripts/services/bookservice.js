@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'BookService', [ '$q', 'DODPErrorCodes', 'DODP',
-    function( $q, DODPErrorCodes, DODP ) {
+  .factory( 'BookService', [ '$q', 'LYTSession', 'DODPErrorCodes', 'DODP',
+    function( $q, LYTSession, DODPErrorCodes, DODP ) {
       /*
        *
        * Higher-level functions for interacting with the server
@@ -46,6 +46,18 @@ angular.module( 'lyt3App' )
       // The current logon process(es)
       currentLogOnProcess = null;
       currentRefreshSessionProcess = null;
+
+      var gotServiceAttrs = function( services ) {
+        Object.keys(operations).forEach(function(op) {
+          operations[op] = false;
+        });
+
+        if ( services.supportedOptionalOperations && services.supportedOptionalOperations.operation ) {
+          services.supportedOptionalOperations.operation.forEach( function(op) {
+            operations[ op ] = true;
+          } );
+        }
+      };
 
       // Initilize serviceAttributes with values when we are logged in but user reloads scripts.....
       DODP.getServiceAttributes()
@@ -146,6 +158,7 @@ angular.module( 'lyt3App' )
         } );
         return deferred.promise;
       };
+
       onCurrentLogOn = function( handlers ) {
         var handlerName, promise, _results;
         promise = currentLogOnProcess;
@@ -163,7 +176,7 @@ angular.module( 'lyt3App' )
       // Perform the logOn handshake:
       // `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
       logOn = function( username, password ) {
-        var attemptLogOn, attempts, deferred, failed, gotServiceAnnouncements, gotServiceAttrs, loggedOn, readingSystemAttrsSet;
+        var attemptLogOn, attempts, deferred, failed, gotServiceAnnouncements, loggedOn, readingSystemAttrsSet;
         // Check for and return any pending logon processes
         if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
           return currentLogOnProcess;
@@ -179,11 +192,11 @@ angular.module( 'lyt3App' )
           currentLogOnProcess.state = 'rejected';
         } );
         if ( !( username && password ) ) {
-          /* TODO:
-        if ((credentials = LYT.session.getCredentials())) {
-          username = credentials.username, password = credentials.password;
-        }
-        */
+          var credentials = LYTSession.getCredentials();
+          if ( credentials  ) {
+            username = credentials.username;
+            password = credentials.password;
+          }
         }
         if ( !( username && password ) ) {
           emit( 'logon:rejected' );
@@ -210,27 +223,23 @@ angular.module( 'lyt3App' )
             }
           }
         };
-        loggedOn = function( /*data*/) {
+
+        loggedOn = function( data ) {
           emit( 'logon:resolved' );
-          // TODO: LYT.session.setCredentials(username, password);
-          // TODO: LYT.session.setInfo(data);
+
+          LYTSession.setCredentials(username, password);
+          LYTSession.setInfo(data);
+
           return DODP.getServiceAttributes()
             .then( gotServiceAttrs )
+            .then( function( ) {
+              DODP.setReadingSystemAttributes()
+                .then( readingSystemAttrsSet )
+                .catch( failed );
+            } )
             .catch( failed );
         };
-        gotServiceAttrs = function( ops ) {
-          var op, _i, _len;
-          for ( op in operations ) {
-            operations[ op ] = false;
-          }
-          for ( _i = 0, _len = ops.length; _i < _len; _i++ ) {
-            op = ops[ _i ];
-            operations[ op ] = true;
-          }
-          return DODP.setReadingSystemAttributes()
-            .then( readingSystemAttrsSet )
-            .catch( failed );
-        };
+
         readingSystemAttrsSet = function() {
           deferred.resolve(); // returning that logon is Ok.
           if ( BookService.announcementsSupported() ) {
@@ -238,10 +247,12 @@ angular.module( 'lyt3App' )
               .then( gotServiceAnnouncements );
           }
         };
+
         gotServiceAnnouncements = function( /*announcements*/) {
           // Calling GUI to show announcements
           // TODO: return LYT.render.showAnnouncements(announcements);
         };
+
         attemptLogOn = function() {
           --attempts;
           // log.message('Service: Attempting log-on (' + attempts + ' attempt(s) left)');
@@ -284,12 +295,11 @@ angular.module( 'lyt3App' )
           fail = function() {
             return deferred.reject();
           };
-          /* TODO:
-        if ((credentials = LYT.session.getCredentials())) {
-          username = credentials.username;
-          password = credentials.password;
-        }
-        */
+          var credentials = LYTSession.getCredentials();
+          if ( credentials ) {
+            username = credentials.username;
+            password = credentials.password;
+          }
           if ( !( username && password ) ) {
             fail();
             return deferred.promise;
@@ -319,7 +329,7 @@ angular.module( 'lyt3App' )
         logOff: function() {
           return DODP.logOff()
             .finally( function() {
-              // TODO: LYT.session.clear();
+              LYTSession.clear();
               return emit( 'logoff' );
             } );
         },
@@ -351,37 +361,28 @@ angular.module( 'lyt3App' )
          * Specifying `-1` as the `to` argument will get all
          * items from the `from` index to the end of the list
          */
-        getBookshelf: function( from, to ) {
-          var deferred, response;
-          if ( !from ) {
-            from = 0;
-          }
-          if ( !to ) {
-            to = -1;
-          }
-          deferred = $q.defer();
-          response = withLogOn( function() {
-            return DODP.getContentList( 'issued', from, to );
-          } );
-          response.then( function( list ) {
-            var item, _i, _len, _ref, _ref1;
-            for ( _i = 0, _len = list.length; _i < _len; _i++ ) {
-              // TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
-              // To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
-              // See issue #17 on Github
-              item = list[ _i ];
-              _ref1 = ( ( _ref = item.label ) ? _ref.split( '$' ) : void 0 ) || [ '', '' ];
-              item.author = _ref1[ 0 ];
-              item.title = _ref1[ 1 ];
-              delete item.label;
+        getBookshelf: (function() {
+          return function( from, to ) {
+            var deferred, response;
+            if ( !from ) {
+              from = 0;
             }
-            return deferred.resolve( list );
-          } );
-          response.catch( function( err, message ) {
-            return deferred.reject( err, message );
-          } );
-          return deferred.promise;
-        },
+            if ( to === undefined ) {
+              to = -1;
+            }
+            deferred = $q.defer();
+            response = withLogOn( function() {
+              return DODP.getContentList( 'issued', from, to );
+            } );
+            response.then( function( list ) {
+              return deferred.resolve( list );
+            } );
+            response.catch( function( err, message ) {
+              return deferred.reject( err, message );
+            } );
+            return deferred.promise;
+          };
+        })(),
 
         /* -------
          * ## Optional operations
@@ -418,21 +419,22 @@ angular.module( 'lyt3App' )
           } );
         },
         getAnnouncements: function() {
-          var deferred, response;
+          var deferred = $q.defer();
           if ( BookService.announcementsSupported() ) {
-            deferred = $q.defer();
-            response = withLogOn( function() {
+            withLogOn( function() {
               return DODP.getServiceAnnouncements();
-            } );
-            response.then( function( /*announcements*/) {
+            } )
+            .then( function( /*announcements*/) {
               // LYT.render.showAnnouncements(announcements);
               return deferred.resolve();
-            } );
-            response.catch( function( err, message ) {
+            } )
+            .catch( function( err, message ) {
               return deferred.reject( err, message );
             } );
-            return deferred.promise;
+          } else {
+            deferred.reject( );
           }
+          return deferred.promise;
         }
       };
 

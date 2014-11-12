@@ -221,9 +221,9 @@ angular.module( 'lyt3App' )
         createRequest( 'getServiceAttributes' )
           .then( function ( response ) {
             var getServiceAttributesResponse = response.data.Body.getServiceAttributesResponse || {};
-            var services = getServiceAttributesResponse.serviceAttributes || {};
+            var services = getServiceAttributesResponse.serviceAttributes;
 
-            if ( Object.keys( services ).length ) {
+            if ( services && Object.keys( services ).length ) {
               defer.resolve( services );
             } else {
               defer.reject(
@@ -292,14 +292,39 @@ angular.module( 'lyt3App' )
           } )
           .then( function ( response ) {
             var data = response.data;
-            if ( data.Body.getContentListResponse && data.Body.getContentListResponse
-              .contentList ) {
-              defer.resolve( data.Body.getContentListResponse.contentList );
+            var Body = data.Body || {};
+            var getContentListResponse = Body.getContentListResponse || {};
+            var contentList = getContentListResponse.contentList || {};
+            if ( contentList ) {
+              var attrs = contentList.attrs;
+              var list = {
+                firstItem: attrs.firstItem,
+                id: attrs.id,
+                lastItem: attrs.lastItem,
+                totalItems: attrs.totalItems,
+                items: []
+              };
+
+              list.items = ( contentList.contentItem || [] ).map( function( item ) {
+                // TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
+                // To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
+                // See issue #17 on Github
+
+                var label = item.label.text || '';
+                var labelArr = label.split( '$' );
+                return {
+                  id: item.attrs.id,
+                  author: labelArr[0],
+                  title: labelArr[1]
+                };
+              } );
+
+              defer.resolve( list );
             } else {
-              defer.reject( 'setReadingSystemAttributes failed' );
+              defer.reject( 'getContentList failed' );
             }
           }, function ( ) {
-            defer.reject( 'setReadingSystemAttributes failed' );
+            defer.reject( 'getContentList failed' );
           } );
 
         return defer.promise;

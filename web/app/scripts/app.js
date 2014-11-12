@@ -17,6 +17,7 @@ angular
     'ngSanitize',
     'ngTouch',
     'xml',
+    'LocalStorageModule',
   ] )
   .config( function( $routeProvider ) {
     $routeProvider
@@ -27,6 +28,11 @@ angular
       .when( '/about', {
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl'
+      } )
+      .when( '/bookshelf', {
+        templateUrl: 'views/bookshelf.html',
+        reloadOnSearch: false,
+        controller: 'BookshelfCtrl'
       } )
       .otherwise( {
         redirectTo: '/'
