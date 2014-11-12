@@ -42,6 +42,8 @@
 		BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */; };
 		BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
+		BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
+		BE6DC6731A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
 		BEB1BA191A121B140066F4FD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA181A121B140066F4FD /* main.m */; };
 		BEB1BA1C1A121B140066F4FD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA1B1A121B140066F4FD /* AppDelegate.m */; };
 		BEB1BA1F1A121B140066F4FD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA1E1A121B140066F4FD /* ViewController.m */; };
@@ -83,6 +85,7 @@
 		BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 3_Grantret.json; sourceTree = "<group>"; };
 		BE3D47DB1A1240E000DA2294 /* SoundChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundChunk.h; sourceTree = "<group>"; };
 		BE3D47DC1A1240E000DA2294 /* SoundChunk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundChunk.m; sourceTree = "<group>"; };
+		BE6DC6711A1397C8000DB1C2 /* 37027.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 37027.json; sourceTree = "<group>"; };
 		BEB1BA131A121B140066F4FD /* player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB1BA171A121B140066F4FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BEB1BA181A121B140066F4FD /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -120,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */,
+				BE6DC6711A1397C8000DB1C2 /* 37027.json */,
 				BE08A1B91A13690E00772B6D /* bunker137.json */,
 				BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */,
 				BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */,
@@ -253,6 +257,11 @@
 				TargetAttributes = {
 					BEB1BA121A121B140066F4FD = {
 						CreatedOnToolsVersion = 6.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					BEB1BA2B1A121B150066F4FD = {
 						CreatedOnToolsVersion = 6.1;
@@ -291,6 +300,7 @@
 				BE08A1A11A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */,
 				BE08A1A91A1368D700772B6D /* 06_Kapitel_2.json in Resources */,
 				BE08A1B51A1368D700772B6D /* 12_Kapitel_8.json in Resources */,
+				BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */,
 				BEB1BA221A121B150066F4FD /* Main.storyboard in Resources */,
 				BEB1BA271A121B150066F4FD /* LaunchScreen.xib in Resources */,
 				BE08A1AD1A1368D700772B6D /* 08_Kapitel_4.json in Resources */,
@@ -321,6 +331,7 @@
 				BE08A1AA1A1368D700772B6D /* 06_Kapitel_2.json in Resources */,
 				BE08A1A81A1368D700772B6D /* 05_Kapitel_1.json in Resources */,
 				BE08A1AC1A1368D700772B6D /* 07_Kapitel_3.json in Resources */,
+				BE6DC6731A1397C8000DB1C2 /* 37027.json in Resources */,
 				BE08A1B41A1368D700772B6D /* 11_Kapitel_7.json in Resources */,
 				BE08A1B01A1368D700772B6D /* 09_Kapitel_5.json in Resources */,
 			);

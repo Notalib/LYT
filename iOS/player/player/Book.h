@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 NOTA. All rights reserved.
 //
 
+#import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
 @interface Book : NSObject
@@ -17,5 +18,10 @@
 //      "end": 3.999}
 // and baseURL is used to create workable URL's.
 +(Book*)bookFromDictionaries:(NSArray*)dictionaries baseURL:(NSURL*)baseURL;
+
+// try to make fewer parts by joining parts of book that are consecutive
+-(void)joinParts;
+
+-(AVQueuePlayer*)makeQueuePlayer;
 
 @end

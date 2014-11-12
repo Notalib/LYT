@@ -10,7 +10,9 @@
 #import <XCTest/XCTest.h>
 #import "Book.h"
 
-@interface playerTests : XCTestCase
+@interface playerTests : XCTestCase {
+    NSURL* baseURL;
+}
 
 @end
 
@@ -18,7 +20,10 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    // TODO: Right now we need to edit baseURL by hand, but to make repeatable tests we
+    // need some way to obtain replacement fior second to last number (20008).
+    baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20008/37027/"];
 }
 
 - (void)tearDown {
@@ -27,10 +32,6 @@
 }
 
 -(void)testReadBook {
-    // TODO: Right now we need to edit baseURL by hand, but to make repeatable tests we
-    // need some way to obtain the last number.
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20008/37027/"];
-    
     NSString* path = [[NSBundle mainBundle] pathForResource:@"bunker137.json" ofType:nil];
     NSData* data = [NSData dataWithContentsOfFile:path];
     NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
@@ -40,8 +41,33 @@
     NSLog(@"book = %@", book.parts);
     XCTAssertNotNil(book);
     XCTAssertTrue(book.parts.count >= 1);
+    
+    [book joinParts];
+    NSLog(@"joined book = %@", book.parts);
+    XCTAssertTrue(book.parts.count >= 1);
 }
 
+-(void)testPlaybook {
+    XCTestExpectation* expectation = [self expectationWithDescription:@"async"];
+    
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"bunker137.json" ofType:nil];
+    NSData* data = [NSData dataWithContentsOfFile:path];
+    NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+
+    Book* book = [Book bookFromDictionaries:json baseURL:baseURL];
+    [book joinParts];
+    
+    NSLog(@"joined book = %@", book.parts);
+    XCTAssertTrue(book.parts.count >= 1);
+    
+    AVQueuePlayer* player = [book makeQueuePlayer];
+    [player play];
+    
+    [self waitForExpectationsWithTimeout:120 handler:^(NSError* error) {
+        XCTAssertNil(error, "Timeout exceeded");
+    }];
+
+}
 
 - (void)testPerformanceExample {
     // This is an example of a performance test case.

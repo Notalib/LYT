@@ -30,6 +30,35 @@
     Book* book = [Book new];
     book->_parts = parts;
     return book;
-    
 }
+
+-(void)joinParts {
+    NSMutableArray* array = [NSMutableArray new];
+    BookPart* last = nil;
+    for (BookPart* part in self.parts) {
+        BookPart* joined = [last partCombinedWith: part];
+        if(joined == nil) {
+            // join not possible, add last part of needed
+            if(last) [array addObject:last];
+            last = part;            
+        } else {
+            // join was possible
+            last = joined;
+        }
+    }
+    if(last) [array addObject:last];
+    
+    _parts = array;
+}
+
+-(AVQueuePlayer*)makeQueuePlayer {
+    NSMutableArray* items = [NSMutableArray arrayWithCapacity:self.parts.count];
+    for (BookPart* part in self.parts) {
+        [items addObject:part.makePlayerItem];
+    }
+    
+    AVQueuePlayer* player = [AVQueuePlayer queuePlayerWithItems: items];
+    return player;
+}
+
 @end

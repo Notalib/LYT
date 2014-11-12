@@ -15,4 +15,11 @@
 @property (nonatomic, assign) NSTimeInterval start;
 @property (nonatomic, assign) NSTimeInterval end;
 
+// return BookPart that combines self and otherPart returning nil
+// if join is not possible. To be joinable the url's must
+// match and self must end where otherPart starts.
+-(BookPart*)partCombinedWith:(BookPart*)otherPart;
+
+-(AVPlayerItem*)makePlayerItem;
+
 @end

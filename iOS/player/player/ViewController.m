@@ -9,10 +9,12 @@
 #import <AVFoundation/AVFoundation.h>
 #import "ViewController.h"
 #import "SoundChunk.h"
+#import "Book.h"
 
 @interface ViewController () {
     NSArray* chunks;
     AVAudioPlayer* player;
+    AVQueuePlayer* queuePlayer;
 }
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
 
@@ -24,8 +26,22 @@
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
  navigationType:(UIWebViewNavigationType)navigationType {
-    NSLog(@"shouldStartLoadWithRequest: %@, type: %d", request, navigationType);
+    NSLog(@"shouldStartLoadWithRequest: %@, type: %d", request, (int)navigationType);
     return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    NSLog(@"webViewDidFinishLoad: %@", webView.request.URL);
+    
+    if([webView.request.URL.fragment isEqualToString:@"login"]) {
+        /*dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self loadBookshelf];
+        });*/
+    }
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    NSLog(@"webView: %@ didFailLoadWithError: %@", webView.request.URL, error);
 }
 
 #pragma mark -
@@ -54,16 +70,37 @@
     }];
 }
 
+-(void)testPlay {
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"bunker137.json" ofType:nil];
+    NSData* data = [NSData dataWithContentsOfFile:path];
+    NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+    
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20020/37027/"];
+    Book* book = [Book bookFromDictionaries:json baseURL:baseURL];
+    [book joinParts];
+    
+    queuePlayer = [book makeQueuePlayer];
+    [queuePlayer play];
+}
+
+-(void)loadBookshelf {
+    NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#bookshelf?guest=true"];
+    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    
+    [self.webView loadRequest:request];
+}
+
 - (void)viewDidLoad {
     
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    [self loadTestData];
+    //[self loadTestData];
+    [self testPlay];
     
-    NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/player.html"];
+    NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
-    //[self.webView loadRequest:request];
+    [self.webView loadRequest:request];
 }
 
 - (void)didReceiveMemoryWarning {
