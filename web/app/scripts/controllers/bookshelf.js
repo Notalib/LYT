@@ -4,20 +4,32 @@ angular.module('lyt3App')
   .controller('BookshelfCtrl', [ '$scope', 'BookService', function ($scope, BookService) {
     $scope.books = [];
 
+    var loadBookShelf = function( ) {
+      var from = $scope.books.length;
+      var to = from + 2;
+      BookService.getBookshelf( from, to ).then( function( list ) {
+        var unique = {};
+        $scope.books = $scope.books.concat(list.items).filter( function(item) {
+          if ( item && !unique[ item.id ] ) {
+            unique[ item.id ] = true;
+            return true;
+          }
+          return false;
+        } );
+      } );
+    };
+
     BookService.logOn( 'guest', 'guest' ).then(
       function( ) {
-        BookService.getBookshelf( ).then( function( list ) {
-          var offset = list.firstItem;
-          if ( list.items ) {
-            list.items.forEach( function( item, idx ) {
-              $scope.books[idx + offset] = item;
-            } );
-          }
-        } );
+        loadBookShelf();
       },
       function( ) {
         console.log( 'logOn: rejected', arguments );
       }
     );
+
+    $scope.nextPage = function( ) {
+      loadBookShelf();
+    };
 
   } ]);

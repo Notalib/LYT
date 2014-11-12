@@ -361,28 +361,27 @@ angular.module( 'lyt3App' )
          * Specifying `-1` as the `to` argument will get all
          * items from the `from` index to the end of the list
          */
-        getBookshelf: (function() {
-          return function( from, to ) {
-            var deferred, response;
-            if ( !from ) {
-              from = 0;
-            }
-            if ( to === undefined ) {
-              to = -1;
-            }
-            deferred = $q.defer();
-            response = withLogOn( function() {
-              return DODP.getContentList( 'issued', from, to );
-            } );
-            response.then( function( list ) {
-              return deferred.resolve( list );
-            } );
-            response.catch( function( err, message ) {
-              return deferred.reject( err, message );
-            } );
-            return deferred.promise;
-          };
-        })(),
+        getBookshelf: function( from, to ) {
+          var deferred, response;
+          if ( !from ) {
+            from = 0;
+          }
+          if ( to === undefined ) {
+            to = -1;
+          }
+
+          deferred = $q.defer();
+          response = withLogOn( function() {
+            return DODP.getContentList( 'issued', from, to );
+          } );
+          response.then( function( list ) {
+            return deferred.resolve( list );
+          } );
+          response.catch( function( err, message ) {
+            return deferred.reject( err, message );
+          } );
+          return deferred.promise;
+        },
 
         /* -------
          * ## Optional operations
