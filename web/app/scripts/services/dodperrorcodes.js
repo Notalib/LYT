@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'DODPErrorCodes', function() {
+  .factory( 'DODPErrorCodes', function( ) {
 
     var RPC_UNEXPECTED_RESPONSE_ERROR = {};
     var RPC_GENERAL_ERROR = {};
@@ -21,47 +21,47 @@ angular.module( 'lyt3App' )
     var DODP_UNKNOWN_ERROR = {};
 
     return {
-      get RPC_UNEXPECTED_RESPONSE_ERROR() {
+      get RPC_UNEXPECTED_RESPONSE_ERROR( ) {
         return RPC_UNEXPECTED_RESPONSE_ERROR;
       },
-      get RPC_GENERAL_ERROR() {
+      get RPC_GENERAL_ERROR( ) {
         return RPC_GENERAL_ERROR;
       },
-      get RPC_TIMEOUT_ERROR() {
+      get RPC_TIMEOUT_ERROR( ) {
         return RPC_TIMEOUT_ERROR;
       },
-      get RPC_ABORT_ERROR() {
+      get RPC_ABORT_ERROR( ) {
         return RPC_ABORT_ERROR;
       },
-      get RPC_PARSER_ERROR() {
+      get RPC_PARSER_ERROR( ) {
         return RPC_PARSER_ERROR;
       },
-      get RPC_HTTP_ERROR() {
+      get RPC_HTTP_ERROR( ) {
         return RPC_HTTP_ERROR;
       },
-      get DODP_INTERNAL_ERROR() {
+      get DODP_INTERNAL_ERROR( ) {
         return DODPfaultCodes.DODP_INTERNAL_ERROR;
       },
-      get DODP_NO_SESSION_ERROR() {
+      get DODP_NO_SESSION_ERROR( ) {
         return DODPfaultCodes.DODP_NO_SESSION_ERROR;
       },
-      get DODP_UNSUPPORTED_OP_ERROR() {
+      get DODP_UNSUPPORTED_OP_ERROR( ) {
         return DODPfaultCodes.DODP_UNSUPPORTED_OP_ERROR;
       },
-      get DODP_INVALID_OP_ERROR() {
+      get DODP_INVALID_OP_ERROR( ) {
         return DODPfaultCodes.DODP_INVALID_OP_ERROR;
       },
-      get DODP_INVALID_PARAM_ERROR() {
+      get DODP_INVALID_PARAM_ERROR( ) {
         return DODPfaultCodes.DODP_INVALID_PARAM_ERROR;
       },
-      get DODP_UNKNOWN_ERROR() {
+      get DODP_UNKNOWN_ERROR( ) {
         return DODP_UNKNOWN_ERROR;
       },
-      identifyDODPError: function(code){
+      identifyDODPError: function( code ) {
         var match;
-        Object.keys(DODPfaultCodes).some(function(signature) {
-          if ( signature.test(code) ) {
-            match = DODPfaultCodes[signature];
+        Object.keys( DODPfaultCodes ).some( function( signature ) {
+          if ( signature.test( code ) ) {
+            match = DODPfaultCodes[ signature ];
             return true;
           }
         } );

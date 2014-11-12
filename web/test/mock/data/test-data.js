@@ -8,7 +8,7 @@ try {
 
 angular.module( 'lytTest', [ 'lytTestUser' ] )
   .factory( 'testData', [ 'testDataLocal',
-    function ( testDataLocal ) {
+    function( testDataLocal ) {
       var DODPVERSION = 'Dummy=1.0.0';
       var testUser = testDataLocal.user;
 

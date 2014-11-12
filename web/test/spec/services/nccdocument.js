@@ -1,18 +1,18 @@
 'use strict';
 
-describe('Service: NCCDocument', function () {
+describe( 'Service: NCCDocument', function( ) {
 
   // load the service's module
-  beforeEach(module('lyt3App'));
+  beforeEach( module( 'lyt3App' ) );
 
   // instantiate service
   var NCCDocument;
-  beforeEach(inject(function (_NCCDocument_) {
+  beforeEach( inject( function( _NCCDocument_ ) {
     NCCDocument = _NCCDocument_;
-  }));
+  } ) );
 
-  it('should do something', function () {
-    expect(!!NCCDocument).toBe(true);
-  });
+  it( 'should do something', function( ) {
+    expect( !!NCCDocument ).toBe( true );
+  } );
 
-});
+} );
