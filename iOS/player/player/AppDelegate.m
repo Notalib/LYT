@@ -6,17 +6,39 @@
 //  Copyright (c) 2014 NOTA. All rights reserved.
 //
 
-#import "AppDelegate.h"
+#import <AudioToolbox/AudioToolbox.h>
 
-@interface AppDelegate ()
+#import "AppDelegate.h"
+#import "Book.h"
+
+@interface AppDelegate () {
+    AVQueuePlayer* player;
+}
 
 @end
 
 @implementation AppDelegate
 
+-(void)setupAudio {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+        
+    NSError *setCategoryError = nil;
+    BOOL success = [audioSession setCategory:AVAudioSessionCategoryPlayback error:&setCategoryError];
+    if (!success) {
+        NSLog(@"Unable to set audio session category: %@", setCategoryError);
+    }
+    
+    NSError *activationError = nil;
+    success = [audioSession setActive:YES error:&activationError];
+    if (!success) {
+        NSLog(@"Unable to activate audio session: %@", activationError);
+    }
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    [self setupAudio];
     return YES;
 }
 

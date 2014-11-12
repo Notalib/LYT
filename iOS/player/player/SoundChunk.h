@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+// Part of remote MP3 file where we know interval both in time and bytes.
 @interface SoundChunk : NSObject
 @property (nonatomic, strong) NSURL* url;
 

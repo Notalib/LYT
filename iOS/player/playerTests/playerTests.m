@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import "Book.h"
 
-@interface playerTests : XCTestCase
+@interface playerTests : XCTestCase {
+    NSURL* baseURL;
+}
 
 @end
 
@@ -17,7 +20,10 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    // TODO: Right now we need to edit baseURL by hand, but to make repeatable tests we
+    // need some way to obtain replacement fior second to last number (20008).
+    baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20008/37027/"];
 }
 
 - (void)tearDown {
@@ -25,9 +31,20 @@
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
+-(void)testReadBook {
+    NSString* path = [[NSBundle mainBundle] pathForResource:@"37027.json" ofType:nil];
+    NSData* data = [NSData dataWithContentsOfFile:path];
+    NSDictionary* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+    XCTAssertNotNil(json);
+    
+    Book* book = [Book bookFromDictionary:json baseURL:baseURL];
+    NSLog(@"book = %@", book);
+    XCTAssertNotNil(book);
+    XCTAssertTrue(book.parts.count >= 1);
+    
+    [book joinParts];
+    NSLog(@"joined book = %@", book);
+    XCTAssertTrue(book.parts.count >= 1);
 }
 
 - (void)testPerformanceExample {
