@@ -7,6 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BE08A1A11A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */; };
+		BE08A1A21A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */; };
+		BE08A1A31A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */; };
+		BE08A1A41A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */; };
+		BE08A1A51A1368D700772B6D /* 04_Citat.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1971A1368D700772B6D /* 04_Citat.json */; };
+		BE08A1A61A1368D700772B6D /* 04_Citat.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1971A1368D700772B6D /* 04_Citat.json */; };
+		BE08A1A71A1368D700772B6D /* 05_Kapitel_1.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1981A1368D700772B6D /* 05_Kapitel_1.json */; };
+		BE08A1A81A1368D700772B6D /* 05_Kapitel_1.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1981A1368D700772B6D /* 05_Kapitel_1.json */; };
+		BE08A1A91A1368D700772B6D /* 06_Kapitel_2.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1991A1368D700772B6D /* 06_Kapitel_2.json */; };
+		BE08A1AA1A1368D700772B6D /* 06_Kapitel_2.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1991A1368D700772B6D /* 06_Kapitel_2.json */; };
+		BE08A1AB1A1368D700772B6D /* 07_Kapitel_3.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19A1A1368D700772B6D /* 07_Kapitel_3.json */; };
+		BE08A1AC1A1368D700772B6D /* 07_Kapitel_3.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19A1A1368D700772B6D /* 07_Kapitel_3.json */; };
+		BE08A1AD1A1368D700772B6D /* 08_Kapitel_4.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19B1A1368D700772B6D /* 08_Kapitel_4.json */; };
+		BE08A1AE1A1368D700772B6D /* 08_Kapitel_4.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19B1A1368D700772B6D /* 08_Kapitel_4.json */; };
+		BE08A1AF1A1368D700772B6D /* 09_Kapitel_5.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19C1A1368D700772B6D /* 09_Kapitel_5.json */; };
+		BE08A1B01A1368D700772B6D /* 09_Kapitel_5.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19C1A1368D700772B6D /* 09_Kapitel_5.json */; };
+		BE08A1B11A1368D700772B6D /* 10_Kapitel_6.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19D1A1368D700772B6D /* 10_Kapitel_6.json */; };
+		BE08A1B21A1368D700772B6D /* 10_Kapitel_6.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19D1A1368D700772B6D /* 10_Kapitel_6.json */; };
+		BE08A1B31A1368D700772B6D /* 11_Kapitel_7.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19E1A1368D700772B6D /* 11_Kapitel_7.json */; };
+		BE08A1B41A1368D700772B6D /* 11_Kapitel_7.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19E1A1368D700772B6D /* 11_Kapitel_7.json */; };
+		BE08A1B51A1368D700772B6D /* 12_Kapitel_8.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */; };
+		BE08A1B61A1368D700772B6D /* 12_Kapitel_8.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */; };
+		BE08A1B71A1368D700772B6D /* 13_Kapitel_9.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */; };
+		BE08A1B81A1368D700772B6D /* 13_Kapitel_9.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */; };
+		BE08A1BA1A13690E00772B6D /* bunker137.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1B91A13690E00772B6D /* bunker137.json */; };
+		BE08A1BB1A13690E00772B6D /* bunker137.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1B91A13690E00772B6D /* bunker137.json */; };
+		BE08A1BE1A13696D00772B6D /* Book.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1BD1A13696D00772B6D /* Book.m */; };
+		BE08A1BF1A13696D00772B6D /* Book.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1BD1A13696D00772B6D /* Book.m */; };
+		BE08A1C21A136B8F00772B6D /* BookPart.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1C11A136B8F00772B6D /* BookPart.m */; };
+		BE08A1C31A136B8F00772B6D /* BookPart.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1C11A136B8F00772B6D /* BookPart.m */; };
+		BE08A1C51A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */; };
+		BE08A1C61A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */; };
 		BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */; };
 		BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
@@ -30,6 +62,24 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 02_Om_denne_udgave.json; sourceTree = "<group>"; };
+		BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 03_Kolofon_og_bibliogra.json; sourceTree = "<group>"; };
+		BE08A1971A1368D700772B6D /* 04_Citat.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 04_Citat.json; sourceTree = "<group>"; };
+		BE08A1981A1368D700772B6D /* 05_Kapitel_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 05_Kapitel_1.json; sourceTree = "<group>"; };
+		BE08A1991A1368D700772B6D /* 06_Kapitel_2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 06_Kapitel_2.json; sourceTree = "<group>"; };
+		BE08A19A1A1368D700772B6D /* 07_Kapitel_3.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 07_Kapitel_3.json; sourceTree = "<group>"; };
+		BE08A19B1A1368D700772B6D /* 08_Kapitel_4.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 08_Kapitel_4.json; sourceTree = "<group>"; };
+		BE08A19C1A1368D700772B6D /* 09_Kapitel_5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 09_Kapitel_5.json; sourceTree = "<group>"; };
+		BE08A19D1A1368D700772B6D /* 10_Kapitel_6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 10_Kapitel_6.json; sourceTree = "<group>"; };
+		BE08A19E1A1368D700772B6D /* 11_Kapitel_7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 11_Kapitel_7.json; sourceTree = "<group>"; };
+		BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 12_Kapitel_8.json; sourceTree = "<group>"; };
+		BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 13_Kapitel_9.json; sourceTree = "<group>"; };
+		BE08A1B91A13690E00772B6D /* bunker137.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = bunker137.json; sourceTree = "<group>"; };
+		BE08A1BC1A13696D00772B6D /* Book.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Book.h; sourceTree = "<group>"; };
+		BE08A1BD1A13696D00772B6D /* Book.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Book.m; sourceTree = "<group>"; };
+		BE08A1C01A136B8F00772B6D /* BookPart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookPart.h; sourceTree = "<group>"; };
+		BE08A1C11A136B8F00772B6D /* BookPart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookPart.m; sourceTree = "<group>"; };
+		BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 01_Michael_Kamp_Bunker_.json; sourceTree = "<group>"; };
 		BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 3_Grantret.json; sourceTree = "<group>"; };
 		BE3D47DB1A1240E000DA2294 /* SoundChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundChunk.h; sourceTree = "<group>"; };
 		BE3D47DC1A1240E000DA2294 /* SoundChunk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundChunk.m; sourceTree = "<group>"; };
@@ -66,6 +116,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE08A1941A1368AB00772B6D /* test-json */ = {
+			isa = PBXGroup;
+			children = (
+				BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */,
+				BE08A1B91A13690E00772B6D /* bunker137.json */,
+				BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */,
+				BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */,
+				BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */,
+				BE08A1971A1368D700772B6D /* 04_Citat.json */,
+				BE08A1981A1368D700772B6D /* 05_Kapitel_1.json */,
+				BE08A1991A1368D700772B6D /* 06_Kapitel_2.json */,
+				BE08A19A1A1368D700772B6D /* 07_Kapitel_3.json */,
+				BE08A19B1A1368D700772B6D /* 08_Kapitel_4.json */,
+				BE08A19C1A1368D700772B6D /* 09_Kapitel_5.json */,
+				BE08A19D1A1368D700772B6D /* 10_Kapitel_6.json */,
+				BE08A19E1A1368D700772B6D /* 11_Kapitel_7.json */,
+				BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */,
+				BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */,
+			);
+			name = "test-json";
+			sourceTree = "<group>";
+		};
 		BEB1BA0A1A121B140066F4FD = {
 			isa = PBXGroup;
 			children = (
@@ -87,9 +159,13 @@
 		BEB1BA151A121B140066F4FD /* player */ = {
 			isa = PBXGroup;
 			children = (
-				BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */,
+				BE08A1941A1368AB00772B6D /* test-json */,
 				BEB1BA1A1A121B140066F4FD /* AppDelegate.h */,
 				BEB1BA1B1A121B140066F4FD /* AppDelegate.m */,
+				BE08A1BC1A13696D00772B6D /* Book.h */,
+				BE08A1BD1A13696D00772B6D /* Book.m */,
+				BE08A1C01A136B8F00772B6D /* BookPart.h */,
+				BE08A1C11A136B8F00772B6D /* BookPart.m */,
 				BE3D47DB1A1240E000DA2294 /* SoundChunk.h */,
 				BE3D47DC1A1240E000DA2294 /* SoundChunk.m */,
 				BEB1BA1D1A121B140066F4FD /* ViewController.h */,
@@ -208,10 +284,24 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE08A1C51A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */,
+				BE08A1B31A1368D700772B6D /* 11_Kapitel_7.json in Resources */,
 				BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */,
+				BE08A1AB1A1368D700772B6D /* 07_Kapitel_3.json in Resources */,
+				BE08A1A11A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */,
+				BE08A1A91A1368D700772B6D /* 06_Kapitel_2.json in Resources */,
+				BE08A1B51A1368D700772B6D /* 12_Kapitel_8.json in Resources */,
 				BEB1BA221A121B150066F4FD /* Main.storyboard in Resources */,
 				BEB1BA271A121B150066F4FD /* LaunchScreen.xib in Resources */,
+				BE08A1AD1A1368D700772B6D /* 08_Kapitel_4.json in Resources */,
+				BE08A1AF1A1368D700772B6D /* 09_Kapitel_5.json in Resources */,
 				BEB1BA241A121B150066F4FD /* Images.xcassets in Resources */,
+				BE08A1BA1A13690E00772B6D /* bunker137.json in Resources */,
+				BE08A1B11A1368D700772B6D /* 10_Kapitel_6.json in Resources */,
+				BE08A1A31A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */,
+				BE08A1A51A1368D700772B6D /* 04_Citat.json in Resources */,
+				BE08A1B71A1368D700772B6D /* 13_Kapitel_9.json in Resources */,
+				BE08A1A71A1368D700772B6D /* 05_Kapitel_1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +309,20 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE08A1A21A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */,
+				BE08A1A41A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */,
+				BE08A1B81A1368D700772B6D /* 13_Kapitel_9.json in Resources */,
+				BE08A1A61A1368D700772B6D /* 04_Citat.json in Resources */,
+				BE08A1C61A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */,
+				BE08A1B61A1368D700772B6D /* 12_Kapitel_8.json in Resources */,
+				BE08A1B21A1368D700772B6D /* 10_Kapitel_6.json in Resources */,
+				BE08A1BB1A13690E00772B6D /* bunker137.json in Resources */,
+				BE08A1AE1A1368D700772B6D /* 08_Kapitel_4.json in Resources */,
+				BE08A1AA1A1368D700772B6D /* 06_Kapitel_2.json in Resources */,
+				BE08A1A81A1368D700772B6D /* 05_Kapitel_1.json in Resources */,
+				BE08A1AC1A1368D700772B6D /* 07_Kapitel_3.json in Resources */,
+				BE08A1B41A1368D700772B6D /* 11_Kapitel_7.json in Resources */,
+				BE08A1B01A1368D700772B6D /* 09_Kapitel_5.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +333,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE08A1BE1A13696D00772B6D /* Book.m in Sources */,
+				BE08A1C21A136B8F00772B6D /* BookPart.m in Sources */,
 				BEB1BA1F1A121B140066F4FD /* ViewController.m in Sources */,
 				BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */,
 				BEB1BA1C1A121B140066F4FD /* AppDelegate.m in Sources */,
@@ -241,7 +347,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEB1BA331A121B150066F4FD /* playerTests.m in Sources */,
+				BE08A1BF1A13696D00772B6D /* Book.m in Sources */,
 				BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */,
+				BE08A1C31A136B8F00772B6D /* BookPart.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
