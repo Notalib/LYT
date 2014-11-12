@@ -35,7 +35,9 @@
     "load-grunt-tasks": "^0.4.0",
     "time-grunt": "^0.3.1",
     "karma-chrome-extra-launcher": "~0.1.0",
-    "jshint": "~2.5.9"
+    "jshint": "~2.5.9",
+    "ng-html2js": "~1.2.0",
+    "karma-ng-html2js-preprocessor": "~0.1.2"
   },
   "engines": {
     "node": ">=0.10.0"

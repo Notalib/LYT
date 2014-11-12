@@ -136,7 +136,7 @@ angular.module( 'lyt3App' )
               // Get the total time
               _this.totalTime = metadata.totalTime ? metadata.totalTime.content : '';
               ncc.book = _this;
-              return resolve();
+              resolve();
             } );
           };
         } )( this );
@@ -159,7 +159,7 @@ angular.module( 'lyt3App' )
                 _this.bookmarks = data.bookmarks;
                 _this._normalizeBookmarks();
               }
-              return resolve();
+              resolve();
             } );
           };
         } )( this );
@@ -557,56 +557,65 @@ angular.module( 'lyt3App' )
        *  }
        * }
        */
-      Book.prototype.getStructure = function( ) {
-        var defer = $q.defer();
+      Book.prototype.getStructure = ( function( ) {
+        var loaded = {};
+        return function( ) {
+          var defer = $q.defer();
+          if ( loaded[this.id] ) {
+            defer.resolve( loaded[this.id] );
+            return defer.promise;
+          }
 
-        // Make sure the book is loaded
-        this.promise.then(function( ) {
-          var bookStructure = {
-            author: this.author,
-            title: this.title,
-            playlist: [],
-            navigation: []
-          };
+          // Make sure the book is loaded
+          this.promise.then(function( ) {
+            var bookStructure = {
+              id: this.id,
+              author: this.author,
+              title: this.title,
+              playlist: [],
+              navigation: []
+            };
 
-          var promises = this.nccDocument.structure.reduce( function( flat, section ) {
-            return flat.concat( section.flatten( ) );
-          }, [] ).map( function( section ) {
-            var loadSegment = $q.defer();
-            this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
-              loadSegment.resolve( {
-                title: section.title,
-                offset: segment.getBookOffset()
+            var promises = this.nccDocument.structure.reduce( function( flat, section ) {
+              return flat.concat( section.flatten( ) );
+            }, [] ).map( function( section ) {
+              var loadSegment = $q.defer();
+              this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
+                loadSegment.resolve( {
+                  title: section.title,
+                  offset: segment.getBookOffset()
+                } );
+              } );
+
+              return loadSegment.promise;
+            }, this );
+
+            var loadNavigation = $q.all(promises).then(function( segments ) {
+              bookStructure.navigation = segments;
+            });
+
+            var loadPlaylist = this.loadAllSMIL().then(function(smildocuments) {
+              smildocuments.forEach(function(smildocument) {
+                smildocument.segments.forEach(function(segment){
+                  bookStructure.playlist.push( {
+                    url: segment.audio.url,
+                    start: segment.start,
+                    end: segment.end
+                  } );
+                });
               } );
             } );
 
-            return loadSegment.promise;
-          }, this );
-
-          var loadNavigation = $q.all(promises).then(function( segments ) {
-            bookStructure.navigation = segments;
-          });
-
-          var loadPlaylist = this.loadAllSMIL().then(function(smildocuments) {
-            smildocuments.forEach(function(smildocument) {
-              smildocument.segments.forEach(function(segment){
-                bookStructure.playlist.push( {
-                  url: segment.audio.url,
-                  start: segment.start,
-                  end: segment.end
-                } );
-              });
+            $q.all([loadNavigation,loadPlaylist]).then(function( ) {
+              loaded[bookStructure.id] = bookStructure;
+              defer.resolve( bookStructure );
             } );
-          } );
 
-          $q.all([loadNavigation,loadPlaylist]).then(function( ) {
-            defer.resolve( bookStructure );
-          } );
+          }.bind(this));
 
-        }.bind(this));
-
-        return defer.promise;
-      };
+          return defer.promise;
+        };
+      })();
 
       // Factory-method
       // Note: Instances are cached in memory
