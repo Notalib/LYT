@@ -10,15 +10,6 @@
 angular.module( 'lyt3App' )
   .factory( 'Book', [ '$q', 'LYTUtils', 'BookService', 'BookErrorCodes', 'NCCDocument', 'SMILDocument',
     function( $q, LYTUtils, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
-      var __indexOf = [].indexOf || function( item ) {
-        for ( var i = 0, l = this.length; i < l; i++ ) {
-          if ( i in this && this[ i ] === item ) {
-            return i;
-          }
-        }
-        return -1;
-      };
-
       /*
        * The constructor takes one argument; the ID of the book.
        * The instantiated object acts as a Deferred object, as the instantiation of a book
@@ -128,7 +119,8 @@ angular.module( 'lyt3App' )
             nccPromise.catch( function() {
               return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
             } );
-            return nccPromise.then( function( document ) {
+
+            nccPromise.then( function( document ) {
               obj.document = _this.nccDocument = document;
               var metadata = _this.nccDocument.getMetadata();
               var authors = (metadata.creator || []).forEach(function(creator){
@@ -148,18 +140,19 @@ angular.module( 'lyt3App' )
             } );
           };
         } )( this );
+
         getBookmarks = ( function( _this ) {
           return function() {
-            var process;
             _this.lastmark = null;
             _this.bookmarks = [];
             // log.message("Book: Getting bookmarks");
-            process = BookService.getBookmarks( _this.id );
+            var process = BookService.getBookmarks( _this.id );
 
             // TODO: perhaps bookmarks should be loaded lazily, when required?
             process.catch( function() {
               return deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
             } );
+
             return process.then( function( data ) {
               if ( data ) {
                 _this.lastmark = data.lastmark;
@@ -177,27 +170,19 @@ angular.module( 'lyt3App' )
 
       // Returns all .smil files in the @resources array
       Book.prototype.getSMILFiles = function() {
-        var res, _results;
-        _results = [];
-        for ( res in this.resources ) {
-          if ( this.resources[ res ].url.match( /\.smil$/i ) ) {
-            _results.push( res );
-          }
-        }
-        return _results;
+        return Object.keys(this.resources).filter(function( key ) {
+          return this.resources[ key ].url.match( /\.smil$/i );
+        }, this );
       };
 
       // Returns all SMIL files which is referred to by the NCC document in order
       Book.prototype.getSMILFilesInNCC = function() {
-        var ordered, section, _i, _len, _ref, _ref1;
-        ordered = [];
-        _ref = this.nccDocument.sections;
-        for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-          section = _ref[ _i ];
-          if ( !( _ref1 = section.url, __indexOf.call( ordered, _ref1 ) >= 0 ) ) {
+        var ordered = [];
+        this.nccDocument.sections.forEach( function( section ) {
+          if ( ordered.indexOf( section.url ) === -1 ) {
             ordered.push( section.url );
           }
-        }
+        } );
         return ordered;
       };
 
@@ -251,46 +236,36 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.getSectionBySegment = function( segment ) {
-        var current, id, item, iterator, refs, section, _ref;
-        refs = ( function() {
-          var _i, _len, _ref, _results;
-          _ref = this.nccDocument.sections;
-          _results = [];
-          for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-            section = _ref[ _i ];
-            _results.push( section.fragment );
-          }
-          return _results;
-        } )
-          .call( this );
+        var current, id, item, iterator;
+        var sections = this.nccDocument.sections.map( function( section ) {
+          return section.fragment;
+        } );
         current = segment;
 
         // Inclusive backwards search
         iterator = function() {
-          var result;
-          result = current;
+          var result = current;
           current = !current ? current.previous : void 0;
           return result;
         };
 
         var itemEach = function() {
-          var childID;
-          childID = this.getAttribute( 'id' );
-          if ( __indexOf.call( refs, childID ) >= 0 ) {
+          var childID = this.getAttribute( 'id' );
+          if ( sections.indexOf( childID ) > -1 ) {
             id = childID;
             return false; // Break out early
           }
         };
+
         while ( !id && ( item = iterator() ) ) {
-          if ( _ref = item.id, __indexOf.call( refs, _ref ) >= 0 ) {
+          if ( item.id && sections.indexOf( item.id ) > -1 ) {
             id = item.id;
           } else {
             item.el.find( '[id]' )
               .each( itemEach );
           }
         }
-        section = this.nccDocument.sections[ refs.indexOf( id ) ];
-        return section;
+        return this.nccDocument.sections[ sections.indexOf( id ) ];
       };
 
       // Gets the book's metadata (as stated in the NCC document)
@@ -427,7 +402,7 @@ angular.module( 'lyt3App' )
 
       // Get the following segment if we are very close to the end of the current
       // segment and the following segment starts within the fudge limit.
-      Book.prototype._fudgeFix = function( offset, segment, fudge ) {
+      var fudgeFix = function( offset, segment, fudge ) {
         if ( fudge === undefined ) {
           fudge = 0.1;
         }
@@ -441,9 +416,11 @@ angular.module( 'lyt3App' )
         if ( offset === undefined ) {
           offset = 0;
         }
+
         if ( fudge === undefined ) {
           fudge = 0.1;
         }
+
         if ( !audio ) {
           // log.error('Book: segmentByAudioOffset: audio not provided');
           return $q.defer()
@@ -451,23 +428,21 @@ angular.module( 'lyt3App' )
         }
 
         // Using 0.01s to cover rounding errors (yes, they do occur)
-        return this.searchSections( start, ( function( _this ) {
-          return function( section ) {
-            var segment, _i, _len, _ref;
-            _ref = section.document.segments;
-            for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-              segment = _ref[ _i ];
-              // FIXME: loading segments is the responsibility of the section each
-              // each segment belongs to.
-              if ( segment.audio === audio && ( segment.start - 0.01 <= offset && offset < segment.end + 0.01 ) ) {
-                segment = _this._fudgeFix( offset, segment );
-                // log.message("Book: segmentByAudioOffset: load segment " + (segment.url()));
-                segment.load();
-                return segment;
-              }
+        return this.searchSections( start, function( section ) {
+          var res;
+          section.document.segments.some(function( segment ) {
+            if ( segment.audio === audio && ( segment.start - 0.01 <= offset && offset < segment.end + 0.01 ) ) {
+              segment = fudgeFix( offset, segment );
+              // log.message("Book: segmentByAudioOffset: load segment " + (segment.url()));
+              segment.load();
+              res = segment;
+
+              return true;
             }
-          };
-        } )( this ) );
+          } );
+
+          return res;
+        } );
       };
 
       /*
@@ -545,7 +520,7 @@ angular.module( 'lyt3App' )
           var section = iterator();
           if ( section ) {
             section.load();
-            return section.then( function( section ) {
+            return section.promise.then( function( section ) {
               var result = handler( section );
               if ( result ) {
                 return result;
@@ -561,25 +536,74 @@ angular.module( 'lyt3App' )
         return searchNext();
       };
 
-      Book.prototype.getBookStructure = function( ) {
+      /**
+       * getStructure extractes the book information in plain object form,
+       * return a promise-object that resolves with this structure:
+       * {
+       *  title: <BOOK_TITLE>,
+       *  author: <BOOK_AUTHOR>,
+       *  playlist: [
+       *    {
+       *      url: <SEGMENT_URL>,
+       *      start: <START_OFFSET_IN_FILE>,
+       *      end: <END_OFFSET_IN_FILE>
+       *    }
+       *  ],
+       *  navigation: [
+       *    {
+       *      title: <CHAPTER_TITLE>,
+       *      offset: <CHAPTER_OFFSET>
+       *    }
+       *  }
+       * }
+       */
+      Book.prototype.getStructure = function( ) {
         var defer = $q.defer();
-        var promises = this.nccDocument.structure.reduce( function( flat, section ) {
-          return flat.concat( section.flatten( ) );
-        }, [] ).map( function( section ) {
-          var loadSegment = $q.defer();
-          this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
-            loadSegment.resolve( {
-              title: section.title,
-              offset: segment.getBookOffset()
+
+        // Make sure the book is loaded
+        this.promise.then(function( ) {
+          var bookStructure = {
+            author: this.author,
+            title: this.title,
+            playlist: [],
+            navigation: []
+          };
+
+          var promises = this.nccDocument.structure.reduce( function( flat, section ) {
+            return flat.concat( section.flatten( ) );
+          }, [] ).map( function( section ) {
+            var loadSegment = $q.defer();
+            this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
+              loadSegment.resolve( {
+                title: section.title,
+                offset: segment.getBookOffset()
+              } );
+            } );
+
+            return loadSegment.promise;
+          }, this );
+
+          var loadNavigation = $q.all(promises).then(function( segments ) {
+            bookStructure.navigation = segments;
+          });
+
+          var loadPlaylist = this.loadAllSMIL().then(function(smildocuments) {
+            smildocuments.forEach(function(smildocument) {
+              smildocument.segments.forEach(function(segment){
+                bookStructure.playlist.push( {
+                  url: segment.audio.url,
+                  start: segment.start,
+                  end: segment.end
+                } );
+              });
             } );
           } );
 
-          return loadSegment.promise;
-        }, this );
+          $q.all([loadNavigation,loadPlaylist]).then(function( ) {
+            defer.resolve( bookStructure );
+          } );
 
-        $q.all(promises).then(function( segments ) {
-          defer.resolve( segments );
-        });
+        }.bind(this));
 
         return defer.promise;
       };
@@ -596,37 +620,9 @@ angular.module( 'lyt3App' )
         };
       } )();
 
-      /*
-       * "Class"/"static" method for retrieving a
-       * book's metadata
-       * Note: Results are cached in memory
-       *
-       * DEPRECATED: Use `catalog.getDetails()` instead
-       */
-      Book.getDetails = ( function() {
-        var loaded = {};
-        return function( id ) {
-          var deferred = $q.defer();
-          // log.warn("Book.getDetails is deprecated. Use catalog.getDetails() instead");
-          if ( loaded[ id ] ) {
-            deferred.resolve( loaded[ id ] );
-            return deferred;
-          }
-          BookService.getMetadata( id )
-            .then( function( metadata ) {
-              loaded[ id ] = metadata;
-              return deferred.resolve( metadata );
-            } )
-            .catch( function() {
-              var args;
-              args = 1 <= arguments.length ? Array.prototype.slice.call( arguments, 0 ) : [];
-              return deferred.reject.apply( deferred, args );
-            } );
-          return deferred.promise;
-        };
-      } )();
-
       // Public API here
-      return Book;
+      return {
+        load: Book.load
+      };
     }
   ] );

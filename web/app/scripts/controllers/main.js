@@ -19,25 +19,8 @@ angular.module( 'lyt3App' )
       function( ) {
         console.log( 'logOn: then', arguments );
           Book.load(37027).then(function(book) {
-            console.log( 'Load book', book );
-            book.loadAllSMIL().then(function(smildocuments) {
-              var output = [];
-
-              smildocuments.forEach(function(smildocument) {
-                smildocument.segments.forEach(function(segment){
-                  output.push( {
-                    url: segment.audio.url,
-                    start: segment.start,
-                    end: segment.end
-                  } );
-                });
-              } );
-              console.log(output);
-              console.log(JSON.stringify(output));
-
-              book.getBookStructure().then(function(structure){
-                console.log( structure );
-              } );
+            book.getBookStructure().then(function(bookStructure) {
+              console.log(bookStructure);
             } );
           }, function( ) {
             console.log( 'Load book FAILED', arguments );
