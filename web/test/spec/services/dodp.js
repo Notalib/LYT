@@ -1,6 +1,6 @@
 'use strict';
 
-describe( 'Service: DODP', function ( ) {
+describe( 'Service: DODP', function( ) {
   // load the service's module
   beforeEach( module( 'lyt3App' ) );
   beforeEach( module( 'lytTest' ) );
@@ -11,7 +11,7 @@ describe( 'Service: DODP', function ( ) {
   var mockBackend;
   var expectPOST;
   var testData;
-  beforeEach( inject( function ( _$rootScope_, _DODP_, _$httpBackend_,
+  beforeEach( inject( function( _$rootScope_, _DODP_, _$httpBackend_,
     _testData_ ) {
     $rootScope = _$rootScope_;
     DODP = _DODP_;
@@ -20,28 +20,28 @@ describe( 'Service: DODP', function ( ) {
     testData = _testData_.dodp;
   } ) );
 
-  var createExpectXML = function ( respond ) {
+  var createExpectXML = function( respond ) {
     expectPOST.respond( respond, {
       'Content-Type': 'text/xml'
     } );
   };
 
-  describe( 'logOn:', function ( ) {
+  describe( 'logOn:', function( ) {
     var logOnData;
-    beforeEach( function ( ) {
+    beforeEach( function( ) {
       logOnData = testData.logOnData;
     } );
 
-    it( 'valid logOn:', function ( ) {
+    it( 'valid logOn:', function( ) {
       var status;
       var data = logOnData.valid;
       createExpectXML( data.respond );
 
       DODP.logOn( data.username, data.password )
-        .then( function ( resolved ) {
+        .then( function( resolved ) {
           expect( resolved ).toEqual( data.resolved );
           status = 'success';
-        }, function ( ) {
+        }, function( ) {
           status = 'failed';
         } );
 
@@ -53,15 +53,15 @@ describe( 'Service: DODP', function ( ) {
     } );
   } );
 
-  it( 'logOff:', function ( ) {
+  it( 'logOff:', function( ) {
     var status;
     var data = testData.logOffData;
     createExpectXML( data.respond );
     DODP.logOff( )
-      .then( function ( resolved ) {
+      .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
 
@@ -72,15 +72,15 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'getServiceAttributes:', function ( ) {
+  it( 'getServiceAttributes:', function( ) {
     var status;
     var data = testData.getServiceAttributesData;
     createExpectXML( data.respond );
     DODP.getServiceAttributes( )
-      .then( function ( resolved ) {
+      .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -89,15 +89,15 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'setReadingSystemAttributes:', function ( ) {
+  it( 'setReadingSystemAttributes:', function( ) {
     var status;
     var data = testData.setReadingSystemAttributesData;
     createExpectXML( data.respond );
 
     DODP.setReadingSystemAttributes( data.params.readingSystemAttributes )
-      .then( function ( ) {
+      .then( function( ) {
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -106,16 +106,16 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'getServiceAnnouncements:', function ( ) {
+  it( 'getServiceAnnouncements:', function( ) {
     var status;
     var data = testData.getServiceAnnouncementsData;
     createExpectXML( data.respond );
 
     DODP.getServiceAnnouncements( )
-      .then( function ( resolved ) {
+      .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -124,12 +124,12 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'markAnnouncementsAsRead:', function ( ) {
+  xit( 'markAnnouncementsAsRead:', function( ) {
     var status;
     DODP.markAnnouncementsAsRead( )
-      .then( function ( ) {
+      .then( function( ) {
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -138,16 +138,16 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'getContentList:', function ( ) {
+  it( 'getContentList:', function( ) {
     var status;
     var data = testData.getContentListData;
     createExpectXML( data.respond );
 
     DODP.getContentList( data.listIdentifier, data.firstTime, data.lastItem )
-      .then( function ( resolved ) {
+      .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -156,15 +156,15 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'issueContent:', function ( ) {
+  it( 'issueContent:', function( ) {
     var status;
     var data = testData.issueContentData;
     createExpectXML( data.respond );
 
     DODP.issueContent( data.contentId )
-      .then( function () {
+      .then( function( ) {
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -173,12 +173,12 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'returnContent:', function ( ) {
+  xit( 'returnContent:', function( ) {
     var status;
     DODP.returnContent( )
-      .then( function ( ) {
+      .then( function( ) {
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -187,12 +187,12 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'getContentMetadata:', function ( ) {
+  xit( 'getContentMetadata:', function( ) {
     var status;
     DODP.getContentMetadata( )
-      .then( function ( ) {
+      .then( function( ) {
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -201,16 +201,16 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'getContentResources:', function ( ) {
+  it( 'getContentResources:', function( ) {
     var status;
     var data = testData.getContentResourcesData;
     createExpectXML( data.respond );
 
     DODP.getContentResources( data.contentId )
-      .then( function ( resolved ) {
+      .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -219,15 +219,15 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  it( 'getBookmarks:', function ( ) {
+  it( 'getBookmarks:', function( ) {
     var status;
     var data = testData.getBookmarksData;
     createExpectXML( data.respond );
     DODP.getBookmarks( data.contentId )
-      .then( function ( resolved ) {
+      .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );
@@ -236,12 +236,12 @@ describe( 'Service: DODP', function ( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'setBookmarks:', function ( ) {
+  xit( 'setBookmarks:', function( ) {
     var status;
     DODP.setBookmarks( )
-      .then( function ( ) {
+      .then( function( ) {
         status = 'success';
-      }, function ( ) {
+      }, function( ) {
         status = 'failed';
       } );
     mockBackend.flush( );

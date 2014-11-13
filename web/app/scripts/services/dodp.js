@@ -8,9 +8,10 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function (
+  .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function(
     $sanitize, $http, $q, xmlParser ) {
     /*jshint quotmark: false */
+    // jscs:disable validateQuoteMarks
     var soapTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
       "<SOAP-ENV:Envelope\n" +
       " xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
@@ -18,10 +19,11 @@ angular.module( 'lyt3App' )
       " xmlns:ns2=\"http://www.daisy.org/z3986/2005/bookmark/\">\n" +
       "<SOAP-ENV:Body>SOAPBODY</SOAP-ENV:Body>\n" +
       "</SOAP-ENV:Envelope>";
+    // jscs:enable validateQuoteMarks
     /*jshint quotmark: single */
 
 
-    var appendToXML = function ( xml, nodeName, data ) {
+    var appendToXML = function( xml, nodeName, data ) {
       var nsid = 'ns1:';
       if ( nodeName.indexOf( ':' ) > -1 ) {
         nsid = '';
@@ -33,7 +35,7 @@ angular.module( 'lyt3App' )
       return xml;
     };
 
-    var toXML = function ( hash ) {
+    var toXML = function( hash ) {
       var xml = '';
       // Handling of namespaces could be done here by initializing a string
       // containing the necessary declarations that can be inserted in append()
@@ -49,10 +51,10 @@ angular.module( 'lyt3App' )
         xml = $sanitize( hash );
       } else if ( type === 'object' && type !== null ) {
         // If the argument is an object, go through its members
-        Object.keys( hash ).forEach( function ( key ) {
+        Object.keys( hash ).forEach( function( key ) {
           var value = hash[ key ];
           if ( value instanceof Array ) {
-            value.forEach( function ( item ) {
+            value.forEach( function( item ) {
               xml = appendToXML( xml, key, item );
             } );
           } else {
@@ -64,7 +66,7 @@ angular.module( 'lyt3App' )
       return xml;
     };
 
-    var createRequest = function ( action, data ) {
+    var createRequest = function( action, data ) {
       var requestData = {};
       requestData[ action ] = data || {};
 
@@ -78,18 +80,18 @@ angular.module( 'lyt3App' )
           'Content-Type': 'text/xml; charset=UTF-8'
         },
         data: xmlBody,
-        transformResponse: function ( data ) {
+        transformResponse: function( data ) {
           return xmlStr2Json( data );
         }
       } );
     };
 
-    var xml2Json = function ( xmlDom, json ) {
+    var xml2Json = function( xmlDom, json ) {
       var tagName = xmlDom.tagName.replace( /^s:/, '' );
       var attrs;
       var item;
       if ( xmlDom.attributes ) {
-        attrs = Array.prototype.reduce.call( xmlDom.attributes, function (
+        attrs = Array.prototype.reduce.call( xmlDom.attributes, function(
           attrs, attr ) {
           var name = attr.name;
           var idx = name.indexOf( ':' );
@@ -131,7 +133,7 @@ angular.module( 'lyt3App' )
           item.attrs = attrs;
         }
 
-        Array.prototype.forEach.call( xmlDom.children, function ( el ) {
+        Array.prototype.forEach.call( xmlDom.children, function( el ) {
           xml2Json( el, item );
         } );
       } else {
@@ -164,12 +166,12 @@ angular.module( 'lyt3App' )
       }
     };
 
-    var xmlStr2Json = function ( xmlStr ) {
+    var xmlStr2Json = function( xmlStr ) {
       var xmlDOM = xmlParser.parse( xmlStr );
       var json = {};
 
       Array.prototype.forEach.call( xmlDOM.children[ 0 ].children,
-        function ( domEl ) {
+        function( domEl ) {
           xml2Json( domEl, json );
         } );
 
@@ -181,65 +183,65 @@ angular.module( 'lyt3App' )
 
     // Public API here
     return {
-      logOn: function ( username, password ) {
+      logOn: function( username, password ) {
         var defer = $q.defer( );
 
         createRequest( 'logOn', {
           username: username,
           password: password
-        } ).then( function ( response ) {
+        } ).then( function( response ) {
           var data = response.data;
           if ( data.Body.logOnResponse && data.Body.logOnResponse.logOnResult ) {
             defer.resolve( data.Header );
           } else {
             defer.reject( data );
           }
-        }, function ( ) {
+        }, function( ) {
           defer.reject( arguments );
         } );
 
         return defer.promise;
       },
-      logOff: function ( ) {
+      logOff: function( ) {
         var defer = $q.defer( );
         createRequest( 'logOff' )
-          .then( function ( response ) {
+          .then( function( response ) {
             var data = response.data;
             if ( data.Body.logOffResponse && data.Body.logOffResponse.logOffResult ) {
               defer.resolve( data.Header );
             } else {
               defer.reject( 'logOffFailed' );
             }
-          }, function ( ) {
+          }, function( ) {
             defer.reject( 'logOffFailed' );
           } );
 
         return defer.promise;
       },
-      getServiceAttributes: function ( ) {
+      getServiceAttributes: function( ) {
         var defer = $q.defer( );
         createRequest( 'getServiceAttributes' )
-          .then( function ( response ) {
+          .then( function( response ) {
             var getServiceAttributesResponse = response.data.Body.getServiceAttributesResponse || {};
-            var services = getServiceAttributesResponse.serviceAttributes || {};
+            var services = getServiceAttributesResponse.serviceAttributes;
 
-            if ( Object.keys( services ).length ) {
+            if ( services && Object.keys( services ).length ) {
               defer.resolve( services );
             } else {
               defer.reject(
                 'getServiceAttributes failed, missing response.data.Body.getServiceAttributesResponse.serviceAttributes'
               );
             }
-          }, function ( ) {
+          }, function( ) {
             defer.reject( 'getServiceAttributes failed' );
           } );
 
         return defer.promise;
       },
-      setReadingSystemAttributes: function ( readingSystemAttributes ) {
+      setReadingSystemAttributes: function( readingSystemAttributes ) {
         var defer = $q.defer( );
         /* NOTE: input should be:
-        */
+         */
         readingSystemAttributes = angular.extend( {
           manufacturer: 'NOTA',
           model: 'LYT',
@@ -251,114 +253,144 @@ angular.module( 'lyt3App' )
         createRequest( 'setReadingSystemAttributes', {
             readingSystemAttributes: readingSystemAttributes
           } )
-          .then( function ( response ) {
+          .then( function( response ) {
             if ( response.data.Body.setReadingSystemAttributesResponse.setReadingSystemAttributesResult ) {
               defer.resolve( );
             } else {
               defer.reject( 'setReadingSystemAttributes failed' );
             }
-          }, function ( ) {
+          }, function( ) {
             defer.reject( 'setReadingSystemAttributes failed' );
           } );
 
         return defer.promise;
       },
-      getServiceAnnouncements: function ( ) {
+      getServiceAnnouncements: function( ) {
         var defer = $q.defer( );
         createRequest( 'getServiceAnnouncements' )
-          .then( function ( response ) {
+          .then( function( response ) {
             var data = response.data.Body;
             var announcements = ( ( data.getServiceAnnouncementsResponse || {} )
               .announcements || {} ).announcement || [ ];
             defer.resolve( announcements );
-          }, function ( ) {
+          }, function( ) {
             defer.reject( 'getServiceAnnouncements failed' );
           } );
 
         return defer.promise;
       },
-      markAnnouncementsAsRead: function ( ) {
+      markAnnouncementsAsRead: function( ) {
         var defer = $q.defer( );
         defer.reject( );
 
         return defer.promise;
       },
-      getContentList: function ( listIdentifier, firstItem, lastItem ) {
+      getContentList: function( listIdentifier, firstItem, lastItem ) {
         var defer = $q.defer( );
         createRequest( 'getContentList', {
             id: listIdentifier,
             firstItem: firstItem,
             lastItem: lastItem
           } )
-          .then( function ( response ) {
+          .then( function( response ) {
             var data = response.data;
-            if ( data.Body.getContentListResponse && data.Body.getContentListResponse
-              .contentList ) {
-              defer.resolve( data.Body.getContentListResponse.contentList );
+            var Body = data.Body || {};
+            var getContentListResponse = Body.getContentListResponse || {};
+            var contentList = getContentListResponse.contentList || {};
+            if ( contentList ) {
+              var attrs = contentList.attrs;
+              var list = {
+                firstItem: attrs.firstItem,
+                id: attrs.id,
+                lastItem: attrs.lastItem,
+                totalItems: attrs.totalItems,
+                items: [ ]
+              };
+              var contentItem = contentList.contentItem || [];
+              if ( !(contentItem instanceof Array) ) {
+                contentItem = [contentItem];
+              }
+
+              list.items = contentItem.map(
+                function( item ) {
+                  // TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
+                  // To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
+                  // See issue #17 on Github
+
+                  var label = item.label.text || '';
+                  var labelArr = label.split( '$' );
+                  return {
+                    id: item.attrs.id,
+                    author: labelArr[ 0 ],
+                    title: labelArr[ 1 ]
+                  };
+                } );
+
+              defer.resolve( list );
             } else {
-              defer.reject( 'setReadingSystemAttributes failed' );
+              defer.reject( 'getContentList failed' );
             }
-          }, function ( ) {
-            defer.reject( 'setReadingSystemAttributes failed' );
+          }, function( ) {
+            defer.reject( 'getContentList failed' );
           } );
 
         return defer.promise;
       },
-      issueContent: function ( contentID ) {
+      issueContent: function( contentID ) {
         var defer = $q.defer( );
 
         createRequest( 'issueContent', {
             contentID: contentID
           } )
-          .then( function ( response ) {
+          .then( function( response ) {
             var data = response.data;
             var Body = data.Body;
             if ( Body.issueContentResponse.issueContentResult ) {
               defer.resolve( );
             } else {
-            defer.reject( 'issueContent failed' );
+              defer.reject( 'issueContent failed' );
             }
-          }, function ( ) {
+          }, function( ) {
             defer.reject( 'issueContent failed' );
           } );
 
         return defer.promise;
       },
-      returnContent: function ( ) {
+      returnContent: function( ) {
         var defer = $q.defer( );
         defer.reject( );
 
         return defer.promise;
       },
-      getContentMetadata: function ( ) {
+      getContentMetadata: function( ) {
         var defer = $q.defer( );
         defer.reject( );
 
         return defer.promise;
       },
-      getContentResources: function ( contentID ) {
+      getContentResources: function( contentID ) {
         var defer = $q.defer( );
 
         createRequest( 'getContentResources', {
             contentID: contentID
           } )
-          .then( function ( response ) {
+          .then( function( response ) {
             var data = response.data;
             var Body = data.Body;
             var resources = Body.getContentResourcesResponse.resources.resource
-              .reduce( function ( resources, item ) {
+              .reduce( function( resources, item ) {
                 resources[ item.attrs.localURI ] = item.attrs.uri;
                 return resources;
               }, {} );
 
             defer.resolve( resources );
-          }, function ( ) {
+          }, function( ) {
             defer.reject( 'getContentResources failed' );
           } );
 
         return defer.promise;
       },
-      getBookmarks: ( function ( ) {
+      getBookmarks: ( function( ) {
         /**
          * Convert from Dodp offset to floating point in seconds
          * TODO: Implement correct parsing of all time formats provided in
@@ -369,11 +401,11 @@ angular.module( 'lyt3App' )
          * are used to parse formats that are not completely identical.
          */
 
-        var parseOffset = function ( timeOffset ) {
+        var parseOffset = function( timeOffset ) {
           var values = timeOffset.match( /\d+/g );
           if ( values && values.length === 4 ) {
             values[ 3 ] = values[ 3 ] || '0';
-            values = values.map( function ( val ) {
+            values = values.map( function( val ) {
               return parseFloat( val, 10 );
             } );
 
@@ -382,7 +414,7 @@ angular.module( 'lyt3App' )
           }
         };
 
-        var deserialize = function ( data ) {
+        var deserialize = function( data ) {
           if ( !data ) {
             return;
           }
@@ -403,13 +435,13 @@ angular.module( 'lyt3App' )
           }
         };
 
-        return function ( contentID ) {
+        return function( contentID ) {
           var defer = $q.defer( );
 
           createRequest( 'getBookmarks', {
               contentID: contentID
             } )
-            .then( function ( response ) {
+            .then( function( response ) {
               var data = response.data;
               var Body = data.Body;
               var getBookmarksResponse = Body.getBookmarksResponse || {};
@@ -424,7 +456,7 @@ angular.module( 'lyt3App' )
 
               var res = {
                 bookmarks: bookmarks.map( deserialize ).filter(
-                  function ( bookmark ) {
+                  function( bookmark ) {
                     return !!bookmark;
                   } ),
                 book: {
@@ -438,14 +470,14 @@ angular.module( 'lyt3App' )
               };
 
               defer.resolve( res );
-            }, function ( ) {
+            }, function( ) {
               defer.reject( 'getBookmarks failed' );
             } );
 
           return defer.promise;
         };
       } )( ),
-      setBookmarks: function ( ) {
+      setBookmarks: function( ) {
         var defer = $q.defer( );
         defer.reject( );
 

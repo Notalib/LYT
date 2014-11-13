@@ -35,14 +35,14 @@ module.exports = function ( grunt ) {
       },
       js: {
         files: [ '<%= yeoman.app %>/scripts/{,*/}*.js' ],
-        tasks: [ 'newer:jshint:all' ],
+        tasks: [ 'newer:jshint:all', 'jscs' ],
         options: {
           livereload: '<%= connect.options.livereload %>'
         }
       },
       jsTest: {
         files: [ 'test/spec/{,*/}*.js' ],
-        tasks: [ 'newer:jshint:test', 'karma' ]
+        tasks: [ 'newer:jshint:test', 'karma', 'jscs' ]
       },
       compass: {
         files: [ '<%= yeoman.app %>/styles/{,*/}*.{scss,sass}' ],
@@ -417,6 +417,19 @@ module.exports = function ( grunt ) {
         singleRun: true,
         autoWatch: false
       }
+    },
+    jscs: {
+      options: {
+        'config': true
+      },
+      files: {
+        src: [
+          'app/scripts/*',
+          'app/scripts/*/*',
+          'test/*',
+          'test/*/*'
+        ]
+      }
     }
   } );
 
@@ -479,4 +492,5 @@ module.exports = function ( grunt ) {
   ] );
 
   grunt.loadNpmTasks( 'grunt-connect-proxy' );
+  grunt.loadNpmTasks( 'grunt-jscs' );
 };

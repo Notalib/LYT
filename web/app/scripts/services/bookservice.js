@@ -1,10 +1,9 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'BookService', [ '$q', 'DODPErrorCodes', 'DODP',
-    function( $q, DODPErrorCodes, DODP ) {
+  .factory( 'BookService', [ '$q', 'LYTSession', 'DODPErrorCodes', 'DODP',
+    function( $q, LYTSession, DODPErrorCodes, DODP ) {
       /*
-       *
        * Higher-level functions for interacting with the server
        *
        * This module is a facade or abstraction layer between the
@@ -27,15 +26,12 @@ angular.module( 'lyt3App' )
        *       # go to the log-in page
        *
        */
-      var __slice = [].slice;
-
-      var currentLogOnProcess, currentRefreshSessionProcess, emit, emitError, lastBookmark, logOn, onCurrentLogOn, operations, withLogOn;
 
       // # Privileged API
-      lastBookmark = null;
+      var lastBookmark = null;
 
       // optional service operations
-      operations = {
+      var operations = {
         DYNAMIC_MENUS: false,
         SET_BOOKMARKS: false,
         GET_BOOKMARKS: false,
@@ -44,26 +40,31 @@ angular.module( 'lyt3App' )
       };
 
       // The current logon process(es)
-      currentLogOnProcess = null;
-      currentRefreshSessionProcess = null;
+      var currentLogOnProcess = null;
+      var currentRefreshSessionProcess = null;
+
+      var gotServiceAttrs = function( services ) {
+        Object.keys( operations ).forEach( function( op ) {
+          operations[ op ] = false;
+        } );
+
+        if ( services.supportedOptionalOperations && services.supportedOptionalOperations
+          .operation ) {
+          services.supportedOptionalOperations.operation.forEach( function(
+            op ) {
+            operations[ op ] = true;
+          } );
+        }
+      };
 
       // Initilize serviceAttributes with values when we are logged in but user reloads scripts.....
-      DODP.getServiceAttributes()
-        .then( function( ops ) {
-          var op, _i, _len, _results;
-          for ( op in operations ) {
-            operations[ op ] = false;
-          }
-          _results = [];
-          for ( _i = 0, _len = ops.length; _i < _len; _i++ ) {
-            op = ops[ _i ];
-            _results.push( operations[ op ] = true );
-          }
-          return _results;
+      DODP.getServiceAttributes( )
+        .then( function( services ) {
+          gotServiceAttrs( services );
         } );
 
       // Emit an event
-      emit = function( event, data ) {
+      var emit = function( event, data ) {
         console.log( event, data );
         /*
       var obj;
@@ -81,43 +82,46 @@ angular.module( 'lyt3App' )
       };
 
       // Emit an error event
-      emitError = function( code ) {
+      var emitError = function( code ) {
         switch ( code ) {
           case DODPErrorCodes.RPC_GENERAL_ERROR:
           case DODPErrorCodes.RPC_TIMEOUT_ERROR:
           case DODPErrorCodes.RPC_ABORT_ERROR:
-          case DODPErrorCodes.RPC_HTTP_ERROR:
+          case DODPErrorCodes.RPC_HTTP_ERROR: {
             return emit( 'error:rpc', {
               code: code
             } );
-          default:
+          }
+          default: {
             return emit( 'error:service', {
               code: code
             } );
+          }
         }
       };
+
       /*
        * Wraps a call in a couple of checks: If the call the fails,
        * check if the reason is due to the user not being logged in.
        * If that's the case, attempt logon, and attempt the call again
        */
-      withLogOn = function( callback ) {
-        var deferred, failure, result, success;
-        deferred = $q.defer();
+      var withLogOn = function( callback ) {
+        var deferred = $q.defer( );
 
         // If the call goes through
-        success = function() {
+        var success = function( ) {
           var args;
-          args = 1 <= arguments.length ? __slice.call( arguments, 0 ) : [];
+          args = 1 <= arguments.length ? Array.prototype.slice.call( arguments, 0 ) : [ ];
           return deferred.resolve.apply( deferred, args );
         };
 
         // If the call fails
-        failure = function( code, message ) {
+        var failure = function( code, message ) {
           emitError( code );
           return deferred.reject( code, message );
         };
-        result = callback();
+
+        var result = callback( );
 
         // If everything works, then just pass on the resolve args
         result.then( success );
@@ -127,10 +131,10 @@ angular.module( 'lyt3App' )
           // Is it because the user's not logged in?
           if ( code === DODPErrorCodes.DODP_NO_SESSION_ERROR ) {
             // If so , the attempt log-on
-            return logOn()
-              .then( function() {
+            return logOn( )
+              .then( function( ) {
                 // Logon worked, so re-attempt the call
-                return callback()
+                return callback( )
                   // If it works, this time around, then great
                   .then( success )
                   // If it doesn't, then give up
@@ -144,105 +148,97 @@ angular.module( 'lyt3App' )
             return failure( code, message );
           }
         } );
+
         return deferred.promise;
-      };
-      onCurrentLogOn = function( handlers ) {
-        var handlerName, promise, _results;
-        promise = currentLogOnProcess;
-        if ( !promise ) {
-          promise = $q.defer()
-            .resolve();
-        }
-        _results = [];
-        for ( handlerName in handlers ) {
-          _results.push( promise[ handlerName ]( handlers[ handlerName ] ) );
-        }
-        return _results;
       };
 
       // Perform the logOn handshake:
       // `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
-      logOn = function( username, password ) {
-        var attemptLogOn, attempts, deferred, failed, gotServiceAnnouncements, gotServiceAttrs, loggedOn, readingSystemAttrsSet;
+      var logOn = function( username, password ) {
         // Check for and return any pending logon processes
         if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
           return currentLogOnProcess;
         }
-        if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state === 'pending' ) {
-          currentRefreshSessionProcess.reject();
+        if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state ===
+          'pending' ) {
+          currentRefreshSessionProcess.reject( );
         }
-        deferred = currentLogOnProcess = $q.defer();
+        var deferred = $q.defer( );
+
+        currentLogOnProcess = deferred;
+
         currentLogOnProcess.state = 'pending';
-        currentLogOnProcess.promise.then(function(){
+
+        currentLogOnProcess.promise.then( function( ) {
           currentLogOnProcess.state = 'resolved';
-        }, function() {
+        }, function( ) {
           currentLogOnProcess.state = 'rejected';
         } );
+
         if ( !( username && password ) ) {
-          /* TODO:
-        if ((credentials = LYT.session.getCredentials())) {
-          username = credentials.username, password = credentials.password;
+          var credentials = LYTSession.getCredentials( );
+          if ( credentials ) {
+            username = credentials.username;
+            password = credentials.password;
+          }
         }
-        */
-        }
+
         if ( !( username && password ) ) {
           emit( 'logon:rejected' );
-          deferred.reject();
+          deferred.reject( );
           return deferred.promise;
         }
         // attempts = ((_ref = LYT.config.service) != null ? _ref.logOnAttempts : void 0) || 3;
 
         // The maximum number of attempts to make
-        attempts = 3;
+        var attempts = 3;
         // (For readability, the handlers are separated out here)
 
         // TODO: Flesh out error handling
-        failed = function( code, message ) {
+        var failed = function( code, message ) {
           if ( code === DODPErrorCodes.RPC_UNEXPECTED_RESPONSE_ERROR ) {
             emit( 'logon:rejected' );
-            return deferred.reject();
+            return deferred.reject( );
           } else {
             if ( attempts > 0 ) {
-              return attemptLogOn();
+              return attemptLogOn( );
             } else {
               emitError( code );
               return deferred.reject( code, message );
             }
           }
         };
-        loggedOn = function( /*data*/) {
-          emit( 'logon:resolved' );
-          // TODO: LYT.session.setCredentials(username, password);
-          // TODO: LYT.session.setInfo(data);
-          return DODP.getServiceAttributes()
-            .then( gotServiceAttrs )
-            .catch( failed );
-        };
-        gotServiceAttrs = function( ops ) {
-          var op, _i, _len;
-          for ( op in operations ) {
-            operations[ op ] = false;
-          }
-          for ( _i = 0, _len = ops.length; _i < _len; _i++ ) {
-            op = ops[ _i ];
-            operations[ op ] = true;
-          }
-          return DODP.setReadingSystemAttributes()
-            .then( readingSystemAttrsSet )
-            .catch( failed );
-        };
-        readingSystemAttrsSet = function() {
-          deferred.resolve(); // returning that logon is Ok.
-          if ( BookService.announcementsSupported() ) {
-            return DODP.getServiceAnnouncements()
-              .then( gotServiceAnnouncements );
-          }
-        };
-        gotServiceAnnouncements = function( /*announcements*/) {
+
+        var gotServiceAnnouncements = function( /*announcements*/ ) {
           // Calling GUI to show announcements
           // TODO: return LYT.render.showAnnouncements(announcements);
         };
-        attemptLogOn = function() {
+
+        var readingSystemAttrsSet = function( ) {
+          deferred.resolve( ); // returning that logon is Ok.
+          if ( BookService.announcementsSupported( ) ) {
+            return DODP.getServiceAnnouncements( )
+              .then( gotServiceAnnouncements );
+          }
+        };
+
+        var loggedOn = function( data ) {
+          emit( 'logon:resolved' );
+
+          LYTSession.setCredentials( username, password );
+          LYTSession.setInfo( data );
+
+          return DODP.getServiceAttributes( )
+            .then( gotServiceAttrs )
+            .then( function( ) {
+              DODP.setReadingSystemAttributes( )
+                .then( readingSystemAttrsSet )
+                .catch( failed );
+            } )
+            .catch( failed );
+        };
+
+        var attemptLogOn = function( ) {
           --attempts;
           // log.message('Service: Attempting log-on (' + attempts + ' attempt(s) left)');
           return DODP.logOn( username, password )
@@ -251,7 +247,7 @@ angular.module( 'lyt3App' )
         };
 
         // Kick it off
-        attemptLogOn();
+        attemptLogOn( );
         return deferred.promise;
       };
 
@@ -261,52 +257,65 @@ angular.module( 'lyt3App' )
        */
       var BookService = {
         logOn: logOn,
-        onCurrentLogOn: onCurrentLogOn,
+
         /* Silently attempt to refresh a session. I.e. if this fails, no logOn errors are
          * emitted directly. This is intended for use with e.g. DTBDocument.
          * However, if there's an explicit logon process running, it'll use that
          */
-        refreshSession: function() {
-          var deferred, fail, gotServiceAttrs, loggedOn, password, readingSystemAttrsSet, username;
-          if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
+        refreshSession: function( ) {
+          var username, password;
+
+          if ( currentLogOnProcess && currentLogOnProcess.state ===
+            'pending' ) {
             return currentLogOnProcess;
           }
-          if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state === 'pending' ) {
+
+          if ( currentRefreshSessionProcess &&
+            currentRefreshSessionProcess.state === 'pending' ) {
             return currentRefreshSessionProcess;
           }
-          deferred = currentRefreshSessionProcess = $q.defer();
+
+          var deferred = $q.defer( );
+
+          currentRefreshSessionProcess = deferred;
           currentRefreshSessionProcess.state = 'pending';
-          currentRefreshSessionProcess.promise.then(function(){
+          currentRefreshSessionProcess.promise.then( function( ) {
             currentRefreshSessionProcess.state = 'resolved';
-          }, function() {
+          }, function( ) {
             currentRefreshSessionProcess.state = 'rejected';
           } );
-          fail = function() {
-            return deferred.reject();
+
+          var fail = function( ) {
+            return deferred.reject( );
           };
-          /* TODO:
-        if ((credentials = LYT.session.getCredentials())) {
-          username = credentials.username;
-          password = credentials.password;
-        }
-        */
+
+          var credentials = LYTSession.getCredentials( );
+          if ( credentials ) {
+            username = credentials.username;
+            password = credentials.password;
+          }
           if ( !( username && password ) ) {
-            fail();
+            fail( );
             return deferred.promise;
           }
-          loggedOn = function() {
-            return DODP.getServiceAttributes()
-              .then( gotServiceAttrs, fail );
+
+          var loggedOn = function( ) {
+            return DODP.getServiceAttributes( )
+              .then( gotServiceAttrs )
+              .catch( fail )
+              .then( function( ) {
+                return DODP.setReadingSystemAttributes( )
+                  .then( readingSystemAttrsSet, fail );
+              } );
           };
-          gotServiceAttrs = function() {
-            return DODP.setReadingSystemAttributes()
-              .then( readingSystemAttrsSet, fail );
+
+          var readingSystemAttrsSet = function( ) {
+            return deferred.resolve( );
           };
-          readingSystemAttrsSet = function() {
-            return deferred.resolve();
-          };
+
           DODP.logOn( username, password )
             .then( loggedOn, fail );
+
           return deferred.promise;
         },
         /*
@@ -316,30 +325,31 @@ angular.module( 'lyt3App' )
          * ----: No, Nota's service implementation always returns true when calling
          *       logOff(). Other service implementations may behave differently.
          */
-        logOff: function() {
-          return DODP.logOff()
-            .finally( function() {
-              // TODO: LYT.session.clear();
+        logOff: function( ) {
+          return DODP.logOff( )
+            .finally( function( ) {
+              LYTSession.clear( );
+
               return emit( 'logoff' );
             } );
         },
         issue: function( bookId ) {
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.issueContent( bookId );
           } );
         },
         'return': function( bookId ) {
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.returnContent( bookId );
           } );
         },
         getMetadata: function( bookId ) {
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.getContentMetadata( bookId );
           } );
         },
         getResources: function( bookId ) {
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.getContentResources( bookId );
           } );
         },
@@ -352,51 +362,51 @@ angular.module( 'lyt3App' )
          * items from the `from` index to the end of the list
          */
         getBookshelf: function( from, to ) {
-          var deferred, response;
-          if ( !from ) {
-            from = 0;
-          }
-          if ( !to ) {
-            to = -1;
-          }
-          deferred = $q.defer();
-          response = withLogOn( function() {
+          var deferred = $q.defer( );
+          withLogOn( function( ) {
             return DODP.getContentList( 'issued', from, to );
-          } );
-          response.then( function( list ) {
-            var item, _i, _len, _ref, _ref1;
-            for ( _i = 0, _len = list.length; _i < _len; _i++ ) {
-              // TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
-              // To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
-              // See issue #17 on Github
-              item = list[ _i ];
-              _ref1 = ( ( _ref = item.label ) ? _ref.split( '$' ) : void 0 ) || [ '', '' ];
-              item.author = _ref1[ 0 ];
-              item.title = _ref1[ 1 ];
-              delete item.label;
-            }
-            return deferred.resolve( list );
-          } );
-          response.catch( function( err, message ) {
-            return deferred.reject( err, message );
-          } );
+          } )
+            .then( function( list ) {
+              var cachedBookShelf = BookService.getCachedBookShelf();
+              var items = list.items;
+              for ( var i = from; i <= to; i += 1 ) {
+                cachedBookShelf[ i ] = items[ i - from ];
+              }
+
+              cachedBookShelf = cachedBookShelf.filter(function( item ) {
+                return !!item;
+              } );
+
+              LYTSession.setBookShelf( cachedBookShelf );
+              return deferred.resolve( cachedBookShelf );
+            } )
+            .catch( function( err, message ) {
+              return deferred.reject( err, message );
+            } );
           return deferred.promise;
+        },
+
+        getCachedBookShelf: function( ) {
+          return LYTSession.getBookShelf();
         },
 
         /* -------
          * ## Optional operations
          */
-        bookmarksSupported: function() {
+        bookmarksSupported: function( ) {
           return operations.GET_BOOKMARKS && operations.SET_BOOKMARKS;
         },
         getBookmarks: function( bookId ) {
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.getBookmarks( bookId );
           } );
         },
         setBookmarks: function( bookmarks ) {
           var _ref, _ref1, _ref2, _ref3;
-          if ( lastBookmark && lastBookmark.bookId === bookmarks.id && lastBookmark.URI === ( ( _ref = bookmarks.lastmark ) ? _ref.URI : void 0 ) && lastBookmark.timeOffset === ( ( _ref1 = bookmarks.lastmark ) ? _ref1.timeOffse : void 0 ) ) {
+          if ( lastBookmark && lastBookmark.bookId === bookmarks.id &&
+            lastBookmark.URI === ( ( _ref = bookmarks.lastmark ) ? _ref.URI :
+              void 0 ) && lastBookmark.timeOffset === ( ( _ref1 =
+              bookmarks.lastmark ) ? _ref1.timeOffse : void 0 ) ) {
             // log.message('setBookmarks: same as last time');
             return;
           }
@@ -405,34 +415,35 @@ angular.module( 'lyt3App' )
             URI: ( _ref2 = bookmarks.lastmark ) ? _ref2.URI : void 0,
             timeOffset: ( _ref3 = bookmarks.lastmark ) ? _ref3.timeOffset : void 0
           };
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.setBookmarks( bookmarks );
           } );
         },
-        announcementsSupported: function() {
+        announcementsSupported: function( ) {
           return operations.SERVICE_ANNOUNCEMENTS;
         },
         markAnnouncementsAsRead: function( AnnouncementsIDS ) {
-          return withLogOn( function() {
+          return withLogOn( function( ) {
             return DODP.markAnnouncementsAsRead( AnnouncementsIDS );
           } );
         },
-        getAnnouncements: function() {
-          var deferred, response;
-          if ( BookService.announcementsSupported() ) {
-            deferred = $q.defer();
-            response = withLogOn( function() {
-              return DODP.getServiceAnnouncements();
-            } );
-            response.then( function( /*announcements*/) {
-              // LYT.render.showAnnouncements(announcements);
-              return deferred.resolve();
-            } );
-            response.catch( function( err, message ) {
-              return deferred.reject( err, message );
-            } );
-            return deferred.promise;
+        getAnnouncements: function( ) {
+          var deferred = $q.defer( );
+          if ( BookService.announcementsSupported( ) ) {
+            withLogOn( function( ) {
+              return DODP.getServiceAnnouncements( );
+            } )
+              .then( function( /*announcements*/ ) {
+                // LYT.render.showAnnouncements(announcements);
+                return deferred.resolve( );
+              } )
+              .catch( function( err, message ) {
+                return deferred.reject( err, message );
+              } );
+          } else {
+            deferred.reject( );
           }
+          return deferred.promise;
         }
       };
 

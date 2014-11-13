@@ -3,7 +3,7 @@
 // Generated on 2014-10-30 using
 // generator-karma 0.8.3
 
-module.exports = function ( config ) {
+module.exports = function( config ) {
   'use strict';
 
 
@@ -28,13 +28,24 @@ module.exports = function ( config ) {
       'bower_components/angular-sanitize/angular-sanitize.js',
       'bower_components/angular-touch/angular-touch.js',
       'bower_components/angular-xml/angular-xml.js',
+      'bower_components/angular-local-storage/dist/angular-local-storage.js',
       'app/scripts/**/*.js',
       'test/mock/**/*.js',
-      'test/spec/**/*.js'
+      'test/spec/**/*.js',
+      'test/mock/data/book/DodpFiles/**/**/*.*'
     ],
 
     // list of files / patterns to exclude
     exclude: [ ],
+
+    preprocessors: {
+      'test/mock/data/book/**/**/*.*': [ 'ng-html2js' ]
+    },
+
+    ngHtml2JsPreprocessor: {
+      stripPrefix: 'base/test/mock/data/book',
+      moduleName: 'bookfiles'
+    },
 
     // web server port
     port: 8080,
@@ -55,7 +66,8 @@ module.exports = function ( config ) {
     plugins: [
       'karma-phantomjs-launcher',
       'karma-chrome-extra-launcher',
-      'karma-jasmine'
+      'karma-jasmine',
+      'karma-ng-html2js-preprocessor'
     ],
 
     // Continuous Integration mode

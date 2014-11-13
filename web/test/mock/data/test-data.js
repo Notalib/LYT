@@ -8,7 +8,7 @@ try {
 
 angular.module( 'lytTest', [ 'lytTestUser' ] )
   .factory( 'testData', [ 'testDataLocal',
-    function ( testDataLocal ) {
+    function( testDataLocal ) {
       var DODPVERSION = 'Dummy=1.0.0';
       var testUser = testDataLocal.user;
 
@@ -152,57 +152,34 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           DODPVERSION +
           '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getContentListResponse xmlns="http://www.daisy.org/ns/daisy-online/"><contentList totalItems="6" firstItem="0" lastItem="5" id="issued"><label xml:lang="en" dir=""><text>issued</text></label><contentItem id="37379"><label xml:lang="en" dir=""><text>Douglas Adams$So long, and thanks for all the fish</text></label></contentItem><contentItem id="17214"><label xml:lang="en" dir=""><text>Joanne K. Rowling$Harry Potter og dødsregalierne</text></label></contentItem><contentItem id="39314"><label xml:lang="en" dir=""><text>Ole Frøslev$Haltefanden</text></label></contentItem><contentItem id="13984"><label xml:lang="en" dir=""><text>Joanne K. Rowling$Harry Potter og fangen fra Azkaban</text></label></contentItem><contentItem id="36736"><label xml:lang="en" dir=""><text>Jan Kjær$Taynikma - Toron-sagaen</text></label></contentItem><contentItem id="39424"><label xml:lang="en" dir=""><text>Hergé$Den mystiske stjerne</text></label></contentItem></contentList></getContentListResponse></s:Body></s:Envelope>',
         resolved: {
-          'attrs': {
-            'totalItems': 6,
-            'firstItem': 0,
-            'lastItem': 5,
-            'id': 'issued'
-          },
-          'label': {
-            'text': 'issued'
-          },
-          'contentItem': [ {
-            'attrs': {
-              'id': 37379
-            },
-            'label': {
-              'text': 'Douglas Adams$So long, and thanks for all the fish'
-            }
+          'firstItem': 0,
+          'id': 'issued',
+          'lastItem': 5,
+          'totalItems': 6,
+          'items': [ {
+            'id': 37379,
+            'author': 'Douglas Adams',
+            'title': 'So long, and thanks for all the fish'
           }, {
-            'attrs': {
-              'id': 17214
-            },
-            'label': {
-              'text': 'Joanne K. Rowling$Harry Potter og dødsregalierne'
-            }
+            'id': 17214,
+            'author': 'Joanne K. Rowling',
+            'title': 'Harry Potter og dødsregalierne'
           }, {
-            'attrs': {
-              'id': 39314
-            },
-            'label': {
-              'text': 'Ole Frøslev$Haltefanden'
-            }
+            'id': 39314,
+            'author': 'Ole Frøslev',
+            'title': 'Haltefanden'
           }, {
-            'attrs': {
-              'id': 13984
-            },
-            'label': {
-              'text': 'Joanne K. Rowling$Harry Potter og fangen fra Azkaban'
-            }
+            'id': 13984,
+            'author': 'Joanne K. Rowling',
+            'title': 'Harry Potter og fangen fra Azkaban'
           }, {
-            'attrs': {
-              'id': 36736
-            },
-            'label': {
-              'text': 'Jan Kjær$Taynikma - Toron-sagaen'
-            }
+            'id': 36736,
+            'author': 'Jan Kjær',
+            'title': 'Taynikma - Toron-sagaen'
           }, {
-            'attrs': {
-              'id': 39424
-            },
-            'label': {
-              'text': 'Hergé$Den mystiske stjerne'
-            }
+            'id': 39424,
+            'author': 'Hergé',
+            'title': 'Den mystiske stjerne'
           } ]
         }
       };

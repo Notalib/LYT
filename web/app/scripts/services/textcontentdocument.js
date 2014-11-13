@@ -30,10 +30,10 @@ angular.module( 'lyt3App' )
 
       function TextContentDocument( url, resources, callback ) {
         DtbDocument.call( this, url, ( function( _this ) {
-          return function() {
-            resolveURLs( _this.source, resources, _this.isCartoon() );
+          return function( ) {
+            resolveURLs( _this.source, resources, _this.isCartoon( ) );
             if ( typeof callback === 'function' ) {
-              return callback();
+              return callback( );
             }
           };
         } )( this ) );
@@ -41,12 +41,13 @@ angular.module( 'lyt3App' )
 
       TextContentDocument.prototype = Object.create( DtbDocument.prototype );
 
-      TextContentDocument.prototype.isCartoon = function() {
+      TextContentDocument.prototype.isCartoon = function( ) {
         var pages;
         if ( this._isCartoon === undefined ) {
           pages = this.source.find( '.page' )
-            .toArray();
-          this._isCartoon = pages.length !== 0 && pages.every( function( page ) {
+            .toArray( );
+          this._isCartoon = pages.length !== 0 && pages.every( function(
+            page ) {
             return $( page )
               .children( 'img' )
               .length === 1;

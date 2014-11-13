@@ -11,14 +11,14 @@ angular.module( 'lyt3App' )
       // Parse the main `<seq>` element's `<par>`s
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
       parseMainSeqNode = function( sequence, smil, sections ) {
-        var parData = [];
+        var parData = [ ];
         var refs = sections.reduce( function( refs, section ) {
           refs[ section.fragment ] = section;
           return refs;
         }, {} );
 
         sequence.children( 'par' )
-          .each( function() {
+          .each( function( ) {
             parData = parData.concat( parseParNode( jQuery( this ) ) );
           } );
 
@@ -34,7 +34,7 @@ angular.module( 'lyt3App' )
             sectionID = segment.el.id;
           } else {
             segment.el.find( '[id]' )
-              .each( function() {
+              .each( function( ) {
                 var childID = this.getAttribute( 'id' );
                 if ( childID in refs ) {
                   sectionID = childID;
@@ -68,10 +68,11 @@ angular.module( 'lyt3App' )
 
         // Find all nested `audio` nodes
         var clips = par.find( '> audio, seq > audio' )
-          .map( function() {
+          .map( function( ) {
             var audio = jQuery( this );
             return {
-              id: par.attr( 'id' ) || ( '__LYT_auto_' + ( audio.attr( 'src' ) ) + '_' + ( idCounts[ audio.attr( 'src' ) ]++ ) ),
+              id: par.attr( 'id' ) || ( '__LYT_auto_' + ( audio.attr(
+                'src' ) ) + '_' + ( idCounts[ audio.attr( 'src' ) ] ++ ) ),
               start: parseNPT( audio.attr( 'clip-begin' ) ),
               end: parseNPT( audio.attr( 'clip-end' ) ),
               text: text,
@@ -88,13 +89,14 @@ angular.module( 'lyt3App' )
 
         clips = jQuery.makeArray( clips );
         if ( clips.length === 0 ) {
-          return [];
+          return [ ];
         }
 
         // Collapse adjacent audio clips
-        var reducedClips = [];
+        var reducedClips = [ ];
         clips.forEach( function( clip ) {
-          if ( ( typeof lastClip !== 'undefined' && lastClip !== null ) && clip.audio.src === lastClip.audio.src ) {
+          if ( ( typeof lastClip !== 'undefined' && lastClip !== null ) &&
+            clip.audio.src === lastClip.audio.src ) {
             // Ignore small differences between start and end,
             // since this can occur as a result of rounding errors
             if ( Math.abs( clip.start - lastClip.end ) < 0.001 ) {
@@ -130,16 +132,20 @@ angular.module( 'lyt3App' )
       // Class to model a SMIL document
       function SMILDocument( url, book ) {
         DtbDocument.call( this, url, ( function( _this ) {
-          return function() {
-            var mainSequence = _this.source.find( 'body > seq:first' );
+          return function( ) {
+            var mainSequence = _this.source.find(
+              'body > seq:first' );
             _this.book = book;
-            _this.duration = parseFloat( mainSequence.attr( 'dur' ) ) || 0;
-            _this.segments = parseMainSeqNode( mainSequence, _this, book.nccDocument.sections );
+            _this.duration = parseFloat( mainSequence.attr( 'dur' ) ) ||
+              0;
+            _this.segments = parseMainSeqNode( mainSequence, _this,
+              book.nccDocument.sections );
 
-            var totalElapsedTime = _this.getMetadata().totalElapsedTime || {};
-            _this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime.content ) || null;
+            var totalElapsedTime = _this.getMetadata( ).totalElapsedTime || {};
+            _this.absoluteOffset = LYTUtils.parseTime(
+              totalElapsedTime.content ) || null;
             _this.filename = _this.url.split( '/' )
-              .pop();
+              .pop( );
           };
         } )( this ) );
       }
@@ -194,8 +200,8 @@ angular.module( 'lyt3App' )
         return segment;
       };
 
-      SMILDocument.prototype.getAudioReferences = function() {
-        var urls = [];
+      SMILDocument.prototype.getAudioReferences = function( ) {
+        var urls = [ ];
 
         this.segments.forEach( function( segment ) {
           if ( segment.audio.src ) {
