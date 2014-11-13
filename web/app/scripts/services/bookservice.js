@@ -244,7 +244,6 @@ angular.module( 'lyt3App' )
             } )
             .catch( failed );
         };
-
         readingSystemAttrsSet = function( ) {
           deferred.resolve( ); // returning that logon is Ok.
           if ( BookService.announcementsSupported( ) ) {
@@ -338,6 +337,7 @@ angular.module( 'lyt3App' )
           return DODP.logOff( )
             .finally( function( ) {
               LYTSession.clear( );
+
               return emit( 'logoff' );
             } );
         },
