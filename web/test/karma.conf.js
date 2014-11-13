@@ -3,7 +3,7 @@
 // Generated on 2014-10-30 using
 // generator-karma 0.8.3
 
-module.exports = function ( config ) {
+module.exports = function( config ) {
   'use strict';
 
 
@@ -39,7 +39,7 @@ module.exports = function ( config ) {
     exclude: [ ],
 
     preprocessors: {
-      'test/mock/data/book/**/**/*.*':['ng-html2js']
+      'test/mock/data/book/**/**/*.*': [ 'ng-html2js' ]
     },
 
     ngHtml2JsPreprocessor: {

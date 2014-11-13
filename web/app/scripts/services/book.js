@@ -8,8 +8,10 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'Book', [ '$q', 'LYTUtils', 'BookService', 'BookErrorCodes', 'NCCDocument', 'SMILDocument',
-    function( $q, LYTUtils, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
+  .factory( 'Book', [ '$q', 'LYTUtils', 'BookService', 'BookErrorCodes',
+    'NCCDocument', 'SMILDocument',
+    function( $q, LYTUtils, BookService, BookErrorCodes, NCCDocument,
+      SMILDocument ) {
       /*
        * The constructor takes one argument; the ID of the book.
        * The instantiated object acts as a Deferred object, as the instantiation of a book
@@ -32,21 +34,21 @@ angular.module( 'lyt3App' )
       function Book( id ) {
         var getBookmarks, getNCC, getResources, issue, pending, resolve;
         this.id = id;
-        var deferred = $q.defer();
+        var deferred = $q.defer( );
         this.promise = deferred.promise;
 
         this.resources = {};
         this.nccDocument = null;
         pending = 2;
         resolve = ( function( _this ) {
-          return function() {
+          return function( ) {
             return --pending || deferred.resolve( _this );
           };
         } )( this );
 
         // First step: Request that the book be issued
         issue = ( function( _this ) {
-          return function() {
+          return function( ) {
             // Perform the RPC
             var issued = BookService.issue( _this.id );
             // When the book has been issued, proceed to download
@@ -54,17 +56,17 @@ angular.module( 'lyt3App' )
             issued.then( getResources );
 
             // ... or fail
-            return issued.catch( function() {
+            return issued.catch( function( ) {
               return deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
             } );
           };
         } )( this );
 
         getResources = ( function( _this ) {
-          return function() {
+          return function( ) {
             var got;
             got = BookService.getResources( _this.id );
-            got.catch( function() {
+            got.catch( function( ) {
               return deferred.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
             } );
 
@@ -78,14 +80,15 @@ angular.module( 'lyt3App' )
                 uri = resources[ localUri ];
 
                 // We lowercase all resource lookups to avoid general case-issues
-                localUri = localUri.toLowerCase();
+                localUri = localUri.toLowerCase( );
 
                 // Each resource is identified by its relative path,
                 // and contains the properties `url` and `document`
                 // (the latter initialized to `null`)
                 // Urls are rewritten to use the origin server just
                 // in case we are behind a proxy.
-                origin = document.location.href.match( /(https?:\/\/[^\/]+)/ )[ 1 ];
+                origin = document.location.href.match(
+                  /(https?:\/\/[^\/]+)/ )[ 1 ];
                 path = uri.match( /https?:\/\/[^\/]+(.+)/ )[ 1 ];
                 _this.resources[ localUri ] = {
                   url: origin + path,
@@ -100,7 +103,7 @@ angular.module( 'lyt3App' )
               // save the resource for later
               if ( ncc ) {
                 getNCC( ncc );
-                return getBookmarks();
+                return getBookmarks( );
               } else {
                 return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
               }
@@ -116,40 +119,43 @@ angular.module( 'lyt3App' )
             var nccPromise = ncc.promise;
 
             // Propagate a failure
-            nccPromise.catch( function() {
+            nccPromise.catch( function( ) {
               return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
             } );
 
             nccPromise.then( function( document ) {
               obj.document = _this.nccDocument = document;
-              var metadata = _this.nccDocument.getMetadata();
-              var authors = (metadata.creator || []).forEach(function(creator){
-                return creator.content;
-              });
+              var metadata = _this.nccDocument.getMetadata( );
+              var authors = ( metadata.creator || [ ] ).forEach(
+                function( creator ) {
+                  return creator.content;
+                } );
 
               // Get the author(s)
               _this.author = LYTUtils.toSentence( authors );
 
               // Get the title
-              _this.title = metadata.title ? metadata.title.content : '';
+              _this.title = metadata.title ? metadata.title.content :
+                '';
 
               // Get the total time
-              _this.totalTime = metadata.totalTime ? metadata.totalTime.content : '';
+              _this.totalTime = metadata.totalTime ? metadata.totalTime
+                .content : '';
               ncc.book = _this;
-              resolve();
+              resolve( );
             } );
           };
         } )( this );
 
         getBookmarks = ( function( _this ) {
-          return function() {
+          return function( ) {
             _this.lastmark = null;
-            _this.bookmarks = [];
+            _this.bookmarks = [ ];
             // log.message("Book: Getting bookmarks");
             var process = BookService.getBookmarks( _this.id );
 
             // TODO: perhaps bookmarks should be loaded lazily, when required?
-            process.catch( function() {
+            process.catch( function( ) {
               return deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
             } );
 
@@ -157,9 +163,9 @@ angular.module( 'lyt3App' )
               if ( data ) {
                 _this.lastmark = data.lastmark;
                 _this.bookmarks = data.bookmarks;
-                _this._normalizeBookmarks();
+                _this._normalizeBookmarks( );
               }
-              resolve();
+              resolve( );
             } );
           };
         } )( this );
@@ -169,15 +175,15 @@ angular.module( 'lyt3App' )
       }
 
       // Returns all .smil files in the @resources array
-      Book.prototype.getSMILFiles = function() {
-        return Object.keys(this.resources).filter(function( key ) {
+      Book.prototype.getSMILFiles = function( ) {
+        return Object.keys( this.resources ).filter( function( key ) {
           return this.resources[ key ].url.match( /\.smil$/i );
         }, this );
       };
 
       // Returns all SMIL files which is referred to by the NCC document in order
-      Book.prototype.getSMILFilesInNCC = function() {
-        var ordered = [];
+      Book.prototype.getSMILFilesInNCC = function( ) {
+        var ordered = [ ];
         this.nccDocument.sections.forEach( function( section ) {
           if ( ordered.indexOf( section.url ) === -1 ) {
             ordered.push( section.url );
@@ -187,27 +193,27 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.loadAllSMIL = function( ) {
-        var promises = [];
+        var promises = [ ];
 
-        var defer = $q.defer();
+        var defer = $q.defer( );
 
-        this.getSMILFiles().forEach(function( url ) {
-          promises.push(this.getSMIL(url));
-        }, this);
+        this.getSMILFiles( ).forEach( function( url ) {
+          promises.push( this.getSMIL( url ) );
+        }, this );
 
-        $q.all(promises)
-          .then(function(smildocuments) {
-            defer.resolve(smildocuments);
-          });
+        $q.all( promises )
+          .then( function( smildocuments ) {
+            defer.resolve( smildocuments );
+          } );
 
         return defer.promise;
       };
 
       Book.prototype.getSMIL = function( url ) {
-        url = url.toLowerCase();
-        var deferred = $q.defer();
+        url = url.toLowerCase( );
+        var deferred = $q.defer( );
         if ( !( url in this.resources ) ) {
-          return deferred.reject();
+          return deferred.reject( );
         }
         var smil = this.resources[ url ];
         if ( !smil.document ) {
@@ -221,17 +227,17 @@ angular.module( 'lyt3App' )
               return deferred.reject( error );
             } );
         } else {
-          deferred.resolve(smil.document);
+          deferred.resolve( smil.document );
         }
         return deferred.promise;
       };
 
-      Book.prototype.firstSegment = function() {
+      Book.prototype.firstSegment = function( ) {
         return this.nccDocument.promise.then( function( document ) {
-            return document.firstSection();
+            return document.firstSection( );
           } )
           .then( function( section ) {
-            return section.firstSegment();
+            return section.firstSegment( );
           } );
       };
 
@@ -243,13 +249,13 @@ angular.module( 'lyt3App' )
         current = segment;
 
         // Inclusive backwards search
-        iterator = function() {
+        iterator = function( ) {
           var result = current;
           current = !current ? current.previous : void 0;
           return result;
         };
 
-        var itemEach = function() {
+        var itemEach = function( ) {
           var childID = this.getAttribute( 'id' );
           if ( sections.indexOf( childID ) > -1 ) {
             id = childID;
@@ -257,7 +263,7 @@ angular.module( 'lyt3App' )
           }
         };
 
-        while ( !id && ( item = iterator() ) ) {
+        while ( !id && ( item = iterator( ) ) ) {
           if ( item.id && sections.indexOf( item.id ) > -1 ) {
             id = item.id;
           } else {
@@ -269,25 +275,26 @@ angular.module( 'lyt3App' )
       };
 
       // Gets the book's metadata (as stated in the NCC document)
-      Book.prototype.getMetadata = function() {
+      Book.prototype.getMetadata = function( ) {
         if ( this.nccDocument ) {
-          return this.nccDocument.getMetadata();
+          return this.nccDocument.getMetadata( );
         }
         return null;
       };
 
-      Book.prototype.saveBookmarks = function() {
+      Book.prototype.saveBookmarks = function( ) {
         return BookService.setBookmarks( this );
       };
 
-      Book.prototype._sortBookmarks = function() {
+      Book.prototype._sortBookmarks = function( ) {
         var smils, tmpBookmarks;
         // log.message("Book: _sortBookmarks");
-        smils = this.getSMILFilesInNCC();
-        tmpBookmarks = ( this.bookmarks || [] )
+        smils = this.getSMILFilesInNCC( );
+        tmpBookmarks = ( this.bookmarks || [ ] )
           .slice( 0 );
         tmpBookmarks.sort( function( aMark, bMark ) {
-          var aMarkID, aMarkIndex, aMarkSmil, bMarkID, bMarkIndex, bMarkSmil, _ref, _ref1;
+          var aMarkID, aMarkIndex, aMarkSmil, bMarkID, bMarkIndex,
+            bMarkSmil, _ref, _ref1;
           _ref = aMark.URI.split( '#' );
           aMarkSmil = _ref[ 0 ];
           aMarkID = _ref[ 1 ];
@@ -309,27 +316,29 @@ angular.module( 'lyt3App' )
       };
 
       // Delete all bookmarks that are very close to each other
-      Book.prototype._normalizeBookmarks = function() {
-        var bookmark, bookmarks, i, saved, temp, uri, _i, _len, _name, _ref, _ref1, _results;
+      Book.prototype._normalizeBookmarks = function( ) {
+        var bookmark, bookmarks, i, saved, temp, uri, _i, _len, _name, _ref,
+          _ref1, _results;
         temp = {};
         _ref = this.bookmarks;
         for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
           bookmark = _ref[ _i ];
           if ( !temp[ _name = bookmark.URI ] ) {
-            temp[ _name ] = [];
+            temp[ _name ] = [ ];
           }
           i = 0;
           while ( i < temp[ bookmark.URI ].length ) {
             saved = temp[ bookmark.URI ][ i ];
-            if ( ( -2 < ( _ref1 = saved.timeOffset - bookmark.timeOffset ) && _ref1 < 2 ) ) {
+            if ( ( -2 < ( _ref1 = saved.timeOffset - bookmark.timeOffset ) &&
+                _ref1 < 2 ) ) {
               break;
             }
             i++;
           }
           temp[ bookmark.URI ][ i ] = bookmark;
         }
-        this.bookmarks = [];
-        _results = [];
+        this.bookmarks = [ ];
+        _results = [ ];
         for ( uri in temp ) {
           bookmarks = temp[ uri ];
           _results.push( this.bookmarks = this.bookmarks.concat( bookmarks ) );
@@ -354,12 +363,12 @@ angular.module( 'lyt3App' )
 
         // Add to bookmarks and save
         if ( !this.bookmarks ) {
-          this.bookmarks = [];
+          this.bookmarks = [ ];
         }
         this.bookmarks.push( bookmark );
-        this._normalizeBookmarks();
-        this._sortBookmarks();
-        return this.saveBookmarks();
+        this._normalizeBookmarks( );
+        this._sortBookmarks( );
+        return this.saveBookmarks( );
       };
 
       Book.prototype.setLastmark = function( segment, offset ) {
@@ -367,15 +376,15 @@ angular.module( 'lyt3App' )
           offset = 0;
         }
         this.lastmark = segment.bookmark( offset );
-        return this.saveBookmarks();
+        return this.saveBookmarks( );
       };
 
       Book.prototype.segmentByURL = function( url ) {
         var fragment;
-        var deferred = $q.defer();
+        var deferred = $q.defer( );
         var _ref = url.split( '#' );
         var smil = _ref[ 0 ].split( '/' )
-          .pop();
+          .pop( );
         fragment = _ref[ 1 ];
         this.getSMIL( smil )
           .then( function( document ) {
@@ -386,16 +395,16 @@ angular.module( 'lyt3App' )
               segment = document.segments[ 0 ];
             }
             if ( segment ) {
-              return segment.load()
+              return segment.load( )
                 .then( function( segment ) {
                   return deferred.resolve( segment );
                 } );
             } else {
-              return deferred.reject();
+              return deferred.reject( );
             }
           } )
-          .catch( function() {
-            return deferred.reject();
+          .catch( function( ) {
+            return deferred.reject( );
           } );
         return deferred.promise;
       };
@@ -406,13 +415,15 @@ angular.module( 'lyt3App' )
         if ( fudge === undefined ) {
           fudge = 0.1;
         }
-        if ( segment.end - offset < fudge && segment.next && offset - segment.next.start < fudge ) {
+        if ( segment.end - offset < fudge && segment.next && offset -
+          segment.next.start < fudge ) {
           segment = segment.next;
         }
         return segment;
       };
 
-      Book.prototype.segmentByAudioOffset = function( start, audio, offset, fudge ) {
+      Book.prototype.segmentByAudioOffset = function( start, audio, offset,
+        fudge ) {
         if ( offset === undefined ) {
           offset = 0;
         }
@@ -423,18 +434,19 @@ angular.module( 'lyt3App' )
 
         if ( !audio ) {
           // log.error('Book: segmentByAudioOffset: audio not provided');
-          return $q.defer()
+          return $q.defer( )
             .reject( 'audio not provided' );
         }
 
         // Using 0.01s to cover rounding errors (yes, they do occur)
         return this.searchSections( start, function( section ) {
           var res;
-          section.document.segments.some(function( segment ) {
-            if ( segment.audio === audio && ( segment.start - 0.01 <= offset && offset < segment.end + 0.01 ) ) {
+          section.document.segments.some( function( segment ) {
+            if ( segment.audio === audio && ( segment.start - 0.01 <=
+                offset && offset < segment.end + 0.01 ) ) {
               segment = fudgeFix( offset, segment );
               // log.message("Book: segmentByAudioOffset: load segment " + (segment.url()));
-              segment.load();
+              segment.load( );
               res = segment;
 
               return true;
@@ -472,7 +484,7 @@ angular.module( 'lyt3App' )
         makeIterator = function( start, nextOp ) {
           var current;
           current = start;
-          return function() {
+          return function( ) {
             var result;
             result = current;
             if ( current !== undefined ) {
@@ -501,11 +513,11 @@ angular.module( 'lyt3App' )
         // This iterator will query the iterators in the iterators array one at a
         // time and remove them from the array if they stop returning anything.
         i = 0;
-        iterator = function() {
+        iterator = function( ) {
           var result;
           result = null;
           while ( ( result === undefined ) && i < iterators.length ) {
-            result = iterators[ i ].apply();
+            result = iterators[ i ].apply( );
             if ( result === undefined ) {
               iterators.splice( i );
             }
@@ -516,24 +528,24 @@ angular.module( 'lyt3App' )
             }
           }
         };
-        searchNext = function() {
-          var section = iterator();
+        searchNext = function( ) {
+          var section = iterator( );
           if ( section ) {
-            section.load();
+            section.load( );
             return section.promise.then( function( section ) {
               var result = handler( section );
               if ( result ) {
                 return result;
               } else {
-                return searchNext();
+                return searchNext( );
               }
             } );
           } else {
-            return $q.defer()
-              .reject();
+            return $q.defer( )
+              .reject( );
           }
         };
-        return searchNext();
+        return searchNext( );
       };
 
       /**
@@ -560,66 +572,72 @@ angular.module( 'lyt3App' )
       Book.prototype.getStructure = ( function( ) {
         var loaded = {};
         return function( ) {
-          var defer = $q.defer();
-          if ( loaded[this.id] ) {
-            defer.resolve( loaded[this.id] );
+          var defer = $q.defer( );
+          if ( loaded[ this.id ] ) {
+            defer.resolve( loaded[ this.id ] );
             return defer.promise;
           }
 
           // Make sure the book is loaded
-          this.promise.then(function( ) {
+          this.promise.then( function( ) {
             var bookStructure = {
               id: this.id,
               author: this.author,
               title: this.title,
-              playlist: [],
-              navigation: []
+              playlist: [ ],
+              navigation: [ ]
             };
 
-            var promises = this.nccDocument.structure.reduce( function( flat, section ) {
-              return flat.concat( section.flatten( ) );
-            }, [] ).map( function( section ) {
-              var loadSegment = $q.defer();
-              this.segmentByURL( section.url + '#' + section.ref ).then( function( segment ) {
-                loadSegment.resolve( {
-                  title: section.title,
-                  offset: segment.getBookOffset()
+            var promises = this.nccDocument.structure.reduce(
+              function( flat, section ) {
+                return flat.concat( section.flatten( ) );
+              }, [ ] ).map( function( section ) {
+              var loadSegment = $q.defer( );
+              this.segmentByURL( section.url + '#' + section.ref )
+                .then( function( segment ) {
+                  loadSegment.resolve( {
+                    title: section.title,
+                    offset: segment.getBookOffset( )
+                  } );
                 } );
-              } );
 
               return loadSegment.promise;
             }, this );
 
-            var loadNavigation = $q.all(promises).then(function( segments ) {
+            var loadNavigation = $q.all( promises ).then( function(
+              segments ) {
               bookStructure.navigation = segments;
-            });
+            } );
 
-            var loadPlaylist = this.loadAllSMIL().then(function(smildocuments) {
-              smildocuments.forEach(function(smildocument) {
-                smildocument.segments.forEach(function(segment){
+            var loadPlaylist = this.loadAllSMIL( ).then( function(
+              smildocuments ) {
+              smildocuments.forEach( function( smildocument ) {
+                smildocument.segments.forEach( function(
+                  segment ) {
                   bookStructure.playlist.push( {
                     url: segment.audio.url,
                     start: segment.start,
                     end: segment.end
                   } );
-                });
+                } );
               } );
             } );
 
-            $q.all([loadNavigation,loadPlaylist]).then(function( ) {
-              loaded[bookStructure.id] = bookStructure;
-              defer.resolve( bookStructure );
-            } );
+            $q.all( [ loadNavigation, loadPlaylist ] ).then(
+              function( ) {
+                loaded[ bookStructure.id ] = bookStructure;
+                defer.resolve( bookStructure );
+              } );
 
-          }.bind(this));
+          }.bind( this ) );
 
           return defer.promise;
         };
-      })();
+      } )( );
 
       // Factory-method
       // Note: Instances are cached in memory
-      Book.load = ( function() {
+      Book.load = ( function( ) {
         var loaded = {};
         return function( id ) {
           if ( !loaded[ id ] ) {
@@ -627,7 +645,7 @@ angular.module( 'lyt3App' )
           }
           return loaded[ id ].promise;
         };
-      } )();
+      } )( );
 
       // Public API here
       return {

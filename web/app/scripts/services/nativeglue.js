@@ -1,12 +1,12 @@
 'use strict';
 
-angular.module('lyt3App')
-  .factory('Nativeglue', [ '$q', function Nativeglue( $q ) {
+angular.module( 'lyt3App' )
+  .factory( 'Nativeglue', [ '$q', function Nativeglue( $q ) {
     var setBook = function( bookData ) {
       console.log( 'setBook', bookData, JSON.stringify( bookData ) );
       var defer = $q.defer( );
 
-      defer.reject('TODO: setBook: Not implemented.');
+      defer.reject( 'TODO: setBook: Not implemented.' );
 
       return defer.promise;
     };
@@ -15,7 +15,7 @@ angular.module('lyt3App')
       console.log( 'clearBook', bookId );
       var defer = $q.defer( );
 
-      defer.reject('TODO: clearBook: Not implemented.');
+      defer.reject( 'TODO: clearBook: Not implemented.' );
 
       return defer.promise;
     };
@@ -23,7 +23,7 @@ angular.module('lyt3App')
     var getBooks = function( ) {
       var defer = $q.defer( );
 
-      defer.reject('TODO: getBooks: Not implemented.');
+      defer.reject( 'TODO: getBooks: Not implemented.' );
 
       return defer.promise;
     };
@@ -32,7 +32,7 @@ angular.module('lyt3App')
       console.log( 'play', bookId, offset );
       var defer = $q.defer( );
 
-      defer.reject('TODO: play: Not implemented.');
+      defer.reject( 'TODO: play: Not implemented.' );
 
       return defer.promise;
     };
@@ -40,7 +40,7 @@ angular.module('lyt3App')
     var stop = function( ) {
       var defer = $q.defer( );
 
-      defer.reject('TODO: stop: Not implemented.');
+      defer.reject( 'TODO: stop: Not implemented.' );
 
       return defer.promise;
     };
@@ -49,7 +49,7 @@ angular.module('lyt3App')
       console.log( 'cacheBook', bookId );
       var defer = $q.defer( );
 
-      defer.reject('TODO: cacheBook: Not implemented.');
+      defer.reject( 'TODO: cacheBook: Not implemented.' );
 
       return defer.promise;
     };
@@ -58,7 +58,7 @@ angular.module('lyt3App')
       console.log( 'cacheBook', bookId );
       var defer = $q.defer( );
 
-      defer.reject('TODO: clearBookCache: Not implemented.');
+      defer.reject( 'TODO: clearBookCache: Not implemented.' );
 
       return defer.promise;
     };
@@ -72,4 +72,4 @@ angular.module('lyt3App')
       cacheBook: cacheBook,
       clearBookCache: clearBookCache
     };
-  } ]);
+  } ] );

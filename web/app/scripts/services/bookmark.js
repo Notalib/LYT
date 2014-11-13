@@ -8,8 +8,8 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'Bookmark', function() {
+  .factory( 'Bookmark', function( ) {
 
     // Public API here
-    return function() {};
+    return function( ) {};
   } );

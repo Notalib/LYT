@@ -7,8 +7,8 @@
  * # DtbBookmark
  * Factory in the lyt3App.
  */
-angular.module('lyt3App')
-  .factory('DtbBookmark', function () {
+angular.module( 'lyt3App' )
+  .factory( 'DtbBookmark', function( ) {
     // Service logic
     // ...
 
@@ -16,8 +16,8 @@ angular.module('lyt3App')
 
     // Public API here
     return {
-      someMethod: function () {
+      someMethod: function( ) {
         return meaningOfLife;
       }
     };
-  });
+  } );

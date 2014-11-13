@@ -26,14 +26,15 @@ angular.module( 'lyt3App' )
          * Returns the number of headings collected.
          * FIXME: Doesn't take changes in level with more than one into account, e.g. from h1 to h3.
          */
-        var getConsecutive, headings, level, markMetaSections, numberSections, structure;
+        var getConsecutive, headings, level, markMetaSections,
+          numberSections, structure;
         getConsecutive = function( headings, level, collector ) {
           var heading, index, section;
           index = 0;
           // Loop through the `headings` array
           while ( headings.length > index ) {
             heading = headings[ index ];
-            if ( heading.tagName.toLowerCase() !== ( 'h' + level ) ) {
+            if ( heading.tagName.toLowerCase( ) !== ( 'h' + level ) ) {
               // Return the current index if the heading isn't the given level
               return index;
             }
@@ -43,7 +44,8 @@ angular.module( 'lyt3App' )
             section.parent = level - 1;
             // Collect all higher-level headings into that section's `children` array,
             // and increment the `index` accordingly
-            index += getConsecutive( headings.slice( index + 1 ), level + 1, section.children );
+            index += getConsecutive( headings.slice( index + 1 ), level +
+              1, section.children );
             // Add the section to the collector array
             collector.push( section );
             index++;
@@ -62,8 +64,9 @@ angular.module( 'lyt3App' )
           if ( prefix ) {
             prefix = '' + prefix + '.';
           }
-          _results = [];
-          for ( index = _i = 0, _len = sections.length; _i < _len; index = ++_i ) {
+          _results = [ ];
+          for ( index = _i = 0, _len = sections.length; _i < _len; index = ++
+            _i ) {
             section = sections[ index ];
             number = '' + prefix + ( index + 1 );
             section.id = number;
@@ -85,7 +88,7 @@ angular.module( 'lyt3App' )
             }
             return false;
           };
-          _results = [];
+          _results = [ ];
           for ( _i = 0, _len = sections.length; _i < _len; _i++ ) {
             section = sections[ _i ];
             if ( isBlacklisted( section ) ) {
@@ -99,12 +102,12 @@ angular.module( 'lyt3App' )
           }
           return _results;
         };
-        structure = [];
+        structure = [ ];
 
         // Find all headings as a plain array
         headings = jQuery.makeArray( xml.find( ':header' ) );
         if ( headings.length === 0 ) {
-          return [];
+          return [ ];
         }
 
         // Find the level of the first heading (should be level 1)
@@ -122,7 +125,7 @@ angular.module( 'lyt3App' )
       };
       flattenStructure = function( structure ) {
         var flat, section, _i, _len;
-        flat = [];
+        flat = [ ];
         for ( _i = 0, _len = structure.length; _i < _len; _i++ ) {
           section = structure[ _i ];
           flat.push( section );
@@ -134,7 +137,7 @@ angular.module( 'lyt3App' )
       linkSections = function( sections ) {
         var previous, section, _i, _len, _results;
         previous = null;
-        _results = [];
+        _results = [ ];
         for ( _i = 0, _len = sections.length; _i < _len; _i++ ) {
           section = sections[ _i ];
           section.previous = previous;
@@ -155,14 +158,15 @@ angular.module( 'lyt3App' )
        */
       function NCCDocument( url, book ) {
         this.getSectionByURL = this.getSectionByURL.bind( this );
-        TextContentDocument.call( this, url, book.resources, ( function( _this ) {
-          return function() {
+        TextContentDocument.call( this, url, book.resources, ( function(
+          _this ) {
+          return function( ) {
             var section, _i, _len, _ref, _results;
             _this.structure = parseStructure( _this.source, book );
             _this.sections = flattenStructure( _this.structure );
             linkSections( _this.sections );
             _ref = _this.sections;
-            _results = [];
+            _results = [ ];
             for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
               section = _ref[ _i ];
               _results.push( section.nccDocument = _this );
@@ -183,28 +187,28 @@ angular.module( 'lyt3App' )
        * and the section are loaded.
        */
       NCCDocument.prototype._getSection = function( getter ) {
-        var deferred = $q.defer();
-        this.promise.catch( function() {
-          return deferred.reject();
+        var deferred = $q.defer( );
+        this.promise.catch( function( ) {
+          return deferred.reject( );
         } );
         this.promise.then( function( document ) {
           var section = getter( document.sections );
           if ( section ) {
-            section.load();
-            section.promise.then( function() {
+            section.load( );
+            section.promise.then( function( ) {
               deferred.resolve( section );
             } );
-            section.promise.catch( function() {
-              deferred.reject();
+            section.promise.catch( function( ) {
+              deferred.reject( );
             } );
           } else {
-            deferred.reject();
+            deferred.reject( );
           }
         } );
         return deferred.promise;
       };
 
-      NCCDocument.prototype.firstSection = function() {
+      NCCDocument.prototype.firstSection = function( ) {
         return this._getSection( function( sections ) {
           return sections[ 0 ];
         } );
@@ -213,11 +217,11 @@ angular.module( 'lyt3App' )
       NCCDocument.prototype.getSectionByURL = function( url ) {
         var baseUrl = url.split( '#' )[ 0 ];
         return this._getSection( function( sections ) {
-          sections.forEach(function(section){
+          sections.forEach( function( section ) {
             if ( section.url === baseUrl ) {
               return section;
             }
-          });
+          } );
         } );
       };
 
