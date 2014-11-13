@@ -29,4 +29,6 @@
 
 -(AVQueuePlayer*)makeQueuePlayer;
 
+-(void)downloadWholeBook;
+
 @end

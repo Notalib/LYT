@@ -15,6 +15,8 @@
     NSArray* chunks;
     AVAudioPlayer* player;
     AVQueuePlayer* queuePlayer;
+    
+    Book* book;
 }
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
 
@@ -70,17 +72,23 @@
     }];
 }
 
--(void)testPlay {
+-(void)loadTestBook {
     NSString* path = [[NSBundle mainBundle] pathForResource:@"37027.json" ofType:nil];
     NSData* data = [NSData dataWithContentsOfFile:path];
     NSDictionary* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
     
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20020/37027/"];
-    Book* book = [Book bookFromDictionary:json baseURL:baseURL];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20030/37027/"];
+    book = [Book bookFromDictionary:json baseURL:baseURL];
     [book joinParts];
-    
+}
+
+-(void)testPlay {
     queuePlayer = [book makeQueuePlayer];
     [queuePlayer play];
+}
+
+-(void)testDownload {
+   [book downloadWholeBook];
 }
 
 -(void)loadBookshelf {
@@ -96,11 +104,13 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     //[self loadTestData];
+    [self loadTestBook];
     [self testPlay];
+    [self testDownload];
     
     NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
-    [self.webView loadRequest:request];
+    //[self.webView loadRequest:request];
 }
 
 - (void)didReceiveMemoryWarning {

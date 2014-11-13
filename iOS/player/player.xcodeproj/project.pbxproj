@@ -42,6 +42,8 @@
 		BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */; };
 		BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
+		BE43F0F21A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
+		BE43F0F31A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
 		BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
 		BE6DC6731A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
 		BEB1BA191A121B140066F4FD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA181A121B140066F4FD /* main.m */; };
@@ -85,6 +87,9 @@
 		BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 3_Grantret.json; sourceTree = "<group>"; };
 		BE3D47DB1A1240E000DA2294 /* SoundChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundChunk.h; sourceTree = "<group>"; };
 		BE3D47DC1A1240E000DA2294 /* SoundChunk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundChunk.m; sourceTree = "<group>"; };
+		BE43F0F01A14AE01008DFC53 /* Downloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Downloader.h; sourceTree = "<group>"; };
+		BE43F0F11A14AE01008DFC53 /* Downloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Downloader.m; sourceTree = "<group>"; };
+		BE43F0F61A14F2B9008DFC53 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
 		BE6DC6711A1397C8000DB1C2 /* 37027.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 37027.json; sourceTree = "<group>"; };
 		BEB1BA131A121B140066F4FD /* player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB1BA171A121B140066F4FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -170,6 +175,8 @@
 				BE08A1BD1A13696D00772B6D /* Book.m */,
 				BE08A1C01A136B8F00772B6D /* BookPart.h */,
 				BE08A1C11A136B8F00772B6D /* BookPart.m */,
+				BE43F0F01A14AE01008DFC53 /* Downloader.h */,
+				BE43F0F11A14AE01008DFC53 /* Downloader.m */,
 				BE3D47DB1A1240E000DA2294 /* SoundChunk.h */,
 				BE3D47DC1A1240E000DA2294 /* SoundChunk.m */,
 				BEB1BA1D1A121B140066F4FD /* ViewController.h */,
@@ -185,6 +192,7 @@
 		BEB1BA161A121B140066F4FD /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE43F0F61A14F2B9008DFC53 /* debug.h */,
 				BEB1BA171A121B140066F4FD /* Info.plist */,
 				BEB1BA181A121B140066F4FD /* main.m */,
 			);
@@ -350,6 +358,7 @@
 				BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */,
 				BEB1BA1C1A121B140066F4FD /* AppDelegate.m in Sources */,
 				BEB1BA191A121B140066F4FD /* main.m in Sources */,
+				BE43F0F21A14AE01008DFC53 /* Downloader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +367,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEB1BA331A121B150066F4FD /* playerTests.m in Sources */,
+				BE43F0F31A14AE01008DFC53 /* Downloader.m in Sources */,
 				BE08A1BF1A13696D00772B6D /* Book.m in Sources */,
 				BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */,
 				BE08A1C31A136B8F00772B6D /* BookPart.m in Sources */,

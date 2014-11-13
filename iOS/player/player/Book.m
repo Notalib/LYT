@@ -68,4 +68,10 @@
     return player;
 }
 
+-(void)downloadWholeBook {
+    for (BookPart* part in self.parts) {
+        [part download];
+    }
+}
+
 @end

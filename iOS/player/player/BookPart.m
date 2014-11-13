@@ -8,11 +8,16 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "BookPart.h"
+#import "Downloader.h"
 
 @implementation BookPart
 
 -(NSString*)description {
     return [NSString stringWithFormat:@"%@ %.3f-%.3f", self.url.lastPathComponent, self.start, self.end];
+}
+
+-(void)download {
+    [Downloader downloadURL:self.url start:0 end:100000];
 }
 
 -(BookPart*)partCombinedWith:(BookPart*)otherPart {

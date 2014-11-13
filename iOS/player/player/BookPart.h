@@ -22,4 +22,6 @@
 
 -(AVPlayerItem*)makePlayerItem;
 
+-(void)download;
+
 @end
