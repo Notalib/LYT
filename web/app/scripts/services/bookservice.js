@@ -4,7 +4,6 @@ angular.module( 'lyt3App' )
   .factory( 'BookService', [ '$q', 'LYTSession', 'DODPErrorCodes', 'DODP',
     function( $q, LYTSession, DODPErrorCodes, DODP ) {
       /*
-       *
        * Higher-level functions for interacting with the server
        *
        * This module is a facade or abstraction layer between the
@@ -27,16 +26,12 @@ angular.module( 'lyt3App' )
        *       # go to the log-in page
        *
        */
-      var __slice = [ ].slice;
-
-      var currentLogOnProcess, currentRefreshSessionProcess, emit, emitError,
-        lastBookmark, logOn, onCurrentLogOn, operations, withLogOn;
 
       // # Privileged API
-      lastBookmark = null;
+      var lastBookmark = null;
 
       // optional service operations
-      operations = {
+      var operations = {
         DYNAMIC_MENUS: false,
         SET_BOOKMARKS: false,
         GET_BOOKMARKS: false,
@@ -45,8 +40,8 @@ angular.module( 'lyt3App' )
       };
 
       // The current logon process(es)
-      currentLogOnProcess = null;
-      currentRefreshSessionProcess = null;
+      var currentLogOnProcess = null;
+      var currentRefreshSessionProcess = null;
 
       var gotServiceAttrs = function( services ) {
         Object.keys( operations ).forEach( function( op ) {
@@ -64,21 +59,12 @@ angular.module( 'lyt3App' )
 
       // Initilize serviceAttributes with values when we are logged in but user reloads scripts.....
       DODP.getServiceAttributes( )
-        .then( function( ops ) {
-          var op, _i, _len, _results;
-          for ( op in operations ) {
-            operations[ op ] = false;
-          }
-          _results = [ ];
-          for ( _i = 0, _len = ops.length; _i < _len; _i++ ) {
-            op = ops[ _i ];
-            _results.push( operations[ op ] = true );
-          }
-          return _results;
+        .then( function( services ) {
+          gotServiceAttrs( services );
         } );
 
       // Emit an event
-      emit = function( event, data ) {
+      var emit = function( event, data ) {
         console.log( event, data );
         /*
       var obj;
@@ -96,7 +82,7 @@ angular.module( 'lyt3App' )
       };
 
       // Emit an error event
-      emitError = function( code ) {
+      var emitError = function( code ) {
         switch ( code ) {
           case DODPErrorCodes.RPC_GENERAL_ERROR:
           case DODPErrorCodes.RPC_TIMEOUT_ERROR:
@@ -113,28 +99,29 @@ angular.module( 'lyt3App' )
           }
         }
       };
+
       /*
        * Wraps a call in a couple of checks: If the call the fails,
        * check if the reason is due to the user not being logged in.
        * If that's the case, attempt logon, and attempt the call again
        */
-      withLogOn = function( callback ) {
-        var deferred, failure, result, success;
-        deferred = $q.defer( );
+      var withLogOn = function( callback ) {
+        var deferred = $q.defer( );
 
         // If the call goes through
-        success = function( ) {
+        var success = function( ) {
           var args;
-          args = 1 <= arguments.length ? __slice.call( arguments, 0 ) : [ ];
+          args = 1 <= arguments.length ? Array.prototype.slice.call( arguments, 0 ) : [ ];
           return deferred.resolve.apply( deferred, args );
         };
 
         // If the call fails
-        failure = function( code, message ) {
+        var failure = function( code, message ) {
           emitError( code );
           return deferred.reject( code, message );
         };
-        result = callback( );
+
+        var result = callback( );
 
         // If everything works, then just pass on the resolve args
         result.then( success );
@@ -161,28 +148,13 @@ angular.module( 'lyt3App' )
             return failure( code, message );
           }
         } );
-        return deferred.promise;
-      };
 
-      onCurrentLogOn = function( handlers ) {
-        var handlerName, promise, _results;
-        promise = currentLogOnProcess;
-        if ( !promise ) {
-          promise = $q.defer( )
-            .resolve( );
-        }
-        _results = [ ];
-        for ( handlerName in handlers ) {
-          _results.push( promise[ handlerName ]( handlers[ handlerName ] ) );
-        }
-        return _results;
+        return deferred.promise;
       };
 
       // Perform the logOn handshake:
       // `logOn` then `getServiceAttributes` then `setReadingSystemAttributes`
-      logOn = function( username, password ) {
-        var attemptLogOn, attempts, deferred, failed,
-          gotServiceAnnouncements, loggedOn, readingSystemAttrsSet;
+      var logOn = function( username, password ) {
         // Check for and return any pending logon processes
         if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
           return currentLogOnProcess;
@@ -191,13 +163,18 @@ angular.module( 'lyt3App' )
           'pending' ) {
           currentRefreshSessionProcess.reject( );
         }
-        deferred = currentLogOnProcess = $q.defer( );
+        var deferred = $q.defer( );
+
+        currentLogOnProcess = deferred;
+
         currentLogOnProcess.state = 'pending';
+
         currentLogOnProcess.promise.then( function( ) {
           currentLogOnProcess.state = 'resolved';
         }, function( ) {
           currentLogOnProcess.state = 'rejected';
         } );
+
         if ( !( username && password ) ) {
           var credentials = LYTSession.getCredentials( );
           if ( credentials ) {
@@ -205,6 +182,7 @@ angular.module( 'lyt3App' )
             password = credentials.password;
           }
         }
+
         if ( !( username && password ) ) {
           emit( 'logon:rejected' );
           deferred.reject( );
@@ -213,11 +191,11 @@ angular.module( 'lyt3App' )
         // attempts = ((_ref = LYT.config.service) != null ? _ref.logOnAttempts : void 0) || 3;
 
         // The maximum number of attempts to make
-        attempts = 3;
+        var attempts = 3;
         // (For readability, the handlers are separated out here)
 
         // TODO: Flesh out error handling
-        failed = function( code, message ) {
+        var failed = function( code, message ) {
           if ( code === DODPErrorCodes.RPC_UNEXPECTED_RESPONSE_ERROR ) {
             emit( 'logon:rejected' );
             return deferred.reject( );
@@ -231,7 +209,20 @@ angular.module( 'lyt3App' )
           }
         };
 
-        loggedOn = function( data ) {
+        var gotServiceAnnouncements = function( /*announcements*/ ) {
+          // Calling GUI to show announcements
+          // TODO: return LYT.render.showAnnouncements(announcements);
+        };
+
+        var readingSystemAttrsSet = function( ) {
+          deferred.resolve( ); // returning that logon is Ok.
+          if ( BookService.announcementsSupported( ) ) {
+            return DODP.getServiceAnnouncements( )
+              .then( gotServiceAnnouncements );
+          }
+        };
+
+        var loggedOn = function( data ) {
           emit( 'logon:resolved' );
 
           LYTSession.setCredentials( username, password );
@@ -246,20 +237,8 @@ angular.module( 'lyt3App' )
             } )
             .catch( failed );
         };
-        readingSystemAttrsSet = function( ) {
-          deferred.resolve( ); // returning that logon is Ok.
-          if ( BookService.announcementsSupported( ) ) {
-            return DODP.getServiceAnnouncements( )
-              .then( gotServiceAnnouncements );
-          }
-        };
 
-        gotServiceAnnouncements = function( /*announcements*/ ) {
-          // Calling GUI to show announcements
-          // TODO: return LYT.render.showAnnouncements(announcements);
-        };
-
-        attemptLogOn = function( ) {
+        var attemptLogOn = function( ) {
           --attempts;
           // log.message('Service: Attempting log-on (' + attempts + ' attempt(s) left)');
           return DODP.logOn( username, password )
@@ -278,32 +257,38 @@ angular.module( 'lyt3App' )
        */
       var BookService = {
         logOn: logOn,
-        onCurrentLogOn: onCurrentLogOn,
+
         /* Silently attempt to refresh a session. I.e. if this fails, no logOn errors are
          * emitted directly. This is intended for use with e.g. DTBDocument.
          * However, if there's an explicit logon process running, it'll use that
          */
         refreshSession: function( ) {
-          var deferred, fail, gotServiceAttrs, loggedOn, password,
-            readingSystemAttrsSet, username;
+          var username, password;
+
           if ( currentLogOnProcess && currentLogOnProcess.state ===
             'pending' ) {
             return currentLogOnProcess;
           }
+
           if ( currentRefreshSessionProcess &&
             currentRefreshSessionProcess.state === 'pending' ) {
             return currentRefreshSessionProcess;
           }
-          deferred = currentRefreshSessionProcess = $q.defer( );
+
+          var deferred = $q.defer( );
+
+          currentRefreshSessionProcess = deferred;
           currentRefreshSessionProcess.state = 'pending';
           currentRefreshSessionProcess.promise.then( function( ) {
             currentRefreshSessionProcess.state = 'resolved';
           }, function( ) {
             currentRefreshSessionProcess.state = 'rejected';
           } );
-          fail = function( ) {
+
+          var fail = function( ) {
             return deferred.reject( );
           };
+
           var credentials = LYTSession.getCredentials( );
           if ( credentials ) {
             username = credentials.username;
@@ -313,19 +298,24 @@ angular.module( 'lyt3App' )
             fail( );
             return deferred.promise;
           }
-          loggedOn = function( ) {
+
+          var loggedOn = function( ) {
             return DODP.getServiceAttributes( )
-              .then( gotServiceAttrs, fail );
+              .then( gotServiceAttrs )
+              .catch( fail )
+              .then( function( ) {
+                return DODP.setReadingSystemAttributes( )
+                  .then( readingSystemAttrsSet, fail );
+              } );
           };
-          gotServiceAttrs = function( ) {
-            return DODP.setReadingSystemAttributes( )
-              .then( readingSystemAttrsSet, fail );
-          };
-          readingSystemAttrsSet = function( ) {
+
+          var readingSystemAttrsSet = function( ) {
             return deferred.resolve( );
           };
+
           DODP.logOn( username, password )
             .then( loggedOn, fail );
+
           return deferred.promise;
         },
         /*
@@ -372,25 +362,32 @@ angular.module( 'lyt3App' )
          * items from the `from` index to the end of the list
          */
         getBookshelf: function( from, to ) {
-          var deferred, response;
-          if ( !from ) {
-            from = 0;
-          }
-          if ( to === undefined ) {
-            to = -1;
-          }
-
-          deferred = $q.defer( );
-          response = withLogOn( function( ) {
+          var deferred = $q.defer( );
+          withLogOn( function( ) {
             return DODP.getContentList( 'issued', from, to );
-          } );
-          response.then( function( list ) {
-            return deferred.resolve( list );
-          } );
-          response.catch( function( err, message ) {
-            return deferred.reject( err, message );
-          } );
+          } )
+            .then( function( list ) {
+              var cachedBookShelf = BookService.getCachedBookShelf();
+              var items = list.items;
+              for ( var i = from; i <= to; i += 1 ) {
+                cachedBookShelf[ i ] = items[ i - from ];
+              }
+
+              cachedBookShelf = cachedBookShelf.filter(function( item ) {
+                return !!item;
+              } );
+
+              LYTSession.setBookShelf( cachedBookShelf );
+              return deferred.resolve( cachedBookShelf );
+            } )
+            .catch( function( err, message ) {
+              return deferred.reject( err, message );
+            } );
           return deferred.promise;
+        },
+
+        getCachedBookShelf: function( ) {
+          return LYTSession.getBookShelf();
         },
 
         /* -------

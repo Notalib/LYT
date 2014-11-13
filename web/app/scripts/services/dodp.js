@@ -306,8 +306,12 @@ angular.module( 'lyt3App' )
                 totalItems: attrs.totalItems,
                 items: [ ]
               };
+              var contentItem = contentList.contentItem || [];
+              if ( !(contentItem instanceof Array) ) {
+                contentItem = [contentItem];
+              }
 
-              list.items = ( contentList.contentItem || [ ] ).map(
+              list.items = contentItem.map(
                 function( item ) {
                   // TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
                   // To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."

@@ -44,7 +44,13 @@ angular.module( 'lyt3App' )
         localStorageService.set( 'session|memberinfo', memberInfo );
       },
       getMemberId: function( ) {
-        return LYTSession.getInfo( ).memberId || undefined;
+        return LYTSession.getInfo( ).memberId;
+      },
+      setBookShelf: function( bookShelf ) {
+        localStorageService.set( 'session|bookShelf', bookShelf );
+      },
+      getBookShelf: function( ) {
+        return localStorageService.get( 'session|bookShelf' ) || [];
       },
       clear: function( ) {
         credentials = null;
