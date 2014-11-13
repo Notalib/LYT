@@ -101,14 +101,16 @@ angular.module( 'lyt3App' )
           case DODPErrorCodes.RPC_GENERAL_ERROR:
           case DODPErrorCodes.RPC_TIMEOUT_ERROR:
           case DODPErrorCodes.RPC_ABORT_ERROR:
-          case DODPErrorCodes.RPC_HTTP_ERROR:
+          case DODPErrorCodes.RPC_HTTP_ERROR: {
             return emit( 'error:rpc', {
               code: code
             } );
-          default:
+          }
+          default: {
             return emit( 'error:service', {
               code: code
             } );
+          }
         }
       };
       /*
@@ -432,8 +434,8 @@ angular.module( 'lyt3App' )
           var deferred = $q.defer( );
           if ( BookService.announcementsSupported( ) ) {
             withLogOn( function( ) {
-                return DODP.getServiceAnnouncements( );
-              } )
+              return DODP.getServiceAnnouncements( );
+            } )
               .then( function( /*announcements*/ ) {
                 // LYT.render.showAnnouncements(announcements);
                 return deferred.resolve( );

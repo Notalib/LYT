@@ -33,5 +33,4 @@ angular.module( 'lyt3App' )
     $scope.nextPage = function( ) {
       loadBookShelf( );
     };
-
   } ] );

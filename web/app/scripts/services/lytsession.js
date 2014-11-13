@@ -16,7 +16,8 @@ angular.module( 'lyt3App' )
               credentials.token );
           }
         } else {
-          // log.warn('Session: init: getNotaAuthToken is undefined');
+          // TODO: log.warn('Session: init: getNotaAuthToken is undefined');
+          console.warn('Session: init: getNotaAuthToken is undefined');
         }
       },
       getCredentials: function( ) {

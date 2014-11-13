@@ -11,6 +11,7 @@ angular.module( 'lyt3App' )
   .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function(
     $sanitize, $http, $q, xmlParser ) {
     /*jshint quotmark: false */
+    // jscs:disable validateQuoteMarks
     var soapTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
       "<SOAP-ENV:Envelope\n" +
       " xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\"\n" +
@@ -18,6 +19,7 @@ angular.module( 'lyt3App' )
       " xmlns:ns2=\"http://www.daisy.org/z3986/2005/bookmark/\">\n" +
       "<SOAP-ENV:Body>SOAPBODY</SOAP-ENV:Body>\n" +
       "</SOAP-ENV:Envelope>";
+    // jscs:enable validateQuoteMarks
     /*jshint quotmark: single */
 
 

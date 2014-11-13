@@ -383,7 +383,7 @@ angular.module( 'lyt3App' )
           imageData = {
             src: image.attr( 'src' ),
             element: image[ 0 ],
-            //TODO: attempts: LYT.config.segment.imagePreload.attempts,
+            // TODO: attempts: LYT.config.segment.imagePreload.attempts,
             attempts: 10,
             deferred: imageDefer
           };

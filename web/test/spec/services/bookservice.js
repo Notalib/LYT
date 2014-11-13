@@ -1,7 +1,6 @@
 'use strict';
 
 describe( 'Service: BookService', function( ) {
-
   // load the service's module
   beforeEach( module( 'lyt3App' ) );
 
@@ -14,5 +13,4 @@ describe( 'Service: BookService', function( ) {
   it( 'should do something', function( ) {
     expect( !!BookService ).toBe( true );
   } );
-
 } );

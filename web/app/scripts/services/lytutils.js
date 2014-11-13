@@ -61,9 +61,10 @@ angular.module( 'lyt3App' )
           switch ( typeof hash ) {
             case 'string':
             case 'number':
-            case 'boolean':
+            case 'boolean': {
               return jQuery( '<div>' ).text( String( hash ) ).html( );
-            case 'object':
+            }
+            case 'object': {
               Object.keys( function( key ) {
                 if ( !__hasProp.call( hash, key ) ) {
                   return;
@@ -77,6 +78,7 @@ angular.module( 'lyt3App' )
                   append( key, value );
                 }
               } );
+            }
           }
           return xml;
         };
