@@ -38,7 +38,9 @@
     "time-grunt": "^0.3.1",
     "ng-html2js": "~1.2.0",
     "karma-ng-html2js-preprocessor": "~0.1.2",
-    "grunt-jscs": "~0.8.1"
+    "grunt-jscs": "~0.8.1",
+    "jsdom": "~1.2.1",
+    "xmldom": "~0.1.19"
   },
   "engines": {
     "node": ">=0.10.0"

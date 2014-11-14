@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .controller( 'BookshelfCtrl', [ '$scope', 'BookService', function( $scope,
-    BookService ) {
+  .controller( 'BookshelfCtrl', [ '$scope', 'BookService', 'Book', function( $scope,
+    BookService, Book ) {
     $scope.books = BookService.getCachedBookShelf( );
 
     var loadBookShelf = function( from, count ) {
@@ -27,12 +27,19 @@ angular.module( 'lyt3App' )
       } );
     };
 
-    loadBookShelf( 0, $scope.books.length - 1 ).catch( function( ) {
+    loadBookShelf( 0, $scope.books.length || 5 ).catch( function( ) {
       BookService.logOn( 'guest', 'guest' ).then( function( ) {
-        loadBookShelf( 0, $scope.books.length - 1 );
+        loadBookShelf( 0, $scope.books.length || 5 );
       }, function( ) {
         console.log( 'logOn: rejected', arguments );
       } );
+    } );
+
+    Book.load( 37027 ).then( function( book ) {
+      console.log( book );
+      book.getStructure( ).then(function(resolved) {
+        console.log( resolved );
+      });
     } );
 
     $scope.nextPage = function( ) {

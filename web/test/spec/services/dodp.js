@@ -16,7 +16,7 @@ describe( 'Service: DODP', function( ) {
     $rootScope = _$rootScope_;
     DODP = _DODP_;
     mockBackend = _$httpBackend_;
-    expectPOST = mockBackend.expectPOST( '/DodpMobile/Service.svc' );
+    expectPOST = mockBackend.expectPOST( 'http://localhost:9000/DodpMobile/Service.svc' );
     testData = _testData_.dodp;
   } ) );
 
@@ -35,9 +35,10 @@ describe( 'Service: DODP', function( ) {
     it( 'valid logOn:', function( ) {
       var status;
       var data = logOnData.valid;
+      var params = data.params;
       createExpectXML( data.respond );
 
-      DODP.logOn( data.username, data.password )
+      DODP.logOn( params.username, params.password )
         .then( function( resolved ) {
           expect( resolved ).toEqual( data.resolved );
           status = 'success';
@@ -92,9 +93,10 @@ describe( 'Service: DODP', function( ) {
   it( 'setReadingSystemAttributes:', function( ) {
     var status;
     var data = testData.setReadingSystemAttributesData;
+    var params = data.params;
     createExpectXML( data.respond );
 
-    DODP.setReadingSystemAttributes( data.params.readingSystemAttributes )
+    DODP.setReadingSystemAttributes( params.readingSystemAttributes )
       .then( function( ) {
         status = 'success';
       }, function( ) {
@@ -141,9 +143,10 @@ describe( 'Service: DODP', function( ) {
   it( 'getContentList:', function( ) {
     var status;
     var data = testData.getContentListData;
+    var params = data.params;
     createExpectXML( data.respond );
 
-    DODP.getContentList( data.listIdentifier, data.firstTime, data.lastItem )
+    DODP.getContentList( params.listIdentifier, params.firstTime, params.lastItem )
       .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
@@ -159,9 +162,10 @@ describe( 'Service: DODP', function( ) {
   it( 'issueContent:', function( ) {
     var status;
     var data = testData.issueContentData;
+    var params = data.params;
     createExpectXML( data.respond );
 
-    DODP.issueContent( data.contentId )
+    DODP.issueContent( params.contentId )
       .then( function( ) {
         status = 'success';
       }, function( ) {
@@ -204,9 +208,10 @@ describe( 'Service: DODP', function( ) {
   it( 'getContentResources:', function( ) {
     var status;
     var data = testData.getContentResourcesData;
+    var params = data.params;
     createExpectXML( data.respond );
 
-    DODP.getContentResources( data.contentId )
+    DODP.getContentResources( params.contentId )
       .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';
@@ -222,8 +227,9 @@ describe( 'Service: DODP', function( ) {
   it( 'getBookmarks:', function( ) {
     var status;
     var data = testData.getBookmarksData;
+    var params = data.params;
     createExpectXML( data.respond );
-    DODP.getBookmarks( data.contentId )
+    DODP.getBookmarks( params.contentId )
       .then( function( resolved ) {
         expect( resolved ).toEqual( data.resolved );
         status = 'success';

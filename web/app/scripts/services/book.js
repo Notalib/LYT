@@ -592,17 +592,17 @@ angular.module( 'lyt3App' )
               function( flat, section ) {
                 return flat.concat( section.flatten( ) );
               }, [ ] ).map( function( section ) {
-              var loadSegment = $q.defer( );
-              this.segmentByURL( section.url + '#' + section.ref )
-                .then( function( segment ) {
-                  loadSegment.resolve( {
-                    title: section.title,
-                    offset: segment.getBookOffset( )
+                var loadSegment = $q.defer( );
+                this.segmentByURL( section.url + '#' + section.ref )
+                  .then( function( segment ) {
+                    loadSegment.resolve( {
+                      title: section.title,
+                      offset: segment.getBookOffset( )
+                    } );
                   } );
-                } );
 
-              return loadSegment.promise;
-            }, this );
+                return loadSegment.promise;
+              }, this );
 
             var loadNavigation = $q.all( promises ).then( function(
               segments ) {

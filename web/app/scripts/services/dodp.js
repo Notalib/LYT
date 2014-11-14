@@ -72,8 +72,10 @@ angular.module( 'lyt3App' )
 
       var xmlBody = soapTemplate.replace( /SOAPBODY/, toXML( requestData ) );
 
-      return $http( {
-        url: '/DodpMobile/Service.svc',
+      var defer = $q.defer( );
+
+      $http( {
+        url: 'http://localhost:9000/DodpMobile/Service.svc',
         method: 'POST',
         headers: {
           soapaction: '/' + action,
@@ -83,11 +85,22 @@ angular.module( 'lyt3App' )
         transformResponse: function( data ) {
           return xmlStr2Json( data );
         }
-      } );
+      } ).success(function(response) {
+        var Body = response.Body;
+        if ( Body.Fault ) {
+          defer.reject(Body.Fault);
+        } else {
+          defer.resolve(response);
+        }
+      } ).catch(function(response) {
+        defer.reject(response);
+      });
+
+      return defer.promise;
     };
 
     var xml2Json = function( xmlDom, json ) {
-      var tagName = xmlDom.tagName.replace( /^s:/, '' );
+      var tagName = xmlDom.nodeName.replace( /^s:/, '' );
       var attrs;
       var item;
       if ( xmlDom.attributes ) {
@@ -126,14 +139,20 @@ angular.module( 'lyt3App' )
         }
       }
 
-      if ( xmlDom.children.length > 0 ) {
+      var children = xmlDom.children || xmlDom.childNodes;
+      if ( children && children.length === 1 && children[0].nodeName === '#text' ) {
+        xmlDom = children[0];
+        children = null;
+      }
+
+      if ( children && children.length > 0 ) {
         item = {};
 
         if ( attrs ) {
           item.attrs = attrs;
         }
 
-        Array.prototype.forEach.call( xmlDom.children, function( el ) {
+        Array.prototype.forEach.call( xmlDom.childNodes, function( el ) {
           xml2Json( el, item );
         } );
       } else {
@@ -170,10 +189,12 @@ angular.module( 'lyt3App' )
       var xmlDOM = xmlParser.parse( xmlStr );
       var json = {};
 
-      Array.prototype.forEach.call( xmlDOM.children[ 0 ].children,
-        function( domEl ) {
-          xml2Json( domEl, json );
-        } );
+      if ( xmlDOM.childNodes ) {
+        Array.prototype.forEach.call( xmlDOM.childNodes[0].childNodes,
+          function( domEl ) {
+            xml2Json( domEl, json );
+          } );
+      }
 
       return angular.extend( {
         Body: {},
@@ -189,8 +210,7 @@ angular.module( 'lyt3App' )
         createRequest( 'logOn', {
           username: username,
           password: password
-        } ).then( function( response ) {
-          var data = response.data;
+        } ).then( function( data ) {
           if ( data.Body.logOnResponse && data.Body.logOnResponse.logOnResult ) {
             defer.resolve( data.Header );
           } else {
@@ -205,8 +225,7 @@ angular.module( 'lyt3App' )
       logOff: function( ) {
         var defer = $q.defer( );
         createRequest( 'logOff' )
-          .then( function( response ) {
-            var data = response.data;
+          .then( function( data ) {
             if ( data.Body.logOffResponse && data.Body.logOffResponse.logOffResult ) {
               defer.resolve( data.Header );
             } else {
@@ -221,19 +240,19 @@ angular.module( 'lyt3App' )
       getServiceAttributes: function( ) {
         var defer = $q.defer( );
         createRequest( 'getServiceAttributes' )
-          .then( function( response ) {
-            var getServiceAttributesResponse = response.data.Body.getServiceAttributesResponse || {};
+          .then( function( data ) {
+            var getServiceAttributesResponse = data.Body.getServiceAttributesResponse || {};
             var services = getServiceAttributesResponse.serviceAttributes;
 
             if ( services && Object.keys( services ).length ) {
               defer.resolve( services );
             } else {
               defer.reject(
-                'getServiceAttributes failed, missing response.data.Body.getServiceAttributesResponse.serviceAttributes'
+                'getServiceAttributes failed, missing data.Body.getServiceAttributesResponse.serviceAttributes'
               );
             }
           }, function( ) {
-            defer.reject( 'getServiceAttributes failed' );
+            defer.reject( arguments );
           } );
 
         return defer.promise;
@@ -253,8 +272,8 @@ angular.module( 'lyt3App' )
         createRequest( 'setReadingSystemAttributes', {
             readingSystemAttributes: readingSystemAttributes
           } )
-          .then( function( response ) {
-            if ( response.data.Body.setReadingSystemAttributesResponse.setReadingSystemAttributesResult ) {
+          .then( function( data ) {
+            if ( data.Body.setReadingSystemAttributesResponse.setReadingSystemAttributesResult ) {
               defer.resolve( );
             } else {
               defer.reject( 'setReadingSystemAttributes failed' );
@@ -268,9 +287,9 @@ angular.module( 'lyt3App' )
       getServiceAnnouncements: function( ) {
         var defer = $q.defer( );
         createRequest( 'getServiceAnnouncements' )
-          .then( function( response ) {
-            var data = response.data.Body;
-            var announcements = ( ( data.getServiceAnnouncementsResponse || {} )
+          .then( function( data ) {
+            var body = data.Body;
+            var announcements = ( ( body.getServiceAnnouncementsResponse || {} )
               .announcements || {} ).announcement || [ ];
             defer.resolve( announcements );
           }, function( ) {
@@ -292,20 +311,26 @@ angular.module( 'lyt3App' )
             firstItem: firstItem,
             lastItem: lastItem
           } )
-          .then( function( response ) {
-            var data = response.data;
+          .then( function( data ) {
             var Body = data.Body || {};
             var getContentListResponse = Body.getContentListResponse || {};
             var contentList = getContentListResponse.contentList || {};
             if ( contentList ) {
-              var attrs = contentList.attrs;
               var list = {
-                firstItem: attrs.firstItem,
-                id: attrs.id,
-                lastItem: attrs.lastItem,
-                totalItems: attrs.totalItems,
+                id: listIdentifier,
                 items: [ ]
               };
+
+              if ( !contentList.contentItem ) {
+                return defer.resolve( list );
+              }
+
+              var attrs = contentList.attrs || {};
+              list.id = attrs.id || listIdentifier;
+              list.firstItem = attrs.firstItem;
+              list.lastItem = attrs.lastItem;
+              list.totalItems = attrs.totalItems;
+
               var contentItem = contentList.contentItem || [];
               if ( !(contentItem instanceof Array) ) {
                 contentItem = [contentItem];
@@ -342,8 +367,7 @@ angular.module( 'lyt3App' )
         createRequest( 'issueContent', {
             contentID: contentID
           } )
-          .then( function( response ) {
-            var data = response.data;
+          .then( function( data ) {
             var Body = data.Body;
             if ( Body.issueContentResponse.issueContentResult ) {
               defer.resolve( );
@@ -374,8 +398,7 @@ angular.module( 'lyt3App' )
         createRequest( 'getContentResources', {
             contentID: contentID
           } )
-          .then( function( response ) {
-            var data = response.data;
+          .then( function( data ) {
             var Body = data.Body;
             var resources = Body.getContentResourcesResponse.resources.resource
               .reduce( function( resources, item ) {
@@ -441,8 +464,7 @@ angular.module( 'lyt3App' )
           createRequest( 'getBookmarks', {
               contentID: contentID
             } )
-            .then( function( response ) {
-              var data = response.data;
+            .then( function( data ) {
               var Body = data.Body;
               var getBookmarksResponse = Body.getBookmarksResponse || {};
               var bookmarkSet = getBookmarksResponse.bookmarkSet || {};
