@@ -14,11 +14,19 @@
 @property (nonatomic, strong) NSString* author;
 @property (nonatomic, readonly) NSArray* parts; // contains BookPart elements
 
+@property (nonatomic, assign) NSTimeInterval bufferLookahead;
+
 // Book should try to keep its buffer filled to this many seconds,
 // whch can be set to very large number to buffer entire Book.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
 
 -(void)play;
+-(void)stop;
+
+// position within books, either globally or by part
+@property (nonatomic, assign) NSTimeInterval position;
+@property (nonatomic, assign) NSUInteger currentPart;
+@property (nonatomic, assign) NSTimeInterval positionInPart; // position relative to start of current part
 
 // used for debugging purposes, info is array of dictionaries such as:
 // bookFromDictionaries expects the following format:

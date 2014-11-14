@@ -70,30 +70,8 @@
 
 -(void)testDownload {
     [book deleteCache];
-    book.bufferingPoint = 100;
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [book play];
-        //[queuePlayer play];
-
-        //BookPart* part = book.parts.firstObject;
-        //NSURL* url = [NSURL fileURLWithPath: part.cachePath];
-        //AVPlayerItem* item = [AVPlayerItem playerItemWithURL: url];
-        
-        //queuePlayer = [AVQueuePlayer queuePlayerWithItems:@[item]];
-        //[queuePlayer play];
-        //AVAudioPlayer* audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:NULL];
-        //[audioPlayer play];
-        
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            //[audioPlayer stop];
-            
-            //[queuePlayer pause];
-            //AVPlayerItem* firstItem = queuePlayer.items.firstObject;
-            //NSLog(@"play error: %@", audioPlayer.error);
-        });
-    });
+    book.bufferLookahead = 30;
+    [book play];
 }
 
 -(void)loadBookshelf {

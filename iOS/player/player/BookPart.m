@@ -24,6 +24,7 @@
 +(BOOL)automaticallyNotifiesObserversForKey:(NSString*)theKey {
     if([theKey isEqualToString:@"bufferingsSatisfied"]) return NO;
     if([theKey isEqualToString:@"bufferingPoint"]) return NO;
+    if([theKey isEqualToString:@"ensuredBufferingPoint"]) return NO;
     return [super automaticallyNotifiesObserversForKey:theKey];
 }
 
@@ -123,7 +124,12 @@
     //       (long)self.downloader.progressBytes, (long)(byteOffset));
     
     self.bufferingsSatisfied = self.downloader.progressBytes >= byteOffset;
-    if(self.bufferingsSatisfied) return;
+    if(self.bufferingsSatisfied) {
+        [self willChangeValueForKey:@"ensuredBufferingPoint"];
+        _ensuredBufferingPoint = self.bufferingPoint;
+        [self didChangeValueForKey:@"ensuredBufferingPoint"];
+        return;
+    }
     
     NSUInteger bytesToRead = byteOffset - self.downloader.progressBytes;
     if(bytesToRead > ChunkSize) {
@@ -165,6 +171,10 @@
 
 -(void)dealloc {
     [self setDownloader: nil];
+}
+
+-(NSTimeInterval)duration {
+    return self.end - self.start;
 }
 
 @end

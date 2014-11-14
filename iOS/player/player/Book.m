@@ -6,13 +6,17 @@
 //  Copyright (c) 2014 NOTA. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "Book.h"
 #import "BookPart.h"
 #import "debug.h"
 
 @interface Book () {
     AVAudioPlayer* player;
-    int playingPartIndex;
+    BOOL delayedStart; // we have been asked to start playing but are waiting for buffering
+    BOOL positionEverSet;
+    
+    NSTimeInterval _position;
 }
 @end
 
@@ -55,21 +59,121 @@
         if(!player) [self reportError:error];
     }
 
+    DBGLog(@"Started playing %@ from %.1f", url.lastPathComponent, time);
     player.currentTime = time;
     [player play];
 }
 
--(void)play {
-    if(playingPartIndex >= self.parts.count) return;
+-(void)refreshLookaheadWithPosition:(NSTimeInterval)position {
+    NSTimeInterval lookahead = fmax(self.bufferLookahead, 1);
+    if(position + lookahead > self.bufferingPoint) {
+        self.bufferingPoint = position + lookahead;
+    }
     
-    BookPart* part = [self.parts objectAtIndex: playingPartIndex];
+    // schedule delayed refresh if we are playing
+    if(self.isPlaying) {
+        NSTimeInterval delay = fmax(10, 0.25 * self.bufferLookahead);
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedRefreshLookahead) object:nil];
+        [self performSelector:@selector(delayedRefreshLookahead) withObject:nil afterDelay:delay];
+    }
+}
+
+// after some delay we need to fetch again to keep lookaehad buffer
+// filled
+-(void)delayedRefreshLookahead {
+    [self refreshLookaheadWithPosition:self.position];
+}
+
+-(void)setBufferLookahead:(NSTimeInterval)bufferLookahead {
+    _bufferLookahead = bufferLookahead;
+    [self refreshLookaheadWithPosition:self.position];
+}
+
+-(void)refreshPosition {
+    positionEverSet = YES;
+    NSTimeInterval position = _position;
+    
+    // when setting position we make sure to ask for a little extra buffer
+    [self refreshLookaheadWithPosition:position];
+    
+    NSUInteger index = 0;
+    for (BookPart* part in self.parts) {
+        if(position < part.duration) {
+            self.currentPart = index;
+            self.positionInPart = position;
+            return;
+        }
+        
+        position -= part.duration;
+        index += 1;
+    }
+    
+    // we did not found position and set to greatest value possible (end of last file)
+    BookPart* last = self.parts.lastObject;
+    self.currentPart = self.parts.count - 1;
+    self.positionInPart = last.duration;
+}
+
+-(void)setPosition:(NSTimeInterval)position {
+    _position = position;
+    [self refreshPosition];
+}
+
+-(NSTimeInterval)position {
+    NSUInteger index = 0;
+    NSTimeInterval time = 0;
+    
+    for (BookPart* part in self.parts) {
+        if(index == self.currentPart) {
+            return time + player.currentTime;
+        }
+        
+        time += part.duration;
+        index += 1;
+    }
+    
+    return 0;
+}
+
+// start playing at wanted position if ready, returning whether we could
+-(BOOL)playIfReady {
+    if(self.currentPart >= self.parts.count) return NO;
+    
+    // we do not start playing unless we have more ensured buffer that play position
+    BookPart* part = [self.parts objectAtIndex: self.currentPart];
+    if(part.ensuredBufferingPoint <= self.positionInPart) return NO;
+    
+    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     NSURL* url = [NSURL fileURLWithPath:part.cachePath];
     [self playUrl:url atTime:0];
+    
+    return YES;
+}
+
+-(BOOL)isPlaying {
+    return player.isPlaying;
+}
+
+-(void)play {
+    if(!positionEverSet) {
+        [self refreshPosition];
+    }
+    
+    BOOL started = [self playIfReady];
+    delayedStart = !started;
+}
+
+-(void)stop {
+    delayedStart = NO;
+    [player stop];
 }
 
 -(void)playMore {
-    playingPartIndex += 1;
+    self.currentPart += 1;
+    self.positionInPart = 0;
+    
     [self play];
+    [self refreshLookaheadWithPosition:self.position];
 }
 
 -(NSString*)description {
@@ -92,6 +196,10 @@
             
             [self cascadeBufferingPoint];
         }
+    } else if([keyPath isEqualToString:@"ensuredBufferingPoint"]) {
+        if(delayedStart) {
+            [self play];
+        }
     } else if([keyPath isEqualToString:@"error"]) {
         BookPart* part = object;
         NSError* error = part.error;
@@ -106,6 +214,7 @@
     if(parts == _parts) return;
     
     for (BookPart* part in _parts) {
+        [part removeObserver:self forKeyPath:@"ensuredBufferingPoint"];
         [part removeObserver:self forKeyPath:@"bufferingsSatisfied"];
         [part removeObserver:self forKeyPath:@"error"];
     }
@@ -113,6 +222,7 @@
     for (BookPart* part in _parts) {
         [part addObserver:self forKeyPath:@"error" options:0 context:NULL];
         [part addObserver:self forKeyPath:@"bufferingsSatisfied" options:0 context:NULL];
+        [part addObserver:self forKeyPath:@"ensuredBufferingPoint" options:0 context:NULL];
     }
 }
 
@@ -166,20 +276,26 @@
         [items addObject: playerItem];
     }
     
-    AVQueuePlayer* player = [AVQueuePlayer queuePlayerWithItems: items];
-    return player;
+    return [AVQueuePlayer queuePlayerWithItems: items];
 }
 
-// buffering point should be cascaded to each part of the book, but
+// Buffering point should be cascaded to each part of the book, but
 // we stop cascade on first book that have not fully buffered to avoid
 // congesting buffering the next part of the book with later parts.
+// We also do not ask parts of book we have passed to buffer.
 -(void)cascadeBufferingPoint {
-    NSTimeInterval time = 0;
-    for (BookPart* part in self.parts) {
-        part.bufferingPoint = _bufferingPoint - time;
-        time += part.end - part.start;
+    NSTimeInterval position = self.position;
         
-        if(!part.bufferingsSatisfied) break;
+    NSTimeInterval time = 0; // how long parts of book has been up to this point
+    for (BookPart* part in self.parts) {
+        // if part of books ends before current position, we do not care about cache,
+        // as we should read the parts of the book being listened to now.
+        NSTimeInterval endTime = time + part.duration;
+        if(endTime >= position) {
+            part.bufferingPoint = _bufferingPoint - time;
+            if(!part.bufferingsSatisfied) break;
+        }
+        time = endTime;
     }
 }
 

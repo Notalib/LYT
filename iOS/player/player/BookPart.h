@@ -21,10 +21,14 @@
 // start and end are measured in seconds
 @property (nonatomic, assign) NSTimeInterval start;
 @property (nonatomic, assign) NSTimeInterval end;
+@property (nonatomic, readonly) NSTimeInterval duration;
 
 // BookPart should try to keep its buffer filled to this many seconds,
 // whch can be set to very large number to buffer entire BookPart.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
+
+// Like bufferingPoint but for data that is already present in cache
+@property (nonatomic, readonly) NSTimeInterval ensuredBufferingPoint;
 
 // Whether bufffer is filled up to the point wanted by bufferingPoint.
 // You should probably KVO observe this property.
