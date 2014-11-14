@@ -31,7 +31,7 @@
 // try to make fewer parts by joining parts of book that are consecutive
 -(void)joinParts;
 
--(AVQueuePlayer*)makeQueuePlayer;
+-(AVQueuePlayer*)makeQueuePlayer:(BOOL)buffered;
 
 -(void)deleteCache;
 

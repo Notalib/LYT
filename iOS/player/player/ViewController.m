@@ -77,19 +77,33 @@
     NSData* data = [NSData dataWithContentsOfFile:path];
     NSDictionary* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
     
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20062/37027/"];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20014/37027/"];
     book = [Book bookFromDictionary:json baseURL:baseURL];
     [book joinParts];
 }
 
 -(void)testPlay {
-    queuePlayer = [book makeQueuePlayer];
+    queuePlayer = [book makeQueuePlayer:NO];
     [queuePlayer play];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"play error: %@", queuePlayer.error);
+    });
 }
 
 -(void)testDownload {
     [book deleteCache];
     book.bufferingPoint = 300;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        queuePlayer = [book makeQueuePlayer:YES];
+        [queuePlayer play];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            AVPlayerItem* firstItem = queuePlayer.items.firstObject;
+            NSLog(@"play error: %@", firstItem.error);
+        });
+    });
 }
 
 -(void)loadBookshelf {
@@ -104,7 +118,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    //[self loadTestData];
     [self loadTestBook];
     //[self testPlay];
     [self testDownload];

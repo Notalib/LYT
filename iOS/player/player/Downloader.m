@@ -71,7 +71,7 @@ static DownloadDelegate* sharedDelegate = nil;
 
 - (void)URLSession:(NSURLSession *)session
               task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
-    DBGLog(@"URLSession:task: %@ didCompleteWithError: %@", task.currentRequest.URL, error);
+    //DBGLog(@"URLSession:task: %@ didCompleteWithError: %@", task.currentRequest.URL, error);
     [self endTask:task error:error location:nil];
 }
 
@@ -79,15 +79,15 @@ static DownloadDelegate* sharedDelegate = nil;
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
     
-    DBGLog(@"URLSession: dataTask: %@ didReceiveData: %ld bytes",
-          dataTask.currentRequest.URL, (long)data.length);
+    //DBGLog(@"URLSession: dataTask: %@ didReceiveData: %ld bytes",
+    //      dataTask.currentRequest.URL, (long)data.length);
 }
 
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location {
-    DBGLog(@"URLSession:downloadTask: %@ didFinishDownloadingToURL: %@",
-          downloadTask.currentRequest.URL, location);
+    //DBGLog(@"URLSession:downloadTask: %@ didFinishDownloadingToURL: %@",
+    //      downloadTask.currentRequest.URL, location);
     
     [self endTask:downloadTask error:nil location:location];
 }
@@ -133,11 +133,7 @@ didFinishDownloadingToURL:(NSURL *)location {
 }
 
 -(void)deleteCache {
-    NSError* error = NULL;
-    BOOL ok = [[NSFileManager defaultManager] removeItemAtPath:self.cachePath error:&error];
-    if(!ok) {
-        self.error = error;
-    }
+    [[NSFileManager defaultManager] removeItemAtPath:self.cachePath error:NULL];
     
     [self willChangeValueForKey:@"progressBytes"];
     progressBytes = 0;
@@ -160,15 +156,15 @@ didFinishDownloadingToURL:(NSURL *)location {
     
     NSUInteger byteOffset = self.start + progressBytes;
     if(byteOffset >= self.end) return;
-    NSUInteger remainingBytes = self.end - byteOffset;
-    if(remainingBytes >= ChunkSize) remainingBytes = ChunkSize;
+    NSUInteger bytesToRead = self.end - byteOffset;
+    if(bytesToRead >= ChunkSize) bytesToRead = ChunkSize;
     
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:self.url
                                                            cachePolicy:NSURLRequestReloadIgnoringCacheData
                                                        timeoutInterval:10];
     
     NSString* range = [NSString stringWithFormat:@"bytes=%ld-%ld",
-                       (long)remainingBytes, (long)(remainingBytes + remainingBytes)];
+                       (long)byteOffset, (long)(byteOffset + bytesToRead)];
     [request addValue:range forHTTPHeaderField:@"Range"];
     
     isLoading = YES;
@@ -206,8 +202,8 @@ didFinishDownloadingToURL:(NSURL *)location {
             progressBytes += data.length;
             [self didChangeValueForKey:@"progressBytes"];
 
-            NSLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
-                  (long)progressBytes);
+            //NSLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
+            //      (long)progressBytes);
             [self downloadNextChunk];
         }
     } else {

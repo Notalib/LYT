@@ -8,11 +8,51 @@
 
 #import "Book.h"
 #import "BookPart.h"
+#import "debug.h"
 
 @implementation Book
 
 -(NSString*)description {
     return [NSString stringWithFormat:@"%@ %@: \n%@", self.title, self.author, self.parts];
+}
+
+-(void)dealloc {
+    [self setParts:nil];
+}
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                       change:(NSDictionary *)change context:(void *)context {
+    if([keyPath isEqualToString:@"bufferingsSatisfied"]) {
+        BookPart* part = object;
+        if(part.bufferingsSatisfied) {
+            if(part.bufferingPoint > 0.0) {
+                DBGLog(@"Buffering of %.1f seconds completed: %@", part.bufferingPoint, part);
+            }
+            
+            [self cascadeBufferingPoint];
+        }
+    } else if([keyPath isEqualToString:@"error"]) {
+        BookPart* part = object;
+        NSError* error = part.error;
+        if(error) {
+            NSLog(@"%@ error: %@", part, error);
+        }
+    }
+}
+
+// we turn on KVO notifications for each part of book to know buffering status
+-(void)setParts:(NSArray *)parts {
+    if(parts == _parts) return;
+    
+    for (BookPart* part in _parts) {
+        [part removeObserver:self forKeyPath:@"bufferingsSatisfied"];
+        [part removeObserver:self forKeyPath:@"error"];
+    }
+    _parts = parts;
+    for (BookPart* part in _parts) {
+        [part addObserver:self forKeyPath:@"error" options:0 context:NULL];
+        [part addObserver:self forKeyPath:@"bufferingsSatisfied" options:0 context:NULL];
+    }
 }
 
 +(Book*)bookFromDictionary:(NSDictionary*)dictionary baseURL:(NSURL*)baseURL {
@@ -35,7 +75,7 @@
     Book* book = [Book new];
     book.title = [dictionary objectForKey:@"title"];
     book.author = [dictionary objectForKey:@"author"];
-    book->_parts = parts;
+    book.parts = parts;
     return book;
 }
 
@@ -55,27 +95,38 @@
     }
     if(last) [array addObject:last];
     
-    _parts = array;
+    self.parts = array;
 }
 
--(AVQueuePlayer*)makeQueuePlayer {
+-(AVQueuePlayer*)makeQueuePlayer:(BOOL)buffered {
     NSMutableArray* items = [NSMutableArray arrayWithCapacity:self.parts.count];
     for (BookPart* part in self.parts) {
-        [items addObject:part.makePlayerItem];
+        AVPlayerItem* playerItem = [part makePlayerItem: buffered];
+        if(playerItem) {
+            [items addObject: playerItem];
+        }
     }
     
     AVQueuePlayer* player = [AVQueuePlayer queuePlayerWithItems: items];
     return player;
 }
 
--(void)setBufferingPoint:(NSTimeInterval)bufferingPoint {
-    _bufferingPoint = bufferingPoint;
-    
+// buffering point should be cascaded to each part of the book, but
+// we stop cascade on first book that have not fully buffered to avoid
+// congesting buffering the next part of the book with later parts.
+-(void)cascadeBufferingPoint {
     NSTimeInterval time = 0;
     for (BookPart* part in self.parts) {
-        part.bufferingPoint = bufferingPoint - time;
+        part.bufferingPoint = _bufferingPoint - time;
         time += part.end - part.start;
+        
+        if(!part.bufferingsSatisfied) break;
     }
+}
+
+-(void)setBufferingPoint:(NSTimeInterval)bufferingPoint {
+    _bufferingPoint = bufferingPoint;
+    [self cascadeBufferingPoint];
 }
 
 -(void)deleteCache {

@@ -11,6 +11,9 @@
 @interface BookPart : NSObject
 @property (nonatomic, strong) NSURL* url;
 
+// holds the last error from downloading
+@property (nonatomic, strong) NSError* error;
+
 // start and end are measured in seconds
 @property (nonatomic, assign) NSTimeInterval start;
 @property (nonatomic, assign) NSTimeInterval end;
@@ -19,12 +22,16 @@
 // whch can be set to very large number to buffer entire BookPart.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
 
+// Whether bufffer is filled up to the point wanted by bufferingPoint.
+// You should probably KVO observe this property.
+@property (nonatomic, readonly) BOOL bufferingsSatisfied;
+
 // return BookPart that combines self and otherPart returning nil
 // if join is not possible. To be joinable the url's must
 // match and self must end where otherPart starts.
 -(BookPart*)partCombinedWith:(BookPart*)otherPart;
 
--(AVPlayerItem*)makePlayerItem;
+-(AVPlayerItem*)makePlayerItem:(BOOL)buffered;
 
 -(void)deleteCache;
 
