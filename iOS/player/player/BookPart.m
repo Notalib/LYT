@@ -103,7 +103,7 @@
 }
 
 -(void)setBufferingPoint:(NSTimeInterval)wantedBufferingPoint {
-    NSTimeInterval bufferingPoint = fmin(wantedBufferingPoint, self.end);
+    NSTimeInterval bufferingPoint = fmax(0, fmin(wantedBufferingPoint, self.end));
     if(_bufferingPoint == bufferingPoint) return;
     
     [self willChangeValueForKey:@"bufferingPoint"];

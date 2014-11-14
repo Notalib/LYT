@@ -70,7 +70,7 @@
 
 -(void)testDownload {
     [book deleteCache];
-    book.bufferLookahead = 30;
+    book.bufferLookahead = 300;
     [book play];
 }
 

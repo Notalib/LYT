@@ -76,12 +76,37 @@
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedRefreshLookahead) object:nil];
         [self performSelector:@selector(delayedRefreshLookahead) withObject:nil afterDelay:delay];
     }
+    
+    NSTimeInterval ensuredBufferingPoint = self.ensuredBufferingPoint;
+    DBGLog(@"position=%.1f, ensuredBufferingPoint = %.1f", position, ensuredBufferingPoint);
+    if(ensuredBufferingPoint == 0.0) {
+        [self ensuredBufferingPoint];
+    }
 }
 
 // after some delay we need to fetch again to keep lookaehad buffer
 // filled
 -(void)delayedRefreshLookahead {
     [self refreshLookaheadWithPosition:self.position];
+}
+
+-(NSTimeInterval)ensuredBufferingPoint {
+    NSTimeInterval position = self.position;
+    NSTimeInterval time = 0;
+    for (BookPart* part in self.parts) {
+        NSTimeInterval endtime = time + part.duration;
+        if(endtime > position) {
+            NSTimeInterval partEnsured = part.ensuredBufferingPoint;
+
+            if(partEnsured < part.duration) {
+                // we have not fully cached this needed BookPart
+                return time + partEnsured;
+            }
+        }
+        time = endtime;
+    }
+    
+    return time;
 }
 
 -(void)setBufferLookahead:(NSTimeInterval)bufferLookahead {
@@ -191,7 +216,7 @@
         BookPart* part = object;
         if(part.bufferingsSatisfied) {
             if(part.bufferingPoint > 0.0) {
-                DBGLog(@"Buffering of %.1f seconds completed: %@", part.bufferingPoint, part);
+                //DBGLog(@"Buffering of %.1f seconds completed: %@", part.bufferingPoint, part);
             }
             
             [self cascadeBufferingPoint];
