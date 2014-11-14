@@ -9,7 +9,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
-@interface Book : NSObject
+@interface Book : NSObject <AVAudioPlayerDelegate>
 @property (nonatomic, strong) NSString* title;
 @property (nonatomic, strong) NSString* author;
 @property (nonatomic, readonly) NSArray* parts; // contains BookPart elements
@@ -17,6 +17,8 @@
 // Book should try to keep its buffer filled to this many seconds,
 // whch can be set to very large number to buffer entire Book.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
+
+-(void)play;
 
 // used for debugging purposes, info is array of dictionaries such as:
 // bookFromDictionaries expects the following format:
@@ -31,7 +33,8 @@
 // try to make fewer parts by joining parts of book that are consecutive
 -(void)joinParts;
 
--(AVQueuePlayer*)makeQueuePlayer:(BOOL)buffered;
+// Queue player where items point directly to remote URLs and do no caching.
+-(AVQueuePlayer*)makeQueuePlayer;
 
 -(void)deleteCache;
 

@@ -10,6 +10,7 @@
 #import "ViewController.h"
 #import "SoundChunk.h"
 #import "Book.h"
+#import "BookPart.h"
 
 @interface ViewController () {
     NSArray* chunks;
@@ -48,30 +49,6 @@
 
 #pragma mark -
 
--(void)loadTestData {
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"3_Grantret.json" ofType:nil];
-    NSData* data = [NSData dataWithContentsOfFile:path];
-    
-    NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20017/36016/3_Grantret.mp3"];
-    NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-    chunks = [SoundChunk soundChunksForURL:url info:json];
-    
-    NSTimeInterval when = 175;
-    SoundChunk* chunk = [SoundChunk lastBeforeTime:when chunks: chunks];
-    
-    NSURLRequest* request = [chunk makeRequest];
-    NSLog(@"request = %@\n%@", request.URL, request.allHTTPHeaderFields);
-    
-    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse* response, NSData* data, NSError* error) {
-        NSLog(@"response = %@", response);
-                               
-        player = [[AVAudioPlayer alloc] initWithData:data error:NULL];
-        //[player play];
-        [player playAtTime: player.deviceCurrentTime + when - chunk.timeOffset];
-    }];
-}
-
 -(void)loadTestBook {
     NSString* path = [[NSBundle mainBundle] pathForResource:@"37027.json" ofType:nil];
     NSData* data = [NSData dataWithContentsOfFile:path];
@@ -83,7 +60,7 @@
 }
 
 -(void)testPlay {
-    queuePlayer = [book makeQueuePlayer:NO];
+    queuePlayer = [book makeQueuePlayer];
     [queuePlayer play];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -93,15 +70,28 @@
 
 -(void)testDownload {
     [book deleteCache];
-    book.bufferingPoint = 300;
+    book.bufferingPoint = 100;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        queuePlayer = [book makeQueuePlayer:YES];
-        [queuePlayer play];
+        [book play];
+        //[queuePlayer play];
+
+        //BookPart* part = book.parts.firstObject;
+        //NSURL* url = [NSURL fileURLWithPath: part.cachePath];
+        //AVPlayerItem* item = [AVPlayerItem playerItemWithURL: url];
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            AVPlayerItem* firstItem = queuePlayer.items.firstObject;
-            NSLog(@"play error: %@", firstItem.error);
+        //queuePlayer = [AVQueuePlayer queuePlayerWithItems:@[item]];
+        //[queuePlayer play];
+        //AVAudioPlayer* audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:NULL];
+        //[audioPlayer play];
+        
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            //[audioPlayer stop];
+            
+            //[queuePlayer pause];
+            //AVPlayerItem* firstItem = queuePlayer.items.firstObject;
+            //NSLog(@"play error: %@", audioPlayer.error);
         });
     });
 }
@@ -122,8 +112,8 @@
     //[self testPlay];
     [self testDownload];
     
-    NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
-    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    //NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
+    //NSURLRequest* request = [NSURLRequest requestWithURL:url];
     //[self.webView loadRequest:request];
 }
 

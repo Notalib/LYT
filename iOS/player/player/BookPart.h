@@ -11,6 +11,10 @@
 @interface BookPart : NSObject
 @property (nonatomic, strong) NSURL* url;
 
+// cache path is dependent on URL and start only, such that all downloaders
+// with the same URL x start share a cache file.
+@property (nonatomic, readonly) NSString* cachePath;
+
 // holds the last error from downloading
 @property (nonatomic, strong) NSError* error;
 
@@ -31,7 +35,7 @@
 // match and self must end where otherPart starts.
 -(BookPart*)partCombinedWith:(BookPart*)otherPart;
 
--(AVPlayerItem*)makePlayerItem:(BOOL)buffered;
+-(AVPlayerItem*)makePlayerItem;
 
 -(void)deleteCache;
 

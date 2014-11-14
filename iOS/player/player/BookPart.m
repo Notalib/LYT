@@ -149,18 +149,12 @@
     return joined;
 }
 
--(AVPlayerItem*)makePlayerItem:(BOOL)buffered {
-    if(buffered && (self.bufferingPoint <= 0.0 || !self.bufferingsSatisfied)) {
-        return nil;
-    }
-    
-    NSURL* url = buffered ? [NSURL fileURLWithPath:self.downloader.cachePath] : self.url;
-    if(buffered) {
-        DBGLog(@"We have %ld bytes cached for %@", [NSData dataWithContentsOfURL:url].length,
-               url.lastPathComponent);
-    }
-    
-    AVAsset* asset = [AVAsset assetWithURL:url];
+-(NSString*)cachePath {
+    return self.downloader.cachePath;
+}
+
+-(AVPlayerItem*)makePlayerItem {
+    AVAsset* asset = [AVAsset assetWithURL:self.url];
     return [[AVPlayerItem alloc] initWithAsset:asset];
 }
 
