@@ -18,6 +18,10 @@ class LYT.player.command.play extends LYT.player.command
 
     @pollTimer = setInterval =>
       audio = @el.data('jPlayer').htmlElement.audio
+      unless audio.src.indexOf('silence.mp3') is -1
+        log.message "play: progressHandler: silentplay", stack
+        return
+
       @notify currentTime: audio.currentTime, src: audio.src
     , 1000/60
 
