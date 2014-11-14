@@ -68,9 +68,19 @@
     return player;
 }
 
--(void)downloadWholeBook {
+-(void)setBufferingPoint:(NSTimeInterval)bufferingPoint {
+    _bufferingPoint = bufferingPoint;
+    
+    NSTimeInterval time = 0;
     for (BookPart* part in self.parts) {
-        [part download];
+        part.bufferingPoint = bufferingPoint - time;
+        time += part.end - part.start;
+    }
+}
+
+-(void)deleteCache {
+    for (BookPart* part in self.parts) {
+        [part deleteCache];
     }
 }
 

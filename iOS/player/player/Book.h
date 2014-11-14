@@ -14,6 +14,10 @@
 @property (nonatomic, strong) NSString* author;
 @property (nonatomic, readonly) NSArray* parts; // contains BookPart elements
 
+// Book should try to keep its buffer filled to this many seconds,
+// whch can be set to very large number to buffer entire Book.
+@property (nonatomic, assign) NSTimeInterval bufferingPoint;
+
 // used for debugging purposes, info is array of dictionaries such as:
 // bookFromDictionaries expects the following format:
 // {"id":37027, "author":"", "title":"Bunker 137",
@@ -29,6 +33,6 @@
 
 -(AVQueuePlayer*)makeQueuePlayer;
 
--(void)downloadWholeBook;
+-(void)deleteCache;
 
 @end

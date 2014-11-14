@@ -11,9 +11,13 @@
 @interface BookPart : NSObject
 @property (nonatomic, strong) NSURL* url;
 
-// start and end are meased in seconds
+// start and end are measured in seconds
 @property (nonatomic, assign) NSTimeInterval start;
 @property (nonatomic, assign) NSTimeInterval end;
+
+// BookPart should try to keep its buffer filled to this many seconds,
+// whch can be set to very large number to buffer entire BookPart.
+@property (nonatomic, assign) NSTimeInterval bufferingPoint;
 
 // return BookPart that combines self and otherPart returning nil
 // if join is not possible. To be joinable the url's must
@@ -22,6 +26,6 @@
 
 -(AVPlayerItem*)makePlayerItem;
 
--(void)download;
+-(void)deleteCache;
 
 @end

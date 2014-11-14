@@ -102,6 +102,12 @@ didFinishDownloadingToURL:(NSURL *)location {
 @end
 
 @implementation Downloader
+@synthesize progressBytes;
+
++(BOOL)automaticallyNotifiesObserversForKey:(NSString*)theKey {
+    if([theKey isEqualToString:@"progressBytes"]) return NO;
+    return [super automaticallyNotifiesObserversForKey:theKey];
+}
 
 +(DownloadDelegate*)sharedDelegate {
     if(!sharedDelegate) {
@@ -126,17 +132,31 @@ didFinishDownloadingToURL:(NSURL *)location {
     return [cacheDir stringByAppendingPathComponent:filename];
 }
 
+-(void)deleteCache {
+    NSError* error = NULL;
+    BOOL ok = [[NSFileManager defaultManager] removeItemAtPath:self.cachePath error:&error];
+    if(!ok) {
+        self.error = error;
+    }
+    
+    [self willChangeValueForKey:@"progressBytes"];
+    progressBytes = 0;
+    [self didChangeValueForKey:@"progressBytes"];
+}
+
 // check how much is already cached for the given
 -(void)checkForContent {
     NSDictionary* attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:self.cachePath error:NULL];
     NSNumber* fileSize = [attributes objectForKey:NSFileSize];
+    
+    [self willChangeValueForKey:@"progressBytes"];
     progressBytes = fileSize.unsignedIntegerValue;
+    [self didChangeValueForKey:@"progressBytes"];
 }
 
 -(void)downloadNextChunk {
     // make sure we are only loading one chunk at a time
     if(isLoading) return;
-    isLoading = YES;
     
     NSUInteger byteOffset = self.start + progressBytes;
     if(byteOffset >= self.end) return;
@@ -151,6 +171,7 @@ didFinishDownloadingToURL:(NSURL *)location {
                        (long)remainingBytes, (long)(remainingBytes + remainingBytes)];
     [request addValue:range forHTTPHeaderField:@"Range"];
     
+    isLoading = YES;
     [[Downloader sharedDelegate] startRequest:request forDownloader:self];
 }
 
@@ -174,13 +195,19 @@ didFinishDownloadingToURL:(NSURL *)location {
 }
 
 -(void)taskEndWithError:(NSError*)error location:(NSURL*)location {
+    self.error = error;
+    
     if(!error && location) {
         isLoading = NO;
         NSData* data = [NSData dataWithContentsOfURL:location];
         BOOL ok = [self appendData:data toFile:self.cachePath];
         if(ok) {
+            [self willChangeValueForKey:@"progressBytes"];
             progressBytes += data.length;
-            NSLog(@"%ld bytes written to %@ for a total of %ld", data.length, self.cachePath, progressBytes);
+            [self didChangeValueForKey:@"progressBytes"];
+
+            NSLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
+                  (long)progressBytes);
             [self downloadNextChunk];
         }
     } else {

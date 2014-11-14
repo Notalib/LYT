@@ -77,7 +77,7 @@
     NSData* data = [NSData dataWithContentsOfFile:path];
     NSDictionary* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
     
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20030/37027/"];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20062/37027/"];
     book = [Book bookFromDictionary:json baseURL:baseURL];
     [book joinParts];
 }
@@ -88,7 +88,8 @@
 }
 
 -(void)testDownload {
-   [book downloadWholeBook];
+    [book deleteCache];
+    book.bufferingPoint = 300;
 }
 
 -(void)loadBookshelf {
@@ -105,7 +106,7 @@
     
     //[self loadTestData];
     [self loadTestBook];
-    [self testPlay];
+    //[self testPlay];
     [self testDownload];
     
     NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];

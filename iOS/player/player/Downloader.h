@@ -15,6 +15,22 @@
 @property (nonatomic, readonly) NSUInteger start;
 @property (nonatomic, assign) NSUInteger end; // must only be increased
 
+// how much we have read and stored in cache
+@property (nonatomic, readonly) NSUInteger progressBytes;
+
+// cache path is dependent on URL and start only, such that all downloaders
+// with the same URL x start share a cache file.
+@property (nonatomic, readonly) NSString* cachePath;
+
+-(void)deleteCache;
+
+// how much we have read from network but perhaps not yet stored in cache
+// TODO: Not yet implemented.
+@property (nonatomic, readonly) NSUInteger progressBytesFetched;
+
+// holds the last error from downloading
+@property (nonatomic, strong) NSError* error;
+
 // set end == NSUIntegerMax to download to end of file
 +(Downloader*)downloadURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end;
 +(Downloader*)downloadURL:(NSURL*)url;
