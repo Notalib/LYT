@@ -9,6 +9,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "BookPart.h"
 #import "Downloader.h"
+#import "debug.h"
 
 @interface BookPart () {
     NSUInteger byteOffset;
@@ -20,10 +21,18 @@
 
 @implementation BookPart
 
-// Determine the byte-offset of last chunk including the givem time-offset
++(BOOL)automaticallyNotifiesObserversForKey:(NSString*)theKey {
+    if([theKey isEqualToString:@"bufferingsSatisfied"]) return NO;
+    if([theKey isEqualToString:@"bufferingPoint"]) return NO;
+    if([theKey isEqualToString:@"ensuredBufferingPoint"]) return NO;
+    return [super automaticallyNotifiesObserversForKey:theKey];
+}
+
+// Determine the ending byte-offset of last chunk including the given time-offset
 //
 // DEBUG: This is a mockup implementation that just looks in local json files
--(void)determineOffset:(NSTimeInterval)timeOffset callback:(void (^)(NSUInteger byteOffset, NSError* error))block {
+-(void)determineOffset:(NSTimeInterval)timeOffset
+              callback:(void (^)(NSUInteger byteOffset, NSError* error))block {
     
     NSString* filename = [self.url.lastPathComponent stringByDeletingPathExtension];
     NSString* path = [[NSBundle mainBundle] pathForResource:filename ofType:@"json"];
@@ -38,19 +47,27 @@
         return;
     }
     
+    NSDictionary* last = nil;
     for (NSDictionary* part in json) {
-        NSNumber* byteOffsetNumber = [part objectForKey:@"byteOffset"];
         NSNumber* timeOffsetNumber = [part objectForKey:@"timeOffset"];
-        NSNumber* timeDurationNumber = [part objectForKey:@"timeDuration"];
-
         if(timeOffsetNumber.doubleValue >= timeOffset) break;
-        if(timeOffsetNumber.doubleValue + timeDurationNumber.doubleValue > timeOffset) {
-            block(byteOffsetNumber.unsignedIntegerValue, nil);
-            return;
-        }
+        
+        last = part;
     }
     
-    block(0, nil);
+    if(last) {
+        NSNumber* byteOffsetNumber = [last objectForKey:@"byteOffset"];
+        NSNumber* byteLengthNumber = [last objectForKey:@"byteLength"];
+        NSUInteger endOffset = byteOffsetNumber.unsignedIntegerValue +
+                               byteLengthNumber.unsignedIntegerValue;
+        
+        block(endOffset, nil);
+    } else {
+        NSString* message = [NSString stringWithFormat:@"Unable to find timeOffset=%f in %@", timeOffset, self];
+        NSDictionary* userInfo = @{NSLocalizedDescriptionKey: message};
+        NSError* error = [NSError errorWithDomain:@"DEBUG" code:0 userInfo:userInfo];
+        block(0, error);
+    }
 }
 
 -(NSString*)description {
@@ -62,8 +79,17 @@
     if([keyPath isEqualToString:@"progressBytes"]) {
         [self downloadMore];
     } else if([keyPath isEqualToString:@"error"]) {
-        
+        Downloader* d = object;
+        self.error = d.error;
     }
+}
+
+-(void)setBufferingsSatisfied:(BOOL)bufferingsSatisfied {
+    if(_bufferingsSatisfied == bufferingsSatisfied) return;
+    
+    [self willChangeValueForKey:@"bufferingsSatisfied"];
+    _bufferingsSatisfied = bufferingsSatisfied;
+    [self didChangeValueForKey:@"bufferingsSatisfied"];
 }
 
 -(void)setDownloader:(Downloader *)downloader {
@@ -76,9 +102,15 @@
     [_downloader addObserver:self forKeyPath:@"progressBytes" options:0 context:NULL];
 }
 
--(void)setBufferingPoint:(NSTimeInterval)bufferingPoint {
-    _bufferingPoint = bufferingPoint;
+-(void)setBufferingPoint:(NSTimeInterval)wantedBufferingPoint {
+    NSTimeInterval bufferingPoint = fmax(0, fmin(wantedBufferingPoint, self.end));
+    if(_bufferingPoint == bufferingPoint) return;
     
+    [self willChangeValueForKey:@"bufferingPoint"];
+    _bufferingPoint = bufferingPoint;
+    [self didChangeValueForKey:@"bufferingPoint"];
+    
+    self.bufferingsSatisfied = NO;
     [self determineOffset:bufferingPoint callback:^(NSUInteger theByteOffset, NSError* error) {
         if(!error) {
             byteOffset = theByteOffset;
@@ -88,14 +120,23 @@
 }
 
 -(void)downloadMore {
-    if(self.downloader.progressBytes >= byteOffset) return;
+    //DBGLog(@"%@: bytes = %ld, wantedBytes=%ld", self,
+    //       (long)self.downloader.progressBytes, (long)(byteOffset));
     
-    NSUInteger bytesRemaining = byteOffset - self.downloader.progressBytes;
-    if(bytesRemaining > ChunkSize) {
-        bytesRemaining = ChunkSize;
+    self.bufferingsSatisfied = self.downloader.progressBytes >= byteOffset;
+    if(self.bufferingsSatisfied) {
+        [self willChangeValueForKey:@"ensuredBufferingPoint"];
+        _ensuredBufferingPoint = self.bufferingPoint;
+        [self didChangeValueForKey:@"ensuredBufferingPoint"];
+        return;
     }
     
-    NSUInteger end = self.downloader.progressBytes + bytesRemaining;
+    NSUInteger bytesToRead = byteOffset - self.downloader.progressBytes;
+    if(bytesToRead > ChunkSize) {
+        bytesToRead = ChunkSize;
+    }
+    
+    NSUInteger end = self.downloader.progressBytes + bytesToRead;
     self.downloader = [Downloader downloadURL:self.url start:0 end:end];
 }
 
@@ -114,6 +155,10 @@
     return joined;
 }
 
+-(NSString*)cachePath {
+    return self.downloader.cachePath;
+}
+
 -(AVPlayerItem*)makePlayerItem {
     AVAsset* asset = [AVAsset assetWithURL:self.url];
     return [[AVPlayerItem alloc] initWithAsset:asset];
@@ -126,6 +171,10 @@
 
 -(void)dealloc {
     [self setDownloader: nil];
+}
+
+-(NSTimeInterval)duration {
+    return self.end - self.start;
 }
 
 @end

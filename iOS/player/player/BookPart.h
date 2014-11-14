@@ -11,13 +11,28 @@
 @interface BookPart : NSObject
 @property (nonatomic, strong) NSURL* url;
 
+// cache path is dependent on URL and start only, such that all downloaders
+// with the same URL x start share a cache file.
+@property (nonatomic, readonly) NSString* cachePath;
+
+// holds the last error from downloading
+@property (nonatomic, strong) NSError* error;
+
 // start and end are measured in seconds
 @property (nonatomic, assign) NSTimeInterval start;
 @property (nonatomic, assign) NSTimeInterval end;
+@property (nonatomic, readonly) NSTimeInterval duration;
 
 // BookPart should try to keep its buffer filled to this many seconds,
 // whch can be set to very large number to buffer entire BookPart.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
+
+// Like bufferingPoint but for data that is already present in cache
+@property (nonatomic, readonly) NSTimeInterval ensuredBufferingPoint;
+
+// Whether bufffer is filled up to the point wanted by bufferingPoint.
+// You should probably KVO observe this property.
+@property (nonatomic, readonly) BOOL bufferingsSatisfied;
 
 // return BookPart that combines self and otherPart returning nil
 // if join is not possible. To be joinable the url's must

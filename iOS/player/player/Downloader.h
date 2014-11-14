@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define ChunkSize (1024 * 64) 
+#define ChunkSize (1024 * 128) 
 
 @interface Downloader : NSObject <NSURLSessionDelegate>
 @property (nonatomic, readonly) NSURL* url;
