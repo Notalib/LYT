@@ -49,36 +49,29 @@ angular.module( 'lyt3App' )
       }
 
       this.loading = true;
-      this.promise.finally( ( function( _this ) {
-        return function( ) {
-          _this.loading = false;
-        };
-      } )( this ) );
+      this.promise.finally( function( ) {
+        this.loading = false;
+      }.bind(this) );
 
       // log.message('Section: loading(\'' + this.url + '\')');
       // trim away everything after the filename.
       var file = ( this.url.replace( /#.*$/, '' ) ).toLowerCase( );
       if ( !this.book.resources[ file ] ) {
         // TODO: log.error('Section: load: url not found in resources: ' + file);
-        console.error( 'Section: load: url not found in resources: ' +
-          file );
+        console.error( 'Section: load: url not found in resources: ' + file );
       }
 
       this.book.getSMIL( file )
-        .then( ( function( _this ) {
-          return function( document ) {
-            _this.loaded = true;
-            _this.document = document;
+        .then( function( document ) {
+          this.loaded = true;
+          this.document = document;
 
-            _this._deferred.resolve( _this );
-          };
-        } )( this ) )
-        .catch( ( function( _this ) {
-          return function( ) {
-            // log.error('Section: Failed to load SMIL-file ' + (_this.url.replace(/#.*$/, '')));
-            return _this._deferred.reject( );
-          };
-        } )( this ) );
+          this._deferred.resolve( this );
+        }.bind(this))
+        .catch( function( ) {
+          // log.error('Section: Failed to load SMIL-file ' + (this.url.replace(/#.*$/, '')));
+          return this._deferred.reject( );
+        }.bind(this) );
 
       return this;
     };

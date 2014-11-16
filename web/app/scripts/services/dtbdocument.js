@@ -136,7 +136,7 @@ angular.module( 'lyt3App' )
       // Internal function to convert raw text to a HTML DOM document
       var coerceToHTML = function( responseText, hideImageUrl ) {
         var container, doc, e, markup, scriptTagRegex;
-        // log.message("DTB: Coercing " + _this.url + " into HTML");
+        // log.message("DTB: Coercing " + this.url + " into HTML");
         try {
           // Grab everything inside the "root" `<html></html>` element
           markup = responseText.match(
@@ -219,23 +219,21 @@ angular.module( 'lyt3App' )
 
 
         // This function will be called, when a DTB document has been successfully downloaded
-        var loaded = ( function( _this ) {
+        var loaded = function( data ) {
           /* TODO: Now that all the documents _should be_ valid XHTML, they should be parsable
            * as XML. I.e. `coerceToHTML` shouldn't be necessary _unless_ there's a `parsererror`.
            * But for some reason, that causes a problem elsewhere in the system, so right now
            * _all_ html-type documents are forcibly sent through `coerceToHTML` even though
            * it shouldn't be necessary...
            */
-          return function( data ) {
-            if ( dataType === 'html' || data.indexOf( 'parseerror' ) > -1 ) {
-              _this.source = coerceToHTML( data, _this.hideImageUrl );
-            } else { // TODO: Should we specify XML here?
-              // Using jQuery.parseXML to avoid triggering attempt to download audio.src and other remote resources listed in the XML-files
-              _this.source = jQuery( jQuery.parseXML( data ) );
-            }
-            return resolve( );
-          };
-        } )( this );
+          if ( dataType === 'html' || data.indexOf( 'parseerror' ) > -1 ) {
+            this.source = coerceToHTML( data, this.hideImageUrl );
+          } else { // TODO: Should we specify XML here?
+            // Using jQuery.parseXML to avoid triggering attempt to download audio.src and other remote resources listed in the XML-files
+            this.source = jQuery( jQuery.parseXML( data ) );
+          }
+          return resolve( );
+        }.bind(this);
 
         // This function will be called if `load()` (below) fails
         var failed = function( data, status ) {
@@ -259,48 +257,44 @@ angular.module( 'lyt3App' )
             return;
           }
           // If all else fails, give up
-          // log.errorGroup("DTB: Failed to get " + _this.url + " (status: " + status + ")", jqXHR, status, error);
+          // log.errorGroup("DTB: Failed to get " + this.url + " (status: " + status + ")", jqXHR, status, error);
           return deferred.reject( status );
         };
 
-        var resolve = ( function( _this ) {
-          return function( ) {
-            if ( _this.source ) {
-              // log.group("DTB: Got: " + _this.url, _this.source);
-              if ( angular.isFunction( callback ) ) {
-                callback( deferred );
-              }
-
-              deferred.resolve( _this );
-            } else {
-              deferred.reject( -1, 'FAILED_TO_LOAD' );
+        var resolve = function( ) {
+          if ( this.source ) {
+            // log.group("DTB: Got: " + this.url, this.source);
+            if ( angular.isFunction( callback ) ) {
+              callback( deferred );
             }
-          };
-        } )( this );
+
+            deferred.resolve( this );
+          } else {
+            deferred.reject( -1, 'FAILED_TO_LOAD' );
+          }
+        }.bind(this);
 
         // Perform the actual AJAX request to load the file
-        var load = ( function( _this ) {
-          return function( ) {
-            var forceCloseMsg;
-            --attempts;
-            url = _this.url;
-            if ( useForceClose ) {
-              forceCloseMsg = '[forceclose ON]';
-              if ( /\?.+$/.test( url ) ) {
-                url = '' + url + '&forceclose=true';
-              } else {
-                url = '' + url + '?forceclose=true';
-              }
+        var load = function( ) {
+          var forceCloseMsg;
+          --attempts;
+          url = this.url;
+          if ( useForceClose ) {
+            forceCloseMsg = '[forceclose ON]';
+            if ( /\?.+$/.test( url ) ) {
+              url = '' + url + '&forceclose=true';
             } else {
-              forceCloseMsg = '';
+              url = '' + url + '?forceclose=true';
             }
-            // log.message("DTB: Getting: " + _this.url + " (" + attempts + " attempts left) " + forceCloseMsg);
-            $http
-              .get(url)
-              .success(loaded)
-              .error(failed);
-          };
-        } )( this );
+          } else {
+            forceCloseMsg = '';
+          }
+          // log.message("DTB: Getting: " + this.url + " (" + attempts + " attempts left) " + forceCloseMsg);
+          $http
+            .get(url)
+            .success(loaded)
+            .error(failed);
+        }.bind(this);
 
         load( );
       }
@@ -318,34 +312,32 @@ angular.module( 'lyt3App' )
 
         // Find the `meta` elements matching the given name-attribute values.
         // Multiple values are given as an array
-        var findNodes = ( function( _this ) {
-          return function( values ) {
-            if ( !( values instanceof Array ) ) {
-              values = [ values ];
-            }
+        var findNodes = function( values ) {
+          if ( !( values instanceof Array ) ) {
+            values = [ values ];
+          }
 
-            var nodes = [ ];
+          var nodes = [ ];
 
-            var selectors = values.map( function( value ) {
-              return 'meta[name*="' + value + '"]';
-            } ).join( ', ' );
+          var selectors = values.map( function( value ) {
+            return 'meta[name*="' + value + '"]';
+          } ).join( ', ' );
 
-            _this.source.find( selectors )
-              .each( function( ) {
-                var node = jQuery( this );
-                return nodes.push( {
-                  content: node.attr( 'content' ),
-                  scheme: node.attr( 'scheme' ) || null
-                } );
+          this.source.find( selectors )
+            .each( function( ) {
+              var node = jQuery( this );
+              return nodes.push( {
+                content: node.attr( 'content' ),
+                scheme: node.attr( 'scheme' ) || null
               } );
+            } );
 
-            if ( nodes.length === 0 ) {
-              return null;
-            }
+          if ( nodes.length === 0 ) {
+            return null;
+          }
 
-            return nodes;
-          };
-        } )( this );
+          return nodes;
+        }.bind(this);
 
         this._metadata = Object.keys( METADATA_NAMES.singular ).reduce(
           function( metadata, name ) {

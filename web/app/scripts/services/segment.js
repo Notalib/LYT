@@ -70,32 +70,27 @@ angular.module( 'lyt3App' )
 
       // Loads all resources
       Segment.prototype.load = function( ) {
-        var promise, resource, resources, _ref;
         // Skip if already finished
         if ( this.loading || this.loaded ) {
           return this.promise;
         }
         this.loading = true;
-        this.promise.finally( ( function( _this ) {
-          return function( ) {
-            _this.loading = false;
-            _this.loaded = true;
-          };
-        } )( this ) );
-        this.promise.catch( ( function( _this ) {
-          return function( ) {
-            // TODO: log.error('Segment: failed loading segment ' + (_this.url()));
-            console.log.error( 'Segment: failed loading segment ' +
-              ( _this.url( ) ) );
-          };
-        } )( this ) );
+        this.promise
+          .finally( function( ) {
+            this.loading = false;
+            this.loaded = true;
+          }.bind(this))
+          .catch( function( ) {
+            // TODO: log.error('Segment: failed loading segment ' + this.url());
+            console.log.error( 'Segment: failed loading segment ' + this.url( ) );
+          }.bind(this));
         // log.message('Segment: loading ' + (this.url()));
         // Parse transcript content
-        _ref = this.data.text.src.split( '#' );
+        var _ref = this.data.text.src.split( '#' );
         this.contentUrl = _ref[ 0 ];
         this.contentId = _ref[ 1 ];
-        resources = this.document.book.resources;
-        resource = resources[ this.contentUrl.toLowerCase( ) ];
+        var resources = this.document.book.resources;
+        var resource = resources[ this.contentUrl.toLowerCase( ) ];
         if ( !resource ) {
           // log.error('Segment: no absolute URL for content ' + this.contentUrl);
           this._deferred.reject( );
@@ -105,27 +100,20 @@ angular.module( 'lyt3App' )
               resources );
           }
 
-          promise = resource.document.promise.then( ( function( _this ) {
-            return function( document ) {
-              return _this.parseContent( document );
-            };
-          } )( this ) );
-
-          promise.then( ( function( _this ) {
-            return function( ) {
-              return _this._deferred.resolve( _this );
-            };
-          } )( this ) );
-
-          promise.catch( ( function( _this ) {
-            return function( status, error ) {
+          resource.document.promise
+            .then( function( document ) {
+              return this.parseContent( document );
+            }.bind(this))
+            .then( function( ) {
+              return this._deferred.resolve( this );
+            }.bind(this))
+            .catch( function( status, error ) {
               // TODO: log.error('Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error);
               console.log.error(
                 'Unable to get TextContentDocument for ' +
                 resource.url + ': ' + status + ', ' + error );
-              return _this._deferred.reject( );
-            };
-          } )( this ) );
+              return this._deferred.reject( );
+            }.bind(this));
         }
         return this.promise;
       };
@@ -250,14 +238,14 @@ angular.module( 'lyt3App' )
           return;
         }
 
-        return this.promise.then( ( function( _this ) {
-          return function( segment ) {
+        return this.promise
+          .then( function( segment ) {
             var next = segment.next,
               nextSection;
             if ( next ) {
               return next.preloadNext( preloadCount - 1 );
             } else {
-              var segmentSection = _this.document.book.getSectionBySegment(
+              var segmentSection = this.document.book.getSectionBySegment(
                 segment );
               if ( segmentSection ) {
                 nextSection = segmentSection.next;
@@ -270,8 +258,7 @@ angular.module( 'lyt3App' )
                   } );
               }
             }
-          };
-        } )( this ) );
+          }.bind(this) );
       };
 
       // Parse content document and extract segment data
@@ -329,40 +316,40 @@ angular.module( 'lyt3App' )
               return 1;
             }
           };
-          loadImage = ( function( /*_this*/ ) {
-            return function( image ) {
-              var doneHandler, errorHandler, tmp;
-              // log.message('Segment: ' + (_this.url()) + ': parseContent: initiate preload of image ' + image.src);
-              errorHandler = function( event ) {
-                var backoff, doLoad;
-                clearTimeout( image.timer );
-                if ( image.attempts-- > 0 ) {
-                  // TODO: backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50);
-                  backoff = 10;
-                  // log.message('Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts + ' attempts left. Waiting for ' + backoff + ' ms.');
-                  doLoad = function( ) {
-                    return loadImage( image );
-                  };
-                  return setTimeout( doLoad, backoff );
-                } else {
-                  // log.error('Segment: parseContent: unable to preload image ' + image.src);
-                  return image.deferred.reject( image, event );
-                }
-              };
-              doneHandler = function( event ) {
-                clearTimeout( image.timer );
-                // log.message('Segment: parseContent: loaded image ' + image.src);
-                return image.deferred.resolve( image, event );
-              };
-              image.timer = setTimeout( errorHandler, /*LYT.config.segment.imagePreload.timeout*/
-                2500 );
-              tmp = new Image( );
-              $( tmp )
-                .load( doneHandler )
-                .error( errorHandler );
-              tmp.src = image.src;
+          loadImage = function( image ) {
+            // log.message('Segment: ' + this.url() + ': parseContent: initiate preload of image ' + image.src);
+            var errorHandler = function( event ) {
+              var backoff, doLoad;
+              clearTimeout( image.timer );
+              if ( image.attempts-- > 0 ) {
+                // TODO: backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50);
+                backoff = 10;
+                // log.message('Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts + ' attempts left. Waiting for ' + backoff + ' ms.');
+                doLoad = function( ) {
+                  return loadImage( image );
+                };
+                return setTimeout( doLoad, backoff );
+              } else {
+                // log.error('Segment: parseContent: unable to preload image ' + image.src);
+                return image.deferred.reject( image, event );
+              }
             };
-          } )( this );
+
+            var doneHandler = function( event ) {
+              clearTimeout( image.timer );
+              // log.message('Segment: parseContent: loaded image ' + image.src);
+              return image.deferred.resolve( image, event );
+            };
+
+            image.timer = setTimeout( errorHandler, /*LYT.config.segment.imagePreload.timeout*/
+              2500 );
+
+            var tmp = new Image( );
+            $( tmp )
+              .load( doneHandler )
+              .error( errorHandler );
+            tmp.src = image.src;
+          }.bind(this);
 
           if ( image.length !== 1 ) {
             // log.error('Segment: parseContent: can\'t create reliable cartoon type ' + ('with multiple or zero images: ' + (this.url())));
@@ -387,21 +374,18 @@ angular.module( 'lyt3App' )
             attempts: 10,
             deferred: imageDefer
           };
-          imagePromise.done( ( function( _this ) {
-            return function( imageData, event ) {
-              _this.canvasScale = getCanvasScale( _this.canvasSize, {
-                width: event.target.width,
-                height: event.target.height
-              } );
-            };
-          } )( this ) );
+          imagePromise.then( function( imageData, event ) {
+            this.canvasScale = getCanvasScale( this.canvasSize, {
+              width: event.target.width,
+              height: event.target.height
+            } );
+          }.bind(this));
+
           loadImage( imageData );
-          imagePromise.done( ( function( _this ) {
-            return function( ) {
-              // log.group('Segment: ' + (_this.url()) + ' finished extracting text, html and loading images', _this.text, image);
-              return _this;
-            };
-          } )( this ) );
+          imagePromise.then( function( ) {
+            // log.group('Segment: ' + (this.url()) + ' finished extracting text, html and loading images', this.text, image);
+            return this;
+          }.bind(this));
 
           return imagePromise;
         } else {

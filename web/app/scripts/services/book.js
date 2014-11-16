@@ -40,135 +40,122 @@ angular.module( 'lyt3App' )
         this.resources = {};
         this.nccDocument = null;
         pending = 2;
-        resolve = ( function( _this ) {
-          return function( ) {
-            return --pending || deferred.resolve( _this );
-          };
-        } )( this );
+        resolve = function( ) {
+          return --pending || deferred.resolve( this );
+        }.bind(this);
 
         // First step: Request that the book be issued
-        issue = ( function( _this ) {
-          return function( ) {
-            // Perform the RPC
-            var issued = BookService.issue( _this.id );
-            // When the book has been issued, proceed to download
-            // its resources list, ...
-            issued.then( getResources );
+        issue = function( ) {
+          // Perform the RPC
+          var issued = BookService.issue( this.id );
+          // When the book has been issued, proceed to download
+          // its resources list, ...
+          issued.then( getResources );
 
-            // ... or fail
-            return issued.catch( function( ) {
-              return deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
-            } );
-          };
-        } )( this );
+          // ... or fail
+          return issued.catch( function( ) {
+            return deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
+          } );
+        }.bind(this);
 
-        getResources = ( function( _this ) {
-          return function( ) {
-            var got;
-            got = BookService.getResources( _this.id );
-            got.catch( function( ) {
-              return deferred.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
-            } );
+        getResources = function( ) {
+          var got = BookService.getResources( this.id );
+          got.catch( function( ) {
+            return deferred.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
+          } );
 
-            return got.then( function( resources ) {
-              var localUri, ncc, origin, path, uri;
-              ncc = null;
-              for ( localUri in resources ) {
-                if ( !resources[ localUri ] ) {
-                  continue;
-                }
-                uri = resources[ localUri ];
+          return got.then( function( resources ) {
+            var ncc = null;
+            Object.keys(resources).forEach( function( localUri ) {
+              var uri = resources[ localUri ];
 
-                // We lowercase all resource lookups to avoid general case-issues
-                localUri = localUri.toLowerCase( );
+              // We lowercase all resource lookups to avoid general case-issues
+              localUri = localUri.toLowerCase( );
 
-                // Each resource is identified by its relative path,
-                // and contains the properties `url` and `document`
-                // (the latter initialized to `null`)
-                // Urls are rewritten to use the origin server just
-                // in case we are behind a proxy.
-                origin = document.location.href.match(
-                  /(https?:\/\/[^\/]+)/ )[ 1 ];
-                path = uri.match( /https?:\/\/[^\/]+(.+)/ )[ 1 ];
-                _this.resources[ localUri ] = {
-                  url: origin + path,
-                  document: null
-                };
-                if ( localUri.match( /^ncc\.x?html?$/i ) ) {
-                  ncc = _this.resources[ localUri ];
-                }
+              // Each resource is identified by its relative path,
+              // and contains the properties `url` and `document`
+              // (the latter initialized to `null`)
+              // Urls are rewritten to use the origin server just
+              // in case we are behind a proxy.
+              var origin = document.location.href.match(
+                /(https?:\/\/[^\/]+)/ )[ 1 ];
+              var path = uri.match( /https?:\/\/[^\/]+(.+)/ )[ 1 ];
+
+              this.resources[ localUri ] = {
+                url: origin + path,
+                document: null
+              };
+
+              if ( localUri.match( /^ncc\.x?html?$/i ) ) {
+                ncc = this.resources[ localUri ];
               }
+            }, this );
 
-              // If the url of the resource is the NCC document,
-              // save the resource for later
-              if ( ncc ) {
-                getNCC( ncc );
-                return getBookmarks( );
-              } else {
-                return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
-              }
-            } );
-          };
-        } )( this );
+            // If the url of the resource is the NCC document,
+            // save the resource for later
+            if ( ncc ) {
+              getNCC( ncc );
+              return getBookmarks( );
+            } else {
+              return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
+            }
+          }.bind(this) );
+        }.bind(this);
 
         // Third step: Get the NCC document
-        getNCC = ( function( _this ) {
-          return function( obj ) {
-            // Instantiate an NCC document
-            var ncc = new NCCDocument( obj.url, _this );
-            var nccPromise = ncc.promise;
+        getNCC = function( obj ) {
+          // Instantiate an NCC document
+          var ncc = new NCCDocument( obj.url, this );
+          var nccPromise = ncc.promise;
 
-            // Propagate a failure
-            nccPromise.catch( function( ) {
-              return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
-            } );
+          // Propagate a failure
+          nccPromise.catch( function( ) {
+            return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
+          } );
 
-            nccPromise.then( function( document ) {
-              obj.document = _this.nccDocument = document;
-              var metadata = _this.nccDocument.getMetadata( );
-              var authors = ( metadata.creator || [ ] ).forEach(
-                function( creator ) {
-                  return creator.content;
-                } );
+          nccPromise.then( function( document ) {
+            obj.document = this.nccDocument = document;
+            var metadata = this.nccDocument.getMetadata( );
+            var authors = ( metadata.creator || [ ] ).forEach(
+              function( creator ) {
+                return creator.content;
+              } );
 
-              // Get the author(s)
-              _this.author = LYTUtils.toSentence( authors );
+            // Get the author(s)
+            this.author = LYTUtils.toSentence( authors );
 
-              // Get the title
-              _this.title = metadata.title ? metadata.title.content :
-                '';
+            // Get the title
+            this.title = metadata.title ? metadata.title.content :
+              '';
 
-              // Get the total time
-              _this.totalTime = metadata.totalTime ? metadata.totalTime
-                .content : '';
-              ncc.book = _this;
-              resolve( );
-            } );
-          };
-        } )( this );
+            // Get the total time
+            this.totalTime = metadata.totalTime ? metadata.totalTime
+              .content : '';
+            ncc.book = this;
+            resolve( );
+          }.bind(this) );
+        }.bind(this);
 
-        getBookmarks = ( function( _this ) {
-          return function( ) {
-            _this.lastmark = null;
-            _this.bookmarks = [ ];
-            // log.message("Book: Getting bookmarks");
-            var process = BookService.getBookmarks( _this.id );
+        getBookmarks = function( ) {
+          this.lastmark = null;
+          this.bookmarks = [ ];
+          // log.message("Book: Getting bookmarks");
+          var process = BookService.getBookmarks( this.id );
 
-            // TODO: perhaps bookmarks should be loaded lazily, when required?
-            process.catch( function( ) {
-              return deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
-            } );
+          // TODO: perhaps bookmarks should be loaded lazily, when required?
+          process.catch( function( ) {
+            return deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
+          } );
 
-            return process.then( function( data ) {
-              if ( data ) {
-                _this.lastmark = data.lastmark;
-                _this.bookmarks = data.bookmarks;
-                _this._normalizeBookmarks( );
-              }
-              resolve( );
-            } );
-          };
-        } )( this );
+          return process.then( function( data ) {
+            if ( data ) {
+              this.lastmark = data.lastmark;
+              this.bookmarks = data.bookmarks;
+              this._normalizeBookmarks( );
+            }
+            resolve( );
+          }.bind(this) );
+        }.bind(this);
 
         // Kick the whole process off
         issue( this.id );

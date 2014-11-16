@@ -131,23 +131,20 @@ angular.module( 'lyt3App' )
 
       // Class to model a SMIL document
       function SMILDocument( url, book ) {
-        DtbDocument.call( this, url, ( function( _this ) {
-          return function( ) {
-            var mainSequence = _this.source.find(
-              'body > seq:first' );
-            _this.book = book;
-            _this.duration = parseFloat( mainSequence.attr( 'dur' ) ) ||
-              0;
-            _this.segments = parseMainSeqNode( mainSequence, _this,
-              book.nccDocument.sections );
+        DtbDocument.call( this, url, function( ) {
+          var mainSequence = this.source.find(
+            'body > seq:first' );
 
-            var totalElapsedTime = _this.getMetadata( ).totalElapsedTime || {};
-            _this.absoluteOffset = LYTUtils.parseTime(
-              totalElapsedTime.content ) || null;
-            _this.filename = _this.url.split( '/' )
-              .pop( );
-          };
-        } )( this ) );
+          this.book = book;
+          this.duration = parseFloat( mainSequence.attr( 'dur' ) ) || 0;
+          this.segments = parseMainSeqNode( mainSequence, this, book.nccDocument.sections );
+
+          var totalElapsedTime = ( this.getMetadata( ).totalElapsedTime || {} ).content;
+          this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime ) || null;
+
+          this.filename = this.url.split( '/' ).pop( );
+
+        }.bind(this) );
       }
 
       SMILDocument.prototype = Object.create( DtbDocument.prototype );

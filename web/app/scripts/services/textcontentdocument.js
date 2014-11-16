@@ -29,14 +29,12 @@ angular.module( 'lyt3App' )
       };
 
       function TextContentDocument( url, resources, callback ) {
-        DtbDocument.call( this, url, ( function( _this ) {
-          return function( ) {
-            resolveURLs( _this.source, resources, _this.isCartoon( ) );
-            if ( typeof callback === 'function' ) {
-              return callback( );
-            }
-          };
-        } )( this ) );
+        DtbDocument.call( this, url, function( ) {
+          resolveURLs( this.source, resources, this.isCartoon( ) );
+          if ( typeof callback === 'function' ) {
+            return callback( );
+          }
+        }.bind(this) );
       }
 
       TextContentDocument.prototype = Object.create( DtbDocument.prototype );

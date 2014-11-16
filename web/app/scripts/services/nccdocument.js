@@ -158,22 +158,16 @@ angular.module( 'lyt3App' )
        */
       function NCCDocument( url, book ) {
         this.getSectionByURL = this.getSectionByURL.bind( this );
-        TextContentDocument.call( this, url, book.resources, ( function(
-          _this ) {
-          return function( ) {
-            var section, _i, _len, _ref, _results;
-            _this.structure = parseStructure( _this.source, book );
-            _this.sections = flattenStructure( _this.structure );
-            linkSections( _this.sections );
-            _ref = _this.sections;
-            _results = [ ];
-            for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-              section = _ref[ _i ];
-              _results.push( section.nccDocument = _this );
-            }
-            return _results;
-          };
-        } )( this ) );
+        TextContentDocument.call( this, url, book.resources, function( ) {
+          this.structure = parseStructure( this.source, book );
+          this.sections = flattenStructure( this.structure );
+          linkSections( this.sections );
+
+          return this.sections.map( function( section ) {
+            section.nccDocument = this;
+            return section;
+          }, this );
+        }.bind(this) );
       }
 
       NCCDocument.prototype = Object.create( TextContentDocument.prototype );
