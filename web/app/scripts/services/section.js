@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'Section', [ '$q', function( $q ) {
+  .factory( 'Section', [ '$q', '$log', function( $q, $log ) {
     function Section( heading, book ) {
       var anchor, _ref;
       this.book = book;
@@ -53,12 +53,11 @@ angular.module( 'lyt3App' )
         this.loading = false;
       }.bind(this) );
 
-      // log.message('Section: loading(\'' + this.url + '\')');
+      $log.log('Section: loading(\'' + this.url + '\')');
       // trim away everything after the filename.
       var file = ( this.url.replace( /#.*$/, '' ) ).toLowerCase( );
       if ( !this.book.resources[ file ] ) {
-        // TODO: log.error('Section: load: url not found in resources: ' + file);
-        console.error( 'Section: load: url not found in resources: ' + file );
+        $log.error('Section: load: url not found in resources: ' + file);
       }
 
       this.book.getSMIL( file )
@@ -69,7 +68,7 @@ angular.module( 'lyt3App' )
           this._deferred.resolve( this );
         }.bind(this))
         .catch( function( ) {
-          // log.error('Section: Failed to load SMIL-file ' + (this.url.replace(/#.*$/, '')));
+          $log.error( 'Section: Failed to load SMIL-file ' + ( this.url.replace( /#.*$/, '' ) ) ) ;
           return this._deferred.reject( );
         }.bind(this) );
 

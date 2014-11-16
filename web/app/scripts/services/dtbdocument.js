@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'DtbDocument', [ '$q', '$http', 'BookService',
-    function( $q, $http, BookService ) {
+  .factory( 'DtbDocument', [ '$q', '$log', '$http', 'BookService',
+    function( $q, $log, $http, BookService ) {
       /**
        * Meta-element name attribute values to look for
        * Name attribute values for nodes that may appear 0-1 times per file
@@ -136,14 +136,14 @@ angular.module( 'lyt3App' )
       // Internal function to convert raw text to a HTML DOM document
       var coerceToHTML = function( responseText, hideImageUrl ) {
         var container, doc, e, markup, scriptTagRegex;
-        // log.message("DTB: Coercing " + this.url + " into HTML");
+        $log.log('DTB: Coercing ' + this.url + ' into HTML');
         try {
           // Grab everything inside the "root" `<html></html>` element
           markup = responseText.match(
             /<html[^>]*>([\s\S]+)<\/html>\s*$/i );
         } catch ( _error ) {
           e = _error;
-          // log.errorGroup("DTB: Failed to coerce markup into HTML", e, responseText);
+          $log.error('DTB: Failed to coerce markup into HTML', e, responseText);
           return null;
         }
 
@@ -239,11 +239,11 @@ angular.module( 'lyt3App' )
         var failed = function( data, status ) {
           // If access was denied, try silently logging in and then try again
           if ( status === 403 && attempts > 0 ) {
-            // log.warn("DTB: Access forbidden - refreshing session");
+            $log.warn('DTB: Access forbidden - refreshing session');
             BookService.refreshSession( )
               .done( load )
               .catch( function( ) {
-                // log.errorGroup("DTB: Failed to get " + this.url + " (status: " + status + ")", jqXHR, status, error);
+                $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')');
                 return deferred.reject( status );
               } );
             return;
@@ -252,12 +252,12 @@ angular.module( 'lyt3App' )
           // If the failure was due to something else (and wasn't an explicit abort)
           // try again, if there are any attempts left
           if ( /*status !== 'abort' &&*/ attempts > 0 ) {
-            // log.warn("DTB: Unexpected failure (" + attempts + " attempts left)");
+            $log.warn('DTB: Unexpected failure (' + attempts + ' attempts left)');
             load( );
             return;
           }
           // If all else fails, give up
-          // log.errorGroup("DTB: Failed to get " + this.url + " (status: " + status + ")", jqXHR, status, error);
+          $log.error('DTB: Failed to get ' + this.url + ' (status: ' + status + ')', arguments);
           return deferred.reject( status );
         };
 
@@ -289,7 +289,7 @@ angular.module( 'lyt3App' )
           } else {
             forceCloseMsg = '';
           }
-          // log.message("DTB: Getting: " + this.url + " (" + attempts + " attempts left) " + forceCloseMsg);
+          $log.log('DTB: Getting: ' + this.url + ' (' + attempts + ' attempts left) ' + forceCloseMsg);
           $http
             .get(url)
             .success(loaded)

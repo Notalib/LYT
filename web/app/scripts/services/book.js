@@ -8,9 +8,9 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'Book', [ '$q', 'LYTUtils', 'BookService', 'BookErrorCodes',
+  .factory( 'Book', [ '$q', '$log', 'LYTUtils', 'BookService', 'BookErrorCodes',
     'NCCDocument', 'SMILDocument',
-    function( $q, LYTUtils, BookService, BookErrorCodes, NCCDocument,
+    function( $q, $log, LYTUtils, BookService, BookErrorCodes, NCCDocument,
       SMILDocument ) {
       /*
        * The constructor takes one argument; the ID of the book.
@@ -139,7 +139,7 @@ angular.module( 'lyt3App' )
         getBookmarks = function( ) {
           this.lastmark = null;
           this.bookmarks = [ ];
-          // log.message("Book: Getting bookmarks");
+          $log.log('Book: Getting bookmarks');
           var process = BookService.getBookmarks( this.id );
 
           // TODO: perhaps bookmarks should be loaded lazily, when required?
@@ -275,7 +275,7 @@ angular.module( 'lyt3App' )
 
       Book.prototype._sortBookmarks = function( ) {
         var smils, tmpBookmarks;
-        // log.message("Book: _sortBookmarks");
+        $log.log('Book: _sortBookmarks');
         smils = this.getSMILFilesInNCC( );
         tmpBookmarks = ( this.bookmarks || [ ] )
           .slice( 0 );
@@ -339,7 +339,7 @@ angular.module( 'lyt3App' )
         if ( offset === undefined ) {
           offset = 0;
         }
-        // log.message("Book: addBookmark");
+        $log.log('Book: addBookmark');
         bookmark = segment.bookmark( offset );
         section = this.getSectionBySegment( segment );
 
@@ -420,7 +420,7 @@ angular.module( 'lyt3App' )
         }
 
         if ( !audio ) {
-          // log.error('Book: segmentByAudioOffset: audio not provided');
+          $log.error('Book: segmentByAudioOffset: audio not provided');
           return $q.defer( )
             .reject( 'audio not provided' );
         }
@@ -432,7 +432,7 @@ angular.module( 'lyt3App' )
             if ( segment.audio === audio && ( segment.start - 0.01 <=
                 offset && offset < segment.end + 0.01 ) ) {
               segment = fudgeFix( offset, segment );
-              // log.message("Book: segmentByAudioOffset: load segment " + (segment.url()));
+              $log.log('Book: segmentByAudioOffset: load segment ' + (segment.url()));
               segment.load( );
               res = segment;
 

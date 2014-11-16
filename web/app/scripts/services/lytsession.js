@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'LYTSession', [ 'localStorageService', function(
-    localStorageService ) {
+  .factory( 'LYTSession', [ '$log', 'localStorageService', function(
+    $log, localStorageService ) {
     var credentials, memberInfo;
     var LYTSession = {
       init: function( ) {
@@ -11,12 +11,12 @@ angular.module( 'lyt3App' )
           getNotaAuthToken !== null ) {
           credentials = getNotaAuthToken( );
           if ( credentials.status === 'ok' ) {
-            // log.message('Session: init: reading credentials from getNotaAuthToken()');
+            $log.log('Session: init: reading credentials from getNotaAuthToken()');
             return LYTSession.setCredentials( credentials.username,
               credentials.token );
           }
         } else {
-          // TODO: log.warn('Session: init: getNotaAuthToken is undefined');
+          $log.warn('Session: init: getNotaAuthToken is undefined');
           console.warn('Session: init: getNotaAuthToken is undefined');
         }
       },

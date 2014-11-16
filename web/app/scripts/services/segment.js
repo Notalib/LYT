@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'Segment', [ '$q', 'TextContentDocument', 'Bookmark',
-    function( $q, TextContentDocument, Bookmark ) {
+  .factory( 'Segment', [ '$q', '$log', 'TextContentDocument', 'Bookmark',
+    function( $q, $log, TextContentDocument, Bookmark ) {
       /*
        * This class models a 'segment' of audio + transcript,
        * i.e. a single 'sound clip' and its associated text/html
@@ -81,10 +81,11 @@ angular.module( 'lyt3App' )
             this.loaded = true;
           }.bind(this))
           .catch( function( ) {
-            // TODO: log.error('Segment: failed loading segment ' + this.url());
-            console.log.error( 'Segment: failed loading segment ' + this.url( ) );
+            $log.error('Segment: failed loading segment ' + this.url());
           }.bind(this));
-        // log.message('Segment: loading ' + (this.url()));
+
+        $log.log('Segment: loading ' + (this.url()));
+
         // Parse transcript content
         var _ref = this.data.text.src.split( '#' );
         this.contentUrl = _ref[ 0 ];
@@ -92,7 +93,7 @@ angular.module( 'lyt3App' )
         var resources = this.document.book.resources;
         var resource = resources[ this.contentUrl.toLowerCase( ) ];
         if ( !resource ) {
-          // log.error('Segment: no absolute URL for content ' + this.contentUrl);
+          $log.error( 'Segment: no absolute URL for content ' + this.contentUrl );
           this._deferred.reject( );
         } else {
           if ( !resource.document ) {
@@ -108,7 +109,7 @@ angular.module( 'lyt3App' )
               return this._deferred.resolve( this );
             }.bind(this))
             .catch( function( status, error ) {
-              // TODO: log.error('Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error);
+              $log.error( 'Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error );
               console.log.error(
                 'Unable to get TextContentDocument for ' +
                 resource.url + ': ' + status + ', ' + error );
@@ -297,7 +298,7 @@ angular.module( 'lyt3App' )
                 var attr = type.replace( /^([a-z])/g, function( m, p1 ) {
                   return 'natural' + p1.toUpperCase( );
                 } );
-                // log.warn('render.content: imageDim: no ' + type + ' attribute or css ' + type + ' on image. Falling back to ' + attr + ' which is not known to be cross browser');
+                $log.warn('render.content: imageDim: no ' + type + ' attribute or css ' + type + ' on image. Falling back to ' + attr + ' which is not known to be cross browser');
                 result[ type ] = image[ attr ];
               }
             } );
@@ -317,27 +318,27 @@ angular.module( 'lyt3App' )
             }
           };
           loadImage = function( image ) {
-            // log.message('Segment: ' + this.url() + ': parseContent: initiate preload of image ' + image.src);
+            $log.log('Segment: ' + this.url() + ': parseContent: initiate preload of image ' + image.src);
             var errorHandler = function( event ) {
               var backoff, doLoad;
               clearTimeout( image.timer );
               if ( image.attempts-- > 0 ) {
                 // TODO: backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50);
                 backoff = 10;
-                // log.message('Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts + ' attempts left. Waiting for ' + backoff + ' ms.');
+                $log.log('Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts + ' attempts left. Waiting for ' + backoff + ' ms.');
                 doLoad = function( ) {
                   return loadImage( image );
                 };
                 return setTimeout( doLoad, backoff );
               } else {
-                // log.error('Segment: parseContent: unable to preload image ' + image.src);
+                $log.error('Segment: parseContent: unable to preload image ' + image.src);
                 return image.deferred.reject( image, event );
               }
             };
 
             var doneHandler = function( event ) {
               clearTimeout( image.timer );
-              // log.message('Segment: parseContent: loaded image ' + image.src);
+              $log.log('Segment: parseContent: loaded image ' + image.src);
               return image.deferred.resolve( image, event );
             };
 
@@ -352,7 +353,7 @@ angular.module( 'lyt3App' )
           }.bind(this);
 
           if ( image.length !== 1 ) {
-            // log.error('Segment: parseContent: can\'t create reliable cartoon type ' + ('with multiple or zero images: ' + (this.url())));
+            $log.error( 'Segment: parseContent: can\'t create reliable cartoon type with multiple or zero images: ' + this.url( ) );
             throw 'Segment: parseContent: unable to find exactly one image in ' +
             'cartoon display div';
           }

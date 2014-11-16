@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'BookService', [ '$q', 'LYTSession', 'DODPErrorCodes', 'DODP',
-    function( $q, LYTSession, DODPErrorCodes, DODP ) {
+  .factory( 'BookService', [ '$q', '$log', 'LYTSession', 'DODPErrorCodes', 'DODP',
+    function( $q, $log, LYTSession, DODPErrorCodes, DODP ) {
       /*
        * Higher-level functions for interacting with the server
        *
@@ -76,7 +76,7 @@ angular.module( 'lyt3App' )
         delete data.type;
       }
       jQuery.extend(obj, data);
-      // log.message('Service: Emitting ' + event + ' event');
+      $log.log('Service: Emitting ' + event + ' event');
       return jQuery(LYT.service).trigger(obj);
       */
       };
@@ -240,7 +240,7 @@ angular.module( 'lyt3App' )
 
         var attemptLogOn = function( ) {
           --attempts;
-          // log.message('Service: Attempting log-on (' + attempts + ' attempt(s) left)');
+          $log.log('Service: Attempting log-on (' + attempts + ' attempt(s) left)');
           return DODP.logOn( username, password )
             .then( loggedOn )
             .catch( failed );
@@ -407,7 +407,7 @@ angular.module( 'lyt3App' )
             lastBookmark.URI === ( ( _ref = bookmarks.lastmark ) ? _ref.URI :
               void 0 ) && lastBookmark.timeOffset === ( ( _ref1 =
               bookmarks.lastmark ) ? _ref1.timeOffse : void 0 ) ) {
-            // log.message('setBookmarks: same as last time');
+            $log.log('setBookmarks: same as last time');
             return;
           }
           lastBookmark = {
