@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'DtbDocument', [ '$q', 'BookService',
-    function( $q, BookService ) {
+  .factory( 'DtbDocument', [ '$q', '$http', 'BookService',
+    function( $q, $http, BookService ) {
       /**
        * Meta-element name attribute values to look for
        * Name attribute values for nodes that may appear 0-1 times per file
@@ -133,6 +133,64 @@ angular.module( 'lyt3App' )
         }
       } )( );
 
+      // Internal function to convert raw text to a HTML DOM document
+      var coerceToHTML = function( responseText, hideImageUrl ) {
+        var container, doc, e, markup, scriptTagRegex;
+        // log.message("DTB: Coercing " + _this.url + " into HTML");
+        try {
+          // Grab everything inside the "root" `<html></html>` element
+          markup = responseText.match(
+            /<html[^>]*>([\s\S]+)<\/html>\s*$/i );
+        } catch ( _error ) {
+          e = _error;
+          // log.errorGroup("DTB: Failed to coerce markup into HTML", e, responseText);
+          return null;
+        }
+
+        if ( !markup.length ) {
+          return null;
+        }
+        markup = markup[ 0 ].replace( /<\/?head[^>]*>/gi, '' )
+          .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi,
+            '<$1 $2></$1>' )
+          .replace( /(<img[^>]+)src=['"]([^'"]+)['"]([^>]*>)/gi,
+            '$1 data-src="$2" src="' + hideImageUrl + '"$3'
+          )
+          .replace( /<style[^>]+[^]+<\/style>/gi, '' )
+          .replace( /<link[^>]+>/gi, '' );
+        scriptTagRegex =
+          /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+
+        while ( scriptTagRegex.test( markup ) ) {
+          markup = markup.replace( scriptTagRegex, '' );
+        }
+
+        doc = createHTMLDocument( );
+        if ( !doc ) {
+          // Give up if nothing was created
+          return null;
+        }
+
+        // doc.documentElement is missing if doc was created by IE8
+        // For some reason, we can work around the issue by appending directly
+        // on doc itself (which doesn't really make sense).
+        container = doc.createElement( 'div' );
+        container.innerHTML = markup;
+
+        if ( doc.documentElement ) {
+          var bodyElements = doc.documentElement.getElementsByTagName(
+            'body' );
+          if ( bodyElements ) {
+            bodyElements[ 0 ].appendChild( container );
+          } else {
+            doc.appendChild( container );
+          }
+        } else {
+          doc.appendChild( container );
+        }
+        return jQuery( doc );
+      };
+
       // This class serves as the parent of the `SMILDocument` and `TextContentDocument` classes.
       // It is not meant for direct instantiation - instantiate the specific subclasses.
       function DTBDocument( url, callback ) {
@@ -142,7 +200,6 @@ angular.module( 'lyt3App' )
          *
          * `DTBDocument`.promise for the object promise object
          */
-        var failed, load, loaded, resolve;
         this.url = url;
         var deferred = $q.defer( );
         this.promise = deferred.promise;
@@ -160,134 +217,69 @@ angular.module( 'lyt3App' )
           useForceClose = true;
         }
 
-        // Internal function to convert raw text to a HTML DOM document
-        var coerceToHTML = ( function( _this ) {
-          return function( responseText ) {
-            var container, doc, e, markup, scriptTagRegex;
-            // log.message("DTB: Coercing " + _this.url + " into HTML");
-            try {
-              // Grab everything inside the "root" `<html></html>` element
-              markup = responseText.match(
-                /<html[^>]*>([\s\S]+)<\/html>\s*$/i );
-            } catch ( _error ) {
-              e = _error;
-              // log.errorGroup("DTB: Failed to coerce markup into HTML", e, responseText);
-              return null;
-            }
-
-            if ( !markup.length ) {
-              return null;
-            }
-            markup = markup[ 0 ].replace( /<\/?head[^>]*>/gi, '' )
-              .replace( /<(span|div|p) ([^/>]*)\s+\/>/gi,
-                '<$1 $2></$1>' )
-              .replace( /(<img[^>]+)src=['"]([^'"]+)['"]([^>]*>)/gi,
-                '$1 data-src="$2" src="' + _this.hideImageUrl + '"$3'
-              )
-              .replace( /<style[^>]+[^]+<\/style>/gi, '' )
-              .replace( /<link[^>]+>/gi, '' );
-            scriptTagRegex =
-              /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
-            while ( scriptTagRegex.test( markup ) ) {
-              markup = markup.replace( scriptTagRegex, '' );
-            }
-            doc = createHTMLDocument( );
-            if ( !doc ) {
-              // Give up if nothing was created
-              return null;
-            }
-
-            // doc.documentElement is missing if doc was created by IE8
-            // For some reason, we can work around the issue by appending directly
-            // on doc itself (which doesn't really make sense).
-            container = doc.createElement( 'div' );
-            container.innerHTML = markup;
-            if ( doc.documentElement ) {
-              var bodyElements = doc.documentElement.getElementsByTagName(
-                'body' );
-              if ( bodyElements ) {
-                bodyElements[ 0 ].appendChild( container );
-              } else {
-                doc.appendChild( container );
-              }
-            } else {
-              doc.appendChild( container );
-            }
-            return jQuery( doc );
-          };
-        } )( this );
 
         // This function will be called, when a DTB document has been successfully downloaded
-        loaded = ( function( _this ) {
+        var loaded = ( function( _this ) {
           /* TODO: Now that all the documents _should be_ valid XHTML, they should be parsable
            * as XML. I.e. `coerceToHTML` shouldn't be necessary _unless_ there's a `parsererror`.
            * But for some reason, that causes a problem elsewhere in the system, so right now
            * _all_ html-type documents are forcibly sent through `coerceToHTML` even though
            * it shouldn't be necessary...
            */
-          return function( document, status, jqXHR ) {
-            if ( dataType === 'html' || jQuery( document )
-              .find( 'parsererror' )
-              .length !== 0 ) {
-              _this.source = coerceToHTML( jqXHR.responseText );
-            } else {
-              _this.source = jQuery( document );
+          return function( data ) {
+            if ( dataType === 'html' || data.indexOf( 'parseerror' ) > -1 ) {
+              _this.source = coerceToHTML( data, _this.hideImageUrl );
+            } else { // TODO: Should we specify XML here?
+              // Using jQuery.parseXML to avoid triggering attempt to download audio.src and other remote resources listed in the XML-files
+              _this.source = jQuery( jQuery.parseXML( data ) );
             }
             return resolve( );
           };
         } )( this );
 
         // This function will be called if `load()` (below) fails
-        failed = ( function( _this ) {
-          return function( jqXHR, status, error ) {
-            if ( status === 'parsererror' ) {
-              // log.error("DTB: Parser error in XML response. Attempting recovering");
-              _this.source = coerceToHTML( jqXHR.responseText );
-              resolve( );
-              return;
-            }
+        var failed = function( data, status ) {
+          // If access was denied, try silently logging in and then try again
+          if ( status === 403 && attempts > 0 ) {
+            // log.warn("DTB: Access forbidden - refreshing session");
+            BookService.refreshSession( )
+              .done( load )
+              .catch( function( ) {
+                // log.errorGroup("DTB: Failed to get " + this.url + " (status: " + status + ")", jqXHR, status, error);
+                return deferred.reject( status );
+              } );
+            return;
+          }
 
-            // If access was denied, try silently logging in and then try again
-            if ( jqXHR.status === 403 && attempts > 0 ) {
-              // log.warn("DTB: Access forbidden - refreshing session");
-              BookService.refreshSession( )
-                .done( load )
-                .catch( function( ) {
-                  // log.errorGroup("DTB: Failed to get " + this.url + " (status: " + status + ")", jqXHR, status, error);
-                  return deferred.reject( status, error );
-                } );
-              return;
-            }
+          // If the failure was due to something else (and wasn't an explicit abort)
+          // try again, if there are any attempts left
+          if ( /*status !== 'abort' &&*/ attempts > 0 ) {
+            // log.warn("DTB: Unexpected failure (" + attempts + " attempts left)");
+            load( );
+            return;
+          }
+          // If all else fails, give up
+          // log.errorGroup("DTB: Failed to get " + _this.url + " (status: " + status + ")", jqXHR, status, error);
+          return deferred.reject( status );
+        };
 
-            // If the failure was due to something else (and wasn't an explicit abort)
-            // try again, if there are any attempts left
-            if ( status !== 'abort' && attempts > 0 ) {
-              // log.warn("DTB: Unexpected failure (" + attempts + " attempts left)");
-              load( );
-              return;
-            }
-            // If all else fails, give up
-            // log.errorGroup("DTB: Failed to get " + _this.url + " (status: " + status + ")", jqXHR, status, error);
-            return deferred.reject( status, error );
-          };
-        } )( this );
-
-        resolve = ( function( _this ) {
+        var resolve = ( function( _this ) {
           return function( ) {
             if ( _this.source ) {
               // log.group("DTB: Got: " + _this.url, _this.source);
-              if ( typeof callback === 'function' ) {
+              if ( angular.isFunction( callback ) ) {
                 callback( deferred );
               }
-              return deferred.resolve( _this );
+
+              deferred.resolve( _this );
             } else {
-              return deferred.reject( -1, 'FAILED_TO_LOAD' );
+              deferred.reject( -1, 'FAILED_TO_LOAD' );
             }
           };
         } )( this );
 
         // Perform the actual AJAX request to load the file
-        load = ( function( _this ) {
+        var load = ( function( _this ) {
           return function( ) {
             var forceCloseMsg;
             --attempts;
@@ -303,18 +295,13 @@ angular.module( 'lyt3App' )
               forceCloseMsg = '';
             }
             // log.message("DTB: Getting: " + _this.url + " (" + attempts + " attempts left) " + forceCloseMsg);
-            return jQuery.ajax( {
-              url: url,
-              beforeSend: function( ) {},
-              dataType: dataType,
-              async: true,
-              cache: true,
-              success: loaded,
-              error: failed,
-              timeout: 20000
-            } );
+            $http
+              .get(url)
+              .success(loaded)
+              .error(failed);
           };
         } )( this );
+
         load( );
       }
 
