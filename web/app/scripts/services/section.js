@@ -51,13 +51,13 @@ angular.module( 'lyt3App' )
       this.loading = true;
       this.promise.finally( function( ) {
         this.loading = false;
-      }.bind(this) );
+      }.bind( this ) );
 
-      $log.log('Section: loading(\'' + this.url + '\')');
+      $log.log( 'Section: loading(\'' + this.url + '\')' );
       // trim away everything after the filename.
       var file = ( this.url.replace( /#.*$/, '' ) ).toLowerCase( );
       if ( !this.book.resources[ file ] ) {
-        $log.error('Section: load: url not found in resources: ' + file);
+        $log.error( 'Section: load: url not found in resources: ' + file );
       }
 
       this.book.getSMIL( file )
@@ -66,11 +66,11 @@ angular.module( 'lyt3App' )
           this.document = document;
 
           this._deferred.resolve( this );
-        }.bind(this))
+        }.bind( this ) )
         .catch( function( ) {
-          $log.error( 'Section: Failed to load SMIL-file ' + ( this.url.replace( /#.*$/, '' ) ) ) ;
+          $log.error( 'Section: Failed to load SMIL-file ' + ( this.url.replace( /#.*$/, '' ) ) );
           return this._deferred.reject( );
-        }.bind(this) );
+        }.bind( this ) );
 
       return this;
     };

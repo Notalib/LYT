@@ -34,7 +34,7 @@ angular.module( 'lyt3App' )
           if ( typeof callback === 'function' ) {
             return callback( );
           }
-        }.bind(this) );
+        }.bind( this ) );
       }
 
       TextContentDocument.prototype = Object.create( DtbDocument.prototype );

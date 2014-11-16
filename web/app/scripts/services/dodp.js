@@ -85,16 +85,16 @@ angular.module( 'lyt3App' )
         transformResponse: function( data ) {
           return xmlStr2Json( data );
         }
-      } ).success(function(response) {
+      } ).success( function( response ) {
         var Body = response.Body;
         if ( Body.Fault ) {
-          defer.reject(Body.Fault);
+          defer.reject( Body.Fault );
         } else {
-          defer.resolve(response);
+          defer.resolve( response );
         }
-      } ).catch(function(response) {
-        defer.reject(response);
-      });
+      } ).catch( function( response ) {
+        defer.reject( response );
+      } );
 
       return defer.promise;
     };
@@ -140,8 +140,8 @@ angular.module( 'lyt3App' )
       }
 
       var children = xmlDom.children || xmlDom.childNodes;
-      if ( children && children.length === 1 && children[0].nodeName === '#text' ) {
-        xmlDom = children[0];
+      if ( children && children.length === 1 && children[ 0 ].nodeName === '#text' ) {
+        xmlDom = children[ 0 ];
         children = null;
       }
 
@@ -190,7 +190,7 @@ angular.module( 'lyt3App' )
       var json = {};
 
       if ( xmlDOM.childNodes ) {
-        Array.prototype.forEach.call( xmlDOM.childNodes[0].childNodes,
+        Array.prototype.forEach.call( xmlDOM.childNodes[ 0 ].childNodes,
           function( domEl ) {
             xml2Json( domEl, json );
           } );
@@ -331,9 +331,9 @@ angular.module( 'lyt3App' )
               list.lastItem = attrs.lastItem;
               list.totalItems = attrs.totalItems;
 
-              var contentItem = contentList.contentItem || [];
-              if ( !(contentItem instanceof Array) ) {
-                contentItem = [contentItem];
+              var contentItem = contentList.contentItem || [ ];
+              if ( !( contentItem instanceof Array ) ) {
+                contentItem = [ contentItem ];
               }
 
               list.items = contentItem.map(

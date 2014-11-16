@@ -136,14 +136,14 @@ angular.module( 'lyt3App' )
       // Internal function to convert raw text to a HTML DOM document
       var coerceToHTML = function( responseText, hideImageUrl ) {
         var container, doc, e, markup, scriptTagRegex;
-        $log.log('DTB: Coercing ' + this.url + ' into HTML');
+        $log.log( 'DTB: Coercing ' + this.url + ' into HTML' );
         try {
           // Grab everything inside the "root" `<html></html>` element
           markup = responseText.match(
             /<html[^>]*>([\s\S]+)<\/html>\s*$/i );
         } catch ( _error ) {
           e = _error;
-          $log.error('DTB: Failed to coerce markup into HTML', e, responseText);
+          $log.error( 'DTB: Failed to coerce markup into HTML', e, responseText );
           return null;
         }
 
@@ -233,17 +233,17 @@ angular.module( 'lyt3App' )
             this.source = jQuery( jQuery.parseXML( data ) );
           }
           return resolve( );
-        }.bind(this);
+        }.bind( this );
 
         // This function will be called if `load()` (below) fails
         var failed = function( data, status ) {
           // If access was denied, try silently logging in and then try again
           if ( status === 403 && attempts > 0 ) {
-            $log.warn('DTB: Access forbidden - refreshing session');
+            $log.warn( 'DTB: Access forbidden - refreshing session' );
             BookService.refreshSession( )
               .done( load )
               .catch( function( ) {
-                $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')');
+                $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')' );
                 return deferred.reject( status );
               } );
             return;
@@ -252,12 +252,12 @@ angular.module( 'lyt3App' )
           // If the failure was due to something else (and wasn't an explicit abort)
           // try again, if there are any attempts left
           if ( /*status !== 'abort' &&*/ attempts > 0 ) {
-            $log.warn('DTB: Unexpected failure (' + attempts + ' attempts left)');
+            $log.warn( 'DTB: Unexpected failure (' + attempts + ' attempts left)' );
             load( );
             return;
           }
           // If all else fails, give up
-          $log.error('DTB: Failed to get ' + this.url + ' (status: ' + status + ')', arguments);
+          $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')', arguments );
           return deferred.reject( status );
         };
 
@@ -272,7 +272,7 @@ angular.module( 'lyt3App' )
           } else {
             deferred.reject( -1, 'FAILED_TO_LOAD' );
           }
-        }.bind(this);
+        }.bind( this );
 
         // Perform the actual AJAX request to load the file
         var load = function( ) {
@@ -289,12 +289,12 @@ angular.module( 'lyt3App' )
           } else {
             forceCloseMsg = '';
           }
-          $log.log('DTB: Getting: ' + this.url + ' (' + attempts + ' attempts left) ' + forceCloseMsg);
+          $log.log( 'DTB: Getting: ' + this.url + ' (' + attempts + ' attempts left) ' + forceCloseMsg );
           $http
-            .get(url)
-            .success(loaded)
-            .error(failed);
-        }.bind(this);
+            .get( url )
+            .success( loaded )
+            .error( failed );
+        }.bind( this );
 
         load( );
       }
@@ -337,7 +337,7 @@ angular.module( 'lyt3App' )
           }
 
           return nodes;
-        }.bind(this);
+        }.bind( this );
 
         this._metadata = Object.keys( METADATA_NAMES.singular ).reduce(
           function( metadata, name ) {

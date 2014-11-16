@@ -11,13 +11,13 @@ angular.module( 'lyt3App' )
           getNotaAuthToken !== null ) {
           credentials = getNotaAuthToken( );
           if ( credentials.status === 'ok' ) {
-            $log.log('Session: init: reading credentials from getNotaAuthToken()');
+            $log.log( 'Session: init: reading credentials from getNotaAuthToken()' );
             return LYTSession.setCredentials( credentials.username,
               credentials.token );
           }
         } else {
-          $log.warn('Session: init: getNotaAuthToken is undefined');
-          console.warn('Session: init: getNotaAuthToken is undefined');
+          $log.warn( 'Session: init: getNotaAuthToken is undefined' );
+          console.warn( 'Session: init: getNotaAuthToken is undefined' );
         }
       },
       getCredentials: function( ) {
@@ -50,7 +50,7 @@ angular.module( 'lyt3App' )
         localStorageService.set( 'session|bookShelf', bookShelf );
       },
       getBookShelf: function( ) {
-        return localStorageService.get( 'session|bookShelf' ) || [];
+        return localStorageService.get( 'session|bookShelf' ) || [ ];
       },
       clear: function( ) {
         credentials = null;

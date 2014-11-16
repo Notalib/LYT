@@ -144,7 +144,7 @@ angular.module( 'lyt3App' )
 
           this.filename = this.url.split( '/' ).pop( );
 
-        }.bind(this) );
+        }.bind( this ) );
       }
 
       SMILDocument.prototype = Object.create( DtbDocument.prototype );

@@ -240,7 +240,7 @@ angular.module( 'lyt3App' )
 
         var attemptLogOn = function( ) {
           --attempts;
-          $log.log('Service: Attempting log-on (' + attempts + ' attempt(s) left)');
+          $log.log( 'Service: Attempting log-on (' + attempts + ' attempt(s) left)' );
           return DODP.logOn( username, password )
             .then( loggedOn )
             .catch( failed );
@@ -364,16 +364,16 @@ angular.module( 'lyt3App' )
         getBookshelf: function( from, to ) {
           var deferred = $q.defer( );
           withLogOn( function( ) {
-            return DODP.getContentList( 'issued', from, to );
-          } )
+              return DODP.getContentList( 'issued', from, to );
+            } )
             .then( function( list ) {
-              var cachedBookShelf = BookService.getCachedBookShelf();
+              var cachedBookShelf = BookService.getCachedBookShelf( );
               var items = list.items;
               for ( var i = from; i <= to; i += 1 ) {
                 cachedBookShelf[ i ] = items[ i - from ];
               }
 
-              cachedBookShelf = cachedBookShelf.filter(function( item ) {
+              cachedBookShelf = cachedBookShelf.filter( function( item ) {
                 return !!item;
               } );
 
@@ -387,7 +387,7 @@ angular.module( 'lyt3App' )
         },
 
         getCachedBookShelf: function( ) {
-          return LYTSession.getBookShelf();
+          return LYTSession.getBookShelf( );
         },
 
         /* -------
@@ -407,7 +407,7 @@ angular.module( 'lyt3App' )
             lastBookmark.URI === ( ( _ref = bookmarks.lastmark ) ? _ref.URI :
               void 0 ) && lastBookmark.timeOffset === ( ( _ref1 =
               bookmarks.lastmark ) ? _ref1.timeOffse : void 0 ) ) {
-            $log.log('setBookmarks: same as last time');
+            $log.log( 'setBookmarks: same as last time' );
             return;
           }
           lastBookmark = {
@@ -431,8 +431,8 @@ angular.module( 'lyt3App' )
           var deferred = $q.defer( );
           if ( BookService.announcementsSupported( ) ) {
             withLogOn( function( ) {
-              return DODP.getServiceAnnouncements( );
-            } )
+                return DODP.getServiceAnnouncements( );
+              } )
               .then( function( /*announcements*/ ) {
                 // LYT.render.showAnnouncements(announcements);
                 return deferred.resolve( );

@@ -79,12 +79,12 @@ angular.module( 'lyt3App' )
           .finally( function( ) {
             this.loading = false;
             this.loaded = true;
-          }.bind(this))
+          }.bind( this ) )
           .catch( function( ) {
-            $log.error('Segment: failed loading segment ' + this.url());
-          }.bind(this));
+            $log.error( 'Segment: failed loading segment ' + this.url( ) );
+          }.bind( this ) );
 
-        $log.log('Segment: loading ' + (this.url()));
+        $log.log( 'Segment: loading ' + ( this.url( ) ) );
 
         // Parse transcript content
         var _ref = this.data.text.src.split( '#' );
@@ -104,17 +104,17 @@ angular.module( 'lyt3App' )
           resource.document.promise
             .then( function( document ) {
               return this.parseContent( document );
-            }.bind(this))
+            }.bind( this ) )
             .then( function( ) {
               return this._deferred.resolve( this );
-            }.bind(this))
+            }.bind( this ) )
             .catch( function( status, error ) {
               $log.error( 'Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error );
               console.log.error(
                 'Unable to get TextContentDocument for ' +
                 resource.url + ': ' + status + ', ' + error );
               return this._deferred.reject( );
-            }.bind(this));
+            }.bind( this ) );
         }
         return this.promise;
       };
@@ -259,7 +259,7 @@ angular.module( 'lyt3App' )
                   } );
               }
             }
-          }.bind(this) );
+          }.bind( this ) );
       };
 
       // Parse content document and extract segment data
@@ -298,7 +298,8 @@ angular.module( 'lyt3App' )
                 var attr = type.replace( /^([a-z])/g, function( m, p1 ) {
                   return 'natural' + p1.toUpperCase( );
                 } );
-                $log.warn('render.content: imageDim: no ' + type + ' attribute or css ' + type + ' on image. Falling back to ' + attr + ' which is not known to be cross browser');
+                $log.warn( 'render.content: imageDim: no ' + type + ' attribute or css ' + type +
+                  ' on image. Falling back to ' + attr + ' which is not known to be cross browser' );
                 result[ type ] = image[ attr ];
               }
             } );
@@ -318,27 +319,28 @@ angular.module( 'lyt3App' )
             }
           };
           loadImage = function( image ) {
-            $log.log('Segment: ' + this.url() + ': parseContent: initiate preload of image ' + image.src);
+            $log.log( 'Segment: ' + this.url( ) + ': parseContent: initiate preload of image ' + image.src );
             var errorHandler = function( event ) {
               var backoff, doLoad;
               clearTimeout( image.timer );
               if ( image.attempts-- > 0 ) {
                 // TODO: backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50);
                 backoff = 10;
-                $log.log('Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts + ' attempts left. Waiting for ' + backoff + ' ms.');
+                $log.log( 'Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts +
+                  ' attempts left. Waiting for ' + backoff + ' ms.' );
                 doLoad = function( ) {
                   return loadImage( image );
                 };
                 return setTimeout( doLoad, backoff );
               } else {
-                $log.error('Segment: parseContent: unable to preload image ' + image.src);
+                $log.error( 'Segment: parseContent: unable to preload image ' + image.src );
                 return image.deferred.reject( image, event );
               }
             };
 
             var doneHandler = function( event ) {
               clearTimeout( image.timer );
-              $log.log('Segment: parseContent: loaded image ' + image.src);
+              $log.log( 'Segment: parseContent: loaded image ' + image.src );
               return image.deferred.resolve( image, event );
             };
 
@@ -350,10 +352,11 @@ angular.module( 'lyt3App' )
               .load( doneHandler )
               .error( errorHandler );
             tmp.src = image.src;
-          }.bind(this);
+          }.bind( this );
 
           if ( image.length !== 1 ) {
-            $log.error( 'Segment: parseContent: can\'t create reliable cartoon type with multiple or zero images: ' + this.url( ) );
+            $log.error( 'Segment: parseContent: can\'t create reliable cartoon type with multiple or zero images: ' +
+              this.url( ) );
             throw 'Segment: parseContent: unable to find exactly one image in ' +
             'cartoon display div';
           }
@@ -380,13 +383,13 @@ angular.module( 'lyt3App' )
               width: event.target.width,
               height: event.target.height
             } );
-          }.bind(this));
+          }.bind( this ) );
 
           loadImage( imageData );
           imagePromise.then( function( ) {
             // log.group('Segment: ' + (this.url()) + ' finished extracting text, html and loading images', this.text, image);
             return this;
-          }.bind(this));
+          }.bind( this ) );
 
           return imagePromise;
         } else {

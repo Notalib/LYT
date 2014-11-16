@@ -42,7 +42,7 @@ angular.module( 'lyt3App' )
         pending = 2;
         resolve = function( ) {
           return --pending || deferred.resolve( this );
-        }.bind(this);
+        }.bind( this );
 
         // First step: Request that the book be issued
         issue = function( ) {
@@ -56,7 +56,7 @@ angular.module( 'lyt3App' )
           return issued.catch( function( ) {
             return deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
           } );
-        }.bind(this);
+        }.bind( this );
 
         getResources = function( ) {
           var got = BookService.getResources( this.id );
@@ -66,7 +66,7 @@ angular.module( 'lyt3App' )
 
           return got.then( function( resources ) {
             var ncc = null;
-            Object.keys(resources).forEach( function( localUri ) {
+            Object.keys( resources ).forEach( function( localUri ) {
               var uri = resources[ localUri ];
 
               // We lowercase all resource lookups to avoid general case-issues
@@ -99,8 +99,8 @@ angular.module( 'lyt3App' )
             } else {
               return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
             }
-          }.bind(this) );
-        }.bind(this);
+          }.bind( this ) );
+        }.bind( this );
 
         // Third step: Get the NCC document
         getNCC = function( obj ) {
@@ -133,13 +133,13 @@ angular.module( 'lyt3App' )
               .content : '';
             ncc.book = this;
             resolve( );
-          }.bind(this) );
-        }.bind(this);
+          }.bind( this ) );
+        }.bind( this );
 
         getBookmarks = function( ) {
           this.lastmark = null;
           this.bookmarks = [ ];
-          $log.log('Book: Getting bookmarks');
+          $log.log( 'Book: Getting bookmarks' );
           var process = BookService.getBookmarks( this.id );
 
           // TODO: perhaps bookmarks should be loaded lazily, when required?
@@ -154,8 +154,8 @@ angular.module( 'lyt3App' )
               this._normalizeBookmarks( );
             }
             resolve( );
-          }.bind(this) );
-        }.bind(this);
+          }.bind( this ) );
+        }.bind( this );
 
         // Kick the whole process off
         issue( this.id );
@@ -275,7 +275,7 @@ angular.module( 'lyt3App' )
 
       Book.prototype._sortBookmarks = function( ) {
         var smils, tmpBookmarks;
-        $log.log('Book: _sortBookmarks');
+        $log.log( 'Book: _sortBookmarks' );
         smils = this.getSMILFilesInNCC( );
         tmpBookmarks = ( this.bookmarks || [ ] )
           .slice( 0 );
@@ -339,7 +339,7 @@ angular.module( 'lyt3App' )
         if ( offset === undefined ) {
           offset = 0;
         }
-        $log.log('Book: addBookmark');
+        $log.log( 'Book: addBookmark' );
         bookmark = segment.bookmark( offset );
         section = this.getSectionBySegment( segment );
 
@@ -420,7 +420,7 @@ angular.module( 'lyt3App' )
         }
 
         if ( !audio ) {
-          $log.error('Book: segmentByAudioOffset: audio not provided');
+          $log.error( 'Book: segmentByAudioOffset: audio not provided' );
           return $q.defer( )
             .reject( 'audio not provided' );
         }
@@ -432,7 +432,7 @@ angular.module( 'lyt3App' )
             if ( segment.audio === audio && ( segment.start - 0.01 <=
                 offset && offset < segment.end + 0.01 ) ) {
               segment = fudgeFix( offset, segment );
-              $log.log('Book: segmentByAudioOffset: load segment ' + (segment.url()));
+              $log.log( 'Book: segmentByAudioOffset: load segment ' + ( segment.url( ) ) );
               segment.load( );
               res = segment;
 
@@ -579,17 +579,17 @@ angular.module( 'lyt3App' )
               function( flat, section ) {
                 return flat.concat( section.flatten( ) );
               }, [ ] ).map( function( section ) {
-                var loadSegment = $q.defer( );
-                this.segmentByURL( section.url + '#' + section.ref )
-                  .then( function( segment ) {
-                    loadSegment.resolve( {
-                      title: section.title,
-                      offset: segment.getBookOffset( )
-                    } );
+              var loadSegment = $q.defer( );
+              this.segmentByURL( section.url + '#' + section.ref )
+                .then( function( segment ) {
+                  loadSegment.resolve( {
+                    title: section.title,
+                    offset: segment.getBookOffset( )
                   } );
+                } );
 
-                return loadSegment.promise;
-              }, this );
+              return loadSegment.promise;
+            }, this );
 
             var loadNavigation = $q.all( promises ).then( function(
               segments ) {

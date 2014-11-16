@@ -167,7 +167,7 @@ angular.module( 'lyt3App' )
             section.nccDocument = this;
             return section;
           }, this );
-        }.bind(this) );
+        }.bind( this ) );
       }
 
       NCCDocument.prototype = Object.create( TextContentDocument.prototype );

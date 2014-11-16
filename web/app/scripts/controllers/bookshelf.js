@@ -27,7 +27,7 @@ angular.module( 'lyt3App' )
 
       count = Math.max( count, 5 );
 
-      var to = from + count  - 1;
+      var to = from + count - 1;
       console.log( from, to, count );
 
       return BookService.getBookshelf( from, to ).then( function( items ) {
@@ -45,9 +45,9 @@ angular.module( 'lyt3App' )
 
     Book.load( 37027 ).then( function( book ) {
       console.log( book );
-      book.getStructure( ).then(function(resolved) {
+      book.getStructure( ).then( function( resolved ) {
         console.log( resolved );
-      });
+      } );
     } );
 
     $scope.nextPage = function( ) {
