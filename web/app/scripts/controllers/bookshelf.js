@@ -3,7 +3,20 @@
 angular.module( 'lyt3App' )
   .controller( 'BookshelfCtrl', [ '$scope', 'BookService', 'Book', function( $scope,
     BookService, Book ) {
-    $scope.books = BookService.getCachedBookShelf( );
+    var uniqueItems = function( items ) {
+      var unique = {};
+      return items.filter( function( item ) {
+        if ( item && !unique[ item.id ] ) {
+          unique[ item.id ] = true;
+          return true;
+        }
+
+        console.warn( 'loadBookShelf: unique item: ' + item.id + ' is a duplicate', item );
+        return false;
+      } );
+    };
+
+    $scope.books = uniqueItems( BookService.getCachedBookShelf( ) );
 
     var loadBookShelf = function( from, count ) {
       if ( from === undefined ) {
@@ -12,18 +25,13 @@ angular.module( 'lyt3App' )
 
       from = Math.max( 0, from );
 
-      var to = from + ( count || 5 ) - 1;
+      count = Math.max( count, 5 );
+
+      var to = from + count  - 1;
+      console.log( from, to, count );
 
       return BookService.getBookshelf( from, to ).then( function( items ) {
-        var unique = {};
-        $scope.books = items.filter(
-          function( item ) {
-            if ( item && !unique[ item.id ] ) {
-              unique[ item.id ] = true;
-              return true;
-            }
-            return false;
-          } );
+        $scope.books = uniqueItems( items );
       } );
     };
 
