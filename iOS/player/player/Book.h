@@ -22,6 +22,9 @@
 // whch can be set to very large number to buffer entire Book.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
 
+// whether book is fully downloaded
+@property (nonatomic, readonly) BOOL downloaded;
+
 // Like bufferingPoint but for data that is already present in cache
 // Starts counting at current position and stops counting at first part of book
 // not cached to the end.
@@ -34,9 +37,6 @@
 @property (nonatomic, assign) NSTimeInterval position;       // seeks when set
 @property (nonatomic, assign) NSUInteger currentPart;
 @property (nonatomic, assign) NSTimeInterval positionInPart; // position relative to start of current part
-
-// used for debugging purposes and will adjust all URLS to get the given baseURL.
-+(Book*)bookFromDictionary:(NSDictionary*)dictionary baseURL:(NSURL*)baseURL;
 
 // bookFromDictionaries expects the following format:
 //  {"id":37027, "author":"", "title":"Bunker 137",

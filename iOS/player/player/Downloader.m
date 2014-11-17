@@ -169,6 +169,9 @@ didFinishDownloadingToURL:(NSURL *)location {
     
     isLoading = YES;
     [[Downloader sharedDelegate] startRequest:request forDownloader:self];
+    
+    DBGLog(@"Downloading bytes %ld-%ld from %@", (long)byteOffset, (long)(byteOffset + bytesToRead),
+           self.url.lastPathComponent);
 }
 
 - (BOOL)appendData:(NSData*)data toFile:(NSString*)path {
@@ -202,8 +205,8 @@ didFinishDownloadingToURL:(NSURL *)location {
             progressBytes += data.length;
             [self didChangeValueForKey:@"progressBytes"];
 
-            //NSLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
-            //      (long)progressBytes);
+            DBGLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
+                  (long)progressBytes);
             [self downloadNextChunk];
         }
     } else {

@@ -119,17 +119,21 @@
     }];
 }
 
+-(BOOL)checkBufferingPoint {
+    self.bufferingsSatisfied = self.downloader.progressBytes >= byteOffset;
+    if(!self.bufferingsSatisfied) return NO;
+    
+    [self willChangeValueForKey:@"ensuredBufferingPoint"];
+    _ensuredBufferingPoint = self.bufferingPoint;
+    [self didChangeValueForKey:@"ensuredBufferingPoint"];
+    return YES;
+}
+
 -(void)downloadMore {
     //DBGLog(@"%@: bytes = %ld, wantedBytes=%ld", self,
     //       (long)self.downloader.progressBytes, (long)(byteOffset));
-    
-    self.bufferingsSatisfied = self.downloader.progressBytes >= byteOffset;
-    if(self.bufferingsSatisfied) {
-        [self willChangeValueForKey:@"ensuredBufferingPoint"];
-        _ensuredBufferingPoint = self.bufferingPoint;
-        [self didChangeValueForKey:@"ensuredBufferingPoint"];
-        return;
-    }
+
+    if([self checkBufferingPoint]) return;
     
     NSUInteger bytesToRead = byteOffset - self.downloader.progressBytes;
     if(bytesToRead > ChunkSize) {
@@ -138,6 +142,9 @@
     
     NSUInteger end = self.downloader.progressBytes + bytesToRead;
     self.downloader = [Downloader downloadURL:self.url start:0 end:end];
+    
+    // downloader might already have satisfied by reading from cache
+    [self checkBufferingPoint];
 }
 
 -(BookPart*)partCombinedWith:(BookPart*)otherPart {
@@ -175,6 +182,10 @@
 
 -(NSTimeInterval)duration {
     return self.end - self.start;
+}
+
+-(BOOL)downloaded {
+    return self.bufferingsSatisfied && self.bufferingPoint >= self.duration;
 }
 
 @end
