@@ -74,7 +74,8 @@ angular.module( 'lyt3App' )
 
       var defer = $q.defer( );
 
-      var url = document.location.protocol + '//' + document.location.host + '/DodpMobile/Service.svc';
+      // var url = document.location.protocol + '//' + document.location.host + '/DodpMobile/Service.svc';
+      var url = '/DodpMobile/Service.svc';
 
       $http( {
         url: url,
