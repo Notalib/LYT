@@ -11,13 +11,20 @@
 #import "SoundChunk.h"
 #import "Book.h"
 #import "BookPart.h"
+#import "BridgeController.h"
+#import "debug.h"
 
 @interface ViewController () {
     NSArray* chunks;
     AVAudioPlayer* player;
     AVQueuePlayer* queuePlayer;
+
+    BridgeController* bridge;
     
-    Book* book;
+    Book* testBook;
+    
+    NSMutableDictionary* booksById;
+    NSString* currentBookId;
 }
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
 
@@ -25,26 +32,56 @@
 
 @implementation ViewController
 
-#pragma mark UIWebViewDelegate
+#pragma mark LytDeviceProtocol
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
- navigationType:(UIWebViewNavigationType)navigationType {
-    NSLog(@"shouldStartLoadWithRequest: %@, type: %d", request, (int)navigationType);
-    return YES;
+-(Book*)currentBook {
+    if(currentBookId == nil) return nil;
+    return [booksById objectForKey:currentBookId];
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    NSLog(@"webViewDidFinishLoad: %@", webView.request.URL);
-    
-    if([webView.request.URL.fragment isEqualToString:@"login"]) {
-        /*dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self loadBookshelf];
-        });*/
+-(void)setBook:(id)bookData {
+    Book* book = [Book bookFromDictionary:bookData];
+    NSString* key = book.identifier;
+    if(key) {
+        [booksById setObject:book forKey:key];
     }
 }
 
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-    NSLog(@"webView: %@ didFailLoadWithError: %@", webView.request.URL, error);
+-(void)clearBook:(NSString*)bookId {
+    if(bookId) {
+        Book* book = [booksById objectForKey:bookId];
+        [book stop];
+        [book deleteCache];
+        [booksById removeObjectForKey:bookId];
+    }
+}
+
+-(void)play:(NSString*)bookId offset:(NSTimeInterval)offset {
+    Book* oldBook = self.currentBook;
+    if(![oldBook.identifier isEqualToString:bookId]) {
+        [oldBook stop];
+    }
+    
+    Book* book = [booksById objectForKey:bookId];
+    currentBookId = book.identifier; // if bookId was not valid, book.identifier will be nil, which is wanted behaviour
+    book.position = offset;
+    [book play];
+}
+
+-(void)stop {
+    Book* oldBook = self.currentBook;
+    [oldBook stop];
+}
+
+-(void)cacheBook:(NSString*)bookId {
+    Book* book = [booksById objectForKey:bookId];
+    book.bufferLookahead = 999999;
+}
+
+-(void)clearBookCache:(NSString*)bookId {
+    Book* book = [booksById objectForKey:bookId];
+    book.bufferLookahead = 0;
+    [book deleteCache];
 }
 
 #pragma mark -
@@ -55,12 +92,12 @@
     NSDictionary* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
     
     NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20014/37027/"];
-    book = [Book bookFromDictionary:json baseURL:baseURL];
-    [book joinParts];
+    testBook = [Book bookFromDictionary:json baseURL:baseURL];
+    [testBook joinParts];
 }
 
 -(void)testPlay {
-    queuePlayer = [book makeQueuePlayer];
+    queuePlayer = [testBook makeQueuePlayer];
     [queuePlayer play];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -69,9 +106,9 @@
 }
 
 -(void)testDownload {
-    [book deleteCache];
-    book.bufferLookahead = 300;
-    [book play];
+    [testBook deleteCache];
+    testBook.bufferLookahead = 300;
+    [testBook play];
 }
 
 -(void)loadBookshelf {
@@ -86,13 +123,19 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    booksById = [NSMutableDictionary new];
+    bridge = [BridgeController new];
+    bridge.delegate = self;
+    self.webView.delegate = bridge;
+    
     [self loadTestBook];
     //[self testPlay];
     [self testDownload];
     
     //NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
-    //NSURLRequest* request = [NSURLRequest requestWithURL:url];
-    //[self.webView loadRequest:request];
+    NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
+    NSURLRequest* request = [NSURLRequest requestWithURL:url];
+    [self.webView loadRequest:request];
 }
 
 - (void)didReceiveMemoryWarning {
