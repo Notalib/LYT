@@ -62,7 +62,6 @@ angular.module( 'lyt3App' )
 
         Object.keys( DODPfaultCodes ).some( function( key ) {
           var signature = DODPfaultCodes[ key ];
-          console.log( signature, signature.test( code ) );
           if ( signature.test( code ) ) {
             match = DODPfaultCodes[ key ];
             return true;

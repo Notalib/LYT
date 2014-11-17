@@ -342,6 +342,9 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           get issueContentData( ) {
             return angular.copy( issueContent );
           }
+        },
+        book: {
+          bookId: 37027
         }
       };
     }

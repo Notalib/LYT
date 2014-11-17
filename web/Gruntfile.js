@@ -42,7 +42,7 @@ module.exports = function ( grunt ) {
       },
       jsTest: {
         files: [ 'test/spec/{,*/}*.js' ],
-        tasks: [ 'newer:jshint:test', 'karma', 'jscs' ]
+        tasks: [ 'newer:jshint:test', 'karma:unit', 'jscs' ]
       },
       compass: {
         files: [ '<%= yeoman.app %>/styles/{,*/}*.{scss,sass}' ],
@@ -465,7 +465,7 @@ module.exports = function ( grunt ) {
     'concurrent:test',
     'autoprefixer',
     'connect:test',
-    'karma'
+    'karma:unit'
   ] );
 
   grunt.registerTask( 'build', [

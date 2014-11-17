@@ -3,20 +3,20 @@
 
 angular.module( 'lyt3App' )
   .factory( 'LYTUtils', function( ) {
-    var __hasProp = {}.hasOwnProperty;
-
     var utils = {
       formatTime: function( seconds ) {
-        var hours, minutes;
         seconds = parseInt( seconds, 10 );
         if ( !seconds || seconds < 0 ) {
           seconds = 0;
         }
+
         /*jshint bitwise: false*/
-        hours = ( seconds / 3600 ) >>> 0;
-        minutes = '0' + ( ( ( seconds % 3600 ) / 60 ) >>> 0 );
+        var hours = ( seconds / 3600 ) >>> 0;
+        var minutes = '0' + ( ( ( seconds % 3600 ) / 60 ) >>> 0 );
         /*jslint bitwise: true*/
+
         seconds = '0' + ( seconds % 60 );
+
         return '' + hours + ':' + ( minutes.slice( -2 ) ) + ':' + (
           seconds.slice( -2 ) );
       },
@@ -49,12 +49,12 @@ angular.module( 'lyt3App' )
         var toXML = function( hash ) {
           var xml = '';
           var append = function( nodeName, data ) {
-            var nsid;
-            nsid = 'ns1:';
+            var nsid = 'ns1:';
             if ( jQuery.inArray( ':', nodeName ) > -1 ) {
               nsid = '';
             }
-            return xml += '<' + nsid + nodeName + '>' + ( toXML(
+
+            xml += '<' + nsid + nodeName + '>' + ( toXML(
               data ) ) + '</' + nsid + nodeName + '>';
           };
 
@@ -65,10 +65,7 @@ angular.module( 'lyt3App' )
               return jQuery( '<div>' ).text( String( hash ) ).html( );
             }
             case 'object': {
-              Object.keys( function( key ) {
-                if ( !__hasProp.call( hash, key ) ) {
-                  return;
-                }
+              Object.keys( hash ).forEach( function( key ) {
                 var value = hash[ key ];
                 if ( value instanceof Array ) {
                   value.forEach( function( item ) {
