@@ -1,66 +1,45 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'Nativeglue', [ '$q', function Nativeglue( $q ) {
+  .factory( 'Nativeglue', [ '$window', '$rootScope', '$log', function( $window, $rootScope, $log ) {
+    $window.lytTriggerEvent = function( eventName ) {
+      var args = Array.prototype.slice.call( arguments, 0 );
+      $rootScope.$emit( eventName, args );
+    };
+
     var setBook = function( bookData ) {
-      console.log( 'setBook', bookData, JSON.stringify( bookData ) );
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: setBook: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'setBook:', bookData );
+      return $window.lytBridge.setBook( bookData );
     };
 
     var clearBook = function( bookId ) {
-      console.log( 'clearBook', bookId );
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: clearBook: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'clearBook:', bookId );
+      return $window.lytBridge.clearBook( bookId );
     };
 
     var getBooks = function( ) {
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: getBooks: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'getBooks:' );
+      return $window.lytBridge.getBooks( );
     };
 
     var play = function( bookId, offset ) {
-      console.log( 'play', bookId, offset );
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: play: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'play:', bookId, offset );
+      return $window.lytBridge.play( bookId, offset );
     };
 
     var stop = function( ) {
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: stop: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'stop:' );
+      return $window.lytBridge.stop( );
     };
 
     var cacheBook = function( bookId ) {
-      console.log( 'cacheBook', bookId );
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: cacheBook: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'cacheBook:', bookId );
+      return $window.lytBridge.cacheBook( bookId );
     };
 
     var clearBookCache = function( bookId ) {
-      console.log( 'cacheBook', bookId );
-      var defer = $q.defer( );
-
-      defer.reject( 'TODO: clearBookCache: Not implemented.' );
-
-      return defer.promise;
+      $log.info( 'cacheBookCache:', bookId );
+      return $window.lytBridge.clearBookCache( bookId );
     };
 
     return {
