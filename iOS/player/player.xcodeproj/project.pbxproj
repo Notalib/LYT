@@ -44,6 +44,8 @@
 		BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE43F0F21A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
 		BE43F0F31A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
+		BE4732441A1A024700A325A4 /* bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = BE4732431A1A024700A325A4 /* bridge.js */; };
+		BE4732451A1A024700A325A4 /* bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = BE4732431A1A024700A325A4 /* bridge.js */; };
 		BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
 		BE6DC6731A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
 		BEB1BA191A121B140066F4FD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA181A121B140066F4FD /* main.m */; };
@@ -90,6 +92,7 @@
 		BE43F0F01A14AE01008DFC53 /* Downloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Downloader.h; sourceTree = "<group>"; };
 		BE43F0F11A14AE01008DFC53 /* Downloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Downloader.m; sourceTree = "<group>"; };
 		BE43F0F61A14F2B9008DFC53 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		BE4732431A1A024700A325A4 /* bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bridge.js; sourceTree = "<group>"; };
 		BE6DC6711A1397C8000DB1C2 /* 37027.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 37027.json; sourceTree = "<group>"; };
 		BEB1BA131A121B140066F4FD /* player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB1BA171A121B140066F4FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -192,6 +195,7 @@
 		BEB1BA161A121B140066F4FD /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE4732431A1A024700A325A4 /* bridge.js */,
 				BE43F0F61A14F2B9008DFC53 /* debug.h */,
 				BEB1BA171A121B140066F4FD /* Info.plist */,
 				BEB1BA181A121B140066F4FD /* main.m */,
@@ -318,6 +322,7 @@
 				BE08A1B11A1368D700772B6D /* 10_Kapitel_6.json in Resources */,
 				BE08A1A31A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */,
 				BE08A1A51A1368D700772B6D /* 04_Citat.json in Resources */,
+				BE4732441A1A024700A325A4 /* bridge.js in Resources */,
 				BE08A1B71A1368D700772B6D /* 13_Kapitel_9.json in Resources */,
 				BE08A1A71A1368D700772B6D /* 05_Kapitel_1.json in Resources */,
 			);
@@ -328,6 +333,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE08A1A21A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */,
+				BE4732451A1A024700A325A4 /* bridge.js in Resources */,
 				BE08A1A41A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */,
 				BE08A1B81A1368D700772B6D /* 13_Kapitel_9.json in Resources */,
 				BE08A1A61A1368D700772B6D /* 04_Citat.json in Resources */,
