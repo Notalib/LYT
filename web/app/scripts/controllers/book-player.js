@@ -5,6 +5,9 @@ angular.module('lyt3App')
     function( $scope, $log, NativeGlue, $routeParams, Book ) {
       Book.load( $routeParams.bookid ).then( function( book ) {
         $scope.book = book;
+        book.getStructure( ).then( function( bookData ) {
+          NativeGlue.setBook( bookData );
+        } );
       } );
 
       $scope.$on( 'play-time-update', function( bookId, offset ) {

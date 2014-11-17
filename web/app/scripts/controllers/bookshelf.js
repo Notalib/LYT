@@ -25,14 +25,14 @@ angular.module( 'lyt3App' )
 
       from = Math.max( 0, from );
 
-      count = Math.max( count, 5 );
+      count = Math.max( count || 0, 5 );
 
       var to = from + count - 1;
-      console.log( from, to, count );
 
-      return BookService.getBookshelf( from, to ).then( function( items ) {
-        $scope.books = uniqueItems( items );
-      } );
+      return BookService.getBookshelf( from, to )
+        .then( function( items ) {
+          $scope.books = uniqueItems( items );
+        } );
     };
 
     loadBookShelf( 0, $scope.books.length || 5 ).catch( function( ) {

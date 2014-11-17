@@ -123,14 +123,15 @@ angular.module( 'lyt3App' )
         numberSections( structure );
         return structure;
       };
+
       flattenStructure = function( structure ) {
-        var flat, section, _i, _len;
-        flat = [ ];
-        for ( _i = 0, _len = structure.length; _i < _len; _i++ ) {
-          section = structure[ _i ];
+        var flat = [ ];
+
+        structure.forEach( function( section ) {
           flat.push( section );
           flat = flat.concat( flattenStructure( section.children ) );
-        }
+        } );
+
         return flat;
       };
 

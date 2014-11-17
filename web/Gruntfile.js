@@ -409,8 +409,8 @@ module.exports = function ( grunt ) {
     karma: {
       unit: {
         configFile: 'test/karma.conf.js',
-        singleRun: false,
-        autoWatch: true
+        singleRun: true,
+        autoWatch: false
       },
       commit: {
         configFile: 'test/karma.conf.js',
