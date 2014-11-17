@@ -11,8 +11,21 @@ describe( 'Service: Bookmark', function( ) {
     Bookmark = _Bookmark_;
   } ) );
 
-  xit( 'should do something', function( ) {
-    expect( !!Bookmark ).toBe( true );
+  it( 'Create bookmark', function( ) {
+    var data = {
+      note: {
+        'text': 'Om denne udgave'
+      },
+      URI: 'dcbw0002.smil#sfe_par_0002_0003',
+      timeOffset: 0,
+      hugo: 'boerge'
+    };
+
+    var bookmark = new Bookmark( data );
+    expect(bookmark.URI).toEqual(data.URI);
+    expect(bookmark.timeOffset).toEqual(data.timeOffset);
+    expect(bookmark.note.text).toEqual(data.note.text);
+    expect(bookmark.hugo).toBeUndefined( );
   } );
 
 } );
