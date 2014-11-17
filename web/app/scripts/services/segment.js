@@ -63,6 +63,8 @@ angular.module( 'lyt3App' )
         this.el = data.par;
         this.document = document;
 
+        this.duration = this.end - this.start;
+
         // Will be initialized in the load() method:
         this.text = null;
         this.smil = data.smil;

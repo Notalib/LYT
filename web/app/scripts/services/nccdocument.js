@@ -11,7 +11,7 @@
 angular.module( 'lyt3App' )
   .factory( 'NCCDocument', [ '$q', 'TextContentDocument', 'Section',
     function( $q, TextContentDocument, Section ) {
-      var flattenStructure, linkSections, parseStructure;
+      var flattenStructure, parseStructure;
 
       // ## Privileged
 
@@ -133,20 +133,18 @@ angular.module( 'lyt3App' )
         }
         return flat;
       };
+
       // Initializes previous and next attributes on section objects
-      linkSections = function( sections ) {
-        var previous, section, _i, _len, _results;
-        previous = null;
-        _results = [ ];
-        for ( _i = 0, _len = sections.length; _i < _len; _i++ ) {
-          section = sections[ _i ];
+      var linkSections = function( sections ) {
+        var previous;
+        sections.forEach( function( section ) {
           section.previous = previous;
           if ( previous ) {
             previous.next = section;
           }
-          _results.push( previous = section );
-        }
-        return _results;
+
+          previous = section;
+        } );
       };
 
       /*

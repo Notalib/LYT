@@ -1,12 +1,5 @@
 'use strict';
 
-/**
- * @ngdoc service
- * @name lyt3App.Book
- * @description
- * # Book
- * Factory in the lyt3App.
- */
 angular.module( 'lyt3App' )
   .factory( 'Book', [ '$q', '$log', 'LYTUtils', 'BookService', 'BookErrorCodes',
     'NCCDocument', 'SMILDocument',
@@ -32,20 +25,20 @@ angular.module( 'lyt3App' )
        *       # Do something about the failure
        */
       function Book( id ) {
-        var getBookmarks, getNCC, getResources, issue, pending, resolve;
         this.id = id;
         var deferred = $q.defer( );
         this.promise = deferred.promise;
 
         this.resources = {};
         this.nccDocument = null;
-        pending = 2;
-        resolve = function( ) {
+
+        var pending = 2;
+        var resolve = function( ) {
           return --pending || deferred.resolve( this );
         }.bind( this );
 
         // First step: Request that the book be issued
-        issue = function( ) {
+        var issue = function( ) {
           // Perform the RPC
           var issued = BookService.issue( this.id );
           // When the book has been issued, proceed to download
@@ -58,7 +51,7 @@ angular.module( 'lyt3App' )
           } );
         }.bind( this );
 
-        getResources = function( ) {
+        var getResources = function( ) {
           var got = BookService.getResources( this.id );
           got.catch( function( ) {
             return deferred.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
@@ -103,7 +96,7 @@ angular.module( 'lyt3App' )
         }.bind( this );
 
         // Third step: Get the NCC document
-        getNCC = function( obj ) {
+        var getNCC = function( obj ) {
           // Instantiate an NCC document
           var ncc = new NCCDocument( obj.url, this );
           var nccPromise = ncc.promise;
@@ -129,14 +122,13 @@ angular.module( 'lyt3App' )
               '';
 
             // Get the total time
-            this.totalTime = metadata.totalTime ? metadata.totalTime
-              .content : '';
+            this.totalTime = metadata.totalTime ? LYTUtils.parseTime( metadata.totalTime.content ) : null;
             ncc.book = this;
             resolve( );
           }.bind( this ) );
         }.bind( this );
 
-        getBookmarks = function( ) {
+        var getBookmarks = function( ) {
           this.lastmark = null;
           this.bookmarks = [ ];
           $log.log( 'Book: Getting bookmarks' );
@@ -151,7 +143,7 @@ angular.module( 'lyt3App' )
             if ( data ) {
               this.lastmark = data.lastmark;
               this.bookmarks = data.bookmarks;
-              this._normalizeBookmarks( );
+              normalizeBookmarks( this );
             }
             resolve( );
           }.bind( this ) );
@@ -229,14 +221,15 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.getSectionBySegment = function( segment ) {
-        var current, id, item, iterator;
+        var id, item;
+
         var sections = this.nccDocument.sections.map( function( section ) {
           return section.fragment;
         } );
-        current = segment;
+        var current = segment;
 
         // Inclusive backwards search
-        iterator = function( ) {
+        var iterator = function( ) {
           var result = current;
           current = !current ? current.previous : void 0;
           return result;
@@ -258,6 +251,7 @@ angular.module( 'lyt3App' )
               .each( itemEach );
           }
         }
+
         return this.nccDocument.sections[ sections.indexOf( id ) ];
       };
 
@@ -273,12 +267,13 @@ angular.module( 'lyt3App' )
         return BookService.setBookmarks( this );
       };
 
-      Book.prototype._sortBookmarks = function( ) {
-        var smils, tmpBookmarks;
-        $log.log( 'Book: _sortBookmarks' );
-        smils = this.getSMILFilesInNCC( );
-        tmpBookmarks = ( this.bookmarks || [ ] )
+      var sortBookmarks = function( book ) {
+        $log.log( 'Book: sortBookmarks' );
+
+        var smils = book.getSMILFilesInNCC( );
+        var tmpBookmarks = ( book.bookmarks || [ ] )
           .slice( 0 );
+
         tmpBookmarks.sort( function( aMark, bMark ) {
           var aMarkID, aMarkIndex, aMarkSmil, bMarkID, bMarkIndex,
             bMarkSmil, _ref, _ref1;
@@ -298,39 +293,36 @@ angular.module( 'lyt3App' )
             return 1;
           }
         } );
-        this.bookmarks = tmpBookmarks;
-        return this.bookmarks;
+        book.bookmarks = tmpBookmarks;
       };
 
       // Delete all bookmarks that are very close to each other
-      Book.prototype._normalizeBookmarks = function( ) {
-        var bookmark, bookmarks, i, saved, temp, uri, _i, _len, _name, _ref,
-          _ref1, _results;
-        temp = {};
-        _ref = this.bookmarks;
-        for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-          bookmark = _ref[ _i ];
-          if ( !temp[ _name = bookmark.URI ] ) {
-            temp[ _name ] = [ ];
+      var normalizeBookmarks = function( book ) {
+        var temp = {};
+        book.bookmarks.forEach( function( bookmark ) {
+          var name = bookmark.URI;
+          if ( !temp[ name ] ) {
+            temp[ name ] = [ ];
           }
-          i = 0;
-          while ( i < temp[ bookmark.URI ].length ) {
-            saved = temp[ bookmark.URI ][ i ];
-            if ( ( -2 < ( _ref1 = saved.timeOffset - bookmark.timeOffset ) &&
-                _ref1 < 2 ) ) {
-              break;
+
+          var tmpIdx = 0;
+          temp[ name ].some( function( saved, idx ) {
+            var tempOffset = saved.timeOffset - bookmark.timeOffset;
+            if ( -2 < tempOffset && tempOffset < 2 ) {
+              tmpIdx = idx;
+              return true;
             }
-            i++;
-          }
-          temp[ bookmark.URI ][ i ] = bookmark;
-        }
-        this.bookmarks = [ ];
-        _results = [ ];
-        for ( uri in temp ) {
-          bookmarks = temp[ uri ];
-          _results.push( this.bookmarks = this.bookmarks.concat( bookmarks ) );
-        }
-        return _results;
+          } );
+
+          temp[ bookmark.URI ][ tmpIdx ] = bookmark;
+        } );
+
+        book.bookmarks = [];
+
+        Object.keys( temp )
+          .forEach( function( uri ) {
+            book.bookmarks = book.bookmarks.concats( temp[ uri ] );
+          } );
       };
 
       // TODO: Add remove bookmark method
@@ -353,8 +345,8 @@ angular.module( 'lyt3App' )
           this.bookmarks = [ ];
         }
         this.bookmarks.push( bookmark );
-        this._normalizeBookmarks( );
-        this._sortBookmarks( );
+        normalizeBookmarks( this );
+        sortBookmarks( this );
         return this.saveBookmarks( );
       };
 
@@ -367,12 +359,11 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.segmentByURL = function( url ) {
-        var fragment;
         var deferred = $q.defer( );
         var _ref = url.split( '#' );
         var smil = _ref[ 0 ].split( '/' )
           .pop( );
-        fragment = _ref[ 1 ];
+        var fragment = _ref[ 1 ];
         this.getSMIL( smil )
           .then( function( document ) {
             var segment;
@@ -402,10 +393,12 @@ angular.module( 'lyt3App' )
         if ( fudge === undefined ) {
           fudge = 0.1;
         }
+
         if ( segment.end - offset < fudge && segment.next && offset -
           segment.next.start < fudge ) {
           segment = segment.next;
         }
+
         return segment;
       };
 
@@ -428,6 +421,7 @@ angular.module( 'lyt3App' )
         // Using 0.01s to cover rounding errors (yes, they do occur)
         return this.searchSections( start, function( section ) {
           var res;
+
           section.document.segments.some( function( segment ) {
             if ( segment.audio === audio && ( segment.start - 0.01 <=
                 offset && offset < segment.end + 0.01 ) ) {
@@ -459,7 +453,6 @@ angular.module( 'lyt3App' )
        * start:   the section to start searching from (default: current section).
        */
       Book.prototype.searchSections = function( start, handler ) {
-        var i, iterator, iterators, makeIterator, searchNext;
         /*
          * The use of iterators below can easily be adapted to the Strategy
          * design pattern, accommodating other search orders.
@@ -468,18 +461,18 @@ angular.module( 'lyt3App' )
          * the next value.
          * Will stop calling nextOp as soon as nextOp returns null or undefined
          */
-        makeIterator = function( start, nextOp ) {
-          var current;
-          current = start;
+        var makeIterator = function( start, nextOp ) {
+          var current = start;
+
           return function( ) {
-            var result;
-            result = current;
+            var result = current;
             if ( current !== undefined ) {
               current = nextOp( current );
             }
             return result;
           };
         };
+
         /*
          * This iterator configuration will make the iterator return this:
          * this
@@ -489,7 +482,7 @@ angular.module( 'lyt3App' )
          * this.previous.previous
          * ...
          */
-        iterators = [
+        var iterators = [
           makeIterator( start, function( section ) {
             return section.previous;
           } ), makeIterator( start, function( section ) {
@@ -499,11 +492,10 @@ angular.module( 'lyt3App' )
 
         // This iterator will query the iterators in the iterators array one at a
         // time and remove them from the array if they stop returning anything.
-        i = 0;
-        iterator = function( ) {
+        var i = 0;
+        var iterator = function( ) {
           var result;
-          result = null;
-          while ( ( result === undefined ) && i < iterators.length ) {
+          while ( result === undefined && i < iterators.length ) {
             result = iterators[ i ].apply( );
             if ( result === undefined ) {
               iterators.splice( i );
@@ -515,7 +507,8 @@ angular.module( 'lyt3App' )
             }
           }
         };
-        searchNext = function( ) {
+
+        var searchNext = function( ) {
           var section = iterator( );
           if ( section ) {
             section.load( );
@@ -532,6 +525,7 @@ angular.module( 'lyt3App' )
               .reject( );
           }
         };
+
         return searchNext( );
       };
 
@@ -558,6 +552,7 @@ angular.module( 'lyt3App' )
        */
       Book.prototype.getStructure = ( function( ) {
         var loaded = {};
+
         return function( ) {
           var defer = $q.defer( );
           if ( loaded[ this.id ] ) {
@@ -591,36 +586,70 @@ angular.module( 'lyt3App' )
               return loadSegment.promise;
             }, this );
 
-            var loadNavigation = $q.all( promises ).then( function(
-              segments ) {
-              bookStructure.navigation = segments;
-            } );
+            var loadNavigation = $q.all( promises )
+              .then( function( segments ) {
+                bookStructure.navigation = segments;
+              } );
 
-            var loadPlaylist = this.loadAllSMIL( ).then( function(
-              smildocuments ) {
-              smildocuments.forEach( function( smildocument ) {
-                smildocument.segments.forEach( function(
-                  segment ) {
-                  bookStructure.playlist.push( {
-                    url: segment.audio.url,
-                    start: segment.start,
-                    end: segment.end
+            var loadPlaylist = this.loadAllSMIL( )
+              .then( function( smildocuments ) {
+                smildocuments.forEach( function( smildocument ) {
+                  smildocument.segments.forEach( function( segment ) {
+                    bookStructure.playlist.push( {
+                      url: segment.audio.url,
+                      start: segment.start,
+                      end: segment.end
+                    } );
                   } );
                 } );
               } );
-            } );
 
-            $q.all( [ loadNavigation, loadPlaylist ] ).then(
-              function( ) {
+            $q.all( [ loadNavigation, loadPlaylist ] )
+              .then( function( ) {
                 loaded[ bookStructure.id ] = bookStructure;
                 defer.resolve( bookStructure );
               } );
-
           }.bind( this ) );
 
           return defer.promise;
         };
       } )( );
+
+      Book.prototype.findSectionFromOffset = function( offset ) {
+        var defer = $q.defer();
+
+        this.loadAllSMIL( )
+          .then( function( smildocuments ) {
+            var matched;
+            smildocuments.some( function( smildocument ) {
+              var startOffset = smildocument.absoluteOffset;
+              var endOffset = startOffset + smildocument.duration;
+              if ( startOffset <= offset && offset <= endOffset ) {
+                smildocument.segments.some( function( segment ) {
+                  var segmentStart = startOffset + segment.documentOffset;
+                  var segmentEnd = segmentStart + segment.duration;
+                  if ( segmentStart <= offset && offset <= segmentEnd ) {
+                    defer.resolve( segment );
+                    matched = true;
+                    return true;
+                  }
+                } );
+
+                return true;
+              }
+            } );
+
+            if ( !matched ) {
+              $log.error( 'Couldn\'t find segment for offset ', offset );
+              defer.reject( );
+            }
+          } )
+          .catch( function( ) {
+            defer.reject( );
+          } );
+
+        return defer.promise;
+      };
 
       // Factory-method
       // Note: Instances are cached in memory
