@@ -90,6 +90,7 @@
         }
     } else if([name isEqualToString:@"stop"]) {
         [self.delegate stop];
+        [self refreshBooksInWebView:webView];
         return;
     } else if([name isEqualToString:@"cacheBook"]) {
         NSString* bookId = [arguments.firstObject description];

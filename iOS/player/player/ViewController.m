@@ -53,7 +53,7 @@
     NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20022/37027/"];
     Book* book = [Book bookFromDictionary:bookData baseURL:baseURL];
     [book joinParts];
-    [book deleteCache];
+    //[book deleteCache];
     book.bufferLookahead = 20;
     
     NSString* key = book.identifier;
