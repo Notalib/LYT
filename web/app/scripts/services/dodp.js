@@ -74,8 +74,10 @@ angular.module( 'lyt3App' )
 
       var defer = $q.defer( );
 
+      var url = document.location.protocol + '//' + document.location.host + '/DodpMobile/Service.svc';
+
       $http( {
-        url: 'http://localhost:9000/DodpMobile/Service.svc',
+        url: url,
         method: 'POST',
         headers: {
           soapaction: '/' + action,

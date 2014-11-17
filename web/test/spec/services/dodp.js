@@ -16,7 +16,7 @@ describe( 'Service: DODP', function( ) {
     $rootScope = _$rootScope_;
     DODP = _DODP_;
     mockBackend = _$httpBackend_;
-    expectPOST = mockBackend.expectPOST( 'http://localhost:9000/DodpMobile/Service.svc' );
+    expectPOST = mockBackend.expectPOST( '/DodpMobile/Service.svc' );
     testData = _testData_.dodp;
   } ) );
 
