@@ -223,10 +223,13 @@
         BookPart* part = object;
         if(part.bufferingsSatisfied) {
             if(part.bufferingPoint > 0.0) {
-                //DBGLog(@"Buffering of %.1f seconds completed: %@", part.bufferingPoint, part);
+                DBGLog(@"Buffering of %.1f seconds completed: %@", part.bufferingPoint, part);
             }
             
-            [self cascadeBufferingPoint];
+            // delay cascade to next run loop, to make sure multiple are not running at the same time
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self cascadeBufferingPoint];
+            });
         }
     } else if([keyPath isEqualToString:@"ensuredBufferingPoint"]) {
         if(delayedStart) {
@@ -325,7 +328,7 @@
 // We also do not ask parts of book we have passed to buffer.
 -(void)cascadeBufferingPoint {
     NSTimeInterval position = self.position;
-        
+    
     NSTimeInterval time = 0; // how long parts of book has been up to this point
     for (BookPart* part in self.parts) {
         // if part of books ends before current position, we do not care about cache,
@@ -333,7 +336,10 @@
         NSTimeInterval endTime = time + part.duration;
         if(endTime >= position) {
             part.bufferingPoint = _bufferingPoint - time;
-            if(!part.bufferingsSatisfied) break;
+            if(!part.bufferingsSatisfied) {
+                DBGLog(@"First unbuffered book part is %@", part);
+                break;
+            }
         }
         time = endTime;
     }
