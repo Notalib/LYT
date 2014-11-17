@@ -1,18 +1,18 @@
 'use strict';
 
-describe( 'Service: Nativeglue', function( ) {
+describe( 'Service: NativeGlue', function( ) {
 
   // load the service's module
   beforeEach( module( 'lyt3App' ) );
 
   // instantiate service
-  var Nativeglue;
-  beforeEach( inject( function( _Nativeglue_ ) {
-    Nativeglue = _Nativeglue_;
+  var NativeGlue;
+  beforeEach( inject( function( _NativeGlue_ ) {
+    NativeGlue = _NativeGlue_;
   } ) );
 
   it( 'should do something', function( ) {
-    expect( !!Nativeglue ).toBe( true );
+    expect( !!NativeGlue ).toBe( true );
   } );
 
 } );

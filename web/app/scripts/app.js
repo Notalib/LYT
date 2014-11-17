@@ -23,8 +23,11 @@ angular
     $routeProvider
       .when( '/bookshelf', {
         templateUrl: 'views/bookshelf.html',
-        reloadOnSearch: false,
         controller: 'BookshelfCtrl'
+      } )
+      .when( '/book-player', {
+        templateUrl: 'views/book-player.html',
+        controller: 'BookPlayerCtrl'
       } )
       .otherwise( {
         redirectTo: '/bookshelf'

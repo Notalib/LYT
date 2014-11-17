@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'Nativeglue', [ '$window', '$rootScope', '$log', function( $window, $rootScope, $log ) {
+  .factory( 'NativeGlue', [ '$window', '$rootScope', '$log', function( $window, $rootScope, $log ) {
     $window.lytTriggerEvent = function( eventName ) {
       var args = Array.prototype.slice.call( arguments, 0 );
       $rootScope.$emit( eventName, args );
