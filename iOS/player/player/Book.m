@@ -179,6 +179,13 @@
     return player.isPlaying;
 }
 
+-(BOOL)downloaded {
+    for (BookPart* part in self.parts) {
+        if(!part.downloaded) return NO;
+    }
+    return YES;
+}
+
 -(void)play {
     if(!positionEverSet) {
         [self refreshPosition];

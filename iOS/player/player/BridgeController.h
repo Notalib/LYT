@@ -19,6 +19,12 @@
 -(void)cacheBook:(NSString*)bookId;
 -(void)clearBookCache:(NSString*)bookId;
 
+// consumer should report back array of dictionary elements with book state on the form:
+// [ { 'id': <book id>, 'offset': <offset>, 'downloaded': <downloaded> },
+//   ...
+// ]
+-(NSArray*)booksState;
+
 @end
 
 @interface BridgeController : NSObject <UIWebViewDelegate>

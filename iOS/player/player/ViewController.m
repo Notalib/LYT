@@ -34,6 +34,16 @@
 
 #pragma mark LytDeviceProtocol
 
+-(NSArray*)booksState {
+    NSMutableArray* array = [NSMutableArray arrayWithCapacity:booksById.count];
+    for (Book* book in booksById.allValues) {
+        NSDictionary* info = @{@"id": book.identifier, @"offset": @(book.position),
+                               @"downloaded": @(book.downloaded)};
+        [array addObject:info];
+    }
+    return array;
+}
+
 -(Book*)currentBook {
     if(currentBookId == nil) return nil;
     return [booksById objectForKey:currentBookId];
@@ -42,6 +52,10 @@
 -(void)setBook:(id)bookData {
     NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20022/37027/"];
     Book* book = [Book bookFromDictionary:bookData baseURL:baseURL];
+    [book joinParts];
+    [book deleteCache];
+    book.bufferLookahead = 20;
+    
     NSString* key = book.identifier;
     if(key) {
         [booksById setObject:book forKey:key];
@@ -129,9 +143,9 @@
     bridge.delegate = self;
     self.webView.delegate = bridge;
     
-    [self loadTestBook];
+    //[self loadTestBook];
     //[self testPlay];
-    [self testDownload];
+    //[self testDownload];
     
     //NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
     NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];

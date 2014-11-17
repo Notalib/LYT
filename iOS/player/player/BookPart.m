@@ -177,4 +177,8 @@
     return self.end - self.start;
 }
 
+-(BOOL)downloaded {
+    return self.bufferingsSatisfied && self.bufferingPoint >= self.duration;
+}
+
 @end

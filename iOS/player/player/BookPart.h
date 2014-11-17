@@ -34,6 +34,9 @@
 // You should probably KVO observe this property.
 @property (nonatomic, readonly) BOOL bufferingsSatisfied;
 
+// whether book-part is fully downloaded
+@property (nonatomic, readonly) BOOL downloaded;
+
 // return BookPart that combines self and otherPart returning nil
 // if join is not possible. To be joinable the url's must
 // match and self must end where otherPart starts.
