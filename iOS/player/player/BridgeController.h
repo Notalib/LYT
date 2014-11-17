@@ -7,7 +7,21 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Book.h"
+
+@protocol LytDeviceProtocol <NSObject>
+
+-(void)setBook:(id)bookData;
+-(void)clearBook:(NSString*)bookId;
+-(void)play:(NSString*)bookId offset:(NSTimeInterval)offset;
+-(void)stop;
+
+-(void)cacheBook:(NSString*)bookId;
+-(void)clearBookCache:(NSString*)bookId;
+
+@end
 
 @interface BridgeController : NSObject <UIWebViewDelegate>
+@property (nonatomic, weak) id<LytDeviceProtocol> delegate;
 
 @end

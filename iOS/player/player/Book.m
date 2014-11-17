@@ -251,6 +251,10 @@
     }
 }
 
++(Book*)bookFromDictionary:(NSDictionary*)dictionary {
+    return [Book bookFromDictionary:dictionary baseURL:nil];
+}
+
 +(Book*)bookFromDictionary:(NSDictionary*)dictionary baseURL:(NSURL*)baseURL {
     NSArray* partDictionaries = [dictionary objectForKey:@"playlist"];
     NSMutableArray* parts = [NSMutableArray arrayWithCapacity:partDictionaries.count];
@@ -259,7 +263,10 @@
         NSNumber* start = [dictionary objectForKey:@"start"];
         NSNumber* end = [dictionary objectForKey:@"end"];
         
-        NSURL* correctedUrl = [baseURL URLByAppendingPathComponent:url.lastPathComponent];
+        NSURL* correctedUrl = [NSURL URLWithString:url];
+        if(baseURL) {
+            correctedUrl = [baseURL URLByAppendingPathComponent:url.lastPathComponent];
+        }
         
         BookPart* part = [BookPart new];
         part.start = start.doubleValue;
@@ -269,6 +276,7 @@
     }
     
     Book* book = [Book new];
+    book->_identifier = [dictionary objectForKey:@"id"];
     book.title = [dictionary objectForKey:@"title"];
     book.author = [dictionary objectForKey:@"author"];
     book.parts = parts;
