@@ -11,7 +11,7 @@ describe( 'Service: Bookmark', function( ) {
     Bookmark = _Bookmark_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!Bookmark ).toBe( true );
   } );
 

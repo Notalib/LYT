@@ -11,7 +11,7 @@ describe( 'Service: DtbDocument', function( ) {
     DtbDocument = _DtbDocument_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!DtbDocument ).toBe( true );
   } );
 

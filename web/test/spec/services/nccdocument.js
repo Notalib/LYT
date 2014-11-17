@@ -11,7 +11,7 @@ describe( 'Service: NCCDocument', function( ) {
     NCCDocument = _NCCDocument_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!NCCDocument ).toBe( true );
   } );
 

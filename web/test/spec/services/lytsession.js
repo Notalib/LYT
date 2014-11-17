@@ -11,7 +11,7 @@ describe( 'Service: LYTSession', function( ) {
     LYTSession = _LYTSession_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!LYTSession ).toBe( true );
   } );
 

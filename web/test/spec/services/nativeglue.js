@@ -11,7 +11,7 @@ describe( 'Service: NativeGlue', function( ) {
     NativeGlue = _NativeGlue_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!NativeGlue ).toBe( true );
   } );
 

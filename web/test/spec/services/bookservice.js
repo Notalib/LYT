@@ -10,7 +10,7 @@ describe( 'Service: BookService', function( ) {
     BookService = _BookService_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!BookService ).toBe( true );
   } );
 } );
