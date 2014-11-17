@@ -135,6 +135,10 @@ angular.module( 'lyt3App' )
 
       // Internal function to convert raw text to a HTML DOM document
       var coerceToHTML = function( responseText, hideImageUrl ) {
+        if ( this === undefined ) {
+          $log.error( 'coerceToHTML: should be called with coerceToHTML.call( this, responseText, hideImageUrl );' );
+        }
+
         var container, doc, e, markup, scriptTagRegex;
         $log.log( 'DTB: Coercing ' + this.url + ' into HTML' );
         try {
@@ -227,7 +231,7 @@ angular.module( 'lyt3App' )
            * it shouldn't be necessary...
            */
           if ( dataType === 'html' || data.indexOf( 'parseerror' ) > -1 ) {
-            this.source = coerceToHTML( data, this.hideImageUrl );
+            this.source = coerceToHTML.call( this, data, this.hideImageUrl );
           } else { // TODO: Should we specify XML here?
             // Using jQuery.parseXML to avoid triggering attempt to download audio.src and other remote resources listed in the XML-files
             this.source = jQuery( jQuery.parseXML( data ) );
