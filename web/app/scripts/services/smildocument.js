@@ -22,7 +22,7 @@ angular.module( 'lyt3App' )
             parData = parData.concat( parseParNode( jQuery( this ) ) );
           } );
 
-        var previous = null;
+        var previous;
         var segments = parData.map( function( _segment, index ) {
           var sectionID;
           var segment = new Segment( _segment, smil );
@@ -48,8 +48,10 @@ angular.module( 'lyt3App' )
             sectionID = null;
           }
 
+          segment.documentOffset = 0;
           if ( previous ) {
             previous.next = segment;
+            segment.documentOffset = previous.documentOffset + previous.duration;
           }
 
           previous = segment;
@@ -140,7 +142,7 @@ angular.module( 'lyt3App' )
           this.segments = parseMainSeqNode( mainSequence, this, book.nccDocument.sections );
 
           var totalElapsedTime = ( this.getMetadata( ).totalElapsedTime || {} ).content;
-          this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime ) || null;
+          this.absoluteOffset = LYTUtils.parseTime( totalElapsedTime );
 
           this.filename = this.url.split( '/' ).pop( );
 

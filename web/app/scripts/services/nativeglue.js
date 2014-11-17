@@ -9,7 +9,7 @@ angular.module( 'lyt3App' )
 
     var setBook = function( bookData ) {
       $log.info( 'setBook:', bookData );
-      return $window.lytBridge.setBook( bookData );
+      return $window.lytBridge.setBook( JSON.stringify( bookData ) );
     };
 
     var clearBook = function( bookId ) {
