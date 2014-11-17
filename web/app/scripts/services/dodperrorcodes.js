@@ -59,9 +59,12 @@ angular.module( 'lyt3App' )
       },
       identifyDODPError: function( code ) {
         var match;
-        Object.keys( DODPfaultCodes ).some( function( signature ) {
+
+        Object.keys( DODPfaultCodes ).some( function( key ) {
+          var signature = DODPfaultCodes[ key ];
+          console.log( signature, signature.test( code ) );
           if ( signature.test( code ) ) {
-            match = DODPfaultCodes[ signature ];
+            match = DODPfaultCodes[ key ];
             return true;
           }
         } );
