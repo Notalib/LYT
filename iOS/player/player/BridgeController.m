@@ -51,6 +51,45 @@
 
 -(void)processCommandName:(NSString*)name arguments:(NSArray*)arguments {
     DBGLog(@"%@ (%@)", name, arguments);
+    
+    if([name isEqualToString:@"setBook"]) {
+        id info = arguments.firstObject;
+        if(info) {
+            [self.delegate setBook:info];
+            return;
+        }
+    } else if([name isEqualToString:@"clearBook"]) {
+        NSString* bookId = [arguments.firstObject description];
+        if([bookId isKindOfClass:[NSString class]]) {
+            [self.delegate clearBook:bookId];
+            return;
+        }
+    } else if([name isEqualToString:@"play"]) {
+        NSString* bookId = [arguments.firstObject description];
+        NSNumber* offset = arguments.lastObject;
+        
+        if([bookId isKindOfClass:[NSString class]] && [offset isKindOfClass:[NSNumber class]]) {
+            [self.delegate play:bookId offset:offset.doubleValue];
+            return;
+        }
+    } else if([name isEqualToString:@"stop"]) {
+        [self.delegate stop];
+        return;
+    } else if([name isEqualToString:@"cacheBook"]) {
+        NSString* bookId = [arguments.firstObject description];
+        if([bookId isKindOfClass:[NSString class]]) {
+            [self.delegate cacheBook:bookId];
+            return;
+        }
+    } else if([name isEqualToString:@"clearBookCache"]) {
+        NSString* bookId = [arguments.firstObject description];
+        if([bookId isKindOfClass:[NSString class]]) {
+            [self.delegate clearBookCache:bookId];
+            return;
+        }
+    }
+    
+    NSLog(@"Unable to process command: %@\n%@", name, arguments);
 }
 
 -(void)processCommands:(NSArray*)commands {

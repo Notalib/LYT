@@ -276,7 +276,7 @@
     }
     
     Book* book = [Book new];
-    book->_identifier = [dictionary objectForKey:@"id"];
+    book->_identifier = [[dictionary objectForKey:@"id"] description]; // we enforce that id is string, by taking description
     book.title = [dictionary objectForKey:@"title"];
     book.author = [dictionary objectForKey:@"author"];
     book.parts = parts;
