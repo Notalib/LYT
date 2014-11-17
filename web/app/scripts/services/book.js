@@ -202,20 +202,20 @@ angular.module( 'lyt3App' )
         if ( !( url in this.resources ) ) {
           return deferred.reject( );
         }
+
         var smil = this.resources[ url ];
         if ( !smil.document ) {
           smil.document = new SMILDocument( smil.url, this );
-          smil.document.promise
-            .then( function( smilDocument ) {
-              return deferred.resolve( smilDocument );
-            } )
-            .catch( function( error ) {
-              smil.document = null;
-              return deferred.reject( error );
-            } );
-        } else {
-          deferred.resolve( smil.document );
         }
+
+        smil.document.promise
+          .then( function( smilDocument ) {
+            return deferred.resolve( smilDocument );
+          } )
+          .catch( function( error ) {
+            smil.document = null;
+            return deferred.reject( error );
+          } );
         return deferred.promise;
       };
 
