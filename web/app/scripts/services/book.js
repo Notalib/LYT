@@ -116,7 +116,7 @@ angular.module( 'lyt3App' )
           nccPromise.then( function( document ) {
             obj.document = this.nccDocument = document;
             var metadata = this.nccDocument.getMetadata( );
-            var authors = ( metadata.creator || [ ] ).forEach(
+            var authors = ( metadata.creator || [ ] ).map(
               function( creator ) {
                 return creator.content;
               } );
