@@ -179,54 +179,62 @@ angular.module( 'lyt3App' )
        * Return a promise that ensures that resources for both this object
        * and the section are loaded.
        */
-      NCCDocument.prototype._getSection = function( getter ) {
+      var getSection = function( nccdocument, getter ) {
         var deferred = $q.defer( );
-        this.promise.catch( function( ) {
-          return deferred.reject( );
-        } );
-        this.promise.then( function( document ) {
-          var section = getter( document.sections );
-          if ( section ) {
-            section.load( );
-            section.promise.then( function( ) {
-              deferred.resolve( section );
-            } );
-            section.promise.catch( function( ) {
+        nccdocument.promise
+          .catch( function( ) {
+            return deferred.reject( );
+          } )
+          .then( function( document ) {
+            var section = getter( document.sections );
+            if ( section ) {
+              section.load( );
+              section.promise
+                .then( function( ) {
+                  deferred.resolve( section );
+                } )
+                .catch( function( ) {
+                  deferred.reject( );
+                } );
+            } else {
               deferred.reject( );
-            } );
-          } else {
-            deferred.reject( );
-          }
-        } );
+            }
+          } );
+
         return deferred.promise;
       };
 
       NCCDocument.prototype.firstSection = function( ) {
-        return this._getSection( function( sections ) {
+        return getSection( this, function( sections ) {
           return sections[ 0 ];
         } );
       };
 
       NCCDocument.prototype.getSectionByURL = function( url ) {
         var baseUrl = url.split( '#' )[ 0 ];
-        return this._getSection( function( sections ) {
-          sections.forEach( function( section ) {
+        return getSection( this, function( sections ) {
+          var res;
+          sections.some( function( section ) {
             if ( section.url === baseUrl ) {
-              return section;
+              res = section;
+              return true;
             }
           } );
+
+          return res;
         } );
       };
 
       NCCDocument.prototype.getSectionIndexById = function( id ) {
-        var i, section, _i, _len, _ref;
-        _ref = this.sections;
-        for ( i = _i = 0, _len = _ref.length; _i < _len; i = ++_i ) {
-          section = _ref[ i ];
+        var res;
+        this.sections.some( function( section, idx ) {
           if ( section.id === id ) {
-            return i;
+            res = idx;
+            return true;
           }
-        }
+        } );
+
+        return res;
       };
 
       return NCCDocument;
