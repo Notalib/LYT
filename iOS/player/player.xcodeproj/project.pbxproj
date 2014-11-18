@@ -57,6 +57,8 @@
 		BEB1BA241A121B150066F4FD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA231A121B150066F4FD /* Images.xcassets */; };
 		BEB1BA271A121B150066F4FD /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA251A121B150066F4FD /* LaunchScreen.xib */; };
 		BEB1BA331A121B150066F4FD /* playerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA321A121B150066F4FD /* playerTests.m */; };
+		BECE557A1A1B853400BDA191 /* Library.m in Sources */ = {isa = PBXBuildFile; fileRef = BECE55791A1B853400BDA191 /* Library.m */; };
+		BECE557B1A1B853400BDA191 /* Library.m in Sources */ = {isa = PBXBuildFile; fileRef = BECE55791A1B853400BDA191 /* Library.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -111,6 +113,9 @@
 		BEB1BA2C1A121B150066F4FD /* playerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = playerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB1BA311A121B150066F4FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BEB1BA321A121B150066F4FD /* playerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = playerTests.m; sourceTree = "<group>"; };
+		BECE55781A1B853400BDA191 /* Library.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Library.h; sourceTree = "<group>"; };
+		BECE55791A1B853400BDA191 /* Library.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Library.m; sourceTree = "<group>"; };
+		BECE557C1A1B8FAC00BDA191 /* bridge-test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "bridge-test.html"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,9 +136,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BE08A1941A1368AB00772B6D /* test-json */ = {
+		BE08A1941A1368AB00772B6D /* testing */ = {
 			isa = PBXGroup;
 			children = (
+				BECE557C1A1B8FAC00BDA191 /* bridge-test.html */,
 				BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */,
 				BE6DC6711A1397C8000DB1C2 /* 37027.json */,
 				BE08A1B91A13690E00772B6D /* bunker137.json */,
@@ -151,7 +157,7 @@
 				BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */,
 				BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */,
 			);
-			name = "test-json";
+			name = testing;
 			sourceTree = "<group>";
 		};
 		BEB1BA0A1A121B140066F4FD = {
@@ -175,7 +181,7 @@
 		BEB1BA151A121B140066F4FD /* player */ = {
 			isa = PBXGroup;
 			children = (
-				BE08A1941A1368AB00772B6D /* test-json */,
+				BE08A1941A1368AB00772B6D /* testing */,
 				BEB1BA1A1A121B140066F4FD /* AppDelegate.h */,
 				BEB1BA1B1A121B140066F4FD /* AppDelegate.m */,
 				BE08A1BC1A13696D00772B6D /* Book.h */,
@@ -187,6 +193,8 @@
 				BE4732431A1A024700A325A4 /* bridge.js */,
 				BE43F0F01A14AE01008DFC53 /* Downloader.h */,
 				BE43F0F11A14AE01008DFC53 /* Downloader.m */,
+				BECE55781A1B853400BDA191 /* Library.h */,
+				BECE55791A1B853400BDA191 /* Library.m */,
 				BE3D47DB1A1240E000DA2294 /* SoundChunk.h */,
 				BE3D47DC1A1240E000DA2294 /* SoundChunk.m */,
 				BEB1BA1D1A121B140066F4FD /* ViewController.h */,
@@ -364,6 +372,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BECE557A1A1B853400BDA191 /* Library.m in Sources */,
 				BE08A1BE1A13696D00772B6D /* Book.m in Sources */,
 				BE08A1C21A136B8F00772B6D /* BookPart.m in Sources */,
 				BEB1BA1F1A121B140066F4FD /* ViewController.m in Sources */,
@@ -383,6 +392,7 @@
 				BE43F0F31A14AE01008DFC53 /* Downloader.m in Sources */,
 				BE08A1BF1A13696D00772B6D /* Book.m in Sources */,
 				BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */,
+				BECE557B1A1B853400BDA191 /* Library.m in Sources */,
 				BE4732491A1A0F4600A325A4 /* BridgeController.m in Sources */,
 				BE08A1C31A136B8F00772B6D /* BookPart.m in Sources */,
 			);

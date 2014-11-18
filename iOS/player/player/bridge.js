@@ -26,7 +26,9 @@ window.lytBridge = {
     },
     
     play: function(bookId, offset) {
-        this._sendCommand('play', [bookId, offset]);
+        var position = offset;
+        if(position == undefined) position = -1;
+        this._sendCommand('play', [bookId, position]);
     },
     
     stop: function() {

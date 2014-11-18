@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BridgeController.h"
 
-@interface ViewController : UIViewController <LytDeviceProtocol>
+@interface ViewController : UIViewController
 
 
 @end
