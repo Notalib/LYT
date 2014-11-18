@@ -173,10 +173,11 @@
     
     Book* book = [booksById objectForKey:bookId];
     currentBookId = book.identifier; // if bookId was not valid, book.identifier will be nil, which is wanted behaviour
-    if(offset >= 0.0 || book.position == 0.0) {
-        // negative offsets mean current position
-        book.position = fmax(0, offset);
-    }
+    
+    // negative offsets mean current position
+    if(offset < 0.0) offset = book.position;
+    book.position = offset;
+
     [book play];
     [self sendBookUpdate];
     [self sendDownloadUpdates];

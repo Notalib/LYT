@@ -173,7 +173,8 @@
     
     for (BookPart* part in self.parts) {
         if(index == self.currentPart) {
-            return time + player.currentTime;
+            if(player.isPlaying) return time + player.currentTime;
+            return time + self.positionInPart;
         }
         
         time += part.duration;
@@ -193,7 +194,7 @@
     
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     NSURL* url = [NSURL fileURLWithPath:part.cachePath];
-    [self playUrl:url atTime:0];
+    [self playUrl:url atTime: self.positionInPart];
     
     return YES;
 }
@@ -235,8 +236,14 @@
 }
 
 -(void)stop {
+    // remember position as it is
+    NSTimeInterval position = self.position;
+    
     delayedStart = NO;
     [player stop];
+    
+    // make sure internal statue about position (which part and positionInPart) are correct
+    self.position = position;
 }
 
 -(void)playMore {
