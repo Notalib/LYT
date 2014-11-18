@@ -112,8 +112,21 @@
 }
 
 -(void)setBook:(id)bookData {
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20012/37027/"];
-    Book* book = [Book bookFromDictionary:bookData baseURL:baseURL];
+    NSURL* baseURL = nil;//[NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20012/37027/"];
+    NSDictionary* dict = nil;
+    if([bookData isKindOfClass:[NSDictionary class]]) {
+        dict = (NSDictionary*)bookData;
+    } else if([bookData isKindOfClass:[NSString class]]) {
+        // book-data can be double-wrapped as JSON
+        NSString* string = (NSString*)bookData;
+        NSData* data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+        if(![dict isKindOfClass:[NSDictionary class]]) dict = nil;
+    }
+    
+    if(!dict) return;
+    
+    Book* book = [Book bookFromDictionary:dict baseURL:baseURL];
     [book joinParts];
     //[book deleteCache];
     book.bufferLookahead = 20;
@@ -154,7 +167,10 @@
     
     Book* book = [booksById objectForKey:bookId];
     currentBookId = book.identifier; // if bookId was not valid, book.identifier will be nil, which is wanted behaviour
-    book.position = offset;
+    if(offset >= 0.0) {
+        // negative offsets mean current position
+        book.position = offset;
+    }
     [book play];
     [self sendBookUpdate];
     [self sendDownloadUpdates];
@@ -228,20 +244,12 @@
     bridge.delegate = self;
     bridge.webView = self.webView;
     self.webView.delegate = bridge;
+        
+    // NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
+    NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0/"];
     
-    //[self loadTestBook];
-    //[self testPlay];
-    //[self testDownload];
-    
-    //NSURL* url = [NSURL URLWithString:@"http://m.e17.dk/#login"];
-    NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end
