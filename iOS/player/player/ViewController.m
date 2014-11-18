@@ -95,7 +95,6 @@
 
 -(void)clearBookCache:(NSString*)bookId {
     Book* book = [booksById objectForKey:bookId];
-    book.bufferLookahead = 0;
     [book deleteCache];
 }
 

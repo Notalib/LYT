@@ -354,6 +354,7 @@
     for (BookPart* part in self.parts) {
         [part deleteCache];
     }
+    book.bufferLookahead = 0;
 }
 
 @end
