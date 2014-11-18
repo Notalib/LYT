@@ -1,0 +1,11 @@
+'use strict';
+// jscs:disable
+
+angular.module( 'lytTestBook', [] );
+
+angular.module( 'lytTestBook' )
+  .factory( 'bookDataLocal', function() {
+    return BOOKDATA;
+  } );
+// jscs:enable
+

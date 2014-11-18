@@ -6,11 +6,19 @@ try {
   angular.module( 'lytTest', [ ] );
 }
 
-angular.module( 'lytTest', [ 'lytTestUser' ] )
-  .factory( 'testData', [ 'testDataLocal',
-    function( testDataLocal ) {
+// Requires lytTestUser:
+// Use test/mock/data/test-data-local.js-tmpl to create test/mock/data/test-data-local.js
+//
+// Requires lytTestBook
+// Run the script tools/createBookTestData.js to generate test/mock/data/bookData.js
+
+angular.module( 'lytTest', [ 'lytTestUser', 'lytTestBook' ] )
+  .factory( 'testData', [ 'testDataLocal', 'bookDataLocal',
+    function( testDataLocal, bookDataLocal ) {
       var DODPVERSION = 'Dummy=1.0.0';
       var testUser = testDataLocal.user;
+      var baseUrl = 'http://test.m.e17.dk/';
+      var bookId = 37027;
 
       var logOn = {
         valid: {
@@ -227,53 +235,40 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
         } ]
       };
 
+      var makeResourceURI = function( fileName ) {
+        return baseUrl + '/DodpFiles/20155/' + bookId + '/' + fileName;
+      };
+
       var getContentResources = {
         params: {
-          contentID: 37027
+          contentID: bookId
         },
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
           DODPVERSION +
-          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/"><resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/01_Michael_Kamp_Bunker_.mp3" mimeType="application/octet-stream" size="0" localURI="01_Michael_Kamp_Bunker_.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/02_Om_denne_udgave.mp3" mimeType="application/octet-stream" size="0" localURI="02_Om_denne_udgave.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/03_Kolofon_og_bibliogra.mp3" mimeType="application/octet-stream" size="0" localURI="03_Kolofon_og_bibliogra.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/04_Citat.mp3" mimeType="application/octet-stream" size="0" localURI="04_Citat.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/05_Kapitel_1.mp3" mimeType="application/octet-stream" size="0" localURI="05_Kapitel_1.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/06_Kapitel_2.mp3" mimeType="application/octet-stream" size="0" localURI="06_Kapitel_2.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/07_Kapitel_3.mp3" mimeType="application/octet-stream" size="0" localURI="07_Kapitel_3.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/08_Kapitel_4.mp3" mimeType="application/octet-stream" size="0" localURI="08_Kapitel_4.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/09_Kapitel_5.mp3" mimeType="application/octet-stream" size="0" localURI="09_Kapitel_5.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/10_Kapitel_6.mp3" mimeType="application/octet-stream" size="0" localURI="10_Kapitel_6.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/11_Kapitel_7.mp3" mimeType="application/octet-stream" size="0" localURI="11_Kapitel_7.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/12_Kapitel_8.mp3" mimeType="application/octet-stream" size="0" localURI="12_Kapitel_8.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/13_Kapitel_9.mp3" mimeType="application/octet-stream" size="0" localURI="13_Kapitel_9.mp3" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/37027.htm" mimeType="application/octet-stream" size="0" localURI="37027.htm" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0001.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0001.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0002.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0002.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0003.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0003.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0004.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0004.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0005.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0005.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0006.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0006.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0007.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0007.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0008.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0008.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0009.smil" mimeType="application/octet-stream" size="0" localURI="dcbw0009.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000A.smil" mimeType="application/octet-stream" size="0" localURI="dcbw000A.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000B.smil" mimeType="application/octet-stream" size="0" localURI="dcbw000B.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000C.smil" mimeType="application/octet-stream" size="0" localURI="dcbw000C.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000D.smil" mimeType="application/octet-stream" size="0" localURI="dcbw000D.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/master.smil" mimeType="application/octet-stream" size="0" localURI="master.smil" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/><resource uri="http://test.m.e17.dk:80/DodpFiles/20155/37027/ncc.html" mimeType="application/octet-stream" size="0" localURI="ncc.html" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/></resources></getContentResourcesResponse></s:Body></s:Envelope>',
-        resolved: {
-          '01_Michael_Kamp_Bunker_.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/01_Michael_Kamp_Bunker_.mp3',
-          '02_Om_denne_udgave.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/02_Om_denne_udgave.mp3',
-          '03_Kolofon_og_bibliogra.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/03_Kolofon_og_bibliogra.mp3',
-          '04_Citat.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/04_Citat.mp3',
-          '05_Kapitel_1.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/05_Kapitel_1.mp3',
-          '06_Kapitel_2.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/06_Kapitel_2.mp3',
-          '07_Kapitel_3.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/07_Kapitel_3.mp3',
-          '08_Kapitel_4.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/08_Kapitel_4.mp3',
-          '09_Kapitel_5.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/09_Kapitel_5.mp3',
-          '10_Kapitel_6.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/10_Kapitel_6.mp3',
-          '11_Kapitel_7.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/11_Kapitel_7.mp3',
-          '12_Kapitel_8.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/12_Kapitel_8.mp3',
-          '13_Kapitel_9.mp3': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/13_Kapitel_9.mp3',
-          '37027.htm': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/37027.htm',
-          'dcbw0001.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0001.smil',
-          'dcbw0002.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0002.smil',
-          'dcbw0003.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0003.smil',
-          'dcbw0004.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0004.smil',
-          'dcbw0005.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0005.smil',
-          'dcbw0006.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0006.smil',
-          'dcbw0007.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0007.smil',
-          'dcbw0008.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0008.smil',
-          'dcbw0009.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw0009.smil',
-          'dcbw000A.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000A.smil',
-          'dcbw000B.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000B.smil',
-          'dcbw000C.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000C.smil',
-          'dcbw000D.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/dcbw000D.smil',
-          'master.smil': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/master.smil',
-          'ncc.html': 'http://test.m.e17.dk:80/DodpFiles/20155/37027/ncc.html'
-        }
+          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/"><resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00">' + ( function( ) {
+              var str = '<resource uri="_URI_" mimeType="application/octet-stream" size="0" localURI="_LOCALURI_" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/>';
+
+              return Object.keys(bookDataLocal)
+                .reduce( function( output, fileName ) {
+                  return output + str.replace( '_URI_', makeResourceURI( fileName ) ).replace( '_LOCALURI_', fileName );
+                }, '' );
+          } )() + '</resources></getContentResourcesResponse></s:Body></s:Envelope>',
+        resolved: (function( ) {
+          return Object.keys(bookDataLocal)
+            .reduce( function( output, fileName ) {
+              output[ fileName ] = makeResourceURI( fileName );
+              return output;
+            }, {} );
+        })()
       };
 
       var getBookmarks = {
         params: {
-          contentID: 37027
+          contentID: bookId
         },
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
           DODPVERSION +
-          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getBookmarksResponse xmlns="http://www.daisy.org/ns/daisy-online/"><bookmarkSet><title xmlns="http://www.daisy.org/z3986/2005/bookmark/"><text>Bunker 137</text><audio src=""/></title><uid xmlns="http://www.daisy.org/z3986/2005/bookmark/">37027</uid><lastmark xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:05.00</timeOffset><charOffset>0</charOffset></lastmark><bookmark label="" xml:lang="en" xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:00.00</timeOffset><charOffset>0</charOffset><note><text>Om denne udgave</text><audio src=""/></note></bookmark></bookmarkSet></getBookmarksResponse></s:Body></s:Envelope>',
+          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getBookmarksResponse xmlns="http://www.daisy.org/ns/daisy-online/"><bookmarkSet><title xmlns="http://www.daisy.org/z3986/2005/bookmark/"><text>Bunker 137</text><audio src=""/></title><uid xmlns="http://www.daisy.org/z3986/2005/bookmark/">' + bookId +  '</uid><lastmark xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:05.00</timeOffset><charOffset>0</charOffset></lastmark><bookmark label="" xml:lang="en" xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:00.00</timeOffset><charOffset>0</charOffset><note><text>Om denne udgave</text><audio src=""/></note></bookmark></bookmarkSet></getBookmarksResponse></s:Body></s:Envelope>',
         resolved: {
           'bookmarks': [ {
             'ncxRef': null,
@@ -284,7 +279,7 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
             }
           } ],
           'book': {
-            'uid': 37027,
+            'uid': bookId,
             'title': {
               'text': 'Bunker 137',
               'audio': {
@@ -308,7 +303,7 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
 
       var issueContent = {
         params: {
-          contentID: 37027
+          contentID: bookId
         },
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">DodpCore=1.1.1.19462;DodpBase=3.1.23.24696;MemberCatalog=2.0.32.23097;NotaSecure=1.1.22.17564;DodpMobile=3.1.16.24698</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><issueContentResponse xmlns="http://www.daisy.org/ns/daisy-online/"><issueContentResult>true</issueContentResult></issueContentResponse></s:Body></s:Envelope>'
       };
@@ -344,7 +339,7 @@ angular.module( 'lytTest', [ 'lytTestUser' ] )
           }
         },
         book: {
-          bookId: 37027
+          bookId: bookId
         }
       };
     }
