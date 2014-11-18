@@ -24,7 +24,8 @@
     Book* testBook;
     
     NSMutableDictionary* booksById;
-    NSString* currentBookId;
+    NSMutableArray* booksDownloading; // books we are downloading in their entirety
+    NSString* currentBookId; // the playing book is always current, but the current book might not be playing
 }
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
 
@@ -33,6 +34,24 @@
 @implementation ViewController
 
 #pragma mark LytDeviceProtocol
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                       change:(NSDictionary *)change context:(void *)context {
+    if([keyPath isEqualToString:@"error"]) {
+        Book* book = object;
+        NSError* error = book.error;
+        if(error) {
+            NSString* message = error.localizedDescription;
+            if([error.domain isEqualToString:NSURLErrorDomain]) {
+                if(error.code == kCFURLErrorUserAuthenticationRequired) {
+                    message = NSLocalizedString(@"Authentication required", nil);
+                }
+            }
+            
+            [bridge downloadBook: book.identifier failed:message];
+        }
+    }
+}
 
 -(NSArray*)booksState {
     NSMutableArray* array = [NSMutableArray arrayWithCapacity:booksById.count];
@@ -58,16 +77,29 @@
     
     NSString* key = book.identifier;
     if(key) {
+        [self clearBook:key];
         [booksById setObject:book forKey:key];
+        
+        [book addObserver:self forKeyPath:@"isPlaying" options:0 context:NULL];
+        [book addObserver:self forKeyPath:@"error" options:0 context:NULL];
     }
 }
 
 -(void)clearBook:(NSString*)bookId {
     if(bookId) {
         Book* book = [booksById objectForKey:bookId];
+        [book removeObserver:self forKeyPath:@"isPlaying"];
+        [book removeObserver:self forKeyPath:@"error"];
+        
         [book stop];
         [book deleteCache];
         [booksById removeObjectForKey:bookId];
+    }
+}
+
+-(void)clearAllBooks {
+    for (Book* book in booksById.allValues) {
+        [self clearBook:book.identifier];
     }
 }
 
@@ -140,6 +172,7 @@
     booksById = [NSMutableDictionary new];
     bridge = [BridgeController new];
     bridge.delegate = self;
+    bridge.webView = self.webView;
     self.webView.delegate = bridge;
     
     //[self loadTestBook];

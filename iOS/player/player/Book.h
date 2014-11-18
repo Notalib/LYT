@@ -15,6 +15,11 @@
 @property (nonatomic, strong) NSString* author;
 @property (nonatomic, readonly) NSArray* parts; // contains BookPart elements
 
+@property (nonatomic, readonly) BOOL isPlaying;
+
+// last error for book
+@property (nonatomic, strong) NSError* error;
+
 // how many seconds to keep bufferingPoint ahead of position
 @property (nonatomic, assign) NSTimeInterval bufferLookahead;
 

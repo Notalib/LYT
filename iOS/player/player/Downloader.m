@@ -138,6 +138,8 @@ didFinishDownloadingToURL:(NSURL *)location {
     [self willChangeValueForKey:@"progressBytes"];
     progressBytes = 0;
     [self didChangeValueForKey:@"progressBytes"];
+    
+    isLoading = NO;
 }
 
 // check how much is already cached for the given

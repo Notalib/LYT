@@ -22,9 +22,14 @@
 
 @implementation Book
 
-// we have not yet decided what to do with errors and just log them to console
 -(void)reportError:(NSError*)error {
-    NSLog(@"%@", error);
+    DBGLog(@"%@", error);
+    self.error = error;
+}
+
++(BOOL)automaticallyNotifiesObserversForKey:(NSString*)theKey {
+    if([theKey isEqualToString:@"isPlaying"]) return NO;
+    return [super automaticallyNotifiesObserversForKey:theKey];
 }
 
 #pragma mark AVAudioPlayerDelegate
@@ -191,7 +196,9 @@
         [self refreshPosition];
     }
     
+    [self willChangeValueForKey:@"isPlaying"];
     BOOL started = [self playIfReady];
+    [self didChangeValueForKey:@"isPlaying"];
     delayedStart = !started;
 }
 
@@ -354,7 +361,7 @@
     for (BookPart* part in self.parts) {
         [part deleteCache];
     }
-    book.bufferLookahead = 0;
+    self.bufferLookahead = _bufferingPoint = 0;
 }
 
 @end
