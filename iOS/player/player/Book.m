@@ -70,9 +70,9 @@
 }
 
 -(void)refreshLookaheadWithPosition:(NSTimeInterval)position {
-    NSTimeInterval lookahead = fmax(self.bufferLookahead, 1);
+    NSTimeInterval lookahead = self.bufferLookahead;
     if(position + lookahead > self.bufferingPoint) {
-        self.bufferingPoint = position + lookahead;
+        self.bufferingPoint = fmin(self.duration, position + lookahead);
     }
     
     // schedule delayed refresh if we are playing
@@ -84,8 +84,18 @@
     
     NSTimeInterval ensuredBufferingPoint = self.ensuredBufferingPoint;
     DBGLog(@"position=%.1f, ensuredBufferingPoint = %.1f", position, ensuredBufferingPoint);
-    if(ensuredBufferingPoint == 0.0) {
-        [self ensuredBufferingPoint];
+    if(ensuredBufferingPoint < self.bufferingPoint) {
+        [self ensureDownloading];
+    }
+}
+
+-(void)ensureDownloading {
+    for (BookPart* part in self.parts) {
+        if(part.downloaded) continue;
+        if(!part.bufferingsSatisfied) {
+            [part ensureDownloading];
+            break;
+        }
     }
 }
 
@@ -149,6 +159,14 @@
     [self refreshPosition];
 }
 
+-(NSTimeInterval)duration {
+    NSTimeInterval total = 0;
+    for (BookPart* part in self.parts) {
+        total += part.duration;
+    }
+    return total;
+}
+
 -(NSTimeInterval)position {
     NSUInteger index = 0;
     NSTimeInterval time = 0;
@@ -184,6 +202,15 @@
     return player.isPlaying;
 }
 
+-(BOOL)downloading {
+    // we are downloading if any part of book is downloading
+    for (BookPart* part in self.parts) {
+        BOOL partDownloading = !part.downloaded && !part.bufferingsSatisfied;
+        if(partDownloading) return YES;
+    }
+    return NO;
+}
+
 -(BOOL)downloaded {
     for (BookPart* part in self.parts) {
         if(!part.downloaded) return NO;
@@ -192,6 +219,11 @@
 }
 
 -(void)play {
+    // we make sure there is at least a little lookahead when playing
+    if(self.bufferLookahead < 1.0) {
+        self.bufferLookahead = 1.0;
+    }
+    
     if(!positionEverSet) {
         [self refreshPosition];
     }

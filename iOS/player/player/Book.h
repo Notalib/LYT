@@ -24,11 +24,14 @@
 @property (nonatomic, assign) NSTimeInterval bufferLookahead;
 
 // Book should try to keep its buffer filled to this many seconds,
-// whch can be set to very large number to buffer entire Book.
+// which can be set to very large number to buffer entire Book.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
 
 // whether book is fully downloaded
 @property (nonatomic, readonly) BOOL downloaded;
+
+// whether any kind of downloading is going on
+@property (nonatomic, readonly) BOOL downloading;
 
 // Like bufferingPoint but for data that is already present in cache
 // Starts counting at current position and stops counting at first part of book
@@ -40,6 +43,7 @@
 
 // position within books, either globally or by part
 @property (nonatomic, assign) NSTimeInterval position;       // seeks when set
+@property (nonatomic, readonly) NSTimeInterval duration;       // seeks when set
 @property (nonatomic, assign) NSUInteger currentPart;
 @property (nonatomic, assign) NSTimeInterval positionInPart; // position relative to start of current part
 
