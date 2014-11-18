@@ -69,7 +69,7 @@
 }
 
 -(void)setBook:(id)bookData {
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20022/37027/"];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20008/37027/"];
     Book* book = [Book bookFromDictionary:bookData baseURL:baseURL];
     [book joinParts];
     //[book deleteCache];
