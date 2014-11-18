@@ -426,6 +426,7 @@ module.exports = function ( grunt ) {
         src: [
           'app/scripts/*',
           'app/scripts/*/*',
+          'tools/*',
           'test/*',
           'test/*/*'
         ]

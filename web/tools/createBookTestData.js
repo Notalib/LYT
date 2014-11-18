@@ -44,7 +44,7 @@ var output = files.reduce( function( output, fileName ) {
   output[ fileName ] = {
     ext: ext,
     fileName: fileName,
-    content: (function(){
+    content: (function() {
       if ( readContent ) {
         return fs.readFileSync( realPath, 'UTF-8' );
       }
