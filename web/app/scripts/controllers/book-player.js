@@ -24,7 +24,7 @@ angular.module('lyt3App')
       } );
 
       $scope.play = function() {
-        NativeGlue.play( $routeParams.bookId );
+        NativeGlue.play( $routeParams.bookid );
       };
 
       $scope.stop = function() {
