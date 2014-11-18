@@ -11,7 +11,7 @@ describe( 'Service: Section', function( ) {
     Section = _Section_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!Section ).toBe( true );
   } );
 

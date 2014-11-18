@@ -11,8 +11,17 @@ describe( 'Service: DODPErrorCodes', function( ) {
     DODPErrorCodes = _DODPErrorCodes_;
   } ) );
 
-  it( 'should do something', function( ) {
-    expect( !!DODPErrorCodes ).toBe( true );
-  } );
+  describe( 'identifyDODPError:', function( ) {
+    it( 'internalServerError', function( ) {
+      var res = DODPErrorCodes.identifyDODPError( 'internalServerError' );
 
+      expect(res).toBe(DODPErrorCodes.DODP_INTERNAL_ERROR);
+    } );
+
+    it( 'unknown', function( ) {
+      var res = DODPErrorCodes.identifyDODPError( 'some weird error code' );
+
+      expect(res).toBe(DODPErrorCodes.DODP_UNKNOWN_ERROR);
+    } );
+  } );
 } );

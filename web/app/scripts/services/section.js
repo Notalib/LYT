@@ -4,8 +4,8 @@
 angular.module( 'lyt3App' )
   .factory( 'Section', [ '$q', '$log', function( $q, $log ) {
     function Section( heading, book ) {
-      var anchor, _ref;
       this.book = book;
+
       this._deferred = $q.defer( );
       this.promise = this._deferred.promise;
 
@@ -17,14 +17,14 @@ angular.module( 'lyt3App' )
       this[ 'class' ] = heading.attr( 'class' );
 
       // Get the anchor element of the heading, and its attributes
-      anchor = heading.find( 'a:first' );
-      this.title = jQuery.trim( anchor.text( ) );
+      var anchor = heading.find( 'a:first' );
+      this.title = anchor.text( ).trim( );
 
       // The [NCC](http://www.daisy.org/z3986/specifications/daisy20.php#5.0%20NAVIGATION%20CONTROL%20CENTER%20%28NCC%29)
       // standard dictates that all references should point to a specific par or
       // seq id in the SMIL file. Since the section class represents the entire
       // SMIL file, we remove the id reference from the url.
-      _ref = ( anchor.attr( 'href' ) ).split( '#' );
+      var _ref = ( anchor.attr( 'href' ) ).split( '#' );
       this.url = _ref[ 0 ];
       this.fragment = _ref[ 1 ];
 
@@ -69,7 +69,8 @@ angular.module( 'lyt3App' )
         }.bind( this ) )
         .catch( function( ) {
           $log.error( 'Section: Failed to load SMIL-file ' + ( this.url.replace( /#.*$/, '' ) ) );
-          return this._deferred.reject( );
+
+          this._deferred.reject( );
         }.bind( this ) );
 
       return this;
@@ -90,9 +91,9 @@ angular.module( 'lyt3App' )
       if ( !this.document /* || this.document.promise.state() !== 'resolved' */ ) {
         return [ ];
       }
+
       var resources = this.resources;
-      return this.document.getAudioReferences( ).reduce( function( urls,
-        file ) {
+      return this.document.getAudioReferences( ).reduce( function( urls, file ) {
         file = file.toLowerCase( );
         if ( resources[ file ] && resources[ file ].url ) {
           urls.push( resources[ file ].url );
@@ -114,19 +115,18 @@ angular.module( 'lyt3App' )
       return !!this.parent;
     };
 
-
     // Since segments are sub-components of this class, we ensure that loading
     // is complete before returning them.
 
     // Helper function for segment getters
     // Return a promise that ensures that resources for both this object
     // and the segment are loaded.
-    Section.prototype._getSegment = function( getter ) {
+    var getSegment = function( section, getter ) {
       var deferred = $q.defer( );
-      this.promise.catch( function( error ) {
+      section.promise.catch( function( error ) {
         return deferred.reject( error );
       } );
-      this.promise.then( function( section ) {
+      section.promise.then( function( section ) {
         if ( !section || !section.document || !section.document.segments ) {
           throw 'Section: _getSegment: Invalid section loaded';
         }
@@ -150,26 +150,28 @@ angular.module( 'lyt3App' )
     };
 
     Section.prototype.firstSegment = function( ) {
-      return this._getSegment( function( segments ) {
+      return getSegment( this, function( segments ) {
         return segments[ 0 ];
       } );
     };
 
     Section.prototype.lastSegment = function( ) {
-      return this._getSegment( function( segments ) {
+      return getSegment( this, function( segments ) {
         return segments[ segments.length - 1 ];
       } );
     };
 
     Section.prototype.getSegmentById = function( id ) {
-      return this._getSegment( function( segments ) {
-        var segment, _i, _len;
-        for ( _i = 0, _len = segments.length; _i < _len; _i++ ) {
-          segment = segments[ _i ];
+      return getSegment( this, function( segments ) {
+        var res;
+        segments.some( function( segment ) {
           if ( segment.id === id ) {
-            return segment;
+            res = segment;
+            return true;
           }
-        }
+        } );
+
+        return res;
       } );
     };
 
@@ -185,31 +187,37 @@ angular.module( 'lyt3App' )
     };
 
     Section.prototype.getSegmentsByAudioOffset = function( audio, offset ) {
-      var segment, _i, _len, _ref;
-      _ref = this.getUnloadedSegmentsByAudio( audio );
-      for ( _i = 0, _len = _ref.length; _i < _len; _i++ ) {
-        segment = _ref[ _i ];
+      var res;
+
+      this.getUnloadedSegmentsByAudio( audio ).some( function( segment ) {
         if ( segment.containsOffset( offset ) ) {
-          return segment;
+          res = segment;
+          return true;
         }
-      }
+      } );
+
+      return res;
     };
 
     Section.prototype.getSegmentBySmilOffset = function( offset ) {
       if ( !offset ) {
         offset = 0;
       }
-      return this._getSegment( function( segments ) {
-        var currentOffset, segment, _i, _len;
-        currentOffset = 0;
-        for ( _i = 0, _len = segments.length; _i < _len; _i++ ) {
-          segment = segments[ _i ];
-          if ( ( currentOffset <= offset && offset <= currentOffset +
-              segment.duration ) ) {
-            return segment;
+
+      return getSegment( this, function( segments ) {
+        var res;
+        var currentOffset = 0;
+
+        segments.some( function( segment ) {
+          if ( currentOffset <= offset && offset <= currentOffset + segment.duration  ) {
+            res = segment;
+            return true;
           }
+
           currentOffset += segment.duration;
-        }
+        } );
+
+        return res;
       } );
     };
 
@@ -217,14 +225,18 @@ angular.module( 'lyt3App' )
       if ( !offset ) {
         offset = 0;
       }
-      return this._getSegment( function( segments ) {
-        var segment, _i, _len;
-        for ( _i = 0, _len = segments.length; _i < _len; _i++ ) {
-          segment = segments[ _i ];
-          if ( ( segment.start <= offset && offset < segment.end ) ) {
-            return segment;
+
+      return getSegment( this, function( segments ) {
+        var res;
+
+        segments.some( function( segment ) {
+          if ( segment.start <= offset && offset < segment.end ) {
+            res = segment;
+            return true;
           }
-        }
+        } );
+
+        return res;
       } );
     };
 

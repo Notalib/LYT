@@ -4,16 +4,14 @@
 angular.module( 'lyt3App' )
   .factory( 'LYTSession', [ '$log', 'localStorageService', function(
     $log, localStorageService ) {
-    var credentials, memberInfo;
     var LYTSession = {
       init: function( ) {
         if ( typeof getNotaAuthToken !== 'undefined' &&
           getNotaAuthToken !== null ) {
-          credentials = getNotaAuthToken( );
+          var credentials = getNotaAuthToken( );
           if ( credentials.status === 'ok' ) {
             $log.log( 'Session: init: reading credentials from getNotaAuthToken()' );
-            return LYTSession.setCredentials( credentials.username,
-              credentials.token );
+            LYTSession.setCredentials( credentials.username, credentials.token );
           }
         } else {
           $log.warn( 'Session: init: getNotaAuthToken is undefined' );
@@ -24,23 +22,18 @@ angular.module( 'lyt3App' )
         return localStorageService.get( 'session|credentials' );
       },
       setCredentials: function( username, password ) {
-        if ( !credentials ) {
-          credentials = {};
-        }
-        credentials.username = username;
-        credentials.password = password;
+        var credentials = {
+          username: username,
+          password: password
+        };
 
         localStorageService.set( 'session|credentials', credentials );
       },
       getInfo: function( ) {
-        if ( !memberInfo ) {
-          memberInfo = localStorageService.get( 'session|memberinfo' ) || {};
-        }
-
-        return memberInfo;
+        return localStorageService.get( 'session|memberinfo' ) || {};
       },
       setInfo: function( info ) {
-        memberInfo = angular.extend( memberInfo || {}, info );
+        var memberInfo = angular.extend( this.getInfo(), info );
         localStorageService.set( 'session|memberinfo', memberInfo );
       },
       getMemberId: function( ) {
@@ -53,9 +46,6 @@ angular.module( 'lyt3App' )
         return localStorageService.get( 'session|bookShelf' ) || [ ];
       },
       clear: function( ) {
-        credentials = null;
-        memberInfo = null;
-
         localStorageService.remove( 'session|credentials' );
         localStorageService.remove( 'session|memberinfo' );
       }

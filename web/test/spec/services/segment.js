@@ -11,7 +11,7 @@ describe( 'Service: Segment', function( ) {
     Segment = _Segment_;
   } ) );
 
-  it( 'should do something', function( ) {
+  xit( 'should do something', function( ) {
     expect( !!Segment ).toBe( true );
   } );
 

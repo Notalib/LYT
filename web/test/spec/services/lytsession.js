@@ -9,10 +9,18 @@ describe( 'Service: LYTSession', function( ) {
   var LYTSession;
   beforeEach( inject( function( _LYTSession_ ) {
     LYTSession = _LYTSession_;
+    LYTSession.clear( );
   } ) );
 
-  it( 'should do something', function( ) {
-    expect( !!LYTSession ).toBe( true );
+  it( 'credentials', function( ) {
+    var data = {
+      username: 'guest',
+      password: 'guest'
+    };
+
+    LYTSession.setCredentials( data.username, data.password );
+
+    expect(LYTSession.getCredentials()).toEqual(data);
   } );
 
 } );
