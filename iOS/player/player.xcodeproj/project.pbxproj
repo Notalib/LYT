@@ -115,6 +115,7 @@
 		BEB1BA321A121B150066F4FD /* playerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = playerTests.m; sourceTree = "<group>"; };
 		BECE55781A1B853400BDA191 /* Library.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Library.h; sourceTree = "<group>"; };
 		BECE55791A1B853400BDA191 /* Library.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Library.m; sourceTree = "<group>"; };
+		BECE557C1A1B8FAC00BDA191 /* bridge-test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "bridge-test.html"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,9 +136,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BE08A1941A1368AB00772B6D /* test-json */ = {
+		BE08A1941A1368AB00772B6D /* testing */ = {
 			isa = PBXGroup;
 			children = (
+				BECE557C1A1B8FAC00BDA191 /* bridge-test.html */,
 				BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */,
 				BE6DC6711A1397C8000DB1C2 /* 37027.json */,
 				BE08A1B91A13690E00772B6D /* bunker137.json */,
@@ -155,7 +157,7 @@
 				BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */,
 				BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */,
 			);
-			name = "test-json";
+			name = testing;
 			sourceTree = "<group>";
 		};
 		BEB1BA0A1A121B140066F4FD = {
@@ -179,7 +181,7 @@
 		BEB1BA151A121B140066F4FD /* player */ = {
 			isa = PBXGroup;
 			children = (
-				BE08A1941A1368AB00772B6D /* test-json */,
+				BE08A1941A1368AB00772B6D /* testing */,
 				BEB1BA1A1A121B140066F4FD /* AppDelegate.h */,
 				BEB1BA1B1A121B140066F4FD /* AppDelegate.m */,
 				BE08A1BC1A13696D00772B6D /* Book.h */,
