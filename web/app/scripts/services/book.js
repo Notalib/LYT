@@ -321,7 +321,7 @@ angular.module( 'lyt3App' )
 
         Object.keys( temp )
           .forEach( function( uri ) {
-            book.bookmarks = book.bookmarks.concats( temp[ uri ] );
+            book.bookmarks = book.bookmarks.concat( temp[ uri ] );
           } );
       };
 

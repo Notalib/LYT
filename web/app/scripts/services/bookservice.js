@@ -402,19 +402,23 @@ angular.module( 'lyt3App' )
           } );
         },
         setBookmarks: function( bookmarks ) {
-          var _ref, _ref1, _ref2, _ref3;
+          var newMark = angular.extend( {
+            URI: void 0,
+            timeOffset: void 0
+          }, bookmarks.lastmark || {} );
+
           if ( lastBookmark && lastBookmark.bookId === bookmarks.id &&
-            lastBookmark.URI === ( ( _ref = bookmarks.lastmark ) ? _ref.URI :
-              void 0 ) && lastBookmark.timeOffset === ( ( _ref1 =
-              bookmarks.lastmark ) ? _ref1.timeOffse : void 0 ) ) {
+            lastBookmark.URI === newMark.URI && lastBookmark.timeOffset === newMark.timeOffset ) {
             $log.log( 'setBookmarks: same as last time' );
             return;
           }
+
           lastBookmark = {
             bookId: bookmarks.id,
-            URI: ( _ref2 = bookmarks.lastmark ) ? _ref2.URI : void 0,
-            timeOffset: ( _ref3 = bookmarks.lastmark ) ? _ref3.timeOffset : void 0
+            URI: newMark.URI,
+            timeOffset: newMark.timeOffset
           };
+
           return withLogOn( function( ) {
             return DODP.setBookmarks( bookmarks );
           } );

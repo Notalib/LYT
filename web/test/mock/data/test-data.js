@@ -1,18 +1,12 @@
 'use strict';
 
-try {
-  angular.module( 'lytTest' );
-} catch ( err ) {
-  angular.module( 'lytTest', [ ] );
-}
-
 // Requires lytTestUser:
 // Use test/mock/data/test-data-local.js-tmpl to create test/mock/data/test-data-local.js
 //
 // Requires lytTestBook
 // Run the script tools/createBookTestData.js to generate test/mock/data/bookData.js
 
-angular.module( 'lytTest', [ 'lytTestUser', 'lytTestBook' ] )
+angular.module( 'lytTest' )
   .factory( 'testData', [ 'testDataLocal', 'bookDataLocal',
     function( testDataLocal, bookDataLocal ) {
       var DODPVERSION = 'Dummy=1.0.0';
@@ -339,7 +333,17 @@ angular.module( 'lytTest', [ 'lytTestUser', 'lytTestBook' ] )
           }
         },
         book: {
-          bookId: bookId
+          bookId: bookId,
+          resources: (function( ) {
+            return Object.keys(bookDataLocal)
+              .map( function( fileName ) {
+                var fileData = bookDataLocal[ fileName ];
+                return {
+                  URL: makeResourceURI( fileName ) + '?forceclose=true',
+                  content: fileData.content
+                };
+              } );
+          } )()
         }
       };
     }

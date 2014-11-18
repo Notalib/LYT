@@ -32,6 +32,7 @@ module.exports = function( config ) {
       'bower_components/angular-local-storage/dist/angular-local-storage.js',
       'app/scripts/**/*.js',
       'test/mock/**/*.js',
+      'test/mock/**/*.js',
       'test/spec/**/*.js',
       'test/mock/data/book/DodpFiles/**/**/*.*'
     ],
@@ -60,7 +61,7 @@ module.exports = function( config ) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      'Chrome'
+      'PhantomJS'
     ],
 
     // Which plugins to enable
