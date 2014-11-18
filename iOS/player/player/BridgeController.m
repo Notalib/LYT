@@ -29,11 +29,8 @@
     return _javascriptFromBundle;
 }
 
--(NSString*)javascriptEscapedJSON:(id)json {
-    NSData* data = [NSJSONSerialization dataWithJSONObject:json options:0 error:NULL];
-    NSString* unescaped = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-    // we escape backslash, quote, newline and tab to fit inside regular string
+// turns a string such as hej"sa into hej\"sa but does not wrap in quotes
+-(NSString*)escapeJavascriptString:(NSString*)unescaped {
     NSMutableString* encoded = [NSMutableString stringWithString:unescaped];
     [encoded replaceOccurrencesOfString:@"\\" withString:@"\\\\" options:0 range:NSMakeRange(0, encoded.length)];
     [encoded replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:0 range:NSMakeRange(0, encoded.length)];
@@ -43,41 +40,45 @@
     return encoded;
 }
 
+-(NSString*)javascriptEscapedJSON:(id)json {
+    NSData* data = [NSJSONSerialization dataWithJSONObject:json options:0 error:NULL];
+    NSString* unescaped = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    return [self escapeJavascriptString: unescaped];
+}
+
 // Expecting javascript function on the form:
 //   function notaMessage(payload) {
 //     var packet = JSON.parse(payload);
 //     ...
 //   }
--(void)sendPacket:(NSDictionary*)packet toWebView:(UIWebView*)webView {
+-(void)sendPacket:(NSDictionary*)packet  {
     NSString* encoded = [self javascriptEscapedJSON:packet];
     NSString* javascript = [NSString stringWithFormat:@"notaMessage(\"%@\");", encoded];
-    [webView stringByEvaluatingJavaScriptFromString: javascript];
+    [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 }
 
-
--(void)refreshBooksInWebView:(UIWebView*)webView {
+-(void)refreshBooks {
     NSArray* state = self.delegate.booksState;
     NSString* statement = [NSString stringWithFormat:@"window.lytBridge._books = JSON.parse(\"%@\");",
                            [self javascriptEscapedJSON:state]];
-    [webView stringByEvaluatingJavaScriptFromString: statement];
+    [self.webView stringByEvaluatingJavaScriptFromString: statement];
 }
 
--(void)processCommandName:(NSString*)name arguments:(NSArray*)arguments
-                  webView:(UIWebView*)webView {
+-(void)processCommandName:(NSString*)name arguments:(NSArray*)arguments {
     DBGLog(@"%@ (%@)", name, arguments);
     
     if([name isEqualToString:@"setBook"]) {
         id info = arguments.firstObject;
         if(info) {
             [self.delegate setBook:info];
-            [self refreshBooksInWebView:webView];
+            [self refreshBooks];
             return;
         }
     } else if([name isEqualToString:@"clearBook"]) {
         NSString* bookId = [arguments.firstObject description];
         if([bookId isKindOfClass:[NSString class]]) {
             [self.delegate clearBook:bookId];
-            [self refreshBooksInWebView:webView];
+            [self refreshBooks];
             return;
         }
     } else if([name isEqualToString:@"play"]) {
@@ -90,7 +91,7 @@
         }
     } else if([name isEqualToString:@"stop"]) {
         [self.delegate stop];
-        [self refreshBooksInWebView:webView];
+        [self refreshBooks];
         return;
     } else if([name isEqualToString:@"cacheBook"]) {
         NSString* bookId = [arguments.firstObject description];
@@ -109,7 +110,7 @@
     NSLog(@"Unable to process command: %@\n%@", name, arguments);
 }
 
--(void)processCommands:(NSArray*)commands webView:(UIWebView*)webView {
+-(void)processCommands:(NSArray*)commands {
     for (NSArray* command in commands) {
         // we ignore vadly formatted command objects, that we do not know hot to handle
         if(![command isKindOfClass:[NSArray class]] || command.count != 2) continue;
@@ -120,7 +121,7 @@
             continue;
         }
         
-        [self processCommandName:name arguments:payload webView:webView];
+        [self processCommandName:name arguments:payload];
     }
 }
 
@@ -136,7 +137,7 @@
         NSString* queue = [webView stringByEvaluatingJavaScriptFromString: @"window.lytBridge._consumeCommands();"];
         NSData* data = [queue dataUsingEncoding:NSUTF8StringEncoding];
         NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-        [self processCommands:json webView:webView];
+        [self processCommands:json];
         
         return NO;
     }
@@ -172,6 +173,58 @@
     NSLog(@"webView: %@ didFailLoadWithError: %@", webView.request.URL, error);
 }
 
+#pragma mark Events
+
+-(void)deliverEvent:(NSString*)eventName payload:(NSArray*)parameters {
+    NSMutableString* javascript = [NSMutableString stringWithFormat:@"lytHandleEvent(\"%@\"",
+                                   [self escapeJavascriptString:eventName]];
+
+    for (id parameter in parameters) {
+        [javascript appendString:@", "];
+        
+        // we want to encode JSON fragments, which is easiest by just wrapping in array
+        // and then removing start and end of encoding for this
+        NSData* data = [NSJSONSerialization dataWithJSONObject:@[parameter] options:0 error:NULL];
+        NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+        // remove leading [
+        json = [json stringByReplacingOccurrencesOfString:@"^\\s*\\[" withString:@""
+                                                  options:NSRegularExpressionSearch range:NSMakeRange(0, json.length)];
+
+        // remove trailing ]
+        json = [json stringByReplacingOccurrencesOfString:@"\\]\\s*$" withString:@""
+                                                  options:NSRegularExpressionSearch range:NSMakeRange(0, json.length)];
+
+       [javascript appendString:json];
+    }
+    [javascript appendString:@");"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.webView stringByEvaluatingJavaScriptFromString: javascript];
+    });
+}
+
+-(void)updateBook:(NSString*)bookId offset:(NSTimeInterval)offset {
+    [self deliverEvent:@"play-time-update" payload:@[bookId, @(offset)]];
+}
+
+-(void)endBook:(NSString*)bookId {
+    [self deliverEvent:@"play-end" payload:@[bookId]];
+}
+
+-(void)downloadBook:(NSString*)bookId progress:(CGFloat)percent {
+    [self deliverEvent:@"download-progress" payload:@[bookId, @(percent)]];
+}
+
+-(void)downloadBook:(NSString*)bookId failed:(NSString*)reason {
+    [self deliverEvent:@"download-failed" payload:@[bookId, reason]];
+}
+
+-(void)completedDownloadBook:(NSString*)bookId timestamp:(NSDate*)timestamp {
+    [self deliverEvent:@"download-failed" payload:@[bookId, timestamp]];
+}
+
 #pragma mark -
+
 
 @end

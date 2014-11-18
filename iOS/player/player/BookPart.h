@@ -37,6 +37,9 @@
 // whether book-part is fully downloaded
 @property (nonatomic, readonly) BOOL downloaded;
 
+// used to start downloading when it has paused because of errors
+-(void)ensureDownloading;
+
 // return BookPart that combines self and otherPart returning nil
 // if join is not possible. To be joinable the url's must
 // match and self must end where otherPart starts.

@@ -24,7 +24,8 @@
     Book* testBook;
     
     NSMutableDictionary* booksById;
-    NSString* currentBookId;
+    NSMutableSet* booksDownloading; // books we are downloading in their entirety
+    NSString* currentBookId; // the playing book is always current, but the current book might not be playing
 }
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
 
@@ -33,6 +34,67 @@
 @implementation ViewController
 
 #pragma mark LytDeviceProtocol
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
+                       change:(NSDictionary *)change context:(void *)context {
+    if([keyPath isEqualToString:@"error"]) {
+        Book* book = object;
+        NSError* error = book.error;
+        if(error) {
+            NSString* message = error.localizedDescription;
+            if([error.domain isEqualToString:NSURLErrorDomain]) {
+                if(error.code == kCFURLErrorUserAuthenticationRequired) {
+                    message = NSLocalizedString(@"Authentication required", nil);
+                }
+            }
+            
+            [bridge downloadBook: book.identifier failed:message];
+        }
+    } else if([keyPath isEqualToString:@"isPlaying"]) {
+        Book* book = object;
+        
+        // book must have ended and be very close to end
+        if(!book.isPlaying && book.position >= book.duration - 1.0) {
+            [bridge endBook: book.identifier];
+        }
+    }
+}
+
+-(void)sendBookUpdate {
+    Book* book = self.currentBook;
+    if(book) {
+        [bridge updateBook:book.identifier offset:book.position];
+    }
+    
+    // we schedule update while book is playing
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendBookUpdate) object:nil];
+    if(book.isPlaying) {
+        [self performSelector:@selector(sendBookUpdate) withObject:nil afterDelay:0.1];
+    }
+}
+
+-(void)sendDownloadUpdates {
+    for (Book* book in booksDownloading.allObjects) {
+        if(book.downloaded) {
+            [bridge completedDownloadBook:book.identifier timestamp:[NSDate date]];
+        } else {
+            CGFloat progress = book.ensuredBufferingPoint / book.duration;
+            CGFloat percent = 100.0 * progress;
+            [bridge downloadBook:book.identifier progress:percent];
+        }
+        
+        // stop following book not either playing or downloading
+        if(!book.downloading && !book.isPlaying) {
+            [booksDownloading removeObject:book];
+        }
+    }
+    
+    // schedule on one second if there is anything still downloading
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendDownloadUpdates) object:nil];
+    if(booksDownloading.count > 0) {
+        [self performSelector:@selector(sendDownloadUpdates) withObject:nil afterDelay:1];
+    }
+}
 
 -(NSArray*)booksState {
     NSMutableArray* array = [NSMutableArray arrayWithCapacity:booksById.count];
@@ -50,7 +112,7 @@
 }
 
 -(void)setBook:(id)bookData {
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20022/37027/"];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20012/37027/"];
     Book* book = [Book bookFromDictionary:bookData baseURL:baseURL];
     [book joinParts];
     //[book deleteCache];
@@ -58,16 +120,29 @@
     
     NSString* key = book.identifier;
     if(key) {
+        [self clearBook:key];
         [booksById setObject:book forKey:key];
+        
+        [book addObserver:self forKeyPath:@"isPlaying" options:0 context:NULL];
+        [book addObserver:self forKeyPath:@"error" options:0 context:NULL];
     }
 }
 
 -(void)clearBook:(NSString*)bookId {
     if(bookId) {
         Book* book = [booksById objectForKey:bookId];
+        [book removeObserver:self forKeyPath:@"isPlaying"];
+        [book removeObserver:self forKeyPath:@"error"];
+        
         [book stop];
         [book deleteCache];
         [booksById removeObjectForKey:bookId];
+    }
+}
+
+-(void)clearAllBooks {
+    for (Book* book in booksById.allValues) {
+        [self clearBook:book.identifier];
     }
 }
 
@@ -81,6 +156,8 @@
     currentBookId = book.identifier; // if bookId was not valid, book.identifier will be nil, which is wanted behaviour
     book.position = offset;
     [book play];
+    [self sendBookUpdate];
+    [self sendDownloadUpdates];
 }
 
 -(void)stop {
@@ -91,12 +168,20 @@
 -(void)cacheBook:(NSString*)bookId {
     Book* book = [booksById objectForKey:bookId];
     book.bufferLookahead = 999999;
+    
+    if(!booksDownloading) {
+        booksDownloading = [NSMutableSet new];
+    }
+    [booksDownloading addObject:book];
+    [self sendDownloadUpdates];
 }
 
 -(void)clearBookCache:(NSString*)bookId {
     Book* book = [booksById objectForKey:bookId];
-    book.bufferLookahead = 0;
-    [book deleteCache];
+    if(book) {
+        [booksDownloading removeObject:book];
+        [book deleteCache];
+    }
 }
 
 #pragma mark -
@@ -141,6 +226,7 @@
     booksById = [NSMutableDictionary new];
     bridge = [BridgeController new];
     bridge.delegate = self;
+    bridge.webView = self.webView;
     self.webView.delegate = bridge;
     
     //[self loadTestBook];

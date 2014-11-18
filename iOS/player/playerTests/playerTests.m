@@ -31,6 +31,19 @@
     [super tearDown];
 }
 
+-(void)testJSONFragments {
+    NSString* json = @"[\"37027\"]";
+
+    json = [json stringByReplacingOccurrencesOfString:@"^\\s*\\[" withString:@""
+                                              options:NSRegularExpressionSearch range:NSMakeRange(0, json.length)];
+    XCTAssertTrue([json isEqualToString: @"\"37027\"]"]);
+    
+    // remove trailing ]
+    json = [json stringByReplacingOccurrencesOfString:@"\\]\\s*$" withString:@""
+                                              options:NSRegularExpressionSearch range:NSMakeRange(0, json.length)];
+    XCTAssertTrue([json isEqualToString: @"\"37027\""]);
+}
+
 -(void)testReadBook {
     NSString* path = [[NSBundle mainBundle] pathForResource:@"37027.json" ofType:nil];
     NSData* data = [NSData dataWithContentsOfFile:path];

@@ -29,5 +29,14 @@
 
 @interface BridgeController : NSObject <UIWebViewDelegate>
 @property (nonatomic, weak) id<LytDeviceProtocol> delegate;
+@property (nonatomic, weak) UIWebView* webView;
+
+#pragma mark Events
+-(void)updateBook:(NSString*)bookId offset:(NSTimeInterval)offset;
+-(void)endBook:(NSString*)bookId;
+-(void)downloadBook:(NSString*)bookId progress:(CGFloat)percent;
+-(void)downloadBook:(NSString*)bookId failed:(NSString*)reason;
+-(void)completedDownloadBook:(NSString*)bookId timestamp:(NSDate*)timestamp;
+#pragma mark -
 
 @end

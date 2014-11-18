@@ -12,6 +12,7 @@
 #import "debug.h"
 
 @interface BookPart () {
+    // ending position in bytes where we stop loading
     NSUInteger byteOffset;
 }
 
@@ -77,7 +78,9 @@
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
                        change:(NSDictionary *)change context:(void *)context {
     if([keyPath isEqualToString:@"progressBytes"]) {
-        [self downloadMore];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self downloadMore];
+        });
     } else if([keyPath isEqualToString:@"error"]) {
         Downloader* d = object;
         self.error = d.error;
@@ -119,14 +122,29 @@
     }];
 }
 
+// update buffering values, returning whether we are done reading
 -(BOOL)checkBufferingPoint {
-    self.bufferingsSatisfied = self.downloader.progressBytes >= byteOffset;
-    if(!self.bufferingsSatisfied) return NO;
+    // we can set buffering point when we are all done with chunk,
+    // since we then have mapping between seconds and bytes (all byes has all seconds)
+    if(self.downloader.progressBytes >= byteOffset) {
+        if(_ensuredBufferingPoint != self.bufferingPoint) {
+            [self willChangeValueForKey:@"ensuredBufferingPoint"];
+            _ensuredBufferingPoint = self.bufferingPoint;
+            [self didChangeValueForKey:@"ensuredBufferingPoint"];
+        }
+    } else {
+        // we estimate how far we are in time, be assuming byte/second ratio is constant
+        double ratio = (double)self.downloader.progressBytes / (double)byteOffset;
+        NSTimeInterval secs = floor(ratio * self.duration); // we round down to be a little conservative
+        if(secs > _ensuredBufferingPoint) {
+            [self willChangeValueForKey:@"ensuredBufferingPoint"];
+            _ensuredBufferingPoint = secs;
+            [self didChangeValueForKey:@"ensuredBufferingPoint"];
+        }
+    }
     
-    [self willChangeValueForKey:@"ensuredBufferingPoint"];
-    _ensuredBufferingPoint = self.bufferingPoint;
-    [self didChangeValueForKey:@"ensuredBufferingPoint"];
-    return YES;
+    self.bufferingsSatisfied = self.downloader.progressBytes >= byteOffset;
+    return self.bufferingsSatisfied;
 }
 
 -(void)downloadMore {
@@ -143,8 +161,13 @@
     NSUInteger end = self.downloader.progressBytes + bytesToRead;
     self.downloader = [Downloader downloadURL:self.url start:0 end:end];
     
-    // downloader might already have satisfied by reading from cache
+    // downloader might already by satisfied by reading from cache,
+    // and we want to know this right now
     [self checkBufferingPoint];
+}
+
+-(void)ensureDownloading {
+    [self downloadMore];
 }
 
 -(BookPart*)partCombinedWith:(BookPart*)otherPart {
@@ -174,6 +197,7 @@
 -(void)deleteCache {
     self.downloader = [Downloader downloadURL:self.url start:0 end:0];
     [self.downloader deleteCache];
+    _ensuredBufferingPoint = self.bufferingPoint = 0;
 }
 
 -(void)dealloc {
