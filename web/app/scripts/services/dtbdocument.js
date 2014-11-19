@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'DtbDocument', [ '$q', '$log', '$http', 'BookService',
-    function( $q, $log, $http, BookService ) {
+  .factory( 'DtbDocument', [ '$q', '$log', '$http', 'LYTConfig', 'BookService',
+    function( $q, $log, $http, LYTConfig, BookService ) {
       /**
        * Meta-element name attribute values to look for
        * Name attribute values for nodes that may appear 0-1 times per file
@@ -212,15 +212,9 @@ angular.module( 'lyt3App' )
         // document, once it's been downloaded
         this.source = null;
         var dataType = /\.x?html?$/i.test( this.url ) ? 'html' : 'xml';
-        // attempts = ((_ref = LYT.config.dtbDocument) != null ? _ref.attempts : void 0) || 3;
-        var attempts = 3;
+        var attempts = LYTConfig.dtbDocument.attempts || 3;
 
-        var useForceClose = 0;
-        // if ((((_ref1 = LYT.config.dtbDocument) != null ? _ref1.useForceClose : void 0) != null) !== false)
-        if ( !useForceClose ) {
-          useForceClose = true;
-        }
-
+        var useForceClose = !!LYTConfig.dtbDocument.useForceClose;
 
         // This function will be called, when a DTB document has been successfully downloaded
         var loaded = function( data ) {
@@ -282,20 +276,28 @@ angular.module( 'lyt3App' )
         var load = function( ) {
           var forceCloseMsg;
           --attempts;
-          url = this.url;
+          var urlArr = this.url.split( '?' );
+          var baseURL = urlArr[0];
+          var params = ( urlArr[1] || '' ).split( '&' ).reduce( function( params, str ) {
+            var dArr = str.split( '=' );
+            if ( dArr.length === 2 ) {
+              params[ dArr[0] ] = dArr[1];
+            }
+            return params;
+          }, {} );
+
           if ( useForceClose ) {
             forceCloseMsg = '[forceclose ON]';
-            if ( /\?.+$/.test( url ) ) {
-              url = '' + url + '&forceclose=true';
-            } else {
-              url = '' + url + '?forceclose=true';
-            }
+            params.forceclose = 'true';
           } else {
             forceCloseMsg = '';
           }
-          $log.log( 'DTB: Getting: ' + this.url + ' (' + attempts + ' attempts left) ' + forceCloseMsg );
+
+          $log.log( 'DTB: Getting: ' + baseURL + ' (' + attempts + ' attempts left) ' + forceCloseMsg, 'params: ', params );
           $http
-            .get( url )
+            .get( baseURL, {
+              params: params
+            } )
             .success( loaded )
             .error( failed );
         }.bind( this );

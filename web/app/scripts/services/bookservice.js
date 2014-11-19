@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'BookService', [ '$q', '$log', 'LYTSession', 'DODPErrorCodes', 'DODP',
-    function( $q, $log, LYTSession, DODPErrorCodes, DODP ) {
+  .factory( 'BookService', [ '$q', '$log', 'LYTConfig', 'LYTSession', 'DODPErrorCodes', 'DODP',
+    function( $q, $log, LYTConfig, LYTSession, DODPErrorCodes, DODP ) {
       /*
        * Higher-level functions for interacting with the server
        *
@@ -188,10 +188,9 @@ angular.module( 'lyt3App' )
           deferred.reject( );
           return deferred.promise;
         }
-        // attempts = ((_ref = LYT.config.service) != null ? _ref.logOnAttempts : void 0) || 3;
 
         // The maximum number of attempts to make
-        var attempts = 3;
+        var attempts = ( LYTConfig.service || {} ).logOnAttempts || 3;
         // (For readability, the handlers are separated out here)
 
         // TODO: Flesh out error handling

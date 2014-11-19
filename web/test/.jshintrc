@@ -31,7 +31,9 @@
     "it": false,
     "jasmine": false,
     "spyOn": false,
-    "xit": false
+    "xit": false,
+    "runs": false,
+    "waitsFor": false
   }
 }
 
