@@ -14,11 +14,24 @@
     NSMutableDictionary* urlBeingLoaded;
     
     NSString* _javascriptFromBundle;
+    
+    NSDateFormatter* iso8601Formatter;
 }
 
 @end
 
-@implementation BridgeController 
+@implementation BridgeController
+
+-(instancetype)init {
+    self = [super init];
+    if(self) {
+        iso8601Formatter = [[NSDateFormatter alloc] init];
+        NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+        [iso8601Formatter setLocale:enUSPOSIXLocale];
+        [iso8601Formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    }
+    return self;
+}
 
 -(NSString*)javascriptFromBundle {
     if(!_javascriptFromBundle) {
@@ -220,11 +233,11 @@
     [self deliverEvent:@"download-failed" payload:@[bookId, reason]];
 }
 
--(void)completedDownloadBook:(NSString*)bookId timestamp:(NSDate*)timestamp {
-    [self deliverEvent:@"download-failed" payload:@[bookId, timestamp]];
+-(void)completedDownloadBook:(NSString*)bookId timestamp:(NSDate*)when {
+    NSString* timestamp = [iso8601Formatter stringFromDate:when];
+    [self deliverEvent:@"download-completed" payload:@[bookId, timestamp]];
 }
 
 #pragma mark -
-
 
 @end

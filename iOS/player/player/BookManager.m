@@ -6,9 +6,11 @@
 //  Copyright (c) 2014 NOTA. All rights reserved.
 //
 
-#import "Library.h"
+#import "BookManager.h"
+#import "Downloader.h"
+#import "debug.h"
 
-@interface Library () {
+@interface BookManager () {
     NSMutableDictionary* booksById;
     NSMutableSet* booksDownloading; // books we are downloading in their entirety
     NSString* currentBookId; // the playing book is always current, but the current book might not be playing
@@ -16,15 +18,63 @@
 
 @end
 
-@implementation Library
+@implementation BookManager
 @synthesize bridge;
 
 -(instancetype)init {
     self = [super init];
     if(self) {
         booksById = [NSMutableDictionary new];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFinishLaunchingNotification:)
+                                                     name:UIApplicationDidFinishLaunchingNotification object:nil];
     }
     return self;
+}
+
+static NSString* playBookRequest = nil;
+static BookManager* anyManager = nil;
+
+-(void)ready {
+    anyManager = self;
+    
+    [Downloader processBackgroundSessionCompletionHandler];
+    if(playBookRequest.length > 0) {
+        [self play:playBookRequest offset:-1];
+        playBookRequest = nil;
+    }
+}
+
+
+-(void)didFinishLaunchingNotification:(NSNotification*)notification {
+    UILocalNotification* localNotification = [notification.userInfo objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    
+    if(localNotification) {
+        [BookManager handleLocalNotification:localNotification];
+    }
+}
+
++(void)handleLocalNotification:(UILocalNotification*)notification {
+    NSString* bookId = [notification.userInfo objectForKey:@"bookId"];
+    if(bookId.length > 0) {
+        // we start playing book if we have instance of PlayerManager, otherwise we queue
+        // for launch
+        if(anyManager) {
+            [anyManager play:bookId offset:-1];
+        } else {
+            playBookRequest = bookId;
+        }
+    }
+}
+
+-(void)requestNotificationsPermission {
+    UIApplication* app = [UIApplication sharedApplication];
+    if([app respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        UIUserNotificationType types = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge |
+                                       UIUserNotificationTypeSound;
+        UIUserNotificationSettings* settings =  [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+    }
 }
 
 -(void)setBridge:(BridgeController *)theBridge {
@@ -36,7 +86,30 @@
 }
 
 -(void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self setBridge:nil];
+}
+
+-(void)downloadCompletedBook:(Book*)book {
+    // ignore invalid books, to avoid crashes on bad data
+    if(book.identifier.length == 0) return;
+    
+    [bridge completedDownloadBook:book.identifier timestamp:[NSDate date]];
+    
+    // perform notification when app is in the background
+    UIApplication* app = [UIApplication sharedApplication];
+    if(app.applicationState == UIApplicationStateBackground) {
+        NSString* format = NSLocalizedString(@"%@ er hentet ned på %@.", nil);
+        NSString* message = [NSString stringWithFormat:format, book.title, [UIDevice currentDevice].name];
+        
+        UILocalNotification* notification = [UILocalNotification new];
+        notification.alertBody = message;
+        notification.hasAction = YES;
+        notification.alertAction = NSLocalizedString(@"listen", nil);
+        notification.userInfo = @{@"bookId": book.identifier};
+        
+        [app presentLocalNotificationNow:notification];
+    }
 }
 
 #pragma mark LytDeviceProtocol
@@ -82,7 +155,7 @@
 -(void)sendDownloadUpdates {
     for (Book* book in booksDownloading.allObjects) {
         if(book.downloaded) {
-            [bridge completedDownloadBook:book.identifier timestamp:[NSDate date]];
+            [self downloadCompletedBook: book];
         } else {
             CGFloat progress = book.ensuredBufferingPoint / book.duration;
             CGFloat percent = 100.0 * progress;
@@ -118,7 +191,7 @@
 }
 
 -(void)setBook:(id)bookData {
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20012/37027/"];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20005/37027/"];
     NSDictionary* dict = nil;
     if([bookData isKindOfClass:[NSDictionary class]]) {
         dict = (NSDictionary*)bookData;
@@ -189,6 +262,9 @@
 }
 
 -(void)cacheBook:(NSString*)bookId {
+    // we ask for permission to send notifications when user asks to cache, since we notify when done
+    [self requestNotificationsPermission];
+    
     Book* book = [booksById objectForKey:bookId];
     book.bufferLookahead = 999999;
     

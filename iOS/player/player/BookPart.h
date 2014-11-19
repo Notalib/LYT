@@ -15,6 +15,12 @@
 // with the same URL x start share a cache file.
 @property (nonatomic, readonly) NSString* cachePath;
 
+// when true we read mp3 in smaller bits incrementally, which is better while playing
+// as data will be written to the cache often such that the audio player will not run
+// out of data. When not playing it is better to read in one large swoop.
+// Changing this property will cancel any current downloads for BookPart.
+@property (nonatomic, assign) BOOL chunked;
+
 // holds the last error from downloading
 @property (nonatomic, strong) NSError* error;
 

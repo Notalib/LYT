@@ -13,7 +13,7 @@
     // key is [keyForURL: start:] and value is Downloader
     NSMutableDictionary* downloaders;
     
-    // key is taskIdentifier amnd value is Downloader
+    // key is taskIdentifier and value is Downloader
     NSMutableDictionary* taskDownloaders;
 }
 
@@ -40,19 +40,28 @@ static DownloadDelegate* sharedDelegate = nil;
     return [NSString stringWithFormat:@"%@-%ld", url.absoluteString, (long)start];
 }
 
--(void)startRequest:(NSURLRequest*)request forDownloader:(Downloader*)downloader {
+-(NSURLSessionDownloadTask*)taskForStartedRequest:(NSURLRequest*)request
+                                    forDownloader:(Downloader*)downloader {
     
     NSURLSessionDownloadTask* task = [sharedSession downloadTaskWithRequest: request];
     NSNumber* taskIdentifier = [NSNumber numberWithUnsignedInteger: task.taskIdentifier];
     [taskDownloaders setObject:downloader forKey:taskIdentifier];
     [task resume];
+    return task;
 }
 
 -(void)endTask:(NSURLSessionTask*)task error:(NSError*)error location:(NSURL*)location {
     NSNumber* taskIdentifier = [NSNumber numberWithUnsignedInteger: task.taskIdentifier];
     Downloader* downloader = [taskDownloaders objectForKey:taskIdentifier];
-    [downloader taskEndWithError: error location:location];
+    [downloader task:task endedWithError: error location:location];
     [taskDownloaders removeObjectForKey:taskIdentifier];
+}
+
+// cancel any task for the given downloader, without calling taskEndWithError:location:
+-(void)cancelTask:(NSURLSessionTask*)task {
+    NSNumber* taskIdentifier = [NSNumber numberWithUnsignedInteger: task.taskIdentifier];
+    [taskDownloaders removeObjectForKey:taskIdentifier];
+    [task cancel];
 }
 
 -(Downloader*)ensureDownloaderForURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end {
@@ -83,6 +92,13 @@ static DownloadDelegate* sharedDelegate = nil;
     //      dataTask.currentRequest.URL, (long)data.length);
 }
 
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
+                                     didResumeAtOffset:(int64_t)fileOffset
+                                    expectedTotalBytes:(int64_t)expectedTotalBytes {
+    DBGLog(@"downloadTask: %@ didResumeAtOffset: %ld expectedTotalBytes: %ld",
+           downloadTask.currentRequest.URL, (long)fileOffset, (long)expectedTotalBytes);
+}
+
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location {
@@ -99,47 +115,89 @@ didFinishDownloadingToURL:(NSURL *)location {
     BOOL isLoading;
 }
 
+// not retained because held by downloader delegate
+@property (nonatomic, weak) NSURLSessionTask* currentTask;
+
 @end
 
 @implementation Downloader
 @synthesize progressBytes;
+
+#define SessionConfigurationidentifier @"nu.nota.player.bgd-transfer"
 
 +(BOOL)automaticallyNotifiesObserversForKey:(NSString*)theKey {
     if([theKey isEqualToString:@"progressBytes"]) return NO;
     return [super automaticallyNotifiesObserversForKey:theKey];
 }
 
+static void (^backgroundSessionCompletionHandler)(void) = nil;
+
++(void)registerBackgroundSession:(NSString *)identifier
+               completionHandler:(void (^)(void))completionHandler {
+    if([identifier isEqualToString:SessionConfigurationidentifier]) {
+        backgroundSessionCompletionHandler = [completionHandler copy];
+    }
+}
+
++(void)processBackgroundSessionCompletionHandler {
+    void (^handler)(void) = backgroundSessionCompletionHandler;
+    backgroundSessionCompletionHandler = nil;
+    
+    if(handler) {
+        handler();
+    }
+}
+
 +(DownloadDelegate*)sharedDelegate {
     if(!sharedDelegate) {
         sharedDelegate = [DownloadDelegate new];
         
-        NSString* identifier = @"nu.nota.player.bgd-transfer";
+        NSString* identifier = SessionConfigurationidentifier;
         sharedConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier: identifier];
         sharedConfig.requestCachePolicy = NSURLRequestReloadIgnoringCacheData;
         
-        sharedSession = [NSURLSession sessionWithConfiguration:sharedConfig delegate:sharedDelegate delegateQueue:nil];
+        sharedSession = [NSURLSession sessionWithConfiguration:sharedConfig
+                                                      delegate:sharedDelegate delegateQueue:nil];
     }
     return sharedDelegate;
 }
 
+
+
 // cache path is dependent on URL and start only, such that all downloaders with the same URL x start
-// share a cache file.
+// share a cache file, furthermore care is taken to allow user-id to change without changing cache
+// filename since anonymous (guest) users sometimes get a new user-id when they change network or
+// some time has passed.
+// URLs have the form:
+//      http://m.e17.dk/DodpFiles/20005/37027/01_Michael_Kamp_Bunker_.mp3
+//                                 UID   BID           PART
+// where UID is user-id and BID is book-id. We want to make sure cache-filename is unchanged for
+// fixed BID and PART.
 -(NSString*)cachePath {
     NSString* cacheDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-    NSString* stub = [self.url.lastPathComponent stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSString* filename = [NSString stringWithFormat:@"%lx-%@-%ld", (unsigned long)self.url.hash,
-                          stub, (long)self.start];
+
+    // we take the last two path components er entire path if there are less than two.
+    NSArray* components = self.url.pathComponents;
+    if(components.count > 2) {
+        components = [components subarrayWithRange:NSMakeRange(components.count - 2, 2)];
+    }
+    NSString* basename = [components componentsJoinedByString:@"/"];
+    NSString* stub = [basename stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    stub = [stub stringByReplacingOccurrencesOfString:@"/" withString:@"-"];
+
+    NSString* filename = [NSString stringWithFormat:@"%@-%ld", stub, (long)self.start];
     return [cacheDir stringByAppendingPathComponent:filename];
 }
 
 -(void)deleteCache {
+    _end = self.start;
+    [self cancelCurrentTask];
+    
     [[NSFileManager defaultManager] removeItemAtPath:self.cachePath error:NULL];
     
     [self willChangeValueForKey:@"progressBytes"];
     progressBytes = 0;
     [self didChangeValueForKey:@"progressBytes"];
-    
-    isLoading = NO;
 }
 
 // check how much is already cached for the given
@@ -152,6 +210,10 @@ didFinishDownloadingToURL:(NSURL *)location {
     [self didChangeValueForKey:@"progressBytes"];
 }
 
+-(void)download {
+    [self downloadNextChunk];
+}
+
 -(void)downloadNextChunk {
     // make sure we are only loading one chunk at a time
     if(isLoading) return;
@@ -159,7 +221,6 @@ didFinishDownloadingToURL:(NSURL *)location {
     NSUInteger byteOffset = self.start + progressBytes;
     if(byteOffset >= self.end) return;
     NSUInteger bytesToRead = self.end - byteOffset;
-    if(bytesToRead >= ChunkSize) bytesToRead = ChunkSize;
     
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:self.url
                                                            cachePolicy:NSURLRequestReloadIgnoringCacheData
@@ -170,10 +231,22 @@ didFinishDownloadingToURL:(NSURL *)location {
     [request addValue:range forHTTPHeaderField:@"Range"];
     
     isLoading = YES;
-    [[Downloader sharedDelegate] startRequest:request forDownloader:self];
+    self.currentTask = [[Downloader sharedDelegate] taskForStartedRequest:request
+                                                            forDownloader:self];
     
     DBGLog(@"Downloading bytes %ld-%ld from %@", (long)byteOffset, (long)(byteOffset + bytesToRead),
            self.url.lastPathComponent);
+}
+
+-(void)cancelDownload {
+    [self cancelCurrentTask];
+}
+
+-(void)cancelCurrentTask {
+    if(self.currentTask) {
+        [[Downloader sharedDelegate] cancelTask:self.currentTask];
+    }
+    isLoading = NO;
 }
 
 - (BOOL)appendData:(NSData*)data toFile:(NSString*)path {
@@ -195,7 +268,13 @@ didFinishDownloadingToURL:(NSURL *)location {
     return result;
 }
 
--(void)taskEndWithError:(NSError*)error location:(NSURL*)location {
+-(void)task:(NSURLSessionTask*)task endedWithError:(NSError*)error location:(NSURL*)location {
+    if(self.currentTask != task) {
+        DBGLog(@"Non-current task=%@ ended, this is weird", task.currentRequest.URL);
+    } else {
+        self.currentTask = nil;
+    }
+    
     self.error = error;
     
     if(!error && location) {
@@ -230,8 +309,6 @@ didFinishDownloadingToURL:(NSURL *)location {
 
 +(Downloader*)downloadURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end {
     Downloader* downloader = [[Downloader sharedDelegate] ensureDownloaderForURL:url start:start end:end];
-    [downloader downloadNextChunk];
-    
     return downloader;
 }
 
