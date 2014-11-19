@@ -242,18 +242,18 @@ angular.module( 'lytTest' )
           '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/"><resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00">' + ( function( ) {
             var str = '<resource uri="_URI_" mimeType="application/octet-stream" size="0" localURI="_LOCALURI_" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/>';
 
-            return Object.keys(bookDataLocal)
-                .reduce( function( output, fileName ) {
-                  return output + str.replace( '_URI_', makeResourceURI( fileName ) ).replace( '_LOCALURI_', fileName );
-                }, '' );
-          } )() + '</resources></getContentResourcesResponse></s:Body></s:Envelope>',
-        resolved: (function( ) {
-          return Object.keys(bookDataLocal)
+            return Object.keys( bookDataLocal )
+              .reduce( function( output, fileName ) {
+                return output + str.replace( '_URI_', makeResourceURI( fileName ) ).replace( '_LOCALURI_', fileName );
+              }, '' );
+          } )( ) + '</resources></getContentResourcesResponse></s:Body></s:Envelope>',
+        resolved: ( function( ) {
+          return Object.keys( bookDataLocal )
             .reduce( function( output, fileName ) {
               output[ fileName ] = makeResourceURI( fileName );
               return output;
             }, {} );
-        })()
+        } )( )
       };
 
       var getBookmarks = {
@@ -262,7 +262,7 @@ angular.module( 'lytTest' )
         },
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
           DODPVERSION +
-          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getBookmarksResponse xmlns="http://www.daisy.org/ns/daisy-online/"><bookmarkSet><title xmlns="http://www.daisy.org/z3986/2005/bookmark/"><text>Bunker 137</text><audio src=""/></title><uid xmlns="http://www.daisy.org/z3986/2005/bookmark/">' + bookId +  '</uid><lastmark xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:05.00</timeOffset><charOffset>0</charOffset></lastmark><bookmark label="" xml:lang="en" xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:00.00</timeOffset><charOffset>0</charOffset><note><text>Om denne udgave</text><audio src=""/></note></bookmark></bookmarkSet></getBookmarksResponse></s:Body></s:Envelope>',
+          '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getBookmarksResponse xmlns="http://www.daisy.org/ns/daisy-online/"><bookmarkSet><title xmlns="http://www.daisy.org/z3986/2005/bookmark/"><text>Bunker 137</text><audio src=""/></title><uid xmlns="http://www.daisy.org/z3986/2005/bookmark/">' + bookId + '</uid><lastmark xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:05.00</timeOffset><charOffset>0</charOffset></lastmark><bookmark label="" xml:lang="en" xmlns="http://www.daisy.org/z3986/2005/bookmark/"><ncxRef/><URI>dcbw0002.smil#sfe_par_0002_0003</URI><timeOffset>00:00:00.00</timeOffset><charOffset>0</charOffset><note><text>Om denne udgave</text><audio src=""/></note></bookmark></bookmarkSet></getBookmarksResponse></s:Body></s:Envelope>',
         resolved: {
           'bookmarks': [ {
             'ncxRef': null,
@@ -334,8 +334,8 @@ angular.module( 'lytTest' )
         },
         book: {
           bookId: bookId,
-          resources: (function( ) {
-            return Object.keys(bookDataLocal)
+          resources: ( function( ) {
+            return Object.keys( bookDataLocal )
               .reduce( function( output, fileName ) {
                 var fileData = bookDataLocal[ fileName ];
                 output[ fileName ] = {
@@ -345,7 +345,53 @@ angular.module( 'lytTest' )
 
                 return output;
               }, {} );
-          } )()
+          } )( ),
+          getStructure: {
+            'id': 37027,
+            'author': 'Michael Kamp',
+            'title': 'Bunker 137',
+            'playlist': [ ],
+            'navigation': [ {
+              'title': 'Michael Kamp: Bunker 137',
+              'offset': 0
+            }, {
+              'title': 'Om denne udgave',
+              'offset': 5
+            }, {
+              'title': 'Kolofon og bibliografiske oplysninger',
+              'offset': 36
+            }, {
+              'title': 'Citat',
+              'offset': 52
+            }, {
+              'title': 'Kapitel 1',
+              'offset': 67
+            }, {
+              'title': 'Kapitel 2',
+              'offset': 2291
+            }, {
+              'title': 'Kapitel 3',
+              'offset': 4260
+            }, {
+              'title': 'Kapitel 4',
+              'offset': 6575
+            }, {
+              'title': 'Kapitel 5',
+              'offset': 8721
+            }, {
+              'title': 'Kapitel 6',
+              'offset': 11212
+            }, {
+              'title': 'Kapitel 7',
+              'offset': 13054
+            }, {
+              'title': 'Kapitel 8',
+              'offset': 15532
+            }, {
+              'title': 'Kapitel 9',
+              'offset': 17019
+            } ]
+          }
         }
       };
     }

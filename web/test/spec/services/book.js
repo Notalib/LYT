@@ -131,10 +131,11 @@ describe( 'Service: Book', function( ) {
           callback( !!nccDocument );
         } )
         .catch( function( ) {
-          console.log( arguments );
           callback( false );
         } );
     } );
+
+    return book;
   };
 
   it( 'loadNCC', function( ) {
@@ -159,5 +160,48 @@ describe( 'Service: Book', function( ) {
       }
       return gotNCC === true;
     }, 'load NCC', 1000 );
+  } );
+
+  var getStructure = function( callback ) {
+    var book = loadNCC( function( ) {
+      book.getStructure( )
+        .then( function( resolved ) {
+          callback( resolved );
+        } )
+        .catch( function( ) {
+          callback( false );
+        } );
+    } );
+  };
+
+  it( 'get full structure', function( ) {
+    Object.keys( testData.resources )
+      .filter( function( fileName ) {
+        return !/\.mp3$/.test(fileName);
+      } )
+      .forEach( function( fileName ) {
+        var fileData = testData.resources[ fileName ];
+        mockBackend
+          .whenGET( fileData.URL )
+          .respond( fileData.content );
+      } );
+
+    var structure;
+    runs( function( ) {
+      getStructure( function( loadedStructure ) {
+        structure = loadedStructure;
+      } );
+    } );
+
+    waitsFor( function( ) {
+      rootScope.$digest( );
+      try {
+        mockBackend.flush( );
+      } catch ( exp ) {
+        // flush throws an error is the request hasn't been started yet
+      }
+
+      return angular.equals(structure,testData.getStructure);
+    }, 'Structure loaded', 1000 );
   } );
 } );
