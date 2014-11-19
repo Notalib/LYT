@@ -13,4 +13,10 @@
 @interface BookManager : NSObject <LytDeviceProtocol>
 @property (nonatomic, weak) BridgeController* bridge;
 
+// called when we are ready to process requests 
+-(void)ready;
+
+// notifications can be used to start playing some book
++(void)handleLocalNotification:(UILocalNotification*)notification;
+
 @end

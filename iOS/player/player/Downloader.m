@@ -92,6 +92,13 @@ static DownloadDelegate* sharedDelegate = nil;
     //      dataTask.currentRequest.URL, (long)data.length);
 }
 
+-(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
+                                     didResumeAtOffset:(int64_t)fileOffset
+                                    expectedTotalBytes:(int64_t)expectedTotalBytes {
+    DBGLog(@"downloadTask: %@ didResumeAtOffset: %ld expectedTotalBytes: %ld",
+           downloadTask.currentRequest.URL, (long)fileOffset, (long)expectedTotalBytes);
+}
+
 - (void)URLSession:(NSURLSession *)session
       downloadTask:(NSURLSessionDownloadTask *)downloadTask
 didFinishDownloadingToURL:(NSURL *)location {
@@ -116,16 +123,36 @@ didFinishDownloadingToURL:(NSURL *)location {
 @implementation Downloader
 @synthesize progressBytes;
 
+#define SessionConfigurationidentifier @"nu.nota.player.bgd-transfer"
+
 +(BOOL)automaticallyNotifiesObserversForKey:(NSString*)theKey {
     if([theKey isEqualToString:@"progressBytes"]) return NO;
     return [super automaticallyNotifiesObserversForKey:theKey];
+}
+
+static void (^backgroundSessionCompletionHandler)(void) = nil;
+
++(void)registerBackgroundSession:(NSString *)identifier
+               completionHandler:(void (^)(void))completionHandler {
+    if([identifier isEqualToString:SessionConfigurationidentifier]) {
+        backgroundSessionCompletionHandler = [completionHandler copy];
+    }
+}
+
++(void)processBackgroundSessionCompletionHandler {
+    void (^handler)(void) = backgroundSessionCompletionHandler;
+    backgroundSessionCompletionHandler = nil;
+    
+    if(handler) {
+        handler();
+    }
 }
 
 +(DownloadDelegate*)sharedDelegate {
     if(!sharedDelegate) {
         sharedDelegate = [DownloadDelegate new];
         
-        NSString* identifier = @"nu.nota.player.bgd-transfer";
+        NSString* identifier = SessionConfigurationidentifier;
         sharedConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier: identifier];
         sharedConfig.requestCachePolicy = NSURLRequestReloadIgnoringCacheData;
         
@@ -134,6 +161,8 @@ didFinishDownloadingToURL:(NSURL *)location {
     }
     return sharedDelegate;
 }
+
+
 
 // cache path is dependent on URL and start only, such that all downloaders with the same URL x start
 // share a cache file, furthermore care is taken to allow user-id to change without changing cache

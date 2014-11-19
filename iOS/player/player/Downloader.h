@@ -18,6 +18,16 @@
 // how much we have read and stored in cache
 @property (nonatomic, readonly) NSUInteger progressBytes;
 
+// should be called from application:handleEventsForBackgroundURLSession:completionHandler:
++(void)registerBackgroundSession:(NSString *)identifier
+               completionHandler:(void (^)(void))completionHandler;
+
+// Called when ready to accept session events regarding background transfers.
+// Can be called safely if there has been set no callback or multiple times,
+// without the callback being called more than the first time.
+// Should be called from the main thread.
++(void)processBackgroundSessionCompletionHandler;
+
 // cache path is dependent on URL and start only, such that all downloaders
 // with the same URL x start share a cache file.
 @property (nonatomic, readonly) NSString* cachePath;

@@ -7,6 +7,7 @@
 //
 
 #import "BookManager.h"
+#import "Downloader.h"
 #import "debug.h"
 
 @interface BookManager () {
@@ -31,8 +32,39 @@
     return self;
 }
 
+static NSString* playBookRequest = nil;
+static BookManager* anyManager = nil;
+
+-(void)ready {
+    anyManager = self;
+    
+    [Downloader processBackgroundSessionCompletionHandler];
+    if(playBookRequest.length > 0) {
+        [self play:playBookRequest offset:-1];
+        playBookRequest = nil;
+    }
+}
+
+
 -(void)didFinishLaunchingNotification:(NSNotification*)notification {
-    DBGLog(@"didFinishLaunchingNotification: %@", notification.object);
+    UILocalNotification* localNotification = [notification.userInfo objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    
+    if(localNotification) {
+        [BookManager handleLocalNotification:localNotification];
+    }
+}
+
++(void)handleLocalNotification:(UILocalNotification*)notification {
+    NSString* bookId = [notification.userInfo objectForKey:@"bookId"];
+    if(bookId.length > 0) {
+        // we start playing book if we have instance of PlayerManager, otherwise we queue
+        // for launch
+        if(anyManager) {
+            [anyManager play:bookId offset:-1];
+        } else {
+            playBookRequest = bookId;
+        }
+    }
 }
 
 -(void)requestNotificationsPermission {
@@ -72,7 +104,8 @@
         
         UILocalNotification* notification = [UILocalNotification new];
         notification.alertBody = message;
-        notification.alertAction = NSLocalizedString(@"Aflyt", nil);
+        notification.hasAction = YES;
+        notification.alertAction = NSLocalizedString(@"listen", nil);
         notification.userInfo = @{@"bookId": book.identifier};
         
         [app presentLocalNotificationNow:notification];

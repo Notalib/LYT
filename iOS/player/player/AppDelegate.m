@@ -7,9 +7,9 @@
 //
 
 #import <AudioToolbox/AudioToolbox.h>
-
+#import "Downloader.h"
 #import "AppDelegate.h"
-#import "Book.h"
+#import "BookManager.h"
 
 @interface AppDelegate () {
     AVQueuePlayer* player;
@@ -43,6 +43,12 @@
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    [BookManager handleLocalNotification:notification];
+}
+
+-(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
+
+    [Downloader registerBackgroundSession:identifier completionHandler:completionHandler];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

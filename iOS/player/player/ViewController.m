@@ -73,6 +73,7 @@
     manager.bridge = bridge;
     bridge.webView = self.webView;
     self.webView.delegate = bridge;
+    [manager ready];
         
     NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
     //NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0/"];
