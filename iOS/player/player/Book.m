@@ -233,6 +233,8 @@
     BOOL started = [self playIfReady];
     [self didChangeValueForKey:@"isPlaying"];
     delayedStart = !started;
+    
+    [self cascadeBufferingPoint];
 }
 
 -(void)stop {
@@ -244,6 +246,10 @@
     
     // make sure internal statue about position (which part and positionInPart) are correct
     self.position = position;
+
+    // we might cascade much farther when not playing
+    [self cascadeBufferingPoint];
+
 }
 
 -(void)playMore {
@@ -369,20 +375,21 @@
 }
 
 // Buffering point should be cascaded to each part of the book, but
-// we stop cascade on first book that have not fully buffered to avoid
-// congesting buffering the next part of the book with later parts.
-// We also do not ask parts of book we have passed to buffer.
+// when playing we stop cascade on first book that have not fully buffered
+// to avoid congesting buffering the next part of the book with later parts.
+// We also do not ask parts of book we have passed to buffer while playing.
 -(void)cascadeBufferingPoint {
     NSTimeInterval position = self.position;
-    
+
+    BOOL isPlaying = self.isPlaying;
     NSTimeInterval time = 0; // how long parts of book has been up to this point
     for (BookPart* part in self.parts) {
         // if part of books ends before current position, we do not care about cache,
         // as we should read the parts of the book being listened to now.
         NSTimeInterval endTime = time + part.duration;
-        if(endTime >= position) {
+        if(endTime >= position || !isPlaying) {
             part.bufferingPoint = _bufferingPoint - time;
-            if(!part.bufferingsSatisfied) {
+            if(!part.bufferingsSatisfied && isPlaying) {
                 DBGLog(@"First unbuffered book part is %@", part);
                 break;
             }

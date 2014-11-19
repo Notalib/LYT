@@ -22,6 +22,9 @@
 // with the same URL x start share a cache file.
 @property (nonatomic, readonly) NSString* cachePath;
 
+// start or continue downloading
+-(void)download;
+
 -(void)deleteCache;
 
 // how much we have read from network but perhaps not yet stored in cache

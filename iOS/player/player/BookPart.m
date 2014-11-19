@@ -160,6 +160,7 @@
     
     NSUInteger end = self.downloader.progressBytes + bytesToRead;
     self.downloader = [Downloader downloadURL:self.url start:0 end:end];
+    [self.downloader download];
     
     // downloader might already by satisfied by reading from cache,
     // and we want to know this right now
@@ -194,10 +195,11 @@
     return [[AVPlayerItem alloc] initWithAsset:asset];
 }
 
--(void)deleteCache {
+-(void)deleteCache {    
     self.downloader = [Downloader downloadURL:self.url start:0 end:0];
-    [self.downloader deleteCache];
     _ensuredBufferingPoint = self.bufferingPoint = 0;
+    byteOffset = 0;
+    [self.downloader deleteCache];
 }
 
 -(void)dealloc {
