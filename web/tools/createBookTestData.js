@@ -1,4 +1,4 @@
-#!/usr/bin/env nodejs
+#!/usr/bin/env node
 'use strict';
 
 if ( process.argv.length <= 2 ) {
@@ -19,7 +19,7 @@ if ( !fs.existsSync(basedir) || !fs.statSync(basedir).isDirectory() ) {
 basedir = fs.realpathSync( basedir );
 
 var templateFile = fs.realpathSync( __dirname + '/../test/mock/data/book-data.js-tmpl' );
-var outputFile = fs.realpathSync( __dirname + '/../test/mock/data/book-data.js' );
+var outputFile = __dirname + '/../test/mock/data/book-data.js';
 
 var files = fs.readdirSync( basedir ).filter( function( fileName ) {
   var idx = fileName.lastIndexOf( '.' );
