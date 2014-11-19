@@ -13,12 +13,12 @@ describe( 'Service: Book', function( ) {
   var mockBackend;
 
   beforeEach( function( ) {
+    // Mock the BookService, so we don't have to mock every single DODP-request
     BookService = angular
       .injector( [ 'lytTest', 'ng' ] )
       .get( 'mockBookService' );
 
     module( 'lyt3App', function( $provide ) {
-      $provide.value( '$log', console );
       $provide.value( 'BookService', BookService );
     } );
 
@@ -30,6 +30,15 @@ describe( 'Service: Book', function( ) {
     } );
   } );
 
+  // To test create and load a book, the test are written accumalative.
+  //
+  // So the first test's helper-function simply creates the book object,
+  // the second test's helper-function calls the first to be the book object.
+  //
+  // All these test-helper functions must return the book object and should
+  // take a callback function, except the first one.
+
+  // Create the book object.
   var createBook = function( ) {
     return new Book( testData.bookId );
   };
@@ -39,11 +48,16 @@ describe( 'Service: Book', function( ) {
     expect(book).not.toBeUndefined();
   } );
 
+  // Ask the server to issue the book, the callback-function
+  // is called with the boolena status
+  //
+  // Book object is returned for the net function
   var issueBook = function( callback ) {
     var book = createBook( );
 
     book.issue( )
       .then( function( ) {
+        // Book issue resolved, tell the callback function.
         callback( true );
       } )
       .catch( function( ) {
@@ -62,12 +76,18 @@ describe( 'Service: Book', function( ) {
     } );
 
     waitsFor( function( ) {
+      // Defered are resolved in the digest loop,
+      // so without this defered are never resolved.
       rootScope.$digest( );
+
       return issued === true;
-    }, 'Book to be issued', 10000 );
+    }, 'Book to be issued', 1000 );
   } );
 
+  // Get contentResources via DODP, without this book content
+  // can't be loaded.
   var loadResources = function( callback ) {
+    // Depends on issueBook to have been performed.
     var book = issueBook( function( ) {
       book.loadResources()
         .then( function( ) {
@@ -96,6 +116,7 @@ describe( 'Service: Book', function( ) {
     }, 'Book to be ', 1000 );
   } );
 
+  // Load bookmarks via DODP
   var loadBookmarks = function( callback ) {
     var book = loadResources( function( ) {
       book.loadBookmarks()
@@ -126,6 +147,11 @@ describe( 'Service: Book', function( ) {
 
   var loadNCC = function( callback ) {
     var book = loadResources( function( ) {
+      // Mock the ajax request for ncc.html
+      var fileData = testData.resources[ 'ncc.html' ];
+      mockBackend
+        .whenGET( fileData.URL )
+        .respond( fileData.content );
       book.loadNCC()
         .then( function( nccDocument ) {
           callback( !!nccDocument );
@@ -140,10 +166,6 @@ describe( 'Service: Book', function( ) {
 
   it( 'loadNCC', function( ) {
     var gotNCC;
-    var fileData = testData.resources[ 'ncc.html' ];
-    mockBackend
-      .whenGET( fileData.URL )
-      .respond( fileData.content );
 
     runs( function( ) {
       loadNCC( function( status ) {
@@ -154,16 +176,31 @@ describe( 'Service: Book', function( ) {
     waitsFor( function( ) {
       rootScope.$digest( );
       try {
+        // Flush the ajax request.
         mockBackend.flush( );
       } catch ( exp ) {
-        // flush throws an error is the request hasn't been started yet
+        // flush throws an error is the request hasn't been started yet.
       }
       return gotNCC === true;
     }, 'load NCC', 1000 );
   } );
 
+  // Download the full book structure
   var getStructure = function( callback ) {
+    // This depends on loadNCC or the book won't have the navigation structure
     var book = loadNCC( function( ) {
+      // Mock all the ajax requests for loading the full book structure
+      Object.keys( testData.resources )
+        .filter( function( fileName ) {
+          return !/\.mp3$/.test(fileName) && fileName !== 'ncc.html';
+        } )
+        .forEach( function( fileName ) {
+          var fileData = testData.resources[ fileName ];
+          mockBackend
+            .whenGET( fileData.URL )
+            .respond( fileData.content );
+        } );
+
       book.getStructure( )
         .then( function( resolved ) {
           callback( resolved );
@@ -175,17 +212,6 @@ describe( 'Service: Book', function( ) {
   };
 
   it( 'get full structure', function( ) {
-    Object.keys( testData.resources )
-      .filter( function( fileName ) {
-        return !/\.mp3$/.test(fileName);
-      } )
-      .forEach( function( fileName ) {
-        var fileData = testData.resources[ fileName ];
-        mockBackend
-          .whenGET( fileData.URL )
-          .respond( fileData.content );
-      } );
-
     var structure;
     runs( function( ) {
       getStructure( function( loadedStructure ) {
