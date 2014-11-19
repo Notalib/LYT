@@ -12,7 +12,7 @@
 #import "Book.h"
 #import "BookPart.h"
 #import "BridgeController.h"
-#import "Library.h"
+#import "BookManager.h"
 #import "debug.h"
 
 @interface ViewController () {
@@ -20,7 +20,7 @@
     AVAudioPlayer* player;
     AVQueuePlayer* queuePlayer;
 
-    Library* library;
+    BookManager* manager;
     BridgeController* bridge;
     
     Book* testBook;
@@ -69,8 +69,8 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     bridge = [BridgeController new];
-    library = [Library new];
-    library.bridge = bridge;
+    manager = [BookManager new];
+    manager.bridge = bridge;
     bridge.webView = self.webView;
     self.webView.delegate = bridge;
         

@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 NOTA. All rights reserved.
 //
 
-#import "Library.h"
+#import "BookManager.h"
 #import "debug.h"
 
-@interface Library () {
+@interface BookManager () {
     NSMutableDictionary* booksById;
     NSMutableSet* booksDownloading; // books we are downloading in their entirety
     NSString* currentBookId; // the playing book is always current, but the current book might not be playing
@@ -17,7 +17,7 @@
 
 @end
 
-@implementation Library
+@implementation BookManager
 @synthesize bridge;
 
 -(instancetype)init {

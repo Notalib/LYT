@@ -10,7 +10,7 @@
 #import "BridgeController.h"
 
 // Collection of books. This is the outermost controller of playback and books.
-@interface Library : NSObject <LytDeviceProtocol>
+@interface BookManager : NSObject <LytDeviceProtocol>
 @property (nonatomic, weak) BridgeController* bridge;
 
 @end
