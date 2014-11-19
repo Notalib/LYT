@@ -381,7 +381,12 @@
 -(void)cascadeBufferingPoint {
     NSTimeInterval position = self.position;
 
+    // we read chunked when not playing
     BOOL isPlaying = self.isPlaying;
+    for (BookPart* part in self.parts) {
+        part.chunked = isPlaying;
+    }
+    
     NSTimeInterval time = 0; // how long parts of book has been up to this point
     for (BookPart* part in self.parts) {
         // if part of books ends before current position, we do not care about cache,

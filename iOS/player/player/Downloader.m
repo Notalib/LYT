@@ -53,7 +53,7 @@ static DownloadDelegate* sharedDelegate = nil;
 -(void)endTask:(NSURLSessionTask*)task error:(NSError*)error location:(NSURL*)location {
     NSNumber* taskIdentifier = [NSNumber numberWithUnsignedInteger: task.taskIdentifier];
     Downloader* downloader = [taskDownloaders objectForKey:taskIdentifier];
-    [downloader taskEndWithError: error location:location];
+    [downloader task:task endedWithError: error location:location];
     [taskDownloaders removeObjectForKey:taskIdentifier];
 }
 
@@ -192,7 +192,6 @@ didFinishDownloadingToURL:(NSURL *)location {
     NSUInteger byteOffset = self.start + progressBytes;
     if(byteOffset >= self.end) return;
     NSUInteger bytesToRead = self.end - byteOffset;
-    if(bytesToRead >= ChunkSize) bytesToRead = ChunkSize;
     
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:self.url
                                                            cachePolicy:NSURLRequestReloadIgnoringCacheData
@@ -208,6 +207,10 @@ didFinishDownloadingToURL:(NSURL *)location {
     
     DBGLog(@"Downloading bytes %ld-%ld from %@", (long)byteOffset, (long)(byteOffset + bytesToRead),
            self.url.lastPathComponent);
+}
+
+-(void)cancelDownload {
+    [self cancelCurrentTask];
 }
 
 -(void)cancelCurrentTask {
@@ -236,7 +239,13 @@ didFinishDownloadingToURL:(NSURL *)location {
     return result;
 }
 
--(void)taskEndWithError:(NSError*)error location:(NSURL*)location {
+-(void)task:(NSURLSessionTask*)task endedWithError:(NSError*)error location:(NSURL*)location {
+    if(self.currentTask != task) {
+        DBGLog(@"Non-current task=%@ ended, this is weird", task.currentRequest.URL);
+    } else {
+        self.currentTask = nil;
+    }
+    
     self.error = error;
     
     if(!error && location) {

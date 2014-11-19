@@ -147,6 +147,13 @@
     return self.bufferingsSatisfied;
 }
 
+-(void)setChunked:(BOOL)chunked {
+    if(_chunked == chunked) return;
+    
+    _chunked = chunked;
+    [self.downloader cancelDownload];
+}
+
 -(void)downloadMore {
     //DBGLog(@"%@: bytes = %ld, wantedBytes=%ld", self,
     //       (long)self.downloader.progressBytes, (long)(byteOffset));
@@ -154,7 +161,7 @@
     if([self checkBufferingPoint]) return;
     
     NSUInteger bytesToRead = byteOffset - self.downloader.progressBytes;
-    if(bytesToRead > ChunkSize) {
+    if(self.chunked && bytesToRead > ChunkSize) {
         bytesToRead = ChunkSize;
     }
     

@@ -25,6 +25,9 @@
 // start or continue downloading
 -(void)download;
 
+// can be called safely even when there is no download
+-(void)cancelDownload;
+
 -(void)deleteCache;
 
 // how much we have read from network but perhaps not yet stored in cache
@@ -39,6 +42,8 @@
 +(Downloader*)downloadURL:(NSURL*)url;
 
 -(instancetype)initWithURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end;
--(void)taskEndWithError:(NSError*)error location:(NSURL*)location;
+
+// called when task ends either in error (non-nil error) or success (non-nil location)
+-(void)task:(NSURLSessionTask*)task endedWithError:(NSError*)error location:(NSURL*)location;
 
 @end
