@@ -126,6 +126,7 @@ static BookManager* anyManager = nil;
             notification.hasAction = NO;
         } else {
             notification.alertAction = NSLocalizedString(@"listen", nil);
+            notification.hasAction = YES;
         }
         
         [app presentLocalNotificationNow:notification];
