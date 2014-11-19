@@ -7,6 +7,7 @@
 //
 
 #import "Library.h"
+#import "debug.h"
 
 @interface Library () {
     NSMutableDictionary* booksById;
@@ -23,8 +24,25 @@
     self = [super init];
     if(self) {
         booksById = [NSMutableDictionary new];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFinishLaunchingNotification:)
+                                                     name:UIApplicationDidFinishLaunchingNotification object:nil];
     }
     return self;
+}
+
+-(void)didFinishLaunchingNotification:(NSNotification*)notification {
+    DBGLog(@"didFinishLaunchingNotification: %@", notification.object);
+}
+
+-(void)requestNotificationsPermission {
+    UIApplication* app = [UIApplication sharedApplication];
+    if([app respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        UIUserNotificationType types = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge |
+                                       UIUserNotificationTypeSound;
+        UIUserNotificationSettings* settings =  [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+    }
 }
 
 -(void)setBridge:(BridgeController *)theBridge {
@@ -36,7 +54,29 @@
 }
 
 -(void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self setBridge:nil];
+}
+
+-(void)downloadCompletedBook:(Book*)book {
+    // ignore invalid books, to avoid crashes on bad data
+    if(book.identifier.length == 0) return;
+    
+    [bridge completedDownloadBook:book.identifier timestamp:[NSDate date]];
+    
+    // perform notification when app is in the background
+    UIApplication* app = [UIApplication sharedApplication];
+    if(app.applicationState == UIApplicationStateBackground) {
+        NSString* format = NSLocalizedString(@"%@ er hentet ned på %@.", nil);
+        NSString* message = [NSString stringWithFormat:format, book.title, [UIDevice currentDevice].name];
+        
+        UILocalNotification* notification = [UILocalNotification new];
+        notification.alertBody = message;
+        notification.alertAction = NSLocalizedString(@"Aflyt", nil);
+        notification.userInfo = @{@"bookId": book.identifier};
+        
+        [app presentLocalNotificationNow:notification];
+    }
 }
 
 #pragma mark LytDeviceProtocol
@@ -82,7 +122,7 @@
 -(void)sendDownloadUpdates {
     for (Book* book in booksDownloading.allObjects) {
         if(book.downloaded) {
-            [bridge completedDownloadBook:book.identifier timestamp:[NSDate date]];
+            [self downloadCompletedBook: book];
         } else {
             CGFloat progress = book.ensuredBufferingPoint / book.duration;
             CGFloat percent = 100.0 * progress;
@@ -189,6 +229,9 @@
 }
 
 -(void)cacheBook:(NSString*)bookId {
+    // we ask for permission to send notifications when user asks to cache, since we notify when done
+    [self requestNotificationsPermission];
+    
     Book* book = [booksById objectForKey:bookId];
     book.bufferLookahead = 999999;
     
