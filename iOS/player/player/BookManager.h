@@ -9,6 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "BridgeController.h"
 
+// identifier for location nofication action that starts playback without makeing
+// app enter foreground
+#define PlayActionIdentifier @"play"
+
 // Collection of books. This is the outermost controller of playback and books.
 @interface BookManager : NSObject <LytDeviceProtocol>
 @property (nonatomic, weak) BridgeController* bridge;
