@@ -53,22 +53,23 @@ angular.module( 'lyt3App' )
         // TODO: See if we can remove this, since all sections are being addressed
         // using URLs
         var numberSections = function( sections, prefix ) {
-          var index, number, section, _i, _len, _results;
+          if ( !sections ) {
+            return;
+          }
+
           if ( !prefix ) {
             prefix = '';
           }
+
           if ( prefix ) {
             prefix = '' + prefix + '.';
           }
-          _results = [ ];
-          for ( index = _i = 0, _len = sections.length; _i < _len; index = ++
-            _i ) {
-            section = sections[ index ];
-            number = '' + prefix + ( index + 1 );
+
+          sections.forEach( function( section, index ) {
+            var number = '' + prefix + ( index + 1 );
             section.id = number;
-            _results.push( numberSections( section.children, number ) );
-          }
-          return _results;
+            numberSections( section.children, number );
+          } );
         };
 
         var markMetaSections = function( sections ) {
