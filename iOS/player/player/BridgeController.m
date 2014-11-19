@@ -235,7 +235,7 @@
 
 -(void)completedDownloadBook:(NSString*)bookId timestamp:(NSDate*)when {
     NSString* timestamp = [iso8601Formatter stringFromDate:when];
-    [self deliverEvent:@"download-failed" payload:@[bookId, timestamp]];
+    [self deliverEvent:@"download-completed" payload:@[bookId, timestamp]];
 }
 
 #pragma mark -
