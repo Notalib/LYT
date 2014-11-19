@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'Segment', [ '$q', '$log', 'TextContentDocument', 'Bookmark',
-    function( $q, $log, TextContentDocument, Bookmark ) {
+  .factory( 'Segment', [ '$q', '$log', 'LYTConfig', 'TextContentDocument', 'Bookmark',
+    function( $q, $log, LYTConfig, TextContentDocument, Bookmark ) {
       /*
        * This class models a 'segment' of audio + transcript,
        * i.e. a single 'sound clip' and its associated text/html
@@ -232,8 +232,7 @@ angular.module( 'lyt3App' )
       // Will load this segment and the next preloadCount segments
       Segment.prototype.preloadNext = function( preloadCount ) {
         if ( preloadCount === undefined ) {
-          // TODO: preloadCount = LYT.config.segment.preload.queueSize;
-          preloadCount = 10;
+          preloadCount = ( ( LYTConfig.segment || {} ).preload || {} ).queueSize || 10;
         }
 
         this.load( );
@@ -322,12 +321,12 @@ angular.module( 'lyt3App' )
           };
           loadImage = function( image ) {
             $log.log( 'Segment: ' + this.url( ) + ': parseContent: initiate preload of image ' + image.src );
+
             var errorHandler = function( event ) {
               var backoff, doLoad;
               clearTimeout( image.timer );
               if ( image.attempts-- > 0 ) {
-                // TODO: backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50);
-                backoff = 10;
+                backoff = Math.ceil( ( ( ( ( LYTConfig.segment || {} ).imagePreload || {} ).attempts || 3 ) - image.attempts + 1) * 50 );
                 $log.log( 'Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts +
                   ' attempts left. Waiting for ' + backoff + ' ms.' );
                 doLoad = function( ) {
@@ -346,8 +345,7 @@ angular.module( 'lyt3App' )
               return image.deferred.resolve( image, event );
             };
 
-            image.timer = setTimeout( errorHandler, /*LYT.config.segment.imagePreload.timeout*/
-              2500 );
+            image.timer = setTimeout( errorHandler, LYTConfig.segment.imagePreload.timeout );
 
             var tmp = new Image( );
             $( tmp )
@@ -376,8 +374,7 @@ angular.module( 'lyt3App' )
           imageData = {
             src: image.attr( 'src' ),
             element: image[ 0 ],
-            // TODO: attempts: LYT.config.segment.imagePreload.attempts,
-            attempts: 10,
+            attempts: LYTConfig.segment.imagePreload.attempts,
             deferred: imageDefer
           };
           imagePromise.then( function( imageData, event ) {

@@ -3,8 +3,7 @@
 angular.module( 'lyt3App' )
   .factory( 'Book', [ '$q', '$log', 'LYTUtils', 'BookService', 'BookErrorCodes',
     'NCCDocument', 'SMILDocument',
-    function( $q, $log, LYTUtils, BookService, BookErrorCodes, NCCDocument,
-      SMILDocument ) {
+    function( $q, $log, LYTUtils, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
       /*
        * The constructor takes one argument; the ID of the book.
        * The instantiated object acts as a Deferred object, as the instantiation of a book
@@ -26,88 +25,131 @@ angular.module( 'lyt3App' )
        */
       function Book( id ) {
         this.id = id;
-        var deferred = $q.defer( );
-        this.promise = deferred.promise;
 
         this.resources = {};
         this.nccDocument = null;
+      }
 
-        var pending = 2;
-        var resolve = function( ) {
-          return --pending || deferred.resolve( this );
-        }.bind( this );
+      Book.prototype.issue = function( ) {
+        if ( this.issuedPromise ) {
+          return this.issuedPromise;
+        }
 
-        // First step: Request that the book be issued
-        var issue = function( ) {
-          // Perform the RPC
-          var issued = BookService.issue( this.id );
-          // When the book has been issued, proceed to download
-          // its resources list, ...
-          issued.then( getResources );
+        var defered = $q.defer();
+        this.issuedPromise = defered.promise;
+        var bookId = this.id;
 
-          // ... or fail
-          return issued.catch( function( ) {
-            return deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
-          } );
-        }.bind( this );
+        BookService.issue( bookId )
+          .then( function( ) {
+            $log.log( 'Book ' + bookId + ' has been issued' );
 
-        var getResources = function( ) {
-          var got = BookService.getResources( this.id );
-          got.catch( function( ) {
-            return deferred.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
+            defered.resolve( bookId );
+          } )
+          .catch( function( ) {
+            defered.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
           } );
 
-          return got.then( function( resources ) {
+        return this.issuedPromise;
+      };
+
+      Book.prototype.loadResources = function( ) {
+        if ( this.resourcePromise ) {
+          return this.resourcePromise;
+        }
+
+        var defered = $q.defer();
+        this.resourcePromise = defered.promise;
+
+        BookService.getResources( this.id )
+          .then( function( resources ) {
             var ncc = null;
-            Object.keys( resources ).forEach( function( localUri ) {
-              var uri = resources[ localUri ];
+            Object.keys( resources )
+              .forEach( function( localUri ) {
+                var uri = resources[ localUri ];
 
-              // We lowercase all resource lookups to avoid general case-issues
-              localUri = localUri.toLowerCase( );
+                // We lowercase all resource lookups to avoid general case-issues
+                localUri = localUri.toLowerCase( );
 
-              // Each resource is identified by its relative path,
-              // and contains the properties `url` and `document`
-              // (the latter initialized to `null`)
-              // Urls are rewritten to use the origin server just
-              // in case we are behind a proxy.
-              var origin = document.location.href.match(
-                /(https?:\/\/[^\/]+)/ )[ 1 ];
-              var path = uri.match( /https?:\/\/[^\/]+(.+)/ )[ 1 ];
+                // Each resource is identified by its relative path,
+                // and contains the properties `url` and `document`
+                // (the latter initialized to `null`)
+                // Urls are rewritten to use the origin server just
+                // in case we are behind a proxy.
+                var origin = document.location.href.match(
+                  /(https?:\/\/[^\/]+)/ )[ 1 ];
 
-              this.resources[ localUri ] = {
-                url: origin + path,
-                document: null
-              };
+                var path = uri.match( /https?:\/\/[^\/]+(.+)/ )[ 1 ];
 
-              if ( localUri.match( /^ncc\.x?html?$/i ) ) {
-                ncc = this.resources[ localUri ];
-              }
-            }, this );
+                this.resources[ localUri ] = {
+                  url: origin + path,
+                  document: null
+                };
+
+                if ( localUri.match( /^ncc\.x?html?$/i ) ) {
+                  ncc = this.resources[ localUri ];
+                }
+              }, this );
 
             // If the url of the resource is the NCC document,
             // save the resource for later
             if ( ncc ) {
-              getNCC( ncc );
-              return getBookmarks( );
+              this.nccData = ncc;
+              defered.resolve( );
             } else {
-              return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
+              defered.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
             }
-          }.bind( this ) );
-        }.bind( this );
-
-        // Third step: Get the NCC document
-        var getNCC = function( obj ) {
-          // Instantiate an NCC document
-          var ncc = new NCCDocument( obj.url, this );
-          var nccPromise = ncc.promise;
-
-          // Propagate a failure
-          nccPromise.catch( function( ) {
-            return deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
+          }.bind( this ) )
+          .catch( function( ) {
+            defered.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
           } );
 
-          nccPromise.then( function( document ) {
-            obj.document = this.nccDocument = document;
+        return this.resourcePromise;
+      };
+
+      Book.prototype.loadBookmarks = function( ) {
+        if ( this.bookmarkPromise ) {
+          return this.bookmarkPromise;
+        }
+
+        var defered = $q.defer();
+        this.bookmarkPromise = defered.promise;
+
+        this.lastmark = null;
+        this.bookmarks = null;
+        $log.log( 'Book: Getting bookmarks' );
+
+        BookService.getBookmarks( this.id )
+          .then( function( data ) {
+            this.bookmarks = [];
+            if ( data ) {
+              this.lastmark = data.lastmark;
+              this.bookmarks = data.bookmarks || [];
+              normalizeBookmarks( this );
+            }
+
+            defered.resolve( );
+          }.bind( this ) )
+          .catch( function( ) {
+            // TODO: perhaps bookmarks should be loaded lazily, when required?
+            defered.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
+          } );
+
+        return this.bookmarkPromise;
+      };
+
+      Book.prototype.loadNCC = function( ) {
+        if ( this.nccPromise ) {
+          return this.nccPromise;
+        }
+
+        var defered = $q.defer();
+        this.nccPromise = defered.promise;
+
+        // Instantiate an NCC document
+        var ncc = new NCCDocument( this.nccData.url, this );
+        ncc.promise
+          .then( function( document ) {
+            this.nccData.document = this.nccDocument = document;
             var metadata = this.nccDocument.getMetadata( );
             var authors = ( metadata.creator || [ ] ).map(
               function( creator ) {
@@ -118,46 +160,28 @@ angular.module( 'lyt3App' )
             this.author = LYTUtils.toSentence( authors );
 
             // Get the title
-            this.title = metadata.title ? metadata.title.content :
-              '';
+            this.title = metadata.title ? metadata.title.content : '';
 
             // Get the total time
             this.totalTime = metadata.totalTime ? LYTUtils.parseTime( metadata.totalTime.content ) : null;
             ncc.book = this;
-            resolve( );
-          }.bind( this ) );
-        }.bind( this );
 
-        var getBookmarks = function( ) {
-          this.lastmark = null;
-          this.bookmarks = [ ];
-          $log.log( 'Book: Getting bookmarks' );
-          var process = BookService.getBookmarks( this.id );
-
-          // TODO: perhaps bookmarks should be loaded lazily, when required?
-          process.catch( function( ) {
-            return deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
+            defered.resolve( document );
+          }.bind( this ) )
+          .catch( function( ) {
+            // Propagate a failure
+            defered.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
           } );
 
-          return process.then( function( data ) {
-            if ( data ) {
-              this.lastmark = data.lastmark;
-              this.bookmarks = data.bookmarks;
-              normalizeBookmarks( this );
-            }
-            resolve( );
-          }.bind( this ) );
-        }.bind( this );
-
-        // Kick the whole process off
-        issue( this.id );
-      }
+        return this.nccPromise;
+      };
 
       // Returns all .smil files in the @resources array
       Book.prototype.getSMILFiles = function( ) {
-        return Object.keys( this.resources ).filter( function( key ) {
-          return this.resources[ key ].url.match( /\.smil$/i );
-        }, this );
+        return Object.keys( this.resources )
+          .filter( function( key ) {
+            return this.resources[ key ].url.match( /\.smil$/i );
+          }, this );
       };
 
       // Returns all SMIL files which is referred to by the NCC document in order
@@ -172,20 +196,29 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.loadAllSMIL = function( ) {
+        if ( this.loadAllSMILPromise ) {
+          return this.loadAllSMILPromise;
+        }
+
         var promises = [ ];
 
-        var defer = $q.defer( );
+        var defered = $q.defer( );
+        this.loadAllSMILPromise = defered.promise;
 
-        this.getSMILFiles( ).forEach( function( url ) {
-          promises.push( this.getSMIL( url ) );
-        }, this );
+        this.getSMILFiles( )
+          .forEach( function( url ) {
+            promises.push( this.getSMIL( url ) );
+          }, this );
 
         $q.all( promises )
           .then( function( smildocuments ) {
-            defer.resolve( smildocuments );
+            defered.resolve( smildocuments );
+          } )
+          .catch( function( ) {
+            defered.reject();
           } );
 
-        return defer.promise;
+        return this.loadAllSMILPromise;
       };
 
       Book.prototype.getSMIL = function( url ) {
@@ -212,6 +245,12 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.firstSegment = function( ) {
+        if ( !this.nccDocument ) {
+          var errorMsg = 'Book: ' + this.id + ', nccDocument required for firstSegment';
+          $log.error( errorMsg );
+          throw Error( errorMsg );
+        }
+
         return this.nccDocument.promise.then( function( document ) {
             return document.firstSection( );
           } )
@@ -221,6 +260,12 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.getSectionBySegment = function( segment ) {
+        if ( !this.nccDocument ) {
+          var errorMsg = 'Book: ' + this.id + ', nccDocument required for getSectionBySegment';
+          $log.error( errorMsg );
+          throw Error( errorMsg );
+        }
+
         var id, item;
 
         var sections = this.nccDocument.sections.map( function( section ) {
@@ -561,7 +606,7 @@ angular.module( 'lyt3App' )
           }
 
           // Make sure the book is loaded
-          this.promise.then( function( ) {
+          this.loadNCC().then( function( ) {
             var bookStructure = {
               id: this.id,
               author: this.author,
@@ -656,16 +701,41 @@ angular.module( 'lyt3App' )
       Book.load = ( function( ) {
         var loaded = {};
         return function( id ) {
-          if ( !loaded[ id ] ) {
-            loaded[ id ] = new Book( id );
+          var book = loaded[ id ];
+          if ( !book ) {
+            book = new Book( id );
+            loaded[ id ] = book;
           }
-          return loaded[ id ].promise;
+
+          var defered = $q.defer();
+
+          var reject = function( ) {
+            defered.reject.apply( defered, arguments );
+          };
+
+          book.issue( )
+            .then( function( ) {
+              book.loadResources( )
+                .then( function( ) {
+                  book.loadBookmarks( )
+                    .then( function( ) {
+                      book.loadNCC( )
+                        .then( function( ) {
+                          defered.resolve( book );
+                        } )
+                        .catch( reject );
+                    } )
+                    .catch( reject );
+                } )
+                .catch( reject );
+            } )
+            .catch( reject );
+
+          return defered.promise;
         };
       } )( );
 
       // Public API here
-      return {
-        load: Book.load
-      };
+      return Book;
     }
   ] );

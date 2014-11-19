@@ -11,7 +11,7 @@ angular.module( 'lytTest' )
     function( testDataLocal, bookDataLocal ) {
       var DODPVERSION = 'Dummy=1.0.0';
       var testUser = testDataLocal.user;
-      var baseUrl = 'http://test.m.e17.dk/';
+      var baseUrl = document.location.href.match( /(https?:\/\/[^\/]+)/ )[ 1 ];
       var bookId = 37027;
 
       var logOn = {
@@ -230,7 +230,7 @@ angular.module( 'lytTest' )
       };
 
       var makeResourceURI = function( fileName ) {
-        return baseUrl + '/DodpFiles/20155/' + bookId + '/' + fileName;
+        return baseUrl + '/DodpFiles/20155/' + bookId + '/' + fileName + '?forceclose=true';
       };
 
       var getContentResources = {
@@ -240,9 +240,9 @@ angular.module( 'lytTest' )
         respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">' +
           DODPVERSION +
           '</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><getContentResourcesResponse xmlns="http://www.daisy.org/ns/daisy-online/"><resources returnBy="9999-12-31T23:59:59.9999999" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00">' + ( function( ) {
-              var str = '<resource uri="_URI_" mimeType="application/octet-stream" size="0" localURI="_LOCALURI_" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/>';
+            var str = '<resource uri="_URI_" mimeType="application/octet-stream" size="0" localURI="_LOCALURI_" lastModifiedDate="2014-11-09T01:41:27.9662215+01:00"/>';
 
-              return Object.keys(bookDataLocal)
+            return Object.keys(bookDataLocal)
                 .reduce( function( output, fileName ) {
                   return output + str.replace( '_URI_', makeResourceURI( fileName ) ).replace( '_LOCALURI_', fileName );
                 }, '' );
@@ -336,13 +336,15 @@ angular.module( 'lytTest' )
           bookId: bookId,
           resources: (function( ) {
             return Object.keys(bookDataLocal)
-              .map( function( fileName ) {
+              .reduce( function( output, fileName ) {
                 var fileData = bookDataLocal[ fileName ];
-                return {
-                  URL: makeResourceURI( fileName ) + '?forceclose=true',
+                output[ fileName ] = {
+                  URL: makeResourceURI( fileName ),
                   content: fileData.content
                 };
-              } );
+
+                return output;
+              }, {} );
           } )()
         }
       };

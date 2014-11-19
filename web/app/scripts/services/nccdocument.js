@@ -9,15 +9,13 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'NCCDocument', [ '$q', 'TextContentDocument', 'Section',
-    function( $q, TextContentDocument, Section ) {
-      var flattenStructure, parseStructure;
-
+  .factory( 'NCCDocument', [ '$q', 'LYTConfig', 'TextContentDocument', 'Section',
+    function( $q, LYTConfig, TextContentDocument, Section ) {
       // ## Privileged
 
       // Internal helper function to parse the (flat) heading structure of an NCC document
       // into a nested collection of `NCCSection` objects
-      parseStructure = function( xml, book ) {
+      var parseStructure = function( xml, book ) {
         /*
          * Collects consecutive heading of the given level or higher in the `collector`.
          * I.e. given a level of 3, it will collect all `H3` elements until it hits an `H1`
@@ -26,21 +24,18 @@ angular.module( 'lyt3App' )
          * Returns the number of headings collected.
          * FIXME: Doesn't take changes in level with more than one into account, e.g. from h1 to h3.
          */
-        var getConsecutive, headings, level, markMetaSections,
-          numberSections, structure;
-        getConsecutive = function( headings, level, collector ) {
-          var heading, index, section;
-          index = 0;
+        var getConsecutive = function( headings, level, collector ) {
+          var index = 0;
           // Loop through the `headings` array
           while ( headings.length > index ) {
-            heading = headings[ index ];
+            var heading = headings[ index ];
             if ( heading.tagName.toLowerCase( ) !== ( 'h' + level ) ) {
               // Return the current index if the heading isn't the given level
               return index;
             }
 
             // Create a section object
-            section = new Section( heading, book );
+            var section = new Section( heading, book );
             section.parent = level - 1;
             // Collect all higher-level headings into that section's `children` array,
             // and increment the `index` accordingly
@@ -54,9 +49,10 @@ angular.module( 'lyt3App' )
           // If the loop ran to the end of the `headings` array, return the array's length
           return headings.length;
         };
+
         // TODO: See if we can remove this, since all sections are being addressed
         // using URLs
-        numberSections = function( sections, prefix ) {
+        var numberSections = function( sections, prefix ) {
           var index, number, section, _i, _len, _results;
           if ( !prefix ) {
             prefix = '';
@@ -74,44 +70,39 @@ angular.module( 'lyt3App' )
           }
           return _results;
         };
-        markMetaSections = function( sections ) {
-          var isBlacklisted, metaSectionList, section, _i, _len, _results;
-          // TODO: metaSectionList = LYT.config.nccDocument.metaSections;
-          metaSectionList = {};
-          isBlacklisted = function( section ) {
-            var type, value;
-            for ( value in metaSectionList ) {
-              type = metaSectionList[ value ];
-              if ( section[ type ] === value ) {
-                return true;
-              }
-            }
-            return false;
+
+        var markMetaSections = function( sections ) {
+          var metaSectionList = LYTConfig.nccDocument.metaSections || {};
+
+          var isBlacklisted = function( section ) {
+            return Object.keys(metaSectionList)
+              .some( function( value ) {
+                var type = metaSectionList[value];
+                return section[ type ] === value;
+              } );
           };
-          _results = [ ];
-          for ( _i = 0, _len = sections.length; _i < _len; _i++ ) {
-            section = sections[ _i ];
+
+          sections.forEach( function( section ) {
             if ( isBlacklisted( section ) ) {
               section.metaContent = true;
             }
+
             if ( section.children.length ) {
-              _results.push( markMetaSections( section.children ) );
-            } else {
-              _results.push( void 0 );
+              markMetaSections( section.children );
             }
-          }
-          return _results;
+          } );
         };
-        structure = [ ];
+
+        var structure = [ ];
 
         // Find all headings as a plain array
-        headings = jQuery.makeArray( xml.find( ':header' ) );
+        var headings = jQuery.makeArray( xml.find( ':header' ) );
         if ( headings.length === 0 ) {
           return [ ];
         }
 
         // Find the level of the first heading (should be level 1)
-        level = parseInt( headings[ 0 ].tagName.slice( 1 ), 10 );
+        var level = parseInt( headings[ 0 ].tagName.slice( 1 ), 10 );
 
         // Get all consecutive headings of that level
         getConsecutive( headings, level, structure );
@@ -124,7 +115,7 @@ angular.module( 'lyt3App' )
         return structure;
       };
 
-      flattenStructure = function( structure ) {
+      var flattenStructure = function( structure ) {
         var flat = [ ];
 
         structure.forEach( function( section ) {
