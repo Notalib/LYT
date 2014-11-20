@@ -12,7 +12,7 @@ namespace NOTA
     class AnalyseMP3
     {
         private static long ByteOffset = 0;
-        private static long MSecOffset = 0;
+        private static double MSecOffset = 0;
 
         static void registerDecodeProblem(string reason)
         {
@@ -165,7 +165,7 @@ namespace NOTA
             }
 
             ByteOffset += frameLengthInBytes;
-            MSecOffset += (long)Math.Floor(1000.0 * duration);
+            MSecOffset += 1000.0 * duration;
 
             return true;
         }
@@ -223,7 +223,7 @@ namespace NOTA
                     if(secsGone >= 10 || bytesSeen >= 1024.0 * 100) break;
                 }
 
-                // we only output of we actually passed some data
+                // we only output if we actually passed some data
                 if(byteOffsetBefore == ByteOffset) continue;
 
                 if (!firstLine) {Console.Write(",\n ");}
@@ -234,6 +234,8 @@ namespace NOTA
                               ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
             }
             Console.WriteLine("]");
+
+            Console.Error.WriteLine("{0} was {1} secs and {2} bytes.", filename, 0.001 * MSecOffset, ByteOffset);
         }
     }
 }
