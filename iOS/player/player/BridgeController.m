@@ -180,6 +180,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     DBGLog(@"webViewDidFinishLoad: %@", webView.request.URL);
+    [self refreshBooks];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {

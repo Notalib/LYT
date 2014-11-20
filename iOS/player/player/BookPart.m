@@ -209,6 +209,31 @@
     [self.downloader deleteCache];
 }
 
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    if(self.url) [aCoder encodeObject:self.url forKey:@"url"];
+    [aCoder encodeDouble:self.start forKey:@"start"];
+    [aCoder encodeDouble:self.end forKey:@"end"];
+    [aCoder encodeDouble:self.bufferingPoint forKey:@"buffering"];
+    [aCoder encodeBool:self.chunked forKey:@"chunked"];
+    [aCoder encodeInteger:byteOffset forKey:@"byteOffset"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [self init];
+    if(self) {
+        self.url = [aDecoder decodeObjectForKey:@"url"];
+        self.start = [aDecoder decodeDoubleForKey:@"start"];
+        self.end = [aDecoder decodeDoubleForKey:@"end"];
+        self.chunked = [aDecoder decodeBoolForKey:@"chunked"];
+        byteOffset = [aDecoder decodeIntegerForKey:@"byteOffset"];
+        
+        // we set buffering as the last one, as this has consequences and will
+        // make BookPart read from cache or network.
+        self.bufferingPoint = [aDecoder decodeDoubleForKey:@"buffering"];
+    }
+    return self;
+}
+
 -(void)dealloc {
     [self setDownloader: nil];
 }

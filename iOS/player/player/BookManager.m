@@ -12,7 +12,7 @@
 
 @interface BookManager () {
     NSMutableDictionary* booksById;
-    NSMutableSet* booksDownloading; // books we are downloading in their entirety
+    NSMutableSet* booksDownloading; // books we are downloading in their entirety, contains Book instances
     NSString* currentBookId; // the playing book is always current, but the current book might not be playing
 }
 
@@ -21,13 +21,62 @@
 @implementation BookManager
 @synthesize bridge;
 
++(NSString*)stateFilename {
+    NSString* docsDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    return [docsDir stringByAppendingPathComponent:@".state"];
+}
+
+-(BOOL)saveState {
+    NSMutableDictionary* state = [NSMutableDictionary new];
+    if(booksById.count > 0) {
+        [state setObject:booksById forKey:@"books"];
+    }
+    if(booksDownloading.count > 0) {
+        [state setObject:booksDownloading forKey:@"downloading"];
+    }
+    if(currentBookId) {
+        [state setObject:currentBookId forKey:@"current"];
+    }
+    
+    BOOL ok =  [NSKeyedArchiver archiveRootObject:state toFile:[BookManager stateFilename]];
+    return ok;
+}
+
 -(instancetype)init {
     self = [super init];
     if(self) {
-        booksById = [NSMutableDictionary new];
+        NSDictionary* state = [NSKeyedUnarchiver unarchiveObjectWithFile:[BookManager stateFilename]];
+        if(state) {
+            NSDictionary* books = [state objectForKey:@"books"];
+            if(books.count > 0) {
+                booksById = [NSMutableDictionary dictionaryWithDictionary:books];
+                
+                // we register for KVO notifications on books
+                for (Book* book in booksById.allValues) {
+                    [book addObserver:self forKeyPath:@"isPlaying" options:0 context:NULL];
+                    [book addObserver:self forKeyPath:@"error" options:0 context:NULL];
+                }
+            }
+            
+            NSSet* downloading = [state objectForKey:@"downloading"];
+            if(downloading.count > 0) {
+                booksDownloading = [NSMutableSet setWithSet:downloading];
+            }
+            
+            currentBookId = [state objectForKey:@"current"];
+        }
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFinishLaunchingNotification:)
-                                                     name:UIApplicationDidFinishLaunchingNotification object:nil];
+        if(!booksById) {
+            booksById = [NSMutableDictionary new];
+        }
+        
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(didFinishLaunchingNotification:)
+                       name:UIApplicationDidFinishLaunchingNotification object:nil];
+        [center addObserver:self selector:@selector(willTerminateNotification:)
+                       name:UIApplicationWillTerminateNotification object:nil];
+        
+        
     }
     return self;
 }
@@ -43,8 +92,10 @@ static BookManager* anyManager = nil;
         [self play:playBookRequest offset:-1];
         playBookRequest = nil;
     }
+    
+    [self sendDownloadUpdates];
+    [self.bridge refreshBooks];
 }
-
 
 -(void)didFinishLaunchingNotification:(NSNotification*)notification {
     UILocalNotification* localNotification = [notification.userInfo objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
@@ -52,6 +103,10 @@ static BookManager* anyManager = nil;
     if(localNotification) {
         [BookManager handleLocalNotification:localNotification];
     }
+}
+
+-(void)willTerminateNotification:(NSNotification*)notification {
+    [self saveState];
 }
 
 +(void)handleLocalNotification:(UILocalNotification*)notification {
@@ -228,20 +283,43 @@ static BookManager* anyManager = nil;
     
     Book* book = [Book bookFromDictionary:dict baseURL:baseURL];
     [book joinParts];
-    //[book deleteCache];
     book.bufferLookahead = 20;
     
     NSString* key = book.identifier;
     if(key) {
-        [self clearBook:key];
-        [booksById setObject:book forKey:key];
+        // overwrite previous book instance, but make sure we remember position, whether paying
+        // and whether downloading
+        Book* old = [booksById objectForKey:key];
+        NSTimeInterval position = 0;
+        BOOL wasDownloading = NO, wasPlaying = NO;
+        if(old) {
+            position = old.position;
+            
+            wasPlaying = old.isPlaying;
+            if(wasPlaying) [old stop];
+            
+            wasDownloading = [booksDownloading containsObject:old];
+            if(wasDownloading) {
+                [booksDownloading removeObject:old];
+            }
+            
+            [self innerClearBook:key];
+        }
         
         [book addObserver:self forKeyPath:@"isPlaying" options:0 context:NULL];
         [book addObserver:self forKeyPath:@"error" options:0 context:NULL];
+        
+        // restore state of downloading and playing
+        [booksById setObject:book forKey:key];
+        if(wasDownloading) [booksDownloading addObject:book];
+        book.position = position;
+        if(wasPlaying) [book play];
     }
+    
+    [self saveState];
 }
 
--(void)clearBook:(NSString*)bookId {
+-(void)innerClearBook:(NSString*)bookId {
     if(bookId) {
         Book* book = [booksById objectForKey:bookId];
         [book removeObserver:self forKeyPath:@"isPlaying"];
@@ -253,10 +331,16 @@ static BookManager* anyManager = nil;
     }
 }
 
+-(void)clearBook:(NSString*)bookId {
+    [self innerClearBook:bookId];
+    [self saveState];
+}
+
 -(void)clearAllBooks {
     for (Book* book in booksById.allValues) {
-        [self clearBook:book.identifier];
+        [self innerClearBook:book.identifier];
     }
+    [self saveState];
 }
 
 -(void)play:(NSString*)bookId offset:(NSTimeInterval)offset {
