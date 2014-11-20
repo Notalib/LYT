@@ -4,8 +4,10 @@
     <h1>{{book.author}} - {{book.title}}</h1>
   </header>
   <nav>
+    <button ng-click="ship(-15)" class="">-15</button>
     <button ng-click="play()" class="glyphicon glyphicon-play"></button>
     <button ng-click="stop()" class="glyphicon glyphicon-stop"></button>
+    <button ng-click="ship(15)" class="">15</button>
     <progressbar></progressbar>
   </nav>
 </div>

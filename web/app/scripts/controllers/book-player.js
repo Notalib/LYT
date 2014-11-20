@@ -4,6 +4,7 @@ angular.module('lyt3App')
   .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams', 'Book', '$interval',
     function( $scope, $log, NativeGlue, $routeParams, Book, $interval ) {
       var currentBookStructure;
+      var currentOffset = 0;
       Book.load( $routeParams.bookid )
         .then( function( book ) {
           $scope.book = book;
@@ -11,10 +12,11 @@ angular.module('lyt3App')
             currentBookStructure = bookData;
 
             // Fake progress
-            var start = new Date() / 1000;
+            var lastTime = new Date() / 1000;
             $interval( function( ) {
               var now = new Date( ) / 1000;
-              $scope.$emit( 'play-time-update', now - start );
+              $scope.$emit( 'play-time-update', currentOffset + now - lastTime );
+              lastTime = now;
             }, 250 );
 
             NativeGlue.setBook( bookData );
@@ -22,8 +24,8 @@ angular.module('lyt3App')
         } );
 
       var currentSMIL;
-      $scope.$on( 'play-time-update', function( bookId, offset ) {
-        // $log.info( 'play-time-update: TODO', bookId, offset );
+      var setOffset = function( offset ) {
+        currentOffset = offset;
 
         $scope.book.findSectionFromOffset( offset )
           .then( function( segment ) {
@@ -49,6 +51,11 @@ angular.module('lyt3App')
               $scope.sectionTitle = navigationItem.title;
             }
           } );
+      };
+      $scope.$on( 'play-time-update', function( bookId, offset ) {
+        // $log.info( 'play-time-update: TODO', bookId, offset );
+
+        setOffset( offset );
       } );
 
       $scope.$on( 'end', function( bookId ) {
@@ -61,5 +68,9 @@ angular.module('lyt3App')
 
       $scope.stop = function() {
         NativeGlue.stop( );
+      };
+
+      $scope.ship = function( diff ) {
+        setOffset( currentOffset + diff );
       };
     } ] );
