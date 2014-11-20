@@ -116,9 +116,10 @@ angular.module( 'lyt3App' )
         };
 
         // If the call fails
-        var failure = function( code, message ) {
+        var failure = function( rejected ) {
+          var code = rejected && rejected[0];
           emitError( code );
-          return deferred.reject( code, message );
+          return deferred.reject( rejected );
         };
 
         var result = callback( );
@@ -127,7 +128,8 @@ angular.module( 'lyt3App' )
         result.then( success );
 
         // If the call fails
-        result.catch( function( code, message ) {
+        result.catch( function( rejected ) {
+          var code = rejected && rejected[0];
           // Is it because the user's not logged in?
           if ( code === DODPErrorCodes.DODP_NO_SESSION_ERROR ) {
             // If so , the attempt log-on
@@ -140,12 +142,12 @@ angular.module( 'lyt3App' )
                   // If it doesn't, then give up
                   .catch( failure );
               } )
-              .catch( function( code, message ) {
+              .catch( function( rejected ) {
                 // Logon failed, so propagate the error
-                return deferred.reject( code, message );
+                return deferred.reject( rejected );
               } );
           } else {
-            return failure( code, message );
+            return failure( rejected );
           }
         } );
 
@@ -194,16 +196,17 @@ angular.module( 'lyt3App' )
         // (For readability, the handlers are separated out here)
 
         // TODO: Flesh out error handling
-        var failed = function( code, message ) {
+        var failed = function( rejected ) {
+          var code = rejected && rejected[0];
           if ( code === DODPErrorCodes.RPC_UNEXPECTED_RESPONSE_ERROR ) {
             emit( 'logon:rejected' );
-            return deferred.reject( );
+            deferred.reject( );
           } else {
             if ( attempts > 0 ) {
-              return attemptLogOn( );
+              attemptLogOn( );
             } else {
               emitError( code );
-              return deferred.reject( code, message );
+              deferred.reject( rejected );
             }
           }
         };

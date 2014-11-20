@@ -8,8 +8,8 @@
  * Factory in the lyt3App.
  */
 angular.module( 'lyt3App' )
-  .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', function(
-    $sanitize, $http, $q, xmlParser ) {
+  .factory( 'DODP', [ '$sanitize', '$http', '$q', 'xmlParser', 'DODPErrorCodes',
+  function( $sanitize, $http, $q, xmlParser, DODPErrorCodes ) {
     /*jshint quotmark: false */
     // jscs:disable validateQuoteMarks
     var soapTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -91,7 +91,7 @@ angular.module( 'lyt3App' )
       } ).success( function( response ) {
         var Body = response.Body;
         if ( Body.Fault ) {
-          defer.reject( Body.Fault );
+          defer.reject( [ DODPErrorCodes.identifyDODPError( Body.Fault.faultcode ), Body.Fault.faultstring ] );
         } else {
           defer.resolve( response );
         }
@@ -375,10 +375,10 @@ angular.module( 'lyt3App' )
             if ( Body.issueContentResponse.issueContentResult ) {
               defer.resolve( );
             } else {
-              defer.reject( 'issueContent failed' );
+              defer.reject( 'issueContent failed 2' );
             }
-          }, function( ) {
-            defer.reject( 'issueContent failed' );
+          }, function( rejected ) {
+            defer.reject( rejected );
           } );
 
         return defer.promise;

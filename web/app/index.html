@@ -17,18 +17,22 @@
   <body ng-app="lyt3App">
     <!-- Add your site or application content here -->
     <div class="container">
-      <div class="header">
-        <ul class="nav nav-pills pull-right">
-          <li class="active"><a ng-href="#/bookshelf">Home</a></li>
-        </ul>
+      <header class="header">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li class="active">
+              <a ng-href="#/bookshelf">Home</a>
+            </li>
+          </ul>
+        </nav>
         <h3 class="text-muted">LYT</h3>
-      </div>
+      </header>
 
       <div ng-view=""></div>
 
-      <div class="footer">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
-      </div>
+      <footer class="footer">
+        <p><span class="glyphicon glyphicon-heart"></span> from the Nota team</p>
+      </footer>
     </div>
 
 
