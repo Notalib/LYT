@@ -229,13 +229,13 @@ namespace NOTA
                 if (!firstLine) {Console.Write(",\n ");}
                 firstLine = false;
 
-                Console.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1}, \"byteLength\": {2}, \"timeDuration\": {3} }}",
+                Console.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
                               byteOffsetBefore, 0.001 * timeOffsetBefore, 
                               ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
             }
             Console.WriteLine("]");
 
-            Console.Error.WriteLine("{0} was {1} secs and {2} bytes.", filename, 0.001 * MSecOffset, ByteOffset);
+            Console.Error.WriteLine("{0} was {1:0.000000} secs and {2} bytes.", filename, 0.001 * MSecOffset, ByteOffset);
         }
     }
 }
