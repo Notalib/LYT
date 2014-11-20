@@ -1,8 +1,8 @@
-[{"byteOffset": 336, "timeOffset": 0, "byteLength": 102817, "timeDuration": 4.264 },
- {"byteOffset": 103153, "timeOffset": 4.264, "byteLength": 102818, "timeDuration": 4.264 },
- {"byteOffset": 205971, "timeOffset": 8.528, "byteLength": 102817, "timeDuration": 4.264 },
- {"byteOffset": 308788, "timeOffset": 12.792, "byteLength": 102818, "timeDuration": 4.264 },
- {"byteOffset": 411606, "timeOffset": 17.056, "byteLength": 102818, "timeDuration": 4.264 },
- {"byteOffset": 514424, "timeOffset": 21.32, "byteLength": 102818, "timeDuration": 4.264 },
- {"byteOffset": 617242, "timeOffset": 25.584, "byteLength": 102818, "timeDuration": 4.264 },
- {"byteOffset": 720060, "timeOffset": 29.848, "byteLength": 21316, "timeDuration": 0.884 }]
+[{"byteOffset": 336, "timeOffset": 0, "byteLength": 102817, "timeDuration": 4.28408163265306 },
+ {"byteOffset": 103153, "timeOffset": 4.28408163265306, "byteLength": 102818, "timeDuration": 4.28408163265312 },
+ {"byteOffset": 205971, "timeOffset": 8.56816326530618, "byteLength": 102817, "timeDuration": 4.28408163265298 },
+ {"byteOffset": 308788, "timeOffset": 12.8522448979592, "byteLength": 102818, "timeDuration": 4.28408163265303 },
+ {"byteOffset": 411606, "timeOffset": 17.1363265306122, "byteLength": 102818, "timeDuration": 4.28408163265328 },
+ {"byteOffset": 514424, "timeOffset": 21.4204081632655, "byteLength": 102818, "timeDuration": 4.28408163265328 },
+ {"byteOffset": 617242, "timeOffset": 25.7044897959188, "byteLength": 102818, "timeDuration": 4.28408163265328 },
+ {"byteOffset": 720060, "timeOffset": 29.988571428572, "byteLength": 21316, "timeDuration": 0.888163265306168 }]

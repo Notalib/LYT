@@ -31,6 +31,9 @@
 @property (nonatomic, weak) id<LytDeviceProtocol> delegate;
 @property (nonatomic, weak) UIWebView* webView;
 
+// makes controller update list of book from its delegate and write it to web layer
+-(void)refreshBooks;
+
 #pragma mark Events
 -(void)updateBook:(NSString*)bookId offset:(NSTimeInterval)offset;
 -(void)endBook:(NSString*)bookId;

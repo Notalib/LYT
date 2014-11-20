@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface BookPart : NSObject
+@interface BookPart : NSObject <NSCoding>
 @property (nonatomic, strong) NSURL* url;
 
 // cache path is dependent on URL and start only, such that all downloaders

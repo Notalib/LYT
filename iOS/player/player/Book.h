@@ -9,7 +9,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Foundation/Foundation.h>
 
-@interface Book : NSObject <AVAudioPlayerDelegate>
+@interface Book : NSObject <AVAudioPlayerDelegate, NSCoding>
 @property (nonatomic, readonly) NSString* identifier;
 @property (nonatomic, strong) NSString* title;
 @property (nonatomic, strong) NSString* author;

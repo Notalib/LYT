@@ -269,6 +269,28 @@
     [self setParts:nil];
 }
 
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    if(self.identifier) [aCoder encodeObject:self.identifier forKey:@"identifier"];
+    if(self.title) [aCoder encodeObject:self.title forKey:@"title"];
+    if(self.author) [aCoder encodeObject:self.author forKey:@"author"];
+    if(self.parts) [aCoder encodeObject:self.parts forKey:@"parts"];
+    [aCoder encodeDouble:self.position forKey:@"position"];
+    [aCoder encodeDouble:self.bufferLookahead forKey:@"lookahead"];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [self init];
+    if(self) {
+        _identifier = [aDecoder decodeObjectForKey:@"identifier"];
+        self.title = [aDecoder decodeObjectForKey:@"title"];
+        self.author = [aDecoder decodeObjectForKey:@"author"];
+        self.parts = [aDecoder decodeObjectForKey:@"parts"];
+        self.position = [aDecoder decodeDoubleForKey:@"position"];
+        self.bufferLookahead = [aDecoder decodeDoubleForKey:@"lookahead"];
+    }
+    return self;
+}
+
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
                        change:(NSDictionary *)change context:(void *)context {
     if([keyPath isEqualToString:@"bufferingsSatisfied"]) {
