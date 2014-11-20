@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'Book', [ '$q', '$log', 'LYTUtils', 'BookService', 'BookErrorCodes',
+  .factory( 'Book', [ '$q', '$log', 'LYTUtils', 'BookNetwork', 'BookErrorCodes',
     'NCCDocument', 'SMILDocument',
-    function( $q, $log, LYTUtils, BookService, BookErrorCodes, NCCDocument, SMILDocument ) {
+    function( $q, $log, LYTUtils, BookNetwork, BookErrorCodes, NCCDocument, SMILDocument ) {
       /*
        * The constructor takes one argument; the ID of the book.
        * The instantiated object acts as a Deferred object, as the instantiation of a book
@@ -29,6 +29,7 @@ angular.module( 'lyt3App' )
         this.resources = {};
         this.currentPosition = 0;
         this.nccDocument = null;
+        this.structure = null;
       }
 
       Book.prototype.issue = function( ) {
@@ -40,7 +41,7 @@ angular.module( 'lyt3App' )
         this.issuedPromise = defered.promise;
         var bookId = this.id;
 
-        BookService.issue( bookId )
+        BookNetwork.issue( bookId )
           .then( function( ) {
             $log.log( 'Book ' + bookId + ' has been issued' );
 
@@ -61,7 +62,7 @@ angular.module( 'lyt3App' )
         var defered = $q.defer();
         this.resourcePromise = defered.promise;
 
-        BookService.getResources( this.id )
+        BookNetwork.getResources( this.id )
           .then( function( resources ) {
             var ncc = null;
             Object.keys( resources )
@@ -119,7 +120,7 @@ angular.module( 'lyt3App' )
         this.bookmarks = null;
         $log.log( 'Book: Getting bookmarks' );
 
-        BookService.getBookmarks( this.id )
+        BookNetwork.getBookmarks( this.id )
           .then( function( data ) {
             this.bookmarks = [];
             if ( data ) {
@@ -310,7 +311,7 @@ angular.module( 'lyt3App' )
       };
 
       Book.prototype.saveBookmarks = function( ) {
-        return BookService.setBookmarks( this );
+        return BookNetwork.setBookmarks( this );
       };
 
       var sortBookmarks = function( book ) {
@@ -596,13 +597,10 @@ angular.module( 'lyt3App' )
        *  }
        * }
        */
-      Book.prototype.getStructure = ( function( ) {
-        var loaded = {};
-
-        return function( ) {
+      Book.prototype.getStructure = function( ) {
           var defer = $q.defer( );
-          if ( loaded[ this.id ] ) {
-            defer.resolve( loaded[ this.id ] );
+          if ( this.structure ) {
+            defer.resolve( this.structure );
             return defer.promise;
           }
 
@@ -652,14 +650,13 @@ angular.module( 'lyt3App' )
 
             $q.all( [ loadNavigation, loadPlaylist ] )
               .then( function( ) {
-                loaded[ bookStructure.id ] = bookStructure;
+                this.structure = bookStructure;
                 defer.resolve( bookStructure );
-              } );
+              }.bind( this ) );
           }.bind( this ) );
 
           return defer.promise;
         };
-      } )( );
 
       Book.prototype.findSectionFromOffset = function( offset ) {
         var defer = $q.defer();
@@ -686,7 +683,7 @@ angular.module( 'lyt3App' )
             } );
 
             if ( !matched ) {
-              $log.error( 'Couldn\'t find segment for offset ', offset );
+              $log.error( 'Couldn\'t find segment for offset ', offset, smildocuments );
               defer.reject( );
             }
           } )
@@ -722,7 +719,11 @@ angular.module( 'lyt3App' )
                     .then( function( ) {
                       book.loadNCC( )
                         .then( function( ) {
-                          defered.resolve( book );
+                          book.getStructure( )
+                            .then( function( ) {
+                              defered.resolve( book );
+                            } )
+                            .catch( reject );
                         } )
                         .catch( reject );
                     } )

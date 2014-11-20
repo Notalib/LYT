@@ -2,18 +2,11 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'NativeGlue', [ '$rootScope', '$log', '$location', function( $rootScope, $log, $location ) {
+  .factory( 'NativeGlue', [ '$rootScope', '$log', function( $rootScope, $log ) {
     window.lytTriggerEvent = function( eventName ) {
       var args = Array.prototype.slice.call( arguments, 0 );
       $rootScope.$emit( eventName, args );
     };
-
-    $rootScope.$on( 'play-time-update', function( $currentScope, bookId/*, offset */ ) {
-      var bookPath = '/book-player/' + bookId;
-      if ( $location.path( ) !== bookPath ) {
-        $location.path( bookPath );
-      }
-    } );
 
     var setBook = function( bookData ) {
       $log.info( 'setBook:', bookData );

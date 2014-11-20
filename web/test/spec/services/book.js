@@ -8,18 +8,18 @@ describe( 'Service: Book', function( ) {
   // instantiate service
   var testData;
   var rootScope;
-  var BookService;
+  var BookNetwork;
   var Book;
   var mockBackend;
 
   beforeEach( function( ) {
-    // Mock the BookService, so we don't have to mock every single DODP-request
-    BookService = angular
+    // Mock the BookNetwork, so we don't have to mock every single DODP-request
+    BookNetwork = angular
       .injector( [ 'lytTest', 'ng' ] )
       .get( 'mockBookService' );
 
     module( 'lyt3App', function( $provide ) {
-      $provide.value( 'BookService', BookService );
+      $provide.value( 'BookNetwork', BookNetwork );
     } );
 
     inject( function( _$rootScope_, _testData_, _Book_, _$httpBackend_ ) {

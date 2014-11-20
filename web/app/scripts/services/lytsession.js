@@ -15,7 +15,6 @@ angular.module( 'lyt3App' )
           }
         } else {
           $log.warn( 'Session: init: getNotaAuthToken is undefined' );
-          console.warn( 'Session: init: getNotaAuthToken is undefined' );
         }
       },
       getCredentials: function( ) {

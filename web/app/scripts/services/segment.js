@@ -112,9 +112,6 @@ angular.module( 'lyt3App' )
             }.bind( this ) )
             .catch( function( status, error ) {
               $log.error( 'Unable to get TextContentDocument for ' + resource.url + ': ' + status + ', ' + error );
-              console.log.error(
-                'Unable to get TextContentDocument for ' +
-                resource.url + ': ' + status + ', ' + error );
               return this._deferred.reject( );
             }.bind( this ) );
         }

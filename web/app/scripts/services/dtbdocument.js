@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'DtbDocument', [ '$q', '$log', '$http', 'LYTConfig', 'BookService',
-    function( $q, $log, $http, LYTConfig, BookService ) {
+  .factory( 'DtbDocument', [ '$q', '$log', '$http', 'LYTConfig', 'BookNetwork',
+    function( $q, $log, $http, LYTConfig, BookNetwork ) {
       /**
        * Meta-element name attribute values to look for
        * Name attribute values for nodes that may appear 0-1 times per file
@@ -238,7 +238,7 @@ angular.module( 'lyt3App' )
           // If access was denied, try silently logging in and then try again
           if ( status === 403 && attempts > 0 ) {
             $log.warn( 'DTB: Access forbidden - refreshing session' );
-            BookService.refreshSession( )
+            BookNetwork.refreshSession( )
               .done( load )
               .catch( function( ) {
                 $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')' );

@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .controller( 'BookshelfCtrl', [ '$scope', 'BookService', 'Book', function( $scope,
-    BookService, Book ) {
+  .controller( 'BookshelfCtrl', [ '$log', '$scope', 'BookNetwork', 'Book', function( $log, $scope, BookNetwork ) {
     var uniqueItems = function( items ) {
       var unique = {};
       return items.filter( function( item ) {
@@ -11,12 +10,12 @@ angular.module( 'lyt3App' )
           return true;
         }
 
-        console.warn( 'loadBookShelf: unique item: ' + item.id + ' is a duplicate', item );
+        $log.warn( 'loadBookShelf: unique item: ' + item.id + ' is a duplicate', item );
         return false;
       } );
     };
 
-    $scope.books = uniqueItems( BookService.getCachedBookShelf( ) );
+    $scope.books = uniqueItems( BookNetwork.getCachedBookShelf( ) );
 
     var loadBookShelf = function( from, count ) {
       if ( from === undefined ) {
@@ -29,24 +28,17 @@ angular.module( 'lyt3App' )
 
       var to = from + count - 1;
 
-      return BookService.getBookshelf( from, to )
+      return BookNetwork.getBookshelf( from, to )
         .then( function( items ) {
           $scope.books = uniqueItems( items );
         } );
     };
 
     loadBookShelf( 0, $scope.books.length || 5 ).catch( function( ) {
-      BookService.logOn( 'guest', 'guest' ).then( function( ) {
+      BookNetwork.logOn( 'guest', 'guest' ).then( function( ) {
         loadBookShelf( 0, $scope.books.length || 5 );
       }, function( ) {
-        console.log( 'logOn: rejected', arguments );
-      } );
-    } );
-
-    Book.load( 37027 ).then( function( book ) {
-      console.log( book );
-      book.getStructure( ).then( function( resolved ) {
-        console.log( resolved );
+        $log.error( 'logOn: rejected', arguments );
       } );
     } );
 

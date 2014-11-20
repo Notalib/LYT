@@ -1,13 +1,13 @@
 <div>
   <header class="clearfix">
-    <img src="http://bookcover.e17.dk/{{ book.id }}_h96.jpg" class="pull-left" />
-    <h1>{{book.author}} - {{book.title}}</h1>
+    <img src="http://bookcover.e17.dk/{{ BookService.currentBook.id }}_h96.jpg" class="pull-left" />
+    <h1>{{BookService.currentBook.author}} - {{BookService.currentBook.title}}</h1>
   </header>
   <nav>
-    <button ng-click="ship(-15)" class="">-15</button>
-    <button ng-click="play()" class="glyphicon glyphicon-play"></button>
-    <button ng-click="stop()" class="glyphicon glyphicon-stop"></button>
-    <button ng-click="ship(15)" class="">15</button>
+    <button ng-click="BookService.ship(-15)" class="">-15</button>
+    <button ng-click="BookService.play()" class="glyphicon glyphicon-play"></button>
+    <button ng-click="BookService.stop()" class="glyphicon glyphicon-stop"></button>
+    <button ng-click="BookService.ship(15)" class="">15</button>
     <progressbar></progressbar>
   </nav>
 </div>

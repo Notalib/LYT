@@ -217,6 +217,7 @@ angular.module( 'lyt3App' )
         if ( id1 === id2 ) {
           return 0;
         }
+
         var seg1 = this.getSegmentById( id1 );
         var seg2 = this.getSegmentById( id2 );
 

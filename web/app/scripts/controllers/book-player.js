@@ -1,37 +1,36 @@
 'use strict';
 
 angular.module('lyt3App')
-  .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams', 'Book', '$interval', '$location',
-    function( $scope, $log, NativeGlue, $routeParams, Book, $interval, $location ) {
+  .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams',
+    'BookService', '$interval', '$location',
+    function( $scope, $log, NativeGlue, $routeParams, BookService, $interval, $location ) {
       if ( !$routeParams.bookid || isNaN( $routeParams.bookid ) ) {
         $location.path( '/' );
       }
 
-      var currentBookStructure;
-      Book.load( $routeParams.bookid )
-        .then( function( book ) {
-          $scope.book = book;
-          book.getStructure( ).then( function( bookData ) {
-            currentBookStructure = bookData;
+      $scope.BookService = BookService;
 
-            // Fake progress
-            var lastTime = new Date() / 1000;
-            $interval( function( ) {
-              var now = new Date( ) / 1000;
-              $scope.$emit( 'play-time-update', book.id, book.currentPosition + now - lastTime );
-              lastTime = now;
-            }, 250 );
-
-            NativeGlue.setBook( bookData );
-          } );
+      BookService.loadBook( $routeParams.bookid )
+        .then( function( ) {
+          // Fake progress
+          var lastTime = new Date() / 1000;
+          $interval( function( ) {
+            var now = new Date( ) / 1000;
+            $scope.$emit( 'play-time-update', BookService.currentBook.id, BookService.currentBook.currentPosition + now - lastTime );
+            lastTime = now;
+          }, 250 );
         } );
 
       var currentSMIL;
-      $scope.$watch( 'book.currentPosition', function( offset ) {
-        $scope.book.findSectionFromOffset( offset )
+      $scope.$watch( 'BookService.currentBook.currentPosition', function( offset ) {
+        if ( !BookService.currentBook ) {
+          return;
+        }
+
+        BookService.currentBook.findSectionFromOffset( offset )
           .then( function( segment ) {
             var smil = segment.document;
-            var navigationItem = currentBookStructure.navigation
+            var navigationItem = BookService.currentBook.structure.navigation
               .reduce( function( output, current ) {
                 if ( current.offset <= offset ) {
                   output = current;
@@ -55,28 +54,7 @@ angular.module('lyt3App')
           } );
       } );
 
-
-      $scope.$on( 'play-time-update', function( $currentScope, bookId, offset ) {
-        if ( $scope.book && $scope.book.id === bookId ) {
-          // $log.info( 'play-time-update: TODO', bookId, offset );
-
-          $scope.book.currentPosition = offset;
-        }
-      } );
-
       $scope.$on( 'end', function( bookId ) {
         $log.info( 'end: TODO', bookId );
       } );
-
-      $scope.play = function() {
-        NativeGlue.play( $routeParams.bookid );
-      };
-
-      $scope.stop = function() {
-        NativeGlue.stop( );
-      };
-
-      $scope.ship = function( diff ) {
-        $scope.book.currentPosition += diff;
-      };
     } ] );
