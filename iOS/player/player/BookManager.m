@@ -72,7 +72,20 @@ static BookManager* anyManager = nil;
     if([app respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         UIUserNotificationType types = UIUserNotificationTypeAlert | UIUserNotificationTypeBadge |
                                        UIUserNotificationTypeSound;
-        UIUserNotificationSettings* settings =  [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        UIMutableUserNotificationAction* play = [UIMutableUserNotificationAction new];
+        play.identifier = PlayActionIdentifier;
+        play.title = NSLocalizedString(@"Listen", nil);
+        play.activationMode = UIUserNotificationActivationModeBackground;
+        play.destructive = NO;
+        play.authenticationRequired = NO;
+        
+        UIMutableUserNotificationCategory* playCategory = [UIMutableUserNotificationCategory new];
+        playCategory.identifier = PlayActionIdentifier;
+        [playCategory setActions:@[play] forContext:UIUserNotificationActionContextDefault];
+        [playCategory setActions:@[play] forContext:UIUserNotificationActionContextMinimal];
+                                                                                                                                                                                                         
+        NSSet* categories = [NSSet setWithObject:playCategory];
+        UIUserNotificationSettings* settings =  [UIUserNotificationSettings settingsForTypes:types categories:categories];
         [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     }
 }
@@ -104,9 +117,17 @@ static BookManager* anyManager = nil;
         
         UILocalNotification* notification = [UILocalNotification new];
         notification.alertBody = message;
-        notification.hasAction = YES;
-        notification.alertAction = NSLocalizedString(@"listen", nil);
         notification.userInfo = @{@"bookId": book.identifier};
+        
+        // on iOS 8 we use interactive notification to allow playback,
+        // before iOS 8 we use regular action that enters app
+        if([notification respondsToSelector:@selector(setCategory:)]) {
+            notification.category = PlayActionIdentifier;
+            notification.hasAction = NO;
+        } else {
+            notification.alertAction = NSLocalizedString(@"listen", nil);
+            notification.hasAction = YES;
+        }
         
         [app presentLocalNotificationNow:notification];
     }

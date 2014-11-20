@@ -46,6 +46,19 @@
     [BookManager handleLocalNotification:notification];
 }
 
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+    if ([identifier isEqualToString:PlayActionIdentifier]) {
+        // this will cause play if userInfo says which book
+        [BookManager handleLocalNotification:notification];
+    }
+    
+    // Delete the consumed notification
+    [application cancelLocalNotification:notification];
+    
+    // Mandatory to call, as soon as you're done
+    completionHandler();
+}
+
 -(void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler {
 
     [Downloader registerBackgroundSession:identifier completionHandler:completionHandler];
