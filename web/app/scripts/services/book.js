@@ -27,6 +27,7 @@ angular.module( 'lyt3App' )
         this.id = id;
 
         this.resources = {};
+        this.currentPosition = 0;
         this.nccDocument = null;
       }
 

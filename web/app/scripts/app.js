@@ -25,7 +25,7 @@ angular
         templateUrl: 'views/bookshelf.html',
         controller: 'BookshelfCtrl'
       } )
-      .when( '/book-player', {
+      .when( '/book-player/:bookid', {
         templateUrl: 'views/book-player.html',
         controller: 'BookPlayerCtrl'
       } )

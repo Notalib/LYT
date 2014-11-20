@@ -1,10 +1,13 @@
 'use strict';
 
 angular.module('lyt3App')
-  .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams', 'Book', '$interval',
-    function( $scope, $log, NativeGlue, $routeParams, Book, $interval ) {
+  .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams', 'Book', '$interval', '$location',
+    function( $scope, $log, NativeGlue, $routeParams, Book, $interval, $location ) {
+      if ( !$routeParams.bookid || isNaN( $routeParams.bookid ) ) {
+        $location.path( '/' );
+      }
+
       var currentBookStructure;
-      var currentOffset = 0;
       Book.load( $routeParams.bookid )
         .then( function( book ) {
           $scope.book = book;
@@ -15,7 +18,7 @@ angular.module('lyt3App')
             var lastTime = new Date() / 1000;
             $interval( function( ) {
               var now = new Date( ) / 1000;
-              $scope.$emit( 'play-time-update', currentOffset + now - lastTime );
+              $scope.$emit( 'play-time-update', book.id, book.currentPosition + now - lastTime );
               lastTime = now;
             }, 250 );
 
@@ -24,25 +27,24 @@ angular.module('lyt3App')
         } );
 
       var currentSMIL;
-      var setOffset = function( offset ) {
-        currentOffset = offset;
-
+      $scope.$watch( 'book.currentPosition', function( offset ) {
         $scope.book.findSectionFromOffset( offset )
           .then( function( segment ) {
             var smil = segment.document;
-            var navigationItem = currentBookStructure.navigation.reduce( function( output, current ) {
-              if ( current.offset <= offset ) {
-                output = current;
-              }
-              return output;
-            }, {} );
+            var navigationItem = currentBookStructure.navigation
+              .reduce( function( output, current ) {
+                if ( current.offset <= offset ) {
+                  output = current;
+                }
+                return output;
+              }, {} );
 
-            if ( currentSMIL != smil ) {
+            if ( currentSMIL !== smil ) {
               currentSMIL = smil;
 
               $scope.startTime = Math.floor( currentSMIL.absoluteOffset );
-              $scope.endTime = Math.ceil( currentSMIL.absoluteOffset + currentSMIL.duration );
-              $scope.duration = currentSMIL.duration;
+              $scope.endTime   = Math.ceil( currentSMIL.absoluteOffset + currentSMIL.duration );
+              $scope.duration  = currentSMIL.duration;
             }
 
             $scope.currentTime = Math.round( offset * 100 ) / 100;
@@ -51,11 +53,15 @@ angular.module('lyt3App')
               $scope.sectionTitle = navigationItem.title;
             }
           } );
-      };
-      $scope.$on( 'play-time-update', function( bookId, offset ) {
-        // $log.info( 'play-time-update: TODO', bookId, offset );
+      } );
 
-        setOffset( offset );
+
+      $scope.$on( 'play-time-update', function( $currentScope, bookId, offset ) {
+        if ( $scope.book && $scope.book.id === bookId ) {
+          // $log.info( 'play-time-update: TODO', bookId, offset );
+
+          $scope.book.currentPosition = offset;
+        }
       } );
 
       $scope.$on( 'end', function( bookId ) {
@@ -71,6 +77,6 @@ angular.module('lyt3App')
       };
 
       $scope.ship = function( diff ) {
-        setOffset( currentOffset + diff );
+        $scope.book.currentPosition += diff;
       };
     } ] );

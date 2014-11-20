@@ -6,7 +6,7 @@ angular.module('lyt3App')
       var timeStr = LYTUtils.formatTime(seconds);
 
       if ( includeSecondsDecimal ) {
-        var decimal = ( '0' + Math.ceil( ( seconds - Math.floor( seconds ) ) * 100 ) ).substr( -2 );
+        var decimal = ( '0' + ( Math.ceil( ( seconds - Math.floor( seconds ) ) * 100 ) || '0' ) ).substr( -2 );
         timeStr += '.' + decimal;
       }
 
