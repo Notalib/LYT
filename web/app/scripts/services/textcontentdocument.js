@@ -44,8 +44,7 @@ angular.module( 'lyt3App' )
         if ( this._isCartoon === undefined ) {
           pages = this.source.find( '.page' )
             .toArray( );
-          this._isCartoon = pages.length !== 0 && pages.every( function(
-            page ) {
+          this._isCartoon = pages.length !== 0 && pages.every( function( page ) {
             return $( page )
               .children( 'img' )
               .length === 1;

@@ -19,6 +19,7 @@ describe( 'Service: Book', function( ) {
       .get( 'mockBookService' );
 
     module( 'lyt3App', function( $provide ) {
+      // $provide.value( '$log', console ); // Uncomment this to get $log in angular to log to karma+jasmine tests, for debugging
       $provide.value( 'BookNetwork', BookNetwork );
     } );
 
@@ -209,12 +210,15 @@ describe( 'Service: Book', function( ) {
           callback( false );
         } );
     } );
+
+    return book;
   };
 
   it( 'get full structure', function( ) {
     var structure;
+    var book;
     runs( function( ) {
-      getStructure( function( loadedStructure ) {
+      book = getStructure( function( loadedStructure ) {
         structure = loadedStructure;
       } );
     } );
@@ -227,7 +231,48 @@ describe( 'Service: Book', function( ) {
         // flush throws an error is the request hasn't been started yet
       }
 
-      return angular.equals(structure,testData.getStructure);
+      return structure && structure.playlist.length && structure.navigation.length && structure.id === book.id;
     }, 'Structure loaded', 1000 );
+  } );
+
+  var findSegmentFromOffset = function( offset, callback ) {
+    var book = getStructure( function( ) {
+      book.findSegmentFromOffset( offset )
+        .then( function( segment ) {
+          callback( segment );
+        } )
+        .catch( function( ) {
+          callback( false );
+        } );
+    } );
+
+    return book;
+  };
+
+  [ 0, 101, 3500, 5811.1 ].forEach( function( offset ) {
+    it( 'find segment from offset: ' + offset, function( ) {
+      var resolved;
+      runs( function( ) {
+        findSegmentFromOffset( offset, function( segment ) {
+          resolved = segment;
+        } );
+      } );
+
+      waitsFor( function( ) {
+        try {
+          rootScope.$digest( );
+        } catch ( exp ) {
+          // flush throws an error is the request hasn't been started yet
+        }
+
+        try {
+          mockBackend.flush( );
+        } catch ( exp ) {
+          // flush throws an error is the request hasn't been started yet
+        }
+
+        return resolved && ( resolved.documentOffset + resolved.document.absoluteOffset ) <= offset && ( resolved.documentOffset + resolved.document.absoluteOffset + resolved.duration ) >= offset;
+      }, '', 1000 );
+    } );
   } );
 } );

@@ -242,7 +242,7 @@ angular.module( 'lyt3App' )
               .done( load )
               .catch( function( ) {
                 $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')' );
-                return deferred.reject( status );
+                deferred.reject( status );
               } );
             return;
           }

@@ -4,13 +4,11 @@
 angular.module( 'lyt3App' )
   .factory( 'SMILDocument', [ 'LYTUtils', 'DtbDocument', 'Segment',
     function( LYTUtils, DtbDocument, Segment ) {
-      var idCounts, parseMainSeqNode, parseNPT, parseParNode, parseTextNode;
-
       // ## Privileged
 
       // Parse the main `<seq>` element's `<par>`s
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
-      parseMainSeqNode = function( sequence, smil, sections ) {
+      var parseMainSeqNode = function( sequence, smil, sections ) {
         var parData = [ ];
         var refs = sections.reduce( function( refs, section ) {
           refs[ section.fragment ] = section;
@@ -25,9 +23,7 @@ angular.module( 'lyt3App' )
         var previous;
         var segments = parData.map( function( _segment, index ) {
           var sectionID;
-          var segment = new Segment( _segment, smil );
-          segment.index = index;
-          segment.previous = previous;
+          var segment = new Segment( _segment, smil, index, previous );
 
           // Mark if this segment is beginning a new section
           if ( segment.id in refs ) {
@@ -48,22 +44,18 @@ angular.module( 'lyt3App' )
             sectionID = null;
           }
 
-          segment.documentOffset = 0;
-          if ( previous ) {
-            previous.next = segment;
-            segment.documentOffset = previous.documentOffset + previous.duration;
-          }
-
           previous = segment;
 
           return segment;
         } );
+
         return segments;
       };
 
       // Parse a `<par>` node
-      idCounts = {};
-      parseParNode = function( par ) {
+      var idCounts = {};
+
+      var parseParNode = function( par ) {
         var lastClip;
         // Find the `text` node, and parse it separately
         var text = parseTextNode( par.find( 'text:first' ) );
@@ -112,7 +104,8 @@ angular.module( 'lyt3App' )
         } );
         return reducedClips;
       };
-      parseTextNode = function( text ) {
+
+      var parseTextNode = function( text ) {
         if ( text.length === 0 ) {
           return null;
         }
@@ -121,9 +114,10 @@ angular.module( 'lyt3App' )
           src: text.attr( 'src' )
         };
       };
+
       // Parse the Normal Play Time format (npt=ss.s)
       // See [DAISY 2.02](http://www.daisy.org/z3986/specifications/daisy_202.html#smilaudi)
-      parseNPT = function( string ) {
+      var parseNPT = function( string ) {
         var time = string.match( /^npt=([\d.]+)s?$/i );
         if ( time ) {
           return parseFloat( time[ 1 ], 10 );
@@ -151,6 +145,7 @@ angular.module( 'lyt3App' )
 
       SMILDocument.prototype = Object.create( DtbDocument.prototype );
 
+      // Get Segment in SMILDocument by id
       SMILDocument.prototype.getSegmentById = function( id ) {
         var res = null;
         this.segments.some( function( segment ) {
@@ -163,6 +158,7 @@ angular.module( 'lyt3App' )
         return res;
       };
 
+      // Get thhe Segment in the SMILDocument that contains the id.
       SMILDocument.prototype.getContainingSegment = function( id ) {
         var segment = this.getSegmentById( id );
         if ( segment ) {
@@ -179,31 +175,35 @@ angular.module( 'lyt3App' )
         return segment;
       };
 
-      SMILDocument.prototype.getSegmentAtOffset = function( offset ) {
-        var segment = null;
-        if ( !offset ) {
-          offset = 0;
-        }
-
-        if ( offset < 0 ) {
-          offset = 0;
-        }
-
-        this.segments.some( function( _segment ) {
-          if ( _segment.start <= offset && offset < _segment.end ) {
-            segment = _segment;
-            return true;
-          }
-        } );
-
-        return segment;
+      // Is the given offset within this SMILDocument?
+      SMILDocument.prototype.containsAbsoluteOffset = function( offset ) {
+        offset = Math.max( offset || 0, 0 );
+        return this.absoluteOffset <= offset && offset <= ( this.absoluteOffset + this.duration );
       };
 
+      // Get the segment at an absolute position in the book.
+      SMILDocument.prototype.getSegmentAtAbsoluteOffset = function( offset ) {
+        var res = null;
+        offset = Math.max( offset || 0, 0 );
+
+        if ( this.containsAbsoluteOffset( offset ) ) {
+          this.segments.some( function( segment ) {
+            if ( segment.containsAbsoluteOffset( offset ) ) {
+              res = segment;
+              return true;
+            }
+          } );
+        }
+
+        return res;
+      };
+
+      // Get all audio urls for this SMILDocument
       SMILDocument.prototype.getAudioReferences = function( ) {
         var urls = [ ];
 
         this.segments.forEach( function( segment ) {
-          if ( segment.audio.src ) {
+          if ( segment.audio && segment.audio.src ) {
             if ( urls.indexOf( segment.audio.src ) === -1 ) {
               urls.push( segment.audio.src );
             }
@@ -211,28 +211,6 @@ angular.module( 'lyt3App' )
         } );
 
         return urls;
-      };
-
-      SMILDocument.prototype.orderSegmentsByID = function( id1, id2 ) {
-        if ( id1 === id2 ) {
-          return 0;
-        }
-
-        var seg1 = this.getSegmentById( id1 );
-        var seg2 = this.getSegmentById( id2 );
-
-        var res;
-        this.segments.some( function( segment ) {
-          if ( segment.id === seg1.id ) {
-            res = -1;
-            return true;
-          } else if ( segment.id === seg2.id ) {
-            res = 1;
-            return true;
-          }
-        } );
-
-        return res;
       };
 
       return SMILDocument;

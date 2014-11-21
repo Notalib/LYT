@@ -24,7 +24,7 @@ angular.module( 'lyt3App' )
       // standard dictates that all references should point to a specific par or
       // seq id in the SMIL file. Since the section class represents the entire
       // SMIL file, we remove the id reference from the url.
-      var _ref = ( anchor.attr( 'href' ) ).split( '#' );
+      var _ref = ( anchor.attr( 'href' ) || '' ).split( '#' );
       this.url = _ref[ 0 ];
       this.fragment = _ref[ 1 ];
 
@@ -76,17 +76,6 @@ angular.module( 'lyt3App' )
       return this;
     };
 
-    Section.prototype.segments = function( ) {
-      return this.document.segments;
-    };
-
-    Section.prototype.getOffset = function( ) {
-      if ( !this.document /* || this.document.promise.state() !== 'resolved' */ ) {
-        return null;
-      }
-      return this.document.absoluteOffset;
-    };
-
     Section.prototype.getAudioUrls = function( ) {
       if ( !this.document /* || this.document.promise.state() !== 'resolved' */ ) {
         return [ ];
@@ -103,18 +92,6 @@ angular.module( 'lyt3App' )
       }, [ ], this );
     };
 
-    Section.prototype.hasNext = function( ) {
-      return !!this.next;
-    };
-
-    Section.prototype.hasPrevious = function( ) {
-      return !!this.previous;
-    };
-
-    Section.prototype.hasParent = function( ) {
-      return !!this.parent;
-    };
-
     // Since segments are sub-components of this class, we ensure that loading
     // is complete before returning them.
 
@@ -123,6 +100,7 @@ angular.module( 'lyt3App' )
     // and the segment are loaded.
     var getSegment = function( section, getter ) {
       var deferred = $q.defer( );
+
       section.promise.catch( function( error ) {
         return deferred.reject( error );
       } );
@@ -158,85 +136,6 @@ angular.module( 'lyt3App' )
     Section.prototype.lastSegment = function( ) {
       return getSegment( this, function( segments ) {
         return segments[ segments.length - 1 ];
-      } );
-    };
-
-    Section.prototype.getSegmentById = function( id ) {
-      return getSegment( this, function( segments ) {
-        var res;
-        segments.some( function( segment ) {
-          if ( segment.id === id ) {
-            res = segment;
-            return true;
-          }
-        } );
-
-        return res;
-      } );
-    };
-
-    Section.prototype.getUnloadedSegmentsByAudio = function( audio ) {
-      if ( !!this.document /*this.state() !== 'resolved'*/ ) {
-        throw 'Section: getSegmentsByAudio only works on resolved sections';
-      }
-      return jQuery.grep( this.document.segments, function( segment ) {
-        if ( segment.audio === audio ) {
-          return true;
-        }
-      } );
-    };
-
-    Section.prototype.getSegmentsByAudioOffset = function( audio, offset ) {
-      var res;
-
-      this.getUnloadedSegmentsByAudio( audio ).some( function( segment ) {
-        if ( segment.containsOffset( offset ) ) {
-          res = segment;
-          return true;
-        }
-      } );
-
-      return res;
-    };
-
-    Section.prototype.getSegmentBySmilOffset = function( offset ) {
-      if ( !offset ) {
-        offset = 0;
-      }
-
-      return getSegment( this, function( segments ) {
-        var res;
-        var currentOffset = 0;
-
-        segments.some( function( segment ) {
-          if ( currentOffset <= offset && offset <= currentOffset + segment.duration  ) {
-            res = segment;
-            return true;
-          }
-
-          currentOffset += segment.duration;
-        } );
-
-        return res;
-      } );
-    };
-
-    Section.prototype.getSegmentByOffset = function( offset ) {
-      if ( !offset ) {
-        offset = 0;
-      }
-
-      return getSegment( this, function( segments ) {
-        var res;
-
-        segments.some( function( segment ) {
-          if ( segment.start <= offset && offset < segment.end ) {
-            res = segment;
-            return true;
-          }
-        } );
-
-        return res;
       } );
     };
 
