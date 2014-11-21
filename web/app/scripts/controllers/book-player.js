@@ -10,16 +10,7 @@ angular.module('lyt3App')
 
       $scope.BookService = BookService;
 
-      BookService.loadBook( $routeParams.bookid )
-        .then( function( ) {
-          // Fake progress
-          var lastTime = new Date() / 1000;
-          $interval( function( ) {
-            var now = new Date( ) / 1000;
-            $scope.$emit( 'play-time-update', BookService.currentBook.id, BookService.currentBook.currentPosition + now - lastTime );
-            lastTime = now;
-          }, 250 );
-        } );
+      BookService.loadBook( $routeParams.bookid );
 
       var currentSMIL;
       $scope.$watch( 'BookService.currentBook.currentPosition', function( offset ) {
@@ -53,6 +44,32 @@ angular.module('lyt3App')
             }
           } );
       } );
+
+      $scope.toogle = function( ) {
+        if ( BookService.playing ) {
+          $interval.cancel( BookService.playing );
+          delete BookService.playing;
+
+          BookService.stop();
+        } else {
+          try {
+            BookService.play();
+            BookService.playing = true;
+          } catch ( e ) {
+            if ( BookService.playing ) {
+              $interval.cancel( BookService.playing );
+            }
+
+            // Fake progress
+            var lastTime = new Date() / 1000;
+            BookService.playing = $interval( function( ) {
+              var now = new Date( ) / 1000;
+              $scope.$emit( 'play-time-update', BookService.currentBook.id, BookService.currentBook.currentPosition + now - lastTime );
+              lastTime = now;
+            }, 250 );
+          }
+        }
+      };
 
       $scope.$on( 'end', function( bookId ) {
         $log.info( 'end: TODO', bookId );

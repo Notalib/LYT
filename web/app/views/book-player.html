@@ -5,8 +5,7 @@
   </header>
   <nav>
     <button ng-click="BookService.ship(-15)" class="">-15</button>
-    <button ng-click="BookService.play()" class="glyphicon glyphicon-play"></button>
-    <button ng-click="BookService.stop()" class="glyphicon glyphicon-stop"></button>
+    <button ng-click="toogle()" class="glyphicon" ng-class="{'glyphicon-play': !BookService.playing, 'glyphicon-pause': BookService.playing }"></button>
     <button ng-click="BookService.ship(15)" class="">15</button>
     <progressbar></progressbar>
   </nav>
