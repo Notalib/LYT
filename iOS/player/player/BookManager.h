@@ -23,4 +23,11 @@
 // notifications can be used to start playing some book
 +(void)handleLocalNotification:(UILocalNotification*)notification;
 
+-(void)togglePlayback;
+-(void)play;
+-(void)stop;
+
+-(void)seekBackward;
+-(void)seekForward;
+
 @end

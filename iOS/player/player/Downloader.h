@@ -18,6 +18,9 @@
 // how much we have read and stored in cache
 @property (nonatomic, readonly) NSUInteger progressBytes;
 
+// holds the last error from downloading
+@property (nonatomic, strong) NSError* error;
+
 // should be called from application:handleEventsForBackgroundURLSession:completionHandler:
 +(void)registerBackgroundSession:(NSString *)identifier
                completionHandler:(void (^)(void))completionHandler;
@@ -38,14 +41,8 @@
 // can be called safely even when there is no download
 -(void)cancelDownload;
 
+// delete all cached files for this download
 -(void)deleteCache;
-
-// how much we have read from network but perhaps not yet stored in cache
-// TODO: Not yet implemented.
-@property (nonatomic, readonly) NSUInteger progressBytesFetched;
-
-// holds the last error from downloading
-@property (nonatomic, strong) NSError* error;
 
 // set end == NSUIntegerMax to download to end of file
 +(Downloader*)downloadURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end;
@@ -54,6 +51,7 @@
 -(instancetype)initWithURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end;
 
 // called when task ends either in error (non-nil error) or success (non-nil location)
--(void)task:(NSURLSessionTask*)task endedWithError:(NSError*)error location:(NSURL*)location;
+-(void)task:(NSURLSessionTask*)task endedWithError:(NSError*)error
+                                          location:(NSURL*)cacheFileLocation;
 
 @end

@@ -30,6 +30,7 @@
 @end
 
 @implementation ViewController
+@synthesize manager;
 
 -(void)loadTestBook {
     NSString* path = [[NSBundle mainBundle] pathForResource:@"37027.json" ofType:nil];

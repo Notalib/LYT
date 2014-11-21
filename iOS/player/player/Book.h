@@ -17,6 +17,9 @@
 
 @property (nonatomic, readonly) BOOL isPlaying;
 
+// sub-title for current position
+-(NSString*)subTitle;
+
 // last error for book
 @property (nonatomic, strong) NSError* error;
 
@@ -32,6 +35,12 @@
 
 // whether any kind of downloading is going on
 @property (nonatomic, readonly) BOOL downloading;
+
+// first time this is called, the image will be attempted read from
+// URL on the form: http://bookcover.e17.dk/<BOOKID>_h<PIXEL>.jpg
+// where <BOOKID> is the identifier and <PIXEL> is how high the image
+// should be.
+@property (nonatomic, readonly) UIImage* coverImage;
 
 // Like bufferingPoint but for data that is already present in cache
 // Starts counting at current position and stops counting at first part of book
