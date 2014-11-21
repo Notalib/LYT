@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BookManager.h"
 
 @interface ViewController : UIViewController
-
+@property (nonatomic, readonly) BookManager* manager;
 
 @end
 

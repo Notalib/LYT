@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 NOTA. All rights reserved.
 //
 
+#import <MediaPlayer/MediaPlayer.h>
 #import "BookManager.h"
 #import "Downloader.h"
 #import "debug.h"
@@ -158,6 +159,24 @@ static BookManager* anyManager = nil;
     [self setBridge:nil];
 }
 
+-(void)setMediaPlayingBook:(Book*)book {
+    if(!book.isPlaying) return;
+
+    NSMutableDictionary* info = [NSMutableDictionary new];
+    [info setObject:@(MPMediaTypeAudioBook) forKey:MPMediaItemPropertyMediaType];
+    [info setObject:@(book.duration) forKey:MPMediaItemPropertyPlaybackDuration];
+    [info setObject:@(book.position) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+    
+    if(book.title.length > 0) {
+        [info setObject:book.title forKey:MPMediaItemPropertyAlbumTitle];
+    }
+    if(book.author.length > 0) {
+        [info setObject:book.author forKey:MPMediaItemPropertyArtist];
+    }
+    
+    [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = info;
+}
+
 -(void)downloadCompletedBook:(Book*)book {
     // ignore invalid books, to avoid crashes on bad data
     if(book.identifier.length == 0) return;
@@ -221,6 +240,9 @@ static BookManager* anyManager = nil;
         [bridge updateBook:book.identifier offset:book.position];
     }
     
+    // make meta-data from book visible on lock-screen
+    [self setMediaPlayingBook: book];
+    
     // we schedule update while book is playing
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendBookUpdate) object:nil];
     if(book.isPlaying) {
@@ -267,7 +289,7 @@ static BookManager* anyManager = nil;
 }
 
 -(void)setBook:(id)bookData {
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20002/37027/"];
+    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20014/37027/"];
     NSDictionary* dict = nil;
     if([bookData isKindOfClass:[NSDictionary class]]) {
         dict = (NSDictionary*)bookData;
@@ -359,6 +381,11 @@ static BookManager* anyManager = nil;
     [book play];
     [self sendBookUpdate];
     [self sendDownloadUpdates];
+    
+    UIResponder* appDelegate = [UIApplication sharedApplication].delegate;
+    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+    [appDelegate becomeFirstResponder];
+    [self setMediaPlayingBook:book];
 }
 
 -(void)stop {
@@ -389,5 +416,25 @@ static BookManager* anyManager = nil;
 }
 
 #pragma mark -
+
+-(void)togglePlayback {
+    Book* book = self.currentBook;
+    if(book.isPlaying) [book stop];
+    else [book play];
+}
+
+-(void)play {
+    [self.currentBook play];
+}
+
+-(void)seekBackward {
+    Book* book = self.currentBook;
+    book.position = fmax(0, book.position - 30.0);
+}
+
+-(void)seekForward {
+    Book* book = self.currentBook;
+    book.position = fmin(book.duration, book.position + 30.0);
+}
 
 @end

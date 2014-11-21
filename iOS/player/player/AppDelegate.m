@@ -7,6 +7,7 @@
 //
 
 #import <AudioToolbox/AudioToolbox.h>
+#import "ViewController.h"
 #import "Downloader.h"
 #import "AppDelegate.h"
 #import "BookManager.h"
@@ -40,6 +41,37 @@
     
     [self setupAudio];
     return YES;
+}
+
+- (void)remoteControlReceivedWithEvent:(UIEvent *)receivedEvent {
+    if (receivedEvent.type != UIEventTypeRemoteControl) return;
+    
+    ViewController* controller = (ViewController*)self.window.rootViewController;
+    switch (receivedEvent.subtype) {
+        case UIEventSubtypeRemoteControlTogglePlayPause:
+        [controller.manager togglePlayback];
+        break;
+        
+        case UIEventSubtypeRemoteControlPlay:
+        [controller.manager play];
+        break;
+        
+        case UIEventSubtypeRemoteControlPause:
+        case UIEventSubtypeRemoteControlStop:
+        [controller.manager stop];
+        break;
+        
+        case UIEventSubtypeRemoteControlPreviousTrack:
+        [controller.manager seekBackward];
+        break;
+        
+        case UIEventSubtypeRemoteControlNextTrack:
+        [controller.manager seekForward];
+        break;
+        
+        default:
+        break;
+    }
 }
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {

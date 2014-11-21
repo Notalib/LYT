@@ -191,8 +191,7 @@
     // we do not start playing unless we have more ensured buffer that play position
     BookPart* part = [self.parts objectAtIndex: self.currentPart];
     if(part.ensuredBufferingPoint <= self.positionInPart) return NO;
-    
-    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+        
     NSURL* url = [NSURL fileURLWithPath:part.cachePath];
     [self playUrl:url atTime: self.positionInPart];
     
