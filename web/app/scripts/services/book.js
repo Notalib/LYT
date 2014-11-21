@@ -180,10 +180,12 @@ angular.module( 'lyt3App' )
 
       // Returns all .smil files in the @resources array
       Book.prototype.getSMILFiles = function( ) {
-        return Object.keys( this.resources )
+        var res = Object.keys( this.resources )
           .filter( function( key ) {
             return this.resources[ key ].url.match( /\.smil$/i );
           }, this );
+
+        return res;
       };
 
       // Returns all SMIL files which is referred to by the NCC document in order
@@ -205,7 +207,6 @@ angular.module( 'lyt3App' )
         var promises = [ ];
 
         var defered = $q.defer( );
-        this.loadAllSMILPromise = defered.promise;
 
         this.getSMILFiles( )
           .forEach( function( url ) {
@@ -219,6 +220,8 @@ angular.module( 'lyt3App' )
           .catch( function( ) {
             defered.reject();
           } );
+
+        this.loadAllSMILPromise = defered.promise;
 
         return this.loadAllSMILPromise;
       };
@@ -237,11 +240,11 @@ angular.module( 'lyt3App' )
 
         smil.document.promise
           .then( function( smilDocument ) {
-            return deferred.resolve( smilDocument );
+            deferred.resolve( smilDocument );
           } )
           .catch( function( error ) {
             smil.document = null;
-            return deferred.reject( error );
+            deferred.reject( error );
           } );
         return deferred.promise;
       };
@@ -658,31 +661,21 @@ angular.module( 'lyt3App' )
           return defer.promise;
         };
 
-      Book.prototype.findSectionFromOffset = function( offset ) {
+      Book.prototype.findSegmentFromOffset = function( offset ) {
         var defer = $q.defer();
 
         this.loadAllSMIL( )
           .then( function( smildocuments ) {
-            var matched;
+            var res;
             smildocuments.some( function( smildocument ) {
-              var startOffset = smildocument.absoluteOffset;
-              var endOffset = startOffset + smildocument.duration;
-              if ( startOffset <= offset && offset <= endOffset ) {
-                smildocument.segments.some( function( segment ) {
-                  var segmentStart = startOffset + segment.documentOffset;
-                  var segmentEnd = segmentStart + segment.duration;
-                  if ( segmentStart <= offset && offset <= segmentEnd ) {
-                    defer.resolve( segment );
-                    matched = true;
-                    return true;
-                  }
-                } );
+              res = smildocument.getSegmentAtAbsoluteOffset( offset );
 
-                return true;
-              }
+              return !!res;
             } );
 
-            if ( !matched ) {
+            if ( res ) {
+              defer.resolve( res );
+            } else {
               $log.error( 'Couldn\'t find segment for offset ', offset, smildocuments );
               defer.reject( );
             }

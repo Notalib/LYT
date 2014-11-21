@@ -38,7 +38,7 @@ angular.module( 'lyt3App' )
        *                                 displayed.
        *                     - rejected: loading the segment has failed.
        */
-      function Segment( data, document ) {
+      function Segment( data, document, index, previous ) {
         // Set up deferred load of images
         this._deferred = $q.defer( );
         this.promise = this._deferred.promise;
@@ -48,7 +48,7 @@ angular.module( 'lyt3App' )
 
         // Properties initialized in the constructor
         this.id = data.id;
-        this.index = data.index;
+        this.index = index;
         this.start = data.start;
         this.end = data.end;
         this.canBookmark = data.canBookmark;
@@ -61,7 +61,14 @@ angular.module( 'lyt3App' )
         }
         this.data = data;
         this.el = data.par;
+
         this.document = document;
+        this.documentOffset = 0;
+        this.previous = previous;
+        if ( previous ) {
+          previous.next = this;
+          this.documentOffset = previous.documentOffset + previous.duration;
+        }
 
         this.duration = this.end - this.start;
 
@@ -76,6 +83,7 @@ angular.module( 'lyt3App' )
         if ( this.loading || this.loaded ) {
           return this.promise;
         }
+
         this.loading = true;
         this.promise
           .finally( function( ) {
@@ -105,7 +113,7 @@ angular.module( 'lyt3App' )
 
           resource.document.promise
             .then( function( document ) {
-              return this.parseContent( document );
+              return parseContent( this, document );
             }.bind( this ) )
             .then( function( ) {
               return this._deferred.resolve( this );
@@ -124,68 +132,6 @@ angular.module( 'lyt3App' )
 
       Segment.prototype.ready = false;
 
-      Segment.prototype.hasNext = function( ) {
-        return !!this.next;
-      };
-
-      Segment.prototype.hasPrevious = function( ) {
-        return !!this.previous;
-      };
-
-      Segment.prototype.getNext = function( ) {
-        return this.next;
-      };
-
-      Segment.prototype.getPrevious = function( ) {
-        return this.previous;
-      };
-
-      Segment.prototype.duration = function( ) {
-        return this.end - this.start;
-      };
-
-      Segment.prototype.search = function( iterator, filter, onlyOne ) {
-        var item, result;
-        if ( onlyOne === undefined ) {
-          onlyOne = true;
-        }
-        if ( onlyOne ) {
-          while ( ( item = iterator( ) ) ) {
-            if ( filter( item ) ) {
-              return item;
-            }
-          }
-        } else {
-          result = [ ];
-          while ( ( item = iterator( ) ) ) {
-            if ( filter( item ) ) {
-              result.push( item );
-            }
-          }
-          return result;
-        }
-      };
-
-      Segment.prototype.searchBackward = function( filter, onlyOne ) {
-        var current, iterator;
-        current = this;
-        iterator = function( ) {
-          current = current.previous;
-          return current;
-        };
-        return this.search( iterator, filter, onlyOne );
-      };
-
-      Segment.prototype.searchForward = function( filter, onlyOne ) {
-        var current, iterator;
-        current = this;
-        iterator = function( ) {
-          current = current.next;
-          return current;
-        };
-        return this.search( iterator, filter, onlyOne );
-      };
-
       Segment.prototype.bookmark = function( audioOffset ) {
         return new Bookmark( {
           URI: this.url( ),
@@ -193,37 +139,25 @@ angular.module( 'lyt3App' )
         } );
       };
 
-      Segment.prototype.smilStart = function( ) {
-        var segment, start;
-        if ( this.smil.start !== undefined ) {
-          return this.smil.start;
-        }
-        start = 0;
-        segment = this;
-        while ( ( segment = segment.previous ) ) {
-          start += segment.duration( );
-        }
-        this.smil.start = start;
-        return start;
-      };
-
       // Convert from smil offset to audio offset
       Segment.prototype.audioOffset = function( smilOffset ) {
-        return this.start + smilOffset - this.smilStart( );
+        return this.start + smilOffset - this.documentOffset;
       };
 
       // Convert from audio offset to smil offset
       Segment.prototype.smilOffset = function( audioOffset ) {
-        return this.smilStart( ) + audioOffset - this.start;
-      };
-
-      Segment.prototype.containsSmilOffset = function( smilOffset ) {
-        return ( this.smilStart( ) <= smilOffset && smilOffset <= this.smilStart( ) +
-          this.duration( ) );
+        return this.documentOffset + audioOffset - this.start;
       };
 
       Segment.prototype.containsOffset = function( offset ) {
         return ( this.start <= offset && offset <= this.end );
+      };
+
+      // Is the given offset within this Segment?
+      Segment.prototype.containsAbsoluteOffset = function( offset ) {
+        var startOffset = this.document.absoluteOffset + this.documentOffset;
+        var endOffset = startOffset + this.duration;
+        return startOffset <= offset && offset <= endOffset;
       };
 
       // Will load this segment and the next preloadCount segments
@@ -260,139 +194,145 @@ angular.module( 'lyt3App' )
           }.bind( this ) );
       };
 
-      // Parse content document and extract segment data
-      // Used with deferreds, so should return this (the segment itself) or a failed
-      // promise in order to reject processing.
-      Segment.prototype.parseContent = function( document ) {
-        var getCanvasScale, getCanvasSize, image, imageData, loadImage,
-          source, sourceContent;
-        source = document.source;
-        sourceContent = source.find( '#' + this.contentId );
-        if ( sourceContent.parent( )
-          .hasClass( 'page' ) && sourceContent.is( 'div' ) && ( image =
-            sourceContent.parent( )
-            .children( 'img' ) ) ) {
-          this.type = 'cartoon';
-          getCanvasSize = function( image ) {
-            var result = {};
-            [ 'height', 'width' ].forEach( function( type ) {
-              var dim = image.attr( type );
-              if ( dim ) {
-                result[ type ] = dim;
-                return;
-              }
-              dim = image.attr( 'style' )
-                .match( type + '\\s*:\\s*(\\d+)\\s*px' );
-              if ( dim ) {
-                result[ type ] = dim[ 1 ];
-                return;
-              }
-              if ( image.parent( )
-                .css( type )
-                .match( /(\d+)(?:px)?/ ) ) {
-                result[ type ] = dim[ 1 ];
-                return;
-              } else {
-                var attr = type.replace( /^([a-z])/g, function( m, p1 ) {
-                  return 'natural' + p1.toUpperCase( );
-                } );
-                $log.warn( 'render.content: imageDim: no ' + type + ' attribute or css ' + type +
-                  ' on image. Falling back to ' + attr + ' which is not known to be cross browser' );
-                result[ type ] = image[ attr ];
-              }
+      var getCanvasSize = function( image ) {
+        var result = {};
+        [ 'height', 'width' ].forEach( function( type ) {
+          var dim = image.attr( type );
+          if ( dim ) {
+            result[ type ] = dim;
+            return;
+          }
+          dim = image.attr( 'style' )
+            .match( type + '\\s*:\\s*(\\d+)\\s*px' );
+          if ( dim ) {
+            result[ type ] = dim[ 1 ];
+            return;
+          }
+          if ( image.parent( )
+            .css( type )
+            .match( /(\d+)(?:px)?/ ) ) {
+            result[ type ] = dim[ 1 ];
+            return;
+          } else {
+            var attr = type.replace( /^([a-z])/g, function( m, p1 ) {
+              return 'natural' + p1.toUpperCase( );
             } );
-            return result;
-          };
-          getCanvasScale = function( canvasSize, imageSize ) {
-            var e;
-            if ( canvasSize.width !== imageSize.width ) {
-              try {
-                return imageSize.width / canvasSize.width;
-              } catch ( _error ) {
-                e = _error;
-                return 1;
-              }
-            } else {
-              return 1;
-            }
-          };
-          loadImage = function( image ) {
-            $log.log( 'Segment: ' + this.url( ) + ': parseContent: initiate preload of image ' + image.src );
+            $log.warn( 'render.content: imageDim: no ' + type + ' attribute or css ' + type +
+              ' on image. Falling back to ' + attr + ' which is not known to be cross browser' );
+            result[ type ] = image[ attr ];
+          }
+        } );
+        return result;
+      };
 
-            var errorHandler = function( event ) {
-              var backoff, doLoad;
-              clearTimeout( image.timer );
-              if ( image.attempts-- > 0 ) {
-                backoff = Math.ceil( ( ( ( ( LYTConfig.segment || {} ).imagePreload || {} ).attempts || 3 ) - image.attempts + 1) * 50 );
-                $log.log( 'Segment: parseContent: preloading image ' + image.src + ' failed, ' + image.attempts +
-                  ' attempts left. Waiting for ' + backoff + ' ms.' );
-                doLoad = function( ) {
-                  return loadImage( image );
-                };
-                return setTimeout( doLoad, backoff );
-              } else {
-                $log.error( 'Segment: parseContent: unable to preload image ' + image.src );
-                return image.deferred.reject( image, event );
-              }
+      var getCanvasScale = function( canvasSize, imageSize ) {
+        var e;
+        if ( canvasSize.width !== imageSize.width ) {
+          try {
+            return imageSize.width / canvasSize.width;
+          } catch ( _error ) {
+            e = _error;
+            return 1;
+          }
+        } else {
+          return 1;
+        }
+      };
+
+      var loadImage = function( segment, image ) {
+        $log.log( 'Segment: ' + segment.url( ) + ': loadImage: initiate preload of image ' + image.src );
+
+        var errorHandler = function( event ) {
+          var backoff, doLoad;
+          clearTimeout( image.timer );
+          if ( image.attempts-- > 0 ) {
+            backoff = Math.ceil( ( ( ( ( LYTConfig.segment || {} ).imagePreload || {} ).attempts || 3 ) - image.attempts + 1) * 50 );
+            $log.log( 'Segment: loadImage: preloading image ' + image.src + ' failed, ' + image.attempts +
+              ' attempts left. Waiting for ' + backoff + ' ms.' );
+            doLoad = function( ) {
+              return loadImage( segment, image );
             };
+            return setTimeout( doLoad, backoff );
+          } else {
+            $log.error( 'Segment: loadImage: unable to preload image ' + image.src );
+            return image.deferred.reject( image, event );
+          }
+        };
 
-            var doneHandler = function( event ) {
-              clearTimeout( image.timer );
-              $log.log( 'Segment: parseContent: loaded image ' + image.src );
-              return image.deferred.resolve( image, event );
-            };
+        var doneHandler = function( event ) {
+          clearTimeout( image.timer );
+          $log.log( 'Segment: loadImage: loaded image ' + image.src );
+          return image.deferred.resolve( image, event );
+        };
 
-            image.timer = setTimeout( errorHandler, LYTConfig.segment.imagePreload.timeout );
+        image.timer = setTimeout( errorHandler, LYTConfig.segment.imagePreload.timeout );
 
-            var tmp = new Image( );
-            $( tmp )
-              .load( doneHandler )
-              .error( errorHandler );
-            tmp.src = image.src;
-          }.bind( this );
+        var tmp = new Image( );
+        $( tmp )
+          .load( doneHandler )
+          .error( errorHandler );
+        tmp.src = image.src;
+      };
+
+      // Parse content document and extract segment data
+      // Used with deferreds, so should return the segment itself or a failed
+      // promise in order to reject processing.
+      var parseContent = function( segment, document ) {
+        var image;
+        var source = document.source;
+        var sourceContent = source.find( '#' + segment.contentId );
+        var sourceContentParent = sourceContent.parent();
+        var defered = $q.defer( );
+
+        if ( sourceContentParent.hasClass( 'page' ) &&
+          sourceContent.is( 'div' ) && ( image = sourceContentParent.children( 'img' ) ) ) {
+          segment.type = 'cartoon';
 
           if ( image.length !== 1 ) {
             $log.error( 'Segment: parseContent: can\'t create reliable cartoon type with multiple or zero images: ' +
-              this.url( ) );
-            throw 'Segment: parseContent: unable to find exactly one image in ' +
-            'cartoon display div';
+              segment.url( ) );
+            throw 'Segment: parseContent: unable to find exactly one image in cartoon display div';
           }
-          this.image = image.clone( )
+
+          segment.image = image.clone( )
             .wrap( '<p>' )
             .parent( )
             .html( );
-          this.div = sourceContent.clone( )
+
+          segment.div = sourceContent.clone( )
             .wrap( '<p>' )
             .parent( )
             .html( );
-          this.canvasSize = getCanvasSize( image );
-          var imageDefer = $q.defer( );
-          var imagePromise = imageDefer.promise;
-          imageData = {
+
+          segment.canvasSize = getCanvasSize( image );
+
+          var imageData = {
             src: image.attr( 'src' ),
             element: image[ 0 ],
             attempts: LYTConfig.segment.imagePreload.attempts,
-            deferred: imageDefer
+            deferred: defered
           };
-          imagePromise.then( function( imageData, event ) {
-            this.canvasScale = getCanvasScale( this.canvasSize, {
+
+          defered.promise.then( function( imageData, event ) {
+            segment.canvasScale = getCanvasScale( segment.canvasSize, {
               width: event.target.width,
               height: event.target.height
             } );
-          }.bind( this ) );
+          } );
 
-          loadImage( imageData );
-          imagePromise.then( function( ) {
-            // log.group('Segment: ' + (this.url()) + ' finished extracting text, html and loading images', this.text, image);
-            return this;
-          }.bind( this ) );
+          loadImage( segment, imageData );
 
-          return imagePromise;
+          defered.promise.then( function( ) {
+            $log.log( 'Segment: ' + (segment.url()) + ' finished extracting text, html and loading images', segment.text, image );
+            return segment;
+          } );
         } else {
-          this.type = 'standard';
+          segment.type = 'standard';
+
+          defered.resolve();
         }
-        return $q.defer( )
-          .resolve( );
+
+        return defered.promise;
       };
 
       Segment.prototype.getBookOffset = function( ) {
@@ -400,7 +340,7 @@ angular.module( 'lyt3App' )
           return 0;
         }
 
-        return this.document.absoluteOffset + this.smilStart( );
+        return this.document.absoluteOffset + this.documentOffset;
       };
 
       return Segment;

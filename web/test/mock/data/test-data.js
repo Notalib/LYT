@@ -229,8 +229,8 @@ angular.module( 'lytTest' )
         } ]
       };
 
-      var makeResourceURI = function( fileName ) {
-        return baseUrl + '/DodpFiles/20155/' + bookId + '/' + fileName + '?forceclose=true';
+      var makeResourceURI = function( fileName, forceClose ) {
+        return baseUrl + '/DodpFiles/20155/' + bookId + '/' + fileName + ( forceClose ? '?forceclose=true' : '' );
       };
 
       var getContentResources = {
@@ -339,59 +339,13 @@ angular.module( 'lytTest' )
               .reduce( function( output, fileName ) {
                 var fileData = bookDataLocal[ fileName ];
                 output[ fileName ] = {
-                  URL: makeResourceURI( fileName ),
+                  URL: makeResourceURI( fileName, true ),
                   content: fileData.content
                 };
 
                 return output;
               }, {} );
-          } )( ),
-          getStructure: {
-            'id': 37027,
-            'author': 'Michael Kamp',
-            'title': 'Bunker 137',
-            'playlist': [ ],
-            'navigation': [ {
-              'title': 'Michael Kamp: Bunker 137',
-              'offset': 0
-            }, {
-              'title': 'Om denne udgave',
-              'offset': 5
-            }, {
-              'title': 'Kolofon og bibliografiske oplysninger',
-              'offset': 36
-            }, {
-              'title': 'Citat',
-              'offset': 52
-            }, {
-              'title': 'Kapitel 1',
-              'offset': 67
-            }, {
-              'title': 'Kapitel 2',
-              'offset': 2291
-            }, {
-              'title': 'Kapitel 3',
-              'offset': 4260
-            }, {
-              'title': 'Kapitel 4',
-              'offset': 6575
-            }, {
-              'title': 'Kapitel 5',
-              'offset': 8721
-            }, {
-              'title': 'Kapitel 6',
-              'offset': 11212
-            }, {
-              'title': 'Kapitel 7',
-              'offset': 13054
-            }, {
-              'title': 'Kapitel 8',
-              'offset': 15532
-            }, {
-              'title': 'Kapitel 9',
-              'offset': 17019
-            } ]
-          }
+          } )( )
         }
       };
     }

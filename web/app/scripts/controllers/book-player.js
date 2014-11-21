@@ -27,7 +27,7 @@ angular.module('lyt3App')
           return;
         }
 
-        BookService.currentBook.findSectionFromOffset( offset )
+        BookService.currentBook.findSegmentFromOffset( offset )
           .then( function( segment ) {
             var smil = segment.document;
             var navigationItem = BookService.currentBook.structure.navigation
