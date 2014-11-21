@@ -17,6 +17,10 @@
 @interface BookManager : NSObject <LytDeviceProtocol>
 @property (nonatomic, weak) BridgeController* bridge;
 
+// used to override base URL when testing and should be left alone
+// in normal code
+@property (nonatomic, strong) NSURL* baseURL;
+
 // called when we are ready to process requests 
 -(void)ready;
 

@@ -302,7 +302,8 @@ static BookManager* anyManager = nil;
 }
 
 -(void)setBook:(id)bookData {
-    NSURL* baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20014/37027/"];
+    NSURL* baseURL = self.baseURL;
+    
     NSDictionary* dict = nil;
     if([bookData isKindOfClass:[NSDictionary class]]) {
         dict = (NSDictionary*)bookData;
