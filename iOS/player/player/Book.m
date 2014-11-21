@@ -52,6 +52,9 @@
     
     // each element is NavigationPart object
     NSArray* timedSubTitles;
+    
+    BOOL startedLoadingCoverImage; // we load cover-image first time requested, ut take care not to load it multiple times in parallel
+    UIImage* coverImage;
 }
 @end
 
@@ -87,6 +90,31 @@
 }
 
 #pragma mark -
+
+-(UIImage*)coverImage {
+    if(!startedLoadingCoverImage) {
+        startedLoadingCoverImage = YES;
+        
+        int height = 512;
+        NSString* src = [NSString stringWithFormat:@"http://bookcover.e17.dk/%@_h%d.jpg",
+                         [self.identifier stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding], height];
+        NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL URLWithString:src]];
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse* response, NSData* data, NSError* error) {
+            
+            // we do decoding on backgrund thread, to avoid UI stutter
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                UIImage* image = [UIImage imageWithData:data];
+
+                // to be on the safe side we only change properties from main thread
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    coverImage = image;
+                });
+            });
+            
+        }];
+    }
+    return coverImage;
+}
 
 -(void)playUrl:(NSURL*)url atTime:(NSTimeInterval)time {
     // clean up old player

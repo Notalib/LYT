@@ -178,6 +178,12 @@ static BookManager* anyManager = nil;
         [info setObject:subTitle forKey:MPMediaItemPropertyTitle];
     }
     
+    UIImage* cover = book.coverImage;
+    if(cover) {
+        MPMediaItemArtwork* artwork = [[MPMediaItemArtwork alloc] initWithImage:cover];
+        [info setObject:artwork forKey:MPMediaItemPropertyArtwork];
+    }
+    
     [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = info;
 }
 
