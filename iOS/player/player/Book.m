@@ -11,12 +11,47 @@
 #import "BookPart.h"
 #import "debug.h"
 
+#pragma mark NavigationPart
+
+// Used to represent elements made from:
+//    {"title":"Kapitel 2","offset":2291}
+@interface NavigationPart : NSObject <NSCoding>
+@property (nonatomic, assign) NSTimeInterval offset;
+@property (nonatomic, strong) NSString* title;
+@end
+
+@implementation NavigationPart
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+    [aCoder encodeDouble:self.offset forKey:@"offset"];
+    if(self.title) {
+        [aCoder encodeObject: self.title forKey:@"title"];
+    }
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super init];
+    if(self) {
+        self.offset = [aDecoder decodeDoubleForKey:@"offset"];
+        self.title = [aDecoder decodeObjectForKey:@"title"];
+    }
+    return self;
+}
+
+@end
+
+#pragma mark -
+
 @interface Book () {
+    BOOL _isPlaying;
     AVAudioPlayer* player;
     BOOL delayedStart; // we have been asked to start playing but are waiting for buffering
     BOOL positionEverSet;
     
     NSTimeInterval _position;
+    
+    // each element is NavigationPart object
+    NSArray* timedSubTitles;
 }
 @end
 
@@ -34,13 +69,20 @@
 
 #pragma mark AVAudioPlayerDelegate
 
-- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag {
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)thePlayer successfully:(BOOL)flag {
+    DBGLog(@"audioPlayerDidFinishPlaying: %@, successfully: %d",
+           thePlayer.url.lastPathComponent, flag ? 1 : 0);
+    
     if(flag) {
         [self playMore];
     }
 }
 
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error {
+    [self willChangeValueForKey:@"isPlaying"];
+    _isPlaying = NO;
+    [self didChangeValueForKey:@"isPlaying"];
+
     [self reportError:error];
 }
 
@@ -199,7 +241,7 @@
 }
 
 -(BOOL)isPlaying {
-    return player.isPlaying;
+    return _isPlaying;
 }
 
 -(BOOL)downloading {
@@ -229,9 +271,9 @@
     }
     
     [self willChangeValueForKey:@"isPlaying"];
-    BOOL started = [self playIfReady];
+    _isPlaying = [self playIfReady];
     [self didChangeValueForKey:@"isPlaying"];
-    delayedStart = !started;
+    delayedStart = !_isPlaying;
     
     [self cascadeBufferingPoint];
 }
@@ -275,6 +317,7 @@
     if(self.parts) [aCoder encodeObject:self.parts forKey:@"parts"];
     [aCoder encodeDouble:self.position forKey:@"position"];
     [aCoder encodeDouble:self.bufferLookahead forKey:@"lookahead"];
+    if(timedSubTitles.count > 0) [aCoder encodeObject:timedSubTitles forKey:@"subTitles"];
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
@@ -286,6 +329,7 @@
         self.parts = [aDecoder decodeObjectForKey:@"parts"];
         self.position = [aDecoder decodeDoubleForKey:@"position"];
         self.bufferLookahead = [aDecoder decodeDoubleForKey:@"lookahead"];
+        timedSubTitles = [aDecoder decodeObjectForKey:@"subTitles"];
     }
     return self;
 }
@@ -339,6 +383,7 @@
 }
 
 +(Book*)bookFromDictionary:(NSDictionary*)dictionary baseURL:(NSURL*)baseURL {
+    // extract what is being played
     NSArray* partDictionaries = [dictionary objectForKey:@"playlist"];
     NSMutableArray* parts = [NSMutableArray arrayWithCapacity:partDictionaries.count];
     for (NSDictionary* dictionary in partDictionaries) {
@@ -358,11 +403,28 @@
         [parts addObject:part];
     }
     
+    // extract the sub-titles to show at different times
+    NSArray* navigationDictionaries = [dictionary objectForKey:@"navigation"];
+    NSMutableArray* subTitles = [NSMutableArray arrayWithCapacity:partDictionaries.count];
+    for (NSDictionary* dictionary in navigationDictionaries) {
+        NSNumber* offset = [dictionary objectForKey:@"offset"];
+        NSString* title = [dictionary objectForKey:@"title"];
+        if(![offset isKindOfClass:[NSNumber class]] || ![title isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        
+        NavigationPart* subTitle = [NavigationPart new];
+        subTitle.offset = offset.doubleValue;
+        subTitle.title = title;
+        [subTitles addObject:subTitle];
+    }
+    
     Book* book = [Book new];
     book->_identifier = [[dictionary objectForKey:@"id"] description]; // we enforce that id is string, by taking description
     book.title = [dictionary objectForKey:@"title"];
     book.author = [dictionary objectForKey:@"author"];
     book.parts = parts;
+    book->timedSubTitles = subTitles;
     return book;
 }
 
@@ -383,6 +445,25 @@
     if(last) [array addObject:last];
     
     self.parts = array;
+}
+
+-(NavigationPart*)firstNavigationPartFromOffset:(NSTimeInterval)offset {
+    NavigationPart* key = [NavigationPart new];
+    key.offset = offset;
+    NSUInteger index = [timedSubTitles indexOfObject:key inSortedRange:NSMakeRange(0, timedSubTitles.count)
+                                             options:NSBinarySearchingInsertionIndex
+                                     usingComparator:^(NavigationPart* one, NavigationPart* other) {
+                                         if(one.offset < other.offset) return NSOrderedAscending;
+                                         if(one.offset > other.offset) return NSOrderedDescending;
+                                         return NSOrderedSame;
+                                     }];
+    if(index == 0) return nil;
+    return [timedSubTitles objectAtIndex:index - 1];
+}
+
+-(NSString*)subTitle {
+    NavigationPart* part = [self firstNavigationPartFromOffset:self.position];
+    return part.title;
 }
 
 -(AVQueuePlayer*)makeQueuePlayer {

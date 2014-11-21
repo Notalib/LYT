@@ -17,6 +17,9 @@
 
 @property (nonatomic, readonly) BOOL isPlaying;
 
+// sub-title for current position
+-(NSString*)subTitle;
+
 // last error for book
 @property (nonatomic, strong) NSError* error;
 

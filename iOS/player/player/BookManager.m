@@ -173,6 +173,10 @@ static BookManager* anyManager = nil;
     if(book.author.length > 0) {
         [info setObject:book.author forKey:MPMediaItemPropertyArtist];
     }
+    NSString* subTitle = book.subTitle;
+    if(subTitle.length > 0) {
+        [info setObject:subTitle forKey:MPMediaItemPropertyTitle];
+    }
     
     [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = info;
 }
@@ -247,6 +251,9 @@ static BookManager* anyManager = nil;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendBookUpdate) object:nil];
     if(book.isPlaying) {
         [self performSelector:@selector(sendBookUpdate) withObject:nil afterDelay:0.1];
+    } else {
+        DBGLog(@"stopped updating book %@", book);
+        [book isPlaying];
     }
 }
 
