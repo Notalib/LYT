@@ -1,0 +1,22 @@
+ {
+      'title': 'Harry Potter og Dødsregalierne',
+      'id': 17214,
+      'playlist': [
+        [ 'http://m.e17.dk/bid1', 11, 2011 ],
+        [ 'http://m.e17.dk/bid2', 0, 1221 ]
+      ],
+      'navigation': [
+        {
+          'name': '1. kapitel - Mørkets Herrer rejser sig,'
+          'offset': 12,
+        },
+        {
+          'name': '2. kapitel - In Memorian'
+          'offset': 345
+        },
+        {
+          'name': '3. kapitel - Familien Dursleys afrejse'
+          'offset': 1001
+        }
+      ]
+}
