@@ -49,7 +49,10 @@ angular.module( 'lyt3App' )
           } )
           .catch( function( ) {
             deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
-          } );
+          } )
+          .finally( function( ) {
+            delete this.issuedPromise;
+          }.bind( this ) );
 
         return this.issuedPromise;
       };
@@ -699,8 +702,8 @@ angular.module( 'lyt3App' )
 
           var deferred = $q.defer();
 
-          var reject = function( ) {
-            deferred.reject.apply( deferred, arguments );
+          var reject = function( rejected ) {
+            deferred.reject( rejected );
           };
 
           book.issue( )

@@ -1,0 +1,23 @@
+{
+  'title': 'Grantræet',
+  'id': 36016,
+  'playlist': [
+    { url: 'http://m.e17.dk/DodpFiles/10066850/36016/1_Bognummer_36016__HC_.mp3', start: 0, end: 12.30367346938784 },
+    { url: 'http://m.e17.dk/DodpFiles/10066850/36016/2_Oplysninger_om_denne.mp3', start: 0, end: 32.88816326530644 },
+    { url: 'http://m.e17.dk/DodpFiles/10066850/36016/3_Grantret.mp3', start: 7, end: 1364.45387754971883 }
+  ],
+  'navigation': [
+    {
+      'name': 'Bognummer 36016 - H.C. Andersen: Grantræet',
+      'offset': 0
+    },
+    {
+      'name': 'Oplysninger om denne udgave af bogen',
+      'offset': 12.30367346938784
+    },
+    {
+      'name': 'Grantræet',
+      'offset': 45.19183673469428
+    }
+  ]
+}
