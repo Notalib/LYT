@@ -62,11 +62,11 @@ angular.module('lyt3App')
       },
 
       loadBook: function( bookId ) {
-        var defered = $q.defer();
+        var deferred = $q.defer();
 
         if ( currentBook && currentBook.id === bookId ) {
-          defered.resolve( currentBook );
-          return defered.promise;
+          deferred.resolve( currentBook );
+          return deferred.promise;
         }
 
         BookNetwork
@@ -74,7 +74,7 @@ angular.module('lyt3App')
             return Book.load( bookId );
           } )
             .then( function( book ) {
-              defered.resolve( book );
+              deferred.resolve( book );
               currentBook = book;
 
               try {
@@ -83,10 +83,10 @@ angular.module('lyt3App')
               }
             } )
             .catch( function( ) {
-              defered.reject( );
+              deferred.reject( );
             } );
 
-        return defered.promise;
+        return deferred.promise;
       },
     };
 

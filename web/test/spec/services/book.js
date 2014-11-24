@@ -77,8 +77,8 @@ describe( 'Service: Book', function( ) {
     } );
 
     waitsFor( function( ) {
-      // Defered are resolved in the digest loop,
-      // so without this defered are never resolved.
+      // deferred are resolved in the digest loop,
+      // so without this deferred are never resolved.
       rootScope.$digest( );
 
       return issued === true;

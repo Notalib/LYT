@@ -6,9 +6,6 @@ angular.module( 'lyt3App' )
     function Section( heading, book ) {
       this.book = book;
 
-      this._deferred = $q.defer( );
-      this.promise = this._deferred.promise;
-
       // Wrap the heading in a jQuery object
       heading = jQuery( heading );
 
@@ -44,20 +41,21 @@ angular.module( 'lyt3App' )
     }
 
     Section.prototype.load = function( ) {
-      if ( this.loading || this.loaded ) {
-        return this;
+      if ( this.loadingPromise ) {
+        return this.loadingPromise;
       }
 
-      this.loading = true;
-      this.promise.finally( function( ) {
-        this.loading = false;
-      }.bind( this ) );
+      var deferred = $q.defer( );
+      var promise = deferred.promise;
+      this.loadingPromise = promise;
 
       $log.log( 'Section: loading(\'' + this.url + '\')' );
       // trim away everything after the filename.
       var file = ( this.url.replace( /#.*$/, '' ) ).toLowerCase( );
       if ( !this.book.resources[ file ] ) {
         $log.error( 'Section: load: url not found in resources: ' + file );
+        deferred.reject( );
+        return this.loadingPromise;
       }
 
       this.book.getSMIL( file )
@@ -65,19 +63,19 @@ angular.module( 'lyt3App' )
           this.loaded = true;
           this.document = document;
 
-          this._deferred.resolve( this );
+          deferred.resolve( this );
         }.bind( this ) )
         .catch( function( ) {
-          $log.error( 'Section: Failed to load SMIL-file ' + ( this.url.replace( /#.*$/, '' ) ) );
+          $log.error( 'Section: Failed to load SMIL-file ' + file );
 
-          this._deferred.reject( );
-        }.bind( this ) );
+          deferred.reject( );
+        } );
 
-      return this;
+      return this.loadingPromise;
     };
 
     Section.prototype.getAudioUrls = function( ) {
-      if ( !this.document /* || this.document.promise.state() !== 'resolved' */ ) {
+      if ( !this.document ) {
         return [ ];
       }
 
@@ -101,29 +99,32 @@ angular.module( 'lyt3App' )
     var getSegment = function( section, getter ) {
       var deferred = $q.defer( );
 
-      section.promise.catch( function( error ) {
-        return deferred.reject( error );
-      } );
-      section.promise.then( function( section ) {
-        if ( !section || !section.document || !section.document.segments ) {
-          throw 'Section: _getSegment: Invalid section loaded';
-        }
+      this.load( )
+        .catch( function( error ) {
+          deferred.reject( error );
+        } )
+        .then( function( section ) {
+          if ( !section || !section.document || !section.document.segments ) {
+            deferred.reject( );
+            throw 'Section: _getSegment: Invalid section loaded';
+          }
 
-        var segment = getter( section.document.segments );
-        if ( segment ) {
-          segment.load( );
-          segment.promise.then( function( ) {
-            return deferred.resolve( segment );
-          } );
-          return segment.promise.catch( function( error ) {
-            return deferred.reject( error );
-          } );
-        } else {
-          // TODO: We should change the call convention to just resolve with null
-          //       if no segment is found.
-          return deferred.reject( 'Segment not found' );
-        }
-      } );
+          var segment = getter( section.document.segments );
+          if ( segment ) {
+            segment.load( )
+              .then( function( ) {
+                deferred.resolve( segment );
+              } )
+              .catch( function( error ) {
+                deferred.reject( error );
+              } );
+          } else {
+            // TODO: We should change the call convention to just resolve with null
+            //       if no segment is found.
+            deferred.reject( 'Segment not found' );
+          }
+        } );
+
       return deferred.promise;
     };
 

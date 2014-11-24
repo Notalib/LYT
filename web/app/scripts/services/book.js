@@ -37,18 +37,18 @@ angular.module( 'lyt3App' )
           return this.issuedPromise;
         }
 
-        var defered = $q.defer();
-        this.issuedPromise = defered.promise;
+        var deferred = $q.defer();
+        this.issuedPromise = deferred.promise;
         var bookId = this.id;
 
         BookNetwork.issue( bookId )
           .then( function( ) {
             $log.log( 'Book ' + bookId + ' has been issued' );
 
-            defered.resolve( bookId );
+            deferred.resolve( bookId );
           } )
           .catch( function( ) {
-            defered.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
+            deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
           } );
 
         return this.issuedPromise;
@@ -59,8 +59,8 @@ angular.module( 'lyt3App' )
           return this.resourcePromise;
         }
 
-        var defered = $q.defer();
-        this.resourcePromise = defered.promise;
+        var deferred = $q.defer();
+        this.resourcePromise = deferred.promise;
 
         BookNetwork.getResources( this.id )
           .then( function( resources ) {
@@ -96,13 +96,13 @@ angular.module( 'lyt3App' )
             // save the resource for later
             if ( ncc ) {
               this.nccData = ncc;
-              defered.resolve( );
+              deferred.resolve( );
             } else {
-              defered.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
+              deferred.reject( BookErrorCodes.BOOK_NCC_NOT_FOUND_ERROR );
             }
           }.bind( this ) )
           .catch( function( ) {
-            defered.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
+            deferred.reject( BookErrorCodes.BOOK_CONTENT_RESOURCES_ERROR );
           } );
 
         return this.resourcePromise;
@@ -113,8 +113,8 @@ angular.module( 'lyt3App' )
           return this.bookmarkPromise;
         }
 
-        var defered = $q.defer();
-        this.bookmarkPromise = defered.promise;
+        var deferred = $q.defer();
+        this.bookmarkPromise = deferred.promise;
 
         this.lastmark = null;
         this.bookmarks = null;
@@ -129,11 +129,11 @@ angular.module( 'lyt3App' )
               normalizeBookmarks( this );
             }
 
-            defered.resolve( );
+            deferred.resolve( );
           }.bind( this ) )
           .catch( function( ) {
             // TODO: perhaps bookmarks should be loaded lazily, when required?
-            defered.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
+            deferred.reject( BookErrorCodes.BOOK_BOOKMARKS_NOT_LOADED_ERROR );
           } );
 
         return this.bookmarkPromise;
@@ -144,8 +144,8 @@ angular.module( 'lyt3App' )
           return this.nccPromise;
         }
 
-        var defered = $q.defer();
-        this.nccPromise = defered.promise;
+        var deferred = $q.defer();
+        this.nccPromise = deferred.promise;
 
         // Instantiate an NCC document
         var ncc = new NCCDocument( this.nccData.url, this );
@@ -168,11 +168,11 @@ angular.module( 'lyt3App' )
             this.totalTime = metadata.totalTime ? LYTUtils.parseTime( metadata.totalTime.content ) : null;
             ncc.book = this;
 
-            defered.resolve( document );
+            deferred.resolve( document );
           }.bind( this ) )
           .catch( function( ) {
             // Propagate a failure
-            defered.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
+            deferred.reject( BookErrorCodes.BOOK_NCC_NOT_LOADED_ERROR );
           } );
 
         return this.nccPromise;
@@ -206,7 +206,7 @@ angular.module( 'lyt3App' )
 
         var promises = [ ];
 
-        var defered = $q.defer( );
+        var deferred = $q.defer( );
 
         this.getSMILFiles( )
           .forEach( function( url ) {
@@ -215,13 +215,13 @@ angular.module( 'lyt3App' )
 
         $q.all( promises )
           .then( function( smildocuments ) {
-            defered.resolve( smildocuments );
+            deferred.resolve( smildocuments );
           } )
           .catch( function( ) {
-            defered.reject();
+            deferred.reject();
           } );
 
-        this.loadAllSMILPromise = defered.promise;
+        this.loadAllSMILPromise = deferred.promise;
 
         return this.loadAllSMILPromise;
       };
@@ -377,13 +377,12 @@ angular.module( 'lyt3App' )
 
       // TODO: Add remove bookmark method
       Book.prototype.addBookmark = function( segment, offset ) {
-        var bookmark, section;
-        if ( offset === undefined ) {
-          offset = 0;
-        }
+        offset = Math.max( offset || 0, 0 );
+
         $log.log( 'Book: addBookmark' );
-        bookmark = segment.bookmark( offset );
-        section = this.getSectionBySegment( segment );
+
+        var bookmark = segment.bookmark( offset );
+        var section = this.getSectionBySegment( segment );
 
         // Add closest section's title as bookmark title
         bookmark.note = {
@@ -561,15 +560,15 @@ angular.module( 'lyt3App' )
         var searchNext = function( ) {
           var section = iterator( );
           if ( section ) {
-            section.load( );
-            return section.promise.then( function( section ) {
-              var result = handler( section );
-              if ( result ) {
-                return result;
-              } else {
-                return searchNext( );
-              }
-            } );
+            section.load( )
+              .then( function( section ) {
+                var result = handler( section );
+                if ( result ) {
+                  return result;
+                } else {
+                  return searchNext( );
+                }
+              } );
           } else {
             return $q.defer( )
               .reject( );
@@ -698,10 +697,10 @@ angular.module( 'lyt3App' )
             loaded[ id ] = book;
           }
 
-          var defered = $q.defer();
+          var deferred = $q.defer();
 
           var reject = function( ) {
-            defered.reject.apply( defered, arguments );
+            deferred.reject.apply( deferred, arguments );
           };
 
           book.issue( )
@@ -714,7 +713,7 @@ angular.module( 'lyt3App' )
                         .then( function( ) {
                           book.getStructure( )
                             .then( function( ) {
-                              defered.resolve( book );
+                              deferred.resolve( book );
                             } )
                             .catch( reject );
                         } )
@@ -726,7 +725,7 @@ angular.module( 'lyt3App' )
             } )
             .catch( reject );
 
-          return defered.promise;
+          return deferred.promise;
         };
       } )( );
 

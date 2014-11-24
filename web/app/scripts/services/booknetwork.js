@@ -119,7 +119,7 @@ angular.module( 'lyt3App' )
         var failure = function( rejected ) {
           var code = rejected && rejected[0];
           emitError( code );
-          return deferred.reject( rejected );
+          deferred.reject( rejected );
         };
 
         var result = callback( );
@@ -159,8 +159,9 @@ angular.module( 'lyt3App' )
       var logOn = function( username, password ) {
         // Check for and return any pending logon processes
         if ( currentLogOnProcess && currentLogOnProcess.state === 'pending' ) {
-          return currentLogOnProcess;
+          return currentLogOnProcess.promise;
         }
+
         if ( currentRefreshSessionProcess && currentRefreshSessionProcess.state ===
           'pending' ) {
           currentRefreshSessionProcess.reject( );
@@ -276,7 +277,7 @@ angular.module( 'lyt3App' )
 
           if ( currentRefreshSessionProcess &&
             currentRefreshSessionProcess.state === 'pending' ) {
-            return currentRefreshSessionProcess;
+            return currentRefreshSessionProcess.promise;
           }
 
           var deferred = $q.defer( );
@@ -385,7 +386,9 @@ angular.module( 'lyt3App' )
               LYTSession.setBookShelf( cachedBookShelf );
               return deferred.resolve( cachedBookShelf );
             } )
-            .catch( function( err, message ) {
+            .catch( function( reason ) {
+              var err = reason[0];
+              var message = reason[1];
               return deferred.reject( err, message );
             } );
           return deferred.promise;
@@ -446,10 +449,13 @@ angular.module( 'lyt3App' )
               } )
               .then( function( /*announcements*/ ) {
                 // LYT.render.showAnnouncements(announcements);
-                return deferred.resolve( );
+                deferred.resolve( );
               } )
-              .catch( function( err, message ) {
-                return deferred.reject( err, message );
+              .catch( function( reason ) {
+                var err = reason[0];
+                var message = reason[1];
+
+                deferred.reject( err, message );
               } );
           } else {
             deferred.reject( );
