@@ -29,6 +29,9 @@
         NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
         [iso8601Formatter setLocale:enUSPOSIXLocale];
         [iso8601Formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+        
+        // enable local storage in webviews
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitStoreWebDataForBackup"];
     }
     return self;
 }
@@ -162,7 +165,9 @@
     
     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse* response, NSData* data, NSError* error) {
-                               //[urlBeingLoaded removeObjectForKey:request.URL.absoluteString];
+                               dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                   [urlBeingLoaded removeObjectForKey:request.URL.absoluteString];
+                               });
                                
                                NSString* content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                                NSString* javascript = self.javascriptFromBundle;

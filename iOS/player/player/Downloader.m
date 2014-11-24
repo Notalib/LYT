@@ -153,7 +153,12 @@ static void (^backgroundSessionCompletionHandler)(void) = nil;
         sharedDelegate = [DownloadDelegate new];
         
         NSString* identifier = SessionConfigurationidentifier;
-        sharedConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier: identifier];
+        if([NSURLSessionConfiguration respondsToSelector:@selector(backgroundSessionConfigurationWithIdentifier:)]) {
+            sharedConfig = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier: identifier];
+        } else {
+            sharedConfig = [NSURLSessionConfiguration backgroundSessionConfiguration: identifier];
+        }
+        
         sharedConfig.requestCachePolicy = NSURLRequestReloadIgnoringCacheData;
         
         sharedSession = [NSURLSession sessionWithConfiguration:sharedConfig
@@ -313,7 +318,7 @@ static void (^backgroundSessionCompletionHandler)(void) = nil;
 }
 
 +(Downloader*)downloadURL:(NSURL*)url {
-    return [Downloader downloadURL:url start:0 end:NSUIntegerMax];
+    return [Downloader downloadURL:url start:0 end:NSIntegerMax];
 }
 
 @end

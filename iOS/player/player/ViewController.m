@@ -71,17 +71,22 @@
     
     bridge = [BridgeController new];
     manager = [BookManager new];
-    manager.baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20001/37027/"];
+    //manager.baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20001/37027/"];
     manager.bridge = bridge;
     bridge.webView = self.webView;
     self.webView.delegate = bridge;
     [manager ready];
         
-    NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
-    //NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0_002"];
+    //NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
+    NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0_003"];
     
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
+}
+
+- (IBAction)reload:(id)sender {
+    NSURL* url = [NSURL URLWithString: @"http://test.m.e17.dk/msn/lyt-3.0_003"];
+    [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
 @end
