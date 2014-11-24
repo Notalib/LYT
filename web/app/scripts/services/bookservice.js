@@ -1,9 +1,15 @@
 'use strict';
 
 angular.module('lyt3App')
-  .factory('BookService', [ '$q', '$rootScope', '$location', 'Book', 'BookNetwork', 'NativeGlue',
-  function( $q, $rootScope, $location, Book, BookNetwork, NativeGlue ) {
+  .factory('BookService', [ '$q', '$rootScope', '$location', '$interval', 'LYTConfig', 'Book', 'BookNetwork', 'NativeGlue',
+  function( $q, $rootScope, $location, $interval, LYTConfig, Book, BookNetwork, NativeGlue ) {
     var currentBook;
+
+    $interval( function( ) {
+      if ( currentBook ) {
+        currentBook.setLastmark( );
+      }
+    }, LYTConfig.player.lastmarkUpdateInterval || 10000 );
 
     // Public API here
     var BookService = {

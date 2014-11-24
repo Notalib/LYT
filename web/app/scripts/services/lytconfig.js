@@ -43,6 +43,11 @@ angular.module('lyt3App')
           attempts: 5
         }
       },
+      player: {
+        lastmarkUpdateInterval: 10000,
+        playAttemptLimit: 10,
+        useFakeEnd: false
+      },
       // NCCDocument config
       nccDocument: {
         metaSections: {

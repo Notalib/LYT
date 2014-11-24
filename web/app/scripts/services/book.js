@@ -399,15 +399,16 @@ angular.module( 'lyt3App' )
         this.bookmarks.push( bookmark );
         normalizeBookmarks( this );
         sortBookmarks( this );
-        return this.saveBookmarks( );
+        this.saveBookmarks( );
       };
 
-      Book.prototype.setLastmark = function( segment, offset ) {
-        if ( offset === undefined ) {
-          offset = 0;
-        }
-        this.lastmark = segment.bookmark( offset );
-        return this.saveBookmarks( );
+      Book.prototype.setLastmark = function( ) {
+        var currentPosition = this.currentPosition;
+        this.findSegmentFromOffset( currentPosition )
+          .then( function( segment ) {
+            this.lastmark = segment.bookmark( currentPosition );
+            this.saveBookmarks( );
+          }.bind( this ) );
       };
 
       Book.prototype.segmentByURL = function( url ) {
@@ -603,65 +604,65 @@ angular.module( 'lyt3App' )
        * }
        */
       Book.prototype.getStructure = function( ) {
-          var defer = $q.defer( );
-          if ( this.structure ) {
-            defer.resolve( this.structure );
-            return defer.promise;
-          }
-
-          // Make sure the book is loaded
-          this.loadNCC().then( function( ) {
-            var bookStructure = {
-              id: this.id,
-              author: this.author,
-              title: this.title,
-              playlist: [ ],
-              navigation: [ ]
-            };
-
-            var promises = this.nccDocument.structure.reduce(
-              function( flat, section ) {
-                return flat.concat( section.flatten( ) );
-              }, [ ] ).map( function( section ) {
-              var loadSegment = $q.defer( );
-              this.segmentByURL( section.url + '#' + section.ref )
-                .then( function( segment ) {
-                  loadSegment.resolve( {
-                    title: section.title,
-                    offset: segment.getBookOffset( )
-                  } );
-                } );
-
-              return loadSegment.promise;
-            }, this );
-
-            var loadNavigation = $q.all( promises )
-              .then( function( segments ) {
-                bookStructure.navigation = segments;
-              } );
-
-            var loadPlaylist = this.loadAllSMIL( )
-              .then( function( smildocuments ) {
-                smildocuments.forEach( function( smildocument ) {
-                  smildocument.segments.forEach( function( segment ) {
-                    bookStructure.playlist.push( {
-                      url: segment.audio.url,
-                      start: segment.start,
-                      end: segment.end
-                    } );
-                  } );
-                } );
-              } );
-
-            $q.all( [ loadNavigation, loadPlaylist ] )
-              .then( function( ) {
-                this.structure = bookStructure;
-                defer.resolve( bookStructure );
-              }.bind( this ) );
-          }.bind( this ) );
-
+        var defer = $q.defer( );
+        if ( this.structure ) {
+          defer.resolve( this.structure );
           return defer.promise;
-        };
+        }
+
+        // Make sure the book is loaded
+        this.loadNCC().then( function( ) {
+          var bookStructure = {
+            id: this.id,
+            author: this.author,
+            title: this.title,
+            playlist: [ ],
+            navigation: [ ]
+          };
+
+          var promises = this.nccDocument.structure.reduce(
+            function( flat, section ) {
+              return flat.concat( section.flatten( ) );
+            }, [ ] ).map( function( section ) {
+            var loadSegment = $q.defer( );
+            this.segmentByURL( section.url + '#' + section.ref )
+              .then( function( segment ) {
+                loadSegment.resolve( {
+                  title: section.title,
+                  offset: segment.getBookOffset( )
+                } );
+              } );
+
+            return loadSegment.promise;
+          }, this );
+
+          var loadNavigation = $q.all( promises )
+            .then( function( segments ) {
+              bookStructure.navigation = segments;
+            } );
+
+          var loadPlaylist = this.loadAllSMIL( )
+            .then( function( smildocuments ) {
+              smildocuments.forEach( function( smildocument ) {
+                smildocument.segments.forEach( function( segment ) {
+                  bookStructure.playlist.push( {
+                    url: segment.audio.url,
+                    start: segment.start,
+                    end: segment.end
+                  } );
+                } );
+              } );
+            } );
+
+          $q.all( [ loadNavigation, loadPlaylist ] )
+            .then( function( ) {
+              this.structure = bookStructure;
+              defer.resolve( bookStructure );
+            }.bind( this ) );
+        }.bind( this ) );
+
+        return defer.promise;
+      };
 
       Book.prototype.findSegmentFromOffset = function( offset ) {
         var defer = $q.defer();

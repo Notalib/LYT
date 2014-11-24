@@ -72,7 +72,7 @@ angular.module( 'lyt3App' )
 
       // Loads all resources
       Segment.prototype.load = function( ) {
-        if ( this.loadingPromise  ) {
+        if ( this.loadingPromise ) {
           return this.loadingPromise;
         }
 
@@ -148,7 +148,7 @@ angular.module( 'lyt3App' )
 
         return new Bookmark( {
           URI: this.url( ),
-          timeOffset: this.absoluteOffsetToSmil( offset )
+          timeOffset: this.absoluteOffsetToSmilOffset( offset )
         } );
       };
 
