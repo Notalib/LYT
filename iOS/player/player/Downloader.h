@@ -44,7 +44,8 @@
 // delete all cached files for this download
 -(void)deleteCache;
 
-// set end == NSUIntegerMax to download to end of file
+// Instance with identical url and start should be shared when calling this multiple times.
+// set end == NSUIntegerMax to download to end of file.
 +(Downloader*)downloadURL:(NSURL*)url start:(NSUInteger)start end:(NSUInteger)end;
 +(Downloader*)downloadURL:(NSURL*)url;
 

@@ -71,7 +71,7 @@
     
     bridge = [BridgeController new];
     manager = [BookManager new];
-    manager.baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20014/37027/"];
+    manager.baseURL = [NSURL URLWithString:@"http://m.e17.dk/DodpFiles/20001/37027/"];
     manager.bridge = bridge;
     bridge.webView = self.webView;
     self.webView.delegate = bridge;
