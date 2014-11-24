@@ -84,10 +84,15 @@ angular.module('lyt3App')
               deferred.resolve( book );
               BookService.currentBook = book;
 
-              try {
-                NativeGlue.setBook( book.structure );
-              } catch ( e ) {
-              }
+              NativeGlue.setBook( book.structure );
+
+              NativeGlue.getBooks( )
+                .some( function( bookData ) {
+                  if ( bookData.id === book.id ) {
+                    book.currentPosition = Math.max( bookData.offset || 0, book.currentPosition || 0, 0 );
+                    return true;
+                  }
+                } );
             } )
             .catch( function( ) {
               deferred.reject( );

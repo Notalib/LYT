@@ -1,7 +1,7 @@
 <div>
   <div class="list-group">
     <a href="#/book-player/{{book.id}}" class="list-group-item" ng-repeat="book in books">
-      <img src="http://bookcover.e17.dk/{{ book.id }}_w50.jpg" />  {{ book.title }}
+      <img ng-src="http://bookcover.e17.dk/{{ book.id }}_w50.jpg" src="images/blankbookcover.png" />  {{ book.title }}
     </a>
   </div>
   <button type="button" class="btn btn-default" ng-click="nextPage()">Flere bøger</button>

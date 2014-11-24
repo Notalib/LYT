@@ -128,6 +128,9 @@ angular.module( 'lyt3App' )
             this.bookmarks = [];
             if ( data ) {
               this.lastmark = data.lastmark;
+              // TODO: Update book.currentPosition from lastmark;
+              $log.warn( 'Book: loadBookmarks: lastmark updated. currentPosition should be updated' );
+
               this.bookmarks = data.bookmarks || [];
               normalizeBookmarks( this );
             }

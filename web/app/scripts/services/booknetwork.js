@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'BookNetwork', [ '$q', '$log', '$rootScope', '$location', 'LYTConfig', 'LYTSession', 'DODPErrorCodes', 'DODP',
-    function( $q, $log, $rootScope, $location, LYTConfig, LYTSession, DODPErrorCodes, DODP ) {
+  .factory( 'BookNetwork', [ '$q', '$log', '$rootScope', '$location', 'LYTConfig', 'LYTSession', 'DODPErrorCodes', 'DODP', 'NativeGlue',
+    function( $q, $log, $rootScope, $location, LYTConfig, LYTSession, DODPErrorCodes, DODP, NativeGlue ) {
       /*
        * Higher-level functions for interacting with the server
        *
@@ -378,10 +378,26 @@ angular.module( 'lyt3App' )
             } )
             .then( function( list ) {
               var cachedBookShelf = BookNetwork.getCachedBookShelf( );
-              var items = list.items;
+
+              var knownBooks = NativeGlue.getBooks( )
+                .reduce( function( output, bookData ) {
+                  output[ bookData.id ] = bookData;
+                }, {} );
+
+              var items = list.items.map( function( item ) {
+                if ( knownBooks[ item.id ] ) {
+                  item.downloaded = !!knownBooks[ item.id ].downloaded;
+                } else {
+                  item.downloaded = false;
+                }
+
+                return item;
+              } );
+
               for ( var i = from; i <= to; i += 1 ) {
                 cachedBookShelf[ i ] = items[ i - from ];
               }
+
 
               cachedBookShelf = cachedBookShelf.filter( function( item ) {
                 return !!item;
@@ -399,7 +415,20 @@ angular.module( 'lyt3App' )
         },
 
         getCachedBookShelf: function( ) {
-          return LYTSession.getBookShelf( );
+          var knownBooks = NativeGlue.getBooks( )
+            .reduce( function( output, bookData ) {
+              output[ bookData.id ] = bookData;
+            }, {} );
+
+          return LYTSession.getBookShelf( ).map( function( item ) {
+            if ( knownBooks[ item.id ] ) {
+              item.downloaded = !!knownBooks[ item.id ].downloaded;
+            } else {
+              item.downloaded = false;
+            }
+
+            return item;
+          } );
         },
 
         /* -------
