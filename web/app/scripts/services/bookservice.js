@@ -48,7 +48,7 @@ angular.module('lyt3App')
         }
       },
 
-      ship: function( diff ) {
+      skip: function( diff ) {
         if ( currentBook ) {
           BookService.play( currentBook.id, currentBook.currentPosition + diff );
         }
