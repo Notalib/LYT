@@ -180,14 +180,14 @@ angular.module( 'lyt3App' )
           .then( function( document ) {
             var section = getter( document.sections );
             if ( section ) {
-              section.load( );
-              section.promise
-                .then( function( ) {
-                  deferred.resolve( section );
-                } )
-                .catch( function( ) {
-                  deferred.reject( );
-                } );
+              section.load( )
+                .promise
+                  .then( function( ) {
+                    deferred.resolve( section );
+                  } )
+                  .catch( function( ) {
+                    deferred.reject( );
+                  } );
             } else {
               deferred.reject( );
             }

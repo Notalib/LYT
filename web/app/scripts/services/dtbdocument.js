@@ -256,7 +256,7 @@ angular.module( 'lyt3App' )
           }
           // If all else fails, give up
           $log.error( 'DTB: Failed to get ' + this.url + ' (status: ' + status + ')', arguments );
-          return deferred.reject( status );
+          deferred.reject( status );
         };
 
         var resolve = function( ) {
@@ -268,7 +268,7 @@ angular.module( 'lyt3App' )
 
             deferred.resolve( this );
           } else {
-            deferred.reject( -1, 'FAILED_TO_LOAD' );
+            deferred.reject( [ -1, 'FAILED_TO_LOAD' ] );
           }
         }.bind( this );
 

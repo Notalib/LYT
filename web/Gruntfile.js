@@ -470,6 +470,12 @@ module.exports = function ( grunt ) {
     'karma:unit'
   ] );
 
+  grunt.registerTask( 'test:commit', [
+    'jscs',
+    'jshint',
+    'karma:commit'
+  ] );
+
   grunt.registerTask( 'build', [
     'clean:dist',
     'wiredep',
