@@ -3,9 +3,11 @@
 
 angular.module( 'lyt3App' )
   .factory( 'NativeGlue', [ '$rootScope', '$log', function( $rootScope, $log ) {
-    window.lytTriggerEvent = function( eventName ) {
+    window.lytHandleEvent = function( ) {
       var args = Array.prototype.slice.call( arguments, 0 );
-      $rootScope.$emit( eventName, args );
+      $rootScope.$broadcast.apply( $rootScope, args );
+
+      $rootScope.$apply( );
     };
 
     var setBook = function( bookData ) {
@@ -33,6 +35,11 @@ angular.module( 'lyt3App' )
       return lytBridge.stop( );
     };
 
+    var pause = function( ) {
+      $log.info( 'pause:' );
+      return lytBridge.pause( );
+    };
+
     var cacheBook = function( bookId ) {
       $log.info( 'cacheBook:', bookId );
       return lytBridge.cacheBook( bookId );
@@ -49,6 +56,7 @@ angular.module( 'lyt3App' )
       getBooks: getBooks,
       play: play,
       stop: stop,
+      pause: pause,
       cacheBook: cacheBook,
       clearBookCache: clearBookCache
     };

@@ -1,16 +1,30 @@
 'use strict';
 
 angular.module('lyt3App')
-  .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams',
-    'BookService', '$interval', '$location',
-    function( $scope, $log, NativeGlue, $routeParams, BookService, $interval, $location ) {
+  .controller('BookPlayerCtrl', [ '$scope', '$log', '$location', 'LYTConfig',
+    'NativeGlue', '$routeParams', 'BookService', 'BookNetwork',
+    function( $scope, $log, $location, LYTConfig, NativeGlue, $routeParams, BookService, BookNetwork ) {
       if ( !$routeParams.bookid || isNaN( $routeParams.bookid ) ) {
         $location.path( '/' );
       }
 
       $scope.BookService = BookService;
 
-      BookService.loadBook( $routeParams.bookid );
+      var loadBook = function( ) {
+        BookService.loadBook( $routeParams.bookid );
+      };
+
+      var logonRejected = $scope.$on( 'logon:rejected', function( ) {
+        $log.warn( 'TODO: Handle invalid login' );
+        BookNetwork
+          .logOn( LYTConfig.service.guestUser, LYTConfig.service.guestLogin )
+            .then( function( ) {
+              loadBook( );
+            } );
+
+        logonRejected( );
+      } );
+
 
       var currentSMIL;
       $scope.$watch( 'BookService.currentBook.currentPosition', function( offset ) {
@@ -47,31 +61,18 @@ angular.module('lyt3App')
 
       $scope.toogle = function( ) {
         if ( BookService.playing ) {
-          $interval.cancel( BookService.playing );
           delete BookService.playing;
 
-          BookService.stop();
+          BookService.pause();
         } else {
-          try {
-            BookService.play();
-            BookService.playing = true;
-          } catch ( e ) {
-            if ( BookService.playing ) {
-              $interval.cancel( BookService.playing );
-            }
-
-            // Fake progress
-            var lastTime = new Date() / 1000;
-            BookService.playing = $interval( function( ) {
-              var now = new Date( ) / 1000;
-              $scope.$emit( 'play-time-update', BookService.currentBook.id, BookService.currentBook.currentPosition + now - lastTime );
-              lastTime = now;
-            }, 250 );
-          }
+          BookService.play();
+          BookService.playing = true;
         }
       };
 
       $scope.$on( 'end', function( bookId ) {
         $log.info( 'end: TODO', bookId );
       } );
+
+      loadBook( );
     } ] );

@@ -14,10 +14,7 @@ angular.module('lyt3App')
       set currentBook( book ) {
         currentBook = book;
 
-        try {
-          NativeGlue.setBook( book.structure );
-        } catch ( exp ) {
-        }
+        NativeGlue.setBook( book.structure );
       },
 
       play: function( bookId, offset ) {
@@ -30,7 +27,7 @@ angular.module('lyt3App')
             currentBook.currentPosition = offset;
           }
 
-          NativeGlue.play( bookId, currentBook.currentPosition );
+          NativeGlue.play( currentBook.id, currentBook.currentPosition );
         } else if ( currentBook && currentBook.id === bookId ) {
           if ( offset !== undefined ) {
             currentBook.currentPosition = offset;
@@ -61,6 +58,10 @@ angular.module('lyt3App')
         NativeGlue.stop( );
       },
 
+      pause: function( ) {
+        NativeGlue.pause( );
+      },
+
       loadBook: function( bookId ) {
         var deferred = $q.defer();
 
@@ -75,7 +76,7 @@ angular.module('lyt3App')
           } )
             .then( function( book ) {
               deferred.resolve( book );
-              currentBook = book;
+              BookService.currentBook = book;
 
               try {
                 NativeGlue.setBook( book.structure );
