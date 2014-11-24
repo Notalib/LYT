@@ -8,61 +8,40 @@
 
 /* Begin PBXBuildFile section */
 		BE08A1A11A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */; };
-		BE08A1A21A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */; };
 		BE08A1A31A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */; };
-		BE08A1A41A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */; };
 		BE08A1A51A1368D700772B6D /* 04_Citat.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1971A1368D700772B6D /* 04_Citat.json */; };
-		BE08A1A61A1368D700772B6D /* 04_Citat.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1971A1368D700772B6D /* 04_Citat.json */; };
 		BE08A1A71A1368D700772B6D /* 05_Kapitel_1.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1981A1368D700772B6D /* 05_Kapitel_1.json */; };
-		BE08A1A81A1368D700772B6D /* 05_Kapitel_1.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1981A1368D700772B6D /* 05_Kapitel_1.json */; };
 		BE08A1A91A1368D700772B6D /* 06_Kapitel_2.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1991A1368D700772B6D /* 06_Kapitel_2.json */; };
-		BE08A1AA1A1368D700772B6D /* 06_Kapitel_2.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1991A1368D700772B6D /* 06_Kapitel_2.json */; };
 		BE08A1AB1A1368D700772B6D /* 07_Kapitel_3.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19A1A1368D700772B6D /* 07_Kapitel_3.json */; };
-		BE08A1AC1A1368D700772B6D /* 07_Kapitel_3.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19A1A1368D700772B6D /* 07_Kapitel_3.json */; };
 		BE08A1AD1A1368D700772B6D /* 08_Kapitel_4.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19B1A1368D700772B6D /* 08_Kapitel_4.json */; };
-		BE08A1AE1A1368D700772B6D /* 08_Kapitel_4.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19B1A1368D700772B6D /* 08_Kapitel_4.json */; };
 		BE08A1AF1A1368D700772B6D /* 09_Kapitel_5.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19C1A1368D700772B6D /* 09_Kapitel_5.json */; };
-		BE08A1B01A1368D700772B6D /* 09_Kapitel_5.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19C1A1368D700772B6D /* 09_Kapitel_5.json */; };
 		BE08A1B11A1368D700772B6D /* 10_Kapitel_6.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19D1A1368D700772B6D /* 10_Kapitel_6.json */; };
-		BE08A1B21A1368D700772B6D /* 10_Kapitel_6.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19D1A1368D700772B6D /* 10_Kapitel_6.json */; };
 		BE08A1B31A1368D700772B6D /* 11_Kapitel_7.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19E1A1368D700772B6D /* 11_Kapitel_7.json */; };
-		BE08A1B41A1368D700772B6D /* 11_Kapitel_7.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19E1A1368D700772B6D /* 11_Kapitel_7.json */; };
 		BE08A1B51A1368D700772B6D /* 12_Kapitel_8.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */; };
-		BE08A1B61A1368D700772B6D /* 12_Kapitel_8.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A19F1A1368D700772B6D /* 12_Kapitel_8.json */; };
 		BE08A1B71A1368D700772B6D /* 13_Kapitel_9.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */; };
-		BE08A1B81A1368D700772B6D /* 13_Kapitel_9.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1A01A1368D700772B6D /* 13_Kapitel_9.json */; };
 		BE08A1BA1A13690E00772B6D /* bunker137.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1B91A13690E00772B6D /* bunker137.json */; };
-		BE08A1BB1A13690E00772B6D /* bunker137.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1B91A13690E00772B6D /* bunker137.json */; };
 		BE08A1BE1A13696D00772B6D /* Book.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1BD1A13696D00772B6D /* Book.m */; };
-		BE08A1BF1A13696D00772B6D /* Book.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1BD1A13696D00772B6D /* Book.m */; };
 		BE08A1C21A136B8F00772B6D /* BookPart.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1C11A136B8F00772B6D /* BookPart.m */; };
-		BE08A1C31A136B8F00772B6D /* BookPart.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1C11A136B8F00772B6D /* BookPart.m */; };
 		BE08A1C51A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */; };
-		BE08A1C61A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */; };
 		BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */; };
 		BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
-		BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE43F0F21A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
-		BE43F0F31A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
 		BE4732441A1A024700A325A4 /* bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = BE4732431A1A024700A325A4 /* bridge.js */; };
-		BE4732451A1A024700A325A4 /* bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = BE4732431A1A024700A325A4 /* bridge.js */; };
 		BE4732481A1A0F4600A325A4 /* BridgeController.m in Sources */ = {isa = PBXBuildFile; fileRef = BE4732471A1A0F4600A325A4 /* BridgeController.m */; };
-		BE4732491A1A0F4600A325A4 /* BridgeController.m in Sources */ = {isa = PBXBuildFile; fileRef = BE4732471A1A0F4600A325A4 /* BridgeController.m */; };
 		BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
-		BE6DC6731A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
+		BE96C7C71A232B10008D64F5 /* tests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE96C7C61A232B10008D64F5 /* tests.m */; };
+		BE96C7CE1A232D1E008D64F5 /* playerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE96C7CD1A232D1E008D64F5 /* playerTests.m */; };
 		BEB1BA191A121B140066F4FD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA181A121B140066F4FD /* main.m */; };
 		BEB1BA1C1A121B140066F4FD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA1B1A121B140066F4FD /* AppDelegate.m */; };
 		BEB1BA1F1A121B140066F4FD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA1E1A121B140066F4FD /* ViewController.m */; };
 		BEB1BA221A121B150066F4FD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA201A121B140066F4FD /* Main.storyboard */; };
 		BEB1BA241A121B150066F4FD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA231A121B150066F4FD /* Images.xcassets */; };
 		BEB1BA271A121B150066F4FD /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA251A121B150066F4FD /* LaunchScreen.xib */; };
-		BEB1BA331A121B150066F4FD /* playerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB1BA321A121B150066F4FD /* playerTests.m */; };
 		BECE557A1A1B853400BDA191 /* BookManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BECE55791A1B853400BDA191 /* BookManager.m */; };
-		BECE557B1A1B853400BDA191 /* BookManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BECE55791A1B853400BDA191 /* BookManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		BEB1BA2D1A121B150066F4FD /* PBXContainerItemProxy */ = {
+		BE96C7C81A232B10008D64F5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BEB1BA0B1A121B140066F4FD /* Project object */;
 			proxyType = 1;
@@ -100,6 +79,10 @@
 		BE4732461A1A0F4600A325A4 /* BridgeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgeController.h; sourceTree = "<group>"; };
 		BE4732471A1A0F4600A325A4 /* BridgeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeController.m; sourceTree = "<group>"; };
 		BE6DC6711A1397C8000DB1C2 /* 37027.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 37027.json; sourceTree = "<group>"; };
+		BE96C7C21A232B10008D64F5 /* tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE96C7C51A232B10008D64F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BE96C7C61A232B10008D64F5 /* tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = tests.m; sourceTree = "<group>"; };
+		BE96C7CD1A232D1E008D64F5 /* playerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = playerTests.m; sourceTree = "<group>"; };
 		BEB1BA131A121B140066F4FD /* player.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = player.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB1BA171A121B140066F4FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BEB1BA181A121B140066F4FD /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -110,23 +93,20 @@
 		BEB1BA211A121B140066F4FD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BEB1BA231A121B150066F4FD /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		BEB1BA261A121B150066F4FD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		BEB1BA2C1A121B150066F4FD /* playerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = playerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BEB1BA311A121B150066F4FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BEB1BA321A121B150066F4FD /* playerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = playerTests.m; sourceTree = "<group>"; };
 		BECE55781A1B853400BDA191 /* BookManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookManager.h; sourceTree = "<group>"; };
 		BECE55791A1B853400BDA191 /* BookManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookManager.m; sourceTree = "<group>"; };
 		BECE557C1A1B8FAC00BDA191 /* bridge-test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "bridge-test.html"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		BEB1BA101A121B140066F4FD /* Frameworks */ = {
+		BE96C7BF1A232B10008D64F5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BEB1BA291A121B150066F4FD /* Frameworks */ = {
+		BEB1BA101A121B140066F4FD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -160,11 +140,29 @@
 			name = testing;
 			sourceTree = "<group>";
 		};
+		BE96C7C31A232B10008D64F5 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				BE96C7C61A232B10008D64F5 /* tests.m */,
+				BE96C7CD1A232D1E008D64F5 /* playerTests.m */,
+				BE96C7C41A232B10008D64F5 /* Supporting Files */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
+		BE96C7C41A232B10008D64F5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BE96C7C51A232B10008D64F5 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		BEB1BA0A1A121B140066F4FD = {
 			isa = PBXGroup;
 			children = (
 				BEB1BA151A121B140066F4FD /* player */,
-				BEB1BA2F1A121B150066F4FD /* playerTests */,
+				BE96C7C31A232B10008D64F5 /* tests */,
 				BEB1BA141A121B140066F4FD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -173,7 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				BEB1BA131A121B140066F4FD /* player.app */,
-				BEB1BA2C1A121B150066F4FD /* playerTests.xctest */,
+				BE96C7C21A232B10008D64F5 /* tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -217,26 +215,27 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		BEB1BA2F1A121B150066F4FD /* playerTests */ = {
-			isa = PBXGroup;
-			children = (
-				BEB1BA321A121B150066F4FD /* playerTests.m */,
-				BEB1BA301A121B150066F4FD /* Supporting Files */,
-			);
-			path = playerTests;
-			sourceTree = "<group>";
-		};
-		BEB1BA301A121B150066F4FD /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				BEB1BA311A121B150066F4FD /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		BE96C7C11A232B10008D64F5 /* tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE96C7CA1A232B10008D64F5 /* Build configuration list for PBXNativeTarget "tests" */;
+			buildPhases = (
+				BE96C7BE1A232B10008D64F5 /* Sources */,
+				BE96C7BF1A232B10008D64F5 /* Frameworks */,
+				BE96C7C01A232B10008D64F5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BE96C7C91A232B10008D64F5 /* PBXTargetDependency */,
+			);
+			name = tests;
+			productName = tests;
+			productReference = BE96C7C21A232B10008D64F5 /* tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		BEB1BA121A121B140066F4FD /* player */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BEB1BA361A121B150066F4FD /* Build configuration list for PBXNativeTarget "player" */;
@@ -254,24 +253,6 @@
 			productReference = BEB1BA131A121B140066F4FD /* player.app */;
 			productType = "com.apple.product-type.application";
 		};
-		BEB1BA2B1A121B150066F4FD /* playerTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BEB1BA391A121B150066F4FD /* Build configuration list for PBXNativeTarget "playerTests" */;
-			buildPhases = (
-				BEB1BA281A121B150066F4FD /* Sources */,
-				BEB1BA291A121B150066F4FD /* Frameworks */,
-				BEB1BA2A1A121B150066F4FD /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BEB1BA2E1A121B150066F4FD /* PBXTargetDependency */,
-			);
-			name = playerTests;
-			productName = playerTests;
-			productReference = BEB1BA2C1A121B150066F4FD /* playerTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -281,6 +262,10 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = NOTA;
 				TargetAttributes = {
+					BE96C7C11A232B10008D64F5 = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = BEB1BA121A121B140066F4FD;
+					};
 					BEB1BA121A121B140066F4FD = {
 						CreatedOnToolsVersion = 6.1;
 						SystemCapabilities = {
@@ -288,10 +273,6 @@
 								enabled = 1;
 							};
 						};
-					};
-					BEB1BA2B1A121B150066F4FD = {
-						CreatedOnToolsVersion = 6.1;
-						TestTargetID = BEB1BA121A121B140066F4FD;
 					};
 				};
 			};
@@ -309,12 +290,19 @@
 			projectRoot = "";
 			targets = (
 				BEB1BA121A121B140066F4FD /* player */,
-				BEB1BA2B1A121B150066F4FD /* playerTests */,
+				BE96C7C11A232B10008D64F5 /* tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		BE96C7C01A232B10008D64F5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BEB1BA111A121B140066F4FD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -342,32 +330,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BEB1BA2A1A121B150066F4FD /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BE08A1A21A1368D700772B6D /* 02_Om_denne_udgave.json in Resources */,
-				BE4732451A1A024700A325A4 /* bridge.js in Resources */,
-				BE08A1A41A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */,
-				BE08A1B81A1368D700772B6D /* 13_Kapitel_9.json in Resources */,
-				BE08A1A61A1368D700772B6D /* 04_Citat.json in Resources */,
-				BE08A1C61A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */,
-				BE08A1B61A1368D700772B6D /* 12_Kapitel_8.json in Resources */,
-				BE08A1B21A1368D700772B6D /* 10_Kapitel_6.json in Resources */,
-				BE08A1BB1A13690E00772B6D /* bunker137.json in Resources */,
-				BE08A1AE1A1368D700772B6D /* 08_Kapitel_4.json in Resources */,
-				BE08A1AA1A1368D700772B6D /* 06_Kapitel_2.json in Resources */,
-				BE08A1A81A1368D700772B6D /* 05_Kapitel_1.json in Resources */,
-				BE08A1AC1A1368D700772B6D /* 07_Kapitel_3.json in Resources */,
-				BE6DC6731A1397C8000DB1C2 /* 37027.json in Resources */,
-				BE08A1B41A1368D700772B6D /* 11_Kapitel_7.json in Resources */,
-				BE08A1B01A1368D700772B6D /* 09_Kapitel_5.json in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		BE96C7BE1A232B10008D64F5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE96C7CE1A232D1E008D64F5 /* playerTests.m in Sources */,
+				BE96C7C71A232B10008D64F5 /* tests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BEB1BA0F1A121B140066F4FD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -384,27 +358,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BEB1BA281A121B150066F4FD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BEB1BA331A121B150066F4FD /* playerTests.m in Sources */,
-				BE43F0F31A14AE01008DFC53 /* Downloader.m in Sources */,
-				BE08A1BF1A13696D00772B6D /* Book.m in Sources */,
-				BE3D47DE1A1240E000DA2294 /* SoundChunk.m in Sources */,
-				BECE557B1A1B853400BDA191 /* BookManager.m in Sources */,
-				BE4732491A1A0F4600A325A4 /* BridgeController.m in Sources */,
-				BE08A1C31A136B8F00772B6D /* BookPart.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		BEB1BA2E1A121B150066F4FD /* PBXTargetDependency */ = {
+		BE96C7C91A232B10008D64F5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = BEB1BA121A121B140066F4FD /* player */;
-			targetProxy = BEB1BA2D1A121B150066F4FD /* PBXContainerItemProxy */;
+			targetProxy = BE96C7C81A232B10008D64F5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -428,6 +388,40 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		BE96C7CB1A232B10008D64F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/player.app/player";
+			};
+			name = Debug;
+		};
+		BE96C7CC1A232B10008D64F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = tests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/player.app/player";
+			};
+			name = Release;
+		};
 		BEB1BA341A121B150066F4FD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -526,43 +520,17 @@
 			};
 			name = Release;
 		};
-		BEB1BA3A1A121B150066F4FD /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = playerTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/player.app/player";
-			};
-			name = Debug;
-		};
-		BEB1BA3B1A121B150066F4FD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = playerTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/player.app/player";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		BE96C7CA1A232B10008D64F5 /* Build configuration list for PBXNativeTarget "tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE96C7CB1A232B10008D64F5 /* Debug */,
+				BE96C7CC1A232B10008D64F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		BEB1BA0E1A121B140066F4FD /* Build configuration list for PBXProject "player" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -577,15 +545,6 @@
 			buildConfigurations = (
 				BEB1BA371A121B150066F4FD /* Debug */,
 				BEB1BA381A121B150066F4FD /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		BEB1BA391A121B150066F4FD /* Build configuration list for PBXNativeTarget "playerTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BEB1BA3A1A121B150066F4FD /* Debug */,
-				BEB1BA3B1A121B150066F4FD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
