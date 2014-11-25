@@ -1,9 +1,15 @@
 'use strict';
 
 angular.module('lyt3App')
-  .factory('BookService', [ '$q', '$rootScope', '$location', 'Book', 'BookNetwork', 'NativeGlue',
-  function( $q, $rootScope, $location, Book, BookNetwork, NativeGlue ) {
+  .factory('BookService', [ '$q', '$rootScope', '$location', '$interval', 'LYTConfig', 'Book', 'BookNetwork', 'NativeGlue',
+  function( $q, $rootScope, $location, $interval, LYTConfig, Book, BookNetwork, NativeGlue ) {
     var currentBook;
+
+    $interval( function( ) {
+      if ( currentBook ) {
+        currentBook.setLastmark( );
+      }
+    }, LYTConfig.player.lastmarkUpdateInterval || 10000 );
 
     // Public API here
     var BookService = {
@@ -48,7 +54,7 @@ angular.module('lyt3App')
         }
       },
 
-      ship: function( diff ) {
+      skip: function( diff ) {
         if ( currentBook ) {
           BookService.play( currentBook.id, currentBook.currentPosition + diff );
         }
@@ -78,10 +84,15 @@ angular.module('lyt3App')
               deferred.resolve( book );
               BookService.currentBook = book;
 
-              try {
-                NativeGlue.setBook( book.structure );
-              } catch ( e ) {
-              }
+              NativeGlue.setBook( book.structure );
+
+              NativeGlue.getBooks( )
+                .some( function( bookData ) {
+                  if ( bookData.id === book.id ) {
+                    book.currentPosition = Math.max( bookData.offset || 0, book.currentPosition || 0, 0 );
+                    return true;
+                  }
+                } );
             } )
             .catch( function( ) {
               deferred.reject( );
