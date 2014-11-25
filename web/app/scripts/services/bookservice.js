@@ -67,10 +67,6 @@ angular.module('lyt3App')
         NativeGlue.stop( );
       },
 
-      pause: function( ) {
-        NativeGlue.pause( );
-      },
-
       loadBook: function( bookId ) {
         var deferred = $q.defer();
 

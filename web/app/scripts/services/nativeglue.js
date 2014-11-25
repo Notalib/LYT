@@ -39,11 +39,6 @@ angular.module( 'lyt3App' )
       return lytBridge.stop( );
     };
 
-    var pause = function( ) {
-      $log.info( 'pause:' );
-      return lytBridge.pause( );
-    };
-
     var cacheBook = function( bookId ) {
       $log.info( 'cacheBook:', bookId );
       return lytBridge.cacheBook( bookId );
@@ -60,7 +55,6 @@ angular.module( 'lyt3App' )
       getBooks: getBooks,
       play: play,
       stop: stop,
-      pause: pause,
       cacheBook: cacheBook,
       clearBookCache: clearBookCache
     };

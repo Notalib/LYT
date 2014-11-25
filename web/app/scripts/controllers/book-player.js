@@ -69,7 +69,7 @@ angular.module('lyt3App')
         if ( BookService.playing ) {
           delete BookService.playing;
 
-          BookService.pause();
+          BookService.stop();
         } else {
           BookService.play();
           BookService.playing = true;
