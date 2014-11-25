@@ -453,7 +453,9 @@ angular.module( 'lyt3App' )
           if ( lastBookmark && lastBookmark.bookId === bookmarks.id &&
             lastBookmark.URI === newMark.URI && lastBookmark.timeOffset === newMark.timeOffset ) {
             $log.log( 'setBookmarks: same as last time' );
-            return;
+            var defer = $q.defer( );
+            defer.resolve( false );
+            return defer.promise;
           }
 
           lastBookmark = {

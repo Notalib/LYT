@@ -26,7 +26,12 @@ angular.module( 'lyt3App' )
 
     var getBooks = function( ) {
       $log.info( 'getBooks:' );
-      return lytBridge.getBooks( );
+      var res = lytBridge.getBooks( );
+      if ( angular.isString( res ) ) {
+        res = JSON.parse( res );
+      }
+
+      return res;
     };
 
     var play = function( bookId, offset ) {
