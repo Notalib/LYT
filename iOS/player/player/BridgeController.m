@@ -232,6 +232,10 @@
     [self deliverEvent:@"play-end" payload:@[bookId]];
 }
 
+-(void)stopBook:(NSString*)bookId {
+    [self deliverEvent:@"play-stop" payload:@[bookId]];
+}
+
 -(void)downloadBook:(NSString*)bookId progress:(CGFloat)percent {
     [self refreshBooks];
     [self deliverEvent:@"download-progress" payload:@[bookId, @(percent)]];
