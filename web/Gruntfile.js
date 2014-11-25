@@ -477,6 +477,7 @@ module.exports = function ( grunt ) {
   ] );
 
   grunt.registerTask( 'build', [
+    'test:commit',
     'clean:dist',
     'wiredep',
     'useminPrepare',

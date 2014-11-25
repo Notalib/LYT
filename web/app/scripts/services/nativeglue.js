@@ -7,7 +7,11 @@ angular.module( 'lyt3App' )
       var args = Array.prototype.slice.call( arguments, 0 );
       $rootScope.$broadcast.apply( $rootScope, args );
 
-      $rootScope.$apply( );
+      if ( !$rootScope.$$phase ) {
+        $rootScope.$apply( );
+      }
+
+      $log.debug.apply( $log, args );
     };
 
     var setBook = function( bookData ) {
@@ -35,11 +39,6 @@ angular.module( 'lyt3App' )
       return lytBridge.stop( );
     };
 
-    var pause = function( ) {
-      $log.info( 'pause:' );
-      return lytBridge.pause( );
-    };
-
     var cacheBook = function( bookId ) {
       $log.info( 'cacheBook:', bookId );
       return lytBridge.cacheBook( bookId );
@@ -56,7 +55,6 @@ angular.module( 'lyt3App' )
       getBooks: getBooks,
       play: play,
       stop: stop,
-      pause: pause,
       cacheBook: cacheBook,
       clearBookCache: clearBookCache
     };
