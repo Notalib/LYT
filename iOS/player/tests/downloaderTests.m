@@ -66,6 +66,10 @@
     // we use KVO notifications to determine when download has completed
     Downloader* a = [Downloader downloadURL:url];
     [a deleteCache]; // deleting cache has the side-effect of setting downloader to not want any data,
+    
+    // we require cache to be totally empty
+    XCTAssertEqual([NSData dataWithContentsOfFile:a.cachePath].length, 0, @"Cache should be empty");
+    
     a = [Downloader downloadURL:url];     // which is why we request one again
     [a addObserver:self forKeyPath:@"progressBytes" options:0 context:NULL];
     
@@ -85,7 +89,6 @@
         NSData* data = [NSData dataWithContentsOfFile:a.cachePath];
         NSString* actualMD5 = [self md5ForData:data];
         XCTAssertEqualObjects(actualMD5, md5);
-        
     }];
     
     [a removeObserver:self forKeyPath:@"progressBytes"];
