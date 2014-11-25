@@ -7,7 +7,11 @@ angular.module( 'lyt3App' )
       var args = Array.prototype.slice.call( arguments, 0 );
       $rootScope.$broadcast.apply( $rootScope, args );
 
-      $rootScope.$apply( );
+      if ( !$rootScope.$$phase ) {
+        $rootScope.$apply( );
+      }
+
+      $log.debug.apply( $log, args );
     };
 
     var setBook = function( bookData ) {

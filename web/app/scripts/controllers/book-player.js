@@ -46,12 +46,18 @@ angular.module('lyt3App')
             if ( currentSMIL !== smil ) {
               currentSMIL = smil;
 
-              $scope.startTime = Math.floor( currentSMIL.absoluteOffset );
-              $scope.endTime   = Math.ceil( currentSMIL.absoluteOffset + currentSMIL.duration );
+              $scope.startTime = ( currentSMIL.absoluteOffset ).toFixed(0);
+              $scope.endTime   = ( currentSMIL.absoluteOffset + currentSMIL.duration ).toFixed(0);
               $scope.duration  = currentSMIL.duration;
             }
 
-            $scope.currentTime = Math.round( offset * 100 ) / 100;
+            $scope.currentTime = offset.toFixed(2);
+            if ( offset.toFixed(0) === $scope.endTime ) {
+              // Since currentTime is rounded to two decimals and endTime is rounded to one,
+              // currentTime could be at the end of the segment but be shown as less than the entime.
+              $scope.currentTime = $scope.endTime;
+            }
+
             $scope.percentTime = ( $scope.currentTime - $scope.startTime ) / $scope.duration * 100;
             if ( navigationItem ) {
               $scope.sectionTitle = navigationItem.title;

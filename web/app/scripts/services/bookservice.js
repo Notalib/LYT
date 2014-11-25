@@ -34,12 +34,14 @@ angular.module('lyt3App')
           }
 
           NativeGlue.play( currentBook.id, currentBook.currentPosition );
+          BookService.playing = true;
         } else if ( currentBook && currentBook.id === bookId ) {
           if ( offset !== undefined ) {
             currentBook.currentPosition = offset;
           }
 
           NativeGlue.play( bookId, currentBook.currentPosition );
+          BookService.playing = true;
         } else {
           BookService.loadBook( bookId )
             .then( function( book ) {
@@ -50,6 +52,7 @@ angular.module('lyt3App')
               }
 
               NativeGlue.play( bookId, offset );
+              BookService.playing = true;
             } );
         }
       },
@@ -100,6 +103,8 @@ angular.module('lyt3App')
 
         return deferred.promise;
       },
+
+      playing: false
     };
 
     $rootScope.$on( 'play-time-update', function( $currentScope, bookId, offset ) {
@@ -115,6 +120,19 @@ angular.module('lyt3App')
         }
       } else {
         currentBook.currentPosition = offset;
+      }
+    } );
+
+    $rootScope.$on( 'play-stop', function( $currentScope, bookId ) {
+      if ( currentBook && currentBook.id === bookId ) {
+        BookService.playing = false;
+      }
+    } );
+
+    $rootScope.$on( 'play-end', function( $currentScope, bookId ) {
+      if ( currentBook && currentBook.id === bookId ) {
+        BookService.playing = false;
+        currentBook.currentPosition = currentBook.duration;
       }
     } );
 
