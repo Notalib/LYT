@@ -40,7 +40,7 @@
     NSData* data = [NSData dataWithContentsOfFile:path];
     
     NSError* error = nil;
-    NSArray* json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    NSArray* json = data == nil ? nil : [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if(!json) {
         NSLog(@"Unable to decode json: %@\n%@", error,
               [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
