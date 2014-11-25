@@ -1,13 +1,27 @@
 .book-player {
   progressbar {
-    .progress-bar {
-      color: black;
+    .currentTime {
+      position: absolute;
+      left: 0;
+      right: 0;
+      text-align: center;
     }
 
-    .section-title {
-      text-align: center;
-      width: calc( 100% - 100px );
-      margin: 0 50px;
+    .progress {
+      margin: 0.25em 0;
+
+      .progress-bar {
+        color: black;
+      }
+    }
+
+    .section-info {
+      font-size: 12px;
+      .section-title {
+        text-align: center;
+        width: calc( 100% - 100px );
+        margin: 0 50px;
+      }
     }
   }
 }
