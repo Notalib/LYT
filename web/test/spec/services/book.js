@@ -249,6 +249,21 @@ describe( 'Service: Book', function( ) {
     return book;
   };
 
+  var setLastmark = function( offset, callback ) {
+    var book = getStructure( function( ) {
+      book.currentPosition = offset;
+      book.setLastmark( )
+        .then( function( status ) {
+          callback( status );
+        } )
+        .catch( function( ) {
+          callback( );
+        } );
+    } );
+
+    return book;
+  };
+
   [ 0, 101, 3500, 5811.1 ].forEach( function( offset ) {
     it( 'find segment from offset: ' + offset, function( ) {
       var resolved;
@@ -272,6 +287,31 @@ describe( 'Service: Book', function( ) {
         }
 
         return resolved && ( resolved.documentOffset + resolved.document.absoluteOffset ) <= offset && ( resolved.documentOffset + resolved.document.absoluteOffset + resolved.duration ) >= offset;
+      }, '', 1000 );
+    } );
+
+    it( 'setLastmark', function( ) {
+      var resolved;
+      runs( function( )  {
+        setLastmark( offset, function( segment ) {
+          resolved = segment;
+        } );
+      } );
+
+      waitsFor( function( ) {
+        try {
+          rootScope.$digest( );
+        } catch ( exp ) {
+          // flush throws an error is the request hasn't been started yet
+        }
+
+        try {
+          mockBackend.flush( );
+        } catch ( exp ) {
+          // flush throws an error is the request hasn't been started yet
+        }
+
+        return resolved !== undefined;
       }, '', 1000 );
     } );
   } );
