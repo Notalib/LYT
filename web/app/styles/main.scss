@@ -3,7 +3,6 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 @import "bootstrap-sass-official/assets/stylesheets/bootstrap.scss";
 // endbower
 
-
 /* Space out content a bit */
 body {
   padding-top: 20px;
@@ -47,10 +46,6 @@ body {
   }
 }
 
-.progress-bar {
-  color: black;
-}
-
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   .container {
@@ -73,3 +68,5 @@ body {
     border-bottom: 0;
   }
 }
+
+@import "book-player";
