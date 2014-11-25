@@ -404,7 +404,11 @@ static BookManager* anyManager = nil;
 
 -(void)stop {
     Book* oldBook = self.currentBook;
+    BOOL wasPlaying = oldBook.isPlaying;
     [oldBook stop];
+    if(wasPlaying) {
+        [self.bridge stopBook:oldBook.identifier];
+    }
 }
 
 -(void)cacheBook:(NSString*)bookId {

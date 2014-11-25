@@ -224,6 +224,7 @@
 }
 
 -(void)updateBook:(NSString*)bookId offset:(NSTimeInterval)offset {
+    [self refreshBooks];
     [self deliverEvent:@"play-time-update" payload:@[bookId, @(offset)]];
 }
 
@@ -231,7 +232,12 @@
     [self deliverEvent:@"play-end" payload:@[bookId]];
 }
 
+-(void)stopBook:(NSString*)bookId {
+    [self deliverEvent:@"play-stop" payload:@[bookId]];
+}
+
 -(void)downloadBook:(NSString*)bookId progress:(CGFloat)percent {
+    [self refreshBooks];
     [self deliverEvent:@"download-progress" payload:@[bookId, @(percent)]];
 }
 
