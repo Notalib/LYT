@@ -84,6 +84,13 @@ angular.module('lyt3App')
         }
       },
 
+      restart: function( ) {
+        if ( currentBook ) {
+          currentBook.currentPosition = 0;
+          BookService.play( currentBook.id, 0 );
+        }
+      },
+
       stop: function( ) {
         $log.info( 'BookService: stop' );
         NativeGlue.stop( );
