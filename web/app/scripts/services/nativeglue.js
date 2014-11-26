@@ -3,9 +3,11 @@
 
 angular.module( 'lyt3App' )
   .factory( 'NativeGlue', [ '$rootScope', '$log', function( $rootScope, $log ) {
-    window.lytTriggerEvent = function( eventName ) {
+    window.lytHandleEvent = function( ) {
       var args = Array.prototype.slice.call( arguments, 0 );
-      $rootScope.$emit( eventName, args );
+      $rootScope.$broadcast.apply( $rootScope, args );
+      // console.log(args);
+      $rootScope.$apply( );
     };
 
     var setBook = function( bookData ) {
