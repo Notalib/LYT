@@ -34,10 +34,12 @@ angular.module('lyt3App')
       },
 
       set currentBook( book ) {
-        currentBook = book;
-        $log.info( 'BookService: set currentBook:', book.id );
+        if ( !currentBook || currentBook.id !== book.id ) {
+          $log.info( 'BookService: set currentBook:', book.id );
+          currentBook = book;
 
-        NativeGlue.setBook( book.structure );
+          NativeGlue.setBook( book.structure );
+        }
       },
 
       play: function( bookId, offset ) {
@@ -105,8 +107,6 @@ angular.module('lyt3App')
             .then( function( book ) {
               deferred.resolve( book );
               BookService.currentBook = book;
-
-              NativeGlue.setBook( book.structure );
 
               NativeGlue.getBooks( )
                 .some( function( bookData ) {
