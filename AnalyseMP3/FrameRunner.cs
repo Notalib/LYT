@@ -190,22 +190,12 @@ namespace NOTA
             }
         }
 
-        static void Main(string[] args)
+        private static void processFile(FileStream input, TextWriter output)
         {
-            if(args.Length != 1)
-            {             
-                Console.WriteLine("Must be called with a single filename argument to mp3 file.");
-                return;
-            }
-
-            string filename = args[0];
-            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
-
-            // skip past ID3 tag with meta-data about file
-            skipID3(stream);
+            skipID3(input);
 
             // keep reading until we are out of frames
-            Console.Write("[");
+            output.Write("[");
             bool keepGoing = true;
             bool firstLine = true;
             while (keepGoing)
@@ -215,7 +205,7 @@ namespace NOTA
 
                 while (keepGoing)
                 {
-                    keepGoing = readNextFrame(stream);
+                    keepGoing = readNextFrame(input);
                     double secsGone = 0.001 * (MSecOffset - timeOffsetBefore);
                     long bytesSeen = ByteOffset - byteOffsetBefore;
 
@@ -229,13 +219,47 @@ namespace NOTA
                 if (!firstLine) {Console.Write(",\n ");}
                 firstLine = false;
 
-                Console.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
-                              byteOffsetBefore, 0.001 * timeOffsetBefore, 
-                              ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
+                output.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
+                             byteOffsetBefore, 0.001 * timeOffsetBefore, 
+                             ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
             }
-            Console.WriteLine("]");
+            output.WriteLine("]");
+        }
 
-            Console.Error.WriteLine("{0} was {1:0.000000} secs and {2} bytes.", filename, 0.001 * MSecOffset, ByteOffset);
+        private static void processFilename(string filename)
+        {
+            // determine filename for output file, where extension is .json
+            string outputFilename = filename;
+            int index = outputFilename.LastIndexOf('.');
+            if(index >= 0)
+            {
+                outputFilename = outputFilename.Substring(0, index) + ".json";
+            }
+
+            using (StreamWriter output = File.CreateText(outputFilename))
+            {
+                FileStream input = new FileStream(filename, FileMode.Open, FileAccess.Read);
+
+                // skip past ID3 tag with meta-data about file
+                processFile(input, output);
+
+                Console.Error.WriteLine("{0} was {1:0.000000} secs and {2} bytes.", filename, 0.001 * MSecOffset, ByteOffset);
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            if(args.Length == 0)
+            {             
+                Console.Error.WriteLine("Must be called with filenames to mp3 files.");
+                return;
+            }
+
+
+            foreach (string filename in args)
+            {
+                processFilename(filename);                
+            }
         }
     }
 }
