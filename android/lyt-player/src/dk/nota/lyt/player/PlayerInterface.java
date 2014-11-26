@@ -46,7 +46,7 @@ public class PlayerInterface {
 	}
 	
 	@JavascriptInterface
-	public void stopPlayer() {
+	public void stop() {
 		callback.stop();
 	}
 	
