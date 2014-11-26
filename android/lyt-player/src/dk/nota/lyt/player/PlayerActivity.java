@@ -56,6 +56,9 @@ public class PlayerActivity extends Activity implements Callback, OnCompletionLi
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
 		
+		if(PlayerApplication.getInstance().isProduction() == false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}		
 		mWebView = (WebView) findViewById(R.id.webview);
 		WebSettings webSettings = mWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
@@ -63,12 +66,9 @@ public class PlayerActivity extends Activity implements Callback, OnCompletionLi
 		webSettings.setBuiltInZoomControls(false);
 		webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
 		webSettings.setDomStorageEnabled(true);
-		mWebView.addJavascriptInterface(new PlayerInterface(this), "playerJS");
+		mWebView.addJavascriptInterface(new PlayerInterface(this), "lytBridge");
 		mWebView.setWebChromeClient(new WebChromeClient());
-		mWebView.loadUrl("http://192.168.0.18:8000/player.html");
-		if(PlayerApplication.getInstance().isProduction() == false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-		    WebView.setWebContentsDebuggingEnabled(true);
-		}		
+		mWebView.loadUrl("http://localhost:9000");
 		mNextPlayerThread = new NextPlayerThread();
 		mNextPlayerThread.start();
 		mStreamingThread = new StreamingThread();
@@ -132,18 +132,22 @@ public class PlayerActivity extends Activity implements Callback, OnCompletionLi
 
 			@Override
 			public void success(final Book book) {
-				mStreamingThread.task.eject();
-				mBook = book;
-				book.setPosition(position);
-				mCurrentEnd = book.getCurrentFragment().getStart();
-				if (isPlaying()) {
-					stop();
-				}
-				synchronized (mNextPlayerThread) {
-					mNextPlayerThread.notify();
-				}
-				synchronized (mStreamingThread) {
-					mStreamingThread.notify();
+				if (book != null) {
+					mStreamingThread.task.eject();
+					mBook = book;
+					book.setPosition(position);
+					mCurrentEnd = book.getCurrentFragment().getStart();
+					if (isPlaying()) {
+						stop();
+					}
+					synchronized (mNextPlayerThread) {
+						mNextPlayerThread.notify();
+					}
+					synchronized (mStreamingThread) {
+						mStreamingThread.notify();
+					}
+				} else {
+					fireEvent(Event.PLAY_FAILED, "No book was found for id: " + bookId);
 				}
 			}
 		}, bookId);
@@ -233,7 +237,6 @@ public class PlayerActivity extends Activity implements Callback, OnCompletionLi
 		
 	private long getExpectedCompletion() {
 		BigDecimal remainingPlaytime = mCurrentEnd.multiply(THOUSAND).subtract(mBook.getPosition().multiply(THOUSAND));
-		Log.w(PlayerApplication.TAG, "Current end: " + mCurrentEnd + " Position: " + mBook.getPosition());
 		Log.i(PlayerApplication.TAG, "Expected completion " +  remainingPlaytime.divide(THOUSAND)  + " seconds");
 		return remainingPlaytime.longValue() + System.currentTimeMillis();
 	}
@@ -269,7 +272,7 @@ public class PlayerActivity extends Activity implements Callback, OnCompletionLi
 				} else {
 					BigDecimal currentPosition = mCurrentPlayer.getCurrentPosition() > 0 ? new BigDecimal(mCurrentPlayer.getCurrentPosition()).divide(THOUSAND) : BigDecimal.ZERO;
 					mBook.setPosition(mCurrentPlayer.getStart().add(currentPosition));
-					fireEvent(Event.TIME_UPDATE, mBook.getId(), mBook.getPosition().toString());
+			    	fireEvent(Event.PLAY_TIME_UPDATE, mBook.getId(), mBook.getPosition().toString());
 				}
 				waitUp(100);
 			}
@@ -387,11 +390,17 @@ public class PlayerActivity extends Activity implements Callback, OnCompletionLi
 		return mStreamingThread.isStreaming();
 	}
 	
-	public void fireEvent(Event event, String ... params) {
-		StringBuilder parameters = new StringBuilder();
-		for (String param : params) {
-			parameters.append(",").append(param);
-		}
-		mWebView.evaluateJavascript(String.format("lytHandleEvent(%s %s)", event.eventName(), parameters.toString()), null);
+	public void fireEvent(final Event event, final String ... params) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				StringBuilder parameters = new StringBuilder();
+				for (String param : params) {
+					parameters.append(",").append(param);
+				}
+//				mWebView.evaluateJavascript(String.format("console.log(%s,'%s');", event.eventName(), parameters.toString()), null);
+				mWebView.evaluateJavascript(String.format("lytHandleEvent(%s %s)", event.eventName(), parameters.toString()), null);
+			}
+		});
 	}
 }
