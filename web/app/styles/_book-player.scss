@@ -1,4 +1,23 @@
 .book-player {
+  header {
+    margin-bottom: 0.5em;
+    .cover-box {
+      min-width: 65px;
+      .img-thumbnail {
+        height: 112px;
+      }
+    }
+    h1 {
+      line-height: 112px;
+      vertical-align: middle;
+      margin: 0;
+      padding: 0;
+    }
+  }
+  nav {
+    margin-top: 0.5em;
+  }
+
   progressbar {
     .currentTime {
       position: absolute;
