@@ -1,16 +1,30 @@
 'use strict';
 
 angular.module('lyt3App')
-  .controller('BookPlayerCtrl', [ '$scope', '$log', 'NativeGlue', '$routeParams',
-    'BookService', '$interval', '$location',
-    function( $scope, $log, NativeGlue, $routeParams, BookService, $interval, $location ) {
+  .controller('BookPlayerCtrl', [ '$scope', '$log', '$location', 'LYTConfig',
+    'NativeGlue', '$routeParams', 'BookService', 'BookNetwork',
+    function( $scope, $log, $location, LYTConfig, NativeGlue, $routeParams, BookService, BookNetwork ) {
       if ( !$routeParams.bookid || isNaN( $routeParams.bookid ) ) {
         $location.path( '/' );
       }
 
       $scope.BookService = BookService;
 
-      BookService.loadBook( $routeParams.bookid );
+      var loadBook = function( ) {
+        BookService.loadBook( $routeParams.bookid );
+      };
+
+      var logonRejected = $scope.$on( 'logon:rejected', function( ) {
+        $log.warn( 'TODO: Handle invalid login' );
+        BookNetwork
+          .logOn( LYTConfig.service.guestUser, LYTConfig.service.guestLogin )
+            .then( function( ) {
+              loadBook( );
+            } );
+
+        logonRejected( );
+      } );
+
 
       var currentSMIL;
       $scope.$watch( 'BookService.currentBook.currentPosition', function( offset ) {
@@ -32,12 +46,18 @@ angular.module('lyt3App')
             if ( currentSMIL !== smil ) {
               currentSMIL = smil;
 
-              $scope.startTime = Math.floor( currentSMIL.absoluteOffset );
-              $scope.endTime   = Math.ceil( currentSMIL.absoluteOffset + currentSMIL.duration );
+              $scope.startTime = ( currentSMIL.absoluteOffset ).toFixed(0);
+              $scope.endTime   = ( currentSMIL.absoluteOffset + currentSMIL.duration ).toFixed(0);
               $scope.duration  = currentSMIL.duration;
             }
 
-            $scope.currentTime = Math.round( offset * 100 ) / 100;
+            $scope.currentTime = offset.toFixed(2);
+            if ( offset.toFixed(0) === $scope.endTime ) {
+              // Since currentTime is rounded to two decimals and endTime is rounded to one,
+              // currentTime could be at the end of the segment but be shown as less than the entime.
+              $scope.currentTime = $scope.endTime;
+            }
+
             $scope.percentTime = ( $scope.currentTime - $scope.startTime ) / $scope.duration * 100;
             if ( navigationItem ) {
               $scope.sectionTitle = navigationItem.title;
@@ -47,31 +67,18 @@ angular.module('lyt3App')
 
       $scope.toogle = function( ) {
         if ( BookService.playing ) {
-          $interval.cancel( BookService.playing );
           delete BookService.playing;
 
           BookService.stop();
         } else {
-          try {
-            BookService.play();
-            BookService.playing = true;
-          } catch ( e ) {
-            if ( BookService.playing ) {
-              $interval.cancel( BookService.playing );
-            }
-
-            // Fake progress
-            var lastTime = new Date() / 1000;
-            BookService.playing = $interval( function( ) {
-              var now = new Date( ) / 1000;
-              $scope.$emit( 'play-time-update', BookService.currentBook.id, BookService.currentBook.currentPosition + now - lastTime );
-              lastTime = now;
-            }, 250 );
-          }
+          BookService.play();
+          BookService.playing = true;
         }
       };
 
       $scope.$on( 'end', function( bookId ) {
         $log.info( 'end: TODO', bookId );
       } );
+
+      loadBook( );
     } ] );

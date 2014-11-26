@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .factory( 'BookNetwork', [ '$q', '$log', '$rootScope', '$location', 'LYTConfig', 'LYTSession', 'DODPErrorCodes', 'DODP',
-    function( $q, $log, $rootScope, $location, LYTConfig, LYTSession, DODPErrorCodes, DODP ) {
+  .factory( 'BookNetwork', [ '$q', '$log', '$rootScope', '$location', 'LYTConfig', 'LYTSession', 'DODPErrorCodes', 'DODP', 'NativeGlue',
+    function( $q, $log, $rootScope, $location, LYTConfig, LYTSession, DODPErrorCodes, DODP, NativeGlue ) {
       /*
        * Higher-level functions for interacting with the server
        *
@@ -65,36 +65,32 @@ angular.module( 'lyt3App' )
 
       // Emit an event
       var emit = function( event, data ) {
-        $log.warn( event, data );
-        /*
-      var obj;
-      if (!data) {
-        data = {};
-      }
-      obj = jQuery.Event(event);
-      if (data.hasOwnProperty('type')) {
-        delete data.type;
-      }
-      jQuery.extend(obj, data);
-      $log.log('Service: Emitting ' + event + ' event');
-      return jQuery(LYT.service).trigger(obj);
-      */
+        $log.log('Service: Emitting ' + event + ' event', data);
+        $rootScope.$broadcast( event, data );
       };
 
       // Emit an error event
       var emitError = function( code ) {
+        var message;
+        if ( code instanceof Array ) {
+          message = code[1];
+          code = code[0];
+        }
+
         switch ( code ) {
           case DODPErrorCodes.RPC_GENERAL_ERROR:
           case DODPErrorCodes.RPC_TIMEOUT_ERROR:
           case DODPErrorCodes.RPC_ABORT_ERROR:
           case DODPErrorCodes.RPC_HTTP_ERROR: {
             return emit( 'error:rpc', {
-              code: code
+              code: code,
+              message: message
             } );
           }
           default: {
             return emit( 'error:service', {
-              code: code
+              code: code,
+              message: message
             } );
           }
         }
@@ -116,10 +112,9 @@ angular.module( 'lyt3App' )
         };
 
         // If the call fails
-        var failure = function( rejected ) {
-          var code = rejected && rejected[0];
+        var failure = function( code ) {
           emitError( code );
-          deferred.reject( rejected );
+          deferred.reject( code );
         };
 
         var result = callback( );
@@ -129,7 +124,11 @@ angular.module( 'lyt3App' )
 
         // If the call fails
         result.catch( function( rejected ) {
-          var code = rejected && rejected[0];
+          var code = rejected;
+          if ( code instanceof Array ) {
+            code = code[0];
+          }
+
           // Is it because the user's not logged in?
           if ( code === DODPErrorCodes.DODP_NO_SESSION_ERROR ) {
             // If so , the attempt log-on
@@ -144,7 +143,7 @@ angular.module( 'lyt3App' )
               } )
               .catch( function( rejected ) {
                 // Logon failed, so propagate the error
-                return deferred.reject( rejected );
+                deferred.reject( rejected );
               } );
           } else {
             return failure( rejected );
@@ -170,14 +169,6 @@ angular.module( 'lyt3App' )
 
         currentLogOnProcess = deferred;
 
-        currentLogOnProcess.state = 'pending';
-
-        currentLogOnProcess.promise.then( function( ) {
-          currentLogOnProcess.state = 'resolved';
-        }, function( ) {
-          currentLogOnProcess.state = 'rejected';
-        } );
-
         if ( !( username && password ) ) {
           var credentials = LYTSession.getCredentials( );
           if ( credentials ) {
@@ -187,10 +178,18 @@ angular.module( 'lyt3App' )
         }
 
         if ( !( username && password ) ) {
-          emit( 'logon:rejected' );
           deferred.reject( );
+          emit( 'logon:rejected' );
           return deferred.promise;
         }
+
+        currentLogOnProcess.state = 'pending';
+
+        currentLogOnProcess.promise.then( function( ) {
+          currentLogOnProcess.state = 'resolved';
+        }, function( ) {
+          currentLogOnProcess.state = 'rejected';
+        } );
 
         // The maximum number of attempts to make
         var attempts = ( LYTConfig.service || {} ).logOnAttempts || 3;
@@ -198,10 +197,14 @@ angular.module( 'lyt3App' )
 
         // TODO: Flesh out error handling
         var failed = function( rejected ) {
-          var code = rejected && rejected[0];
+          var code = rejected;
+          if ( code instanceof Array ) {
+            code = rejected[0];
+          }
+
           if ( code === DODPErrorCodes.RPC_UNEXPECTED_RESPONSE_ERROR ) {
-            emit( 'logon:rejected' );
             deferred.reject( );
+            emit( 'logon:rejected' );
           } else {
             if ( attempts > 0 ) {
               attemptLogOn( );
@@ -218,7 +221,6 @@ angular.module( 'lyt3App' )
         };
 
         var readingSystemAttrsSet = function( ) {
-          deferred.resolve( ); // returning that logon is Ok.
           if ( BookNetwork.announcementsSupported( ) ) {
             return DODP.getServiceAnnouncements( )
               .then( gotServiceAnnouncements );
@@ -226,17 +228,19 @@ angular.module( 'lyt3App' )
         };
 
         var loggedOn = function( data ) {
-          emit( 'logon:resolved' );
-
           LYTSession.setCredentials( username, password );
           LYTSession.setInfo( data );
 
           return DODP.getServiceAttributes( )
             .then( gotServiceAttrs )
             .then( function( ) {
-              DODP.setReadingSystemAttributes( )
+              return DODP.setReadingSystemAttributes( )
                 .then( readingSystemAttrsSet )
                 .catch( failed );
+            } )
+            .then( function( ) {
+              deferred.resolve( ); // returning that logon is Ok.
+              emit( 'logon:resolved' );
             } )
             .catch( failed );
         };
@@ -336,7 +340,7 @@ angular.module( 'lyt3App' )
             .finally( function( ) {
               LYTSession.clear( );
 
-              return emit( 'logoff' );
+              emit( 'logoff' );
             } );
         },
         issue: function( bookId ) {
@@ -374,10 +378,26 @@ angular.module( 'lyt3App' )
             } )
             .then( function( list ) {
               var cachedBookShelf = BookNetwork.getCachedBookShelf( );
-              var items = list.items;
+
+              var knownBooks = NativeGlue.getBooks( )
+                .reduce( function( output, bookData ) {
+                  output[ bookData.id ] = bookData;
+                }, {} );
+
+              var items = list.items.map( function( item ) {
+                if ( knownBooks[ item.id ] ) {
+                  item.downloaded = !!knownBooks[ item.id ].downloaded;
+                } else {
+                  item.downloaded = false;
+                }
+
+                return item;
+              } );
+
               for ( var i = from; i <= to; i += 1 ) {
                 cachedBookShelf[ i ] = items[ i - from ];
               }
+
 
               cachedBookShelf = cachedBookShelf.filter( function( item ) {
                 return !!item;
@@ -395,7 +415,20 @@ angular.module( 'lyt3App' )
         },
 
         getCachedBookShelf: function( ) {
-          return LYTSession.getBookShelf( );
+          var knownBooks = NativeGlue.getBooks( )
+            .reduce( function( output, bookData ) {
+              output[ bookData.id ] = bookData;
+            }, {} );
+
+          return LYTSession.getBookShelf( ).map( function( item ) {
+            if ( knownBooks[ item.id ] ) {
+              item.downloaded = !!knownBooks[ item.id ].downloaded;
+            } else {
+              item.downloaded = false;
+            }
+
+            return item;
+          } );
         },
 
         /* -------
@@ -420,7 +453,9 @@ angular.module( 'lyt3App' )
           if ( lastBookmark && lastBookmark.bookId === bookmarks.id &&
             lastBookmark.URI === newMark.URI && lastBookmark.timeOffset === newMark.timeOffset ) {
             $log.log( 'setBookmarks: same as last time' );
-            return;
+            var defer = $q.defer( );
+            defer.resolve( false );
+            return defer.promise;
           }
 
           lastBookmark = {

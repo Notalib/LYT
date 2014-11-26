@@ -35,7 +35,6 @@ angular.module( 'lyt3App' )
        * - ready            Have the content been loaded?
        */
       function Segment( data, document, index, previous ) {
-
         // Properties initialized in the constructor
         this.id = data.id;
         this.index = index;
@@ -60,6 +59,10 @@ angular.module( 'lyt3App' )
           this.documentOffset = previous.documentOffset + previous.duration;
         }
 
+        document.promise.then( function( ) {
+          this.absoluteOffset = document.absoluteOffset + this.documentOffset;
+        }.bind( this ) );
+
         this.duration = this.end - this.start;
 
         // Will be initialized in the load() method:
@@ -69,7 +72,7 @@ angular.module( 'lyt3App' )
 
       // Loads all resources
       Segment.prototype.load = function( ) {
-        if ( this.loadingPromise  ) {
+        if ( this.loadingPromise ) {
           return this.loadingPromise;
         }
 
@@ -145,15 +148,34 @@ angular.module( 'lyt3App' )
 
         return new Bookmark( {
           URI: this.url( ),
-          timeOffset: offset - this.documentOffset
+          timeOffset: this.absoluteOffsetToSmilOffset( offset )
         } );
       };
 
       // Is the given book offset within this Segment?
       Segment.prototype.containsAbsoluteOffset = function( offset ) {
-        var startOffset = this.document.absoluteOffset + this.documentOffset;
+        var startOffset = this.absoluteOffset;
         var endOffset = startOffset + this.duration;
         return startOffset <= offset && offset <= endOffset;
+      };
+
+      // Calculate to books offset fra the offset within the segment
+      Segment.prototype.smilOffsetToAbsolute = function( smilOffset ) {
+        if ( this.containsSmilOffset ) {
+          return smilOffset + this.absoluteOffset;
+        }
+      };
+
+      // Convert book offset to internal smllOffset
+      Segment.prototype.absoluteOffsetToSmilOffset = function( offset ) {
+        if ( this.containsAbsoluteOffset( offset ) ) {
+          return offset - this.absoluteOffset;
+        }
+      };
+
+      // This the smilOffset within this segment?
+      Segment.prototype.containsSmilOffset = function( smilOffset ) {
+        return ( this.start <= smilOffset && smilOffset <= this.end );
       };
 
       // Will load this segment and the next preloadCount segments

@@ -295,6 +295,29 @@ angular.module( 'lytTest' )
         }
       };
 
+      var setBookmarks = {
+        params: {
+          book: {
+           id: bookId,
+            title: 'Bunker 137',
+            getMetadata: function( ) {
+              return {
+                identifier: {
+                  content: 'DK-NOTA-37027'
+                }
+              };
+            },
+            lastmark: {
+              URI: 'dcbw0001.smil#sfe_par_0001_0001',
+              timeOffset: 1037.88
+            },
+            bookmarks: []
+          }
+        },
+        respond: '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Header><MemberId xmlns="http://www.daisy.org/ns/daisy-online/">0</MemberId><Username xmlns="http://www.daisy.org/ns/daisy-online/">0</Username><Realname xmlns="http://www.daisy.org/ns/daisy-online/"/><Email xmlns="http://www.daisy.org/ns/daisy-online/"/><Address xmlns="http://www.daisy.org/ns/daisy-online/" xmlns:i="http://www.w3.org/2001/XMLSchema-instance"/><Age xmlns="http://www.daisy.org/ns/daisy-online/">0</Age><Gender xmlns="http://www.daisy.org/ns/daisy-online/">NONE</Gender><Teacher xmlns="http://www.daisy.org/ns/daisy-online/">0</Teacher><Usergroup xmlns="http://www.daisy.org/ns/daisy-online/">Intet handicap</Usergroup><VersionInfo xmlns="http://www.daisy.org/ns/daisy-online/">DodpCore=1.1.1.19462;DodpBase=3.1.23.24696;MemberCatalog=2.0.32.23097;NotaSecure=1.1.22.17564;DodpMobile=3.1.16.24698</VersionInfo><EnvironmentInfo xmlns="http://www.daisy.org/ns/daisy-online/">TEST</EnvironmentInfo></s:Header><s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><setBookmarksResponse xmlns="http://www.daisy.org/ns/daisy-online/"><setBookmarksResult>true</setBookmarksResult></setBookmarksResponse></s:Body></s:Envelope>',
+        resolved: true
+      };
+
       var issueContent = {
         params: {
           contentID: bookId
@@ -327,6 +350,9 @@ angular.module( 'lytTest' )
           },
           get getBookmarksData( ) {
             return angular.copy( getBookmarks );
+          },
+          get setBookmarksData( ) {
+            return angular.copy( setBookmarks );
           },
           get issueContentData( ) {
             return angular.copy( issueContent );

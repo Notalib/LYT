@@ -319,7 +319,7 @@ static BookManager* anyManager = nil;
     
     Book* book = [Book bookFromDictionary:dict baseURL:baseURL];
     [book joinParts];
-    book.bufferLookahead = 20;
+    book.bufferLookahead = 60 * 5; // five minutes loook-ahead
     
     NSString* key = book.identifier;
     if(key) {
@@ -404,7 +404,11 @@ static BookManager* anyManager = nil;
 
 -(void)stop {
     Book* oldBook = self.currentBook;
+    BOOL wasPlaying = oldBook.isPlaying;
     [oldBook stop];
+    if(wasPlaying) {
+        [self.bridge stopBook:oldBook.identifier];
+    }
 }
 
 -(void)cacheBook:(NSString*)bookId {
@@ -443,12 +447,16 @@ static BookManager* anyManager = nil;
 
 -(void)seekBackward {
     Book* book = self.currentBook;
+    BOOL wasPlaying = book.isPlaying;
     book.position = fmax(0, book.position - 30.0);
+    if(wasPlaying) [book play];
 }
 
 -(void)seekForward {
     Book* book = self.currentBook;
+    BOOL wasPlaying = book.isPlaying;
     book.position = fmin(book.duration, book.position + 30.0);
+    if(wasPlaying) [book play];
 }
 
 @end

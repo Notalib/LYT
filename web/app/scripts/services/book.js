@@ -9,19 +9,10 @@ angular.module( 'lyt3App' )
        * The instantiated object acts as a Deferred object, as the instantiation of a book
        * requires several RPCs and file downloads, all of which are performed asynchronously.
        *
-       * Here's an example of how to load a book for playback:
+       * The create a book use the Book.load( 123 ) factory method.
+       * This returns a promise object that resolves with the finished book object.
        *
-       *     # Instantiate the book
-       *     book = new Book( 123 )
-       *
-       *     # Set up a callback for when the book's done loading
-       *     # The callback receives the book object as its argument
-       *     book.promise.then (book) ->
-       *       # Do something with the book
-       *
-       *     # Set up a callback to handle any failure to load the book
-       *     book.promise.catch () ->
-       *       # Do something about the failure
+       * The constructor method shouldn't be used directly except for tests.
        */
       function Book( id ) {
         this.id = id;
@@ -32,6 +23,8 @@ angular.module( 'lyt3App' )
         this.structure = null;
       }
 
+      // Request the book to be issued from the DODP service,
+      // this is required to stream the files.
       Book.prototype.issue = function( ) {
         if ( this.issuedPromise ) {
           return this.issuedPromise;
@@ -49,11 +42,15 @@ angular.module( 'lyt3App' )
           } )
           .catch( function( ) {
             deferred.reject( BookErrorCodes.BOOK_ISSUE_CONTENT_ERROR );
-          } );
+          } )
+          .finally( function( ) {
+            delete this.issuedPromise;
+          }.bind( this ) );
 
         return this.issuedPromise;
       };
 
+      // Load the list of resources from DODP, this is required to load any content files.
       Book.prototype.loadResources = function( ) {
         if ( this.resourcePromise ) {
           return this.resourcePromise;
@@ -108,6 +105,7 @@ angular.module( 'lyt3App' )
         return this.resourcePromise;
       };
 
+      // Load bookmarks from the DODP service.
       Book.prototype.loadBookmarks = function( ) {
         if ( this.bookmarkPromise ) {
           return this.bookmarkPromise;
@@ -125,6 +123,9 @@ angular.module( 'lyt3App' )
             this.bookmarks = [];
             if ( data ) {
               this.lastmark = data.lastmark;
+              // TODO: Update book.currentPosition from lastmark;
+              $log.warn( 'Book: loadBookmarks: lastmark updated. currentPosition should be updated' );
+
               this.bookmarks = data.bookmarks || [];
               normalizeBookmarks( this );
             }
@@ -139,6 +140,8 @@ angular.module( 'lyt3App' )
         return this.bookmarkPromise;
       };
 
+      // Load and parse the NCCDocument for this book. This is required to know which order to play for book
+      // and to have the navigation-index.
       Book.prototype.loadNCC = function( ) {
         if ( this.nccPromise ) {
           return this.nccPromise;
@@ -178,11 +181,13 @@ angular.module( 'lyt3App' )
         return this.nccPromise;
       };
 
+      var isSMIL = /\.smil$/i;
+
       // Returns all .smil files in the @resources array
       Book.prototype.getSMILFiles = function( ) {
         var res = Object.keys( this.resources )
           .filter( function( key ) {
-            return this.resources[ key ].url.match( /\.smil$/i );
+            return this.resources[ key ].url.match( isSMIL );
           }, this );
 
         return res;
@@ -190,13 +195,17 @@ angular.module( 'lyt3App' )
 
       // Returns all SMIL files which is referred to by the NCC document in order
       Book.prototype.getSMILFilesInNCC = function( ) {
-        var ordered = [ ];
-        this.nccDocument.sections.forEach( function( section ) {
-          if ( ordered.indexOf( section.url ) === -1 ) {
-            ordered.push( section.url );
+        var temp = {};
+        return this.nccDocument.sections.map( function( section ) {
+          return section.url;
+        } ).filter( function( url ) {
+          if ( url.match( isSMIL ) && !temp[ url ] ) {
+            temp[ url ] = true;
+            return true;
           }
+
+          return false;
         } );
-        return ordered;
       };
 
       Book.prototype.loadAllSMIL = function( ) {
@@ -396,15 +405,29 @@ angular.module( 'lyt3App' )
         this.bookmarks.push( bookmark );
         normalizeBookmarks( this );
         sortBookmarks( this );
-        return this.saveBookmarks( );
+        this.saveBookmarks( );
       };
 
-      Book.prototype.setLastmark = function( segment, offset ) {
-        if ( offset === undefined ) {
-          offset = 0;
-        }
-        this.lastmark = segment.bookmark( offset );
-        return this.saveBookmarks( );
+      Book.prototype.setLastmark = function( ) {
+        var currentPosition = this.currentPosition;
+        var defer = $q.defer( );
+
+        this.findSegmentFromOffset( currentPosition )
+          .then( function( segment ) {
+            this.lastmark = segment.bookmark( currentPosition );
+            this.saveBookmarks( )
+              .then( function( stored ) {
+                defer.resolve( stored );
+              } )
+              .catch( function( ) {
+                defer.reject( );
+              } );
+          }.bind( this ) )
+          .catch( function( ) {
+            defer.reject( );
+          } );
+
+        return defer.promise;
       };
 
       Book.prototype.segmentByURL = function( url ) {
@@ -600,26 +623,28 @@ angular.module( 'lyt3App' )
        * }
        */
       Book.prototype.getStructure = function( ) {
-          var defer = $q.defer( );
-          if ( this.structure ) {
-            defer.resolve( this.structure );
-            return defer.promise;
-          }
+        var defer = $q.defer( );
+        if ( this.structure ) {
+          defer.resolve( this.structure );
+          return defer.promise;
+        }
 
-          // Make sure the book is loaded
-          this.loadNCC().then( function( ) {
-            var bookStructure = {
-              id: this.id,
-              author: this.author,
-              title: this.title,
-              playlist: [ ],
-              navigation: [ ]
-            };
+        // Make sure the book is loaded
+        this.loadNCC().then( function( ) {
+          var bookStructure = {
+            id: this.id,
+            author: this.author,
+            title: this.title,
+            playlist: [ ],
+            navigation: [ ]
+          };
 
-            var promises = this.nccDocument.structure.reduce(
-              function( flat, section ) {
-                return flat.concat( section.flatten( ) );
-              }, [ ] ).map( function( section ) {
+          // Create the navigation-list, by walking through the nccDocument.structure
+          var promises = this.nccDocument.structure.reduce(
+            function( flat, section ) {
+              // We want all levels of the navigation hieraki
+              return flat.concat( section.flatten( ) );
+            }, [ ] ).map( function( section ) {
               var loadSegment = $q.defer( );
               this.segmentByURL( section.url + '#' + section.ref )
                 .then( function( segment ) {
@@ -632,34 +657,43 @@ angular.module( 'lyt3App' )
               return loadSegment.promise;
             }, this );
 
-            var loadNavigation = $q.all( promises )
-              .then( function( segments ) {
-                bookStructure.navigation = segments;
-              } );
+          // Once all the navigation items have been loaded, add them to bookStructure
+          var loadNavigation = $q.all( promises )
+            .then( function( segments ) {
+              bookStructure.navigation = segments;
+            } );
 
-            var loadPlaylist = this.loadAllSMIL( )
-              .then( function( smildocuments ) {
-                smildocuments.forEach( function( smildocument ) {
-                  smildocument.segments.forEach( function( segment ) {
-                    bookStructure.playlist.push( {
-                      url: segment.audio.url,
-                      start: segment.start,
-                      end: segment.end
-                    } );
+          var duration = 0;
+
+          // Generate the playlist, e.g. list of all audio-files and their start/end-offsets
+          var loadPlaylist = this.loadAllSMIL( )
+            .then( function( smildocuments ) {
+              smildocuments.forEach( function( smildocument ) {
+                smildocument.segments.forEach( function( segment ) {
+                  duration += segment.duration;
+
+                  bookStructure.playlist.push( {
+                    url: segment.audio.url,
+                    start: segment.start,
+                    end: segment.end
                   } );
                 } );
               } );
+            } );
 
-            $q.all( [ loadNavigation, loadPlaylist ] )
-              .then( function( ) {
-                this.structure = bookStructure;
-                defer.resolve( bookStructure );
-              }.bind( this ) );
-          }.bind( this ) );
+          $q.all( [ loadNavigation, loadPlaylist ] )
+            .then( function( ) {
+              this.structure = bookStructure;
+              this.duration = duration;
+              defer.resolve( bookStructure );
+            }.bind( this ) );
+        }.bind( this ) );
 
-          return defer.promise;
-        };
+        return defer.promise;
+      };
 
+      // Find the segment from an absolute offset in the book.
+      // Returns a promise object.
       Book.prototype.findSegmentFromOffset = function( offset ) {
         var defer = $q.defer();
 
@@ -686,10 +720,12 @@ angular.module( 'lyt3App' )
         return defer.promise;
       };
 
-      // Factory-method
+      // Factory-method, for generating a Book-object.
+      // A book object is created and the required data is loaded.
       // Note: Instances are cached in memory
       Book.load = ( function( ) {
         var loaded = {};
+
         return function( id ) {
           var book = loaded[ id ];
           if ( !book ) {
@@ -699,8 +735,8 @@ angular.module( 'lyt3App' )
 
           var deferred = $q.defer();
 
-          var reject = function( ) {
-            deferred.reject.apply( deferred, arguments );
+          var reject = function( rejected ) {
+            deferred.reject( rejected );
           };
 
           book.issue( )

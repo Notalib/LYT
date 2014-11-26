@@ -205,6 +205,60 @@ angular.module( 'lyt3App' )
       }, json );
     };
 
+    // Convert from floating point in seconds to Dodp offset
+    var formatDodpOffset = function( timeOffset ) {
+      // TODO: The server doesn't support npt format, though it is required
+      // timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
+
+      var offset = timeOffset;
+      var hours = Math.floor( offset / 3600 );
+      var minutes = Math.floor(( offset - hours * 3600 ) / 60);
+      var seconds = offset - hours * 3600 - minutes * 60;
+      if ( hours < 10 ) {
+        hours = '0' + hours.toString( );
+      }
+
+      if ( minutes < 10 ) {
+        minutes = '0' + minutes.toString( );
+      }
+
+      if ( seconds < 10 ) {
+        seconds = '0' + seconds.toFixed( 2 );
+      } else {
+        seconds = seconds.toFixed( 2 );
+      }
+
+      return '' + hours + ':' + minutes + ':' + seconds;
+    };
+
+    var bookmarkToPlainObject = function( bookmark ) {
+      return {
+        URI: bookmark.URI,
+        timeOffset: formatDodpOffset(bookmark.timeOffset),
+        note: bookmark.note
+      };
+    };
+
+    var setnamespace = function(ns, obj) {
+      var key, newObj, value;
+      if (typeof obj === 'object') {
+        if (obj instanceof Array) {
+          return obj.map( function( value ) {
+            return setnamespace(ns, value);
+          } );
+        } else {
+          newObj = {};
+          for (key in obj) {
+            value = obj[key];
+            newObj[ns + ':' + key] = setnamespace(ns, value);
+          }
+          return newObj;
+        }
+      } else {
+        return obj;
+      }
+    };
+
     // Public API here
     return {
       logOn: function( username, password ) {
@@ -502,9 +556,40 @@ angular.module( 'lyt3App' )
           return defer.promise;
         };
       } )( ),
-      setBookmarks: function( ) {
+      setBookmarks: function( book ) {
         var defer = $q.defer( );
-        defer.reject( );
+
+        if ( !book || !book.id ) {
+          defer.reject( 'setBookmarks failed - you have to provide a book with an id' );
+          return defer.promise;
+        }
+
+        var data = {
+          contentID: book.id
+        };
+
+        var uid = book.getMetadata().identifier ? book.getMetadata().identifier.content : void 0;
+
+        var bookmarkSet = {
+          title: book.title,
+          uid: uid,
+          bookmark: book.bookmarks.map( bookmarkToPlainObject ),
+        };
+
+        if ( book.lastmark ) {
+          bookmarkSet.lastmark = bookmarkToPlainObject( book.lastmark );
+        }
+
+        bookmarkSet = setnamespace( 'ns2', bookmarkSet );
+        data[ 'ns2:bookmarkSet' ] = bookmarkSet;
+
+        createRequest( 'setBookmarks', data )
+          .then( function( data ) {
+            var setBookmarksResponse = data.Body.setBookmarksResponse || {};
+            defer.resolve( !!setBookmarksResponse.setBookmarksResult );
+          }, function( rejected ) {
+            defer.reject( rejected );
+          } );
 
         return defer.promise;
       },

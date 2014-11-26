@@ -3,9 +3,15 @@
 angular.module( 'lyt3App' )
   .controller( 'BookshelfCtrl', [ '$log', '$scope', 'BookNetwork', 'Book', function( $log, $scope, BookNetwork ) {
     var uniqueItems = function( items ) {
+      // Angular doesn't like duplicates
       var unique = {};
       return items.filter( function( item ) {
-        if ( item && !unique[ item.id ] ) {
+        if ( !item ) {
+          $log.warn( 'loadBookShelf: unique item: got undefined value'  );
+          return false;
+        }
+
+        if ( !unique[ item.id ] ) {
           unique[ item.id ] = true;
           return true;
         }

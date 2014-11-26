@@ -1,10 +1,9 @@
 <div class="progress">
-  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percentTime }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentTime }}%;">
-    {{ currentTime | sec2time: true }}
-  </div>
+  <div class="currentTime">{{ currentTime | sec2time: true }}</div>
+  <div class="progress-bar" role="progressbar" aria-valuenow="{{ percentTime }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentTime }}%;"></div>
 </div>
-<div class="clearfix">
+<div class="clearfix section-info">
   <div class="pull-left">{{ startTime | sec2time }}</div>
   <div class="pull-right">{{ endTime | sec2time }}</div>
-  <div style="text-align: center;">{{ sectionTitle }}</div>
+  <div class="section-title">{{ sectionTitle }}</div>
 </div>

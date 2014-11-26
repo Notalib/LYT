@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface BookPart : NSObject <NSCoding>
 @property (nonatomic, strong) NSURL* url;
@@ -30,7 +31,7 @@
 @property (nonatomic, readonly) NSTimeInterval duration;
 
 // BookPart should try to keep its buffer filled to this many seconds,
-// whch can be set to very large number to buffer entire BookPart.
+// which can be set to very large number to buffer entire BookPart.
 @property (nonatomic, assign) NSTimeInterval bufferingPoint;
 
 // Like bufferingPoint but for data that is already present in cache

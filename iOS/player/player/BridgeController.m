@@ -10,11 +10,6 @@
 #import "debug.h"
 
 @interface BridgeController () {
-    // used to make sure we do not inject javascript indefintely
-    NSMutableDictionary* urlBeingLoaded;
-    
-    NSString* _javascriptFromBundle;
-    
     NSDateFormatter* iso8601Formatter;
 }
 
@@ -29,17 +24,11 @@
         NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
         [iso8601Formatter setLocale:enUSPOSIXLocale];
         [iso8601Formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+        
+        // enable local storage in webviews
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"WebKitStoreWebDataForBackup"];
     }
     return self;
-}
-
--(NSString*)javascriptFromBundle {
-    if(!_javascriptFromBundle) {
-        NSString* path = [[NSBundle mainBundle] pathForResource:@"bridge.js" ofType:nil];
-        NSData* data = [NSData dataWithContentsOfFile:path];
-        _javascriptFromBundle = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    }
-    return _javascriptFromBundle;
 }
 
 // turns a string such as hej"sa into hej\"sa but does not wrap in quotes
@@ -155,26 +144,6 @@
         return NO;
     }
     
-    // inject javascript into request, by loading it ourselves, taking care not to keep doing this
-    if([urlBeingLoaded objectForKey:request.URL.absoluteString]) return YES;
-    if(!urlBeingLoaded) urlBeingLoaded = [NSMutableDictionary new];
-    [urlBeingLoaded setObject:request.URL forKey:request.URL.absoluteString];
-    
-    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse* response, NSData* data, NSError* error) {
-                               //[urlBeingLoaded removeObjectForKey:request.URL.absoluteString];
-                               
-                               NSString* content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                               NSString* javascript = self.javascriptFromBundle;
-                               NSString* script = [NSString stringWithFormat:@"<script>\n%@\n</script>", javascript];
-                               NSString* replacement = [script stringByAppendingString:@"\n</head>"];
-                               
-                               // we inject javascript before end of <head> tag
-                               content = [content stringByReplacingOccurrencesOfString:@"</head>" withString:replacement];
-                               [webView loadHTMLString:content baseURL:request.URL];
-                           }];
-    return NO;
-    
     return YES;
 }
 
@@ -219,6 +188,7 @@
 }
 
 -(void)updateBook:(NSString*)bookId offset:(NSTimeInterval)offset {
+    [self refreshBooks];
     [self deliverEvent:@"play-time-update" payload:@[bookId, @(offset)]];
 }
 
@@ -226,7 +196,12 @@
     [self deliverEvent:@"play-end" payload:@[bookId]];
 }
 
+-(void)stopBook:(NSString*)bookId {
+    [self deliverEvent:@"play-stop" payload:@[bookId]];
+}
+
 -(void)downloadBook:(NSString*)bookId progress:(CGFloat)percent {
+    [self refreshBooks];
     [self deliverEvent:@"download-progress" payload:@[bookId, @(percent)]];
 }
 

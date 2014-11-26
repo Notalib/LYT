@@ -242,18 +242,22 @@ describe( 'Service: DODP', function( ) {
       .toEqual( 'success' );
   } );
 
-  xit( 'setBookmarks:', function( ) {
-    var status;
-    DODP.setBookmarks( )
-      .then( function( ) {
-        status = 'success';
+  it( 'setBookmarks:', function( ) {
+    var res;
+    var data = testData.setBookmarksData;
+    var params = data.params;
+    createExpectXML( data.respond );
+    DODP.setBookmarks( params.book )
+      .then( function( resolved ) {
+        res = resolved;
       }, function( ) {
-        status = 'failed';
+        res = 'failed';
       } );
     mockBackend.flush( );
     $rootScope.$digest( );
-    expect( status )
-      .toEqual( 'success' );
+
+    expect( res )
+      .toEqual( data.resolved );
   } );
 
 } );

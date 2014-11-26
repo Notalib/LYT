@@ -37,6 +37,7 @@
 #pragma mark Events
 -(void)updateBook:(NSString*)bookId offset:(NSTimeInterval)offset;
 -(void)endBook:(NSString*)bookId;
+-(void)stopBook:(NSString*)bookId;
 -(void)downloadBook:(NSString*)bookId progress:(CGFloat)percent;
 -(void)downloadBook:(NSString*)bookId failed:(NSString*)reason;
 -(void)completedDownloadBook:(NSString*)bookId timestamp:(NSDate*)timestamp;
