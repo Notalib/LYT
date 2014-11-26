@@ -216,7 +216,10 @@ namespace NOTA
                 // we only output if we actually passed some data
                 if(byteOffsetBefore == ByteOffset) continue;
 
-                if (!firstLine) {Console.Write(",\n ");}
+                if (!firstLine) { 
+                    output.WriteLine(","); 
+                    output.Write(" ");
+                }
                 firstLine = false;
 
                 output.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
