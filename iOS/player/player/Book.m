@@ -314,8 +314,11 @@
     // remember position as it is
     NSTimeInterval position = self.position;
     
+    [self willChangeValueForKey:@"isPlaying"];
     delayedStart = NO;
+    _isPlaying = NO;
     [player stop];
+    [self didChangeValueForKey:@"isPlaying"];
     
     // make sure internal statue about position (which part and positionInPart) are correct
     self.position = position;

@@ -201,8 +201,8 @@
 				BEB1BA1D1A121B140066F4FD /* ViewController.h */,
 				BEB1BA1E1A121B140066F4FD /* ViewController.m */,
 				BEB1BA201A121B140066F4FD /* Main.storyboard */,
-				BEB1BA231A121B150066F4FD /* Images.xcassets */,
 				BEB1BA251A121B150066F4FD /* LaunchScreen.xib */,
+				BEB1BA231A121B150066F4FD /* Images.xcassets */,
 				BEB1BA161A121B140066F4FD /* Supporting Files */,
 			);
 			path = player;
