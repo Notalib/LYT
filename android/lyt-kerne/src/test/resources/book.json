@@ -8,15 +8,15 @@
   ],
   'navigation': [
     {
-      'name': 'Bognummer 36016 - H.C. Andersen: Grantræet',
+      'title': 'Bognummer 36016 - H.C. Andersen: Grantræet',
       'offset': 0
     },
     {
-      'name': 'Oplysninger om denne udgave af bogen',
+      'title': 'Oplysninger om denne udgave af bogen',
       'offset': 12.30367346938784
     },
     {
-      'name': 'Grantræet',
+      'title': 'Grantræet',
       'offset': 45.19183673469428
     }
   ]

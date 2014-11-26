@@ -29,6 +29,14 @@ angular.module( 'lytTest' )
           deferred.reject( );
         }
         return deferred.promise;
+      },
+      setBookmarks: function( ) {
+        var setBookmarksData = testData.dodp.setBookmarksData;
+
+        var deferred = $q.defer();
+        deferred.resolve( setBookmarksData.resolved );
+
+        return deferred.promise;
       }
     };
   } ] );

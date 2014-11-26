@@ -561,7 +561,7 @@ angular.module( 'lyt3App' )
 
         if ( !book || !book.id ) {
           defer.reject( 'setBookmarks failed - you have to provide a book with an id' );
-          return;
+          return defer.promise;
         }
 
         var data = {

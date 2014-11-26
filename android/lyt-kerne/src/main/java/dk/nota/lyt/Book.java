@@ -38,6 +38,10 @@ public class Book {
 		return getFragment(getPosition());
 	}
 	
+	public Section getCurrentSection() {
+		return getSection(getPosition());
+	}
+	
 	public Section getSection(BigDecimal currentPosition) {
 		return navigation[getSectionIndex(currentPosition)];
 	}
@@ -45,6 +49,11 @@ public class Book {
 	public Section nextSection(BigDecimal currentPosition) {
 		int index = getSectionIndex(currentPosition);
 		return navigation[index+(index+1 < navigation.length ? 1 : 0)];
+	}
+	
+	public Section previousSection(BigDecimal currentPosition) {
+		int index = getSectionIndex(currentPosition);
+		return navigation[index-(index-1 >= 0 ? 1 : 0)];
 	}
 	
 	public boolean isDownloaded() {

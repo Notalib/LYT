@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class Section {
 
-	private String name;
+	private String title;
 	private BigDecimal offset;
 
 }

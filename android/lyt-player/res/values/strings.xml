@@ -8,5 +8,11 @@
     <string name="download_title">%1$s af %2$s</string>
     <string name="download_in_progress">Bog hentes…</string>
     <string name="download_completed">Bog hentet</string>
+    
+    <string name="play_title">%1$s</string>
+    <string name="play_big_style">Af %2$s\n%1$s</string>
+    <string name="play_play">Afspil</string>
+    <string name="play_stop">Stop</string>
+    <string name="play_pause">Pause</string>
 
 </resources>

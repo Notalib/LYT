@@ -410,11 +410,24 @@ angular.module( 'lyt3App' )
 
       Book.prototype.setLastmark = function( ) {
         var currentPosition = this.currentPosition;
+        var defer = $q.defer( );
+
         this.findSegmentFromOffset( currentPosition )
           .then( function( segment ) {
             this.lastmark = segment.bookmark( currentPosition );
-            this.saveBookmarks( );
-          }.bind( this ) );
+            this.saveBookmarks( )
+              .then( function( stored ) {
+                defer.resolve( stored );
+              } )
+              .catch( function( ) {
+                defer.reject( );
+              } );
+          }.bind( this ) )
+          .catch( function( ) {
+            defer.reject( );
+          } );
+
+        return defer.promise;
       };
 
       Book.prototype.segmentByURL = function( url ) {

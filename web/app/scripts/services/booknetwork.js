@@ -382,7 +382,7 @@ angular.module( 'lyt3App' )
               var knownBooks = NativeGlue.getBooks( )
                 .reduce( function( output, bookData ) {
                   output[ bookData.id ] = bookData;
-                }, {} );
+                }, {} ) || {};
 
               var items = list.items.map( function( item ) {
                 if ( knownBooks[ item.id ] ) {
@@ -418,7 +418,7 @@ angular.module( 'lyt3App' )
           var knownBooks = NativeGlue.getBooks( )
             .reduce( function( output, bookData ) {
               output[ bookData.id ] = bookData;
-            }, {} );
+            }, {} ) || {};
 
           return LYTSession.getBookShelf( ).map( function( item ) {
             if ( knownBooks[ item.id ] ) {
@@ -453,7 +453,9 @@ angular.module( 'lyt3App' )
           if ( lastBookmark && lastBookmark.bookId === bookmarks.id &&
             lastBookmark.URI === newMark.URI && lastBookmark.timeOffset === newMark.timeOffset ) {
             $log.log( 'setBookmarks: same as last time' );
-            return;
+            var defer = $q.defer( );
+            defer.resolve( false );
+            return defer.promise;
           }
 
           lastBookmark = {

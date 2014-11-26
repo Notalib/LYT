@@ -2,7 +2,6 @@ package dk.nota.lyt.player;
 
 import org.json.JSONException;
 
-import android.content.Context;
 import android.webkit.JavascriptInterface;
 
 import com.google.gson.Gson;
@@ -28,31 +27,36 @@ public class PlayerInterface {
 		void clearBookCache(String bookId);
 	}
 
-	private Callback callback;
+	private BookPlayer player;
 
 	/** Instantiate the interface and set the context */
-	PlayerInterface(Context c) {
-		callback = (Callback) c;
+	PlayerInterface(BookPlayer player) {
+		this.player = player;
 	}
 
 	@JavascriptInterface
 	public void play(String bookId, String position) {
-		callback.play(bookId, position);
+		player.play(bookId, position);
 	}
 	
 	@JavascriptInterface
 	public boolean isPlaying() {
-		return callback.isPlaying();
+		return player.isPlaying();
 	}
 	
 	@JavascriptInterface
-	public void stopPlayer() {
-		callback.stop();
+	public void stop() {
+		player.stop();
+	}
+	
+	@JavascriptInterface
+	public void pause() {
+		player.stop();
 	}
 	
 	@JavascriptInterface
 	public void setBook(String bookJSON) {
-		callback.setBook(bookJSON);
+		player.setBook(bookJSON);
 	}
 	
 	@JavascriptInterface
@@ -62,20 +66,20 @@ public class PlayerInterface {
 	
 	@JavascriptInterface
 	public String getBooks() throws JSONException {
-		return gson.toJson(callback.getBooks());
+		return gson.toJson(player.getBooks());
 	}
 	
 	void clearBookCache(String bookId) {
-		callback.clearBookCache(bookId);
+		player.clearBookCache(bookId);
 	}
 	
 	@JavascriptInterface
 	public void clearBook(String bookId) {
-		callback.clearBook(bookId);
+		player.clearBook(bookId);
 	}
 	
 	@JavascriptInterface
 	public void cacheBook(String bookId) {
-		callback.cacheBook(bookId);
+		player.cacheBook(bookId);
 	}
 }
