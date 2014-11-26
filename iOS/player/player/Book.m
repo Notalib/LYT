@@ -116,7 +116,7 @@
     return coverImage;
 }
 
--(void)playUrl:(NSURL*)url atTime:(NSTimeInterval)time {
+-(BOOL)playUrl:(NSURL*)url atTime:(NSTimeInterval)time {
     // clean up old player
     if(![player.url isEqual:url]) {
         player.delegate = nil;
@@ -124,7 +124,7 @@
         player = nil;
     }
     
-    if(!url) return;
+    if(!url) return NO;
     
     if(!player) {
         NSError* error = nil;
@@ -135,12 +135,13 @@
             DBGLog(@"Problem with %@: %@\n%@", url.path, error,
                    [[NSFileManager defaultManager] attributesOfItemAtPath:url.path error:NULL]);
             [self reportError:error];
+            return NO;
         }
     }
 
     DBGLog(@"Started playing %@ from %.1f", url.lastPathComponent, time);
     player.currentTime = time;
-    [player play];
+    return [player play];
 }
 
 -(void)refreshLookaheadWithPosition:(NSTimeInterval)position {
@@ -267,9 +268,7 @@
     if(part.ensuredBufferingPoint <= self.positionInPart) return NO;
         
     NSURL* url = [NSURL fileURLWithPath:part.cachePath];
-    [self playUrl:url atTime: self.positionInPart];
-    
-    return YES;
+    return [self playUrl:url atTime: self.positionInPart];
 }
 
 -(BOOL)isPlaying {
@@ -518,10 +517,10 @@
 -(void)cascadeBufferingPoint {
     NSTimeInterval position = self.position;
 
-    // we read chunked when not playing
-    BOOL isPlaying = self.isPlaying;
+    // we read chunked when not playing and not waiting to play
+    BOOL wantsToPlay = self.isPlaying || delayedStart;
     for (BookPart* part in self.parts) {
-        part.chunked = isPlaying;
+        part.chunked = wantsToPlay;
     }
     
     NSTimeInterval time = 0; // how long parts of book has been up to this point
@@ -529,9 +528,9 @@
         // if part of books ends before current position, we do not care about cache,
         // as we should read the parts of the book being listened to now.
         NSTimeInterval endTime = time + part.duration;
-        if(endTime >= position || !isPlaying) {
+        if(endTime >= position || !wantsToPlay) {
             part.bufferingPoint = _bufferingPoint - time;
-            if(!part.bufferingsSatisfied && isPlaying) {
+            if(!part.bufferingsSatisfied && wantsToPlay) {
                 //DBGLog(@"First unbuffered book part is %@", part);
                 break;
             }
