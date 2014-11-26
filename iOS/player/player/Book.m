@@ -478,6 +478,8 @@
     }
     if(last) [array addObject:last];
     
+    //DBGLog(@"joined = \n%@", array);
+    
     self.parts = array;
 }
 
