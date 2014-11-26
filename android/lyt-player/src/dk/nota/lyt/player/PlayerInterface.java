@@ -2,7 +2,6 @@ package dk.nota.lyt.player;
 
 import org.json.JSONException;
 
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.google.gson.Gson;
