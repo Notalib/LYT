@@ -3,7 +3,9 @@
     <div class="pull-left cover-box">
       <img ng-src="http://bookcover.e17.dk/{{ BookService.currentBook.id }}_h112.jpg" class="img-thumbnail" />
     </div>
-    <h1>{{BookService.currentBook.author}} - {{BookService.currentBook.title}}</h1>
+    <div class="book-title-box">
+      <h1>{{BookService.currentBook.author}} - {{BookService.currentBook.title}}</h1>
+    </div>
   </header>
   <nav>
     <button ng-click="BookService.skip(-15)" class="btn glyphicon glyphicon-minus btn-default">15</button>
