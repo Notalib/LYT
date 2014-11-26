@@ -67,7 +67,8 @@
 }
 
 -(void)processCommandName:(NSString*)name arguments:(NSArray*)arguments {
-    DBGLog(@"%@ (%@)", name, arguments);
+    DBGLog(@"%@()", name);
+    //DBGLog(@"%@ (%@)", name, arguments);
     
     if([name isEqualToString:@"setBook"]) {
         id info = arguments.firstObject;

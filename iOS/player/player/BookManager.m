@@ -236,8 +236,11 @@ static BookManager* anyManager = nil;
         }
     } else if([keyPath isEqualToString:@"isPlaying"]) {
         Book* book = object;
+        if(book.isPlaying) {
+            [self sendBookUpdate];
+        }
         
-        // book must have ended and be very close to end
+        // book must have ended and be very close to end to send stop event
         if(!book.isPlaying && book.position >= book.duration - 1.0) {
             [bridge endBook: book.identifier];
         }

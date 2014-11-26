@@ -78,15 +78,10 @@
     [manager ready];
         
     //NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
-    NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0_004"];
+    NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0_005"];
     
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
-}
-
-- (IBAction)reload:(id)sender {
-    NSURL* url = [NSURL URLWithString: @"http://test.m.e17.dk/msn/lyt-3.0_004"];
-    [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
 @end
