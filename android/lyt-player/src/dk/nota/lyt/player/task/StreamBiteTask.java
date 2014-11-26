@@ -112,8 +112,9 @@ public class StreamBiteTask {
 			} catch (Exception e) {
 				Log.e(TAG, "Error occured while " + Thread.currentThread().getName(), e);
 				failed = true;
+				return null;
 			} finally {
-				if (failed == false || bite.getDuration().compareTo(SMALL_CHUNCK) >= 0) {
+				if (failed == false || (bite != null && bite.getDuration().compareTo(SMALL_CHUNCK) >= 0)) {
 					fragment.addBite(bite);
 					Log.i(TAG, String.format(Thread.currentThread().getName() + " cached: %s. Bite: %s-%s of %s", fragment.getUrl(), bite.getStart().toString(), bite.getEnd().toString(), fragment.getEnd().toString()));
 					bookService.updateBook(book);

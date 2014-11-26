@@ -26,9 +26,9 @@ public class BookTest extends TestCase {
 	private static final String URL_2 = "http://m.e17.dk/DodpFiles/10066850/36016/2_Oplysninger_om_denne.mp3";
 	private static final String URL_3 = "http://m.e17.dk/DodpFiles/10066850/36016/3_Grantret.mp3";
 		
-	private static final String NAME_1 = "Bognummer 36016 - H.C. Andersen: Grantræet";
-	private static final String NAME_2 = "Oplysninger om denne udgave af bogen";
-	private static final String NAME_3 = "Grantræet";
+	private static final String TITLE_1 = "Bognummer 36016 - H.C. Andersen: Grantræet";
+	private static final String TITLE_2 = "Oplysninger om denne udgave af bogen";
+	private static final String TITLE_3 = "Grantræet";
 			
 	
 	protected void setUp() throws Exception {
@@ -94,23 +94,32 @@ public class BookTest extends TestCase {
 	}
 	
 	public void testFindFirstSection() {
-		assertEquals(NAME_1, book.getSection(BigDecimal.ZERO).getName());
-		assertEquals(NAME_1, book.getSection(new BigDecimal(12)).getName());
-		assertEquals(NAME_1, book.getSection(new BigDecimal("12.30367346938783")).getName());
+		assertEquals(TITLE_1, book.getSection(BigDecimal.ZERO).getTitle());
+		assertEquals(TITLE_1, book.getSection(new BigDecimal(12)).getTitle());
+		assertEquals(TITLE_1, book.getSection(new BigDecimal("12.30367346938783")).getTitle());
+		
+		assertEquals(TITLE_1, book.previousSection(new BigDecimal("12.30367346938783")).getTitle());
+		assertEquals(TITLE_2, book.nextSection(new BigDecimal("12.30367346938783")).getTitle());
 	}
 
 	public void testFindingSecondSection() {
-		assertEquals(NAME_2, book.getSection(new BigDecimal("12.30367346938784")).getName());
-		assertEquals(NAME_2, book.getSection(new BigDecimal(35)).getName());
-		assertEquals(NAME_2, book.getSection(new BigDecimal("45.19183673469427")).getName());
+		assertEquals(TITLE_2, book.getSection(new BigDecimal("12.30367346938784")).getTitle());
+		assertEquals(TITLE_2, book.getSection(new BigDecimal(35)).getTitle());
+		assertEquals(TITLE_2, book.getSection(new BigDecimal("45.19183673469427")).getTitle());
+		
+		assertEquals(TITLE_1, book.previousSection(new BigDecimal("45.19183673469427")).getTitle());
+		assertEquals(TITLE_3, book.nextSection(new BigDecimal("45.19183673469427")).getTitle());
 	}
 	
 	public void testFindingThirdSection() {
-		assertEquals(NAME_3, book.getSection(new BigDecimal("45.19183673469428")).getName());
-		assertEquals(NAME_3, book.getSection(new BigDecimal(1101)).getName());
-		assertEquals(NAME_3, book.getSection(new BigDecimal("1409.64571428441310")).getName());
-		assertEquals(NAME_3, book.getSection(new BigDecimal("1409.64571428441311")).getName());
-		assertEquals(NAME_3, book.getSection(new BigDecimal("14091243123")).getName());
+		assertEquals(TITLE_3, book.getSection(new BigDecimal("45.19183673469428")).getTitle());
+		assertEquals(TITLE_3, book.getSection(new BigDecimal(1101)).getTitle());
+		assertEquals(TITLE_3, book.getSection(new BigDecimal("1409.64571428441310")).getTitle());
+		assertEquals(TITLE_3, book.getSection(new BigDecimal("1409.64571428441311")).getTitle());
+		assertEquals(TITLE_3, book.getSection(new BigDecimal("14091243123")).getTitle());
+		
+		assertEquals(TITLE_3, book.nextSection(new BigDecimal("1409.64571428441310")).getTitle());
+		assertEquals(TITLE_2, book.previousSection(new BigDecimal("1409.64571428441310")).getTitle());
 	}
 	
 	public void testFragmentOffset() {

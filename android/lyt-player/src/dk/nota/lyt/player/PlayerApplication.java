@@ -22,7 +22,8 @@ public class PlayerApplication extends Application {
 	private boolean inBackGround;
 	private BookService bookService;
 	private MP3Service mp3Service;
-
+	private BookPlayer mPlayer;
+	
 	private static DateFormat weekdayFormatter;
 	private static DateFormat dateLongFormatter;
 	
@@ -38,8 +39,9 @@ public class PlayerApplication extends Application {
 		instance = this;
 		bookService = new FileBookService();
 		mp3Service = new PhonyMP3Service();
+		mPlayer = new BookPlayer();
 	}
-
+	
 	public static PlayerApplication getInstance() {
 		if (instance == null) throw new IllegalStateException("Application not initialized yet");
 		return instance;
@@ -79,5 +81,10 @@ public class PlayerApplication extends Application {
 				notifyAll();
 			}
 		}
+	}
+
+	public BookPlayer getPlayer() {
+		if (mPlayer == null) throw new IllegalStateException("Player not initialized. Aborting");
+		return mPlayer;
 	}
 }

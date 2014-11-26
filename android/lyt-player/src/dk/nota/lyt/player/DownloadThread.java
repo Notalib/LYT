@@ -3,9 +3,6 @@ package dk.nota.lyt.player;
 import java.math.BigDecimal;
 import java.util.Stack;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +11,6 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 import dk.nota.lyt.Book;
 import dk.nota.lyt.player.task.StreamBiteTask;
-import dk.nota.player.R;
 import dk.nota.utils.WorkerThread;
 
 class DownloadThread extends WorkerThread {
@@ -25,17 +21,15 @@ class DownloadThread extends WorkerThread {
 		void downloadProgress(Book book, BigDecimal precentage);
 		boolean isBusy();
 	}
-	
-	private static final int NOTIFICATION_ID = 42;  
+
 	private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);		
 	
 	private Callback mCallback;
 	private Book mCurrentBook;
 	private boolean mOnline;
 	private StreamBiteTask mStreamer = new StreamBiteTask();
-	private Notification.Builder mBuilder = new Notification.Builder(PlayerApplication.getInstance()).setSmallIcon(R.drawable.ic_stat_ic_action_download);
-	private NotificationManager mNotifyMgr = (NotificationManager) PlayerApplication.getInstance().getSystemService(PlayerActivity.NOTIFICATION_SERVICE);
 	private BroadcastReceiver mNetworkStateReceiver;
+	private NotificationManager mNotificationManager = new NotificationManager();
 	private Stack<Book> mDownloadStack = new Stack<>();
 	
 	DownloadThread(Callback callback) {
@@ -59,7 +53,7 @@ class DownloadThread extends WorkerThread {
 				if (mCurrentBook == null) waitUp("No book to download. Going to sleep");
 			} else {
 				Log.i(PlayerApplication.TAG, "Starting download of:" + mCurrentBook.getTitle());
-				notifyDownloadStart();
+				mNotificationManager.notifyDownloadStart(mCurrentBook);
 				StreamBiteTask.StreamBite bite = null;
 				try {
 					do {
@@ -69,11 +63,12 @@ class DownloadThread extends WorkerThread {
 							waitUp("Something is going on. Going to sleep");
 						} else {
 							bite = mStreamer.doDownload(mCurrentBook);
-							notifyDownloadProgress(bite);
+							mCallback.downloadProgress(mCurrentBook, bite.getPosition().divide(mCurrentBook.getEnd()).multiply(ONE_HUNDRED));
+							mNotificationManager.notifyDownloadProgress(mCurrentBook, bite);
 						}
 					} while(mOnline == false || bite != null);
 					Log.i(PlayerApplication.TAG, "Done downloading " + mCurrentBook.getTitle());
-					notifyDownloadCompletion();
+					mNotificationManager.notifyDownloadCompletion();
 					unlistenToConnectivity();
 					mCallback.downloadCompleted(mCurrentBook);
 				} catch (Exception e) {
@@ -112,42 +107,4 @@ class DownloadThread extends WorkerThread {
 	private void unlistenToConnectivity() {
 		PlayerApplication.getInstance().unregisterReceiver(mNetworkStateReceiver);
 	}
-	
-	private void notifyDownloadStart() {
-		mBuilder.setContentTitle(PlayerApplication.getInstance().getString(R.string.download_title, mCurrentBook.getTitle(), mCurrentBook.getAuthor()))
-			    .setContentText(PlayerApplication.getInstance().getString(R.string.download_in_progress))
-			    .setContentIntent(getPendingIntent())
-			    .setOngoing(true)
-				.setProgress(mCurrentBook.getEnd().intValue(), 0, false);
-		mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
-	}
-	
-	private void notifyDownloadProgress(StreamBiteTask.StreamBite bite) {
-		if (bite != null) {
-			mCallback.downloadProgress(mCurrentBook, bite.getPosition().divide(mCurrentBook.getEnd()).multiply(ONE_HUNDRED));
-			mBuilder.setProgress(mCurrentBook.getEnd().intValue(), bite.getPosition().intValue(), false);
-			mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
-		}
-	}
-
-	private void notifyDownloadCompletion() {
-		mBuilder.setOngoing(false)
-			.setAutoCancel(true)
-			.setContentText(PlayerApplication.getInstance().getString(R.string.download_completed))
-			.setProgress(0, 0, false);
-		mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
-	}
-	
-	private PendingIntent getPendingIntent() {
-		Intent resultIntent = new Intent(PlayerApplication.getInstance(), PlayerActivity.class);
-		// Because clicking the notification opens the only activity
-		// no need to create an artificial back stack.
-		return PendingIntent.getActivity(
-		    PlayerApplication.getInstance(),
-		    0,
-		    resultIntent,
-		    PendingIntent.FLAG_UPDATE_CURRENT
-		);
-	}
-
 }
