@@ -112,10 +112,12 @@ angular.module('lyt3App')
           BookService.loadBook( bookId )
             .then( function( book ) {
               book.currentPosition = offset;
+              BookService.playing = true;
             } );
         }
       } else {
         currentBook.currentPosition = offset;
+        BookService.playing = true;
       }
     } );
 
