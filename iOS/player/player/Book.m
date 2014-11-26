@@ -131,7 +131,11 @@
         player = [[AVAudioPlayer alloc] initWithContentsOfURL:url fileTypeHint:AVFileTypeMPEGLayer3 error:&error];
         player.delegate = self;
 
-        if(!player) [self reportError:error];
+        if(!player) {
+            DBGLog(@"Problem with %@: %@\n%@", url.path, error,
+                   [[NSFileManager defaultManager] attributesOfItemAtPath:url.path error:NULL]);
+            [self reportError:error];
+        }
     }
 
     DBGLog(@"Started playing %@ from %.1f", url.lastPathComponent, time);
@@ -525,7 +529,7 @@
         if(endTime >= position || !isPlaying) {
             part.bufferingPoint = _bufferingPoint - time;
             if(!part.bufferingsSatisfied && isPlaying) {
-                DBGLog(@"First unbuffered book part is %@", part);
+                //DBGLog(@"First unbuffered book part is %@", part);
                 break;
             }
         }
