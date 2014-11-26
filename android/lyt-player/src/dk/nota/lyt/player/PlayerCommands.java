@@ -3,34 +3,31 @@ package dk.nota.lyt.player;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
-import dk.nota.lyt.Book;
 
 public class PlayerCommands extends IntentService {
 	
 	public static enum Command {
-		PLAY, PAUSE;
+		PLAY, PAUSE, STOP;
 	}
 
 	public PlayerCommands() {
 		super("playCommand");
 	}
 
-	private static final String BOOK_ID = "bookId";
-
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		switch (Command.valueOf(intent.getAction())) {
 		case PLAY:
-			String bookId = intent.getStringExtra(BOOK_ID);
-			if (bookId != null) {
-				Book book = PlayerApplication.getInstance().getBookService().getBook(bookId);
-				if (book != null) {
-					PlayerApplication.getInstance().getPlayer().play(bookId, book.getPosition().toString());
-				}
-			}
+			PlayerApplication.getInstance().getPlayer().play();
 			break;
 		case PAUSE:
 			PlayerApplication.getInstance().getPlayer().stop(false);
+			break;
+		case STOP:
+			Intent newIntent = new Intent(PlayerApplication.getInstance(), PlayerActivity.class);
+			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			newIntent.putExtra("shutdown", true);
+			PlayerApplication.getInstance().startActivity(newIntent);
 			break;
 		default:
 			Log.w(PlayerApplication.TAG, "Unknown command: " + intent.getAction());

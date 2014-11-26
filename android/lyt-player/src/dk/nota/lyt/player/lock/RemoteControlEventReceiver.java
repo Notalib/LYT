@@ -7,13 +7,12 @@ import android.view.KeyEvent;
 import dk.nota.lyt.player.PlayerApplication;
 
 public class RemoteControlEventReceiver extends BroadcastReceiver {
-
+	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 		
 		if (keyEvent.getAction() != KeyEvent.ACTION_UP) return;
-		
 		switch (keyEvent.getKeyCode()) {
 			case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
 				if (PlayerApplication.getInstance().getPlayer().isPlaying()) {

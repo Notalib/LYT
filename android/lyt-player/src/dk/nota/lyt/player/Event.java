@@ -2,6 +2,7 @@ package dk.nota.lyt.player;
 
 public enum Event {
 	PLAY_TIME_UPDATE("play-time-update"),
+	PLAY_STOP("play-stop"),
 	PLAY_END("play-end"),
 	PLAY_FAILED("play-failed"),
 	DOWNLOAD_PROGRESS("download-progress"),

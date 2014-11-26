@@ -35,8 +35,8 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 		webSettings.setDomStorageEnabled(true);
 		mWebView.addJavascriptInterface(new PlayerInterface(PlayerApplication.getInstance().getPlayer()), "lytBridge");
 		mWebView.setWebChromeClient(new WebChromeClient());
-		mWebView.loadUrl("http://localhost:9000");
-//		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_004/#/bookshelf");
+//		mWebView.loadUrl("http://localhost:9000");
+		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_005/#/bookshelf");
 //		mWebView.loadUrl("http://localhost:8000/player.html");
 	}
 	
@@ -60,6 +60,12 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 	protected void onPause() {
 		super.onPause();
 		PlayerApplication.getInstance().getPlayer().setEventListener(null);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+//		PlayerApplication.getInstance().getPlayer().
 	}
 
 	@Override
