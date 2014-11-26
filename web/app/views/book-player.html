@@ -1,16 +1,17 @@
 <div class="book-player">
   <header class="clearfix">
     <div class="pull-left cover-box">
-      <img ng-src="http://bookcover.e17.dk/{{ BookService.currentBook.id }}_h112.jpg" class="img-thumbnail" />
+      <img ng-src="http://bookcover.e17.dk/{{ bookid }}_h112.jpg" class="img-thumbnail" />
     </div>
     <div class="book-title-box">
-      <h1>{{BookService.currentBook.author}} - {{BookService.currentBook.title}}</h1>
+      <h1>{{BookService.currentBook.title}}</h1>
+      <h2>{{BookService.currentBook.author}}</h2>
     </div>
   </header>
   <nav>
-    <button ng-click="BookService.skip(-15)" class="btn glyphicon glyphicon-minus btn-default">15</button>
-    <button ng-click="toogle()" class="btn glyphicon" ng-class="{'glyphicon-play': !BookService.playing, 'glyphicon-pause': BookService.playing, 'btn-primary': !BookService.playing, 'btn-warning': BookService.playing }"></button>
-    <button ng-click="BookService.skip(15)" class="btn glyphicon glyphicon-plus btn-default">15</button>
+    <button ng-disabled="!BookService.currentBook" ng-click="BookService.skip(-15)" class="btn glyphicon glyphicon-minus btn-default">15</button>
+    <button ng-disabled="!BookService.currentBook" ng-click="toogle()" class="btn glyphicon" ng-class="{'glyphicon-play': !BookService.playing, 'glyphicon-pause': BookService.playing, 'btn-primary': !BookService.playing, 'btn-warning': BookService.playing }"></button>
+    <button ng-disabled="!BookService.currentBook" ng-click="BookService.skip(15)" class="btn glyphicon glyphicon-plus btn-default">15</button>
     <progressbar></progressbar>
   </nav>
 </div>
