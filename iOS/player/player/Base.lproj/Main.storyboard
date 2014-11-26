@@ -21,24 +21,13 @@
                                 <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </webView>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Aex-rG-voP">
-                                <rect key="frame" x="261" y="30" width="49" height="30"/>
-                                <state key="normal" title="Reload">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="reload:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="yq4-Zc-fa0"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="BpM-NO-JBU" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="4Yl-RO-ckf"/>
                             <constraint firstAttribute="trailing" secondItem="BpM-NO-JBU" secondAttribute="trailing" id="6zB-rJ-ve3"/>
                             <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="BpM-NO-JBU" secondAttribute="bottom" id="AZx-5L-BEq"/>
-                            <constraint firstAttribute="trailing" secondItem="Aex-rG-voP" secondAttribute="trailing" constant="10" id="bw9-0I-o6n"/>
                             <constraint firstItem="BpM-NO-JBU" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="fVI-di-ZTU"/>
-                            <constraint firstItem="Aex-rG-voP" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="10" id="rOi-ZS-MkQ"/>
                         </constraints>
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
