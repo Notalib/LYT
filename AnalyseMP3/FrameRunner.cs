@@ -18,7 +18,7 @@ namespace NOTA.MP3
         public void WriteJSON(TextWriter output)
         {
             output.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
-                             ByteOffset, TimeOffset, ByteOffset, TimeDuration);
+                             ByteOffset, TimeOffset, ByteLength, TimeDuration);
         }
 
         static public void WriteJSON(TextWriter output, IEnumerable<Frame> frames)
