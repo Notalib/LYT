@@ -1,18 +1,16 @@
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
 // bower:scss
-@import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+@import "bootstrap-sass-official/assets/stylesheets/bootstrap.scss";
 // endbower
 
 /* Space out content a bit */
 body {
   padding-top: 20px;
-  padding-bottom: 20px;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
 .header,
-.marketing,
-.footer {
+.marketing {
   padding-left: 15px;
   padding-right: 15px;
 }
@@ -32,9 +30,9 @@ body {
 
 /* Custom page footer */
 .footer {
-  padding-top: 19px;
   color: #777;
   border-top: 1px solid #e5e5e5;
+  min-height: 40px;
 }
 
 /* Supporting marketing content */
@@ -44,6 +42,10 @@ body {
   p + h4 {
     margin-top: 28px;
   }
+}
+
+.content {
+  min-height: calc( 100vh - 20px - 60px - 40px - 1px );
 }
 
 /* Responsive: Portrait tablets and up */
@@ -71,3 +73,4 @@ body {
 
 @import "book-player";
 @import "bookshelf";
+@import "display-errors";

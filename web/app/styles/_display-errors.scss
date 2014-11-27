@@ -1,0 +1,14 @@
+.display-errors {
+  display: flex;
+  height: 40px;
+  padding: 0.1em;
+  .error-type {
+    font-weight: bold;
+    flex: 1 1;
+    margin-right: 0.2em;
+    white-space: nowrap;
+  }
+
+  .error-message {
+  }
+}

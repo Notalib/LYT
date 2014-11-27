@@ -28,10 +28,10 @@
         <h3 class="text-muted">LYT</h3>
       </header>
 
-      <div ng-view=""></div>
+      <div class="content" ng-view=""></div>
 
-      <footer class="footer">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Nota team</p>
+      <footer class="footer" ng-controller="ErrorCtrl">
+        <display-errors></display-errors>
       </footer>
     </div>
 
@@ -98,6 +98,8 @@
         <script src="scripts/directives/progressbar.js"></script>
         <script src="scripts/filters/sec2time.js"></script>
         <script src="scripts/services/bookservice.js"></script>
+        <script src="scripts/controllers/error.js"></script>
+        <script src="scripts/directives/display-errors.js"></script>
         <!-- endbuild -->
 </body>
 </html>
