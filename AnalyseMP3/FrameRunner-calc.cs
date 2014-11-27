@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace NOTA
 {
     /// <summary>
     ///  Extracts frame information from MP3 files. Proof of concept for NOTA. November 10th 2014.
+    ///  This deviates from FrameRunner in that it tries to output uniform frame length (in bytes and seconds)
+    ///  for every frame, but without accounting for padding bytes (which is complicated) this is not very useful.
     /// 
     ///  Information about MP3 file format available at:
     ///    http://www.datavoyage.com/mpgscript/mpeghdr.htm
