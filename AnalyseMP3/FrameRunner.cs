@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
-namespace NOTA
+namespace NOTA.MP3
 {
     /// <summary>
     ///  Extracts frame information from MP3 files. Proof of concept for NOTA. November 10th 2014.
@@ -9,24 +10,62 @@ namespace NOTA
     ///  Information about MP3 file format available at:
     ///    http://www.datavoyage.com/mpgscript/mpeghdr.htm
     /// </summary>
-    class AnalyseMP3
+    public struct Frame
     {
-        private static long ByteOffset = 0;
-        private static double MSecOffset = 0;
-
-        static void registerDecodeProblem(string reason)
+        public long ByteOffset, ByteLength;
+        public double TimeOffset, TimeDuration;
+        
+        public void WriteJSON(TextWriter output)
         {
-            Console.Error.WriteLine(reason);
+            output.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
+                             ByteOffset, TimeOffset, ByteLength, TimeDuration);
+        }
+
+        static public void WriteJSON(TextWriter output, IEnumerable<Frame> frames)
+        {
+            output.Write("[");
+
+            bool firstLine = true;
+            foreach (Frame frame in frames)
+            {
+                if (!firstLine)
+                {
+                    output.WriteLine(",");
+                    output.Write(" ");
+                }
+                firstLine = false;
+                frame.WriteJSON(output);
+            }
+
+            output.WriteLine("]");
+        }
+    } 
+
+    public class Extracter
+    {
+        private readonly FileStream input;
+        private readonly ErrorHandler errorHandler;
+        private readonly double maxFrameSeconds;
+        private readonly int maxFrameBytes;
+
+        private long byteOffset = 0;
+        private double msecOffset = 0;
+
+        public delegate void ErrorHandler(string reason);
+
+        private void registerDecodeProblem(string reason)
+        {
+            errorHandler(reason);
         }
 
         /// <summary>
         ///  returns whether we should keep on reading
         /// </summary>
-        static bool readNextFrame(FileStream stream)
+        private bool readNextFrame()
         {
             byte[] header = new byte[4];
-            int numRead = stream.Read(header, 0, 4);
-            if(numRead == 0)
+            int numRead = input.Read(header, 0, 4);
+            if (numRead == 0)
             {
                 // silently stop at end of file
                 return false;
@@ -57,8 +96,7 @@ namespace NOTA
                 case 3:
                     audioVersion = 1;
                     break;
-                case 1:
-                default:
+                default: // also catches case 1:
                     registerDecodeProblem("Unknown audio version ID");
                     return false;
             }
@@ -76,8 +114,7 @@ namespace NOTA
                 case 3:
                     layerVersion = 1;
                     break;
-                case 0:
-                default:
+                default: // also catches case 0:
                     registerDecodeProblem("Unknown layer description");
                     return false;
             }
@@ -108,13 +145,13 @@ namespace NOTA
             else if (layerVersion == 1) column = 3;
             else column = 4;
 
-            int bitRate = bitrateLookup[5*bitrateIndex + column] * 1000;
-            if(bitRate < 0)
+            int bitRate = bitrateLookup[5 * bitrateIndex + column] * 1000;
+            if (bitRate < 0)
             {
                 registerDecodeProblem("Bad bitrate index: " + bitrateIndex);
                 return false;
             }
-            if(bitRate == 0)
+            if (bitRate == 0)
             {
                 registerDecodeProblem("Free bitrate not supported");
                 return false;
@@ -130,8 +167,8 @@ namespace NOTA
              };
             int sampleRateIndex = (header[2] & 0x0C) >> 2;
             column = audioVersion - 1;
-            int sampleRate = sampleRateLookup[3*sampleRateIndex + column];
-            if(sampleRate <= 0)
+            int sampleRate = sampleRateLookup[3 * sampleRateIndex + column];
+            if (sampleRate <= 0)
             {
                 registerDecodeProblem("Invalid sample rate index: " + sampleRateIndex);
                 return false;
@@ -139,33 +176,33 @@ namespace NOTA
 
             int padding = (header[2] & 0x2) >> 1;
             int frameLengthInBytes, samplesPerFrame;
-            if(layerVersion == 1)
+            if (layerVersion == 1)
             {
                 samplesPerFrame = 384;
                 frameLengthInBytes = (12 * bitRate / sampleRate + padding) * 4;
-            } 
+            }
             else
             {
                 samplesPerFrame = 1152;
-                frameLengthInBytes = 144*bitRate/sampleRate + padding;
+                frameLengthInBytes = 144 * bitRate / sampleRate + padding;
             }
 
-            double duration = (double) samplesPerFrame/sampleRate;
+            double duration = (double)samplesPerFrame / sampleRate;
 
             //Console.WriteLine("Frame is mp{0} with bitrate={1}, samplerate={2}, bytelength = {3}, secsLength={4}",
             //                  layerVersion, bitRate, sampleRate, frameLengthInBytes, seconds);
 
             // skip past these frames
             byte[] ignore = new byte[frameLengthInBytes - 4];
-            numRead = stream.Read(ignore, 0, ignore.Length);
+            numRead = input.Read(ignore, 0, ignore.Length);
             if (numRead != ignore.Length)
             {
                 registerDecodeProblem("Problem reading frame content");
                 return false;
             }
 
-            ByteOffset += frameLengthInBytes;
-            MSecOffset += 1000.0 * duration;
+            byteOffset += frameLengthInBytes;
+            msecOffset += 1000.0 * duration;
 
             return true;
         }
@@ -173,60 +210,100 @@ namespace NOTA
         /// <summary>
         ///  Skip past ID3 in somewhat hackish fashing by looking for 0xff (8 consecutive bits set)
         /// </summary>
-        static void skipID3(FileStream stream)
+        private void skipID3()
         {
-            while(true)
+            while (true)
             {
-                int c = stream.ReadByte();
+                int c = input.ReadByte();
                 if (c == -1) break; // EOF
                 if (c == 0xff)
                 {
                     // we get start of mp3 frame, and need to unread the given byte
-                    stream.Seek(-1, SeekOrigin.Current);
+                    input.Seek(-1, SeekOrigin.Current);
                     return;
                 }
 
-                ByteOffset += 1;
+                byteOffset += 1;
             }
         }
 
-        private static void processFile(FileStream input, TextWriter output)
+        /// <summary>
+        ///  Extract all frames from stream stopping on first error and joining frames
+        ///  together as long as they are below the limits in seconds and bytes. 
+        ///  Settings these limits to zero will return un-joined frames and 
+        ///  50 frames per second is not unheard of.
+        /// </summary>
+        private IEnumerable<Frame> work()
         {
-            skipID3(input);
+            skipID3();
 
             // keep reading until we are out of frames
-            output.Write("[");
             bool keepGoing = true;
-            bool firstLine = true;
             while (keepGoing)
             {
-                long byteOffsetBefore = ByteOffset;
-                double timeOffsetBefore = MSecOffset;
+                long byteOffsetBefore = byteOffset;
+                double timeOffsetBefore = msecOffset;
 
                 while (keepGoing)
                 {
-                    keepGoing = readNextFrame(input);
-                    double secsGone = 0.001 * (MSecOffset - timeOffsetBefore);
-                    long bytesSeen = ByteOffset - byteOffsetBefore;
+                    keepGoing = readNextFrame();
+                    double secsGone = 0.001 * (msecOffset - timeOffsetBefore);
+                    long bytesSeen = byteOffset - byteOffsetBefore;
 
                     // we break when we have passed at least 10 seconds or at least 100 KBytes
-                    if(secsGone >= 10 || bytesSeen >= 1024.0 * 100) break;
+                    if (secsGone >= maxFrameSeconds || bytesSeen >= maxFrameBytes) break;
                 }
 
                 // we only output if we actually passed some data
-                if(byteOffsetBefore == ByteOffset) continue;
+                if (byteOffsetBefore == byteOffset) continue;
 
-                if (!firstLine) { 
-                    output.WriteLine(","); 
-                    output.Write(" ");
-                }
-                firstLine = false;
-
-                output.Write("{{\"byteOffset\": {0}, \"timeOffset\": {1:0.000000}, \"byteLength\": {2}, \"timeDuration\": {3:0.000000} }}",
-                             byteOffsetBefore, 0.001 * timeOffsetBefore, 
-                             ByteOffset - byteOffsetBefore, 0.001 * (MSecOffset - timeOffsetBefore));
+                Frame frame = new Frame
+                                  {
+                                      ByteOffset = byteOffsetBefore,
+                                      TimeOffset = 0.001*timeOffsetBefore,
+                                      ByteLength = byteOffset - byteOffsetBefore,
+                                      TimeDuration = 0.001*(msecOffset - timeOffsetBefore)
+                                  };
+                yield return frame;
             }
-            output.WriteLine("]");
+        }
+
+        private Extracter(FileStream input, double maxFrameSeconds, int maxFrameBytes,
+                          ErrorHandler errorHandler)
+        {
+            this.input = input;
+            this.maxFrameSeconds = maxFrameSeconds;
+            this.maxFrameBytes = maxFrameBytes;
+            this.errorHandler = errorHandler;
+        }
+
+        public static IEnumerable<Frame> ProcessStream(FileStream input, double maxFrameSeconds, int maxFrameBytes,
+                                                       ErrorHandler errorHandler)
+        {
+            Extracter extracter = new Extracter(input, maxFrameSeconds, maxFrameBytes, errorHandler);
+            return extracter.work();
+        }
+
+        public static IEnumerable<Frame> ProcessFile(string filename, double maxFrameSeconds, int maxFrameBytes, 
+                                                    ErrorHandler errorHandler)
+        {
+            FileStream input = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            return ProcessStream(input, maxFrameSeconds, maxFrameBytes, errorHandler);
+        }
+    }
+    
+    class AnalyseMP3
+    {
+        private static void processFile(string inputFilename, TextWriter output)
+        {
+            const int maxFrameSeconds = 10, maxFrameKBytes = 100;
+            var frames = Extracter.ProcessFile(inputFilename, maxFrameSeconds, 1024 * maxFrameKBytes,
+                reason =>
+                {
+                     Console.Error.WriteLine("Unable to process {0}: {1}", inputFilename, reason);
+                     Environment.Exit(1);
+                });
+            Frame.WriteJSON(output, frames);
         }
 
         private static void processFilename(string filename)
@@ -241,12 +318,7 @@ namespace NOTA
 
             using (StreamWriter output = File.CreateText(outputFilename))
             {
-                FileStream input = new FileStream(filename, FileMode.Open, FileAccess.Read);
-
-                // skip past ID3 tag with meta-data about file
-                processFile(input, output);
-
-                Console.Error.WriteLine("{0} was {1:0.000000} secs and {2} bytes.", filename, 0.001 * MSecOffset, ByteOffset);
+                processFile(filename, output);
             }
         }
 
@@ -261,7 +333,7 @@ namespace NOTA
 
             foreach (string filename in args)
             {
-                processFilename(filename);                
+                processFilename(filename);  
             }
         }
     }

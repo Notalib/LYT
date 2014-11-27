@@ -23,13 +23,20 @@
 		BE08A1BE1A13696D00772B6D /* Book.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1BD1A13696D00772B6D /* Book.m */; };
 		BE08A1C21A136B8F00772B6D /* BookPart.m in Sources */ = {isa = PBXBuildFile; fileRef = BE08A1C11A136B8F00772B6D /* BookPart.m */; };
 		BE08A1C51A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */; };
-		BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */; };
 		BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE43F0F21A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
 		BE4732441A1A024700A325A4 /* bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = BE4732431A1A024700A325A4 /* bridge.js */; };
 		BE4732481A1A0F4600A325A4 /* BridgeController.m in Sources */ = {isa = PBXBuildFile; fileRef = BE4732471A1A0F4600A325A4 /* BridgeController.m */; };
 		BE4AF9D11A24898600DC52DB /* bookPartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9D01A24898600DC52DB /* bookPartTests.m */; };
 		BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
+		BE7512F21A271A0F00579D24 /* Se_en_novelle_af_Tri.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F11A271A0F00579D24 /* Se_en_novelle_af_Tri.json */; };
+		BE7512F31A271A0F00579D24 /* Se_en_novelle_af_Tri.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F11A271A0F00579D24 /* Se_en_novelle_af_Tri.json */; };
+		BE7512F51A271AD100579D24 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F41A271AD100579D24 /* 3_Grantret.json */; };
+		BE7512F61A271AD100579D24 /* 3_Grantret.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F41A271AD100579D24 /* 3_Grantret.json */; };
+		BE7512F91A272BE500579D24 /* 1_Bognummer_36016__HC_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F71A272BE500579D24 /* 1_Bognummer_36016__HC_.json */; };
+		BE7512FA1A272BE500579D24 /* 1_Bognummer_36016__HC_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F71A272BE500579D24 /* 1_Bognummer_36016__HC_.json */; };
+		BE7512FB1A272BE500579D24 /* 2_Oplysninger_om_denne.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F81A272BE500579D24 /* 2_Oplysninger_om_denne.json */; };
+		BE7512FC1A272BE500579D24 /* 2_Oplysninger_om_denne.json in Resources */ = {isa = PBXBuildFile; fileRef = BE7512F81A272BE500579D24 /* 2_Oplysninger_om_denne.json */; };
 		BE96C7C71A232B10008D64F5 /* tests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE96C7C61A232B10008D64F5 /* tests.m */; };
 		BE96C7D01A232DCA008D64F5 /* downloaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE96C7CF1A232DCA008D64F5 /* downloaderTests.m */; };
 		BE9AD7C01A2619E8003AAE56 /* GAN_01.json in Resources */ = {isa = PBXBuildFile; fileRef = BE9AD7A21A2619E8003AAE56 /* GAN_01.json */; };
@@ -130,7 +137,6 @@
 		BE08A1C01A136B8F00772B6D /* BookPart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookPart.h; sourceTree = "<group>"; };
 		BE08A1C11A136B8F00772B6D /* BookPart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookPart.m; sourceTree = "<group>"; };
 		BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 01_Michael_Kamp_Bunker_.json; sourceTree = "<group>"; };
-		BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 3_Grantret.json; sourceTree = "<group>"; };
 		BE3D47DB1A1240E000DA2294 /* SoundChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundChunk.h; sourceTree = "<group>"; };
 		BE3D47DC1A1240E000DA2294 /* SoundChunk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundChunk.m; sourceTree = "<group>"; };
 		BE43F0F01A14AE01008DFC53 /* Downloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Downloader.h; sourceTree = "<group>"; };
@@ -141,6 +147,10 @@
 		BE4732471A1A0F4600A325A4 /* BridgeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeController.m; sourceTree = "<group>"; };
 		BE4AF9D01A24898600DC52DB /* bookPartTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bookPartTests.m; sourceTree = "<group>"; };
 		BE6DC6711A1397C8000DB1C2 /* 37027.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 37027.json; sourceTree = "<group>"; };
+		BE7512F11A271A0F00579D24 /* Se_en_novelle_af_Tri.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Se_en_novelle_af_Tri.json; sourceTree = "<group>"; };
+		BE7512F41A271AD100579D24 /* 3_Grantret.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 3_Grantret.json; sourceTree = "<group>"; };
+		BE7512F71A272BE500579D24 /* 1_Bognummer_36016__HC_.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 1_Bognummer_36016__HC_.json; sourceTree = "<group>"; };
+		BE7512F81A272BE500579D24 /* 2_Oplysninger_om_denne.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 2_Oplysninger_om_denne.json; sourceTree = "<group>"; };
 		BE96C7C21A232B10008D64F5 /* tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE96C7C51A232B10008D64F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BE96C7C61A232B10008D64F5 /* tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = tests.m; sourceTree = "<group>"; };
@@ -212,9 +222,11 @@
 			isa = PBXGroup;
 			children = (
 				BECE557C1A1B8FAC00BDA191 /* bridge-test.html */,
-				BE3D47D91A1230EE00DA2294 /* 3_Grantret.json */,
 				BE6DC6711A1397C8000DB1C2 /* 37027.json */,
 				BE08A1B91A13690E00772B6D /* bunker137.json */,
+				BE7512F71A272BE500579D24 /* 1_Bognummer_36016__HC_.json */,
+				BE7512F81A272BE500579D24 /* 2_Oplysninger_om_denne.json */,
+				BE7512F41A271AD100579D24 /* 3_Grantret.json */,
 				BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */,
 				BE08A1951A1368D700772B6D /* 02_Om_denne_udgave.json */,
 				BE08A1961A1368D700772B6D /* 03_Kolofon_og_bibliogra.json */,
@@ -258,6 +270,7 @@
 				BE9AD7BD1A2619E8003AAE56 /* GAN_28.json */,
 				BE9AD7BE1A2619E8003AAE56 /* GAN_29.json */,
 				BE9AD7BF1A2619E8003AAE56 /* GAN_30.json */,
+				BE7512F11A271A0F00579D24 /* Se_en_novelle_af_Tri.json */,
 			);
 			name = testing;
 			sourceTree = "<group>";
@@ -435,9 +448,12 @@
 				BE9AD7F11A2619E8003AAE56 /* GAN_25.json in Resources */,
 				BE9AD7D91A2619E8003AAE56 /* GAN_13.json in Resources */,
 				BE9AD7C31A2619E8003AAE56 /* GAN_02.json in Resources */,
+				BE7512F31A271A0F00579D24 /* Se_en_novelle_af_Tri.json in Resources */,
 				BE9AD7E91A2619E8003AAE56 /* GAN_21.json in Resources */,
 				BE9AD7FB1A2619E8003AAE56 /* GAN_30.json in Resources */,
 				BE9AD7D11A2619E8003AAE56 /* GAN_09.json in Resources */,
+				BE7512F61A271AD100579D24 /* 3_Grantret.json in Resources */,
+				BE7512FA1A272BE500579D24 /* 1_Bognummer_36016__HC_.json in Resources */,
 				BE9AD7CD1A2619E8003AAE56 /* GAN_07.json in Resources */,
 				BE9AD7D31A2619E8003AAE56 /* GAN_10.json in Resources */,
 				BE9AD7EF1A2619E8003AAE56 /* GAN_24.json in Resources */,
@@ -448,6 +464,7 @@
 				BE9AD7F51A2619E8003AAE56 /* GAN_27.json in Resources */,
 				BE9AD7C51A2619E8003AAE56 /* GAN_03.json in Resources */,
 				BE9AD7F71A2619E8003AAE56 /* GAN_28.json in Resources */,
+				BE7512FC1A272BE500579D24 /* 2_Oplysninger_om_denne.json in Resources */,
 				BE9AD7D71A2619E8003AAE56 /* GAN_12.json in Resources */,
 				BE9AD7DB1A2619E8003AAE56 /* GAN_14.json in Resources */,
 				BE9AD7DF1A2619E8003AAE56 /* GAN_16.json in Resources */,
@@ -460,6 +477,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE7512F21A271A0F00579D24 /* Se_en_novelle_af_Tri.json in Resources */,
 				BE08A1C51A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */,
 				BE08A1B31A1368D700772B6D /* 11_Kapitel_7.json in Resources */,
 				BE9AD7F61A2619E8003AAE56 /* GAN_28.json in Resources */,
@@ -469,8 +487,9 @@
 				BE9AD7D01A2619E8003AAE56 /* GAN_09.json in Resources */,
 				BE9AD7E21A2619E8003AAE56 /* GAN_18.json in Resources */,
 				BE9AD7F21A2619E8003AAE56 /* GAN_26.json in Resources */,
+				BE7512F91A272BE500579D24 /* 1_Bognummer_36016__HC_.json in Resources */,
+				BE7512FB1A272BE500579D24 /* 2_Oplysninger_om_denne.json in Resources */,
 				BE9AD7CA1A2619E8003AAE56 /* GAN_06.json in Resources */,
-				BE3D47DA1A1230EE00DA2294 /* 3_Grantret.json in Resources */,
 				BE08A1AB1A1368D700772B6D /* 07_Kapitel_3.json in Resources */,
 				BE9AD7C21A2619E8003AAE56 /* GAN_02.json in Resources */,
 				BE9AD7DC1A2619E8003AAE56 /* GAN_15.json in Resources */,
@@ -490,6 +509,7 @@
 				BE9AD7DA1A2619E8003AAE56 /* GAN_14.json in Resources */,
 				BE9AD7E81A2619E8003AAE56 /* GAN_21.json in Resources */,
 				BE9AD7CE1A2619E8003AAE56 /* GAN_08.json in Resources */,
+				BE7512F51A271AD100579D24 /* 3_Grantret.json in Resources */,
 				BEB1BA221A121B150066F4FD /* Main.storyboard in Resources */,
 				BEB1BA271A121B150066F4FD /* LaunchScreen.xib in Resources */,
 				BE08A1AD1A1368D700772B6D /* 08_Kapitel_4.json in Resources */,
