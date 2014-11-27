@@ -1,7 +1,36 @@
 .bookshelf {
   .list-group {
-    .progress {
-      margin: 0.5em;
+    .list-group-item {
+      .open-book {
+        display: flex;
+        .img-box {
+          height: 75px;
+          width: 60px;
+          margin-right: 0.5em;
+          overflow: hidden;
+        }
+
+        .book-title-box {
+          $title-color: #333;
+          flex: 1;
+          margin: auto;
+          .book-title {
+            color: $title-color;
+          }
+          .book-author {
+            color: lighten( $title-color, 33% );
+          }
+        }
+
+        .download-buttons-box {
+          flex: 0 0 40px;
+          margin: auto;
+        }
+      }
+
+      .progress {
+        margin: 0.5em;
+      }
     }
   }
 }
