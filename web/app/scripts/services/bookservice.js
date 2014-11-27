@@ -113,6 +113,17 @@ angular.module('lyt3App')
         }
       },
 
+      cancelBookCaching: function( bookId ) {
+        var cachedBook = NativeGlue.getBooks( )
+          .filter( function( bookData ) {
+            return bookData.id === bookId;
+          } ).pop();
+
+        if ( cachedBook ) {
+          NativeGlue.cancelBookCaching( '' + bookId );
+        }
+      },
+
       clearBookCache: function( bookId ) {
         var cachedBook = NativeGlue.getBooks( )
           .filter( function( bookData ) {

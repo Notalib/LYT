@@ -46,6 +46,18 @@ angular.module( 'lyt3App' )
       } );
     };
 
+    $scope.cancelBookCaching = function( $event, bookid ) {
+      $event.stopPropagation( );
+      $event.preventDefault( );
+
+      BookService.cancelBookCaching( bookid );
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          delete book.downloading;
+        }
+      } );
+    };
+
     $scope.books = uniqueItems( BookNetwork.getCachedBookShelf( ) );
 
     var loadBookShelf = function( from, count ) {
@@ -81,6 +93,15 @@ angular.module( 'lyt3App' )
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
           book.downloading = procent;
+          return true;
+        }
+      } );
+    } );
+
+    $scope.$on( 'download-cancelled', function( $currentScope, bookid ) {
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          delete book.downloading;
           return true;
         }
       } );

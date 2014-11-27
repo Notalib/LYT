@@ -223,6 +223,11 @@
             storeVar( 'cachedBooks', cachedBooks );
           }, 100 );
         },
+        cancelBookCaching: function( bookId ) {
+          window.lytBridge.clearBookCache( bookId );
+
+          window.lytHandleEvent( 'download-cancelled', bookId );
+        },
         clearBookCache: function( bookId ) {
           delete cachedBooks[ bookId ];
 
