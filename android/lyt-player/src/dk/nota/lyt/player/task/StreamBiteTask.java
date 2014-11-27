@@ -36,17 +36,30 @@ public class StreamBiteTask {
 		}
 	}
 	
+	public interface OnProgress {
+		void onProgress(BigDecimal position);
+	}
+	
 	private static final String TAG = StreamBiteTask.class.getSimpleName();
 			
 	private static final int MAX_STREAM_TIME = 60 * 20;
 	private static final int SUFFICIENT_CACHE = MAX_STREAM_TIME - (60 * 5);
 	private static final BigDecimal SMALL_CHUNCK = new BigDecimal(30);
-	private static final BigDecimal BIG_CHUNCK = new BigDecimal(300);
+	private static final BigDecimal BIG_CHUNCK = new BigDecimal(60);
 	
 	private MP3Service mp3Service = PlayerApplication.getInstance().getMP3Service();
 	private BookService bookService = PlayerApplication.getInstance().getBookService();
 	
 	private boolean eject = false;
+	private OnProgress callback;
+	
+	public StreamBiteTask() {
+		
+	}
+	
+	public StreamBiteTask(OnProgress callback) {
+		this.callback = callback;
+	}
 	
 	public void eject() {
 		eject = true;
@@ -102,6 +115,7 @@ public class StreamBiteTask {
 						} else {
 							bite.setEnd(mp3.getEnd());
 						}
+						if (callback != null) callback.onProgress(fragment.getPosition(bite.getEnd()));
 						output.write(mp3.getBytes());
 					} catch(StartElementNotFound e) {
 						Log.w(TAG, String.format("playlist and json not aligned. Wrong by: %s", hole.getEnd().subtract(bite.getEnd())));
@@ -110,7 +124,7 @@ public class StreamBiteTask {
 					}
 				} while(eject == false && totalTime < MAX_STREAM_TIME && hole.getEnd().compareTo(bite.getEnd()) != 0 && (System.currentTimeMillis() < expectedCompletion - 10000 || downloadAll));
 			} catch (Exception e) {
-				Log.e(TAG, "Error occured while " + Thread.currentThread().getName(), e);
+				Log.e(TAG, "Error occured with " + Thread.currentThread().getName() + " thread", e);
 				failed = true;
 				return null;
 			} finally {

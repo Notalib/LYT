@@ -1,9 +1,10 @@
 package dk.nota.lyt.player;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,7 +20,6 @@ import dk.nota.lyt.BookInfo;
 import dk.nota.lyt.Section;
 import dk.nota.lyt.SoundBite;
 import dk.nota.lyt.SoundFragment;
-import dk.nota.lyt.player.lock.LockScreenManager;
 import dk.nota.lyt.player.task.AbstractTask;
 import dk.nota.lyt.player.task.GetBookTask;
 import dk.nota.lyt.player.task.StreamBiteTask;
@@ -28,32 +28,32 @@ import dk.nota.utils.WorkerThread;
 
 public class BookPlayer implements DownloadThread.Callback, OnCompletionListener, OnAudioFocusChangeListener {
 
-	interface EventListener {
-		void onEvent(Event event, Object... params);
+	public interface EventListener {
+		void onEvent(Event event, Book book, Object... params);
 	}
 
-	private static BigDecimal LOCK = new BigDecimal(1000);
+	private static Object LOCK = new Object();
 	private static BigDecimal THOUSAND = new BigDecimal(1000);
 
 	private NextPlayerThread mNextPlayerThread;
 	private StreamingThread mStreamingThread;
 	private DownloadThread mDownloaderThread;
 	private ProgressThread mProgressThread;
+	
 	private MediaPlayer mCurrentPlayer;
 	private MediaPlayer mNextPlayer;
 
 	private BroadcastReceiver mNetworkStateReceiver;
-	private NotificationManager mNotificationManager = new NotificationManager();
 
 	private boolean playing = false;
 	private Book mBook;
 	private BigDecimal mCurrentEnd;
-	private EventListener mEventListener;
+	private List<EventListener> mEventListeners = new ArrayList<>();
 
-	private LockScreenManager mLockScreenManager;
 	private AudioManager mAudioManager;
 
 	private boolean mOnline;
+	private boolean mResumeOnGain;
 
 	BookPlayer() {
 		mNextPlayerThread = new NextPlayerThread();
@@ -67,7 +67,6 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 
 		listenToConnectivity();
 		mAudioManager = (AudioManager) PlayerApplication.getInstance().getSystemService(Context.AUDIO_SERVICE);
-		mLockScreenManager = new LockScreenManager();
 	}
 
 	void onDestroy() {
@@ -78,8 +77,12 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 		stop();
 	}
 
-	void setEventListener(EventListener listener) {
-		this.mEventListener = listener;
+	void addEventListener(EventListener listener) {
+		this.mEventListeners.add(listener);
+	}
+	
+	void removeEventListener(EventListener listener) {
+		mEventListeners.remove(listener);
 	}
 
 	public void setBook(String bookJSON) {
@@ -111,6 +114,135 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 		play(bookId, position);
 	}
 
+	public boolean isPlaying() {
+		try {
+			return playing && mCurrentPlayer != null && mCurrentPlayer.isPlaying();
+		} catch (Exception ignore) {
+		}
+		return false;
+	}
+
+	public void cacheBook(String bookId) {
+		Book book = PlayerApplication.getInstance().getBookService().getBook(bookId);
+		if (book != null) {
+			mDownloaderThread.addBook(book);
+		}
+	}
+
+	public void stop() {
+		stop(true);
+	}
+	
+	public void shutdown() {
+		stop(true);
+		fireEvent(Event.PLAY_STOP, mBook.getId(), Boolean.TRUE);
+	}
+	
+	public void stop(boolean fullStop) {
+		synchronized (LOCK) {
+			playing = false;
+			if (mCurrentPlayer != null) {
+				mCurrentPlayer.stop();
+				updateBookPosition();
+				mCurrentPlayer.release();
+				mCurrentPlayer = null;
+			}
+			if (mNextPlayer != null) {
+				mNextPlayer.release();
+				mNextPlayer = null;
+			}
+			if (mBook != null) {
+				fireEvent(Event.PLAY_STOP, mBook.getId());
+				PlayerApplication.getInstance().getBookService().updateBook(mBook);
+			}
+			if (fullStop) {
+				mAudioManager.abandonAudioFocus(this);
+			}
+		}
+	}
+
+	public void next() {
+		Section nextSection = mBook.nextSection(mBook.getPosition());
+		String bookId = mBook.getId();
+		stop(false);
+		play(bookId, nextSection.getOffset().toString());
+	}
+
+	public void previous() {
+		Section previousSection = mBook.previousSection(mBook.getPosition());
+		String bookId = mBook.getId();
+		stop(false);
+		play(bookId, previousSection.getOffset().toString());
+	}
+	
+	public void onCompletion(android.media.MediaPlayer mp) {
+		if (mp != mCurrentPlayer) {
+			throw new IllegalStateException("How did that happen?!");
+		}
+		synchronized (LOCK) {
+			mBook.setPosition(mCurrentPlayer.getEnd());
+			Log.i(PlayerApplication.TAG, "New book position: " + mBook.getPosition());
+			MediaPlayer releaseIt = mCurrentPlayer;
+			mCurrentPlayer = mNextPlayer;
+			mNextPlayer = null;
+			if (mCurrentPlayer != null) {
+				mCurrentPlayer.setOnCompletionListener(this);
+				synchronized (mProgressThread) {
+					mProgressThread.notify();
+				}
+				fireEvent(Event.PLAY_CHAPTER_CHANGE, mBook.getId());
+			}
+			synchronized (mNextPlayerThread) {
+				mNextPlayerThread.notify();
+			}
+			releaseIt.reset();
+			releaseIt.release();
+		}
+	}
+
+	@Override
+	public void onAudioFocusChange(int focusChange) {
+		if (focusChange == AudioManager.AUDIOFOCUS_GAIN && mResumeOnGain) {
+			Log.w(PlayerApplication.TAG, "Focus gained");
+			play();
+			mResumeOnGain = false;
+		} else if (isPlaying()){
+			mResumeOnGain = true;
+			Log.w(PlayerApplication.TAG, "Focus lost");
+			stop(false);
+		}
+	}
+	
+	public void downloadCancelled(Book book) {
+		fireEvent(Event.DOWNLOAD_CANCELLED, book, book.getId());
+		mDownloaderThread.cancelDownload();
+	}
+
+	@Override
+	public void downloadStarted(Book book) {
+		fireEvent(Event.DOWNLOAD_STARTED, book, book.getId());
+	}
+
+	@Override
+	public void downloadFailed(Book book, String reason) {
+		fireEvent(Event.DOWNLOAD_FAILED, book, book.getId(), reason);
+	}
+
+	@Override
+	public void downloadCompleted(Book book) {
+		fireEvent(Event.DOWNLOAD_COMPLETED, book, book.getId());
+	}
+
+	@Override
+	public void downloadProgress(Book book, BigDecimal percentage) {
+		fireEvent(Event.DOWNLOAD_PROGRESS, book, book.getId(), percentage);
+	}
+
+	@Override
+	public boolean isBusy() {
+		return mStreamingThread.isStreaming();
+	}
+
 	private void play(final String bookId, final BigDecimal position) {
 		Log.i(PlayerApplication.TAG, String.format("Starting play of book: %s,  Position: %s", bookId, position));
 		new GetBookTask().execute(new AbstractTask.SimpleTaskListener<Book>() {
@@ -139,37 +271,110 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 		}, bookId);
 	}
 
-	public boolean isPlaying() {
+	private void startPlayer(SoundBite bite, BigDecimal end) {
+		int seekTo = mBook.getCurrentFragment().getOffset(mBook.getPosition()).subtract(bite.getStart()).multiply(THOUSAND).intValue();
+		Log.i(PlayerApplication.TAG, "Creating new start, and adjusting player position to: " + seekTo);
 		try {
-			return playing && mCurrentPlayer != null && mCurrentPlayer.isPlaying();
-		} catch (Exception ignore) {
+			synchronized (LOCK) {
+				int audioFocusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+				if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+					Log.w(PlayerApplication.TAG, "Unable gain audio focus. Abandon playing og book");
+					return;
+				}
+				mCurrentPlayer = new MediaPlayer(end.subtract(bite.getDuration()), end);
+				setDataSource(mCurrentPlayer, bite);
+				mCurrentPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				mCurrentPlayer.prepare();
+				mCurrentPlayer.seekTo(seekTo);
+				mCurrentPlayer.setOnCompletionListener(BookPlayer.this);
+				mCurrentPlayer.start();
+				if (seekTo > bite.getDuration().multiply(THOUSAND).longValue()) {
+					Log.w(PlayerApplication.TAG, "Seeking past end! Seekto: " + seekTo + " Duration: " + bite.getDuration());
+					onCompletion(mCurrentPlayer);
+				}
+				fireEvent(Event.PLAY_PLAY, mBook.getId());
+				synchronized (mProgressThread) {
+					mProgressThread.notify();
+				}
+			}
+		} catch (Exception e) {
+			Log.e(PlayerApplication.TAG, "Error occured while starting player", e);
 		}
-		return false;
+
 	}
 
-	public void cacheBook(String bookId) {
-		Book book = PlayerApplication.getInstance().getBookService().getBook(bookId);
-		if (book != null) {
-			mDownloaderThread.addBook(book);
+	private void updateBookPosition() {
+		BigDecimal currentPosition = mCurrentPlayer.getCurrentPosition() > 0 ? new BigDecimal(mCurrentPlayer.getCurrentPosition()).divide(THOUSAND) : BigDecimal.ZERO;
+		mBook.setPosition(mCurrentPlayer.getStart().add(currentPosition));
+	}
+
+	private long getExpectedCompletion() {
+		long expectedCompletion = 0;
+		SoundFragment fragment = mBook.getCurrentFragment();
+		while(fragment != null && fragment.isDownloaded()) {
+			fragment = mBook.getFragment(fragment.getBookEndPosition());
+		}
+		if (fragment == null) {
+			expectedCompletion = mBook.getEnd().subtract(mBook.getPosition()).multiply(THOUSAND).longValue();
+		} else {
+			BigDecimal bookPosition = fragment.getPosition(fragment.getHoles().get(0).getStart());
+			expectedCompletion = bookPosition.subtract(mBook.getPosition()).multiply(THOUSAND).longValue();
+		}
+		Log.w(PlayerApplication.TAG, "Expected completion " + expectedCompletion / 1000 + " seconds");
+		return expectedCompletion + System.currentTimeMillis();
+	}
+
+	private void setDataSource(MediaPlayer player, SoundBite bite) {
+		FileInputStream stream = null;
+		try {
+			stream = PlayerApplication.getInstance().openFileInput(bite.getFilename());
+			player.setDataSource(stream.getFD());
+		} catch (IOException e) {
+			Log.e(PlayerApplication.TAG, "Unable to open bite filename: " + bite.getFilename(), e);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					Log.e(PlayerApplication.TAG, "Unable to close bite: " + bite.getFilename(), e);
+				}
+			}
 		}
 	}
 
-	public void stop() {
-		stop(true);
+	private void listenToConnectivity() {
+		mNetworkStateReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				mOnline = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) == false;
+				Log.i(PlayerApplication.TAG, mOnline ? "Device is online" : "Device is offline");
+				fireEvent(Event.CONNECTIVITY_CHANGED, mOnline);
+				if (mOnline) {
+					synchronized (mStreamingThread) {
+						mStreamingThread.notify();
+					}
+				}
+			}
+		};
+		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+		PlayerApplication.getInstance().registerReceiver(mNetworkStateReceiver, filter);
 	}
 
-	public void next() {
-		Section nextSection = mBook.nextSection(mBook.getPosition());
-		String bookId = mBook.getId();
-		stop(false);
-		play(bookId, nextSection.getOffset().toString());
+	private void unlistenToConnectivity() {
+		PlayerApplication.getInstance().unregisterReceiver(mNetworkStateReceiver);
 	}
 
-	public void previous() {
-		Section previousSection = mBook.previousSection(mBook.getPosition());
-		String bookId = mBook.getId();
-		stop(false);
-		play(bookId, previousSection.getOffset().toString());
+	private void fireEvent(final Event event, final Object... params) {
+		fireEvent(event, mBook, params);
+	}
+	
+	private void fireEvent(final Event event, Book book, final Object... params) {
+		synchronized (LOCK) {
+			for (EventListener listener : mEventListeners) {
+				listener.onEvent(event, book, params);
+			}
+		}
 	}
 
 	private class StreamingThread extends WorkerThread {
@@ -231,7 +436,7 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 					waitUp("Next player going to sleep, as we are not playing currently");
 				} else {
 					SoundFragment fragment = mBook.getFragment(mCurrentEnd);
-					SoundBite bite = fragment.getBite(mCurrentEnd);
+					SoundBite bite = fragment != null ? fragment.getBite(mCurrentEnd) : null;
 					if (bite == null) {
 						waitUp("Falling a sleep as no bite is available");
 					} else if (mNextPlayer == null){
@@ -292,190 +497,4 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 		}
 	}
 
-	@Override
-	public void downloadFailed(Book book, String reason) {
-		fireEvent(Event.DOWNLOAD_FAILED, book.getId(), reason);
-	}
-
-	@Override
-	public void downloadCompleted(Book book) {
-		fireEvent(Event.DOWNLOAD_COMPLETED, book.getId());
-	}
-
-	@Override
-	public void downloadProgress(Book book, BigDecimal percentage) {
-		fireEvent(Event.DOWNLOAD_PROGRESS, percentage);
-	}
-
-	@Override
-	public boolean isBusy() {
-		return mStreamingThread.isStreaming();
-	}
-
-	public void onCompletion(android.media.MediaPlayer mp) {
-		if (mp != mCurrentPlayer) {
-			throw new IllegalStateException("How did that happen?!");
-		}
-		synchronized (LOCK) {
-			mBook.setPosition(mCurrentPlayer.getEnd());
-			Log.i(PlayerApplication.TAG, "New book position: " + mBook.getPosition());
-			MediaPlayer releaseIt = mCurrentPlayer;
-			mCurrentPlayer = mNextPlayer;
-			mNextPlayer = null;
-			if (mCurrentPlayer != null) {
-				mCurrentPlayer.setOnCompletionListener(this);
-				synchronized (mProgressThread) {
-					mProgressThread.notify();
-				}
-				mNotificationManager.notifyChapterChange(mBook);
-				mLockScreenManager.changeChapter();
-			}
-			synchronized (mNextPlayerThread) {
-				mNextPlayerThread.notify();
-			}
-			releaseIt.reset();
-			releaseIt.release();
-		}
-	}
-
-	private void startPlayer(SoundBite bite, BigDecimal end) {
-		int seekTo = mBook.getCurrentFragment().getOffset(mBook.getPosition()).subtract(bite.getStart()).multiply(THOUSAND).intValue();
-		Log.i(PlayerApplication.TAG, "Creating new start, and adjusting player position to: " + seekTo);
-		if (seekTo > bite.getDuration().multiply(THOUSAND).longValue()) {
-			Log.w(PlayerApplication.TAG, "Seeking past end! Seekto: " + seekTo + " Duration: " + bite.getDuration());
-			throw new IllegalStateException();
-		}
-		try {
-			synchronized (LOCK) {
-				int audioFocusResult = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-				if (audioFocusResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-					mLockScreenManager.initialize(mBook);
-				} else {
-					Log.w(PlayerApplication.TAG, "Unable gain audio focus. Abandon playing og book");
-					return;
-				}
-				mCurrentPlayer = new MediaPlayer(end.subtract(bite.getDuration()), end);
-				setDataSource(mCurrentPlayer, bite);
-				mCurrentPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-				mCurrentPlayer.prepare();
-				mCurrentPlayer.seekTo(seekTo);
-				mCurrentPlayer.setOnCompletionListener(BookPlayer.this);
-				mCurrentPlayer.start();
-				mNotificationManager.notifyPlaying(mBook);
-				synchronized (mProgressThread) {
-					mProgressThread.notify();
-				}
-			}
-		} catch (Exception e) {
-			Log.e(PlayerApplication.TAG, "Error occured while starting player", e);
-		}
-
-	}
-
-	public void stop(boolean fullStop) {
-		synchronized (LOCK) {
-			playing = false;
-			if (mCurrentPlayer != null) {
-				mCurrentPlayer.stop();
-				updateBookPosition();
-				mCurrentPlayer.release();
-				mCurrentPlayer = null;
-			}
-			if (mNextPlayer != null) {
-				mNextPlayer.release();
-				mNextPlayer = null;
-			}
-			if (mBook != null) {
-				fireEvent(Event.PLAY_STOP, mBook.getId());
-				mNotificationManager.notifyPause(mBook);
-				PlayerApplication.getInstance().getBookService().updateBook(mBook);
-			}
-			if (fullStop) {
-				mAudioManager.abandonAudioFocus(this);
-				mLockScreenManager.stop();
-			} else {
-				mLockScreenManager.pause();
-			}
-		}
-	}
-
-	private long getExpectedCompletion() {
-		long expectedCompletion = 0;
-		SoundFragment fragment = mBook.getCurrentFragment();
-		while(fragment != null && fragment.isDownloaded()) {
-			fragment = mBook.getFragment(fragment.getBookEndPosition());
-		}
-		if (fragment == null) {
-			expectedCompletion = mBook.getEnd().subtract(mBook.getPosition()).multiply(THOUSAND).longValue();
-		} else {
-			BigDecimal bookPosition = fragment.getPosition(fragment.getHoles().get(0).getStart());
-			expectedCompletion = bookPosition.subtract(mBook.getPosition()).multiply(THOUSAND).longValue();
-		}
-		Log.w(PlayerApplication.TAG, "Expected completion " + expectedCompletion / 1000 + " seconds");
-		return expectedCompletion + System.currentTimeMillis();
-	}
-
-	private void setDataSource(MediaPlayer player, SoundBite bite) {
-		FileInputStream stream = null;
-		try {
-			stream = openFileInput(bite.getFilename());
-			player.setDataSource(stream.getFD());
-		} catch (IOException e) {
-			Log.e(PlayerApplication.TAG, "Unable to open bite filename: " + bite.getFilename(), e);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					Log.e(PlayerApplication.TAG, "Unable to close bite: " + bite.getFilename(), e);
-				}
-			}
-		}
-	}
-
-	private void listenToConnectivity() {
-		mNetworkStateReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				mOnline = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) == false;
-				Log.i(PlayerApplication.TAG, mOnline ? "Device is online" : "Device is offline");
-				if (mOnline) {
-					synchronized (mStreamingThread) {
-						mStreamingThread.notify();
-					}
-				}
-			}
-		};
-		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-		PlayerApplication.getInstance().registerReceiver(mNetworkStateReceiver, filter);
-	}
-
-	private void unlistenToConnectivity() {
-		PlayerApplication.getInstance().unregisterReceiver(mNetworkStateReceiver);
-	}
-
-	private void updateBookPosition() {
-		BigDecimal currentPosition = mCurrentPlayer.getCurrentPosition() > 0 ? new BigDecimal(mCurrentPlayer.getCurrentPosition()).divide(THOUSAND) : BigDecimal.ZERO;
-		mBook.setPosition(mCurrentPlayer.getStart().add(currentPosition));
-	}
-
-	private void fireEvent(final Event event, final Object... params) {
-		if (mEventListener != null) {
-			mEventListener.onEvent(event, params);
-		}
-	}
-
-	private FileInputStream openFileInput(String filename) throws FileNotFoundException {
-		return PlayerApplication.getInstance().openFileInput(filename);
-	}
-
-	@Override
-	public void onAudioFocusChange(int focusChange) {
-		if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-			// Resume playback
-		} else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-			stop();
-		}
-	}
 }
