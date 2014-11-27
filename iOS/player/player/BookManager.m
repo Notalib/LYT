@@ -382,12 +382,14 @@ static BookManager* anyManager = nil;
         [book removeObserver:self forKeyPath:@"error"];
         
         [book stop];
-        [book deleteCache];
         [booksById removeObjectForKey:bookId];
     }
 }
 
 -(void)clearBook:(NSString*)bookId {
+    Book* book = [booksById objectForKey:bookId];
+    [book deleteCache];
+
     [self innerClearBook:bookId];
     [self saveState];
 }

@@ -239,8 +239,8 @@ static void (^backgroundSessionCompletionHandler)(void) = nil;
     self.currentTask = [[Downloader sharedDelegate] taskForStartedRequest:request
                                                             forDownloader:self];
     
-    //DBGLog(@"Downloading bytes %ld-%ld from %@", (long)byteOffset, (long)(byteOffset + bytesToRead),
-    //       self.url.lastPathComponent);
+    DBGLog(@"Downloading bytes %ld-%ld from %@", (long)byteOffset, (long)(byteOffset + bytesToRead),
+           self.url.lastPathComponent);
 }
 
 -(void)cancelDownload {
@@ -291,8 +291,8 @@ static void (^backgroundSessionCompletionHandler)(void) = nil;
             progressBytes += data.length;
             [self didChangeValueForKey:@"progressBytes"];
 
-            //DBGLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
-            //      (long)progressBytes);
+            DBGLog(@"%ld bytes written to %@ for a total of %ld", (long)data.length, self.cachePath,
+                  (long)progressBytes);
             [self downloadNextChunk];
         }
     } else {
