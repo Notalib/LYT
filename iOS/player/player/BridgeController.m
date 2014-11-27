@@ -215,6 +215,10 @@
     [self deliverEvent:@"download-completed" payload:@[bookId, timestamp]];
 }
 
+-(void)connectivityChangedOnline:(BOOL)online {
+    [self deliverEvent:@"connectivity-changed" payload:@[@(online)]];
+}
+
 #pragma mark -
 
 @end

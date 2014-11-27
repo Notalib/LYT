@@ -10,11 +10,14 @@
 #import "BookManager.h"
 #import "Downloader.h"
 #import "debug.h"
+#import "Reachability.h"
 
 @interface BookManager () {
     NSMutableDictionary* booksById;
     NSMutableSet* booksDownloading; // books we are downloading in their entirety, contains Book instances
     NSString* currentBookId; // the playing book is always current, but the current book might not be playing
+    
+    Reachability *internetReachability;
 }
 
 @end
@@ -77,9 +80,22 @@
         [center addObserver:self selector:@selector(willTerminateNotification:)
                        name:UIApplicationWillTerminateNotification object:nil];
         
-        
+        // we want events on reachabilityChanged: when we loose or gain internet connection
+        [center addObserver:self selector:@selector(reachabilityChanged:)
+                       name:kReachabilityChangedNotification object:nil];
+        internetReachability = [Reachability reachabilityForInternetConnection];
+        [internetReachability startNotifier];
     }
     return self;
+}
+
+- (void)reachabilityChanged:(NSNotification *)note {
+    Reachability* curReach = [note object];
+    NSParameterAssert([curReach isKindOfClass:[Reachability class]]);
+
+    BOOL offine = curReach.currentReachabilityStatus == NotReachable;
+    BOOL online = !offine;
+    [self.bridge connectivityChangedOnline:online];
 }
 
 static NSString* playBookRequest = nil;
@@ -156,6 +172,7 @@ static BookManager* anyManager = nil;
 
 -(void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [internetReachability stopNotifier];
     [self setBridge:nil];
 }
 

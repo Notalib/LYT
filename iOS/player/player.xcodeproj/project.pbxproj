@@ -106,6 +106,12 @@
 		BEB1BA241A121B150066F4FD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA231A121B150066F4FD /* Images.xcassets */; };
 		BEB1BA271A121B150066F4FD /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEB1BA251A121B150066F4FD /* LaunchScreen.xib */; };
 		BECE557A1A1B853400BDA191 /* BookManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BECE55791A1B853400BDA191 /* BookManager.m */; };
+		BEDDDEB41A2740F00028ABCA /* 1_Bognummer_37883__Run.json in Resources */ = {isa = PBXBuildFile; fileRef = BEDDDEB21A2740F00028ABCA /* 1_Bognummer_37883__Run.json */; };
+		BEDDDEB51A2740F00028ABCA /* 1_Bognummer_37883__Run.json in Resources */ = {isa = PBXBuildFile; fileRef = BEDDDEB21A2740F00028ABCA /* 1_Bognummer_37883__Run.json */; };
+		BEDDDEB61A2740F00028ABCA /* 2_Nissevers.json in Resources */ = {isa = PBXBuildFile; fileRef = BEDDDEB31A2740F00028ABCA /* 2_Nissevers.json */; };
+		BEDDDEB71A2740F00028ABCA /* 2_Nissevers.json in Resources */ = {isa = PBXBuildFile; fileRef = BEDDDEB31A2740F00028ABCA /* 2_Nissevers.json */; };
+		BEDDDEBA1A2743C10028ABCA /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = BEDDDEB91A2743C10028ABCA /* Reachability.m */; };
+		BEDDDEBB1A2743C10028ABCA /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = BEDDDEB91A2743C10028ABCA /* Reachability.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -198,6 +204,10 @@
 		BECE55781A1B853400BDA191 /* BookManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookManager.h; sourceTree = "<group>"; };
 		BECE55791A1B853400BDA191 /* BookManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookManager.m; sourceTree = "<group>"; };
 		BECE557C1A1B8FAC00BDA191 /* bridge-test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "bridge-test.html"; sourceTree = "<group>"; };
+		BEDDDEB21A2740F00028ABCA /* 1_Bognummer_37883__Run.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 1_Bognummer_37883__Run.json; sourceTree = "<group>"; };
+		BEDDDEB31A2740F00028ABCA /* 2_Nissevers.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = 2_Nissevers.json; sourceTree = "<group>"; };
+		BEDDDEB81A2743C10028ABCA /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		BEDDDEB91A2743C10028ABCA /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -271,6 +281,8 @@
 				BE9AD7BE1A2619E8003AAE56 /* GAN_29.json */,
 				BE9AD7BF1A2619E8003AAE56 /* GAN_30.json */,
 				BE7512F11A271A0F00579D24 /* Se_en_novelle_af_Tri.json */,
+				BEDDDEB21A2740F00028ABCA /* 1_Bognummer_37883__Run.json */,
+				BEDDDEB31A2740F00028ABCA /* 2_Nissevers.json */,
 			);
 			name = testing;
 			sourceTree = "<group>";
@@ -326,9 +338,10 @@
 				BE08A1C11A136B8F00772B6D /* BookPart.m */,
 				BE4732461A1A0F4600A325A4 /* BridgeController.h */,
 				BE4732471A1A0F4600A325A4 /* BridgeController.m */,
-				BE4732431A1A024700A325A4 /* bridge.js */,
 				BE43F0F01A14AE01008DFC53 /* Downloader.h */,
 				BE43F0F11A14AE01008DFC53 /* Downloader.m */,
+				BEDDDEB81A2743C10028ABCA /* Reachability.h */,
+				BEDDDEB91A2743C10028ABCA /* Reachability.m */,
 				BE3D47DB1A1240E000DA2294 /* SoundChunk.h */,
 				BE3D47DC1A1240E000DA2294 /* SoundChunk.m */,
 				BEB1BA1D1A121B140066F4FD /* ViewController.h */,
@@ -344,6 +357,7 @@
 		BEB1BA161A121B140066F4FD /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE4732431A1A024700A325A4 /* bridge.js */,
 				BE43F0F61A14F2B9008DFC53 /* debug.h */,
 				BEB1BA171A121B140066F4FD /* Info.plist */,
 				BEB1BA181A121B140066F4FD /* main.m */,
@@ -442,6 +456,8 @@
 				BE9AD7ED1A2619E8003AAE56 /* GAN_23.json in Resources */,
 				BE9AD7D51A2619E8003AAE56 /* GAN_11.json in Resources */,
 				BE9AD7C91A2619E8003AAE56 /* GAN_05.json in Resources */,
+				BEDDDEB51A2740F00028ABCA /* 1_Bognummer_37883__Run.json in Resources */,
+				BEDDDEB71A2740F00028ABCA /* 2_Nissevers.json in Resources */,
 				BE9AD7CB1A2619E8003AAE56 /* GAN_06.json in Resources */,
 				BE9AD7F91A2619E8003AAE56 /* GAN_29.json in Resources */,
 				BE9AD7EB1A2619E8003AAE56 /* GAN_22.json in Resources */,
@@ -504,6 +520,7 @@
 				BE9AD7D61A2619E8003AAE56 /* GAN_12.json in Resources */,
 				BE9AD7E61A2619E8003AAE56 /* GAN_20.json in Resources */,
 				BE08A1B51A1368D700772B6D /* 12_Kapitel_8.json in Resources */,
+				BEDDDEB61A2740F00028ABCA /* 2_Nissevers.json in Resources */,
 				BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */,
 				BE9AD7F01A2619E8003AAE56 /* GAN_25.json in Resources */,
 				BE9AD7DA1A2619E8003AAE56 /* GAN_14.json in Resources */,
@@ -521,6 +538,7 @@
 				BE9AD7EE1A2619E8003AAE56 /* GAN_24.json in Resources */,
 				BE08A1A31A1368D700772B6D /* 03_Kolofon_og_bibliogra.json in Resources */,
 				BE9AD7C41A2619E8003AAE56 /* GAN_03.json in Resources */,
+				BEDDDEB41A2740F00028ABCA /* 1_Bognummer_37883__Run.json in Resources */,
 				BE08A1A51A1368D700772B6D /* 04_Citat.json in Resources */,
 				BE9AD7F41A2619E8003AAE56 /* GAN_27.json in Resources */,
 				BE9AD7C61A2619E8003AAE56 /* GAN_04.json in Resources */,
@@ -542,6 +560,7 @@
 			files = (
 				BE96C7D01A232DCA008D64F5 /* downloaderTests.m in Sources */,
 				BE4AF9D11A24898600DC52DB /* bookPartTests.m in Sources */,
+				BEDDDEBB1A2743C10028ABCA /* Reachability.m in Sources */,
 				BE96C7C71A232B10008D64F5 /* tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -554,6 +573,7 @@
 				BE08A1BE1A13696D00772B6D /* Book.m in Sources */,
 				BE08A1C21A136B8F00772B6D /* BookPart.m in Sources */,
 				BEB1BA1F1A121B140066F4FD /* ViewController.m in Sources */,
+				BEDDDEBA1A2743C10028ABCA /* Reachability.m in Sources */,
 				BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */,
 				BEB1BA1C1A121B140066F4FD /* AppDelegate.m in Sources */,
 				BEB1BA191A121B140066F4FD /* main.m in Sources */,
