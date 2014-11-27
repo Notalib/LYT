@@ -145,7 +145,7 @@
             .map( function( bookId ) {
               return {
                 id: bookId,
-                offset: Math.max( books[ bookId ].offset || 0, 0 ),
+                offset: Math.max( booksOffset[ bookId ] || 0, 0 ),
                 downloaded: !!cachedBooks[ bookId ]
               };
             } );
@@ -160,7 +160,7 @@
           clearInterval( playInterval );
 
           if ( offset === undefined ) {
-            offset = books[ bookId ].offset || 0;
+            offset = booksOffset[ bookId ] || 0;
           }
 
           var lastTime = (new Date()) / 1000.0;
@@ -170,14 +170,18 @@
               return;
             }
 
+            if ( !booksOffset[ bookId ] ) {
+              booksOffset[ bookId ] = 0;
+            }
+
             var curTime = (new Date()) / 1000.0;
             var timeDiff = curTime - lastTime;
             lastTime = curTime;
 
             offset += timeDiff;
-            booksOffset[ bookId ].offset = Math.min( offset, books[ bookId ].duration );
+            booksOffset[ bookId ] = Math.min( offset, books[ bookId ].duration );
             window.lytHandleEvent( 'play-time-update', bookId, offset );
-            if ( booksOffset[ bookId ].offset >= books[ bookId ].duration ) {
+            if ( booksOffset[ bookId ] >= books[ bookId ].duration ) {
               window.lytHandleEvent( 'play-end', bookId );
               clearInterval( playInterval );
             }

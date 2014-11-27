@@ -1,15 +1,26 @@
 <section class="bookshelf">
-  <div class="list-group">
-    <a href="#/book-player/{{book.id}}" class="list-group-item" ng-repeat="book in books">
-      <img ng-src="http://bookcover.e17.dk/{{ book.id }}_w50.jpg" src="images/blankbookcover.png" />  {{ book.title }}
-      <button class="btn glyphicon glyphicon-download pull-right" ng-show="!book.downloaded" ng-click="cacheBook($event, book.id)" title="Download til offline"></button>
-      <button class="btn glyphicon glyphicon-remove pull-right" ng-show="book.downloaded" ng-click="clearBookCache($event, book.id)" title="Fjern fra offline brug"></button>
+  <ul class="list-group">
+    <li class="list-group-item" ng-repeat="book in books">
+      <a href="#/book-player/{{book.id}}" class="open-book">
+        <div class="img-box">
+          <img ng-src="http://bookcover.e17.dk/{{ book.id }}_h75.jpg" src="images/blankbookcover.png" />
+        </div>
+        <div class="book-title-box">
+          <div class="book-title">{{ book.title }}</div>
+          <div class="book-author">{{ book.author }}</div>
+        </div>
+        <div class="download-buttons-box">
+          <button class="btn glyphicon glyphicon-download" ng-show="!book.downloaded" ng-click="cacheBook($event, book.id)" title="Download til offline"></button>
+          <button class="btn glyphicon glyphicon-remove" ng-show="book.downloaded" ng-click="clearBookCache($event, book.id)" title="Fjern fra offline brug"></button>
+        </div>
+      </a>
+
       <div class="progress" ng-show="book.downloading !== undefined && !book.downloaded">
         <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="{{book.downloading}}" aria-valuemin="0" aria-valuemax="100" style="width: {{book.downloading}}%">
           <span class="sr-only">{{book.downloading}}%</span>
         </div>
       </div>
-    </a>
-  </div>
+    </li>
+  </ul>
   <button type="button" class="btn btn-default" ng-click="nextPage()">Flere bøger</button>
 </section>
