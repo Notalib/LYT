@@ -11,7 +11,7 @@ angular.module( 'lyt3App' )
         $rootScope.$apply( );
       }
 
-      // $log.debug.apply( $log, args );
+      $log.debug.apply( $log, args );
     };
 
     var setBook = function( bookData ) {

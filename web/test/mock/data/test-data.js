@@ -159,27 +159,27 @@ angular.module( 'lytTest' )
           'lastItem': 5,
           'totalItems': 6,
           'items': [ {
-            'id': 37379,
+            'id': '37379',
             'author': 'Douglas Adams',
             'title': 'So long, and thanks for all the fish'
           }, {
-            'id': 17214,
+            'id': '17214',
             'author': 'Joanne K. Rowling',
             'title': 'Harry Potter og dødsregalierne'
           }, {
-            'id': 39314,
+            'id': '39314',
             'author': 'Ole Frøslev',
             'title': 'Haltefanden'
           }, {
-            'id': 13984,
+            'id': '13984',
             'author': 'Joanne K. Rowling',
             'title': 'Harry Potter og fangen fra Azkaban'
           }, {
-            'id': 36736,
+            'id': '36736',
             'author': 'Jan Kjær',
             'title': 'Taynikma - Toron-sagaen'
           }, {
-            'id': 39424,
+            'id': '39424',
             'author': 'Hergé',
             'title': 'Den mystiske stjerne'
           } ]

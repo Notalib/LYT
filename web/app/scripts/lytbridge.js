@@ -63,6 +63,19 @@
        * API defined at https://github.com/Notalib/LYT/wiki/LYT3---POC
        **/
 
+      var getStoredVar = function( key ) {
+        var res = window.localStorage.getItem( 'lydbridge:' + key );
+        if ( res ) {
+          return JSON.parse( res ) || {};
+        }
+
+        return {};
+      };
+
+      var storeVar = function( key, obj ) {
+        window.localStorage.setItem( 'lydbridge:' + key, JSON.stringify( obj ) );
+      };
+
       // Hash reference of the known books
       // id => {
       //   id: <ID>,
@@ -77,11 +90,14 @@
       //     title: <title>
       //   } ]
       // }
-      var books = {};
+      var books = getStoredVar( 'books' );
 
       // List of cached books
       // id => true
-      var cachedBooks = {};
+      var cachedBooks = getStoredVar( 'cachedBooks' );
+
+      // Book offset
+      var booksOffset = getStoredVar( 'booksOffset' );
 
       // used for faking playback progress
       var playInterval;
@@ -100,12 +116,21 @@
                 res += ( item.end - item.start );
                 return res;
               }, 0 );
+
             books[ bookData.id ] = bookData;
           }
+
+          storeVar( 'books', books );
         },
         // Remove book from book list
         clearBook: function( bookId ) {
           delete books[ bookId ];
+          delete cachedBooks[ bookId ];
+          delete booksOffset[ bookId ];
+
+          storeVar( 'books', books );
+          storeVar( 'cachedBooks', cachedBooks );
+          storeVar( 'booksOffset', booksOffset );
         },
         // Return a list of all known books:
         // [
@@ -150,12 +175,14 @@
             lastTime = curTime;
 
             offset += timeDiff;
-            books[ bookId ].offset = Math.min( offset, books[ bookId ].duration );
+            booksOffset[ bookId ].offset = Math.min( offset, books[ bookId ].duration );
             window.lytHandleEvent( 'play-time-update', bookId, offset );
-            if ( books[ bookId ].offset >= books[ bookId ].duration ) {
+            if ( booksOffset[ bookId ].offset >= books[ bookId ].duration ) {
               window.lytHandleEvent( 'play-end', bookId );
               clearInterval( playInterval );
             }
+
+            storeVar( 'booksOffset', booksOffset );
           }, 250 );
         },
         stop: function() {
@@ -163,12 +190,47 @@
           window.lytHandleEvent( 'play-stop' );
         },
         cacheBook: function( bookId ) {
-          cachedBooks[ bookId ] = true;
+          if ( !cachedBooks[ bookId ] ) {
+            cachedBooks[ bookId ] = 0;
+          }
+
+          storeVar( 'cachedBooks', cachedBooks );
+          var delay = 100;
+          var wantedDuration = 30000;
+          var numIteration = wantedDuration / delay;
+          var increasePerIteration = numIteration / 100;
+          var downloadInterval = setInterval( function( ) {
+            if ( cachedBooks[ bookId ] === undefined ) {
+              clearInterval( downloadInterval );
+              return;
+            }
+
+            cachedBooks[ bookId ] += increasePerIteration;
+            if ( cachedBooks[ bookId ] >= 100 ) {
+              setTimeout( function( ) {
+                window.lytHandleEvent( 'download-completed', bookId, ( new Date( ) ) / 1000 );
+              }, delay );
+              clearInterval( downloadInterval );
+
+              cachedBooks[ bookId ] = 100;
+            }
+            window.lytHandleEvent( 'download-progress', bookId, cachedBooks[ bookId ] );
+
+            storeVar( 'cachedBooks', cachedBooks );
+          }, 100 );
         },
         clearBookCache: function( bookId ) {
           delete cachedBooks[ bookId ];
+
+          storeVar( 'cachedBooks', cachedBooks );
         }
       };
+
+      setTimeout( function( ) {
+        Object.keys(cachedBooks).forEach( function( bookid ) {
+          window.lytBridge.cacheBook( bookid );
+        } );
+      }, 1000 );
     })();
   }
 } )();

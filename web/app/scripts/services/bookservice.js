@@ -65,7 +65,7 @@ angular.module('lyt3App')
         } else {
           BookService.loadBook( bookId )
             .then( function( book ) {
-              BookService.currentBook( book );
+              BookService.currentBook = book;
 
               if ( offset === undefined ) {
                 offset = getCurrentPOsition( );
@@ -86,6 +86,7 @@ angular.module('lyt3App')
 
       restart: function( ) {
         if ( currentBook ) {
+          $log.info( 'BookService: restart', currentBook.id );
           currentBook.currentPosition = 0;
           BookService.play( currentBook.id, 0 );
         }
@@ -94,6 +95,33 @@ angular.module('lyt3App')
       stop: function( ) {
         $log.info( 'BookService: stop' );
         NativeGlue.stop( );
+      },
+
+      cacheBook: function( bookId ) {
+        var cachedBook = NativeGlue.getBooks( )
+          .filter( function( bookData ) {
+            return bookData.id === bookId;
+          } ).pop();
+
+        if ( cachedBook ) {
+          NativeGlue.cacheBook( '' + bookId );
+        } else {
+          BookService.loadBook( bookId )
+            .then( function( ) {
+              BookService.cacheBook( bookId );
+            } );
+        }
+      },
+
+      clearBookCache: function( bookId ) {
+        var cachedBook = NativeGlue.getBooks( )
+          .filter( function( bookData ) {
+            return bookData.id === bookId;
+          } ).pop();
+
+        if ( cachedBook ) {
+          NativeGlue.clearBookCache( '' + bookId );
+        }
       },
 
       loadBook: function( bookId ) {

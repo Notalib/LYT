@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .controller( 'BookshelfCtrl', [ '$log', '$scope', 'BookNetwork', 'Book', function( $log, $scope, BookNetwork ) {
+  .controller( 'BookshelfCtrl', [ '$log', '$scope', 'BookNetwork', 'BookService', function( $log, $scope, BookNetwork, BookService ) {
     var uniqueItems = function( items ) {
       // Angular doesn't like duplicates
       var unique = {};
@@ -18,6 +18,31 @@ angular.module( 'lyt3App' )
 
         $log.warn( 'loadBookShelf: unique item: ' + item.id + ' is a duplicate', item );
         return false;
+      } );
+    };
+
+    $scope.cacheBook = function( $event, bookid ) {
+      $event.stopPropagation( );
+      $event.preventDefault( );
+
+      BookService.cacheBook( bookid );
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          book.downloading = 0;
+        }
+      } );
+    };
+
+    $scope.clearBookCache = function( $event, bookid ) {
+      $event.stopPropagation( );
+      $event.preventDefault( );
+
+      BookService.clearBookCache( bookid );
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          delete book.downloading;
+          delete book.downloaded;
+        }
       } );
     };
 
@@ -51,4 +76,24 @@ angular.module( 'lyt3App' )
     $scope.nextPage = function( ) {
       loadBookShelf( );
     };
+
+    $scope.$on( 'download-progress', function( $currentScope, bookid, procent ) {
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          book.downloading = procent;
+          return true;
+        }
+      } );
+    } );
+
+    $scope.$on( 'download-completed', function( $currentScope, bookid ) {
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          setTimeout( function( ) {
+            book.downloaded = true;
+          }, 250 );
+          return true;
+        }
+      } );
+    } );
   } ] );
