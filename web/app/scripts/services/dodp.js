@@ -402,7 +402,7 @@ angular.module( 'lyt3App' )
                   var label = item.label.text || '';
                   var labelArr = label.split( '$' );
                   return {
-                    id: item.attrs.id,
+                    id: '' + item.attrs.id, // id is assumed to be a string
                     author: labelArr[ 0 ],
                     title: labelArr[ 1 ]
                   };

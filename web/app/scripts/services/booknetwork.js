@@ -382,6 +382,7 @@ angular.module( 'lyt3App' )
               var knownBooks = NativeGlue.getBooks( )
                 .reduce( function( output, bookData ) {
                   output[ bookData.id ] = bookData;
+                  return output;
                 }, {} ) || {};
 
               var items = list.items.map( function( item ) {
@@ -418,6 +419,7 @@ angular.module( 'lyt3App' )
           var knownBooks = NativeGlue.getBooks( )
             .reduce( function( output, bookData ) {
               output[ bookData.id ] = bookData;
+              return output;
             }, {} ) || {};
 
           return LYTSession.getBookShelf( ).map( function( item ) {
