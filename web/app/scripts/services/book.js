@@ -665,6 +665,8 @@ angular.module( 'lyt3App' )
 
           var duration = 0;
 
+          var playlist = [];
+
           // Generate the playlist, e.g. list of all audio-files and their start/end-offsets
           var loadPlaylist = this.loadAllSMIL( )
             .then( function( smildocuments ) {
@@ -672,7 +674,7 @@ angular.module( 'lyt3App' )
                 smildocument.segments.forEach( function( segment ) {
                   duration += segment.duration;
 
-                  bookStructure.playlist.push( {
+                  playlist.push( {
                     url: segment.audio.url,
                     start: segment.start,
                     end: segment.end
@@ -680,6 +682,31 @@ angular.module( 'lyt3App' )
                 } );
               } );
             } );
+
+          loadPlaylist.then( function( ) {
+            // Clean up the playlist, before returning in
+            // A mp3-file is usually used in more than one segment, with the last end-offset
+            // equals the start-offset in the next segment.
+            bookStructure.playlist = playlist.reduce( function( output, item ) {
+              item = angular.copy( item );
+
+              if ( output.length ) {
+                var lastItem = output.pop();
+                // Get the last item in the out
+                if ( lastItem.url === item.url &&
+                    lastItem.end.toFixed(3) === item.start.toFixed(3) ) {
+                  // Since the two items have the same url and their end- and start-offset
+                  // match to precition of 3 decimals. We can assume they're in sequence.
+                  item.start = lastItem.start;
+                } else {
+                  output.push( lastItem );
+                }
+              }
+
+              output.push( item );
+              return output;
+            }, [] );
+          } );
 
           $q.all( [ loadNavigation, loadPlaylist ] )
             .then( function( ) {

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
+import android.util.Log;
 import dk.nota.lyt.Book;
 import dk.nota.lyt.player.PlayerApplication;
 import dk.nota.lyt.player.task.AbstractTask;
@@ -40,7 +41,7 @@ public class LockScreenManager {
 				
 				@Override
 				public void success(Bitmap result) {
-					if (result != null) {
+					if (result != null && mRemoteControlClient != null) {
 						mRemoteControlClient.editMetadata(true)
 						.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, result)
 						.apply();

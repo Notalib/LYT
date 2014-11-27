@@ -107,14 +107,9 @@ public class NotificationManager {
 	}
 	
 	private Notification.Builder addStopAction() {
-		Intent resultIntent = new Intent(PlayerApplication.getInstance(), PlayerActivity.class);
-		resultIntent.putExtra("shutdown", true);
-		PendingIntent piStop = PendingIntent.getActivity(
-			    PlayerApplication.getInstance(),
-			    0,
-			    resultIntent,
-			    PendingIntent.FLAG_UPDATE_CURRENT
-			);
+		Intent playIntent = new Intent(PlayerApplication.getInstance(), PlayerCommands.class);
+		playIntent.setAction(PlayerCommands.Command.STOP.name());
+		PendingIntent piStop = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, 0);
 		return mPlayBuilder.addAction(R.drawable.ic_stat_av_stop, PlayerApplication.getInstance().getString(R.string.play_stop), piStop);
 	}
 	

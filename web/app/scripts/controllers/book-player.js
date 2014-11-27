@@ -8,6 +8,7 @@ angular.module('lyt3App')
         $location.path( '/' );
       }
 
+      $scope.bookid = $routeParams.bookid;
       $scope.BookService = BookService;
 
       var loadBook = function( ) {
