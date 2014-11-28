@@ -12,6 +12,7 @@ angular.module('lyt3App')
       $scope.BookService = BookService;
 
       var loadBook = function( ) {
+        $log.info( 'BookPlayerCtrl: play book' );
         BookService.loadBook( $routeParams.bookid );
       };
 
@@ -81,5 +82,6 @@ angular.module('lyt3App')
         $log.info( 'end: TODO', bookId );
       } );
 
+      $log.info( 'BookPlayerCtrl: initialized' );
       loadBook( );
     } ] );

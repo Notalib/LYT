@@ -1,3 +1,4 @@
+/*global $ */
 ( function( ) {
   'use strict';
 
@@ -8,6 +9,17 @@
 
   if ( /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test( navigator.userAgent ) ) {
     ( function( ) {
+      // Create iframe for signaling iOS-nativeglue
+      var iframe;
+      $( function( ) {
+        iframe = $( '<iframe src="about:blank;"></iframe>' )
+          .appendTo( document.body ).css( {
+            position: 'absolute',
+            top: -10000,
+            left: -10000
+          } );
+      } );
+
       window.lytBridge = {
         _queue: [],
         _books: [], // should be updated by native app
@@ -15,7 +27,11 @@
         _sendCommand: function(commandName, payloadArray) {
           console.log(commandName, payloadArray);
           this._queue.push([commandName, payloadArray]);
-          window.open('nota://signal');
+          if ( iframe ) {
+            iframe.attr( 'src', 'nota://signal?r=' + Math.random( ) );
+          } else {
+            window.open('nota://signal');
+          }
         },
 
         _consumeCommands: function() {
