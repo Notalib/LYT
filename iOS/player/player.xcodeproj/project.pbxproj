@@ -415,6 +415,7 @@
 					};
 					BEB1BA121A121B140066F4FD = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 4U9NSKBV63;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
