@@ -54,14 +54,12 @@ angular.module('lyt3App')
           }
 
           NativeGlue.play( currentBook.id, offset );
-          BookService.playing = true;
         } else if ( currentBook && currentBook.id === bookId ) {
           if ( offset === undefined ) {
             offset = getCurrentPOsition( );
           }
 
           NativeGlue.play( bookId, offset );
-          BookService.playing = true;
         } else {
           BookService.loadBook( bookId )
             .then( function( book ) {
@@ -72,7 +70,6 @@ angular.module('lyt3App')
               }
 
               NativeGlue.play( bookId, offset );
-              BookService.playing = true;
             } );
         }
       },
@@ -177,6 +174,7 @@ angular.module('lyt3App')
         if ( $location.path( ).indexOf( 'book-player' ) > -1 ) {
           var bookPath = '/book-player/' + bookId;
           $location.path( bookPath );
+          BookService.playing = true;
         } else {
           BookService.loadBook( bookId )
             .then( function( book ) {
