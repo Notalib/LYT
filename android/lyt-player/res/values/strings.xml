@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Nota</string>
+    <string name="app_name">LYT</string>
     <string name="hello_world">Hello world!</string>
     <string name="reload">Genindlæs</string>
     
     <string name="download_title">%1$s af %2$s</string>
     <string name="download_in_progress">Bog hentes…</string>
     <string name="download_completed">Bog hentet</string>
+    <string name="download_cancel">Stop hentning</string>
     
     <string name="play_title">%1$s</string>
     <string name="play_big_style">Af %2$s\n%1$s</string>

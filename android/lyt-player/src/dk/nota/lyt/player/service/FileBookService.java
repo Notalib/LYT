@@ -83,6 +83,7 @@ public class FileBookService implements BookService {
 				for (SoundBite bite : fragment.getBites()) {
 					PlayerApplication.getInstance().deleteFile(bite.getFilename());
 				}
+				fragment.getBites().clear();
 			}
 		}
 	}

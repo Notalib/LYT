@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import dk.nota.lyt.Book;
 import dk.nota.player.R;
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -35,8 +37,8 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 		webSettings.setDomStorageEnabled(true);
 		mWebView.addJavascriptInterface(new PlayerInterface(PlayerApplication.getInstance().getPlayer()), "lytBridge");
 		mWebView.setWebChromeClient(new WebChromeClient());
-//		mWebView.loadUrl("http://localhost:9000");
-		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_005/#/bookshelf");
+		mWebView.loadUrl("http://localhost:9000");
+//		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_006/#/bookshelf");
 //		mWebView.loadUrl("http://localhost:8000/player.html");
 	}
 	
@@ -44,8 +46,7 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		if (intent.getBooleanExtra("shutdown", false)) {
-			PlayerApplication.getInstance().getPlayer().stop();
-			new NotificationManager().stopPlayer();
+			PlayerApplication.getInstance().getPlayer().shutdown();
 			finish();
 		}
 	}
@@ -53,13 +54,13 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 	@Override
 	protected void onResume() {
 		super.onResume();
-		PlayerApplication.getInstance().getPlayer().setEventListener(this);
+		PlayerApplication.getInstance().getPlayer().addEventListener(this);
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		PlayerApplication.getInstance().getPlayer().setEventListener(null);
+		PlayerApplication.getInstance().getPlayer().removeEventListener(null);
 	}
 	
 	@Override
@@ -83,7 +84,20 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 	}
 	
 	@Override
-	public void onEvent(final Event event, final Object... params) {
+	public void onBackPressed() {
+		if (mWebView.getUrl().endsWith("/bookshelf") == false) {
+			mWebView.evaluateJavascript("window.history.back()", null);
+		} else {
+			super.onBackPressed();
+		}
+	}
+	
+	@Override
+	public void onEvent(final Event event, final Book book, final Object... params) {
+		
+		//TODO make sure Morten can handle event his does not know
+		if (event == Event.PLAY_PLAY || event == Event.PLAY_CHAPTER_CHANGE) return;
+		
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -96,7 +110,6 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 						parameters.append(param);
 					}
 				}
-//				mWebView.evaluateJavascript(String.format("console.log(%s,'%s');", event.eventName(), parameters.toString()), null);
 				mWebView.evaluateJavascript(String.format("lytHandleEvent(%s %s)", event.eventName(), parameters.toString()), null);
 			}
 		});

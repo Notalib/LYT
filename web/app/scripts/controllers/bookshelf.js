@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .controller( 'BookshelfCtrl', [ '$log', '$scope', 'BookNetwork', 'BookService', function( $log, $scope, BookNetwork, BookService ) {
+  .controller( 'BookshelfCtrl', [ '$log', '$timeout', '$scope', 'BookNetwork', 'BookService',
+  function( $log, $timeout, $scope, BookNetwork, BookService ) {
     var uniqueItems = function( items ) {
       // Angular doesn't like duplicates
       var unique = {};
@@ -28,7 +29,8 @@ angular.module( 'lyt3App' )
       BookService.cacheBook( bookid );
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
-          book.downloading = 0;
+          delete book.downloaded;
+          book.downloading = 0.1;
         }
       } );
     };
@@ -38,6 +40,19 @@ angular.module( 'lyt3App' )
       $event.preventDefault( );
 
       BookService.clearBookCache( bookid );
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          delete book.downloading;
+          delete book.downloaded;
+        }
+      } );
+    };
+
+    $scope.cancelBookCaching = function( $event, bookid ) {
+      $event.stopPropagation( );
+      $event.preventDefault( );
+
+      BookService.cancelBookCaching( bookid );
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
           delete book.downloading;
@@ -86,10 +101,19 @@ angular.module( 'lyt3App' )
       } );
     } );
 
+    $scope.$on( 'download-cancelled', function( $currentScope, bookid ) {
+      $scope.books.some( function( book ) {
+        if ( book.id === bookid ) {
+          delete book.downloading;
+          return true;
+        }
+      } );
+    } );
+
     $scope.$on( 'download-completed', function( $currentScope, bookid ) {
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
-          setTimeout( function( ) {
+          $timeout( function( ) {
             book.downloaded = true;
           }, 250 );
           return true;

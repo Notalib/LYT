@@ -8,6 +8,7 @@ import java.util.Locale;
 import android.app.Application;
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
+import dk.nota.lyt.player.lock.LockScreenManager;
 import dk.nota.lyt.player.service.BookService;
 import dk.nota.lyt.player.service.FileBookService;
 import dk.nota.lyt.player.service.MP3Service;
@@ -23,6 +24,7 @@ public class PlayerApplication extends Application {
 	private BookService bookService;
 	private MP3Service mp3Service;
 	private BookPlayer mPlayer;
+
 	
 	private static DateFormat weekdayFormatter;
 	private static DateFormat dateLongFormatter;
@@ -40,6 +42,8 @@ public class PlayerApplication extends Application {
 		bookService = new FileBookService();
 		mp3Service = new PhonyMP3Service();
 		mPlayer = new BookPlayer();
+		mPlayer.addEventListener(new NotificationManager());
+		mPlayer.addEventListener(new LockScreenManager());
 	}
 	
 	public static PlayerApplication getInstance() {

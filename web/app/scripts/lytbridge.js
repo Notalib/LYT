@@ -51,6 +51,10 @@
           this._sendCommand('cacheBook', [bookId]);
         },
 
+        cancelBookCaching: function( bookId ) {
+          this._sendCommand('cancelBookCaching', [bookId]);
+        },
+
         clearBookCache: function( bookId ) {
           this._sendCommand('clearBookCache', [bookId]);
         }
@@ -222,6 +226,11 @@
 
             storeVar( 'cachedBooks', cachedBooks );
           }, 100 );
+        },
+        cancelBookCaching: function( bookId ) {
+          window.lytBridge.clearBookCache( bookId );
+
+          window.lytHandleEvent( 'download-cancelled', bookId );
         },
         clearBookCache: function( bookId ) {
           delete cachedBooks[ bookId ];

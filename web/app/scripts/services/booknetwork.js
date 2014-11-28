@@ -389,7 +389,7 @@ angular.module( 'lyt3App' )
                 if ( knownBooks[ item.id ] ) {
                   item.downloaded = !!knownBooks[ item.id ].downloaded;
                 } else {
-                  item.downloaded = false;
+                  delete item.downloaded;
                 }
 
                 return item;
@@ -426,7 +426,7 @@ angular.module( 'lyt3App' )
             if ( knownBooks[ item.id ] ) {
               item.downloaded = !!knownBooks[ item.id ].downloaded;
             } else {
-              item.downloaded = false;
+              delete item.downloaded;
             }
 
             return item;
