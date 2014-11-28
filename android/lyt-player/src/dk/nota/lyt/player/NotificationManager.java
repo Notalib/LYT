@@ -8,12 +8,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import dk.nota.lyt.Book;
 import dk.nota.lyt.Section;
-import dk.nota.lyt.player.BookPlayer.EventListener;
+import dk.nota.lyt.player.event.OnPlayerEvent;
+import dk.nota.lyt.player.event.SimplePlayerListener;
 import dk.nota.lyt.player.task.AbstractTask;
 import dk.nota.lyt.player.task.LoadNotificationBookCoverTask;
 import dk.nota.player.R;
 
-public class NotificationManager implements EventListener {
+public class NotificationManager extends SimplePlayerListener implements OnPlayerEvent {
 
 	private static final int NOTIFICATION_DOWNLOAD_ID = 42;  
 	private static final int NOTIFICATION_PLAY_ID = 43;  
@@ -24,7 +25,8 @@ public class NotificationManager implements EventListener {
 	private Bitmap mLargeDownloadIcon;
 	private android.app.NotificationManager mNotifyMgr = (android.app.NotificationManager) PlayerApplication.getInstance().getSystemService(PlayerActivity.NOTIFICATION_SERVICE);
 
-	private void notifyDownloadStart(Book book) {
+	@Override
+	public void onDownloadStarted(Book book) {
 		mDownloadBuilder = new Notification.Builder(PlayerApplication.getInstance()).setSmallIcon(R.drawable.ic_stat_ic_action_download);
 		mDownloadBuilder.setContentTitle(PlayerApplication.getInstance().getString(R.string.download_title, book.getTitle(), book.getAuthor()))
 			    .setContentText(PlayerApplication.getInstance().getString(R.string.download_in_progress))
@@ -47,12 +49,14 @@ public class NotificationManager implements EventListener {
 		mNotifyMgr.notify(NOTIFICATION_DOWNLOAD_ID, mDownloadBuilder.build());
 	}
 	
-	private void notifyDownloadProgress(Book book, BigDecimal percentage) {
+	@Override
+	public void onDownloadProgress(Book book, BigDecimal percentage) {
 		mDownloadBuilder.setProgress(100, percentage.intValue(), false);
 		mNotifyMgr.notify(NOTIFICATION_DOWNLOAD_ID, mDownloadBuilder.build());
 	}
 
-	private void notifyDownloadCompletion(Book book) {
+	@Override
+	public void onDownloadCompleted(Book book) {
 		mDownloadBuilder = new Notification.Builder(PlayerApplication.getInstance()).setSmallIcon(R.drawable.ic_stat_ic_action_download);
 		mDownloadBuilder.setOngoing(false)
 			.setAutoCancel(true)
@@ -67,7 +71,13 @@ public class NotificationManager implements EventListener {
 		mLargeDownloadIcon = null;
 	}
 	
-	private void notifyPlaying(Book book) {
+	@Override
+	public void onDownloadCancelled(Book book) {
+		mNotifyMgr.cancel(NOTIFICATION_DOWNLOAD_ID);
+	}
+	
+	@Override
+	public void onPlay(Book book) {
 		Section section = book.getSection(book.getPosition()) ;
 
 		mPlayBuilder = new Notification.Builder(PlayerApplication.getInstance()).setSmallIcon(R.drawable.ic_stat_av_play_circle_outline);
@@ -96,15 +106,22 @@ public class NotificationManager implements EventListener {
 		}, book);
 	}
 	
-	private void notifyChapterChange(Book book) {
+	@Override
+	public void onChapterChange(Book book) {
 		Section section = book.getSection(book.getPosition()) ;
 		String bigText = PlayerApplication.getInstance().getString(R.string.play_big_style, (section != null ? section.getTitle() : ""), book.getAuthor());
 		mPlayBuilder.setContentText(section != null ? section.getTitle() : "")
 			.setStyle(new Notification.BigTextStyle().bigText(bigText));
 		mNotifyMgr.notify(NOTIFICATION_PLAY_ID, mPlayBuilder.build());
 	}
+	
+	@Override
+	public void onPlayFailed(Book book, String reason) {
+		onStop(book, false);
+	}
 
-	private void notifyPause(Book book) {
+	@Override
+	public void onStop(Book book, boolean fullstop) {
 		Section section = book.getSection(book.getPosition()) ;
 		mPlayBuilder = new Notification.Builder(PlayerApplication.getInstance()).setSmallIcon(R.drawable.ic_stat_av_pause_circle_outline);
 		mPlayBuilder.setContentTitle(PlayerApplication.getInstance().getString(R.string.play_title, book.getTitle()))
@@ -119,9 +136,12 @@ public class NotificationManager implements EventListener {
 		addStopAction().setStyle(new Notification.BigTextStyle().bigText(bigText))
 			.addAction(R.drawable.ic_stat_av_play_circle_outline, PlayerApplication.getInstance().getString(R.string.play_play), piPlay);
 		mNotifyMgr.notify(NOTIFICATION_PLAY_ID, mPlayBuilder.build());
+		if (fullstop) onEnd(book);
+
 	}
 	
-	private void notifyBookEnd() {
+	@Override
+	public void onEnd(Book book) {
 		mNotifyMgr.cancel(NOTIFICATION_PLAY_ID);
 	}
 	
@@ -143,39 +163,4 @@ public class NotificationManager implements EventListener {
 		    PendingIntent.FLAG_UPDATE_CURRENT
 		);
 	}
-
-	@Override
-	public void onEvent(Event event, Book book, Object... params) {
-		switch (event) {
-		case PLAY_FAILED:
-		case PLAY_STOP:
-			notifyPause(book);
-			if (Boolean.TRUE.equals(params.length > 1 ? params[1] : Boolean.FALSE)) {
-				notifyBookEnd();
-			}
-			break;
-		case PLAY_END:
-			notifyBookEnd();
-			break;
-		case PLAY_CHAPTER_CHANGE:
-			notifyChapterChange(book);
-			break;
-		case PLAY_PLAY:
-			notifyPlaying(book);
-			break;
-		case DOWNLOAD_STARTED:
-			notifyDownloadStart(book);
-			break;
-		case DOWNLOAD_PROGRESS:
-			notifyDownloadProgress(book, (BigDecimal) params[1]);
-			break;
-		case DOWNLOAD_COMPLETED:
-			notifyDownloadCompletion(book);
-			break;
-		default:
-			break;
-		}
-		
-	}
-
 }

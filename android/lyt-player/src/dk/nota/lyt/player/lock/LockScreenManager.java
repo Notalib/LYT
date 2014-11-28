@@ -9,19 +9,20 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
 import dk.nota.lyt.Book;
-import dk.nota.lyt.player.BookPlayer.EventListener;
-import dk.nota.lyt.player.Event;
 import dk.nota.lyt.player.PlayerApplication;
+import dk.nota.lyt.player.event.OnPlayerEvent;
+import dk.nota.lyt.player.event.SimplePlayerListener;
 import dk.nota.lyt.player.task.AbstractTask;
 import dk.nota.lyt.player.task.LoadLockScreenBookCoverTask;
 
-public class LockScreenManager implements EventListener {
+public class LockScreenManager extends SimplePlayerListener implements OnPlayerEvent {
 	
 	private RemoteControlClient mRemoteControlClient;
 	private Book  mBook;
 	private Bitmap mCover;
 	
-	private void play(Book book) {
+	@Override
+	public void onPlay(Book book) {
 		
 		if (mRemoteControlClient == null) {
 			AudioManager audioManager = (AudioManager) PlayerApplication.getInstance().getSystemService(Context.AUDIO_SERVICE);
@@ -59,16 +60,24 @@ public class LockScreenManager implements EventListener {
 		addDefault().apply();
 	}
 	
-	private void pause() {
+	@Override
+	public void onPlayFailed(Book book, String reason) {
+		onStop(book, false);
+	}
+	
+	@Override
+	public void onStop(Book book, boolean fullstop) {
 		mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 		mRemoteControlClient.setTransportControlFlags(
 	            RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
 	            RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
 	            RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
+		if (fullstop) onEnd(book);
 		
 	}
 	
-	private void stop() {
+	@Override
+	public void onEnd(Book book) {
 		AudioManager audioManager = (AudioManager) PlayerApplication.getInstance().getSystemService(Context.AUDIO_SERVICE);
         audioManager.unregisterMediaButtonEventReceiver(getEventReceiver());
         mRemoteControlClient = null;
@@ -88,33 +97,8 @@ public class LockScreenManager implements EventListener {
 		return new ComponentName(PlayerApplication.getInstance().getPackageName(), RemoteControlEventReceiver.class.getName());		
 	}
 
-	private void chapterChange() {
+	@Override
+	public void onChapterChange(Book book) {
 		addDefault().apply();
 	}
-
-	@Override
-	public void onEvent(Event event, Book book, Object... params) {
-		switch (event) {
-		case PLAY_FAILED:
-		case PLAY_STOP:
-			pause();
-			if (Boolean.TRUE.equals(params.length > 1 ? params[1] : Boolean.FALSE)) {
-				stop();
-			}
-			break;
-		case PLAY_END:
-			stop();
-			break;
-		case PLAY_CHAPTER_CHANGE:
-			chapterChange();
-			break;
-		case PLAY_PLAY:
-			play(book);
-			break;
-		default:
-			break;
-		}
-		
-	}
-
 }
