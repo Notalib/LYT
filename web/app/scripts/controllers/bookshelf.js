@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module( 'lyt3App' )
-  .controller( 'BookshelfCtrl', [ '$log', '$scope', 'BookNetwork', 'BookService', function( $log, $scope, BookNetwork, BookService ) {
+  .controller( 'BookshelfCtrl', [ '$log', '$timeout', '$scope', 'BookNetwork', 'BookService',
+  function( $log, $timeout, $scope, BookNetwork, BookService ) {
     var uniqueItems = function( items ) {
       // Angular doesn't like duplicates
       var unique = {};
@@ -28,7 +29,8 @@ angular.module( 'lyt3App' )
       BookService.cacheBook( bookid );
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
-          book.downloading = 0;
+          delete book.downloaded;
+          book.downloading = 0.1;
         }
       } );
     };
@@ -54,6 +56,7 @@ angular.module( 'lyt3App' )
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
           delete book.downloading;
+          delete book.downloaded;
         }
       } );
     };
@@ -110,7 +113,7 @@ angular.module( 'lyt3App' )
     $scope.$on( 'download-completed', function( $currentScope, bookid ) {
       $scope.books.some( function( book ) {
         if ( book.id === bookid ) {
-          setTimeout( function( ) {
+          $timeout( function( ) {
             book.downloaded = true;
           }, 250 );
           return true;
