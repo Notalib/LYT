@@ -8,17 +8,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import dk.nota.lyt.Book;
+import dk.nota.lyt.player.event.OnPlayerEvent;
+import dk.nota.lyt.player.event.WebPlayerEvent;
 import dk.nota.player.R;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class PlayerActivity extends Activity implements BookPlayer.EventListener {
+public class PlayerActivity extends Activity {
 	
 	private WebView mWebView;
+	private OnPlayerEvent mEventListener;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +38,9 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 		webSettings.setDomStorageEnabled(true);
 		mWebView.addJavascriptInterface(new PlayerInterface(PlayerApplication.getInstance().getPlayer()), "lytBridge");
 		mWebView.setWebChromeClient(new WebChromeClient());
+		mEventListener = new WebPlayerEvent(mWebView);
 		mWebView.loadUrl("http://localhost:9000");
-//		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_006/#/bookshelf");
+//		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_007/#/bookshelf");
 //		mWebView.loadUrl("http://localhost:8000/player.html");
 	}
 	
@@ -54,13 +56,13 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 	@Override
 	protected void onResume() {
 		super.onResume();
-		PlayerApplication.getInstance().getPlayer().addEventListener(this);
+		PlayerApplication.getInstance().getPlayer().addEventListener(mEventListener);
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		PlayerApplication.getInstance().getPlayer().removeEventListener(null);
+		PlayerApplication.getInstance().getPlayer().removeEventListener(mEventListener);
 	}
 	
 	@Override
@@ -90,28 +92,5 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 		} else {
 			super.onBackPressed();
 		}
-	}
-	
-	@Override
-	public void onEvent(final Event event, final Book book, final Object... params) {
-		
-		//TODO make sure Morten can handle event his does not know
-		if (event == Event.PLAY_PLAY || event == Event.PLAY_CHAPTER_CHANGE) return;
-		
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				StringBuilder parameters = new StringBuilder();
-				for (Object param : params) {
-					parameters.append(",");
-					if (param instanceof String) {
-						parameters.append("'").append(param).append("'");
-					} else {
-						parameters.append(param);
-					}
-				}
-				mWebView.evaluateJavascript(String.format("lytHandleEvent(%s %s)", event.eventName(), parameters.toString()), null);
-			}
-		});
 	}
 }
