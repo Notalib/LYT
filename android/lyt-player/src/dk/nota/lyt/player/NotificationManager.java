@@ -43,7 +43,7 @@ public class NotificationManager extends SimplePlayerListener implements OnPlaye
 			}
 		}, book);
 		Intent playIntent = PlayerCommands.getCancelDownloadedIntent(book, NOTIFICATION_DOWNLOAD_ID);
-		PendingIntent piCancel = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, 0);
+		PendingIntent piCancel = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mDownloadBuilder.addAction(R.drawable.ic_stat_av_not_interested, PlayerApplication.getInstance().getString(R.string.download_cancel), piCancel);
 
 		mNotifyMgr.notify(NOTIFICATION_DOWNLOAD_ID, mDownloadBuilder.build());
@@ -65,7 +65,7 @@ public class NotificationManager extends SimplePlayerListener implements OnPlaye
 			.setProgress(0, 0, false);
 
 		Intent playIntent = PlayerCommands.getPlayDownloadedIntent(book, NOTIFICATION_DOWNLOAD_ID);
-		PendingIntent piPlay = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, 0);
+		PendingIntent piPlay = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		mDownloadBuilder.addAction(R.drawable.ic_stat_av_play_circle_outline, PlayerApplication.getInstance().getString(R.string.play_play), piPlay);
 		mNotifyMgr.notify(NOTIFICATION_DOWNLOAD_ID, mDownloadBuilder.build());
 		mLargeDownloadIcon = null;
@@ -130,7 +130,7 @@ public class NotificationManager extends SimplePlayerListener implements OnPlaye
 			    .setLargeIcon(mLargeIcon)
 			    .setOngoing(true);
 		
-		PendingIntent piPlay = PendingIntent.getService(PlayerApplication.getInstance(), 0, PlayerCommands.getPlayIntent(book), 0);
+		PendingIntent piPlay = PendingIntent.getService(PlayerApplication.getInstance(), 0, PlayerCommands.getPlayIntent(book), PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		String bigText = PlayerApplication.getInstance().getString(R.string.play_big_style, (section != null ? section.getTitle() : ""), book.getAuthor());
 		addStopAction().setStyle(new Notification.BigTextStyle().bigText(bigText))
@@ -148,7 +148,7 @@ public class NotificationManager extends SimplePlayerListener implements OnPlaye
 	private Notification.Builder addStopAction() {
 		Intent playIntent = new Intent(PlayerApplication.getInstance(), PlayerCommands.class);
 		playIntent.setAction(PlayerCommands.Command.STOP.name());
-		PendingIntent piStop = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, 0);
+		PendingIntent piStop = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		return mPlayBuilder.addAction(R.drawable.ic_stat_av_stop, PlayerApplication.getInstance().getString(R.string.play_stop), piStop);
 	}
 	

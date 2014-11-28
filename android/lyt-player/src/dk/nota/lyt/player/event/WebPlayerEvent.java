@@ -3,8 +3,10 @@ package dk.nota.lyt.player.event;
 import java.math.BigDecimal;
 
 import android.app.Activity;
+import android.util.Log;
 import android.webkit.WebView;
 import dk.nota.lyt.Book;
+import dk.nota.lyt.player.PlayerApplication;
 
 public class WebPlayerEvent implements OnPlayerEvent{
 	
@@ -44,7 +46,6 @@ public class WebPlayerEvent implements OnPlayerEvent{
 	@Override
 	public void onTimeUpdate(Book book, BigDecimal position) {
 		fireEvent(Event.PLAY_TIME_UPDATE, book, position);
-		
 	}
 
 	@Override
@@ -113,7 +114,7 @@ public class WebPlayerEvent implements OnPlayerEvent{
 			public void run() {
 				StringBuilder parameters = new StringBuilder();
 				if (book != null) {
-					parameters.append(",").append(book.getId());
+					parameters.append(",").append("'").append(book.getId()).append("'");
 				}
 				for (Object param : params) {
 					parameters.append(",");

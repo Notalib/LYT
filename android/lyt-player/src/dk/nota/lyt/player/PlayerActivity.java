@@ -39,8 +39,8 @@ public class PlayerActivity extends Activity {
 		mWebView.addJavascriptInterface(new PlayerInterface(PlayerApplication.getInstance().getPlayer()), "lytBridge");
 		mWebView.setWebChromeClient(new WebChromeClient());
 		mEventListener = new WebPlayerEvent(mWebView);
-//		mWebView.loadUrl("http://localhost:9000");
-		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_007/#/bookshelf");
+		mWebView.loadUrl("http://localhost:9000");
+//		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_007/#/bookshelf");
 //		mWebView.loadUrl("http://localhost:8000/player.html");
 	}
 	
