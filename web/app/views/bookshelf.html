@@ -10,8 +10,11 @@
           <div class="book-author">{{ book.author }}</div>
         </div>
         <div class="download-buttons-box">
-          <button class="btn glyphicon glyphicon-download" ng-show="!book.downloaded" ng-click="cacheBook($event, book.id)" title="Download til offline"></button>
-          <button class="btn glyphicon glyphicon-remove" ng-show="book.downloaded" ng-click="clearBookCache($event, book.id)" title="Fjern fra offline brug"></button>
+          <button class="btn glyphicon glyphicon-download" ng-show="!book.downloaded && !book.downloading" ng-click="cacheBook($event, book.id)" title="Download til offline"></button>
+
+          <button class="btn glyphicon glyphicon-remove" ng-show="!book.downloaded && book.downloading" ng-click="cancelBookCaching($event, book.id)" title="Stop download"></button>
+
+          <button class="btn glyphicon glyphicon-remove-circle" ng-show="book.downloaded" ng-click="clearBookCache($event, book.id)" title="Fjern fra offline brug"></button>
         </div>
       </a>
 

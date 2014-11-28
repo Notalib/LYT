@@ -13,7 +13,7 @@
 @interface Downloader : NSObject <NSURLSessionDelegate>
 @property (nonatomic, readonly) NSURL* url;
 @property (nonatomic, readonly) NSUInteger start;
-@property (nonatomic, assign) NSUInteger end; // must only be increased
+@property (nonatomic, assign) NSUInteger end; 
 
 // how much we have read and stored in cache, and nice to key-value-observe
 @property (nonatomic, readonly) NSUInteger progressBytes;

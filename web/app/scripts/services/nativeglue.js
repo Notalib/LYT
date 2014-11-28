@@ -50,8 +50,13 @@ angular.module( 'lyt3App' )
     };
 
     var clearBookCache = function( bookId ) {
-      $log.info( 'cacheBookCache:', bookId );
+      $log.info( 'clearBookCache:', bookId );
       return lytBridge.clearBookCache( bookId );
+    };
+
+    var cancelBookCaching = function( bookId ) {
+      $log.info( 'cancelBookCaching:', bookId );
+      return lytBridge.cancelBookCaching( bookId );
     };
 
     return {
@@ -61,6 +66,7 @@ angular.module( 'lyt3App' )
       play: play,
       stop: stop,
       cacheBook: cacheBook,
-      clearBookCache: clearBookCache
+      clearBookCache: clearBookCache,
+      cancelBookCaching: cancelBookCaching
     };
   } ] );

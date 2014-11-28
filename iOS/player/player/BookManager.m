@@ -12,6 +12,9 @@
 #import "debug.h"
 #import "Reachability.h"
 
+// we lookahead five minutes for books we are not dowqnloading for offline use
+#define DefaultLookaheadSeconds (60 * 5)
+
 @interface BookManager () {
     NSMutableDictionary* booksById;
     NSMutableSet* booksDownloading; // books we are downloading in their entirety, contains Book instances
@@ -266,7 +269,7 @@ static BookManager* anyManager = nil;
 
 -(void)sendBookUpdate {
     Book* book = self.currentBook;
-    if(book) {
+    if(book.isPlaying) {
         [bridge updateBook:book.identifier offset:book.position];
     }
     
@@ -276,7 +279,7 @@ static BookManager* anyManager = nil;
     // we schedule update while book is playing
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendBookUpdate) object:nil];
     if(book.isPlaying) {
-        [self performSelector:@selector(sendBookUpdate) withObject:nil afterDelay:0.1];
+        [self performSelector:@selector(sendBookUpdate) withObject:nil afterDelay:0.25];
     } else {
         DBGLog(@"stopped updating book %@", book);
         [book isPlaying];
@@ -287,14 +290,14 @@ static BookManager* anyManager = nil;
     for (Book* book in booksDownloading.allObjects) {
         if(book.downloaded) {
             [self downloadCompletedBook: book];
-        } else {
+        } else if(book.downloadingAll) {
             CGFloat progress = book.ensuredBufferingPoint / book.duration;
             CGFloat percent = 100.0 * progress;
             [bridge downloadBook:book.identifier progress:percent];
         }
         
         // stop following book not either playing or downloading
-        if(!book.downloading && !book.isPlaying) {
+        if(!book.downloadingAll && !book.isPlaying) {
             [booksDownloading removeObject:book];
         }
     }
@@ -339,7 +342,7 @@ static BookManager* anyManager = nil;
     
     Book* book = [Book bookFromDictionary:dict baseURL:baseURL];
     [book joinParts];
-    book.bufferLookahead = 60 * 5; // five minutes loook-ahead
+    book.bufferLookahead = DefaultLookaheadSeconds;
     
     NSString* key = book.identifier;
     if(key) {
@@ -375,6 +378,8 @@ static BookManager* anyManager = nil;
     [self saveState];
 }
 
+// clear state information about book, but leave caches alone and do not make
+// changes appear in web-layer
 -(void)innerClearBook:(NSString*)bookId {
     if(bookId) {
         Book* book = [booksById objectForKey:bookId];
@@ -382,12 +387,14 @@ static BookManager* anyManager = nil;
         [book removeObserver:self forKeyPath:@"error"];
         
         [book stop];
-        [book deleteCache];
         [booksById removeObjectForKey:bookId];
     }
 }
 
 -(void)clearBook:(NSString*)bookId {
+    Book* book = [booksById objectForKey:bookId];
+    [book deleteCache];
+
     [self innerClearBook:bookId];
     [self saveState];
 }
@@ -443,6 +450,11 @@ static BookManager* anyManager = nil;
     }
     [booksDownloading addObject:book];
     [self sendDownloadUpdates];
+}
+
+-(void)cancelBookCaching:(NSString*)bookId {
+    Book* book = [booksById objectForKey:bookId];
+    book.bufferLookahead = DefaultLookaheadSeconds;
 }
 
 -(void)clearBookCache:(NSString*)bookId {

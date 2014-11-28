@@ -102,6 +102,12 @@
             [self.delegate cacheBook:bookId];
             return;
         }
+    } else if([name isEqualToString:@"cancelBookCaching"]) {
+        NSString* bookId = [arguments.firstObject description];
+        if([bookId isKindOfClass:[NSString class]]) {
+            [self.delegate cancelBookCaching:bookId];
+            return;
+        }
     } else if([name isEqualToString:@"clearBookCache"]) {
         NSString* bookId = [arguments.firstObject description];
         if([bookId isKindOfClass:[NSString class]]) {
@@ -160,6 +166,8 @@
 #pragma mark Events
 
 -(void)deliverEvent:(NSString*)eventName payload:(NSArray*)parameters {
+    //DBGLog(@"deliverEvent(%@): %@", eventName, parameters);
+    
     NSMutableString* javascript = [NSMutableString stringWithFormat:@"lytHandleEvent(\"%@\"",
                                    [self escapeJavascriptString:eventName]];
 

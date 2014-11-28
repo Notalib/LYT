@@ -34,7 +34,10 @@
 @property (nonatomic, readonly) BOOL downloaded;
 
 // whether any kind of downloading is going on
-@property (nonatomic, readonly) BOOL downloading;
+@property (nonatomic, readonly) BOOL downloadingSome;
+
+// whether we are trying to download whole book
+@property (nonatomic, readonly) BOOL downloadingAll;
 
 // first time this is called, the image will be attempted read from
 // URL on the form: http://bookcover.e17.dk/<BOOKID>_h<PIXEL>.jpg

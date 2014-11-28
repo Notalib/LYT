@@ -146,9 +146,7 @@
 
 -(void)refreshLookaheadWithPosition:(NSTimeInterval)position {
     NSTimeInterval lookahead = self.bufferLookahead;
-    if(position + lookahead > self.bufferingPoint) {
-        self.bufferingPoint = fmin(self.duration, position + lookahead);
-    }
+    self.bufferingPoint = fmin(self.duration, position + lookahead);
     
     // schedule delayed refresh if we are playing
     if(self.isPlaying) {
@@ -275,13 +273,17 @@
     return _isPlaying;
 }
 
--(BOOL)downloading {
+-(BOOL)downloadingSome {
     // we are downloading if any part of book is downloading
     for (BookPart* part in self.parts) {
         BOOL partDownloading = !part.downloaded && !part.bufferingsSatisfied;
         if(partDownloading) return YES;
     }
     return NO;
+}
+
+-(BOOL)downloadingAll {
+    return self.bufferingPoint >= self.duration;
 }
 
 -(BOOL)downloaded {

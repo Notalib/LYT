@@ -107,7 +107,10 @@
 
 -(void)setBufferingPoint:(NSTimeInterval)wantedBufferingPoint {
     NSTimeInterval bufferingPoint = fmax(0, fmin(wantedBufferingPoint, self.end));
-    if(_bufferingPoint == bufferingPoint) return;
+    if(_bufferingPoint == bufferingPoint) {
+        [self downloadMore];
+        return;
+    }
     
     [self willChangeValueForKey:@"bufferingPoint"];
     _bufferingPoint = bufferingPoint;

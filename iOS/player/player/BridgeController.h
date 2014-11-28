@@ -17,6 +17,7 @@
 -(void)stop;
 
 -(void)cacheBook:(NSString*)bookId;
+-(void)cancelBookCaching:(NSString*)bookId;
 -(void)clearBookCache:(NSString*)bookId;
 
 // consumer should report back array of dictionary elements with book state on the form:
