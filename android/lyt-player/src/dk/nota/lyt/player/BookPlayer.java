@@ -192,6 +192,9 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 				}
 				fireEvent(Event.PLAY_CHAPTER_CHANGE, mBook.getId());
 			}
+			if (mBook.getPosition().equals(mBook.getEnd())) {
+				fireEvent(Event.PLAY_END, mBook.getId());
+			}
 			synchronized (mNextPlayerThread) {
 				mNextPlayerThread.notify();
 			}

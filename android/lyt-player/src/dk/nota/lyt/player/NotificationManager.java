@@ -42,7 +42,7 @@ public class NotificationManager implements EventListener {
 		}, book);
 		Intent playIntent = PlayerCommands.getCancelDownloadedIntent(book, NOTIFICATION_DOWNLOAD_ID);
 		PendingIntent piCancel = PendingIntent.getService(PlayerApplication.getInstance(), 0, playIntent, 0);
-		mDownloadBuilder.addAction(R.drawable.ic_stat_navigation_close, PlayerApplication.getInstance().getString(R.string.download_cancel), piCancel);
+		mDownloadBuilder.addAction(R.drawable.ic_stat_av_not_interested, PlayerApplication.getInstance().getString(R.string.download_cancel), piCancel);
 
 		mNotifyMgr.notify(NOTIFICATION_DOWNLOAD_ID, mDownloadBuilder.build());
 	}
