@@ -3,8 +3,6 @@ package dk.nota.lyt.player;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,6 +18,8 @@ import dk.nota.lyt.BookInfo;
 import dk.nota.lyt.Section;
 import dk.nota.lyt.SoundBite;
 import dk.nota.lyt.SoundFragment;
+import dk.nota.lyt.player.event.OnPlayerEvent;
+import dk.nota.lyt.player.event.PlayerEventContainer;
 import dk.nota.lyt.player.task.AbstractTask;
 import dk.nota.lyt.player.task.GetBookTask;
 import dk.nota.lyt.player.task.StreamBiteTask;
@@ -27,10 +27,6 @@ import dk.nota.utils.MediaPlayer;
 import dk.nota.utils.WorkerThread;
 
 public class BookPlayer implements DownloadThread.Callback, OnCompletionListener, OnAudioFocusChangeListener {
-
-	public interface EventListener {
-		void onEvent(Event event, Book book, Object... params);
-	}
 
 	private static Object LOCK = new Object();
 	private static BigDecimal THOUSAND = new BigDecimal(1000);
@@ -44,11 +40,12 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 	private MediaPlayer mNextPlayer;
 
 	private BroadcastReceiver mNetworkStateReceiver;
+	
+	private OnPlayerEvent mEventListener = new PlayerEventContainer();
 
 	private boolean playing = false;
 	private Book mBook;
 	private BigDecimal mCurrentEnd;
-	private List<EventListener> mEventListeners = new ArrayList<>();
 
 	private AudioManager mAudioManager;
 
@@ -77,12 +74,12 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 		stop();
 	}
 
-	void addEventListener(EventListener listener) {
-		this.mEventListeners.add(listener);
+	void addEventListener(OnPlayerEvent listener) {
+		((PlayerEventContainer)this.mEventListener).addEventListener(listener);
 	}
 	
-	void removeEventListener(EventListener listener) {
-		mEventListeners.remove(listener);
+	void removeEventListener(OnPlayerEvent listener) {
+		((PlayerEventContainer)this.mEventListener).removeEventListener(listener);
 	}
 
 	public void setBook(String bookJSON) {
@@ -135,7 +132,7 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 	
 	public void shutdown() {
 		stop(true);
-		fireEvent(Event.PLAY_STOP, mBook.getId(), Boolean.TRUE);
+		mEventListener.onStop(mBook, true);
 	}
 	
 	public void stop(boolean fullStop) {
@@ -152,7 +149,7 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 				mNextPlayer = null;
 			}
 			if (mBook != null) {
-				fireEvent(Event.PLAY_STOP, mBook.getId());
+				mEventListener.onStop(mBook, false);
 				PlayerApplication.getInstance().getBookService().updateBook(mBook);
 			}
 			if (fullStop) {
@@ -190,10 +187,10 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 				synchronized (mProgressThread) {
 					mProgressThread.notify();
 				}
-				fireEvent(Event.PLAY_CHAPTER_CHANGE, mBook.getId());
+				mEventListener.onChapterChange(mBook);
 			}
 			if (mBook.getPosition().equals(mBook.getEnd())) {
-				fireEvent(Event.PLAY_END, mBook.getId());
+				mEventListener.onEnd(mBook);
 			}
 			synchronized (mNextPlayerThread) {
 				mNextPlayerThread.notify();
@@ -217,28 +214,28 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 	}
 	
 	public void downloadCancelled(Book book) {
-		fireEvent(Event.DOWNLOAD_CANCELLED, book, book.getId());
+		mEventListener.onDownloadCancelled(book);
 		mDownloaderThread.cancelDownload();
 	}
 
 	@Override
 	public void downloadStarted(Book book) {
-		fireEvent(Event.DOWNLOAD_STARTED, book, book.getId());
+		mEventListener.onDownloadStarted(book);
 	}
 
 	@Override
 	public void downloadFailed(Book book, String reason) {
-		fireEvent(Event.DOWNLOAD_FAILED, book, book.getId(), reason);
+		mEventListener.onDownloadFailed(book, reason);
 	}
 
 	@Override
 	public void downloadCompleted(Book book) {
-		fireEvent(Event.DOWNLOAD_COMPLETED, book, book.getId());
+		mEventListener.onDownloadCompleted(book);
 	}
 
 	@Override
 	public void downloadProgress(Book book, BigDecimal percentage) {
-		fireEvent(Event.DOWNLOAD_PROGRESS, book, book.getId(), percentage);
+		mEventListener.onDownloadProgress(book, percentage);
 	}
 
 	@Override
@@ -268,7 +265,7 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 						mStreamingThread.notify();
 					}
 				} else {
-					fireEvent(Event.PLAY_FAILED, "No book was found for id: " + bookId);
+					mEventListener.onPlayFailed(mBook, "No book was found for id: " + bookId);
 				}
 			}
 		}, bookId);
@@ -295,7 +292,7 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 					Log.w(PlayerApplication.TAG, "Seeking past end! Seekto: " + seekTo + " Duration: " + bite.getDuration());
 					onCompletion(mCurrentPlayer);
 				}
-				fireEvent(Event.PLAY_PLAY, mBook.getId());
+				mEventListener.onPlay(mBook);
 				synchronized (mProgressThread) {
 					mProgressThread.notify();
 				}
@@ -352,7 +349,7 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 			public void onReceive(Context context, Intent intent) {
 				mOnline = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) == false;
 				Log.i(PlayerApplication.TAG, mOnline ? "Device is online" : "Device is offline");
-				fireEvent(Event.CONNECTIVITY_CHANGED, mOnline);
+				mEventListener.onConnectivityChanged(mOnline);
 				if (mOnline) {
 					synchronized (mStreamingThread) {
 						mStreamingThread.notify();
@@ -366,18 +363,6 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 
 	private void unlistenToConnectivity() {
 		PlayerApplication.getInstance().unregisterReceiver(mNetworkStateReceiver);
-	}
-
-	private void fireEvent(final Event event, final Object... params) {
-		fireEvent(event, mBook, params);
-	}
-	
-	private void fireEvent(final Event event, Book book, final Object... params) {
-		synchronized (LOCK) {
-			for (EventListener listener : mEventListeners) {
-				listener.onEvent(event, book, params);
-			}
-		}
 	}
 
 	private class StreamingThread extends WorkerThread {
@@ -491,11 +476,11 @@ public class BookPlayer implements DownloadThread.Callback, OnCompletionListener
 					synchronized (LOCK) {
 						if (isPlaying()) {
 							updateBookPosition();
-							fireEvent(Event.PLAY_TIME_UPDATE, mBook.getId(), mBook.getPosition());
+							mEventListener.onTimeUpdate(mBook, mBook.getPosition());
 						}
 					}
 				}
-				waitUp(100);
+				waitUp(250);
 			}
 		}
 	}

@@ -12,8 +12,11 @@
 #import "debug.h"
 #import "Reachability.h"
 
-// we lookahead five minutes for books we are not dowqnloading for offline use
+// we lookahead five minutes for books we are not downloading for offline use
 #define DefaultLookaheadSeconds (60 * 5)
+
+// when downloading for offline use we request lookahead of 5 x 24 hours
+#define DownloadLookaheadSeconds (60 * 60 * 24 * 5)
 
 @interface BookManager () {
     NSMutableDictionary* booksById;
@@ -443,7 +446,7 @@ static BookManager* anyManager = nil;
     [self requestNotificationsPermission];
     
     Book* book = [booksById objectForKey:bookId];
-    book.bufferLookahead = 999999;
+    book.bufferLookahead = DownloadLookaheadSeconds;
     
     if(!booksDownloading) {
         booksDownloading = [NSMutableSet new];
