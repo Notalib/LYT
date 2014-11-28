@@ -51,6 +51,10 @@
           this._sendCommand('cacheBook', [bookId]);
         },
 
+        cancelBookCaching: function( bookId ) {
+          this._sendCommand('cancelBookCaching', [bookId]);
+        },
+
         clearBookCache: function( bookId ) {
           this._sendCommand('clearBookCache', [bookId]);
         }
