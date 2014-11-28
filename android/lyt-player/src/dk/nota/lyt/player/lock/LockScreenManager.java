@@ -8,19 +8,20 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteControlClient;
-import android.util.Log;
 import dk.nota.lyt.Book;
+import dk.nota.lyt.player.BookPlayer.EventListener;
+import dk.nota.lyt.player.Event;
 import dk.nota.lyt.player.PlayerApplication;
 import dk.nota.lyt.player.task.AbstractTask;
 import dk.nota.lyt.player.task.LoadLockScreenBookCoverTask;
 
-public class LockScreenManager {
+public class LockScreenManager implements EventListener {
 	
 	private RemoteControlClient mRemoteControlClient;
 	private Book  mBook;
 	private Bitmap mCover;
 	
-	public void initialize(Book book) {
+	private void play(Book book) {
 		
 		if (mRemoteControlClient == null) {
 			AudioManager audioManager = (AudioManager) PlayerApplication.getInstance().getSystemService(Context.AUDIO_SERVICE);
@@ -33,7 +34,6 @@ public class LockScreenManager {
 			mRemoteControlClient = new RemoteControlClient(mediaPendingIntent);
 			audioManager.registerRemoteControlClient(mRemoteControlClient);
 		}
-		
 		if (mBook == null || book.getId().equals(mBook.getId()) == false) {
 			mBook = book;
 			mCover = null;
@@ -50,6 +50,7 @@ public class LockScreenManager {
 				}
 			}, book);
 		}
+		
 		mRemoteControlClient.setTransportControlFlags(
 				RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
 				RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS | 
@@ -58,16 +59,7 @@ public class LockScreenManager {
 		addDefault().apply();
 	}
 	
-	public void play() {
-		mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-		mRemoteControlClient.setTransportControlFlags(
-	            RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
-	            RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
-	            RemoteControlClient.FLAG_KEY_MEDIA_NEXT);
-
-	}
-	
-	public void pause() {
+	private void pause() {
 		mRemoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 		mRemoteControlClient.setTransportControlFlags(
 	            RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
@@ -76,7 +68,7 @@ public class LockScreenManager {
 		
 	}
 	
-	public void stop() {
+	private void stop() {
 		AudioManager audioManager = (AudioManager) PlayerApplication.getInstance().getSystemService(Context.AUDIO_SERVICE);
         audioManager.unregisterMediaButtonEventReceiver(getEventReceiver());
         mRemoteControlClient = null;
@@ -96,8 +88,33 @@ public class LockScreenManager {
 		return new ComponentName(PlayerApplication.getInstance().getPackageName(), RemoteControlEventReceiver.class.getName());		
 	}
 
-	public void changeChapter() {
+	private void chapterChange() {
 		addDefault().apply();
+	}
+
+	@Override
+	public void onEvent(Event event, Book book, Object... params) {
+		switch (event) {
+		case PLAY_FAILED:
+		case PLAY_STOP:
+			pause();
+			if (Boolean.TRUE.equals(params.length > 1 ? params[1] : Boolean.FALSE)) {
+				stop();
+			}
+			break;
+		case PLAY_END:
+			stop();
+			break;
+		case PLAY_CHAPTER_CHANGE:
+			chapterChange();
+			break;
+		case PLAY_PLAY:
+			play(book);
+			break;
+		default:
+			break;
+		}
+		
 	}
 
 }

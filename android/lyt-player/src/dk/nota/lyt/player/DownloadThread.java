@@ -11,25 +11,28 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 import dk.nota.lyt.Book;
 import dk.nota.lyt.player.task.StreamBiteTask;
+import dk.nota.lyt.player.task.StreamBiteTask.OnProgress;
 import dk.nota.utils.WorkerThread;
 
-class DownloadThread extends WorkerThread {
+class DownloadThread extends WorkerThread implements OnProgress {
 
 	interface Callback {
+		void downloadStarted(Book book);
 		void downloadCompleted(Book book);
 		void downloadFailed(Book book, String reason);
 		void downloadProgress(Book book, BigDecimal precentage);
 		boolean isBusy();
 	}
 
+	private static final String TAG = DownloadThread.class.getSimpleName();
+			
 	private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);		
 	
 	private Callback mCallback;
 	private Book mCurrentBook;
 	private boolean mOnline;
-	private StreamBiteTask mStreamer = new StreamBiteTask();
+	private StreamBiteTask mStreamer = new StreamBiteTask(this);
 	private BroadcastReceiver mNetworkStateReceiver;
-	private NotificationManager mNotificationManager = new NotificationManager();
 	private Stack<Book> mDownloadStack = new Stack<>();
 	
 	DownloadThread(Callback callback) {
@@ -52,8 +55,8 @@ class DownloadThread extends WorkerThread {
 				mCurrentBook = mDownloadStack.isEmpty() ? null : mDownloadStack.pop();
 				if (mCurrentBook == null) waitUp("No book to download. Going to sleep");
 			} else {
-				Log.i(PlayerApplication.TAG, "Starting download of:" + mCurrentBook.getTitle());
-				mNotificationManager.notifyDownloadStart(mCurrentBook);
+				Log.i(TAG, "Starting download of:" + mCurrentBook.getTitle());
+				mCallback.downloadStarted(mCurrentBook);
 				StreamBiteTask.StreamBite bite = null;
 				try {
 					do {
@@ -63,15 +66,14 @@ class DownloadThread extends WorkerThread {
 							waitUp("Something is going on. Going to sleep");
 						} else {
 							bite = mStreamer.doDownload(mCurrentBook);
-							mCallback.downloadProgress(mCurrentBook, bite.getPosition().divide(mCurrentBook.getEnd()).multiply(ONE_HUNDRED));
-							mNotificationManager.notifyDownloadProgress(mCurrentBook, bite);
 						}
-					} while(mOnline == false || bite != null);
-					Log.i(PlayerApplication.TAG, "Done downloading " + mCurrentBook.getTitle());
-					mNotificationManager.notifyDownloadCompletion();
-					unlistenToConnectivity();
-					mCallback.downloadCompleted(mCurrentBook);
+					} while((mOnline == false || bite != null) && mCurrentBook != null);
+					if (mCurrentBook != null) {
+						Log.i(TAG, "Done downloading " + mCurrentBook.getTitle());
+						mCallback.downloadCompleted(mCurrentBook);
+					}
 				} catch (Exception e) {
+					Log.e(TAG, "Unable to download book", e);
 					mCallback.downloadFailed(mCurrentBook, e.getMessage());
 				}
 				mCurrentBook = null;
@@ -85,6 +87,11 @@ class DownloadThread extends WorkerThread {
 	public void giveWay() {
 		mStreamer.eject();
 	}
+	
+	public void cancelDownload() {
+		mStreamer.eject();
+		mCurrentBook = null;
+	}
 
 	private void listenToConnectivity() {
 		mNetworkStateReceiver = new BroadcastReceiver() {
@@ -92,7 +99,7 @@ class DownloadThread extends WorkerThread {
 		    @Override
 		    public void onReceive(Context context, Intent intent) {
 		    	mOnline = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) == false;
-		    	Log.i(PlayerApplication.TAG, mOnline ? "Device is online" : "Device is offline");
+		    	Log.i(TAG, mOnline ? "Device is online" : "Device is offline");
 		    	if (mOnline) {
 		    		synchronized (this) {
 		    			notify();
@@ -103,8 +110,11 @@ class DownloadThread extends WorkerThread {
 		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);        
 		PlayerApplication.getInstance().registerReceiver(mNetworkStateReceiver, filter);
 	}
-	
-	private void unlistenToConnectivity() {
-		PlayerApplication.getInstance().unregisterReceiver(mNetworkStateReceiver);
+
+	@Override
+	public void onProgress(BigDecimal position) {
+		if (mCurrentBook != null) {
+			mCallback.downloadProgress(mCurrentBook, position.divide(mCurrentBook.getEnd(), 6, BigDecimal.ROUND_HALF_EVEN).multiply(ONE_HUNDRED));		
+		}
 	}
 }

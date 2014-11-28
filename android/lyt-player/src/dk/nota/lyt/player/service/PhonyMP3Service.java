@@ -37,7 +37,7 @@ public class PhonyMP3Service implements MP3Service {
 		InputStream input = null;
 		OutputStream output = null;
 		try {
-			input = PlayerApplication.getInstance().getAssets().open("bunkerjson/"+filename);
+			input = PlayerApplication.getInstance().getAssets().open(filename);
 			MP3File mp3 = new MP3File(url, gson.fromJson(new InputStreamReader(input), MP3Info[].class));
 			MP3Info infoStart = mp3.findStartElement(start);
 			MP3Info infoEnd = mp3.findEndElement(end);
@@ -54,7 +54,7 @@ public class PhonyMP3Service implements MP3Service {
 				return fragment;
 			} else {
 				Log.w(TAG, "Unable to read mp3 segment");
-				Log.w(TAG, response.getStatusLine().getReasonPhrase());
+				Log.w(TAG, response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
 				throw new IllegalStateException();
 			}
 		} catch (StartElementNotFound e) {
