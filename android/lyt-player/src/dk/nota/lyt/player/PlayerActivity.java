@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -36,8 +37,8 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 		webSettings.setDomStorageEnabled(true);
 		mWebView.addJavascriptInterface(new PlayerInterface(PlayerApplication.getInstance().getPlayer()), "lytBridge");
 		mWebView.setWebChromeClient(new WebChromeClient());
-//		mWebView.loadUrl("http://localhost:9000");
-		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_006/#/bookshelf");
+		mWebView.loadUrl("http://localhost:9000");
+//		mWebView.loadUrl("http://test.m.e17.dk/msn/lyt-3.0_006/#/bookshelf");
 //		mWebView.loadUrl("http://localhost:8000/player.html");
 	}
 	
@@ -80,6 +81,15 @@ public class PlayerActivity extends Activity implements BookPlayer.EventListener
 			}
 		});
 		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mWebView.getUrl().endsWith("/bookshelf") == false) {
+			mWebView.evaluateJavascript("window.history.back()", null);
+		} else {
+			super.onBackPressed();
+		}
 	}
 	
 	@Override
