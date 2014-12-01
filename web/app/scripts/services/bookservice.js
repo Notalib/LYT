@@ -61,6 +61,8 @@ angular.module('lyt3App')
 
           NativeGlue.play( bookId, offset );
         } else {
+          $log.info( 'BookService: play: loadBook', bookId, offset );
+
           BookService.loadBook( bookId )
             .then( function( book ) {
               BookService.currentBook = book;
@@ -95,6 +97,8 @@ angular.module('lyt3App')
       },
 
       cacheBook: function( bookId ) {
+        $log.info( 'BookService: cacheBook', bookId );
+
         var cachedBook = NativeGlue.getBooks( )
           .filter( function( bookData ) {
             return bookData.id === bookId;
@@ -103,9 +107,11 @@ angular.module('lyt3App')
         if ( cachedBook ) {
           NativeGlue.cacheBook( '' + bookId );
         } else {
+          $log.info( 'BookService: cacheBook: not set yet', bookId );
+
           BookService.loadBook( bookId )
             .then( function( ) {
-              BookService.cacheBook( bookId );
+              NativeGlue.cacheBook( '' + bookId );
             } );
         }
       },
@@ -175,7 +181,9 @@ angular.module('lyt3App')
           var bookPath = '/book-player/' + bookId;
           $location.path( bookPath );
           BookService.playing = true;
+          $log.info( 'BookService: play-time-update: location is book-player but different', bookId, offset );
         } else {
+          $log.info( 'BookService: play-time-update: location different from book-player', bookId, offset );
           BookService.loadBook( bookId )
             .then( function( book ) {
               book.currentPosition = offset;

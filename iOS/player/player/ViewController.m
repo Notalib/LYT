@@ -65,9 +65,7 @@
 }
 
 - (void)viewDidLoad {
-    
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     
     bridge = [BridgeController new];
     manager = [BookManager new];
@@ -77,9 +75,7 @@
     self.webView.delegate = bridge;
     [manager ready];
         
-    //NSURL* url = [NSURL URLWithString:@"http://vps.algoritmer.dk/nota.html"];
-    NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/msn/lyt-3.0_007"];
-    
+    NSURL* url = [NSURL URLWithString:@"http://test.m.e17.dk/lyt-3.0-prealpha/#/bookshelf"];
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
     [self.webView loadRequest:request];
 }

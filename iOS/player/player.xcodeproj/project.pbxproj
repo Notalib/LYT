@@ -25,7 +25,6 @@
 		BE08A1C51A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json in Resources */ = {isa = PBXBuildFile; fileRef = BE08A1C41A136E5B00772B6D /* 01_Michael_Kamp_Bunker_.json */; };
 		BE3D47DD1A1240E000DA2294 /* SoundChunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BE3D47DC1A1240E000DA2294 /* SoundChunk.m */; };
 		BE43F0F21A14AE01008DFC53 /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = BE43F0F11A14AE01008DFC53 /* Downloader.m */; };
-		BE4732441A1A024700A325A4 /* bridge.js in Resources */ = {isa = PBXBuildFile; fileRef = BE4732431A1A024700A325A4 /* bridge.js */; };
 		BE4732481A1A0F4600A325A4 /* BridgeController.m in Sources */ = {isa = PBXBuildFile; fileRef = BE4732471A1A0F4600A325A4 /* BridgeController.m */; };
 		BE4AF9D11A24898600DC52DB /* bookPartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE4AF9D01A24898600DC52DB /* bookPartTests.m */; };
 		BE6DC6721A1397C8000DB1C2 /* 37027.json in Resources */ = {isa = PBXBuildFile; fileRef = BE6DC6711A1397C8000DB1C2 /* 37027.json */; };
@@ -148,7 +147,6 @@
 		BE43F0F01A14AE01008DFC53 /* Downloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Downloader.h; sourceTree = "<group>"; };
 		BE43F0F11A14AE01008DFC53 /* Downloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Downloader.m; sourceTree = "<group>"; };
 		BE43F0F61A14F2B9008DFC53 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
-		BE4732431A1A024700A325A4 /* bridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bridge.js; sourceTree = "<group>"; };
 		BE4732461A1A0F4600A325A4 /* BridgeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgeController.h; sourceTree = "<group>"; };
 		BE4732471A1A0F4600A325A4 /* BridgeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BridgeController.m; sourceTree = "<group>"; };
 		BE4AF9D01A24898600DC52DB /* bookPartTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bookPartTests.m; sourceTree = "<group>"; };
@@ -357,7 +355,6 @@
 		BEB1BA161A121B140066F4FD /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BE4732431A1A024700A325A4 /* bridge.js */,
 				BE43F0F61A14F2B9008DFC53 /* debug.h */,
 				BEB1BA171A121B140066F4FD /* Info.plist */,
 				BEB1BA181A121B140066F4FD /* main.m */,
@@ -418,6 +415,7 @@
 					};
 					BEB1BA121A121B140066F4FD = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 4U9NSKBV63;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -542,7 +540,6 @@
 				BE08A1A51A1368D700772B6D /* 04_Citat.json in Resources */,
 				BE9AD7F41A2619E8003AAE56 /* GAN_27.json in Resources */,
 				BE9AD7C61A2619E8003AAE56 /* GAN_04.json in Resources */,
-				BE4732441A1A024700A325A4 /* bridge.js in Resources */,
 				BE9AD7F81A2619E8003AAE56 /* GAN_29.json in Resources */,
 				BE08A1B71A1368D700772B6D /* 13_Kapitel_9.json in Resources */,
 				BE9AD7D41A2619E8003AAE56 /* GAN_11.json in Resources */,
