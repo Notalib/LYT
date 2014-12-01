@@ -30,7 +30,7 @@ public class LockScreenManager extends SimplePlayerListener implements OnPlayerE
 			Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
 			mediaButtonIntent.putExtra("bookId", book.getId());
 			mediaButtonIntent.setComponent(getEventReceiver());
-			PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(PlayerApplication.getInstance(), 0, mediaButtonIntent, 0);
+			PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(PlayerApplication.getInstance(), 0, mediaButtonIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 			// create and register the remote control client
 			mRemoteControlClient = new RemoteControlClient(mediaPendingIntent);
 			audioManager.registerRemoteControlClient(mRemoteControlClient);
