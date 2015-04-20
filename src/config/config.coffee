@@ -18,7 +18,7 @@ LYT.config =
   # ### LYT.rpc function config
   rpc:
     # The service's server-side URL
-    url: "/DodpMobile/Service.svc" # No default - must be present
+    url: "/dodServices/" # No default - must be present
 
   # ### LYT.protocol config
   protocol:
