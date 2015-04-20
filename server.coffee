@@ -37,7 +37,7 @@ app.use require('morgan')() if not (argv.quiet or argv.silence)
 app
   .use express.static( process.cwd() + '/build' )
   .use (req, res, next) ->
-    if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch)/ )
+    if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch|dodServices)/ )
       proxy.proxyRequest req, res, target: argv['remote-host']
     else if req.url.match /\.buildnumber$/
       tries = 0
