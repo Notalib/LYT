@@ -339,3 +339,108 @@ LYT.protocol =
     receive: ($xml) ->
       throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"
       true
+
+  #
+  # Request:
+  #
+  # getQuestions([
+  #   { id: 'question1', value: 2 },
+  #   { id: 'question3', value: 6 }
+  # ])
+  #
+  # --
+  # Response:
+  # {
+  #   questions: [
+  #     { type: 'input', id: 'questionInput3' },
+  #     {
+  #       type: 'multipleChoice',
+  #       id: 'questionMultiple2',
+  #       choices: [
+  #         { id: 'c2', label: 'Choose this' },
+  #         { id: 'c5', label: 'No, this!' }
+  #       ]
+  #     }
+  #   ],
+  #
+  #   contentListRef: null
+  # }
+  #
+  #
+  getQuestions:
+    request: (responses) ->
+      userResponses:
+        userResponse: responses.map((response) ->
+          res = questionID: response.id
+          res.value = response.value if response.value
+
+          $attributes: res
+        )
+
+    receive: ($xml) ->
+      NS = 'http://www.daisy.org/ns/daisy-online/'
+
+      # Support multiple choice Questions
+      multiples = []
+      multipleChoices = $xml[0].getElementsByTagNameNS NS, 'multipleChoiceQuestion'
+      multipleChoices = [].slice.call multipleChoices
+      multiples = multipleChoices.map (multipleChoice) ->
+        label = ''
+        choices = []
+
+        for child in multipleChoice.childNodes
+          continue if child.namespaceURI isnt NS
+
+          # Find label
+          if child.localName is 'label'
+            label = child.textContent
+
+          # Find choices
+          if child.localName is 'choices'
+            for choice in child.childNodes
+              if choice.localName is 'choice'
+                choices.push(
+                  id: choice.getAttribute('id'),
+                  label: choice.textContent
+                )
+
+
+        type: 'multipleChoice'
+        label: label
+        id: multipleChoice.getAttribute 'id'
+        choices: choices
+
+      # Support inputQuestions
+      inputs = []
+      inputQuestions = $xml[0].getElementsByTagNameNS NS, 'inputQuestion'
+      inputQuestions = [].slice.call inputQuestions
+      inputs = inputQuestions.map (inputQuestion) ->
+        label = ''
+        types = []
+
+        for child in inputQuestion.childNodes
+          continue if child.namespaceURI isnt NS
+
+          # Find label
+          if child.localName is 'label'
+            label = child.textContent
+
+          # Find choices
+          if child.localName is 'inputTypes'
+            for input in child.childNodes
+              if input.localName is 'input'
+                types.push input.getAttribute('type')
+
+
+        type: 'inputQuestion'
+        label: label
+        id: inputQuestion.getAttribute 'id'
+        types: types
+
+      returnObj =
+        questions: multiples.concat inputs
+
+      # Get contentListRef if it's there
+      contentListRef = $xml[0].getElementsByTagNameNS NS, 'contentListRef'
+      returnObj.contentListRef = contentListRef[0].textContent if contentListRef.length
+      returnObj
