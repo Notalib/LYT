@@ -48,7 +48,14 @@ LYT.utils =
         if jQuery.inArray(':', nodeName) > -1
           nsid = ''
 
-        xml += "<#{nsid}#{nodeName}>#{toXML data}</#{nsid}#{nodeName}>"
+        attributes = ''
+        if data?.$attributes
+          for own key, value of data.$attributes
+            attributes += " #{key}=\"#{value}\""
+
+          delete data.$attributes
+
+        xml += "<#{nsid}#{nodeName}#{attributes}>#{toXML data}</#{nsid}#{nodeName}>"
 
       switch typeof hash
         when "string", "number", "boolean"
