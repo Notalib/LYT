@@ -259,6 +259,11 @@ LYT.service = do ->
   getResources: (bookId) ->
     withLogOn -> LYT.rpc "getContentResources", bookId
 
+  getQuestions: (responses) ->
+    return if not LYT.service.questionsSupported
+    responses = [ id: 'default' ] if not responses or not responses.length
+    response = withLogOn -> LYT.rpc("getQuestions", responses)
+
 
   # The the list of issued content (i.e. the bookshelf)
   # Note: The `getContentList` API gets items by range
@@ -310,6 +315,8 @@ LYT.service = do ->
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS
 
+  questionsSupported: ->
+    operations.DYNAMIC_MENUS
 
   markAnnouncementsAsRead: (AnnouncementsIDS) ->
     withLogOn -> LYT.rpc("markAnnouncementsAsRead", AnnouncementsIDS)
