@@ -114,10 +114,15 @@ class LYT.Book
           # (the latter initialized to `null`)
           # Urls are rewritten to use the origin server just
           # in case we are behind a proxy.
-          origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
-          path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
+          if LYT.config.isMTM
+            url = uri
+          else
+            origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
+            path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
+            url = origin + path
+
           @resources[localUri] =
-            url:      origin + path
+            url:      url
             document: null
 
           # If the url of the resource is the NCC document,
