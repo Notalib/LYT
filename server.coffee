@@ -1,5 +1,7 @@
 #!/usr/bin/env coffee
 
+url = require 'url'
+http = require 'http'
 express = require 'express'
 watchr = require 'watchr'
 exec = require('child_process').exec
@@ -39,6 +41,11 @@ app
   .use (req, res, next) ->
     if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch|dodServices)/ )
       proxy.proxyRequest req, res, target: argv['remote-host']
+    else if req.url.match( /^\/proxyURL/ )
+      url = req.url.match /^\/proxyURL\?url=(.*)/
+      http.get url[1], (proxyres) ->
+        proxyres.on 'data', res.write.bind(res)
+        proxyres.on 'end', res.end.bind(res)
     else if req.url.match /\.buildnumber$/
       tries = 0
       delay = 10
