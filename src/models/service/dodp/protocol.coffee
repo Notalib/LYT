@@ -174,13 +174,16 @@ LYT.protocol =
       lastItem:  lastItem
 
     receive: ($xml, data) ->
+      NS = 'http://www.daisy.org/ns/daisy-online/'
       items = []
       $xml.find("contentItem").each ->
         item = jQuery this
+        # TODO: Is this safe?
+        label = (@getElementsByTagNameNS NS, 'text')?[0].textContent
         # TODO: Should really extract the lang attribute too - it'd make it easier to correctly markup the list in the UI
         items.push {
           id: item.attr("id")
-          label: item.find("label > text").text()
+          label: label
         }
       [items]
 
