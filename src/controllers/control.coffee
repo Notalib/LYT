@@ -480,7 +480,17 @@ LYT.control =
           when "search"
             LYT.render.setHeader page, "Search"
             $('#searchterm').val term
-            handleResults LYT.catalog.search(term)
+
+            if LYT.config.isMTM
+              question = [ { id: 'searchFreetext', value: term } ]
+              results =
+                LYT.service.getQuestions(question)
+                .then (result) ->
+                  LYT.service.getContentList result.contentListRef, 0, -1
+            else
+              results = LYT.catalog.search term
+
+            handleResults results
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title
             handleResults LYT.predefinedSearches[list].callback()
