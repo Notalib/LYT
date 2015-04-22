@@ -282,6 +282,8 @@ LYT.service = do ->
         # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
         # See issue #17 on Github
         [item.author, item.title] = item.label?.split("$") or ["", ""]
+        if not item.title and item.author
+          [item.title, item.author] = [item.author, item.title]
         delete item.label
       deferred.resolve list
 
