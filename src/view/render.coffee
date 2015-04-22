@@ -509,9 +509,12 @@ LYT.render = do ->
     list.empty()
 
     for choice in question.choices
-      listItem = $ """<li data-icon="arrow_icn">
-                    <h3>#{choice.label}</h3>
-                   </li>"""
+      listItem = $ """
+        <li data-icon="arrow_icn">
+          <a href="#dynamic-menu?id=#{choice.id}" class="ui-link-inherit">
+            <h3 class="ui-li-heading">#{choice.label}</h3>
+          </a>
+        </li>"""
       list.append listItem
 
     list.listview 'refresh'
