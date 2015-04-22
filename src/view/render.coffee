@@ -504,6 +504,19 @@ LYT.render = do ->
     list.listview('refresh')
     view.children().show()
 
+  dynamicMenu: (view, question) ->
+    list = view.find 'ul'
+    list.empty()
+
+    for choice in question.choices
+      listItem = $ """<li data-icon="arrow_icn">
+                    <h3>#{choice.label}</h3>
+                   </li>"""
+      list.append listItem
+
+    list.listview 'refresh'
+
+
   setHeader: (page, text) ->
     header = $(page).children(':jqmData(role=header)').find('h1')
     header.text LYT.i18n text

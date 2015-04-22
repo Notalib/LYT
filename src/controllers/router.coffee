@@ -96,6 +96,9 @@ $(document).bind "mobileinit", ->
     "#test":
       handler: "test"
       events: "s,h"
+    "#dynamicmenu":
+      handler: "dynamicmenu"
+      events: "bs"
   ], LYT.control, { ajaxApp: false, debugHandler: (err) -> throw err })
 
   $.mobile.defaultPageTransition = 'none'
