@@ -114,16 +114,17 @@ class LYT.Book
           # (the latter initialized to `null`)
           # Urls are rewritten to use the origin server just
           # in case we are behind a proxy.
+          origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
           if LYT.config.isMTM
-            url = uri
+            url = origin + '/proxyURL?url=' + encodeURI(uri)
           else
-            origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
             path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
             url = origin + path
 
           @resources[localUri] =
             url:      url
             document: null
+            localUri: localUri
 
           # If the url of the resource is the NCC document,
           # save the resource for later
@@ -142,7 +143,7 @@ class LYT.Book
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument obj.url, this
+      ncc = new LYT.NCCDocument obj.url, this, obj.localUri
 
       # Propagate a failure
       ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
@@ -214,7 +215,7 @@ class LYT.Book
       return deferred.reject()
 
     smil = @resources[url]
-    smil.document or= new LYT.SMILDocument smil.url, this
+    smil.document or= new LYT.SMILDocument smil.url, this, url
 
     smil.document.done (smilDocument) ->
       deferred.resolve smilDocument

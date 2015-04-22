@@ -12,7 +12,7 @@ do ->
   #        an extension of the getConsecutive procedure that does the linking
   #        handled by flattenStructure followed by linkSections.
   class LYT.NCCDocument extends LYT.TextContentDocument
-    constructor: (url, book) ->
+    constructor: (url, book, localUri) ->
       super url, book.resources, =>
         @structure = parseStructure @source, book
         @sections  = flattenStructure @structure
