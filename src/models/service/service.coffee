@@ -264,19 +264,9 @@ LYT.service = do ->
     responses = [ id: 'default' ] if not responses or not responses.length
     response = withLogOn -> LYT.rpc("getQuestions", responses)
 
-
-  # The the list of issued content (i.e. the bookshelf)
-  # Note: The `getContentList` API gets items by range
-  # I.e. from 1 item index to (and including) another
-  # index. So getting item 0 to 5, will get you 6 items.
-  # Specifying `-1` as the `to` argument will get all
-  # items from the `from` index to the end of the list
-  getBookshelf: (from = 0, to = -1) ->
-    deferred = jQuery.Deferred()
-
-    response = withLogOn -> LYT.rpc("getContentList", "issued", from, to)
-
-    response.done (list) ->
+  getContentList: (id, from = 0, to = -1) ->
+    response = withLogOn -> LYT.rpc 'getContentList', id, from, to
+    response.then (list) ->
       for item in list
         # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
         # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
@@ -285,11 +275,18 @@ LYT.service = do ->
         if not item.title and item.author
           [item.title, item.author] = [item.author, item.title]
         delete item.label
-      deferred.resolve list
 
-    response.fail (err, message) -> deferred.reject err, message
+      list
 
-    deferred.promise()
+
+  # The the list of issued content (i.e. the bookshelf)
+  # Note: The `getContentList` API gets items by range
+  # I.e. from 1 item index to (and including) another
+  # index. So getting item 0 to 5, will get you 6 items.
+  # Specifying `-1` as the `to` argument will get all
+  # items from the `from` index to the end of the list
+  getBookshelf: (from = 0, to = -1) ->
+    @getContentList 'issued', from, to
 
   # -------
   # ## Optional operations
