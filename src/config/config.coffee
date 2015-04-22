@@ -14,6 +14,7 @@
 
 # ## Central system configuration
 LYT.config =
+  isMTM: true
 
   # ### LYT.rpc function config
   rpc:
