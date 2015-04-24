@@ -128,9 +128,12 @@ LYT.protocol =
   # TODO: Do we need to pull anything besides the optional operations out of the response?
   getServiceAttributes:
     receive: ($xml, data) ->
-      operations = []
-      $xml.find("supportedOptionalOperations > operation").each ->
-        operations.push $(this).text()
+      NS = 'http://www.daisy.org/ns/daisy-online/'
+      container = $xml[0].getElementsByTagNameNS NS, 'supportedOptionalOperations'
+      if container.length
+        optionals = container[0].getElementsByTagNameNS NS, 'operation'
+        operations = [].slice.call(optionals).map (optional) -> optional.textContent
+
       [operations]
 
 
