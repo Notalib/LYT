@@ -253,9 +253,15 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-
+      NS = 'http://www.daisy.org/z3986/2005/bookmark/'
       deserialize = (data) ->
-        URI = $('URI', data).text()
+        for child in data.children
+          switch child.localName.toLowerCase()
+            when 'uri' then uri = child.textContent
+            when 'timeoffset' then timeOffset = child.textContent
+            when 'note'
+              note = child.children[0].textContent
+
         # Convert from Dodp offset to floating point in seconds
         # TODO: Implement correct parsing of all time formats provided in
         #       http://www.daisy.org/z3986/2005/Z3986-2005.html#Clock
@@ -271,33 +277,37 @@ LYT.protocol =
               values = jQuery.map values, parseFloat
               values[0] * 3600 + values[1] * 60 + values[2] + values[3]
 
-        timeOffset = parseOffset $('timeOffset', data).text()
-        note = $('note > text', data).text()
-
-        if URI and timeOffset?
+        timeOffset = parseOffset timeOffset
+        if uri and timeOffset?
           return new LYT.Bookmark
             ncxRef:     null
-            URI:        URI
+            URI:        uri
             timeOffset: timeOffset
             note:       text: note || '-'
 
 
+      set = $xml[0].getElementsByTagNameNS(NS, 'bookmarkSet')[0]
       bookmarkSet =
         bookmarks: []
-        book:
-          uid: $xml.find("bookmarkSet > uid").text()
-          title:
-            text: $xml.find("bookmarkSet > title > text").text()
-            audio: $xml.find("bookmarkSet > title > audio").text()
+        book: {}
 
-      $xml.find("bookmarkSet > bookmark").each ->
-        if bookmark = deserialize this
-          bookmarkSet.bookmarks.push bookmark
-        else
-          log.errorGroup 'Protocol: getBookmarks: receive: unable to parse bookmark', this
-
-      lastmark = $xml.find("bookmarkSet > lastmark").first()
-      bookmarkSet.lastmark = deserialize lastmark if lastmark.length
+      for child in set.children
+        switch child.localName.toLowerCase()
+          when 'uid' then bookmarkSet.book.uid = child.textContent
+          when 'lastmark' then bookmarkSet.lastmark = deserialize child
+          when 'title'
+            text = child.getElementsByTagNameNS(NS, 'text')
+            audio = child.getElementsByTagNameNS(NS, 'audio')
+            title = {}
+            title.text = text[0].textContent if text.length
+            title.audio = audio[0].textContent if audio.length
+            bookmarkSet.book.title = title
+          when 'bookmark'
+            bookmark = deserialize child
+            if bookmark
+              bookmarkSet.bookmarks.push bookmark
+            else
+              log.errorGroup 'Protocol: getBookmarks: receive: unable to parse bookmark', child
 
       bookmarkSet
 
