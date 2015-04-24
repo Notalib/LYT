@@ -214,10 +214,25 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml, data) ->
+      NS = 'http://www.daisy.org/ns/daisy-online/'
+      containerEl = $xml[0].getElementsByTagNameNS(NS, 'contentMetadata')[0]
+      sampleEl = containerEl.getElementsByTagNameNS NS, 'sample'
       metadata =
-        sample: $xml.find("contentMetadata > sample").text()
-      $xml.find("contentMetadata > metadata > *").each ->
-        metadata[this.nodeName] = jQuery(this).text()
+        daisy: {}
+        misc: {}
+
+      metadata.sample = sampleEl[0].getAttribute('id') if sampleEl.length
+
+      metadataEl = containerEl.getElementsByTagNameNS(NS, 'metadata')[0]
+      metas = [].slice.call(metadataEl.children).forEach (meta) ->
+        if meta.namespaceURI is NS
+          if meta.localName is 'meta'
+            metadata.daisy[meta.getAttribute('name').toLowerCase()] = meta.getAttribute('content')
+          else
+            metadata.daisy[meta.localName.toLowerCase()] = meta.textContent
+        else
+          metadata.misc[meta.localName.toLowerCase()] = meta.textContent
+
       metadata
 
 
