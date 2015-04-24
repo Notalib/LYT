@@ -338,7 +338,7 @@ LYT.protocol =
       serialize = (bookmark) ->
         if LYT.config.isMTM
           URI: bookmark.URI
-          ncxRef: bookmark.URI.split('#')[1] #TODO: THIS IS NOT THE RIGHT VALUE
+          #ncxRef: bookmark.URI.split('#')[1] #TODO: THIS IS NOT THE RIGHT VALUE
           timeOffset: formatDodpOffset bookmark.timeOffset
           note:       bookmark.note
         else
