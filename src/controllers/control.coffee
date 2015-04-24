@@ -276,13 +276,23 @@ LYT.control =
     promise.fail -> log.error 'Control: bookDetails: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        process = LYT.catalog.getDetails(params.book)
+        if LYT.config.isE17
+          process = LYT.catalog.getDetails params.book
+        else
+          process = LYT.service.getMetadata params.book
+
+        process
           .fail (error, msg) ->
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
-            LYT.render.hideOrShowButtons(details)
-            LYT.render.bookDetails(details, content)
-            LYT.render.setPageTitle details.title
+            if LYT.config.isE17
+              LYT.render.hideOrShowButtons(details)
+              LYT.render.bookDetailsE17(details, content)
+              LYT.render.setPageTitle details.title
+            else
+              LYT.render.hideOrShowButtons(details)
+              LYT.render.bookDetailsGeneral(details, content)
+              LYT.render.setPageTitle details.misc.title
             content.children().show()
         LYT.loader.register "Loading book", process, 10
 
