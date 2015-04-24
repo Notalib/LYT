@@ -57,6 +57,7 @@ LYT.i18n = do ->
     'Now playing':                      'Afspiller'
     'Yes':                              'Ja'
     'No':                               'Nej'
+    'Unknown play time':                'Ukendt spilletid'
 
   # The i18n function. Returns either the translated string, or - if no
   # translation was found - the input string.

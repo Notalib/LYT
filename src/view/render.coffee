@@ -332,7 +332,31 @@ LYT.render = do ->
     LYT.render.content.renderSegment segment
 
 
-  bookDetails: (details, view) ->
+  bookDetailsGeneral: (details, view) ->
+    media = $('#details-book-media span')
+    media.removeClass()
+    if details.media is 'AA'
+      media.addClass 'ui-icon-audiobook'
+    media.text details.misc.format
+
+    id = details.daisy.contentid
+    totalTime = LYT.i18n('Unknown play time')
+
+    $('#details-book-title').text details.misc.title
+    $('#details-book-author').text details.misc.creator
+    $('#details-book-description').text details.misc.description
+    $('#details-book-narrator').text details.daisy.narrator
+    $('#details-book-totaltime').text totalTime
+    $('#details-book-pubyear').text details.daisy.publishedyear or ''
+    $('#add-to-bookshelf-button').attr 'data-book-id', id
+    $('#details-play-button').attr 'href', "#book-player?book=#{id}"
+
+    if details.daisy.cover
+      view.find('img.cover-image').attr 'src', details.daisy.cover
+    else
+      loadCover view.find('img.cover-image'), id
+
+  bookDetailsE17: (details, view) ->
     media = $('#details-book-media span')
     media.removeClass()
     if details.media is 'AA'
