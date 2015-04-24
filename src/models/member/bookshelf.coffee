@@ -55,7 +55,15 @@ LYT.bookshelf =
       return list
 
   # Add (issue) a book to the shelf by its ID
-  add: (id) -> LYT.service.issue(id)
+  add: (id) ->
+    if LYT.config.isMTM
+      # A book must be added (by Dynamic Menus) to bookshelf, before issuing
+      question = [{ id: 'addToBookshelf', value: id }]
+      LYT.service.getQuestions(question)
+        .then () ->
+          LYT.service.issue id
+    else
+      LYT.service.issue(id)
 
   # Remove (return) a book from the shelf by its ID
   remove: (id) -> LYT.service.return(id)

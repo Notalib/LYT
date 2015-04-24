@@ -326,9 +326,15 @@ LYT.protocol =
         "#{hours}:#{minutes}:#{seconds}"
 
       serialize = (bookmark) ->
-        URI:        bookmark.URI
-        timeOffset: formatDodpOffset bookmark.timeOffset
-        note:       bookmark.note
+        if LYT.config.isMTM
+          URI: bookmark.URI
+          ncxRef: bookmark.URI.split('#')[1] #TODO: THIS IS NOT THE RIGHT VALUE
+          timeOffset: formatDodpOffset bookmark.timeOffset
+          note:       bookmark.note
+        else
+          URI:        bookmark.URI
+          timeOffset: formatDodpOffset bookmark.timeOffset
+          note:       bookmark.note
 
       setnamespace = (ns, obj) ->
         if typeof obj == "object"
@@ -348,6 +354,9 @@ LYT.protocol =
         title: book.title
         uid: book.getMetadata().identifier?.content
         bookmark: (serialize bookmark for bookmark in book.bookmarks)
+
+      if LYT.config.isMTM
+        bookmarkSet.title = text: bookmarkSet.title
 
       if book.lastmark?
         bookmarkSet.lastmark = serialize book.lastmark
