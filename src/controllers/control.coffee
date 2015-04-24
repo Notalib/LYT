@@ -476,18 +476,23 @@ LYT.control =
             $('#more-search-results').hide()
             $('#searchterm').val ''
             LYT.render.setHeader page, "Search"
-            LYT.render.catalogLists content
+
+            if LYT.config.isE17
+              LYT.render.catalogLists content
+            else
+              # TODO: Maybe show main menu if questionsSupported()?
+              content.children().show()
           when "search"
             LYT.render.setHeader page, "Search"
             $('#searchterm').val term
 
-            if LYT.config.isMTM
+            if LYT.service.questionsSupported()
               question = [ { id: 'searchFreetext', value: term } ]
               results =
                 LYT.service.getQuestions(question)
                 .then (result) ->
                   LYT.service.getContentList result.contentListRef, 0, -1
-            else
+            else if LYT.config.isE17
               results = LYT.catalog.search term
 
             handleResults results
