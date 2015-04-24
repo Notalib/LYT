@@ -394,8 +394,18 @@ LYT.control =
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
-        process = LYT.player.load params.book, smilReference, offset, play
-        process.done (book) ->
+        #TODO: HACK ALERT
+        # A book must be added (by Dynamic Menus) to bookshelf, before issuing
+        if LYT.config.isMTM
+          question = [{ id: 'addToBookshelf', value: params.book }]
+          process = LYT.service.getQuestions(question)
+        else
+          process = jQuery.Deferred().resolve()
+
+        process = process
+        .then () ->
+          LYT.player.load params.book, smilReference, offset, play
+        .then (book) ->
           LYT.render.bookPlayer book, $(page)
           # See if there are any service announcements every time a new book has been loaded
           LYT.service.getAnnouncements()
