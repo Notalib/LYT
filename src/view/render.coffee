@@ -220,12 +220,8 @@ LYT.render = do ->
         <a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>
       """
 
-      #TODO: Quite possibly not the right way to do this, but it seems that
-      # there is not way of telling whether a provider supports returning
-      # content or not
-      if !LYT.config.isMTM
-        attachRemoveBookClickEvent removeLink, book, li, list, view
-        li.append removeLink
+      attachRemoveBookClickEvent removeLink, book, li, list, view
+      li.append removeLink
 
       list.append li
 
