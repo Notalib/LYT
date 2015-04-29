@@ -426,6 +426,12 @@ LYT.protocol =
     receive: ($xml) ->
       NS = 'http://www.daisy.org/ns/daisy-online/'
 
+      questions = $xml[0].getElementsByTagNameNS NS, 'questions'
+      for child in questions?[0].children
+        if child.localName is 'label'
+          label = child.children?[0]?.textContent
+
+
       # Support multiple choice Questions
       multiples = []
       multipleChoices = $xml[0].getElementsByTagNameNS NS, 'multipleChoiceQuestion'
@@ -484,6 +490,7 @@ LYT.protocol =
         types: types
 
       returnObj =
+        label: label
         questions: multiples.concat inputs
 
       # Get contentListRef if it's there
