@@ -286,6 +286,7 @@ class LYT.Book
 
     # Add closest section's title as bookmark title
     bookmark.note = text: section.title
+    bookmark.ncxRef = section.ref if section.ref
 
     # Add to bookmarks and save
     @bookmarks or= []
@@ -297,7 +298,10 @@ class LYT.Book
     @saveBookmarks()
 
   setLastmark: (segment, offset = 0) ->
+    section = @getSectionBySegment segment
+
     @lastmark = segment.bookmark offset
+    @lastmark.ncxRef = section.ref if section.ref
     @saveBookmarks()
 
   segmentByURL: (url) ->

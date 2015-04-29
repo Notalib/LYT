@@ -259,6 +259,7 @@ LYT.protocol =
           switch child.localName.toLowerCase()
             when 'uri' then uri = child.textContent
             when 'timeoffset' then timeOffset = child.textContent
+            when 'ncxref' then ncxRef = child.textContent
             when 'note'
               note = child.children[0].textContent
 
@@ -280,7 +281,7 @@ LYT.protocol =
         timeOffset = parseOffset timeOffset
         if uri and timeOffset?
           return new LYT.Bookmark
-            ncxRef:     null
+            ncxRef:     ncxRef
             URI:        uri
             timeOffset: timeOffset
             note:       text: note || '-'
@@ -337,8 +338,8 @@ LYT.protocol =
 
       serialize = (bookmark) ->
         if LYT.config.isMTM
-          URI: bookmark.URI
-          #ncxRef: bookmark.URI.split('#')[1] #TODO: THIS IS NOT THE RIGHT VALUE
+          URI:        bookmark.URI
+          ncxRef:     bookmark.ncxRef
           timeOffset: formatDodpOffset bookmark.timeOffset
           note:       bookmark.note
         else
