@@ -66,6 +66,12 @@ LYT.bookshelf =
       LYT.service.issue(id)
 
   # Remove (return) a book from the shelf by its ID
-  remove: (id) -> LYT.service.return(id)
+  remove: (id) ->
+    # MTM does not support the standard returnContent function - only a dynamic menu
+    # called "removeFromBookshelf"
+    if LYT.config.isMTM
+      LYT.service.getQuestions([{ id: 'removeFromBookshelf', value: id }])
+    else
+      LYT.service.return(id)
 
   getNextPage: -> @nextPage
