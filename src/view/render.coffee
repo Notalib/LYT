@@ -42,6 +42,8 @@ LYT.render = do ->
 
     if String(target) is 'book-details'
       element.attr 'data-icon', 'arrow_icn'
+    else
+      element.attr 'data-icon', 'false'
 
     loadCover element.find('img.cover-image'), book.id
 
@@ -214,9 +216,17 @@ LYT.render = do ->
 
     for book in books
       li = bookListItem 'book-player', book, 'bookshelf'
-      removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
-      attachRemoveBookClickEvent removeLink, book, li, list, view
-      li.append removeLink
+      removeLink = jQuery """
+        <a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>
+      """
+
+      #TODO: Quite possibly not the right way to do this, but it seems that
+      # there is not way of telling whether a provider supports returning
+      # content or not
+      if !LYT.config.isMTM
+        attachRemoveBookClickEvent removeLink, book, li, list, view
+        li.append removeLink
+
       list.append li
 
     # if the list i empty -> bookshelf is empty -> show icon...
