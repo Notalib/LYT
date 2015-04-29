@@ -520,12 +520,13 @@ LYT.control =
             LYT.render.setHeader page, LYT.predefinedSearches[list].title
             handleResults LYT.predefinedSearches[list].callback()
 
-        LYT.catalog.attachAutocomplete $('#searchterm')
-        # When hitting enter in dropdown, submit.
-        $("#searchterm").unbind "autocompleteselect"
-        $("#searchterm").bind "autocompleteselect", (event, ui) ->
-          $('#searchterm').val ui.item.value
-          $('#search-form').trigger 'submit'
+        if LYT.config.catalog.autocomplete?.enabled
+          LYT.catalog.attachAutocomplete $('#searchterm')
+          # When hitting enter in dropdown, submit.
+          $("#searchterm").unbind "autocompleteselect"
+          $("#searchterm").bind "autocompleteselect", (event, ui) ->
+            $('#searchterm').val ui.item.value
+            $('#search-form').trigger 'submit'
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
