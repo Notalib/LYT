@@ -366,8 +366,11 @@ LYT.protocol =
         uid: book.getMetadata().identifier?.content
         bookmark: (serialize bookmark for bookmark in book.bookmarks)
 
+      #TODO: Very-not-nice, but MTM throws errors at us, if we call /setBookmarks
+      # several times with identical bookmarks. This is so weird.
       if LYT.config.isMTM
         bookmarkSet.title = text: bookmarkSet.title
+        delete bookmarkSet.bookmark
 
       if book.lastmark?
         bookmarkSet.lastmark = serialize book.lastmark
