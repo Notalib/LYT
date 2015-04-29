@@ -219,7 +219,7 @@ LYT.render.content = do ->
   # scrolls around when appropriate
   renderContext = (segment, view, delta) ->
     book = segment.document.book
-    html = book.resources[segment.contentUrl].document
+    html = book.resources[segment.contentUrl.toLowerCase()].document
     source = html.source[0]
     isCartoon = html.isCartoon()
 
