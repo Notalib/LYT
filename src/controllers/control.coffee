@@ -516,8 +516,10 @@ LYT.control =
                     handleResults contentList
                   else if res.questions?.length
                     LYT.render.dynamicMenu content, res.questions[0], (answer) ->
-                      LYT.service.getQuestions([{ id: menuid, value: answer }])
-                      .then (lastRes) -> alert lastRes.label
+                      userResponse = [{ id: menuid, value: answer }]
+                      answering = LYT.service.getQuestions(userResponse)
+                        .then (lastRes) -> alert lastRes.label
+                      LYT.loader.register "Loading", answering
               content.children().show()
           when "search"
             LYT.render.setHeader page, "Search"
