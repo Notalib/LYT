@@ -537,18 +537,22 @@ LYT.render = do ->
     list.listview('refresh')
     view.children().show()
 
-  dynamicMenu: (view, question) ->
+  dynamicMenu: (view, question, cb) ->
     list = view.find 'ul'
     list.empty()
 
-    for choice in question.choices
-      listItem = $ """
-        <li data-icon="arrow_icn">
-          <a href="#dynamic-menu?id=#{choice.id}" class="ui-link-inherit">
-            <h3 class="ui-li-heading">#{choice.label}</h3>
-          </a>
-        </li>"""
-      list.append listItem
+    if question.type is 'multipleChoice'
+      for choice in question.choices
+        listItem = $ """
+          <li data-icon="arrow_icn">
+            <a href="#search?menuid=#{choice.id}" class="ui-link-inherit">
+              <h3 class="ui-li-heading">#{choice.label}</h3>
+            </a>
+          </li>"""
+        list.append listItem
+    else if question.type is 'inputQuestion'
+      answer = prompt question.label
+      cb answer if typeof cb is 'function'
 
     list.listview 'refresh'
 
