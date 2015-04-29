@@ -86,6 +86,8 @@ LYT.config =
 
     # Autocomplete options
     autocomplete:
+      # Enable ?
+      enabled: false
       # The URL to request results from
       url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
       # If suggestions from Autocomplete is léss than 'google_trigger' ask google
