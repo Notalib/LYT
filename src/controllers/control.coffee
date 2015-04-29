@@ -479,6 +479,7 @@ LYT.control =
             LYT.render.searchResults results, content
 
         # determine action and parse params: predefinedView, search, predefinedSearch
+        menuid = 'default'
         action = "predefinedView"
         if not jQuery.isEmptyObject params
           if params.term?
@@ -486,6 +487,8 @@ LYT.control =
           else if params.list?
             list = jQuery.trim(decodeURIComponent(params.list or "") )
             action = "showList" if LYT.predefinedSearches[list]?
+          else if params.menuid?
+            menuid = params.menuid;
 
         content = $(page).children( ":jqmData(role=content)" )
         header = $(page).children( ":jqmData(role=header)" ).find("h1")
@@ -501,6 +504,20 @@ LYT.control =
               LYT.render.catalogLists content
             else
               # TODO: Maybe show main menu if questionsSupported()?
+              if LYT.service.questionsSupported()
+                if menuid is 'search' and LYT.config.isMTM
+                  $('#searchterm').focus()
+                  menuid = 'default'
+
+                LYT.service.getQuestions([{ id: menuid }])
+                .then (res) ->
+                  if res.contentListRef
+                    contentList = LYT.service.getContentList res.contentListRef
+                    handleResults contentList
+                  else if res.questions?.length
+                    LYT.render.dynamicMenu content, res.questions[0], (answer) ->
+                      LYT.service.getQuestions([{ id: menuid, value: answer }])
+                      .then (lastRes) -> alert lastRes.label
               content.children().show()
           when "search"
             LYT.render.setHeader page, "Search"
