@@ -374,6 +374,8 @@ LYT.protocol =
 
       if book.lastmark?
         bookmarkSet.lastmark = serialize book.lastmark
+        # A <lastmark> cannot have a <note> according to spec
+        delete bookmarkSet.lastmark.note
 
       bookmarkSet = setnamespace 'ns2', bookmarkSet
       data['ns2:bookmarkSet'] = bookmarkSet
