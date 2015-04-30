@@ -259,9 +259,8 @@ LYT.service = do ->
   getResources: (bookId) ->
     withLogOn -> LYT.rpc "getContentResources", bookId
 
-  getQuestions: (responses) ->
+  getQuestions: (responses = id: 'default') ->
     return if not LYT.service.questionsSupported
-    responses = [ id: 'default' ] if not responses or not responses.length
     response = withLogOn -> LYT.rpc("getQuestions", responses)
 
   getContentList: (id, from = 0, to = -1) ->

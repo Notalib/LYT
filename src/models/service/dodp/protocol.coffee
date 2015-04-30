@@ -415,6 +415,8 @@ LYT.protocol =
   #
   getQuestions:
     request: (responses) ->
+      responses = [responses] if not Array.isArray responses
+
       userResponses:
         userResponse: responses.map((response) ->
           res = questionID: response.id

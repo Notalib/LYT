@@ -397,7 +397,7 @@ LYT.control =
         #TODO: HACK ALERT
         # A book must be added (by Dynamic Menus) to bookshelf, before issuing
         if LYT.config.isMTM
-          question = [{ id: 'addToBookshelf', value: params.book }]
+          question = id: 'addToBookshelf', value: params.book
           process = LYT.service.getQuestions(question)
         else
           process = jQuery.Deferred().resolve()
@@ -509,14 +509,14 @@ LYT.control =
                   $('#searchterm').focus()
                   menuid = 'default'
 
-                LYT.service.getQuestions([{ id: menuid }])
+                LYT.service.getQuestions( id: menuid )
                 .then (res) ->
                   if res.contentListRef
                     contentList = LYT.service.getContentList res.contentListRef
                     handleResults contentList
                   else if res.questions?.length
                     LYT.render.dynamicMenu content, res.questions[0], (answer) ->
-                      userResponse = [{ id: menuid, value: answer }]
+                      userResponse = id: menuid, value: answer
                       answering = LYT.service.getQuestions(userResponse)
                         .then (lastRes) -> alert lastRes.label
                       LYT.loader.register "Loading", answering
@@ -526,7 +526,7 @@ LYT.control =
             $('#searchterm').val term
 
             if LYT.service.questionsSupported()
-              question = [ { id: 'searchFreetext', value: term } ]
+              question = id: 'searchFreetext', value: term
               results =
                 LYT.service.getQuestions(question)
                 .then (result) ->
