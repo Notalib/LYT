@@ -661,12 +661,3 @@ LYT.control =
   guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)
-
-  dynamicMenu: (type, match, ui, page, event) ->
-    content = $('#dynamic-menu')
-    params = LYT.router.getParams match[1]
-    id = params.id or 'default'
-
-    LYT.service.getQuestions([ { id: id } ]).then (questions) ->
-      LYT.render.setHeader page, questions.questions[0].label
-      LYT.render.dynamicMenu content, questions.questions[0]
