@@ -253,7 +253,8 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-      NS = 'http://www.daisy.org/z3986/2005/bookmark/'
+      NS_DODP = 'http://www.daisy.org/ns/daisy-online/'
+      NS_BOOKMARK = 'http://www.daisy.org/z3986/2005/bookmark/'
       deserialize = (data) ->
         for child in data.children
           switch child.localName.toLowerCase()
@@ -287,18 +288,24 @@ LYT.protocol =
             note:       text: note || '-'
 
 
-      set = $xml[0].getElementsByTagNameNS(NS, 'bookmarkSet')[0]
+      # Fix MTM bug. <bookmarkSet> does *NOT* belong to NS_BOOKMARK
+      # but to NS_DODP
+      if LYT.config.isMTM
+        set = $xml[0].getElementsByTagNameNS(NS_BOOKMARK, 'bookmarkSet')?[0]
+      else
+        set = $xml[0].getElementsByTagNameNS(NS_DODP, 'bookmarkSet')?[0]
+
       bookmarkSet =
         bookmarks: []
         book: {}
 
-      for child in set.children
+      for child in set?.children
         switch child.localName.toLowerCase()
           when 'uid' then bookmarkSet.book.uid = child.textContent
           when 'lastmark' then bookmarkSet.lastmark = deserialize child
           when 'title'
-            text = child.getElementsByTagNameNS(NS, 'text')
-            audio = child.getElementsByTagNameNS(NS, 'audio')
+            text = child.getElementsByTagNameNS(NS_BOOKMARK, 'text')
+            audio = child.getElementsByTagNameNS(NS_BOOKMARK, 'audio')
             title = {}
             title.text = text[0].textContent if text.length
             title.audio = audio[0].textContent if audio.length
