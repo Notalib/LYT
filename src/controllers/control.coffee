@@ -399,6 +399,7 @@ LYT.control =
         if LYT.config.isMTM
           question = id: 'addToBookshelf', value: params.book
           initialProcess = LYT.service.getQuestions question
+          LYT.loader.register 'Adding to bookshelf', initialProcess
 
         process = $.when(initialProcess)
         .then () ->
