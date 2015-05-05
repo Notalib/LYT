@@ -611,9 +611,12 @@ LYT.player =
       duration = @getStatus().duration
       seekTime = currTime + seconds
 
+      # This algorithm leads to unexpected behaviour if duration is 0
+      return if duration == 0
+
       deferred = $.Deferred()
       # if time is within boundaries of current section
-      if(seekTime >= 0 && seekTime < duration)
+      if seekTime >= 0 && seekTime < duration
         @wait()
           .then =>
             new LYT.player.command.seek @el, seekTime
