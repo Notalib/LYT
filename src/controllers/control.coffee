@@ -398,11 +398,9 @@ LYT.control =
         # A book must be added (by Dynamic Menus) to bookshelf, before issuing
         if LYT.config.isMTM
           question = id: 'addToBookshelf', value: params.book
-          process = LYT.service.getQuestions(question)
-        else
-          process = jQuery.Deferred().resolve()
+          initialProcess = LYT.service.getQuestions question
 
-        process = process
+        process = $.when(initialProcess)
         .then () ->
           LYT.player.load params.book, smilReference, offset, play
         .then (book) ->
