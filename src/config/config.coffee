@@ -14,13 +14,10 @@
 
 # ## Central system configuration
 LYT.config =
-  isE17: false
-  isMTM: true
-
   # ### LYT.rpc function config
   rpc:
     # The service's server-side URL
-    url: "/dodServices/" # No default - must be present
+    url: "/DodpMobile/Service.svc" # No default - must be present
 
   # ### LYT.protocol config
   protocol:
@@ -87,7 +84,7 @@ LYT.config =
     # Autocomplete options
     autocomplete:
       # Enable ?
-      enabled: false
+      enabled: true
       # The URL to request results from
       url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
       # If suggestions from Autocomplete is léss than 'google_trigger' ask google

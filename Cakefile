@@ -34,8 +34,18 @@ option "-d", "--development",   "Use development settings"
 option "-t", "--test",          "Use test environment"
 option "-n", "--no-validate",   "Don't validate build"
 option "-f", "--force-deploy",  "Force a fresh re-deployment of all files"
+option "-e", "--environment [env]", "Use another environment ('e17', 'mtm')"
 
 # --------------------------------------
+
+getSourceFiles = (options) ->
+  coffee.grind "src", null, (file) ->
+    if file.match(/config.dev.coffee$/) or file.match(/reloader.coffee$/)
+      return options.development
+    else if match = file.match /config.(\w+).coffee$/
+      return match?[1] is (options.environment || 'e17')
+    else
+      return true
 
 # # Tasks
 
@@ -76,11 +86,8 @@ task "assets", "Sync assets to build", (options) ->
 
 task "src", "Compile CoffeeScript source", (options) ->
   cleanDir "build/javascript"
-  files = coffee.grind "src", null, (file) ->
-    if options.development
-      return true
-    else
-      return not file.match /config.dev.coffee$/
+
+  files = getSourceFiles options
 
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
@@ -117,11 +124,7 @@ task "html", "Build HTML", (options) ->
   else if options.concat
     scripts.push "javascript/#{config.concatName}.js"
   else
-    coffeeScripts = coffee.grind "src", null, (file) ->
-      if options.development
-        return true
-      else
-        return not file.match /config.dev.coffee$/ and not file.match /reloader.coffee$/
+    coffeeScripts = getSourceFiles options
     scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'

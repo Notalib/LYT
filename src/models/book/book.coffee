@@ -90,7 +90,7 @@ class LYT.Book
           # Urls are rewritten to use the origin server just
           # in case we are behind a proxy.
           origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
-          if LYT.config.isMTM
+          if LYT.config.rpc.proxyResources
             url = origin + '/proxyURL?url=' + encodeURI(uri)
           else
             path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
