@@ -113,10 +113,11 @@ task "html", "Build HTML", (options) ->
   stylesheet = "css/#{config.concatName}.css"
   scripts = []
 
-  if options.test
-    scripts.push "http://test.e17.dk/getnotaauthtoken"
-  else
-    scripts.push "http://e17.dk/getnotaauthtoken"
+  if (options.environment || 'e17') is 'e17'
+    if options.test
+      scripts.push "http://test.e17.dk/getnotaauthtoken"
+    else
+      scripts.push "http://e17.dk/getnotaauthtoken"
 
   if options.minify
     scripts.push "javascript/#{config.concatName}.min.js"
