@@ -12,6 +12,10 @@ argv = require 'optimist'
   .describe 'r', 'Proxy /DodpMobile, /DodpFiles and /CatalogSearch to this url'
   .default 'r', 'http://m.e17.dk/'
 
+  .alias 'e', 'environment'
+  .describe 'e', 'Choose environment (e17 or mtm)'
+  .default 'e', 'e17'
+
   .alias 'q', 'quiet'
   .describe 'q', 'Be quieter please'
 
@@ -66,9 +70,10 @@ app
     else
       next()
 
-exec 'cake -dnt app', ->
-  if not argv.silence
-    console.log 'Fininshed build'
+buildSource = (cb) ->
+  exec "cake -dnt -e #{ argv.environment } app", cb
+
+buildSource -> console.log 'Finished build' if not argv.silence
 
 server = app.listen argv.port, ->
   if not argv.silence
@@ -80,12 +85,12 @@ fileChanged = (filePath) ->
   clearTimeout( changedTimeout ) if changedTimeout
   if not argv.silence
     console.log 'Rebuild after change to ' + filePath
+
   changedTimeout = setTimeout(
-    =>
-      exec 'cake -dnt app', ->
-        if not argv.silence
-          console.log 'Fininshed rebuild'
-        buildnumber++
+    buildSource ->
+      console.log 'Finished rebuild' if not argv.silence
+      buildnumber++
+
     100
   )
 
