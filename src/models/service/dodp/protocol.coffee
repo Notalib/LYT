@@ -224,7 +224,7 @@ LYT.protocol =
       metadata.sample = sampleEl[0].getAttribute('id') if sampleEl.length
 
       metadataEl = containerEl.getElementsByTagNameNS(NS, 'metadata')[0]
-      metas = [].slice.call(metadataEl.children).forEach (meta) ->
+      metas = [].slice.call(metadataEl.childNodes).forEach (meta) ->
         if meta.namespaceURI is NS
           if meta.localName is 'meta'
             metadata.daisy[meta.getAttribute('name').toLowerCase()] = meta.getAttribute('content')
@@ -256,13 +256,12 @@ LYT.protocol =
       NS_DODP = 'http://www.daisy.org/ns/daisy-online/'
       NS_BOOKMARK = 'http://www.daisy.org/z3986/2005/bookmark/'
       deserialize = (data) ->
-        for child in data.children
+        for child in data.childNodes
           switch child.localName.toLowerCase()
             when 'uri' then uri = child.textContent
             when 'timeoffset' then timeOffset = child.textContent
             when 'ncxref' then ncxRef = child.textContent
-            when 'note'
-              note = child.children[0].textContent
+            when 'note' then note = child.textContent
 
         # Convert from Dodp offset to floating point in seconds
         # TODO: Implement correct parsing of all time formats provided in
@@ -299,8 +298,8 @@ LYT.protocol =
         bookmarks: []
         book: {}
 
-      for child in set?.children
-        switch child.localName.toLowerCase()
+      for child in set?.childNodes
+        switch child.localName?.toLowerCase()
           when 'uid' then bookmarkSet.book.uid = child.textContent
           when 'lastmark' then bookmarkSet.lastmark = deserialize child
           when 'title'
@@ -436,9 +435,9 @@ LYT.protocol =
       NS = 'http://www.daisy.org/ns/daisy-online/'
 
       questions = $xml[0].getElementsByTagNameNS NS, 'questions'
-      for child in questions?[0].children
+      for child in questions?[0].childNodes
         if child.localName is 'label'
-          label = child.children?[0]?.textContent
+          label = child.textContent
 
 
       # Support multiple choice Questions
