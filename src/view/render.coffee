@@ -296,7 +296,14 @@ LYT.render = do ->
         list.listview().children().remove()
 
   enablePlayerNavigation: ->
-    $('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button').removeClass 'ui-disabled'
+    $('#book-play-menu')
+      .find('a')
+      .add('#book-index-button,#bookmark-add-button')
+      .removeClass 'ui-disabled'
+
+    #TODO: MTM Hack
+    if LYT.config.isMTM
+      $('#bookmark-add-button').addClass 'ui-disabled'
 
   disablePlayerNavigation: ->
     $('#book-play-menu').find('a').add('#book-index-button,#bookmark-add-button').addClass 'ui-disabled'
