@@ -28,7 +28,7 @@ LYT.render = do ->
 
     title = book.title?.replace /\"/g, ""
     element = jQuery """
-      <li data-book-id="#{book.id}">
+      <li data-book-id="#{book.id}" class="ui-li-has-thumb">
         <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id + from}">
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image" role="presentation"">
