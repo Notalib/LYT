@@ -52,6 +52,7 @@ LYT.rpc = do ->
     timeout:     10000
     type:        "POST"
     url:         LYT.config.rpc.url
+    xhrFields:   withCredentials: true
 
 
   identifyDODPError = do ->
