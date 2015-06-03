@@ -8,8 +8,8 @@ jQuery.extend true, LYT.config,
   isMTM: true
 
   rpc:
-    url: "/dodServices/"
-    proxyResources: true
+    url: "http://dodexttest.mtm.se/dodServices/"
+    proxyToLocal: false
 
   catalog:
     autocomplete:

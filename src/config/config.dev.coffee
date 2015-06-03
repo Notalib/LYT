@@ -11,6 +11,9 @@ jQuery.extend log,
   receiver: 'local'
   allowDevConsoleEvent: true
 
-jQuery.extend LYT.config,
+jQuery.extend true, LYT.config,
+  rpc:
+    proxyToLocal: true
+
   settings:
     showAdvanced: yes

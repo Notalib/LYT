@@ -80,21 +80,20 @@ class LYT.Book
 
         # Process the resources hash
         for own localUri, uri of resources
-
-          # We lowercase all resource lookups to avoid general case-issues
-          localUri = localUri.toLowerCase()
-
           # Each resource is identified by its relative path,
           # and contains the properties `url` and `document`
           # (the latter initialized to `null`)
-          # Urls are rewritten to use the origin server just
-          # in case we are behind a proxy.
-          origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
           if LYT.config.rpc.proxyResources
-            url = origin + '/proxyURL?url=' + encodeURI(uri)
-          else
+            url = LYT.config.rpc.proxyResources + encodeURI(uri)
+          else if LYT.config.rpc.proxyToLocal
+            origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
             path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
             url = origin + path
+          else
+            url = uri
+
+          # We lowercase all resource lookups to avoid general case-issues
+          localUri = localUri.toLowerCase()
 
           @resources[localUri] =
             url:      url
