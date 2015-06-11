@@ -21,4 +21,4 @@
 #       (see LYT issue #63 for a discussion).
 
 window.LYT =
-  VERSION: '2.2.3'
+  VERSION: '2.2.4'
