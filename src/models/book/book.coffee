@@ -92,6 +92,8 @@ class LYT.Book
           else
             url = uri
 
+          url = URI(url).normalize().toString()
+
           # We lowercase all resource lookups to avoid general case-issues
           localUri = localUri.toLowerCase()
 
