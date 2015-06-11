@@ -103,7 +103,10 @@ LYT.protocol =
       password: password
     #$xml, data, status, xhr
     receive: ($xml, data, status, xhr) ->
-      throw "logOnFailed" unless $xml.find("logOnResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      logonResult = $xml[0].getElementsByTagNameNS(NS, "logOnResult")?[0]
+
+      throw "logOnFailed" unless logonResult.textContent is "true"
       # Note: Can't use the `"Envelope > Header"` syntax for some reason
       # but `find("Envelope").find("Header")` works...
       # It's probably because Sizzle has a proble with the XML namespacing...and IE and firefox...so use ->$xml.find("s\\:Envelope, Envelope").find("s\\:Header, Header").first()
@@ -142,7 +145,10 @@ LYT.protocol =
       readingSystemAttributes: LYT.config.protocol.readingSystemAttributes
 
     receive: ($xml, data) ->
-      throw "setReadingSystemAttributes failed" unless $xml.find("setReadingSystemAttributesResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      attrs = $xml[0].getElementsByTagNameNS NS, "setReadingSystemAttributesResult"
+      throw "setReadingSystemAttributes failed" unless attrs?[0].textContent is "true"
+
       true
 
 
@@ -179,15 +185,16 @@ LYT.protocol =
     receive: ($xml, data) ->
       NS = 'http://www.daisy.org/ns/daisy-online/'
       items = []
-      $xml.find("contentItem").each ->
-        item = jQuery this
-        # TODO: Is this safe?
-        label = (@getElementsByTagNameNS NS, 'text')?[0].textContent
+      contentItems = $xml[0].getElementsByTagNameNS NS, "contentItem"
+
+      for item in contentItems
+        label = item.getElementsByTagNameNS(NS, 'text')?[0].textContent
         # TODO: Should really extract the lang attribute too - it'd make it easier to correctly markup the list in the UI
         items.push {
-          id: item.attr("id")
+          id: item.getAttribute "id"
           label: label
         }
+
       [items]
 
 
@@ -196,7 +203,10 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-      throw "issueContent failed" unless $xml.find('issueContentResult').text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      result = $xml[0].getElementsByTagNameNS NS, "issueContentResult"
+
+      throw "issueContent failed" unless result?[0].textContent is "true"
       true
 
 
@@ -205,7 +215,10 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-      throw "returnContent failed" unless $xml.find("returnContentResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      result = $xml[0].getElementsByTagNameNS NS, "returnContentResult"
+
+      throw "returnContent failed" unless result?[0].textContent is "true"
       true
 
 
@@ -242,8 +255,12 @@ LYT.protocol =
 
     receive: ($xml, data) ->
       resources = {}
-      $xml.find("resource").each ->
-        resources[ jQuery(this).attr("localURI") ] = jQuery(this).attr("uri")
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      response = $xml[0].getElementsByTagNameNS NS, "resource"
+
+      for resource in response
+        resources[ resource.getAttribute "localURI" ] = resource.getAttribute "uri"
+
       resources
 
 
