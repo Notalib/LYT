@@ -55,9 +55,6 @@ class LYT.player.command extends jQuery.Deferred
       @el.unbind binding.event, binding.handler
 
   _run: (callback) ->
-    LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:start"
-    @done => LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:done"
-    @fail => LYT.instrumentation.record "playerCommand:#{@id}:#{@constructor.name}:fail"
     @always => @_detach()
     @_attach()
     callback() if callback and @state() is 'pending'

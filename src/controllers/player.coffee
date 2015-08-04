@@ -50,16 +50,13 @@ LYT.player =
       supplied: "mp3"
       solution: 'html'
       ready: =>
-        @setupAudioInstrumentation()
         @setupUi()
-        LYT.instrumentation.record 'ready', @getStatus()
         log.message "Player: event ready: paused: #{@getStatus().paused}"
 
         @setPlaybackRate @playbackRate
         @ready = true
 
     jPlayerParams.warning = (event) =>
-      LYT.instrumentation.record 'warning', event.jPlayer.status
       log.error "Player: event warning: #{event.jPlayer.warning.message}, #{event.jPlayer.warning.hint}", event
 
     jPlayerParams.error = (event) =>
@@ -72,7 +69,6 @@ LYT.player =
           # Reset the state of the player, or playbackRate will be broken.
           @stop().then => @play()
         return
-      LYT.instrumentation.record 'error', event.jPlayer.status
       log.error "Player: event error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}", event
 
       # Defaults for prompt following in error handlers below
@@ -111,30 +107,7 @@ LYT.player =
             theme: 'c'
           LYT.render.showDialog($.mobile.activePage, parameters)
 
-    # Instrument every possible event that jPlayer offers that doesn't already
-    # have a handler.
-    instrument = (eventName) ->
-      jPlayerParams[eventName] or= (event) ->
-        LYT.instrumentation.record eventName, event.jPlayer.status
-    instrument eventName for eventName, jPlayerName of $.jPlayer.event
-
     @el.jPlayer jPlayerParams
-
-  # Sets up instrumentation on the audio element inside jPlayer
-  setupAudioInstrumentation: ->
-    audio = LYT.player.el.find('audio')[0]
-    # Using proxy function to generate closure with original value
-    proxy = (audio, name, value) ->
-      audio[name] = ->
-        LYT.instrumentation.record "audioCommand:#{name}"
-        value.apply audio, arguments
-    for name, value of audio
-      proxy audio, name, value if typeof value is 'function'
-
-    jPlayer = @el.jPlayer
-    @el.jPlayer = (command) =>
-      LYT.instrumentation.record "command:#{command}" if typeof command is 'string'
-      jPlayer.apply @el, arguments
 
   # Sets up bindings for the user interface
   setupUi: ->
@@ -146,14 +119,12 @@ LYT.player =
       bookPlayer: bookPlayer
       lytPlayPauseBtns: lytPlayPauseBtns
       lytPause: lytPlayPauseBtns.filter('a.lyt-pause').click =>
-        LYT.instrumentation.record 'ui:stop'
         if not @showingPlay
           @showPlayButton()
 
         @stop()
 
       lytPlay: lytPlayPauseBtns.filter('a.lyt-play').click (e) =>
-        LYT.instrumentation.record 'ui:play'
         if @playClickHook
           @playClickHook(e).done => @play()
         else
@@ -163,22 +134,18 @@ LYT.player =
 
     bookPlayer.find('a.next-section').click =>
       log.message "Player: next: #{@currentSegment.next?.url()}"
-      LYT.instrumentation.record 'ui:next'
       @playNextSegment()
 
     bookPlayer.find('a.previous-section').click =>
       log.message "Player: previous: #{@currentSegment.previous?.url()}"
-      LYT.instrumentation.record 'ui:previous'
       @playPreviousSegment()
 
     bookPlayer.find('a.forward15').click =>
       log.message "Player: forward15:"
-      LYT.instrumentation.record 'ui:fastforward15'
       @playheadSeek(15)
 
     bookPlayer.find('a.back15').click =>
       log.message "Player: rewind15:"
-      LYT.instrumentation.record 'ui:rewind15'
       @playheadSeek(-15)
 
     Mousetrap.bind 'alt+ctrl+space', =>

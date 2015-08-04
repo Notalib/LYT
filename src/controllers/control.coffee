@@ -141,18 +141,6 @@ LYT.control =
       LYT.settings.set('textStyle', style)
       LYT.render.setStyle()
 
-    $('#instrumentation').find('button.first').on 'click', ->
-      LYT.render.instrumentationGraph()?.firstEntry()
-
-    $('#instrumentation').find('button.last').on 'click', ->
-      LYT.render.instrumentationGraph()?.lastEntry()
-
-    $('#instrumentation').find('button.previous').on 'click', ->
-      LYT.render.instrumentationGraph()?.previousEntry()
-
-    $('#instrumentation').find('button.next').on 'click', ->
-      LYT.render.instrumentationGraph()?.nextEntry()
-
     $('#run-tests').one 'click', ->
       $('#run-tests').button 'disable'
       deferred = $.mobile.util.waitForConfirmDialog LYT.i18n('Is this the first test run?')
@@ -409,10 +397,6 @@ LYT.control =
     else
       goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
-
-  instrumentation: (type, match, ui, page, event) ->
-    if type is 'pagebeforeshow'
-      LYT.render.showInstrumentation $('#instrumentation-content')
 
   test:  (type, match, ui, page, event) ->
     if type is 'pageshow'

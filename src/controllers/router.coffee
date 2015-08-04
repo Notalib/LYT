@@ -51,9 +51,6 @@ $(document).bind "mobileinit", ->
     "#login":
       handler: "login"
       events: "s,h,bs"
-    "#instrumentation":
-      handler: 'instrumentation'
-      events: 'bs'
     "#redirect":
       handler: "redirect"
       events: "s"
