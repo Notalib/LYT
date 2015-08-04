@@ -1,11 +1,8 @@
 # Requires `/common`
 # Requires `/support/lyt/loader`
 # Requires `/models/book/book`
-# Requires `/models/member/bookshelf`
 # Requires `/models/member/settings`
 # Requires `/models/service/service`
-# Requires `/models/service/catalog`
-# Requires `/models/service/lists`
 # Requires `/view/render`
 # Requires `player`
 
@@ -46,14 +43,6 @@ LYT.control =
         LYT.player.book.addBookmark segment, LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification()
 
-    $("#log-off").on 'click',  ->
-      if LYT.player.book?
-        LYT.player.stop()
-        LYT.render.clearBookPlayer()
-      content = $("#bookshelf").children ':jqmData(role=content)'
-      LYT.render.clearContent content
-      LYT.service.logOff()
-
     # Hacking away on book index page that is mostly being rendered by
     # the nested list view in jQuery Mobile.
     # This click handler does several things:
@@ -82,15 +71,6 @@ LYT.control =
             LYT.render.createbookIndex book.nccDocument.structure, view, book
           else
             iterate book.nccDocument.structure
-
-    $("#share-link-textarea").on 'click', ->
-      this.focus()
-      this.selectionStart = 0
-      this.selectionEnd = this.value.length
-
-    $("#more-bookshelf-entries").on 'click', ->
-      content = $.mobile.activePage.children(":jqmData(role=content)")
-      LYT.render.loadBookshelfPage(content, LYT.bookshelf.getNextPage())
 
     $(window).resize -> LYT.player.refreshContent()
 
@@ -129,10 +109,6 @@ LYT.control =
       $form.find('#password').val ''
 
       LYT.loader.register "Logging in", process
-
-    $("#add-to-bookshelf-button").on 'click', ->
-      LYT.loader.register "Adding book to bookshelf", LYT.bookshelf.add($("#add-to-bookshelf-button").attr("data-book-id"))
-        .done( -> $.mobile.changePage LYT.config.defaultPage.hash )
 
     Modernizr.on 'playbackratelive', (playbackratelive) ->
       if not Modernizr.playbackrate and not playbackratelive
@@ -212,10 +188,6 @@ LYT.control =
       method = if event.result then log.message else log.error
       method "Test: #{event.message}: passed: #{event.result}"
 
-    Mousetrap.bind 'alt+ctrl+h', ->
-      $.mobile.changePage "#support", transition: "none"
-      return false
-
     Mousetrap.bind 'alt+ctrl+m', ->
       $("#bookmark-add-button").click()
 
@@ -252,39 +224,6 @@ LYT.control =
       $page.find('#submit').button('enable')
     else
       $page.find('#submit').button('disable')
-
-  bookshelf: (type, match, ui, page, event) ->
-    params = LYT.router.getParams match[1]
-    promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookshelf: unable to log in'
-    promise.done ->
-      content = $(page).children(":jqmData(role=content)")
-
-      if LYT.bookshelf.nextPage is false
-        LYT.render.loadBookshelfPage content
-      else
-        #loadBookshelfPage is called with view, page count and zeroAndUp set to true...
-        LYT.render.loadBookshelfPage content, LYT.bookshelf.nextPage , true
-
-  bookDetails: (type, match, ui, page, event) ->
-    content = $(page).children( ":jqmData(role=content)" )
-    if type is 'pagebeforeshow'
-      content.children().hide()
-
-    params = LYT.router.getParams match[1]
-    promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookDetails: unable to log in'
-    promise.done ->
-      if type is 'pagebeforeshow'
-        process = LYT.catalog.getDetails(params.book)
-          .fail (error, msg) ->
-            log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
-          .done (details) ->
-            LYT.render.hideOrShowButtons(details)
-            LYT.render.bookDetails(details, content)
-            LYT.render.setPageTitle details.title
-            content.children().show()
-        LYT.loader.register "Loading book", process, 10
 
   # TODO: Move bookmarks list to separate page
   # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
@@ -328,9 +267,6 @@ LYT.control =
 
       renderIndex()
 
-  bookPlay: (type, match, ui, page, event) ->
-    $.mobile.changePage '#book-player' + match[1]
-
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
@@ -350,11 +286,6 @@ LYT.control =
     promise.done ->
       if type is 'pageshow'
         LYT.player.refreshContent(true) if LYT.player.book?.id is params.book
-
-        # If we're already playing this book, and we're coming from the
-        # bookshelf, we just continue playing
-        if LYT.player.book?.id is params.book and params.from is 'bookshelf'
-          return
 
         # Switch to different (part of) book
         # Because of bad naming, sections are here actually SMIL
@@ -437,70 +368,6 @@ LYT.control =
               LYT.render.showDialog($.mobile.activePage, parameters)
         # else just show book player (done by default by the router)
 
-  search: (type, match, ui, page, event) ->
-    params = LYT.router.getParams(match[1])
-    promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: search: unable to log in'
-    promise.done ->
-      if type is 'pagebeforeshow'
-        content = $(page).children(":jqmData(role=content)")
-        content.children().hide()
-
-      if type is 'pageshow'
-        handleResults = (process) ->
-          LYT.loader.register "Searching", process
-          process.done (results) ->
-            $("#more-search-results").unbind "click"
-            $("#more-search-results").click (event) ->
-              handleResults results.loadNextPage() if results.loadNextPage?
-              event.preventDefault()
-              event.stopImmediatePropagation()
-
-            LYT.render.searchResults results, content
-
-        # determine action and parse params: predefinedView, search, predefinedSearch
-        action = "predefinedView"
-        if not jQuery.isEmptyObject params
-          if params.term?
-            [action, term] = ["search", jQuery.trim(decodeURIComponent(params.term or "") ) ]
-          else if params.list?
-            list = jQuery.trim(decodeURIComponent(params.list or "") )
-            action = "showList" if LYT.predefinedSearches[list]?
-
-        content = $(page).children( ":jqmData(role=content)" )
-        header = $(page).children( ":jqmData(role=header)" ).find("h1")
-
-        switch action
-          when "predefinedView"
-            $('#listshow-btn').hide()
-            $('#more-search-results').hide()
-            $('#searchterm').val ''
-            LYT.render.setHeader page, "Search"
-            LYT.render.catalogLists content
-          when "search"
-            LYT.render.setHeader page, "Search"
-            $('#searchterm').val term
-            handleResults LYT.catalog.search(term)
-          when "showList"
-            LYT.render.setHeader page, LYT.predefinedSearches[list].title
-            handleResults LYT.predefinedSearches[list].callback()
-
-        LYT.catalog.attachAutocomplete $('#searchterm')
-        # When hitting enter in dropdown, submit.
-        $("#searchterm").unbind "autocompleteselect"
-        $("#searchterm").bind "autocompleteselect", (event, ui) ->
-          $('#searchterm').val ui.item.value
-          $('#search-form').trigger 'submit'
-
-        $("#search-form").submit (event) ->
-          $('#searchterm').blur()
-          term = encodeURIComponent $('#searchterm').val()
-          $.mobile.changePage "#search?term=#{term}", transition: "none"
-          event.preventDefault()
-          event.stopImmediatePropagation()
-
-        $('#searchterm').focus()
-
   settings: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     promise = LYT.control.ensureLogOn params
@@ -536,15 +403,6 @@ LYT.control =
               el.prop("checked", LYT.settings.get("wordHighlighting"))
                 .checkboxradio("refresh")
 
-  profile: (type, match, ui, page, event) ->
-    # Not passing params since it is currently only being used to indicate
-    # whether the user should be logged in as guest.
-    promise = LYT.control.ensureLogOn()
-    promise.fail -> log.error 'Control: profile: unable to log in'
-    promise.done ->
-      if type is 'pageshow'
-        LYT.render.profile()
-
   splashUpgrade: (type, match, ui, page, event) ->
     params = if match[1] then LYT.router.getParams(match[1]) else {}
     # Display deprecation notice in case browser support is going to stop
@@ -556,35 +414,6 @@ LYT.control =
     else
       goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
       $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
-
-  share: (type, match, ui, page, event) ->
-    params = LYT.router.getParams(match[1])
-    promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: share: unable to log in'
-    promise.done ->
-      if type is 'pageshow'
-        params = LYT.router.getParams match[1]
-        if jQuery.isEmptyObject params
-          if segment = LYT.player.currentSegment
-            [smil, segmentID] = segment.url().split("#")
-            params =
-              title:   LYT.player.book.title
-              book:    LYT.player.book.id
-              section: smil
-              segment: segmentID
-              offset:  LYT.utils.formatTime(LYT.player.time)
-          else
-            defaultPage()
-
-        url = LYT.router.getBookActionUrl params
-        urlEmail = url.replace("&", "&amp;")
-        subject = LYT.i18n 'Link to book at E17'
-        # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape urlEmail}"
-
-        $("#email-bookmark").attr('href', "mailto: ?subject=#{subject}&body=#{body}")
-
-        $("#share-link-textarea").text url
 
   instrumentation: (type, match, ui, page, event) ->
     if type is 'pagebeforeshow'
@@ -600,9 +429,5 @@ LYT.control =
       LYT.render.hideTestTab()
     else if type is 'pagehide'
       LYT.render.showTestTab()
-
-  suggestions: -> $.mobile.changePage('#search?list=anbe')
-
-  guest: -> $.mobile.changePage(LYT.config.defaultPage.hash + '?guest=true')
 
   defaultPage: -> $.mobile.changePage(LYT.config.defaultPage.hash)

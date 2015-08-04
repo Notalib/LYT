@@ -259,31 +259,6 @@ LYT.service = do ->
   getResources: (bookId) ->
     withLogOn -> LYT.rpc "getContentResources", bookId
 
-
-  # The the list of issued content (i.e. the bookshelf)
-  # Note: The `getContentList` API gets items by range
-  # I.e. from 1 item index to (and including) another
-  # index. So getting item 0 to 5, will get you 6 items.
-  # Specifying `-1` as the `to` argument will get all
-  # items from the `from` index to the end of the list
-  getBookshelf: (from = 0, to = -1) ->
-    deferred = jQuery.Deferred()
-
-    response = withLogOn -> LYT.rpc("getContentList", "issued", from, to)
-
-    response.done (list) ->
-      for item in list
-        # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
-        # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
-        # See issue #17 on Github
-        [item.author, item.title] = item.label?.split("$") or ["", ""]
-        delete item.label
-      deferred.resolve list
-
-    response.fail (err, message) -> deferred.reject err, message
-
-    deferred.promise()
-
   # -------
   # ## Optional operations
 

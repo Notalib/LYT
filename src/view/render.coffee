@@ -1,7 +1,6 @@
 # Requires `/common`
 # Requires `/controllers/player`
 # Requires `/models/member/settings`
-# Requires `/models/service/lists`
 
 # -------------------
 
@@ -15,97 +14,10 @@ LYT.render = do ->
   # Default book cover image
   defaultCover = '/images/icons/default-cover.png'
 
-  # Create a book list-item which links to the `target` page
-  bookListItem = (target, book, from = "") ->
-    info = []
-    info.push book.author if book.author?
-    info.push getMediaType(book.media) if book.media?
-    info = info.join '&nbsp;&nbsp;|&nbsp;&nbsp;'
-    from = "&from=#{from}" if from isnt ""
-
-    if book.id is LYT.player.book?.id
-      nowPlaying = '<div class="book-now-playing"></div>'
-
-    title = book.title?.replace /\"/g, ""
-    element = jQuery """
-      <li data-book-id="#{book.id}" class="ui-li-has-thumb">
-        <a class="gatrack book-play-link" data-ga-action="Vælg" ga-book-id="#{book.id}" ga-book-title="#{(book.title or '').replace '"', ''}" href="##{target}?book=#{book.id + from}">
-          <div class="cover-image-frame">
-            <img class="ui-li-icon cover-image" role="presentation"">
-          </div>
-          <h3>#{book.title or "&nbsp;"}</h3>
-          <p>#{info or "&nbsp;"}</p>
-          #{nowPlaying or ""}
-        </a>
-      </li>
-      """
-
-    if String(target) is 'book-details'
-      element.attr 'data-icon', 'arrow_icn'
-
-    loadCover element.find('img.cover-image'), book.id
-
-    return element
-
-  didYouMeanItem = (item) ->
-    element = jQuery """
-    <li>
-      <a href="" class="">
-        <h3>#{item or "&nbsp;"}</h3>
-      </a>
-    </li>
-    """
-    return element
-
   loadCover = (img, id) ->
     # if periodical, use periodical code (first 4 letters of id)
     imageid = if $.isNumeric(id) then id else id.substring(0, 4)
     img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h200.jpg"
-
-
-  getMediaType = (mediastring) ->
-    if /\bAA\b/i.test mediastring
-      LYT.i18n('Talking book')
-    else
-      LYT.i18n('Talking book with text')
-
-  attachRemoveBookClickEvent = (aElement, book, li, list, view) ->
-    aElement.click (event) ->
-      if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-        parameters =
-          mode:               'bool'
-          prompt:              LYT.i18n('You are logged on as guest and hence can not remove books')
-          subTitle:            LYT.i18n('')
-          animate:             false
-          useDialogForceFalse: true
-          useModal:            true
-          buttons:             {}
-        parameters.buttons[LYT.i18n('OK')] =
-          click: ->
-          theme: 'c'
-        LYT.render.showDialog($(this), parameters)
-      else
-        parameters =
-          mode:                'bool'
-          prompt:              LYT.i18n('Delete this book?')
-          subTitle:            book.title
-          animate:             false
-          useDialogForceFalse: true
-          useModal:            true
-          buttons:             {}
-        parameters.buttons[LYT.i18n('Remove book')] =
-          click: ->
-            LYT.bookshelf.remove(book.id).done ->
-              li.remove()
-
-              view.addClass('bookshelf-empty') if list.children().length is 0
-          id:    'ok-btn'
-          theme: 'c'
-        parameters.buttons[LYT.i18n('Cancel')] =
-          click: ->
-          id:    'cancel-btn'
-          theme: 'c'
-        LYT.render.showDialog($(this), parameters)
 
 
   # Displays a small speech bubble notification vertOffset pixels below the
@@ -204,41 +116,6 @@ LYT.render = do ->
 
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), 'Bogmærke tilføjet', 5
 
-  bookshelf: (books, view, page, zeroAndUp) ->
-    #todo: add pagination
-    list = view.find('ul')
-    list.empty() if page is 1 or zeroAndUp
-
-    for book in books
-      li = bookListItem 'book-player', book, 'bookshelf'
-      removeLink = jQuery """<a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>"""
-      attachRemoveBookClickEvent removeLink, book, li, list, view
-      li.append removeLink
-      list.append li
-
-    # if the list i empty -> bookshelf is empty -> show icon...
-    if(list.children().length is 0)
-      view.addClass 'bookshelf-empty'
-    else
-      view.removeClass 'bookshelf-empty'
-
-    list.listview('refresh')
-    list.find('a').first().focus()
-
-  loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
-    process = LYT.bookshelf.load(page, zeroAndUp)
-    .done (books) ->
-      LYT.render.bookshelf(books, content, page, zeroAndUp)
-      if books.nextPage
-        $('#more-bookshelf-entries').show()
-      else
-        $('#more-bookshelf-entries').hide()
-
-    .fail (error, msg) ->
-      log.message "failed with error #{error} and msg #{msg}"
-
-    LYT.loader.register 'Loading bookshelf', process unless content.find('ul li[data-book-id]').length
-
   disablePlaybackRate: ->
     # Wait with disabling until it's actually created
     $playbackRate = $('#playback-rate')
@@ -252,20 +129,6 @@ LYT.render = do ->
           el.checkboxradio('disable')
         else
           el.prop('disabled',true)
-
-  hideOrShowButtons: (details) ->
-    if details.state is LYT.config.book.states.pending
-      $('#book-unavailable-message').show()
-      $('#add-to-bookshelf-button').hide()
-      $('#details-play-button').hide()
-    else
-      $('#book-unavailable-message').hide()
-      if(LYT.session.getCredentials().username is LYT.config.service.guestLogin) #Guest login
-        $('#add-to-bookshelf-button').hide()
-        $('#details-play-button').hide()
-      else
-        $('#add-to-bookshelf-button').show()
-        $('#details-play-button').show()
 
   clearBookPlayer: ->
     @clearTextContent()
@@ -328,32 +191,10 @@ LYT.render = do ->
       $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
 
-
-  bookDetails: (details, view) ->
-    media = $('#details-book-media span')
-    media.removeClass()
-    if details.media is 'AA'
-      media.addClass 'ui-icon-audiobook'
-    else if details.media is 'AT'
-      media.addClass 'ui-icon-audiobook_text'
-    media.text details.mediaString
-
-    $('#details-book-title').text details.title
-    $('#details-book-author').text details.author
-    $('#details-book-description').text details.teaser
-    $('#details-book-narrator').text details.speaker
-    $('#details-book-totaltime').text "#{details.playtime}:00"
-    $('#details-book-pubyear').text details.pubyear or ''
-    $('#add-to-bookshelf-button').attr 'data-book-id', details.id
-    $('#details-play-button').attr 'href', "#book-player?book=#{details.id}"
-    loadCover view.find('img.cover-image'), details.id
-
-
   bookIndex: (book, view) ->
     # FIXME: We should be using asking the book for a TOC, not the NCC directly
     # since this is a sign of lack of decoupling
     @createbookIndex book.nccDocument.structure, view, book
-
 
   createbookIndex: (items, view, book, root = null) ->
     curSection = LYT.player.currentSection()
@@ -425,22 +266,13 @@ LYT.render = do ->
         list.find('.bookmark-indents').remove()
         list.find('.active').removeClass('active')
         listItem.addClass 'active'
-        share  = $('<div class="ui-block-a bookmark-share" title="Del" data-role="button" role="button">&nbsp;</div>')
         remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
-        share.on 'click', ->
-          [smil, segment] = bookmark.URI.split '#'
-          reference =
-            book: book.id
-            smil: smil
-            segment: segment
-            offset: bookmark.timeOffset
-          jQuery.mobile.changePage LYT.router.getBookActionUrl(reference, 'share') + "&title=#{book.title}"
         remove.on 'click', ->
           book.bookmarks.splice index, 1
           book.saveBookmarks()
           LYT.render.bookmarks book, view
         actionsItem = $('<ul class="bookmark-indents"><li class="bookmark-actions"><div class="ui-grid-a"></div></li></ul>')
-        actionsItem.find('div').append(share, remove)
+        actionsItem.find('div').append(remove)
         listItem.after actionsItem
         list.listview('refresh')
       return more
@@ -471,68 +303,12 @@ LYT.render = do ->
     setSelectSectionEvent list
     list.show()
 
-
-  searchResults: (results, view) ->
-    list = view.find 'ul'
-    list.empty() if results.currentPage is 1 or results.currentPage is undefined
-
-    if results.length is 0
-      list.append jQuery """"<li><h3 class="no-search-results">#{LYT.i18n('No search results')}</h3></li>"""
-    else
-      list.append bookListItem('book-details', result) for result in results
-
-    if results.loadNextPage?
-      $('#more-search-results').show()
-    else
-      $('#more-search-results').hide()
-
-    $('#listshow-btn').show()#show button list
-    list.listview('refresh')
-    view.children().show()
-
-
-  # TODO: Simple, rough implementation
-  catalogLists: (view) ->
-    list = view.find 'ul'
-    list.empty()
-
-    for key, value of LYT.predefinedSearches
-      listItem = jQuery """<li id="#{key}" data-icon="arrow_icn">
-                           <a href="##{value.hash}?#{value.param}=#{key}" class="ui-link-inherit">
-                           <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
-      list.append listItem
-    list.listview('refresh')
-    view.children().show()
-
   setHeader: (page, text) ->
     header = $(page).children(':jqmData(role=header)').find('h1')
     header.text LYT.i18n text
 
   setPageTitle: (title) ->
     document.title = "#{title} | #{LYT.i18n('Sitename')}"
-
-  showDidYouMean: (results, view) ->
-    list = view.find 'ul'
-    list.empty()
-
-    list.append jQuery '<li data-role="list-divider" role="heading">Mente du?</li>'
-
-    for item in results
-      listItem = didYouMeanItem(item)
-      listItem.find('a').click (event) ->
-        $.mobile.changePage "#search?term=#{encodeURI item}" , transition: 'none'
-      list.append listItem
-
-    $('#listshow-btn').show()#show button list
-    list.listview('refresh')
-
-
-  profile: () ->
-    if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-      $('#current-user-name').text LYT.i18n('guest')
-    else
-      $('#current-user-name').text LYT.session.getInfo().realname
-
 
   showDialog: (parent, parameters) ->
     LYT.loader.clear()

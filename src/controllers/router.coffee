@@ -39,12 +39,6 @@ $(document).bind "mobileinit", ->
     "#default-page":
       handler: "defaultPage"
       events: "bs"
-    "#book-details([?].*)?":
-      handler: "bookDetails"
-      events: "s,bs"
-    "#book-play([?].*)?$": # Deprecated - use book-player in stead
-      handler: "bookPlay"
-      events: "bs,s"
     "#book-player([?].*)?":
       handler: "bookPlayer"
       events: "bs,s"
@@ -54,39 +48,12 @@ $(document).bind "mobileinit", ->
     "#settings":
       handler: "settings"
       events: "s,bs"
-    "#support":
-      handler: "support"
-      events: "s"
-    "#about":
-      handler: "about"
-      events: "s"
-    "#share([?].*)?":
-      handler: "share"
-      events: "s"
-    "#search([?].*)?":
-      handler: "search"
-      events: "bs,s"
     "#login":
       handler: "login"
       events: "s,h,bs"
-    "#profile":
-      handler: "profile"
-      events: "s"
-    "#bookshelf([?].*)?":
-      handler: "bookshelf"
-      events: "s"
     "#instrumentation":
       handler: 'instrumentation'
       events: 'bs'
-    "#suggestions([?].*)?":
-      handler: "suggestions"
-      events: "s"
-    "#anbefalinger":         # This url is deprecated
-      handler: "suggestions"
-      events: "s"
-    "#guest":                # This url is deprecated, use #bookshelf?guest=true in stead
-      handler: "guest"
-      events: "s"
     "#redirect":
       handler: "redirect"
       events: "s"
@@ -100,43 +67,9 @@ $(document).bind "mobileinit", ->
 
   $.mobile.defaultPageTransition = 'none'
 
-  # Generate an url for a point in a book given:
-  # - bookReference: an object with the following properties:
-  #    - book:       id of book
-  #    - section:    section in book (optional)
-  #    - segment:    id of par element in section (optional)
-  #    - offset: time offset relative to start of par element in section (optional)
-  # - action: what action to use in the url (defaults to 'book-player')
-  # - absolute: boolean indicating if the url should be absolute or relative
-  LYT.router.getBookActionUrl = (bookReference, action = 'book-player', absolute=true) ->
-    return null unless bookReference?.book?
-    url = "##{action}?book=#{bookReference.book}"
-    if bookReference.smil or bookReference.section
-      url += "&smil=#{bookReference.smil or bookReference.section}"
-      if bookReference.segment
-        url += "&segment=#{bookReference.segment}"
-        if bookReference.offset
-          offset = bookReference.offset
-
-          # If we've got an unformatted number (in seconds instead of hh:mm:ss),
-          # we need to format it
-          if not isNaN offset
-            offset = LYT.utils.formatTime offset
-          url += "&offset=#{offset}"
-
-    url = if absolute
-      if document.baseURI?
-        document.baseURI + url
-      else
-        window.location.protocol + "//" + window.location.hostname + window.location.pathname + url
-    else
-      url
-
-    return url
-
-  # If LYT.service, LYT.session or LYT.catalog emits a logon:rejected, prompt
+  # If LYT.service or LYT.session emits a logon:rejected, prompt
   # the user to log back in.
-  $([LYT.service, LYT.catalog]).bind "logon:rejected", ->
+  $(LYT.service).bind "logon:rejected", ->
     return if window.location.hash is '#login'
     LYT.service.onCurrentLogOn
       always: ->

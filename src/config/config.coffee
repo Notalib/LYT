@@ -51,14 +51,6 @@ LYT.config =
       pending:    'InProduction'
       available:  'Available'
 
-  # ### LYT.bookshelf module config
-  bookshelf:
-    # Number of books to load per page
-    pageSize: 5 # default: 5
-    # Number of books to show on bookshelf (whitout show more)...
-    maxShow: 20
-
-
   mobileMessage:
     GetVersion:
       url: "/mobileMessage/MobileMessage.svc/GetVersion"
@@ -66,48 +58,6 @@ LYT.config =
       url: "/mobileMessage/MobileMessage.svc/NotifyMe"
     LogError:
       url: "/mobileMessage/MobileMessage.svc/LogError"
-
-
-  # ### LYT.google config
-  google:
-    # Autocomplete options
-    autocomplete:
-      # The URL to request results from
-      url: "http://suggestqueries.google.com/complete/search?output=chrome&hl=dk&q="
-
-  # ### LYT.catalog config
-  catalog:
-    # Full (free text) search options
-    search:
-      url: "/CatalogSearch/search.asmx/SearchCatalog" # No default - must be present
-      pageSize: 10 # Default: 10
-
-    # Autocomplete options
-    autocomplete:
-      # The URL to request results from
-      url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
-      # If suggestions from Autocomplete is léss than 'google_trigger' ask google
-      google_trigger: 3
-
-      # If we get answers from google, we only want as many as defined in google_answer_limit
-      google_answer_limit:5
-
-      # The options to pass to jQuery UI's `.autocomplete()`
-      options:
-        # Minimum length of text before autocompleting
-        minLength: 2   # default: 1
-
-        # Delay before autocompleting (milliseconds)
-        delay:     300 # default: 300
-
-    LookUpAutocompleteWords:
-      url: "/CatalogSearch/search.asmx/LookUpAutocompleteWords"
-
-    suggestions:
-      url: "/CatalogSearch/search.asmx/GetPushItems"
-
-    details:
-      url: "/CatalogSearch/search.asmx/GetItemById"
 
   # ### LYT.player config
   player:
@@ -161,7 +111,7 @@ LYT.config =
 
   # default page redirect page
   defaultPage:
-    hash: '#bookshelf'
+    hash: '#book-player'
 
   settings:
     showAdvanced: no
