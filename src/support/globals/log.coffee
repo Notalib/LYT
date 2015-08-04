@@ -2,23 +2,6 @@
 # TODO: Move to LYT namespace or to separate project
 @log = do ->
   console = window.console
-
-  $(document).one 'pagecreate', ->
-    # Use developer console if the user clicks the header element six times
-    clicks = 0
-    reset = -> clicks = 0
-    timer = null
-    $(':jqmData(role=header)').bind 'click', ->
-      return unless log.allowDevConsoleEvent
-      clicks++
-      if clicks == 6
-        log.receiver = 'devconsole'
-        log.level = 3
-        log.message 'Opened developer console'
-      else if clicks < 6
-        clearTimeout timer if timer
-        timer = setTimeout reset, 2000
-
   started = new Date()
 
   setTime = (messages) ->
@@ -65,24 +48,6 @@
       # Perform the request
       jQuery.ajax options
 
-    if log.receiver in ['all', 'devconsole']
-      $('#devconsole-container').show()
-      for message in setTime messages
-        if typeof message is 'object'
-          txtMessage = null
-          if JSON?
-            try
-              txtMessage = JSON.stringify $.extend {}, message
-            catch err
-              txtMessage = null
-
-          txtMessage = Object.prototype.toString.call message unless txtMessage?
-
-          message = txtMessage
-
-        $('#devconsole').append '<br/>' + message
-        $('#devconsole-container').scrollTop $('#devconsole').height()
-
   # The level of logging:
   #     0 = No logging
   #     1 = Errors
@@ -94,17 +59,12 @@
   #     local      = Log to the built in console
   #     remote     = Send log entries to server
   #                  (The entries may arrive out of order.)
-  #     devconsole = Log to developer console on screen (home brew)
   #     all        = Log to all of the above
   receiver: 'none'
   # To filter the log, set this value to a function that returns true for
   # all items that should appear in the log. If the function throws an
   # exception, the item will appear in the log.
   filter: null
-
-  # Click on header-bar 6 times within 2s opens the devconsole
-  # allowDevConsoleEvent controls that behavior, true allows it
-  allowDevConsoleEvent: false
 
   _filter: (type, messages, title) ->
     try

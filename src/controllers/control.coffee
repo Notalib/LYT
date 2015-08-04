@@ -191,11 +191,6 @@ LYT.control =
     Mousetrap.bind 'alt+ctrl+m', ->
       $("#bookmark-add-button").click()
 
-    $('.open-log-console').on 'click', ->
-      log.receiver = 'devconsole'
-      log.level = 3
-      log.message 'Opened developer console'
-
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
     if credentials = LYT.session.getCredentials()
