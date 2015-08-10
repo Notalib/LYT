@@ -1,4 +1,4 @@
-#jp_container_1 {
+nav {
   $bar-height: 45px;
   $cover-height: $bar-height;
   $cover-width: 55px;
@@ -17,105 +17,85 @@
     display: block;
   }
 
-  #player-info {
-    height: $bar-height;
-    @include clearfix;
-
-    #currentbook-image {
-      min-width: $cover-width/3*2;
-      max-width: $cover-width;
-      height: $cover-height;
+  .player-book-info {
+    h1, h2, span {
       margin: 0;
-      margin-right: 0.4em;
-      float: left;
-      img {
-        max-height: $cover-height;
-        max-width: $cover-width;
+      color: $text-color;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    h1 {
+      padding-top: 4px;
+      font-size: 13px;
+      line-height: 13px;
+      height: 18px;
+      font-weight: normal;
+      text-overflow: ellipsis;
+      text-align: center;
+      text-shadow: none;
+      color: $text-color;
+    }
+
+    .jp-progress {
+      overflow: hidden;
+      background-color: #000;
+      height: 3px;
+      .jp-seek-bar {
+        background: $progress-bg-color;
+        width: 0px;
+        height: 100%;
+        cursor: pointer;
+        .jp-play-bar {
+          background: $progress-seek-color;
+          width: 0px;
+          height: 100%;
+        }
       }
     }
 
-    .player-book-info {
-      h1, h2, span {
-        margin: 0;
-        color: $text-color;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      h1 {
-        padding-top: 4px;
-        font-size: 13px;
-        line-height: 13px;
-        height: 18px;
-        font-weight: normal;
-        text-overflow: ellipsis;
-        text-align: center;
+    .jp-time-holder {
+      span {
         text-shadow: none;
-        color: $text-color;
       }
+    }
 
-      height: $bar-height;
-      margin-right: 10px;
-      .jp-progress {
-        overflow: hidden;
-        background-color: #000;
-        height: 3px;
-        .jp-seek-bar {
-          background: $progress-bg-color;
-          width: 0px;
-          height: 100%;
-          cursor: pointer;
-          .jp-play-bar {
-            background: $progress-seek-color;
-            width: 0px;
-            height: 100%;
-          }
-        }
-      }
+    #book-chapter-menu {
+      font-size: 10px;
+      height: 17px;
+      margin-top: 3px;
 
-      .jp-time-holder {
-        span {
+      h2.player-chapter-title {
+          text-align: center;
+          color: $text-color;
+          text-overflow: ellipsis;
           text-shadow: none;
+          font-size: 11px;
+          line-height: 14px;
+          height: 14px;
+          overflow: hidden;
+          z-index: 0;
+          font-weight: normal;
+
+          margin-left: 40px;
+          margin-right: 40px;
+      }
+
+      #player-duration {
+        text-align: right;
+        float: right;
+      }
+
+      #player-duration, #player-current-time {
+        span {
+          background: $background-color;;
+          z-index: 200;
         }
       }
 
-      #book-chapter-menu {
-        font-size: 10px;
-        height: 17px;
-        margin-top: 3px;
-
-        h2.player-chapter-title {
-            text-align: center;
-            color: $text-color;
-            text-overflow: ellipsis;
-            text-shadow: none;
-            font-size: 11px;
-            line-height: 14px;
-            height: 14px;
-            overflow: hidden;
-            z-index: 0;
-            font-weight: normal;
-
-            margin-left: 40px;
-            margin-right: 40px;
-        }
-
-        #player-duration {
-          text-align: right;
-          float: right;
-        }
-
-        #player-duration, #player-current-time {
-          span {
-            background: $background-color;;
-            z-index: 200;
-          }
-        }
-
-        #player-current-time {
-          text-align: left;
-          float: left;
-        }
+      #player-current-time {
+        text-align: left;
+        float: left;
       }
     }
   }

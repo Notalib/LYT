@@ -23,6 +23,7 @@ LYT.player =
   showingPlay: true # true if the play triangle button is shown, false otherwise
   playLoader: null
   elements: null
+  __currentSection: null
 
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
@@ -488,8 +489,10 @@ LYT.player =
 
         # Check if it has beginSection or not. If not we need to set the
         # correct section title
-        if not segment.beginSection?
-          segment.sectionTitle = @book.getSectionBySegment(segment)?.title
+        if not segment.beginSection? and not segment._section
+          section = @book.getSectionBySegment(segment)
+          segment.sectionTitle = section?.title
+          segment._section = section
 
         @updateHtml segment
         @_setCurrentSegment segment
@@ -565,6 +568,13 @@ LYT.player =
 
       .then => # Once the seek has completed, render the segment
         segmentPromise.done (segment) =>
+          # Check if it has beginSection or not. If not we need to set the
+          # correct section title
+          if not segment.beginSection? and not segment._section
+            section = @book.getSectionBySegment(segment)
+            segment.sectionTitle = section?.title
+            segment._section = section
+
           @updateHtml segment
           @_setCurrentSegment segment
 
@@ -710,6 +720,13 @@ LYT.player =
         log.message "Player: _setCurrentSegment: set currentSegment to " +
           "[#{segment.url()}, #{segment.start}, #{segment.end}, #{segment.audio}]"
         @currentSegment = segment
+
+        # Emit a "beginSection" event, when a new section is playing
+        if segment.beginSection or (segment._section and segment._section isnt @__currentSection)
+          event = jQuery.Event "beginSection"
+          event.value = segment.beginSection or segment._section
+          jQuery(LYT.player).trigger event
+
     segment
 
   _getNextSegment: (currsegment = @currentSegment) ->

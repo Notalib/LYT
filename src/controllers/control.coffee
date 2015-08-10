@@ -42,35 +42,90 @@ LYT.control =
       if (segment = LYT.player.currentSegment) and segment.canBookmark
         LYT.player.book.addBookmark segment, LYT.player.getStatus().currentTime
         LYT.render.bookmarkAddedNotification()
+        LYT.render.bookmarks LYT.player.book, true
 
-    # Hacking away on book index page that is mostly being rendered by
-    # the nested list view in jQuery Mobile.
-    # This click handler does several things:
-    #  - Make the back button (currently "Tilbage") go back
-    #  - Make navigation to lower levels of the book index work
-    #  - Leave it to the normal list view to handle other click events
-    #
-    # The click handler is on #book-index because selecting .create-listview,
-    # doesn't capture clicks, since the list is dynamically created.
-    $('#book-index').on 'click', '.create-listview', (event) ->
-      ev = $(this)
-      if ev.length isnt 0
-        # The click is for us
-        view = $.mobile.activePage.children ':jqmData(role=content)'
-        book = LYT.player.book
-        iterate = (items) ->
-          for item in items
-            if item.id == ev.attr("nodeid")
-              LYT.render.createbookIndex item.children, view, book, item
-              break
-            else if item.children.length > 0
-              iterate item.children
-        if ev.attr("nodeid")?
-          event.stopPropagation()
-          if ev.attr("nodeid") is "0"
-            LYT.render.createbookIndex book.nccDocument.structure, view, book
+    # Initialize tabs on the sidebar
+    tabs = $('#sidebar li[role="tab"]')
+    panes = $('#sidebar div[role="tabpanel"]')
+    tabs.click () ->
+      tabs.attr 'aria-selected', false
+      @setAttribute 'aria-selected', true
+      paneid = @getAttribute 'aria-controls'
+      pane = $('#' + paneid)
+      panes.attr 'aria-hidden', true
+      pane.attr 'aria-hidden', false
+
+    # Listen for updates on section changes, and update the index
+    # when neccesary
+    $(LYT.player).on 'beginSection', (e) ->
+      section = e.value
+      LYT.render.activeIndexSection section
+
+    $('#settings-button').on 'click', (e) ->
+      e.stopPropagation()
+      oldPopup = $('.settings-popup')
+
+      if oldPopup.length and oldPopup.is(':visible')
+        return LYT.render.closeSettingsPopup()
+      else
+        isFirst = true
+
+      closeListener = (e) ->
+        if !jQuery.contains(popup[0], e.target)
+          LYT.render.closeSettingsPopup()
+
+      $(document).off('click', closeListener).on('click', closeListener)
+
+      popup = LYT.render.openSettingsPopup()
+
+      style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+      LYT.render.updateSettingsPopup style
+
+      # Attach event listeners if this is the first time the settings
+      # popup is opened
+      if isFirst
+        popup.find('#fontsize_dec_button,#fontsize_inc_button').click (e) ->
+          e.stopPropagation()
+          style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+          size = parseInt style['font-size'], 10
+
+          if e.target.id is 'fontsize_dec_button'
+            size--
           else
-            iterate book.nccDocument.structure
+            size++
+
+          style['font-size'] = size + 'px'
+          LYT.settings.set 'textStyle', style
+          LYT.render.setStyle()
+
+        # For whatever reason 'change' event doesn't work(?!)
+        popup.find('input').click (e) ->
+          e.stopPropagation()
+          target = $(this)
+          name = target.attr 'name'
+          val = target.val()
+
+          style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
+
+          switch name
+            when 'font-family'
+              style[name] = val
+            when 'marking-color'
+              colors = val.split(';')
+              style['background-color'] = colors[0]
+              style['color'] = colors[1]
+              # TODO: use lower case just like all the other parameters
+            when 'playback-rate'
+              val = Number(val)
+              LYT.settings.set('playbackRate', val)
+              LYT.player.setPlaybackRate val
+            when 'word-highlighting'
+              isOn = target.prop "checked"
+              LYT.render.setHighlighting isOn
+              LYT.settings.set('wordHighlighting', isOn)
+
+          LYT.settings.set('textStyle', style)
+          LYT.render.setStyle()
 
     $(window).resize -> LYT.player.refreshContent()
 
@@ -113,33 +168,6 @@ LYT.control =
     Modernizr.on 'playbackratelive', (playbackratelive) ->
       if not Modernizr.playbackrate and not playbackratelive
         LYT.render.disablePlaybackRate()
-
-    $("#style-settings input").change ->
-      target = $(this)
-      name = target.attr 'name'
-      val = target.val()
-
-      style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
-
-      switch name
-        when 'font-size', 'font-family'
-          style[name] = val
-        when 'marking-color'
-          colors = val.split(';')
-          style['background-color'] = colors[0]
-          style['color'] = colors[1]
-          # TODO: use lower case just like all the other parameters
-        when 'playback-rate'
-          val = Number(val)
-          LYT.settings.set('playbackRate', val)
-          LYT.player.setPlaybackRate val
-        when 'word-highlighting'
-          isOn = target.prop "checked"
-          LYT.render.setHighlighting isOn
-          LYT.settings.set('wordHighlighting', isOn)
-
-      LYT.settings.set('textStyle', style)
-      LYT.render.setStyle()
 
     $('#run-tests').one 'click', ->
       $('#run-tests').button 'disable'
@@ -208,48 +236,6 @@ LYT.control =
     else
       $page.find('#submit').button('disable')
 
-  # TODO: Move bookmarks list to separate page
-  # TODO: Bookmarks and toc does not work properly after a forced refresh on the #book-index page. Needs to be fixed when force reloading the entire app.
-  bookIndex: (type, match, ui, page, event) ->
-    params = LYT.router.getParams(match[1])
-    return if params?['ui-page']
-    promise = LYT.control.ensureLogOn params
-    promise.fail -> log.error 'Control: bookIndex: unable to log in'
-    promise.done ->
-      bookId = params?.book or LYT.player.book?.id
-      if not bookId
-        $.mobile.changePage LYT.config.defaultPage.hash
-        return
-      content = $(page).children ':jqmData(role=content)'
-
-      # Remove any previously generated index (may be from another book)
-      LYT.render.clearContent content
-
-      activate = (active, inactive, handler) ->
-        $(active).addClass 'ui-btn-active'
-        $(inactive).removeClass 'ui-btn-active'
-
-      renderBookmarks = ->
-        #TODO:  Check if book is different than last time we checked...
-        #return if $("#bookmark-list-button.ui-btn-active").length != 0
-        activate "#bookmark-list-button", "#book-toc-button", renderIndex
-        promise = LYT.Book.load bookId
-        promise.done (book) -> LYT.render.bookmarks book, content
-        LYT.loader.register "Loading bookmarks", promise
-
-      renderIndex = ->
-        #TODO:  Check if book is different than last time we checked...
-        #return if $("#book-toc-button.ui-btn-active").length != 0
-        activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
-        promise = LYT.Book.load bookId
-        promise.done (book) -> LYT.render.bookIndex book, content
-        LYT.loader.register "Loading index", promise
-
-      $("#bookmark-list-button").click -> renderBookmarks()
-      $("#book-toc-button").click -> renderIndex()
-
-      renderIndex()
-
   bookPlayer: (type, match, ui, page, event) ->
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
@@ -301,6 +287,9 @@ LYT.control =
         process = LYT.player.load params.book, smilReference, offset, play
         process.done (book) ->
           LYT.render.bookPlayer book, $(page)
+          LYT.render.bookIndex book
+          LYT.render.bookmarks book
+
           # See if there are any service announcements every time a new book has been loaded
           LYT.service.getAnnouncements()
           LYT.player.refreshContent()
@@ -347,7 +336,7 @@ LYT.control =
               parameters.buttons[LYT.i18n('Cancel')] =
                 click: -> $.mobile.changePage LYT.config.defaultPage.hash
                 icon:  'delete'
-                theme: 'c'
+                theme: 'b'
               LYT.render.showDialog($.mobile.activePage, parameters)
         # else just show book player (done by default by the router)
 

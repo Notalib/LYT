@@ -11,13 +11,149 @@ LYT.render = do ->
 
   # ## Privileged API
 
-  # Default book cover image
-  defaultCover = '/images/icons/default-cover.png'
+  setupSettingsPopup = () ->
+    popup = $(
+      "<div class='settings-popup' role='alert'>" +
+        "<div class='settings-popup-arrow'></div>" +
+        "<div class='settings-popup-message'>" +
+          "<div data-role='fieldcontain'>" +
+            "<fieldset data-role='controlgroup' id='font-size' data-type='horizontal'>" +
+              "<legend>Tekststørrelse</legend>" +
+              "<button id='fontsize_dec_button'>a</button>" +
+              "<button id='fontsize_inc_button'>A</button>" +
+            "</fieldset>" +
+          "</div>" +
 
-  loadCover = (img, id) ->
-    # if periodical, use periodical code (first 4 letters of id)
-    imageid = if $.isNumeric(id) then id else id.substring(0, 4)
-    img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h200.jpg"
+      "<div data-role='fieldcontain'>" +
+        "<fieldset data-role='controlgroup' id='font-family'>" +
+          "<legend>Skrifttype</legend>" +
+          "<input type='radio' name='font-family' id='font-family-1' value='Georgia, serif'/>" +
+          "<label class='gatrack' style='font-family:Georgia, serif;' for='font-family-1' title='Klassisk skrifttype'>Klassisk</label>" +
+
+          "<input type='radio' name='font-family' id='font-family-2' value='Helvetica, sans-serif'/>" +
+          "<label class='gatrack' style='font-family:Helvetica, sans-serif;' for='font-family-2' title='Moderne skrifttype'>Moderne</label>" +
+          "<input type='radio' name='font-family' id='font-family-3' value='Dyslexic, sans-serif'/>" +
+          "<label class='gatrack' style='font-family:Dyslexic, sans-serif;' for='font-family-3' title='Dyslexia skrifttype'>OpenDyslexic</label>" +
+
+        "</fieldset>" +
+      "</div>" +
+
+      "<div data-role='fieldcontain'>" +
+        "<fieldset data-role='controlgroup' id='marking-color'>" +
+          "<legend>Farver</legend>" +
+          "<input type='radio' name='marking-color' id='radio-choice-g' value='#fff;#000000'/>" +
+          "<label class='gatrack' for='radio-choice-g' title='Sort på hvid'>Sort på hvid</label>" +
+          "<input type='radio' name='marking-color' id='radio-choice-h' value='#000000;#FFF800'/>" +
+          "<label class='gatrack' for='radio-choice-h' title='Gul på sort'>Gul på sort</label>" +
+
+          "<input type='radio' name='marking-color' id='radio-choice-i' value='#FFF800;#000000'/>" +
+          "<label class='gatrack' for='radio-choice-i' title='Sort på gul'>Sort på gul</label>" +
+
+          "<input type='radio' name='marking-color' id='radio-choice-j' value='#ffffff;#0000ff'/>" +
+          "<label class='gatrack' for='radio-choice-j' title='Blå på hvid'>Blå på hvid</label>" +
+        "</fieldset>" +
+      "</div>" +
+
+      "<div id='playback-rate' data-role='fieldcontain'>" +
+        "<fieldset data-role='controlgroup' data-type='horizontal'>" +
+          "<legend>Afspilningshastighed</legend>" +
+          "<input type='radio' name='playback-rate' id='playback-rate-1' value='0.5'/>" +
+          "<label class='gatrack' for='playback-rate-1' aria-label='Langsomst'>" +
+            "<span style='font-size:16px'>&#188;</span>" +
+          "</label>" +
+
+          "<input type='radio' name='playback-rate' id='playback-rate-2' value='0.8'/>" +
+          "<label class='gatrack' for='playback-rate-2' aria-label='Langsommere'>" +
+            "<span style='font-size:16px'>&#189;</span>" +
+          "</label>" +
+
+          "<input type='radio' name='playback-rate' id='playback-rate-3' value='1'/>" +
+          "<label class='gatrack' for='playback-rate-3' aria-label='Normalt'>" +
+            "<span style='font-size:16px'><b>1</b></span>" +
+          "</label>" +
+
+          "<input type='radio' name='playback-rate' id='playback-rate-4' value='1.5'/>" +
+          "<label class='gatrack' for='playback-rate-4' aria-label='Hurtigere'>" +
+            "<span style='font-size:16px'>2</span>" +
+          "</label>" +
+
+          "<input type='radio' name='playback-rate' id='playback-rate-5' value='2'/>" +
+          "<label class='gatrack' for='playback-rate-5' aria-label='Hurtigst'>" +
+            "<span style='font-size:16px'>3</span>" +
+          "</label>" +
+        "</fieldset>" +
+
+        "<p style='display:none' class='message disabled'>Denne browser understøtter ikke variabel afspilningshastighed.</p>" +
+      "</div>" +
+
+        "</div></div>"
+    )
+
+    $('body').append popup
+    popup.trigger 'create'
+
+    # Setup color icons
+    labels = $('label[for=radio-choice-g], label[for=radio-choice-h],' +
+      'label[for=radio-choice-i], label[for=radio-choice-j]', popup)
+
+    icons = ['black-white', 'yellow-black', 'black-yellow', 'blue-white']
+    labels.each (index) ->
+      $(@).find('.ui-btn-inner').append(
+        "<span class='ui-icon ui-icon-" + icons[index] + " settings-color-icon'>&nbsp;</span>"
+      )
+
+
+    arrow = $('.settings-popup-arrow', popup)
+
+    element = $('#settings-button')
+    elOffset = element.offset()
+    elWidth = element.width()
+    elHeight = element.height()
+    wWidth = $(window).width()
+
+    # -7 is half the arrow width
+    arrow.css 'right', wWidth - elOffset.left - elWidth / 2 - 7
+
+    popup.css 'right', 0
+    popup.css 'top', element.offset().top + element.height()
+
+    popup.hide()
+
+  closeSettingsPopup = () ->
+    popup = $('div.settings-popup')
+    if !popup.length then popup = setupSettingsPopup()
+    popup.fadeOut()
+
+  openSettingsPopup = () ->
+    popup = $('div.settings-popup')
+    if !popup.length then popup = setupSettingsPopup()
+    popup.fadeIn()
+
+  updateSettingsPopup = (style) ->
+    popup = $('div.settings-popup')
+    popup.find("input").each ->
+      el = $(this)
+      name = el.attr 'name'
+      val = el.val()
+
+      # Setting the GUI
+      switch name
+        when 'font-size', 'font-family'
+          el.attr("checked", val is style[name]).checkboxradio("refresh")
+        when 'marking-color'
+          colors = val.split(';')
+          if style['background-color'] is colors[0] and style['color'] is colors[1]
+            el.attr("checked", true).checkboxradio("refresh")
+          else
+            el.attr("checked", false).checkboxradio("refresh")
+        when 'playback-rate'
+          isThis = Number(val) is LYT.settings.get 'playbackRate'
+          el.attr("checked", isThis).checkboxradio("refresh")
+        when 'word-highlighting'
+          el.prop("checked", LYT.settings.get("wordHighlighting"))
+            .checkboxradio("refresh")
+
+
 
 
   # Displays a small speech bubble notification vertOffset pixels below the
@@ -83,6 +219,11 @@ LYT.render = do ->
 
   bubbleNotification: bubbleNotification
 
+  setupSettingsPopup: setupSettingsPopup
+  openSettingsPopup: openSettingsPopup
+  closeSettingsPopup: closeSettingsPopup
+  updateSettingsPopup: updateSettingsPopup
+
   init: ->
     log.message 'Render: init'
     @setStyle()
@@ -90,10 +231,12 @@ LYT.render = do ->
 
   setStyle: ->
     log.message 'Render: setting custom style'
+    textStyle = LYT.settings.get 'textStyle'
     # TODO: Dynamic modification of a CSS class in stead of this
-    $('#textarea-example, #book-context-content, #book-plain-content').css(
-      LYT.settings.get('textStyle')
-    )
+    $('#textarea-example, #book-context-content, #book-plain-content').css textStyle
+
+    # Update settings view
+    updateSettingsPopup textStyle
 
     # Set word highlighting if appropriate
     LYT.render.setHighlighting LYT.settings.get('wordHighlighting')
@@ -114,7 +257,7 @@ LYT.render = do ->
     $('.lyt-version').html LYT.VERSION
     $('.current-year').html (new Date()).getFullYear()
 
-  bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), 'Bogmærke tilføjet', 5
+  bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#bookmark-add-button'), 'Bogmærke tilføjet', 5
 
   disablePlaybackRate: ->
     # Wait with disabling until it's actually created
@@ -132,12 +275,9 @@ LYT.render = do ->
 
   clearBookPlayer: ->
     @clearTextContent()
-    playerInfo = $('#player-info')
-
-    playerInfo.find('#player-book-title').text ''
-    playerInfo.find('#player-book-author').text ''
-    playerInfo.find('#currentbook-image img').attr 'src', defaultCover
-    playerInfo.find('.player-book-info h1 .player-book-title-author, .player-chapter-title').hide()
+    $('#player-book-title').text ''
+    $('#player-book-author').text ''
+    $('.player-book-info h1 .player-book-title-author, .player-chapter-title').hide()
     @disablePlayerNavigation()
 
   clearContent: (content) ->
@@ -160,12 +300,9 @@ LYT.render = do ->
       !$(el).hasClass 'ui-disabled'
 
   bookPlayer: (book, view) ->
-    playerInfo = $('#player-info')
-
-    playerInfo.find('#player-book-title').text book.title
-    playerInfo.find('#player-book-author').text book.author
-    playerInfo.find('.player-book-info h1 .player-book-title-author, .player-chapter-title').show()
-    loadCover playerInfo.find('#currentbook-image img'), book.id
+    $('#player-book-title').text book.title
+    $('#player-book-author').text book.author
+    $('.player-book-info h1 .player-book-title-author, .player-chapter-title').show()
     @enablePlayerNavigation()
 
   showAnnouncements: (announcements) ->
@@ -191,12 +328,23 @@ LYT.render = do ->
       $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
     LYT.render.content.renderSegment segment
 
-  bookIndex: (book, view) ->
+  bookIndex: (book) ->
     # FIXME: We should be using asking the book for a TOC, not the NCC directly
     # since this is a sign of lack of decoupling
-    @createbookIndex book.nccDocument.structure, view, book
+    @createbookIndex book.nccDocument.structure, book
 
-  createbookIndex: (items, view, book, root = null) ->
+  activeIndexSection: (section) ->
+    list = $('#toc-list')
+    list.find('.section-now-playing').remove()
+
+    sectionEl = $("a[data-fragment='#{section.fragment}']", list)
+    sectionEl.parent().append """<div class="section-now-playing"></div>"""
+
+  createbookIndex: (items, book) ->
+    list = $('#toc-list')
+    if list.data('book') is book.id
+      return
+
     curSection = LYT.player.currentSection()
     curParentID = curSection.id.substr 0, curSection.id.search /(\.\d$)|$/
 
@@ -208,74 +356,52 @@ LYT.render = do ->
     sectionLink = (section) ->
       title = section.title?.replace("\"", "") or ""
 
-      "<a class=\"gatrack section-link\" ga-action=\"Link\" " +
-      "data-book=\"#{book.id}\" data-smil=\"#{section.url}\" " +
-      "data-fragment=\"#{section.fragment}\" " +
-      "data-ga-book-id=\"#{book.id}\" data-ga-book-title=\"#{title}\" " +
-      "href=\"#book-player?book=#{book.id}\">#{title}</a>"
+      """
+      <a
+        class="gatrack section-link"
+        ga-action="Link"
+        data-book="#{book.id}"
+        data-smil="#{section.url}"
+        data-fragment="#{section.fragment}"
+        data-ga-book-id="#{book.id}"
+        data-ga-book-title="#{title}"
+        href="#book-player?book=#{book.id}">
+          #{title}
+      </a>
+      """
 
-    $('#index-back-button').removeAttr 'nodeid'
+    renderList = (items, list) ->
+      for item in items
+        li = jQuery '<li></li>'
+        content = jQuery '<div class="listitem-content"></div>'
+        content.append sectionLink item
 
-    if root?.title?
-      $('#index-back-button').attr 'nodeid', String(root.parent)
+        if isPlaying item
+          content.append """<div class="section-now-playing"></div>"""
 
-    view.children().remove()
-    list = $('<ul data-role="listview" data-split-theme="a"></ul>').hide()
-    view.append list
-    list.attr 'data-title', book.title
-    list.attr 'data-author', book.author
-    list.attr 'data-totalTime', book.totalTime
-    list.attr 'id', 'NccRootElement'
+        li.append content
 
-    for item in items
-      if item.children.length > 0
-        element = jQuery '<li data-icon="arrow_icn"></li>'
-        element.append sectionLink item
-        element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
-      else
-        element = jQuery '<li data-icon="false"></li>'
-        element.append sectionLink item
-        element.attr 'id', item.id
-        element.attr 'data-href', item.id
+        if item.children.length > 0
+          li.append renderList item.children, $('<ul></ul>')
 
-      if isPlaying item
-        element.append """<div class="section-now-playing"></div>"""
+        list.append li
 
-      list.append element
+      return list
 
-    list.parent().trigger('create')
+    list.data 'book', book.id
+    list.children().remove()
+
+    renderList items, list
     setSelectSectionEvent list
-    list.show()
 
 
-  bookmarks: (book, view) ->
-    # Create an ordered list wrapper for the list
-    view.children().remove()
-    list = $('<ol data-role="listview" data-split-theme="d" data-split-icon="more_icn"></ol>').hide()
-    view.append list
-    list.attr 'data-title', book.title
-    list.attr 'data-author', book.author
-    list.attr 'data-totalTime', book.totalTime
-    #list.attr 'id', 'NccRootElement'
+  bookmarks: (book, rerender) ->
+    list = $('#bookmark-list')
+    if list.data('book') is book.id and not rerender
+      return
 
-    generateMoreItem = (bookmark, index) ->
-      more = $('<a class="subsection" href="#">Mere</a>')
-      more.on 'click', ->
-        listItem = more.parents 'li'
-        list.find('.bookmark-actions').remove()
-        list.find('.bookmark-indents').remove()
-        list.find('.active').removeClass('active')
-        listItem.addClass 'active'
-        remove = $('<div class="ui-block-b bookmark-delete" title="Slet" data-role="button" role="button">&nbsp;</div>')
-        remove.on 'click', ->
-          book.bookmarks.splice index, 1
-          book.saveBookmarks()
-          LYT.render.bookmarks book, view
-        actionsItem = $('<ul class="bookmark-indents"><li class="bookmark-actions"><div class="ui-grid-a"></div></li></ul>')
-        actionsItem.find('div').append(remove)
-        listItem.after actionsItem
-        list.listview('refresh')
-      return more
+    list.data 'book', book.id
+    list.children().remove()
 
     # if book.bookmarks is empty -> display message
     if book.bookmarks.length is 0
@@ -289,19 +415,21 @@ LYT.render = do ->
         element.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
         element.append """
-            <a class="gatrack section-link" data-ga-action="Link" data-ga-book-id="#{book.id}"
-               data-book=\"#{book.id}\" data-smil=\"#{baseUrl}\" data-segment=\"#{id}\"
-               data-offset=\"#{LYT.utils.formatTime bookmark.timeOffset}\"
+            <a
+              class="gatrack section-link"
+               data-ga-action="Link"
+               data-ga-book-id="#{book.id}"
+               data-book="#{book.id}"
+               data-smil="#{baseUrl}"
+               data-segment="#{id}"
+               data-offset="#{LYT.utils.formatTime bookmark.timeOffset}"
                href="#book-player?book=#{book.id}">
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """
-        element.append generateMoreItem(bookmark, index)
         list.append element
 
-    list.parent().trigger('create')
     setSelectSectionEvent list
-    list.show()
 
   setHeader: (page, text) ->
     header = $(page).children(':jqmData(role=header)').find('h1')

@@ -1,19 +1,15 @@
 <div data-role="page" id="book-player" data-theme="a" data-title="Afspil bog | E17 Direkte">
 
-  <header id="control-header">
-    <div data-role="header" data-theme="b">
-      <div data-role="controlgroup" class="menu" data-type="horizontal">
-        <a class="gatrack" href="#book-index" data-role="button" role="button" id="book-index-button" data-icon="index_icn" data-iconpos="notext" data-iconshadow="false">Indholdsfortegnelse</a>
-        <a class="gatrack" href="#bookmark-add" data-role="button" role="button" id="bookmark-add-button" data-icon="add_bookmark_icn" data-iconpos="notext" data-iconshadow="false">Sæt bogmærke</a>
-        <a class="gatrack" href="#settings" data-role="button" role="button" id="book-settings-button" data-icon="book_settings_icn" data-iconpos="notext" data-iconshadow="false">Bogindstillinger</a>
-      </div>
+  <header id="control-header" data-role="header">
+  <!--
+    <div data-role="controlgroup" class="menu" data-type="horizontal">
+      <a class="gatrack" href="#bookmark-add" data-role="button" role="button" id="bookmark-add-button" data-icon="add_bookmark_icn" data-iconpos="notext" data-iconshadow="false">Sæt bogmærke</a>
+      <a class="gatrack" href="#settings" data-role="button" role="button" id="book-settings-button" data-icon="book_settings_icn" data-iconpos="notext" data-iconshadow="false">Bogindstillinger</a>
+      <a class="gatrack" href="#sidebar" data-role="button" role="button" id="book-index-button" data-icon="index_icn" data-iconpos="notext" data-iconshadow="false">Indholdsfortegnelse</a>
     </div>
 
     <div id="jp_container_1" class="jp-audio">
       <div id="player-info">
-        <figure id="currentbook-image">
-          <img src="/images/icons/default-cover.png" alt=""/>
-        </figure>
         <div class="player-book-info">
           <h1>
             <div class="player-book-title-author">
@@ -134,9 +130,70 @@
         <a class="gatrack" target="_blank" href="http://get.adobe.com/flashplayer/">Flash plugin</a>.
       </div>
     </div>
+    -->
+    <nav id="navigation">
+      <ul class="navigation-list">
+        <li class="nav-back">
+          <a>
+            <span class="ui-icon ui-icon-arrow-left_icn"></span>
+          </a>
+        </li>
+        <li id="book-play-menu" class="nav-controls">
+          <a class="previous-section">
+            <span class="ui-icon ui-icon-back_btn"></span>
+          </a>
+          <a class="back15">
+            <span class="ui-icon ui-icon-rewind15_btn"></span>
+          </a>
+          <a class="lyt-play-pause-btn lyt-pause"><span class="ui-icon ui-icon-pause_btn"></span></a>
+          <a class="lyt-play-pause-btn lyt-play"><span class="ui-icon ui-icon-play_btn"></span></a>
+          <a class="forward15">
+            <span class="ui-icon ui-icon-forward15_btn"></span>
+          </a>
+          <a class="next-section">
+            <span class="ui-icon ui-icon-forward_btn"></span>
+          </a>
+        </li>
+        <li class="nav-progressbox player-book-info" id="jp_container_1">
+          <div class="progressbox-title">
+            <span id="player-book-title">Titel af </span>
+            <span id="player-book-author">Forfatter</span>
+          </div>
+
+          <div class="progressbox-progress">
+            <div class="jp-progress">
+              <div class="jp-seek-bar">
+                <div class="jp-play-bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="progressbox-progress-info jp-time-holder" id="book-chapter-menu">
+            <div id="player-current-time">
+              <span class="jp-current-time">-</span>
+            </div>
+            <h2 class="player-chapter-title">Kapitel</h2>
+            <div id="player-duration">
+              <span class="jp-duration">-</span>
+            </div>
+          </div>
+        </li>
+        <li class="nav-settings">
+          <a id="bookmark-add-button">
+            <span class="ui-icon ui-icon-add_bookmark_icn"></span>
+          </a>
+          <a id="settings-button">
+            <span class="ui-icon ui-icon-book_settings_icn"></span>
+          </a>
+          <a id="book-index-button" href="#sidebar">
+            <span class="ui-icon ui-icon-index_icn"></span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </header>
 
-  <div id="book-content">
+  <div id="book-content" data-role="content">
     <div id="book-context-content">
     </div>
 
@@ -147,4 +204,52 @@
     </div>
   </div>
 
+  <div data-role="panel" data-position="right" data-position-fixed="true" data-display="push" id="sidebar">
+    <nav class="nav nav-tabs">
+      <ul class="tablist" role="tablist">
+        <li
+          id="tab-toc"
+          class="tab"
+          role="tab"
+          aria-controls="panel-toc"
+          aria-selected="true">
+          <span class="ui-icon ui-icon-index_dark_icn"></span>
+        </li>
+        <li
+          id="tab-bookmarks"
+          class="tab"
+          role="tab"
+          aria-controls="panel-bookmarks"
+          aria-selected="false">
+          <span class="ui-icon ui-icon-bookmark"></span>
+        </li>
+      </ul>
+    </nav>
+    <div
+      id="panel-toc"
+      class="ui-body-d ui-content tabcontent"
+      aria-labelledby="tab-toc"
+      aria-hidden="false"
+      role="tabpanel">
+      <div class="scrollable-content">
+        <div class="scroller">
+          <ul id="toc-list" class="sidebar-list">
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div
+      id="panel-bookmarks"
+      class="ui-body-d ui-content tabcontent"
+      aria-labelledby="tab-bookmarks"
+      aria-hidden="true"
+      role="tabpanel">
+      <div class="scrollable-content">
+        <div class="scroller">
+          <ul id="bookmark-list" class="sidebar-list">
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
