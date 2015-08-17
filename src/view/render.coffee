@@ -382,6 +382,17 @@ LYT.render = do ->
         li.append content
 
         if item.children.length > 0
+          expander = $(
+            """
+            <a href="" ariea-label="Udvid liste" class="expander">
+              <span class="ui-icon ui-icon-arrow_icn"></span>
+            </a>
+            """
+          )
+
+          expander.on 'click', (e) ->
+            $(this).parent().parent().toggleClass('expanded')
+          content.prepend expander
           li.append renderList item.children, $('<ul></ul>')
 
         list.append li
@@ -405,7 +416,7 @@ LYT.render = do ->
 
     # if book.bookmarks is empty -> display message
     if book.bookmarks.length is 0
-      element = jQuery '<li></li>'
+      element = jQuery '<li class="empty-item"></li>'
       element.append LYT.i18n('No bookmarks defined yet')
       list.append element
     else
