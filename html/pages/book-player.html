@@ -48,7 +48,7 @@
               data-iconpos="notext"
               data-iconshadow="false"
               class="gatrack previous-section"
-              tabindex="1"
+              tabindex="0"
               title="Tilbage (Alt+venstrepil)"
               aria-label="Tilbage">
             </a>
@@ -62,7 +62,7 @@
               data-iconpos="notext"
               data-iconshadow="false"
               class="gatrack back15"
-              tabindex="1"
+              tabindex="0"
               title="Tilbage 15 sekunder"
               aria-label="Tilbage 15 sekunder">
             </a>
@@ -76,7 +76,7 @@
               data-iconpos="notext"
               data-iconshadow="false"
               class="gatrack lyt-play lyt-play-pause-btn"
-              tabindex="1"
+              tabindex="0"
               title="Afspil (Ctrl+Alt+mellemrum)"
               aria-label="Afspil">
             </a>
@@ -88,7 +88,7 @@
               data-iconpos="notext"
               data-iconshadow="false"
               class="gatrack lyt-pause lyt-play-pause-btn"
-              tabindex="1"
+              tabindex="0"
               title="Pause (Ctrl+Alt+mellemrum)"
               aria-label="Pause">
             </a>
@@ -102,7 +102,7 @@
               data-iconpos="notext"
               data-iconshadow="false"
               class="gatrack forward15"
-              tabindex="1"
+              tabindex="0"
               title="Frem 15 sekunder"
               aria-label="Frem 15 sekunder">
             </a>
@@ -116,7 +116,7 @@
               data-iconpos="notext"
               data-iconshadow="false"
               class="gatrack next-section"
-              tabindex="1"
+              tabindex="0"
               title="Frem (Alt+højrepil)"
               aria-label="Frem">
             </a>
@@ -134,30 +134,69 @@
     <nav id="navigation">
       <ul class="navigation-list">
         <li class="nav-back">
-          <a>
+          <a
+            role="button"
+            title="Tilbage til Nota.dk"
+            aria-label="Tilbage til Nota.dk"
+            tabindex="0">
             <span class="ui-icon ui-icon-arrow-left_icn"></span>
           </a>
         </li>
         <li id="book-play-menu" class="nav-controls">
-          <a class="previous-section">
+          <a
+            role="button"
+            class="previous-section"
+            title="Tilbage (Alt+venstrepil)"
+            aria-label="Tilbage"
+            tabindex="0">
             <span class="ui-icon ui-icon-back_btn"></span>
           </a>
-          <a class="back15">
+          <a
+            role="button"
+            class="back15"
+            title="Tilbage 15 sekunder"
+            aria-label="Tilbage 15 sekunder"
+            tabindex="0">
             <span class="ui-icon ui-icon-rewind15_btn"></span>
           </a>
-          <a class="lyt-play-pause-btn lyt-pause"><span class="ui-icon ui-icon-pause_btn"></span></a>
-          <a class="lyt-play-pause-btn lyt-play"><span class="ui-icon ui-icon-play_btn"></span></a>
-          <a class="forward15">
+          <a
+            role="button"
+            class="lyt-play-pause-btn lyt-pause"
+            title="Pause (Ctrl+Alt+mellemrum)"
+            aria-label="Pause"
+            tabindex="0">
+            <span class="ui-icon ui-icon-pause_btn"></span>
+          </a>
+          <a
+            role="button"
+            class="lyt-play-pause-btn lyt-play"
+            title="Afspil (Ctrl+Alt+mellemrum)"
+            aria-label="Afspil"
+            tabindex="0">
+            <span class="ui-icon ui-icon-play_btn"></span>
+          </a>
+          <a
+            role="button"
+            class="forward15"
+            title="Frem 15 sekunder"
+            aria-label="Frem 15 sekunder"
+            tabindex="0">
             <span class="ui-icon ui-icon-forward15_btn"></span>
           </a>
-          <a class="next-section">
+          <a
+            role="button"
+            class="next-section"
+            title="Frem (Alt+højrepil)"
+            aria-label="Frem"
+            tabindex="0">
             <span class="ui-icon ui-icon-forward_btn"></span>
           </a>
         </li>
         <li class="nav-progressbox player-book-info" id="jp_container_1">
           <div class="progressbox-title">
-            <span id="player-book-title">Titel af </span>
-            <span id="player-book-author">Forfatter</span>
+            <h1 class="book-title">
+              <span id="player-book-title">Titel</span> af <span id="player-book-author">Forfatter</span>
+            </h1>
           </div>
 
           <div class="progressbox-progress">
@@ -179,13 +218,29 @@
           </div>
         </li>
         <li class="nav-settings">
-          <a id="bookmark-add-button">
+          <a
+            role="button"
+            id="bookmark-add-button"
+            title="Sæt bogmærke"
+            aria-label="Sæt bogmærke"
+            tabindex="0">
             <span class="ui-icon ui-icon-add_bookmark_icn"></span>
           </a>
-          <a id="settings-button">
+          <a
+            role="button"
+            id="settings-button"
+            title="Bogindstillinger"
+            aria-label="Bogindstillinger"
+            tabindex="0">
             <span class="ui-icon ui-icon-book_settings_icn"></span>
           </a>
-          <a id="book-index-button" href="#sidebar">
+          <a
+            role="button"
+            id="book-index-button"
+            href="#sidebar"
+            title="Indholdsfortegnelse & Bogmærker"
+            aria-label="Indholdsfortegnelse & Bogmærker"
+            tabindex="0">
             <span class="ui-icon ui-icon-index_icn"></span>
           </a>
         </li>

@@ -44,6 +44,10 @@ LYT.control =
         LYT.render.bookmarkAddedNotification()
         LYT.render.bookmarks LYT.player.book, true
 
+    # Emulate "click" with enter
+    $('#navigation a[role=button]').keypress (e) ->
+      $(this).click() if e.which is 13
+
     # Initialize tabs on the sidebar
     tabs = $('#sidebar li[role="tab"]')
     panes = $('#sidebar div[role="tabpanel"]')
