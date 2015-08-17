@@ -148,48 +148,6 @@ $ui-icon2x-spacing: 20px;
   }
 }
 
-.ui-header {
-  background: #464646 url(../images/bg_pattern_black.png) repeat;
-  border-top: 1px solid #72716e;
-  border-bottom: 1px solid #000;
-  height: 2.6875em;
-
-  h1.ui-title {
-    font-size: 18px !important;
-    color:#fff;
-    @include text-shadow(#000 0 -1px 0);
-  }
-  .ui-btn {
-    font-size: 13px;
-    height: 30px !important;
-    top: 5px !important;
-    &.ui-btn-icon-notext {
-      width: 63px;
-      font-family: "Arial";
-    }
-  }
-  /* The blue button problem (#431): override lyt.css.ui-btn-active, TODO better to modify theme roller? */
-  .ui-btn-active {
-    background-image: -webkit-linear-gradient( #5D5B5B /*{b-bup-background-start}*/, #434141 /*{b-bup-background-end}*/);
-    color: white /*{b-bup-color}*/;
-    border: 1px solid black /*{b-bup-border}*/;
-  }
-  .menu {
-    .ui-btn-active {
-      background-image: -webkit-linear-gradient( #262626 /*{b-bup-background-start}*/, #262626 /*{b-bup-background-end}*/);
-    }
-  }
-  .ui-btn-right {
-    right: 10px !important;
-  }
-  .ui-btn-left {
-    left: 10px !important;
-  }
-  .ui-btn-inner {
-    padding: 8px 8px .5em;
-  }
-}
-
 .ui-btn-active {
   @include box-shadow(none);
   @include text-shadow(none);
@@ -356,7 +314,8 @@ img.e17-logo {
    Settings page
  * ************************************************************************* */
 
-.settings-popup, #settings {
+.settings-popup {
+  font-family: 'Clear Sans', Arial, sans-serif;
   .ui-content {
     padding: 18px;
     text-shadow: none;
@@ -365,6 +324,7 @@ img.e17-logo {
   /* Overwrites the standard icon placement, as we need to position the
      yellow/black, white/blue, etc. icons on the right */
   .ui-icon.settings-color-icon {
+    margin-top: -15px;
     right: 15px;
     left: initial;
     background-color: transparent;
@@ -821,7 +781,7 @@ $bubble-arrow-height: 10px;
     padding: 5px 20px;
     border-radius: 3px;
     white-space: nowrap;
-    font-family: "Arial";
+    font-family: 'Clear Sans', Arial, sans-serif;
     font-weight: bold;
     font-size: 12px;
     border: 1px solid #252525;
@@ -845,7 +805,7 @@ $bubble-arrow-height: 10px;
     padding: 5px 20px;
     border-radius: 3px;
     white-space: nowrap;
-    font-family: "Arial";
+    font-family: 'Clear Sans', Arial, sans-serif;
     font-weight: bold;
     font-size: 12px;
 }
@@ -907,47 +867,8 @@ $bubble-arrow-height: 10px;
 
 }
 
-
-/* ************************************************************************* *
-   Instrumentation
- * ************************************************************************* */
-
-#instrumentation-delta {
-  background-color: white;
-  font-family: Courier New, Courier, monospace;
-  font-size: 10pt;
-  padding: 5px;
-  overflow-x: scroll;
-}
-
-svg.graph-canvas {
-  background-color: white;
-  border: 1px solid black;
-  padding: 5px;
-  height: 25%;
-}
-
-.delta-marker {
-  fill: none;
-  stroke-width: 0.015;
-  stroke: blue;
-  display: none;
-  &.highlight {
-    opacity: 0.4;
-    display: block;
-  }
-}
-
-.graph-line {
-  fill: none;
-  stroke-width: 0.001;
-
-  &:hover {
-    stroke-width: 0.005;
-  }
-}
-
 #sidebar {
+  font-family: 'Clear Sans', Arial, sans-serif;
   color: #5D5D5D;
   background: none;
   background-color: #8E8E8E;
@@ -1076,10 +997,11 @@ svg.graph-canvas {
 }
 
 #navigation {
-  @include flex(0 1 auto);
+  font-family: 'Clear Sans', Arial, sans-serif;
   background-color: #252525;
   padding: 10px;
   color: white;
+  @include flex(0 1 auto);
 
   .navigation-list {
     @include display-flex;

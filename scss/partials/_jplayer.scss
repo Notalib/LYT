@@ -4,7 +4,7 @@ nav {
   $cover-width: 55px;
   $progress-bg-color: #464646;
   $progress-seek-color: #8cbbe2;
-  $text-color: #cbcbcb;
+  $text-color: #e6e6e6;
   $background-color: #292929;
 
   background-color: $background-color;;
@@ -60,6 +60,10 @@ nav {
       }
     }
 
+    #player-book-title {
+      font-weight: bold;
+    }
+
     #book-chapter-menu {
       font-size: 10px;
       height: 17px;
@@ -97,6 +101,7 @@ nav {
         text-align: left;
         float: left;
       }
+
     }
   }
 }

@@ -8,3 +8,23 @@
   font-weight: bold;
   src: url("open_dyslexic/OpenDyslexic-Bold.otf") format("opentype");
 }
+
+@font-face {
+  font-family: "Clear Sans";
+  font-style: normal;
+  src: url("clear_sans/ClearSans-Regular.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Clear Sans";
+  font-style: normal;
+  src: url("clear_sans/ClearSans-Light.woff") format("woff");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Clear Sans";
+  font-style: normal;
+  src: url("clear_sans/ClearSans-Bold.woff") format("woff");
+  font-weight: 700;
+}
