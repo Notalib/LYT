@@ -54,9 +54,6 @@ $(document).bind "mobileinit", ->
     "#redirect":
       handler: "redirect"
       events: "s"
-    "#splash-upgrade([?].*)?":
-      handler: "splashUpgrade"
-      events: "bs"
     "#test":
       handler: "test"
       events: "s,h"

@@ -19,23 +19,7 @@ LYT.control =
   # Utility methods
 
   init: ->
-    @versionCheck()
     @setupEventHandlers()
-
-  versionCheck: ->
-    lastVersion = ->
-      # For debugging: let the user specify lastVersion in the address
-      if match = window.location.hash.match /lastVersion=([0-9\.]+)/
-        return match[1]
-      if version = LYT.cache.read 'lyt', 'lastVersion'
-        return version
-      if LYT.cache.read 'session', 'credentials' or LYT.cache.read 'lyt', 'settings'
-        return '0.0.2'
-
-    if lastVersion() and lastVersion() isnt LYT.VERSION
-      LYT.var.next = window.location.hash
-      window.location.hash = '#splash-upgrade'
-    LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
 
   setupEventHandlers: ->
     # Hook up the "close player" button
@@ -386,18 +370,6 @@ LYT.control =
             when 'word-highlighting'
               el.prop("checked", LYT.settings.get("wordHighlighting"))
                 .checkboxradio("refresh")
-
-  splashUpgrade: (type, match, ui, page, event) ->
-    params = if match[1] then LYT.router.getParams(match[1]) else {}
-    # Display deprecation notice in case browser support is going to stop
-    if params['deprecation-notice'] or $.browser.msie and $.browser.version.match /^8(\.|$)/
-      $('.deprecation-notice').show()
-      $('#splash-upgrade-button').on 'click', ->
-        $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
-        $.mobile.changePage '#support'
-    else
-      goto = if LYT.var.next and not LYT.var.next.match /^#splash-upgrade/ then LYT.var.next else LYT.config.defaultPage.hash
-      $('#splash-upgrade-button').on 'click', -> $.mobile.changePage goto
 
   test:  (type, match, ui, page, event) ->
     if type is 'pageshow'
