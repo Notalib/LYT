@@ -38,6 +38,14 @@ LYT.control =
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
 
   setupEventHandlers: ->
+    # Hook up the "close player" button
+    $("#close-player-button").on 'click', ->
+      if window.frameElement
+        frame = $(window.frameElement)
+        frame.fadeOut -> frame.remove()
+      else
+        window.history.go(-1)
+
     $("#bookmark-add-button").on 'click', ->
       if (segment = LYT.player.currentSegment) and segment.canBookmark
         LYT.player.book.addBookmark segment, LYT.player.getStatus().currentTime
