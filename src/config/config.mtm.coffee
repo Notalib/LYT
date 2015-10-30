@@ -11,6 +11,9 @@ jQuery.extend true, LYT.config,
     url: "http://dodexttest.mtm.se/dodServices/"
     proxyToLocal: false
 
+  search:
+    enabled: false
+
   catalog:
     autocomplete:
       enabled: false

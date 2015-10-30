@@ -19,6 +19,9 @@ LYT.config =
     # The service's server-side URL
     url: "/DodpMobile/Service.svc" # No default - must be present
 
+  search:
+    enabled: true
+
   # ### LYT.protocol config
   protocol:
     # The reading system attrs to send with

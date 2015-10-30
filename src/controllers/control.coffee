@@ -263,6 +263,9 @@ LYT.control =
     promise.done ->
       content = $(page).children(":jqmData(role=content)")
 
+      # Show search icon if enabled
+      $('#bookshelf-search-icon').removeClass('ui-disabled') if LYT.config.search?.enabled
+
       if LYT.bookshelf.nextPage is false
         LYT.render.loadBookshelfPage content
       else
@@ -505,6 +508,12 @@ LYT.control =
             if LYT.config.isE17
               LYT.render.catalogLists content
             else
+              # Just show the search menu
+              # content.children().show()
+              #
+              # or:
+              #
+              ###
               # TODO: Maybe show main menu if questionsSupported()?
               if LYT.service.questionsSupported()
                 if menuid is 'search' and LYT.config.isMTM
@@ -523,11 +532,12 @@ LYT.control =
                         .then (lastRes) -> alert lastRes.label
                       LYT.loader.register "Loading", answering
               content.children().show()
+              ###
           when "search"
             LYT.render.setHeader page, "Search"
             $('#searchterm').val term
 
-            if LYT.service.questionsSupported()
+            if LYT.service.questionsSupported() and LYT.config.isMTM
               question = id: 'searchFreetext', value: term
               results =
                 LYT.service.getQuestions(question)
