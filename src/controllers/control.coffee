@@ -26,18 +26,21 @@ LYT.control =
     @setupEventHandlers()
 
   versionCheck: ->
-    lastVersion = ->
-      # For debugging: let the user specify lastVersion in the address
-      if match = window.location.hash.match /lastVersion=([0-9\.]+)/
-        return match[1]
-      if version = LYT.cache.read 'lyt', 'lastVersion'
-        return version
-      if LYT.cache.read 'session', 'credentials' or LYT.cache.read 'lyt', 'settings'
-        return '0.0.2'
+    lastVersion = LYT.cache.read 'lyt', 'lastVersion'
 
-    if lastVersion() and lastVersion() isnt LYT.VERSION
-      LYT.var.next = window.location.hash
-      window.location.hash = '#splash-upgrade'
+    if lastVersion
+      lastParts = lastVersion.split '.'
+      nowParts = LYT.VERSION.split '.'
+      lastMajor = parseInt lastParts[0]
+      lastMinor = parseInt lastParts[1]
+
+      nowMajor = parseInt nowParts[0]
+      nowMinor = parseInt nowParts[1]
+
+      if nowMajor > lastMajor or (nowMajor == lastMajor and nowMinor > lastMinor)
+        LYT.var.next = window.location.hash
+        window.location.hash = '#splash-upgrade'
+
     LYT.cache.write 'lyt', 'lastVersion', LYT.VERSION
 
   setupEventHandlers: ->
