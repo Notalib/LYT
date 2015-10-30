@@ -109,11 +109,14 @@ class LYT.player.command.play extends LYT.player.command
         # Unfortunately if you set the playbackRate to the same value nothing happens.
         # Therfor if playbackRate is the same value subtract 0.0001 from the wanted value and
         # update the value again in the next timeupdate-event. Alternating between the two values.
+
         if @audio.playbackRate is @playbackRate
-          ## Don't do this on Safari on OSX, it mutes for a second or two after we alter the playbackRate
-          ## Don't do this on IE11, since it on Win8 pauses the sound a for a second after playbackRate is altered
+          ## Don't do this on Safari on OSX, IE11, Edge, since it pauses
+          # the sound a for a second after playbackRate is altered
+          #
           # TODO: Find a better way to do this, so we don't have to rely on browser sniffing
-          unless @browser.Safari or @browser.IE11
+          # TODO: We'll want to do this as a whitelist instead of a blacklist!
+          unless @browser.Safari or @browser.IOS9 or @browser.IE11 or @browser.Edge
             @audio.playbackRate = @playbackRate - 0.0001
         else
           if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
@@ -153,15 +156,19 @@ class LYT.player.command.play extends LYT.player.command
     # need to do this for now.
     userAgent = navigator.userAgent
 
+    Edge   = !!(userAgent.match /Edge/i)
     IE9    = !!(userAgent.match /MSIE 9\.0/i)
     IE10   = !!(userAgent.match /MSIE 10\.0/i)
     IE11   = !!(userAgent.match( /Trident\/7\.0/i ) and userAgent.match( /rv:11\.0/i ))
     IE     = !!(IE9 or IE10 or IE11)
-    Safari = !!(userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|Chrome/i ))
+    Safari = !!(userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|iPod|Chrome/i ))
+    IOS9   = !!(userAgent.match( /iPhone|iPad|iPod/ ) and userAgent.match( /OS 9/ ))
 
+    Edge:   Edge
     IE:     IE
     IE9:    IE9
     IE10:   IE10
     IE11:   IE11
     Safari: Safari
+    IOS9:   IOS9
 
