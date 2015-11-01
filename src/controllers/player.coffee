@@ -24,6 +24,7 @@ LYT.player =
   playLoader: null
   elements: null
 
+
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
 
@@ -223,7 +224,7 @@ LYT.player =
         # The .then below can be left out since the call above doesn't return
         # a promise.
       .then =>
-        if book is @book?.id then @book else LYT.Book.load book
+        if book is @book?.id then @book else LYT.Book.load book, LYT.control.selectVolume
       .then (book) =>
         # Setting @book should be done after seeking has completed, but the
         # dependency on the books playlist and firstplay issue prohibits this.

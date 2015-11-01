@@ -207,6 +207,23 @@ LYT.render = do ->
     $('.lyt-version').html LYT.VERSION
     $('.current-year').html (new Date()).getFullYear()
 
+  selectVolume: (page, parts, cb) ->
+    list = page.find 'ul'
+    list.empty()
+
+    for part in parts
+      do (part) ->
+        li = jQuery "<li><a href='#'>#{part.name}</a></li>"
+        li.click (e) ->
+          e.preventDefault()
+          cb part
+          page.dialog 'close'
+
+        list.append li
+
+    list.listview 'refresh'
+    list.find('a').first().focus()
+
   bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), 'Bogmærke tilføjet', 5
 
   bookshelf: (books, view, page, zeroAndUp) ->

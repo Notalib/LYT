@@ -227,6 +227,16 @@ LYT.control =
       log.level = 3
       log.message 'Opened developer console'
 
+  selectVolume: (parts) ->
+    deferred = jQuery.Deferred()
+
+    page = $('#select-volume')
+    $.mobile.changePage page, transition: 'pop', role: 'dialog'
+    LYT.render.selectVolume page, parts, deferred.resolve
+
+    deferred.promise()
+
+
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
     if credentials = LYT.session.getCredentials()
@@ -327,7 +337,7 @@ LYT.control =
         #TODO:  Check if book is different than last time we checked...
         #return if $("#bookmark-list-button.ui-btn-active").length != 0
         activate "#bookmark-list-button", "#book-toc-button", renderIndex
-        promise = LYT.Book.load bookId
+        promise = LYT.Book.load bookId, @selectVolume
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
 
@@ -335,7 +345,7 @@ LYT.control =
         #TODO:  Check if book is different than last time we checked...
         #return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
-        promise = LYT.Book.load bookId
+        promise = LYT.Book.load bookId, @selectVolume
         promise.done (book) -> LYT.render.bookIndex book, content
         LYT.loader.register "Loading index", promise
 

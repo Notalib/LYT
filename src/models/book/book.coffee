@@ -20,8 +20,8 @@ class LYT.Book
   this.load = do ->
     loaded = {}
 
-    (id) ->
-      loaded[id] or= new LYT.Book id
+    (id, multiCallback) ->
+      loaded[id] or= new LYT.Book id, multiCallback
       loaded[id].promise()
 
 
@@ -43,7 +43,7 @@ class LYT.Book
   #     book.fail () ->
   #       # Do something about the failure
   #
-  constructor: (@id) ->
+  constructor: (@id, multiCallback) ->
     # Create a Deferred, and link it to `this`
     deferred = jQuery.Deferred()
     deferred.promise this
@@ -76,7 +76,8 @@ class LYT.Book
       got.fail -> deferred.reject BOOK_CONTENT_RESOURCES_ERROR
 
       got.then (resources) =>
-        ncc = null
+        nccs = []
+        discinfo = null
 
         # Process the resources hash
         for own localUri, uri of resources
@@ -102,24 +103,50 @@ class LYT.Book
             document: null
             localUri: localUri
 
-          # If the url of the resource is the NCC document,
+          # If the url of the resource is an NCC document,
           # save the resource for later
-          ncc = @resources[localUri] if localUri.match /^ncc\.x?html?$/i
+          nccs.push @resources[localUri] if localUri.match /ncc\.x?html?$/i
+
+          # If the url is a discinfo.html, then this book is probably multi-volume
+          discinfo = @resources[localUri] if localUri.match /^discinfo\.x?html?$/i
+
+
+        # If a DISCINFO is found, that means this is a multi-volume book,
+        # and we need to present the user with the choice of selecting which
+        # volume to play
+        if discinfo and nccs.length > 1
+          log.message 'This is a multi-volume book'
+          getDiscInfo(discinfo)
+            .then multiCallback
+            .then (part) =>
+              log.message 'User selected which volume to play', part
+              getNCC @resources[part.localUri]
+              getBookmarks()
 
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
         # parallel. Otherwise, fail.
-        if ncc?
-          getNCC ncc
+        else if nccs.length is 1
+          getNCC nccs[0]
           getBookmarks()
         else
           deferred.reject BOOK_NCC_NOT_FOUND_ERROR
 
+    getDiscInfo = (obj) =>
+      discinfo = new LYT.TextContentDocument obj.localUri, @resources
+      discinfo.then (document) =>
+        source = discinfo.source
+        parts = $('body a', source).map ->
+          name: @textContent
+          localUri: URI(@getAttribute 'href').normalize().toString()
+
+        # Return a normal array
+        parts.get()
 
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument obj.url, this, obj.localUri
+      ncc = new LYT.NCCDocument obj.localUri, this
 
       # Propagate a failure
       ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
@@ -184,14 +211,15 @@ class LYT.Book
 
     ordered
 
-  getSMIL: (url) ->
-    url = url.toLowerCase()
+  getSMIL: (localUri) ->
     deferred = jQuery.Deferred()
-    if not (url of @resources)
+    localUri = URI(localUri).absoluteTo(@nccDocument.localUri).toString()
+
+    if not (localUri of @resources)
       return deferred.reject()
 
-    smil = @resources[url]
-    smil.document or= new LYT.SMILDocument smil.url, this, url
+    smil = @resources[localUri]
+    smil.document or= new LYT.SMILDocument smil.url, this, localUri
 
     smil.document.done (smilDocument) ->
       deferred.resolve smilDocument
