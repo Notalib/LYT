@@ -19,6 +19,9 @@ LYT.config =
     # The service's server-side URL
     url: "/DodpMobile/Service.svc" # No default - must be present
 
+  analytics:
+    id: null # insert Google Analytics TrackingID here
+
   search:
     enabled: true
 

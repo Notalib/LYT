@@ -7,6 +7,9 @@ jQuery.extend true, LYT.config,
   isE17: true
   isMTM: false
 
+  analytics:
+    id: "UA-25712607-1"
+
   rpc:
     url: "/DodpMobile/Service.svc"
 
