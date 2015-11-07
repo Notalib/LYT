@@ -346,11 +346,11 @@ LYT.render = do ->
       return
 
     curSection = LYT.player.currentSection()
-    curParentID = curSection.id.substr 0, curSection.id.search /(\.\d$)|$/
+    curParentID = curSection?.id.substr 0, curSection.id.search /(\.\d$)|$/
 
     isPlaying = (item) ->
       return unless String(book.id) is String(LYT.player.book.id)
-      return unless item.ref is curSection.ref or curParentID is item.id
+      return unless item.ref is curSection?.ref or curParentID is item.id
       return true
 
     sectionLink = (section) ->
