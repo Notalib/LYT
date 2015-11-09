@@ -975,6 +975,13 @@ $bubble-arrow-height: 10px;
             margin-left: -20px;
             @include flex-grow(0);
           }
+
+          &.remover {
+            width: 20px;
+            padding: 0;
+            margin-right: 20px;
+            @include flex-grow(0);
+          }
         }
 
         > .listitem-content .ui-icon-arrow_icn {

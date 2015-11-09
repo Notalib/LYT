@@ -421,11 +421,12 @@ LYT.render = do ->
       list.append element
     else
       for bookmark, index in book.bookmarks
-        element = jQuery '<li></li>'
-        element.attr 'id', bookmark.id
-        element.attr 'data-href', bookmark.id
+        listitem = jQuery "<li></li>"
+        content = jQuery "<div class='listitem-content'></div>"
+        listitem.attr 'id', bookmark.id
+        listitem.attr 'data-href', bookmark.id
         [baseUrl, id] = bookmark.URI.split('#')
-        element.append """
+        content.append """
             <a
               class="gatrack section-link"
                data-ga-action="Link"
@@ -438,7 +439,24 @@ LYT.render = do ->
               #{bookmark.note?.text or bookmark.timeOffset}
             </a>
           """
-        list.append element
+        remover = $(
+          """
+          <a href="" ariea-label="Fjern bogmærke" class="remover">
+            <span class="ui-icon ui-icon-delete-list-icn"></span>
+          </a>
+          """
+        )
+
+        do (index) ->
+          remover.on 'click', ->
+            book.bookmarks.splice index, 1
+            book.saveBookmarks()
+            LYT.render.bookmarks book, true
+
+        content.append remover
+
+        listitem.append content
+        list.append listitem
 
     setSelectSectionEvent list
 
