@@ -49,6 +49,8 @@ do ->
     'Yes': 'Ja'
     'No': 'Ingen'
     'Unknown play time': 'Okänd runtime'
+    'Bookmarks':          'Bokmarkar'
+    'Subsection':         'Undaravsnit'
 
     'Fetch more books':   'Hent flera boka'
     'My books':           'Mina boka'
@@ -96,7 +98,7 @@ do ->
     'Normal':             'Normalt'
     'Fast':               'Hurtigara'
     'Fastest':            'Hurtigst'
-    '_PLAYBACKRATE_NOT_SUPPORTED': 'Denna webbläsare stöder inte uppspelning variabel hastighet'
+    '_PLAYBACKRATE_NOT_SUPPORTED_': 'Denna webbläsare stöder inte uppspelning variabel hastighet'
 
     'Advanced Settings':  'Avancereda instillingar'
     'Playback monitor':   'Avspilningsmonitor'

@@ -447,7 +447,12 @@ LYT.render = do ->
       if item.children.length > 0
         element = jQuery '<li data-icon="arrow_icn"></li>'
         element.append sectionLink item
-        element.append """<a nodeid="#{item.id}" class="create-listview subsection">underafsnit</a>"""
+        element.append """
+          <a
+            nodeid="#{item.id}"
+            class="create-listview subsection">
+              #{ LYT.l10n.get 'Subsection' }
+          </a>"""
       else
         element = jQuery '<li data-icon="false"></li>'
         element.append sectionLink item

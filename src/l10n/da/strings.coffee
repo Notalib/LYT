@@ -49,6 +49,8 @@ do ->
     'Yes':                              'Ja'
     'No':                               'Nej'
     'Unknown play time':                'Ukendt spilletid'
+    'Bookmarks':                        'Bogmærker'
+    'Subsection':                       'Underafsnit'
 
     'Fetch more books':                 'Se flere bøger'
     'My books':                         'Mine bøger'
