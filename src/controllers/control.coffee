@@ -25,6 +25,10 @@ LYT.control =
     @versionCheck()
     @setupEventHandlers()
 
+    # Set language at startup
+    LYT.l10n.setLocale LYT.config.locale
+    LYT.render.renderLocale()
+
   versionCheck: ->
     lastVersion = LYT.cache.read 'lyt', 'lastVersion'
 
@@ -116,14 +120,14 @@ LYT.control =
           log.warn 'control: login: logOn failed'
           parameters =
             mode:                'bool'
-            prompt:              LYT.i18n('Incorrect username or password')
-            subTitle:            LYT.i18n('')
+            prompt:              LYT.l10n.get('Incorrect username or password')
+            subTitle:            LYT.l10n.get('')
             animate:             false
             useDialogForceFalse: true
             allowReopen:         true
             useModal:            true
             buttons:             {}
-          parameters.buttons[LYT.i18n('OK')] =
+          parameters.buttons[LYT.l10n.get('OK')] =
             click: -> # Nop
             theme: 'c'
           LYT.render.showDialog($("#login-form"), parameters)
@@ -182,7 +186,7 @@ LYT.control =
 
     $('#run-tests').one 'click', ->
       $('#run-tests').button 'disable'
-      deferred = $.mobile.util.waitForConfirmDialog LYT.i18n('Is this the first test run?')
+      deferred = $.mobile.util.waitForConfirmDialog LYT.l10n.get('Is this the first test run?')
         .done ->
           LYT.settings.reset()
           LYT.player.setPlaybackRate 1
@@ -426,7 +430,7 @@ LYT.control =
           LYT.service.getAnnouncements()
           LYT.player.refreshContent()
           LYT.player.setFocus()
-          pageTitle = "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          pageTitle = "#{LYT.l10n.get('Now playing')} #{LYT.player.book.title}"
           LYT.render.setPageTitle pageTitle
 
           if params.smil? or params.section? or params.offset?
@@ -454,18 +458,18 @@ LYT.control =
             else
               parameters =
                 mode:                'bool'
-                prompt:              LYT.i18n('Unable to retrieve book')
-                subTitle:            LYT.i18n('')
+                prompt:              LYT.l10n.get('Unable to retrieve book')
+                subTitle:            LYT.l10n.get('')
                 animate:             false
                 useDialogForceFalse: true
                 allowReopen:         true
                 useModal:            true
                 buttons: {}
-              parameters.buttons[LYT.i18n('Try again')] =
+              parameters.buttons[LYT.l10n.get('Try again')] =
                 click: -> window.location.reload()
                 icon:  'refresh'
                 theme: 'c'
-              parameters.buttons[LYT.i18n('Cancel')] =
+              parameters.buttons[LYT.l10n.get('Cancel')] =
                 click: -> $.mobile.changePage LYT.config.defaultPage.hash
                 icon:  'delete'
                 theme: 'c'
@@ -655,9 +659,9 @@ LYT.control =
 
         url = LYT.router.getBookActionUrl params
         urlEmail = url.replace("&", "&amp;")
-        subject = LYT.i18n 'Link to book at E17'
+        subject = LYT.l10n.get 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape urlEmail}"
+        body = "#{LYT.l10n.get('Listen to')} #{params.title} #{LYT.l10n.get('by clicking this link')}: #{escape urlEmail}"
 
         $("#email-bookmark").attr('href', "mailto: ?subject=#{subject}&body=#{body}")
 

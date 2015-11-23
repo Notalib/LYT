@@ -3,3 +3,4 @@
 # Requires `/support/globals/log`
 # Requires `/lyt`
 # Requires `/config/config`
+# Requires `/l10n/l10n`

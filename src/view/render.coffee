@@ -70,35 +70,35 @@ LYT.render = do ->
 
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
-      LYT.i18n('Talking book')
+      LYT.l10n.get('Talking book')
     else
-      LYT.i18n('Talking book with text')
+      LYT.l10n.get('Talking book with text')
 
   attachRemoveBookClickEvent = (aElement, book, li, list, view) ->
     aElement.click (event) ->
       if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
         parameters =
           mode:               'bool'
-          prompt:              LYT.i18n('You are logged on as guest and hence can not remove books')
-          subTitle:            LYT.i18n('')
+          prompt:              LYT.l10n.get('You are logged on as guest and hence can not remove books')
+          subTitle:            LYT.l10n.get('')
           animate:             false
           useDialogForceFalse: true
           useModal:            true
           buttons:             {}
-        parameters.buttons[LYT.i18n('OK')] =
+        parameters.buttons[LYT.l10n.get('OK')] =
           click: ->
           theme: 'c'
         LYT.render.showDialog($(this), parameters)
       else
         parameters =
           mode:                'bool'
-          prompt:              LYT.i18n('Delete this book?')
+          prompt:              LYT.l10n.get('Delete this book?')
           subTitle:            book.title
           animate:             false
           useDialogForceFalse: true
           useModal:            true
           buttons:             {}
-        parameters.buttons[LYT.i18n('Remove book')] =
+        parameters.buttons[LYT.l10n.get('Remove book')] =
           click: ->
             LYT.bookshelf.remove(book.id).done ->
               li.remove()
@@ -106,7 +106,7 @@ LYT.render = do ->
               view.addClass('bookshelf-empty') if list.children().length is 0
           id:    'ok-btn'
           theme: 'c'
-        parameters.buttons[LYT.i18n('Cancel')] =
+        parameters.buttons[LYT.l10n.get('Cancel')] =
           click: ->
           id:    'cancel-btn'
           theme: 'c'
@@ -234,7 +234,7 @@ LYT.render = do ->
     for book in books
       li = bookListItem 'book-player', book, 'bookshelf'
       removeLink = jQuery """
-        <a class="remove-book" href="#">#{LYT.i18n('Remove')} #{book.title}</a>
+        <a class="remove-book" href="#">#{LYT.l10n.get('Remove')} #{book.title}</a>
       """
 
       attachRemoveBookClickEvent removeLink, book, li, list, view
@@ -346,7 +346,7 @@ LYT.render = do ->
     #LYT.service.markAnnouncementsAsRead(announcements)
 
 
-  bookEnd: () -> LYT.render.content.renderText LYT.i18n('The end of the book')
+  bookEnd: () -> LYT.render.content.renderText LYT.l10n.get('The end of the book')
 
   clearTextContent: -> LYT.render.content.renderSegment()
 
@@ -355,10 +355,10 @@ LYT.render = do ->
     # Set enable or disable add bookmark button depending on we can bookmark
     if segment.canBookmark
       $('.ui-icon-bookmark-add').removeClass 'disabled'
-      $('#bookmark-add-button').attr 'title', LYT.i18n('Bookmark location')
+      $('#bookmark-add-button').attr 'title', LYT.l10n.get('Bookmark location')
     else
       $('.ui-icon-bookmark-add').addClass 'disabled'
-      $('#bookmark-add-button').attr 'title', LYT.i18n('Unable to bookmark location')
+      $('#bookmark-add-button').attr 'title', LYT.l10n.get('Unable to bookmark location')
     LYT.render.content.renderSegment segment
 
 
@@ -370,7 +370,7 @@ LYT.render = do ->
     media.text details.misc.format
 
     id = details.daisy.contentid
-    totalTime = LYT.i18n('Unknown play time')
+    totalTime = LYT.l10n.get('Unknown play time')
 
     $('#details-book-title').text details.misc.title
     $('#details-book-author').text details.misc.creator
@@ -505,7 +505,7 @@ LYT.render = do ->
     # if book.bookmarks is empty -> display message
     if book.bookmarks.length is 0
       element = jQuery '<li></li>'
-      element.append LYT.i18n('No bookmarks defined yet')
+      element.append LYT.l10n.get('No bookmarks defined yet')
       list.append element
     else
       for bookmark, index in book.bookmarks
@@ -534,7 +534,7 @@ LYT.render = do ->
     list.empty() if results.currentPage is 1 or results.currentPage is undefined
 
     if results.length is 0
-      list.append jQuery """"<li><h3 class="no-search-results">#{LYT.i18n('No search results')}</h3></li>"""
+      list.append jQuery """"<li><h3 class="no-search-results">#{LYT.l10n.get('No search results')}</h3></li>"""
     else
       list.append bookListItem('book-details', result) for result in results
 
@@ -556,7 +556,7 @@ LYT.render = do ->
     for key, value of LYT.predefinedSearches
       listItem = jQuery """<li id="#{key}" data-icon="arrow_icn">
                            <a href="##{value.hash}?#{value.param}=#{key}" class="ui-link-inherit">
-                           <h3 class="ui-li-heading">#{LYT.i18n value.title}</h3></a></li>"""
+                           <h3 class="ui-li-heading">#{LYT.l10n.get value.title}</h3></a></li>"""
       list.append listItem
     list.listview('refresh')
     view.children().show()
@@ -583,10 +583,10 @@ LYT.render = do ->
 
   setHeader: (page, text) ->
     header = $(page).children(':jqmData(role=header)').find('h1')
-    header.text LYT.i18n text
+    header.text LYT.l10n.get text
 
   setPageTitle: (title) ->
-    document.title = "#{title} | #{LYT.i18n('Sitename')}"
+    document.title = "#{title} | #{LYT.l10n.get('Sitename')}"
 
   showDidYouMean: (results, view) ->
     list = view.find 'ul'
@@ -606,7 +606,7 @@ LYT.render = do ->
 
   profile: () ->
     if(LYT.session.getCredentials().username is LYT.config.service.guestLogin)
-      $('#current-user-name').text LYT.i18n('guest')
+      $('#current-user-name').text LYT.l10n.get('guest')
     else
       $('#current-user-name').text LYT.session.getInfo().realname
 
@@ -627,6 +627,16 @@ LYT.render = do ->
   showTestTab: -> $('.test-tab').show()
 
   hideTestTab: -> $('.test-tab').hide()
+
+  renderLocale: ->
+    $('*[data-l10n],*[data-l10n-title],*[data-l10n-aria-label]').each ->
+      textContent = @getAttribute 'data-l10n'
+      title = @getAttribute 'data-l10n-title'
+      ariaLabel = @getAttribute 'data-l10n-aria-label'
+
+      @textContent = LYT.l10n.get textContent if textContent?
+      @title = LYT.l10n.get title if title?
+      @setAttribute 'aria-label', LYT.l10n.get ariaLabel if ariaLabel?
 
   instrumentationGraph: ->
     $('#instrumentation').find('svg.graph-canvas').data('lyt-graph')

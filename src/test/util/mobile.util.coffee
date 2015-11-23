@@ -52,8 +52,8 @@ do (jQuery) ->
     buttonsContainer = testDialog.find('.test-dialog-buttons')
     buttonsContainer.empty()
 
-    yesBtn = $("<a href='#{window.location.hash or '#'}' data-role='button' data-rel='back' data-theme='b'>#{LYT.i18n('Yes')}</a>")
-    noBtn = $("<a href='#{window.location.hash or '#'}' data-role='button' data-rel='back' data-theme='c'>#{LYT.i18n('No')}</a>")
+    yesBtn = $("<a href='#{window.location.hash or '#'}' data-role='button' data-rel='back' data-theme='b'>#{LYT.l10n.get('Yes')}</a>")
+    noBtn = $("<a href='#{window.location.hash or '#'}' data-role='button' data-rel='back' data-theme='c'>#{LYT.l10n.get('No')}</a>")
     buttonsContainer
       .append(yesBtn)
       .append(noBtn)

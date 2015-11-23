@@ -88,12 +88,12 @@ LYT.player =
       switch event.jPlayer.error.type
         when $.jPlayer.error.URL
           log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
-          parameters.prompt = LYT.i18n('Unable to retrieve sound file')
+          parameters.prompt = LYT.l10n.get('Unable to retrieve sound file')
           parameters.subTitle = ''
-          parameters.buttons[LYT.i18n('Try again')] =
+          parameters.buttons[LYT.l10n.get('Try again')] =
             click: -> window.location.reload()
             theme: 'c'
-          parameters.buttons[LYT.i18n('Cancel')] =
+          parameters.buttons[LYT.l10n.get('Cancel')] =
             click: -> $.mobile.changePage LYT.config.defaultPage.hash
             theme: 'c'
           LYT.render.showDialog($.mobile.activePage, parameters)
@@ -103,9 +103,9 @@ LYT.player =
           # tell people to try and login again, check their internet connection or try again later
         when $.jPlayer.error.NO_SOLUTION
           log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
-          parameters.prompt = LYT.i18n('Platform not supported')
+          parameters.prompt = LYT.l10n.get('Platform not supported')
           parameters.subTitle = ''
-          parameters.buttons[LYT.i18n('OK')] =
+          parameters.buttons[LYT.l10n.get('OK')] =
             click: ->
               $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
               $.mobile.changePage '#support'

@@ -25,6 +25,8 @@ LYT.config =
   search:
     enabled: true
 
+  locale: 'da'
+
   # ### LYT.protocol config
   protocol:
     # The reading system attrs to send with
