@@ -228,11 +228,15 @@ coffee = do ->
   # Will *always* produce both concatenated and minified
   # versions if concat is true.
   compile = (files, output, concat, callback) ->
-    cmd = "#{config.coffee} --compile"
-    cmd += " --join #{concat}.js" if concat
-    files = q(files).join " "
-    cmd += " --output #{q output} #{files}"
-    exec cmd, (err, stdout, stderr) ->
+    # "cat" (read the contents of) all files
+    catCmd = "cat #{files}"
+    # Compile the contents, read from standard input
+    coffeeCmd = "#{config.coffee} --compile --stdio --output #{q output}"
+    # Pipe all the output to a single file, if concat flag is on
+    joinPart = "> #{fs.path.join output, concat + ".js"}" if concat
+
+    fullCmd = "#{catCmd} | #{coffeeCmd} #{joinPart}"
+    exec fullCmd, (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
       if concat
