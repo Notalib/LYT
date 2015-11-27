@@ -449,7 +449,7 @@ createDir = (path) ->
   until segments.length is 0
     path = fs.path.join path, segments.shift()
     continue if fs.existsSync path
-    fs.mkdir path
+    fs.mkdirSync path
     created = true
   boast "mkdir", path
 
