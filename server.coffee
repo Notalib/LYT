@@ -12,9 +12,8 @@ argv = require 'optimist'
   .describe 'r', 'Proxy /DodpMobile, /DodpFiles and /CatalogSearch to this url'
   .default 'r', 'http://m.e17.dk/'
 
-  .alias 'e', 'environment'
-  .describe 'e', 'Choose environment (e17 or mtm)'
-  .default 'e', 'e17'
+  .alias 't', 'target'
+  .describe 't', 'Target a specific skin folder'
 
   .alias 'q', 'quiet'
   .describe 'q', 'Be quieter please'
@@ -71,7 +70,8 @@ app
       next()
 
 buildSource = (cb) ->
-  exec "cake -dnt -e #{ argv.environment } app", cb
+  skinArg = if argv.target then "-s #{ argv.target }" else ""
+  exec "cake -dnt #{ skinArg } app", cb
 
 buildSource -> console.log 'Finished build' if not argv.silence
 
