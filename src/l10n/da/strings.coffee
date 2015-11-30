@@ -100,7 +100,6 @@ do ->
     'Fastest':                          'Hurtigst'
     '_PLAYBACKRATE_NOT_SUPPORTED_':     'Denne browser understøtter ikke variabel afspilningshastighed'
 
-
     'Advanced Settings':  'Advancerede indstillinger'
     'Playback monitor':   'Afspilningsmonitor'
     'Show console':       'Vis log-konsollen'
