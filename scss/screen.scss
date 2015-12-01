@@ -39,6 +39,8 @@
 @import "partials/base";
 @import "partials/jplayer";
 
+/* The HEIGHT of the header */
+$header-height: 62px;
 
 /* ************************************************************************* *
    ICON SPRITE GENERATION AND STYLES
@@ -156,7 +158,11 @@ $ui-icon2x-spacing: 20px;
 .ui-page {
   .ui-panel-content-wrap {
     @include display-flex;
+    display: -ms-flexbox;
+
     @include flex-direction(column);
+    -ms-flex-direction: column;
+
     border: none;
   }
 }
@@ -332,6 +338,7 @@ img.e17-logo {
 
   #font-size .ui-controlgroup-controls {
     @include display-flex;
+    display: -ms-flexbox;
 
     .ui-btn {
       width: 100%;
@@ -503,6 +510,7 @@ img.e17-logo {
   background: transparent url(../images/icons/nowplaying.png) no-repeat 0;
   padding-right: 10px;
   @include flex-grow(0);
+  -ms-flex-positive: 0;
 }
 
 
@@ -600,16 +608,13 @@ img.e17-logo {
 }
 
 #book-content {
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 100vh;
+  margin-top: -$header-height;
+  padding-top: $header-height;
   position: relative;
-  @include flex-grow(1);
-
-  > div {
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-  }
+  width: 100%;
 }
 
 /* Book index style hacks ************************************************** */
@@ -882,8 +887,13 @@ $bubble-arrow-height: 10px;
 
   .ui-panel-inner {
     padding: 0;
+
     @include display-flex;
+    display: -ms-flexbox;
+
     @include flex-direction(column);
+    -ms-flex-direction: column;
+
     height: 100%;
   }
 
@@ -893,11 +903,18 @@ $bubble-arrow-height: 10px;
 
   .nav.nav-tabs {
     @include display-flex;
+    display: -ms-flexbox;
+
     @include flex-grow(0);
+    -ms-flex-positive: 0;
 
     ul {
       @include display-flex;
+      display: -ms-flexbox;
+
       @include flex-grow(1);
+      -ms-flex-positive: 1;
+
       padding: 0;
       margin: 0;
     }
@@ -933,8 +950,14 @@ $bubble-arrow-height: 10px;
 
   .tabcontent {
     @include display-flex;
+    display: -ms-flexbox;
+
     @include flex-direction(column);
+    -ms-flex-direction: column;
+
     @include flex-grow(1);
+    -ms-flex-positive: 1;
+
     background-color: #F9F9F9;
 
     .sidebar-list {
@@ -952,7 +975,11 @@ $bubble-arrow-height: 10px;
 
         .listitem-content {
           @include display-flex;
+          display: -ms-flexbox;
+
           @include align-items(center);
+          -ms-flex-align: center;
+
           padding: 0 5px 0 20px;
 
           .listitem-collapser {
@@ -967,13 +994,17 @@ $bubble-arrow-height: 10px;
           display: block;
           cursor: pointer;
           text-decoration: none;
+
           @include flex-grow(1);
+          -ms-flex-positive: 1;
 
           &.expander {
             width: 20px;
             padding: 0;
             margin-left: -20px;
+
             @include flex-grow(0);
+            -ms-flex-positive: 0;
           }
 
           &.remover {
@@ -981,6 +1012,7 @@ $bubble-arrow-height: 10px;
             padding: 0;
             margin-right: 20px;
             @include flex-grow(0);
+            -ms-flex-positive: 0;
           }
         }
 
@@ -1012,6 +1044,7 @@ $bubble-arrow-height: 10px;
 
     .scrollable-content {
       @include flex-grow(1);
+      -ms-flex-positive: 1;
       position: relative;
 
       .scroller {
@@ -1028,7 +1061,9 @@ $bubble-arrow-height: 10px;
 
 /**** NAVIGATION HEADER ***/
 #control-header {
-  height: initial;
+  height: $header-height;
+  position: relative;
+  z-index: 10;
   border: none;
 }
 
@@ -1038,16 +1073,25 @@ $bubble-arrow-height: 10px;
   padding: 10px;
   color: white;
   @include flex(0 1 auto);
+  -ms-flex: 0 1 auto;
 
   .navigation-list {
     @include display-flex;
+    display: -ms-flexbox;
+
     @include justify-content(space-between);
+    -ms-flex-pack: justify;
+
     @include align-items(center);
+    -ms-flex-align: center;
+
     padding: 0px;
     margin: 0px;
 
     li {
       @include display-flex;
+      display: -ms-flexbox;
+
       list-style-type: none;
 
       a {
@@ -1063,11 +1107,16 @@ $bubble-arrow-height: 10px;
 
       &.nav-back {
         @include flex-basis(5%);
+        -ms-flex-preferred-size: 5%;
       }
 
       &.nav-controls {
         @include flex-basis(15%);
+        -ms-flex-preferred-size: 15%;
+
         @include justify-content(space-around);
+        -ms-flex-pack: distribute;
+
         min-width: 200px;
         -webkit-user-select: none;
         -moz-user-select: none;
@@ -1076,14 +1125,24 @@ $bubble-arrow-height: 10px;
 
       &.nav-progressbox {
         @include display-flex;
+        display: -ms-flexbox;
+
         @include flex-direction(column);
+        -ms-flex-direction: column;
+
         @include justify-content(space-between);
+        -ms-flex-pack: justify;
+
         @include flex-grow(1);
+        -ms-flex-positive: 1;
         margin: 0 2%;
 
         .progressbox-progress-info {
           @include display-flex;
+          display: -ms-flexbox;
+
           @include justify-content(space-between);
+          -ms-flex-pack: justify;
         }
 
         .progressbox-title {
@@ -1093,7 +1152,10 @@ $bubble-arrow-height: 10px;
 
       &.nav-settings {
         @include flex-basis(10%);
+        -ms-flex-preferred-size: 10%;
+
         @include justify-content(space-around);
+        -ms-flex-pack: distribute;
         min-width: 120px;
       }
     }
