@@ -878,7 +878,6 @@ $bubble-arrow-height: 10px;
   background: none;
   background-color: #8E8E8E;
   height: 100vh;
-  overflow: scroll;
   border-left: 1px solid #898989;
 
   .icon {
@@ -902,6 +901,9 @@ $bubble-arrow-height: 10px;
   }
 
   .nav.nav-tabs {
+    z-index: 2000;
+    position: relative;
+
     @include display-flex;
     display: -ms-flexbox;
 
@@ -923,13 +925,13 @@ $bubble-arrow-height: 10px;
       $tab-border-color: rgb(137, 137, 137);
 
       list-style-type: none;
-      float: none;
-      width: 100%;
       text-align: center;
-      display: block;
       padding: 10px;
       background-color: #F9F9F9;
       cursor: pointer;
+
+      @include flex-grow(1);
+      -ms-flex-positive: 1;
 
       &[aria-selected='false'] {
         background-color: #E1E1E1;
@@ -949,20 +951,25 @@ $bubble-arrow-height: 10px;
   }
 
   .tabcontent {
+    z-index: 1000;
+
     @include display-flex;
     display: -ms-flexbox;
-
-    @include flex-direction(column);
-    -ms-flex-direction: column;
 
     @include flex-grow(1);
     -ms-flex-positive: 1;
 
     background-color: #F9F9F9;
 
+    height: 100vh;
+    margin-top: -51px;
+    padding-top: 51px;
+
     .sidebar-list {
       margin: 0;
       padding: 0;
+      display: block;
+      width: 100%;
 
       ul {
         padding-left: 30px;
@@ -995,16 +1002,17 @@ $bubble-arrow-height: 10px;
           cursor: pointer;
           text-decoration: none;
 
-          @include flex-grow(1);
-          -ms-flex-positive: 1;
+          @include flex(1 1 auto);
+          -ms-flex: 1 1 auto;
+
 
           &.expander {
             width: 20px;
             padding: 0;
             margin-left: -20px;
 
-            @include flex-grow(0);
-            -ms-flex-positive: 0;
+            @include flex(0 0 auto);
+            -ms-flex: 0 0 auto;
           }
 
           &.remover {
@@ -1039,21 +1047,6 @@ $bubble-arrow-height: 10px;
 
       > li:first-of-type {
         border: none;
-      }
-    }
-
-    .scrollable-content {
-      @include flex-grow(1);
-      -ms-flex-positive: 1;
-      position: relative;
-
-      .scroller {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        overflow: scroll;
       }
     }
   }
