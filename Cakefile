@@ -94,7 +94,8 @@ task "src", "Compile CoffeeScript source", (options) ->
   if options.skin
     skinPkg = getSkinPackage options.skin
     skinConfig = fs.readFileSync fs.path.join(options.skin, skinPkg.config), "utf8"
-    fs.writeFileSync "src/config/#{SKIN_CONFIG}", skinConfig, "utf8"
+    skinConfigPath = "src/config/#{SKIN_CONFIG}"
+    fs.writeFileSync skinConfigPath, skinConfig, "utf8"
 
   files = getSourceFiles options
 
@@ -104,8 +105,7 @@ task "src", "Compile CoffeeScript source", (options) ->
       boast "minified", "src", "build/javascript/#{config.concatName}.min.js"
 
     # Remember to delete the temporary config file from the source tree
-    if options.skin
-      fs.unlinkSync "src/config/#{SKIN_CONFIG}"
+    fs.unlinkSync skinConfigPath if options.skin and fs.existsSync skinConfigPath
 
 
 task "html", "Build HTML", (options) ->
@@ -300,10 +300,11 @@ coffee = do ->
           "--source-map #{concat}.map " +
           "-o #{concat}.min.js #{concat}.js"
 
+        cwd = process.cwd()
         process.chdir output
         exec minCmd, (err, stdout, stderr) ->
           throw err if err?
-          process.chdir '..'
+          process.chdir cwd
           console.log stderr if stderr
           callback() if typeof callback is 'function'
 
