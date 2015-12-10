@@ -107,9 +107,9 @@ task "html", "Build HTML", (options) ->
   scripts = []
 
   if options.test
-    scripts.push "http://test.e17.dk/getnotaauthtoken"
+    scripts.push "http://nota.dk/getnotaauthtoken"
   else
-    scripts.push "http://e17.dk/getnotaauthtoken"
+    scripts.push "http://nota.dk/getnotaauthtoken"
 
   if options.minify
     scripts.push "javascript/#{config.concatName}.min.js"
