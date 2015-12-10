@@ -27,8 +27,13 @@ LYT.control =
       if window.frameElement
         frame = $(window.frameElement)
         frame.fadeOut -> frame.remove()
+      else if LYT.player.book?.id
+        #TODO: Watch out! Hard coded strings. This needs to be properly fixed
+        # as soon as possible
+        id = LYT.player.book.id
+        window.location.href = "http://nota.dk/bibliotek/bogid/" + id
       else
-        window.history.go(-1)
+        window.history.go -1
 
     $("#bookmark-add-button").on 'click', ->
       if (segment = LYT.player.currentSegment) and segment.canBookmark
