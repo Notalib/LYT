@@ -9,6 +9,9 @@ do ->
 
       locales[activeLocale]?[string] or string
 
+    has: (string) ->
+      return !!locales[activeLocale]?[string]
+
     register: (localeName, dictionary) ->
       locales[localeName] = dictionary
 

@@ -591,6 +591,7 @@ LYT.render = do ->
     header.text LYT.l10n.get text
 
   setPageTitle: (title) ->
+    title = LYT.l10n.get title
     document.title = "#{title} | #{LYT.l10n.get('Sitename')}"
 
   showDidYouMean: (results, view) ->

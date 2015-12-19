@@ -52,6 +52,17 @@ do ->
     'Bookmarks':                        'Bogmærker'
     'Subsection':                       'Underafsnit'
 
+    'About E17 Direct':                 'Om E17 Direkte'
+    'Delete book':                      'Slet bog'
+    'Play book':                        'Afspil bog'
+    'Statistics':                       'Statistik'
+    'Login':                            'Log ind'
+    'Search for book':                  'Søg efter bog'
+    'Share book':                       'Del bog'
+    'New version':                      'Ny version'
+    'Support':                          'Support'
+    'Test':                             'Test'
+
     'Fetch more books':                 'Se flere bøger'
     'My books':                         'Mine bøger'
     'Back to bookshelf':                'Tilbage til boghylden'
@@ -71,6 +82,8 @@ do ->
     'Forward':                          'Frem'
     'Settings':                         'Indstillinger'
     'Book':                             'Bog'
+    'Choose part':                      'Vælg del'
+    'by':                               'af'
 
     'Text size':                        'Tekststørrelse'
     'Minimum':                          'Mindst (12 pixels)'

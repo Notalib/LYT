@@ -156,6 +156,9 @@ $(document).bind "mobileinit", ->
   $(document).on "pageshow", "[data-role=page]", (event, ui) ->
     _gaq.push [ "_trackPageview", location.pathname + location.search + location.hash  ]
 
+    # Localise the page title if necessary
+    LYT.render.setPageTitle document.title
+
   #Lyt service error handling (events)
 
   $(LYT.service).bind "error:rpc", () ->
