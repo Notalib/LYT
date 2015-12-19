@@ -24,6 +24,7 @@ config =
                               # http-equiv on element meta." is accepted
 
 SKIN_CONFIG = "skinconfig.coffee"
+SKIN_OVERRIDES = "_overrides.scss"
 # --------------------------------------
 
 # # Options/Switches
@@ -199,7 +200,19 @@ task "scss", "Compile scss source", (options) ->
   createDir "build/css"
   minify = if options.minify then "--output-style compressed --force" else ""
   command = "#{config.compass} compile --config config.rb #{minify}"
+
+  if options.skin
+    skinPkg = getSkinPackage options.skin
+    if skinPkg.style
+      skinOverrides = fs.readFileSync fs.path.join(options.skin, skinPkg.style), "utf8"
+      skinOverridesPath = "scss/#{SKIN_OVERRIDES}"
+      fs.writeFileSync skinOverridesPath, skinOverrides, "utf8"
+
   exec command, (err, stdout, stderr) ->
+    # Reset the local custom styles file
+    if options.skin and fs.existsSync skinOverridesPath
+      fs.writeFileSync skinOverridesPath, ""
+
     if err
       fatal err, config.compass,
         "You may need to install compass. See http://compass-style.org/"
