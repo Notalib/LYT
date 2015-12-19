@@ -86,16 +86,17 @@ fileChanged = (filePath) ->
   if not argv.silence
     console.log 'Rebuild after change to ' + filePath
 
-  changedTimeout = setTimeout(
+  changedTimeout = setTimeout( ->
     buildSource ->
       console.log 'Finished rebuild' if not argv.silence
       buildnumber++
 
-    100
+  , 100
   )
 
 watchr.watch
   paths: [ 'html', 'src', 'scss' ],
   listeners:
     change: ( changeType, filePath, fileCurrentStat, filePreviousStat ) ->
+      return if filePath.match(/skinconfig/i) or filePath.match(/_overrides/i)
       fileChanged filePath
