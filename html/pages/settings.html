@@ -9,7 +9,7 @@
       data-role="button"
       role="button"
       data-rel="back"
-      data-l10n="Book">Bog</a>
+      data-l10n="Back">Tilbage</a>
     <h1 data-l10n="Settings">Indstillinger</h1>
   </div>
 
@@ -217,6 +217,34 @@
           type="submit"
           class="open-log-console"
           data-l10n="Show console">Vis log-konsol</button>
+      </div>
+
+      <hr/>
+    </div>
+
+    <!-- Profile and support part -->
+    <div class="profile-box">
+      <div data-role="content" data-theme="c">
+        <div class="ui-bar-c">
+          <div id="login-section">
+            <h2 class="logged-in-as">Du er logget ind som: <span id="current-user-name">No Name</span></h2>
+            <p>Efter dit første login, bliver du fremover automatisk logget ind på E17 Direkte. Tryk på knappen herunder, hvis du ønsker at logge ud.</p>
+          </div>
+        </div>
+        <div data-role="fieldcontain" id="log-off-button-wrapper">
+          <a id="log-off" class="gatrack" href="" data-role="button" role="button" title="Log ud nu">Log ud nu</a>
+        </div>
+        <hr/>
+        <div id="support-section">
+          <ul data-role="listview" data-inset="true">
+            <li class="support" data-icon="arrow_icn">
+              <a class="gatrack" href="#support">Support</a>
+            </li>
+            <li class="about" data-icon="arrow_icn">
+              <a class="gatrack" href="#about">Om E17 Direkte</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

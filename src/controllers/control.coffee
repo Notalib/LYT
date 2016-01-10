@@ -594,6 +594,10 @@ LYT.control =
           $('.advanced-settings').hide()
 
       if type is 'pageshow'
+        # Render profile information as well
+        LYT.render.profile()
+
+        # Render the settings as they're currently set
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
 
         $("#style-settings").find("input").each ->
