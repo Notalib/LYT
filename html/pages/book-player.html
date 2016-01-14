@@ -3,14 +3,17 @@
     <nav id="navigation">
       <ul class="navigation-list">
         <li class="nav-back">
+        <!-- Important that there is no spaces in between the <a> tags.
+             Otherwise JAWS will have problems reading it aloud.
+             We should probably fix this by using real <buttons> instead
+             of <a> tags disguising as buttons.
+        --!>
           <a
             id="close-player-button"
             role="button"
             title="Tilbage til Nota.dk"
             aria-label="Tilbage til Nota.dk"
-            tabindex="0">
-            <span class="ui-icon ui-icon-arrow-left_icn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-arrow-left_icn"></span></a>
         </li>
         <li id="book-play-menu" class="nav-controls">
           <a
@@ -18,49 +21,37 @@
             class="previous-section"
             title="Tilbage (Alt+venstrepil)"
             aria-label="Tilbage"
-            tabindex="0">
-            <span class="ui-icon ui-icon-back_btn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-back_btn"></span></a>
           <a
             role="button"
             class="back15"
             title="Tilbage 15 sekunder"
             aria-label="Tilbage 15 sekunder"
-            tabindex="0">
-            <span class="ui-icon ui-icon-rewind15_btn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-rewind15_btn"></span></a>
           <a
             role="button"
             class="lyt-play-pause-btn lyt-pause"
             title="Pause (Ctrl+Alt+mellemrum)"
             aria-label="Pause"
-            tabindex="0">
-            <span class="ui-icon ui-icon-pause_btn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-pause_btn"></span></a>
           <a
             role="button"
             class="lyt-play-pause-btn lyt-play"
             title="Afspil (Ctrl+Alt+mellemrum)"
             aria-label="Afspil"
-            tabindex="0">
-            <span class="ui-icon ui-icon-play_btn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-play_btn"></span></a>
           <a
             role="button"
             class="forward15"
             title="Frem 15 sekunder"
             aria-label="Frem 15 sekunder"
-            tabindex="0">
-            <span class="ui-icon ui-icon-forward15_btn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-forward15_btn"></span></a>
           <a
             role="button"
             class="next-section"
             title="Frem (Alt+højrepil)"
             aria-label="Frem"
-            tabindex="0">
-            <span class="ui-icon ui-icon-forward_btn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-forward_btn"></span></a>
         </li>
         <li class="nav-progressbox player-book-info" id="jp_container_1">
           <div class="progressbox-title">
@@ -93,26 +84,20 @@
             id="bookmark-add-button"
             title="Sæt bogmærke"
             aria-label="Sæt bogmærke"
-            tabindex="0">
-            <span class="ui-icon ui-icon-add_bookmark_icn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-add_bookmark_icn"></span></a>
           <a
             role="button"
             id="settings-button"
             title="Bogindstillinger"
             aria-label="Bogindstillinger"
-            tabindex="0">
-            <span class="ui-icon ui-icon-book_settings_icn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-book_settings_icn"></span></a>
           <a
             role="button"
             id="book-index-button"
             href="#sidebar"
             title="Indholdsfortegnelse & Bogmærker"
             aria-label="Indholdsfortegnelse & Bogmærker"
-            tabindex="0">
-            <span class="ui-icon ui-icon-index_icn"></span>
-          </a>
+            tabindex="0"><span class="ui-icon ui-icon-index_icn"></span></a>
         </li>
       </ul>
     </nav>
