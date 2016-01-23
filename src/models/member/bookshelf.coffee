@@ -26,10 +26,13 @@ LYT.bookshelf =
       to = from + pageSize
 
     log.message "Bookshelf: Getting new books from #{from} to #{to}"
-    response = LYT.service.getContentList 'new', from, to
+
+    LYT.service.getContentList('new', from, to).then (list) ->
+      list.forEach (item) -> item.new = true
+      list
 
 
-  loadIssued: (page = 1, zeroAndUp = false) ->
+  load: (page = 1, zeroAndUp = false) ->
     pageSize = LYT.config.bookshelf.pageSize
 
     # By specifiying the `from` and `to` params
@@ -69,23 +72,6 @@ LYT.bookshelf =
       if not zeroAndUp
         @nextPage = page + 1
       return list
-
-  load: (page = 1, zeroAndUp = false) ->
-    newBooks = []
-    newList = []
-    if LYT.config.bookshelf.fetchNew
-      newBooks = @loadNew -1
-
-    $.when(newBooks)
-      .then (list) =>
-        newList = list.map (item) ->
-          item.new = true
-          item
-
-        @loadIssued page, zeroAndUp
-      .then (list) =>
-        newList.concat list
-
 
   # Add (issue) a book to the shelf by its ID
   add: (id) ->

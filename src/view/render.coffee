@@ -258,16 +258,30 @@ LYT.render = do ->
     list.find('a').first().focus()
 
   loadBookshelfPage: (content, page = 1, zeroAndUp = false) ->
-    process = LYT.bookshelf.load(page, zeroAndUp)
-    .done (books) ->
-      LYT.render.bookshelf(books, content, page, zeroAndUp)
-      if books.nextPage
-        $('#more-bookshelf-entries').show()
-      else
-        $('#more-bookshelf-entries').hide()
+    # Load both the "new" books and the "issued" books
+    newBooks = []
+    if (page is 1 or zeroAndUp) and LYT.config.bookshelf.fetchNew
+      fetchNew = LYT.bookshelf.loadNew(-1)
 
-    .fail (error, msg) ->
-      log.message "failed with error #{error} and msg #{msg}"
+    process = $.when(fetchNew)
+      .then (books) ->
+        newBooks = books
+        LYT.bookshelf.load(page, zeroAndUp)
+      .then (books) ->
+        if newBooks?.length
+          allBooks = newBooks.concat books
+          allBooks.nextPage = books.nextPage
+        else
+          allBooks = books
+
+        LYT.render.bookshelf(allBooks, content, page, zeroAndUp)
+        if books.nextPage
+          $('#more-bookshelf-entries').show()
+        else
+          $('#more-bookshelf-entries').hide()
+
+      .fail (error, msg) ->
+        log.message "failed with error #{error} and msg #{msg}"
 
     LYT.loader.register 'Loading bookshelf', process unless content.find('ul li[data-book-id]').length
 
