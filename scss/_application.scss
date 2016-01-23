@@ -350,6 +350,22 @@ img.e17-logo {
 
   ul {
     li {
+      .ui-li-heading {
+        padding-bottom: 4px;
+      }
+
+      .book-new-badge {
+        color: white;
+        background-color: #5399d3;
+        @include border-radius(2px);
+        margin-left: 10px;
+        padding: 2px 5px;
+        text-transform: uppercase;
+        text-shadow: none;
+        font-size: 0.8em;
+        font-weight: normal;
+      }
+
       .book-now-playing {
         height: 18px;
         width: 18px;

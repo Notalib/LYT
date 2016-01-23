@@ -64,6 +64,8 @@ LYT.config =
     pageSize: 5 # default: 5
     # Number of books to show on bookshelf (whitout show more)...
     maxShow: 20
+    # Fetch books from the content list called "new"
+    fetchNew: false
 
 
   mobileMessage:

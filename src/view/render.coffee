@@ -26,6 +26,12 @@ LYT.render = do ->
     if book.id is LYT.player.book?.id
       nowPlaying = '<div class="book-now-playing"></div>'
 
+    newBadge = ""
+    if book.new
+      newBadge = """
+        <span class="book-new-badge">#{ LYT.l10n.get('New') }</span>
+      """
+
     title = book.title?.replace /\"/g, ""
     element = jQuery """
       <li data-book-id="#{book.id}" class="ui-li-has-thumb">
@@ -33,7 +39,7 @@ LYT.render = do ->
           <div class="cover-image-frame">
             <img class="ui-li-icon cover-image" role="presentation"">
           </div>
-          <h3>#{book.title or "&nbsp;"}</h3>
+          <h3>#{book.title or "&nbsp;"}#{newBadge}</h3>
           <p>#{info or "&nbsp;"}</p>
           #{nowPlaying or ""}
         </a>

@@ -13,7 +13,23 @@ LYT.bookshelf =
   #holds the nextpage number if there is one....
   nextPage: false
 
-  load: (page = 1, zeroAndUp = false) ->
+  loadNew: (page = 1, zeroAndUp = false) ->
+    pageSize = LYT.config.bookshelf.pageSize
+    if zeroAndUp
+      from = 0
+      to = Math.min(pageSize * (page - 1), LYT.config.bookshelf.maxShow)
+    else if page < 0
+      from = 0
+      to = -1
+    else
+      from = (page - 1) * pageSize
+      to = from + pageSize
+
+    log.message "Bookshelf: Getting new books from #{from} to #{to}"
+    response = LYT.service.getContentList 'new', from, to
+
+
+  loadIssued: (page = 1, zeroAndUp = false) ->
     pageSize = LYT.config.bookshelf.pageSize
 
     # By specifiying the `from` and `to` params
@@ -53,6 +69,23 @@ LYT.bookshelf =
       if not zeroAndUp
         @nextPage = page + 1
       return list
+
+  load: (page = 1, zeroAndUp = false) ->
+    newBooks = []
+    newList = []
+    if LYT.config.bookshelf.fetchNew
+      newBooks = @loadNew -1
+
+    $.when(newBooks)
+      .then (list) =>
+        newList = list.map (item) ->
+          item.new = true
+          item
+
+        @loadIssued page, zeroAndUp
+      .then (list) =>
+        newList.concat list
+
 
   # Add (issue) a book to the shelf by its ID
   add: (id) ->
