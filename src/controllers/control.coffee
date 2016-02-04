@@ -25,6 +25,10 @@ LYT.control =
     @versionCheck()
     @setupEventHandlers()
 
+    # Set language at startup
+    LYT.l10n.setLocale LYT.config.locale
+    LYT.render.renderLocale()
+
   versionCheck: ->
     lastVersion = LYT.cache.read 'lyt', 'lastVersion'
 
@@ -116,14 +120,14 @@ LYT.control =
           log.warn 'control: login: logOn failed'
           parameters =
             mode:                'bool'
-            prompt:              LYT.i18n('Incorrect username or password')
-            subTitle:            LYT.i18n('')
+            prompt:              LYT.l10n.get('Incorrect username or password')
+            subTitle:            LYT.l10n.get('')
             animate:             false
             useDialogForceFalse: true
             allowReopen:         true
             useModal:            true
             buttons:             {}
-          parameters.buttons[LYT.i18n('OK')] =
+          parameters.buttons[LYT.l10n.get('OK')] =
             click: -> # Nop
             theme: 'c'
           LYT.render.showDialog($("#login-form"), parameters)
@@ -182,7 +186,7 @@ LYT.control =
 
     $('#run-tests').one 'click', ->
       $('#run-tests').button 'disable'
-      deferred = $.mobile.util.waitForConfirmDialog LYT.i18n('Is this the first test run?')
+      deferred = $.mobile.util.waitForConfirmDialog LYT.l10n.get('Is this the first test run?')
         .done ->
           LYT.settings.reset()
           LYT.player.setPlaybackRate 1
@@ -227,6 +231,16 @@ LYT.control =
       log.level = 3
       log.message 'Opened developer console'
 
+  selectVolume: (parts) ->
+    deferred = jQuery.Deferred()
+
+    page = $('#select-volume')
+    $.mobile.changePage page, transition: 'pop', role: 'dialog'
+    LYT.render.selectVolume page, parts, deferred.resolve
+
+    deferred.promise()
+
+
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
     if credentials = LYT.session.getCredentials()
@@ -263,6 +277,9 @@ LYT.control =
     promise.done ->
       content = $(page).children(":jqmData(role=content)")
 
+      # Show search icon if enabled
+      $('#bookshelf-search-icon').removeClass('ui-disabled') if LYT.config.search?.enabled
+
       if LYT.bookshelf.nextPage is false
         LYT.render.loadBookshelfPage content
       else
@@ -279,13 +296,23 @@ LYT.control =
     promise.fail -> log.error 'Control: bookDetails: unable to log in'
     promise.done ->
       if type is 'pagebeforeshow'
-        process = LYT.catalog.getDetails(params.book)
+        if LYT.config.isE17
+          process = LYT.catalog.getDetails params.book
+        else
+          process = LYT.service.getMetadata params.book
+
+        process
           .fail (error, msg) ->
             log.message "Control: bookDetails: failed with error #{error} and msg #{msg}"
           .done (details) ->
-            LYT.render.hideOrShowButtons(details)
-            LYT.render.bookDetails(details, content)
-            LYT.render.setPageTitle details.title
+            if LYT.config.isE17
+              LYT.render.hideOrShowButtons(details)
+              LYT.render.bookDetailsE17(details, content)
+              LYT.render.setPageTitle details.title
+            else
+              LYT.render.hideOrShowButtons(details)
+              LYT.render.bookDetailsGeneral(details, content)
+              LYT.render.setPageTitle details.misc.title
             content.children().show()
         LYT.loader.register "Loading book", process, 10
 
@@ -314,7 +341,7 @@ LYT.control =
         #TODO:  Check if book is different than last time we checked...
         #return if $("#bookmark-list-button.ui-btn-active").length != 0
         activate "#bookmark-list-button", "#book-toc-button", renderIndex
-        promise = LYT.Book.load bookId
+        promise = LYT.Book.load bookId, @selectVolume
         promise.done (book) -> LYT.render.bookmarks book, content
         LYT.loader.register "Loading bookmarks", promise
 
@@ -322,7 +349,7 @@ LYT.control =
         #TODO:  Check if book is different than last time we checked...
         #return if $("#book-toc-button.ui-btn-active").length != 0
         activate "#book-toc-button", "#bookmark-list-button", renderBookmarks
-        promise = LYT.Book.load bookId
+        promise = LYT.Book.load bookId, @selectVolume
         promise.done (book) -> LYT.render.bookIndex book, content
         LYT.loader.register "Loading index", promise
 
@@ -387,14 +414,23 @@ LYT.control =
 
         log.message "Control: bookPlay: loading book #{params.book}"
 
-        process = LYT.player.load params.book, smilReference, offset, play
-        process.done (book) ->
+        #TODO: HACK ALERT
+        # A book must be added (by Dynamic Menus) to bookshelf, before issuing
+        if LYT.config.isMTM
+          question = id: 'addToBookshelf', value: params.book
+          initialProcess = LYT.service.getQuestions question
+          LYT.loader.register 'Adding to bookshelf', initialProcess
+
+        process = $.when(initialProcess)
+        .then () ->
+          LYT.player.load params.book, smilReference, offset, play
+        .then (book) ->
           LYT.render.bookPlayer book, $(page)
           # See if there are any service announcements every time a new book has been loaded
           LYT.service.getAnnouncements()
           LYT.player.refreshContent()
           LYT.player.setFocus()
-          pageTitle = "#{LYT.i18n('Now playing')} #{LYT.player.book.title}"
+          pageTitle = "#{LYT.l10n.get('Now playing')} #{LYT.player.book.title}"
           LYT.render.setPageTitle pageTitle
 
           if params.smil? or params.section? or params.offset?
@@ -422,18 +458,18 @@ LYT.control =
             else
               parameters =
                 mode:                'bool'
-                prompt:              LYT.i18n('Unable to retrieve book')
-                subTitle:            LYT.i18n('')
+                prompt:              LYT.l10n.get('Unable to retrieve book')
+                subTitle:            LYT.l10n.get('')
                 animate:             false
                 useDialogForceFalse: true
                 allowReopen:         true
                 useModal:            true
                 buttons: {}
-              parameters.buttons[LYT.i18n('Try again')] =
+              parameters.buttons[LYT.l10n.get('Try again')] =
                 click: -> window.location.reload()
                 icon:  'refresh'
                 theme: 'c'
-              parameters.buttons[LYT.i18n('Cancel')] =
+              parameters.buttons[LYT.l10n.get('Cancel')] =
                 click: -> $.mobile.changePage LYT.config.defaultPage.hash
                 icon:  'delete'
                 theme: 'c'
@@ -462,6 +498,7 @@ LYT.control =
             LYT.render.searchResults results, content
 
         # determine action and parse params: predefinedView, search, predefinedSearch
+        menuid = 'default'
         action = "predefinedView"
         if not jQuery.isEmptyObject params
           if params.term?
@@ -469,6 +506,8 @@ LYT.control =
           else if params.list?
             list = jQuery.trim(decodeURIComponent(params.list or "") )
             action = "showList" if LYT.predefinedSearches[list]?
+          else if params.menuid?
+            menuid = params.menuid;
 
         content = $(page).children( ":jqmData(role=content)" )
         header = $(page).children( ":jqmData(role=header)" ).find("h1")
@@ -479,21 +518,60 @@ LYT.control =
             $('#more-search-results').hide()
             $('#searchterm').val ''
             LYT.render.setHeader page, "Search"
-            LYT.render.catalogLists content
+
+            if LYT.config.isE17
+              LYT.render.catalogLists content
+            else
+              # Just show the search menu
+              # content.children().show()
+              #
+              # or:
+              #
+              ###
+              # TODO: Maybe show main menu if questionsSupported()?
+              if LYT.service.questionsSupported()
+                if menuid is 'search' and LYT.config.isMTM
+                  $('#searchterm').focus()
+                  menuid = 'default'
+
+                LYT.service.getQuestions( id: menuid )
+                .then (res) ->
+                  if res.contentListRef
+                    contentList = LYT.service.getContentList res.contentListRef
+                    handleResults contentList
+                  else if res.questions?.length
+                    LYT.render.dynamicMenu content, res.questions[0], (answer) ->
+                      userResponse = id: menuid, value: answer
+                      answering = LYT.service.getQuestions(userResponse)
+                        .then (lastRes) -> alert lastRes.label
+                      LYT.loader.register "Loading", answering
+              content.children().show()
+              ###
           when "search"
             LYT.render.setHeader page, "Search"
             $('#searchterm').val term
-            handleResults LYT.catalog.search(term)
+
+            if LYT.service.questionsSupported() and LYT.config.isMTM
+              question = id: 'searchFreetext', value: term
+              results =
+                LYT.service.getQuestions(question)
+                .then (result) ->
+                  LYT.service.getContentList result.contentListRef, 0, -1
+            else if LYT.config.isE17
+              results = LYT.catalog.search term
+
+            handleResults results
           when "showList"
             LYT.render.setHeader page, LYT.predefinedSearches[list].title
             handleResults LYT.predefinedSearches[list].callback()
 
-        LYT.catalog.attachAutocomplete $('#searchterm')
-        # When hitting enter in dropdown, submit.
-        $("#searchterm").unbind "autocompleteselect"
-        $("#searchterm").bind "autocompleteselect", (event, ui) ->
-          $('#searchterm').val ui.item.value
-          $('#search-form').trigger 'submit'
+        if LYT.config.catalog.autocomplete?.enabled
+          LYT.catalog.attachAutocomplete $('#searchterm')
+          # When hitting enter in dropdown, submit.
+          $("#searchterm").unbind "autocompleteselect"
+          $("#searchterm").bind "autocompleteselect", (event, ui) ->
+            $('#searchterm').val ui.item.value
+            $('#search-form').trigger 'submit'
 
         $("#search-form").submit (event) ->
           $('#searchterm').blur()
@@ -516,6 +594,10 @@ LYT.control =
           $('.advanced-settings').hide()
 
       if type is 'pageshow'
+        # Render profile information as well
+        LYT.render.profile()
+
+        # Render the settings as they're currently set
         style = jQuery.extend {}, (LYT.settings.get "textStyle" or {})
 
         $("#style-settings").find("input").each ->
@@ -581,9 +663,9 @@ LYT.control =
 
         url = LYT.router.getBookActionUrl params
         urlEmail = url.replace("&", "&amp;")
-        subject = LYT.i18n 'Link to book at E17'
+        subject = LYT.l10n.get 'Link to book at E17'
         # Sorry about the clumsy english below, but it has to translate directly to danish without changing the position of the title and url
-        body = "#{LYT.i18n('Listen to')} #{params.title} #{LYT.i18n('by clicking this link')}: #{escape urlEmail}"
+        body = "#{LYT.l10n.get('Listen to')} #{params.title} #{LYT.l10n.get('by clicking this link')}: #{escape urlEmail}"
 
         $("#email-bookmark").attr('href', "mailto: ?subject=#{subject}&body=#{body}")
 

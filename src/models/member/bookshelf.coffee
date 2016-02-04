@@ -13,6 +13,25 @@ LYT.bookshelf =
   #holds the nextpage number if there is one....
   nextPage: false
 
+  loadNew: (page = 1, zeroAndUp = false) ->
+    pageSize = LYT.config.bookshelf.pageSize
+    if zeroAndUp
+      from = 0
+      to = Math.min(pageSize * (page - 1), LYT.config.bookshelf.maxShow)
+    else if page < 0
+      from = 0
+      to = -1
+    else
+      from = (page - 1) * pageSize
+      to = from + pageSize
+
+    log.message "Bookshelf: Getting new books from #{from} to #{to}"
+
+    LYT.service.getContentList('new', from, to).then (list) ->
+      list.forEach (item) -> item.new = true
+      list
+
+
   load: (page = 1, zeroAndUp = false) ->
     pageSize = LYT.config.bookshelf.pageSize
 
@@ -55,9 +74,23 @@ LYT.bookshelf =
       return list
 
   # Add (issue) a book to the shelf by its ID
-  add: (id) -> LYT.service.issue(id)
+  add: (id) ->
+    if LYT.config.isMTM
+      # A book must be added (by Dynamic Menus) to bookshelf, before issuing
+      question = [{ id: 'addToBookshelf', value: id }]
+      LYT.service.getQuestions(question)
+        .then () ->
+          LYT.service.issue id
+    else
+      LYT.service.issue(id)
 
   # Remove (return) a book from the shelf by its ID
-  remove: (id) -> LYT.service.return(id)
+  remove: (id) ->
+    # MTM does not support the standard returnContent function - only a dynamic menu
+    # called "removeFromBookshelf"
+    if LYT.config.isMTM
+      LYT.service.getQuestions([{ id: 'removeFromBookshelf', value: id }])
+    else
+      LYT.service.return(id)
 
   getNextPage: -> @nextPage

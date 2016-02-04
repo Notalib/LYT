@@ -23,6 +23,8 @@ config =
   maxHtmlErrors:  1           # Only "Bad value X-UA-Compatible for attribute
                               # http-equiv on element meta." is accepted
 
+SKIN_CONFIG = "skinconfig.coffee"
+SKIN_OVERRIDES = "_overrides.scss"
 # --------------------------------------
 
 # # Options/Switches
@@ -34,8 +36,18 @@ option "-d", "--development",   "Use development settings"
 option "-t", "--test",          "Use test environment"
 option "-n", "--no-validate",   "Don't validate build"
 option "-f", "--force-deploy",  "Force a fresh re-deployment of all files"
+option "-s", "--skin [dir]",    "Use a custom skin directory"
 
 # --------------------------------------
+
+getSourceFiles = (options) ->
+  coffee.grind "src", null, (file) ->
+    if file.match(/config.dev.coffee$/) or file.match(/reloader.coffee$/)
+      return options.development
+    else if file.match /config.e17.coffee$/
+      return !options.skin?
+    else
+      return true
 
 # # Tasks
 
@@ -76,27 +88,75 @@ task "assets", "Sync assets to build", (options) ->
 
 task "src", "Compile CoffeeScript source", (options) ->
   cleanDir "build/javascript"
-  files = coffee.grind "src", null, (file) ->
-    if options.development
-      return true
-    else
-      return not file.match /config.dev.coffee$/
+
+  # If we have a skin, load the config file from the skin and temporarily copy
+  # it to the config file. This is *not* the optimal solution, but since the
+  # "grind/brew" process is very unstable and undocumented this seems the safer route
+  if options.skin
+    skinPkg = getSkinPackage options.skin
+    skinConfig = fs.readFileSync fs.path.join(options.skin, skinPkg.config), "utf8"
+    skinConfigPath = "src/config/#{SKIN_CONFIG}"
+    fs.writeFileSync skinConfigPath, skinConfig, "utf8"
+
+  files = getSourceFiles options
 
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
     if options.minify
       boast "minified", "src", "build/javascript/#{config.concatName}.min.js"
 
+    # Remember to delete the temporary config file from the source tree
+    fs.unlinkSync skinConfigPath if options.skin and fs.existsSync skinConfigPath
+
+
 task "html", "Build HTML", (options) ->
   createDir "build"
 
   template = html.readFile "html/index.html"
 
+  # Original pages
   pages = glob "html/pages", /\.html$/i
-  pages.sort()
-  body = (for page in pages
-    path = "pages/#{fs.path.basename page}"
-    content = "<!-- Begin file: #{path} -->\n#{html.readFile page}\n<!-- End file: #{path} -->"
+  pages = pages.reduce ((hash, page) ->
+    hash[fs.path.basename page] = page
+    hash
+  ), {}
+
+  # If we're building with a custom skin we need to load the custom pages
+  # and overwrite as neccessary.
+  if options.skin
+    boast "loading", "skin", options.skin
+    if !fs.existsSync options.skin
+      fatalUserError "Couldn't find skin #{options.skin}"
+
+    try
+      skinConfig = JSON.parse fs.readFileSync fs.path.join options.skin, 'package.json'
+    catch e
+      fatal e
+
+    if !skinConfig.directories?.pages
+      fatalUserError "No 'pages' property in 'directories' object"
+
+    pagesDir = fs.path.join options.skin, skinConfig.directories?.pages
+    if !fs.existsSync pagesDir
+      fatalUserError "Couldn't find pages dir #{pagesDir}"
+
+    skinPages = glob pagesDir, /\.html$/i
+    skinPages = skinPages.reduce ((hash, page) ->
+      hash[fs.path.basename page] = page
+      hash
+    ), {}
+
+    for base, fullPath of skinPages
+      if base of pages
+        boast "overwrite", "skin", base
+      pages[base] = fullPath
+
+  body = (for name of pages
+    content = """
+      <!-- Begin file: #{name} -->
+        #{html.readFile pages[name]}
+      <!-- End file: #{name} -->
+      """
   ).join "\n\n"
   template = html.interpolate template, body, 'cake:body'
 
@@ -106,10 +166,11 @@ task "html", "Build HTML", (options) ->
   stylesheet = "css/#{config.concatName}.css"
   scripts = []
 
-  if options.test
-    scripts.push "http://test.e17.dk/getnotaauthtoken"
-  else
-    scripts.push "http://e17.dk/getnotaauthtoken"
+  if !options.skin?
+    if options.test
+      scripts.push "http://test.e17.dk/getnotaauthtoken"
+    else
+      scripts.push "http://e17.dk/getnotaauthtoken"
 
   if options.minify
     scripts.push "javascript/#{config.concatName}.min.js"
@@ -117,11 +178,7 @@ task "html", "Build HTML", (options) ->
   else if options.concat
     scripts.push "javascript/#{config.concatName}.js"
   else
-    coffeeScripts = coffee.grind "src", null, (file) ->
-      if options.development
-        return true
-      else
-        return not file.match /config.dev.coffee$/ and not file.match /reloader.coffee$/
+    coffeeScripts = getSourceFiles options
     scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'
@@ -143,7 +200,19 @@ task "scss", "Compile scss source", (options) ->
   createDir "build/css"
   minify = if options.minify then "--output-style compressed --force" else ""
   command = "#{config.compass} compile --config config.rb #{minify}"
+
+  if options.skin
+    skinPkg = getSkinPackage options.skin
+    if skinPkg.style
+      skinOverrides = fs.readFileSync fs.path.join(options.skin, skinPkg.style), "utf8"
+      skinOverridesPath = "scss/#{SKIN_OVERRIDES}"
+      fs.writeFileSync skinOverridesPath, skinOverrides, "utf8"
+
   exec command, (err, stdout, stderr) ->
+    # Reset the local custom styles file
+    if options.skin and fs.existsSync skinOverridesPath
+      fs.writeFileSync skinOverridesPath, ""
+
     if err
       fatal err, config.compass,
         "You may need to install compass. See http://compass-style.org/"
@@ -235,17 +304,20 @@ coffee = do ->
     exec cmd, (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
-      if concat
+      if !concat
+       callback() if typeof callback is 'function'
+      else
         bin = fs.path.relative output, config.minify
         minCmd =
           "node #{bin} " +
           "--source-map #{concat}.map " +
           "-o #{concat}.min.js #{concat}.js"
 
+        cwd = process.cwd()
         process.chdir output
         exec minCmd, (err, stdout, stderr) ->
           throw err if err?
-          process.chdir '..'
+          process.chdir cwd
           console.log stderr if stderr
           callback() if typeof callback is 'function'
 
@@ -352,6 +424,9 @@ boast = (verb, from, to) ->
   msg = "#{padR msg, 30} -> #{to}" if to
   console.log msg
 
+fatalUserError = (args...) ->
+  console.error args...
+  process.exit(1)
 
 # Is the verbose option set?
 isVerbose = ->
@@ -493,3 +568,13 @@ walk = (directory) ->
 glob = (directory, pattern) ->
   (file for file in walk(directory) when pattern.test fs.path.basename(file))
 
+getSkinPackage = (skinPath) ->
+  if !fs.existsSync skinPath
+    fatalUserError "Couldn't find skin #{skinPath}"
+
+  try
+    skinPackage = JSON.parse fs.readFileSync fs.path.join skinPath, 'package.json'
+  catch e
+    fatal e
+
+  skinPackage

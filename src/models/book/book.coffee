@@ -20,34 +20,9 @@ class LYT.Book
   this.load = do ->
     loaded = {}
 
-    (id) ->
-      loaded[id] or= new LYT.Book id
+    (id, multiCallback) ->
+      loaded[id] or= new LYT.Book id, multiCallback
       loaded[id].promise()
-
-
-  # "Class"/"static" method for retrieving a
-  # book's metadata
-  # Note: Results are cached in memory
-  #
-  # DEPRECATED: Use `catalog.getDetails()` instead
-  this.getDetails = do ->
-    loaded = {}
-    (id) ->
-      log.warn "Book.getDetails is deprecated. Use catalog.getDetails() instead"
-      deferred = jQuery.Deferred()
-      if loaded[id]?
-        deferred.resolve loaded[id]
-        return deferred
-
-      LYT.service.getMetadata(id)
-      .done (metadata) ->
-        loaded[id] = metadata
-        deferred.resolve metadata
-
-      .fail (args...) ->
-        deferred.reject args...
-
-      deferred.promise()
 
 
   # The constructor takes one argument; the ID of the book.
@@ -68,7 +43,7 @@ class LYT.Book
   #     book.fail () ->
   #       # Do something about the failure
   #
-  constructor: (@id) ->
+  constructor: (@id, multiCallback) ->
     # Create a Deferred, and link it to `this`
     deferred = jQuery.Deferred()
     deferred.promise this
@@ -101,43 +76,77 @@ class LYT.Book
       got.fail -> deferred.reject BOOK_CONTENT_RESOURCES_ERROR
 
       got.then (resources) =>
-        ncc = null
+        nccs = []
+        discinfo = null
 
         # Process the resources hash
         for own localUri, uri of resources
+          # Each resource is identified by its relative path,
+          # and contains the properties `url` and `document`
+          # (the latter initialized to `null`)
+          if LYT.config.rpc.proxyResources
+            url = LYT.config.rpc.proxyResources + encodeURI(uri)
+          else if LYT.config.rpc.proxyToLocal
+            origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
+            path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
+            url = origin + path
+          else
+            url = uri
+
+          url = URI(url).normalize().toString()
 
           # We lowercase all resource lookups to avoid general case-issues
           localUri = localUri.toLowerCase()
 
-          # Each resource is identified by its relative path,
-          # and contains the properties `url` and `document`
-          # (the latter initialized to `null`)
-          # Urls are rewritten to use the origin server just
-          # in case we are behind a proxy.
-          origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
-          path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
           @resources[localUri] =
-            url:      origin + path
+            url:      url
             document: null
+            localUri: localUri
 
-          # If the url of the resource is the NCC document,
+          # If the url of the resource is an NCC document,
           # save the resource for later
-          ncc = @resources[localUri] if localUri.match /^ncc\.x?html?$/i
+          nccs.push @resources[localUri] if localUri.match /ncc\.x?html?$/i
+
+          # If the url is a discinfo.html, then this book is probably multi-volume
+          discinfo = @resources[localUri] if localUri.match /^discinfo\.x?html?$/i
+
+
+        # If a DISCINFO is found, that means this is a multi-volume book,
+        # and we need to present the user with the choice of selecting which
+        # volume to play
+        if discinfo and nccs.length > 1
+          log.message 'This is a multi-volume book'
+          getDiscInfo(discinfo)
+            .then multiCallback
+            .then (part) =>
+              log.message 'User selected which volume to play', part
+              getNCC @resources[part.localUri]
+              getBookmarks()
 
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
         # parallel. Otherwise, fail.
-        if ncc?
-          getNCC ncc
+        else if nccs.length is 1
+          getNCC nccs[0]
           getBookmarks()
         else
           deferred.reject BOOK_NCC_NOT_FOUND_ERROR
 
+    getDiscInfo = (obj) =>
+      discinfo = new LYT.TextContentDocument obj.localUri, @resources
+      discinfo.then (document) =>
+        source = discinfo.source
+        parts = $('body a', source).map ->
+          name: @textContent
+          localUri: URI(@getAttribute 'href').normalize().toString()
+
+        # Return a normal array
+        parts.get()
 
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument obj.url, this
+      ncc = new LYT.NCCDocument obj.localUri, this
 
       # Propagate a failure
       ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
@@ -202,14 +211,15 @@ class LYT.Book
 
     ordered
 
-  getSMIL: (url) ->
-    url = url.toLowerCase()
+  getSMIL: (localUri) ->
     deferred = jQuery.Deferred()
-    if not (url of @resources)
+    localUri = URI(localUri).absoluteTo(@nccDocument.localUri).toString()
+
+    if not (localUri of @resources)
       return deferred.reject()
 
-    smil = @resources[url]
-    smil.document or= new LYT.SMILDocument smil.url, this
+    smil = @resources[localUri]
+    smil.document or= new LYT.SMILDocument smil.url, this, localUri
 
     smil.document.done (smilDocument) ->
       deferred.resolve smilDocument
@@ -305,6 +315,7 @@ class LYT.Book
 
     # Add closest section's title as bookmark title
     bookmark.note = text: section.title
+    bookmark.ncxRef = section.ref if section.ref
 
     # Add to bookmarks and save
     @bookmarks or= []
@@ -316,7 +327,10 @@ class LYT.Book
     @saveBookmarks()
 
   setLastmark: (segment, offset = 0) ->
+    section = @getSectionBySegment segment
+
     @lastmark = segment.bookmark offset
+    @lastmark.ncxRef = section.ref if section.ref
     @saveBookmarks()
 
   segmentByURL: (url) ->

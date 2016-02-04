@@ -9,13 +9,17 @@
 class LYT.TextContentDocument extends LYT.DTBDocument
 
   # Private method for resolving URLs
-  resolveURLs = (source, resources, isCartoon) ->
+  resolveURLs = (source, localUri, resources, isCartoon) ->
     # Resolve images
     source.find("*[data-src]").each (index, item) ->
       item = jQuery item
       return if item.data("resolved")?
       url = item.attr("data-src").replace( /^\//, '' )
-      new_url = resources[url]?.url
+
+      # We need to add the relative base of the ncc
+      imageLocalUri = URI(url).absoluteTo(localUri).toString()
+      new_url = resources[imageLocalUri]?.url
+
       item.data "resolved", "yes" # Mark as processed
       if isCartoon
         item.attr 'src', new_url
@@ -24,9 +28,10 @@ class LYT.TextContentDocument extends LYT.DTBDocument
         item.attr 'data-src', new_url
         item.addClass 'loader-icon'
 
-  constructor: (url, resources, callback) ->
+  constructor: (localUri, resources, callback) ->
+    url = resources[localUri].url
     super url, =>
-      resolveURLs @source, resources, @isCartoon()
+      resolveURLs @source, localUri, resources, @isCartoon()
       callback() if typeof callback is "function"
 
   isCartoon: () ->

@@ -1,6 +1,5 @@
 # Requires `/common`
 # Requires `/support/jqm/jqm.extensions`
-# Requires `i18n`
 
 # -------------------
 
@@ -54,7 +53,7 @@ LYT.loader = do ->
     setMessage = ->
       return if jQuery.inArray(id, loaders) is -1
       log.message "Loader: set: setMessage #{message}"
-      jQuery.mobile.showPageLoadingMsg LYT.i18n(message)
+      jQuery.mobile.showPageLoadingMsg LYT.l10n.get(message)
       lockPage
     if delay?
       log.message "Loader: set: schedule message #{message}, delay #{delay}"

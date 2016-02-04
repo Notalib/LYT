@@ -1,46 +1,97 @@
-<div data-role="page" id="settings" data-title="Indstillinger | E17 Direkte">
+<div data-role="page" id="settings" data-title="Settings">
 
   <div data-role="header"  data-theme="b">
-    <a href="#book-player" data-inline="true" class="ui-btn-left gatrack" data-direction="reverse" data-role="button" role="button" data-rel="back">Bog</a>
-    <h1>Indstillinger</h1>
+    <a
+      href="#book-player"
+      data-inline="true"
+      class="ui-btn-left gatrack"
+      data-direction="reverse"
+      data-role="button"
+      role="button"
+      data-rel="back"
+      data-l10n="Back">Tilbage</a>
+    <h1 data-l10n="Settings">Indstillinger</h1>
   </div>
 
   <div id="textarea-example" aria-hidden="true">
-    <div class="inner">Der var så dejligt ude på landet; det var sommer, kornet stod gult, havren grøn, høet var rejst i stakke nede i de grønne enge, og der gik storken på sine lange, røde ben og snakkede ægyptisk, for det sprog havde han lært af sin moder. Rundt om ager og eng var der store skove, og midt i skovene dybe søer; jo, der var rigtignok dejligt derude på landet! Midt i solskinnet lå der en gammel herregård med dybe kanaler rundt om, og fra muren og ned til vandet voksede store skræppeblade, der var så høje, at små børn kunne stå oprejste under de største; der var lige så vildsomt derinde, som i den tykkeste skov, og her lå en and på sin rede; hun skulle ruge sine små ællinger ud, men nu var hun næsten ked af det, fordi det varede så længe, og hun sjælden fik visit; de andre ænder holdt mere af at svømme om i kanalerne, end at løbe op og sidde under et skræppeblad for at snadre med hende.
+    <div
+      class="inner"
+      data-l10n="_TEXTEXAMPLE_">Der var så dejligt ude på landet; det var sommer, kornet stod gult, havren grøn, høet var rejst i stakke nede i de grønne enge, og der gik storken på sine lange, røde ben og snakkede ægyptisk, for det sprog havde han lært af sin moder. Rundt om ager og eng var der store skove, og midt i skovene dybe søer; jo, der var rigtignok dejligt derude på landet! Midt i solskinnet lå der en gammel herregård med dybe kanaler rundt om, og fra muren og ned til vandet voksede store skræppeblade, der var så høje, at små børn kunne stå oprejste under de største; der var lige så vildsomt derinde, som i den tykkeste skov, og her lå en and på sin rede; hun skulle ruge sine små ællinger ud, men nu var hun næsten ked af det, fordi det varede så længe, og hun sjælden fik visit; de andre ænder holdt mere af at svømme om i kanalerne, end at løbe op og sidde under et skræppeblad for at snadre med hende.
     </div>
   </div>
 
   <div data-role="content" id="style-settings" data-theme="c">
-
     <div id="settings-input">
       <div data-role="fieldcontain">
         <fieldset data-role="controlgroup" id="font-size" data-type="horizontal">
-          <legend>Tekststørrelse</legend>
+          <legend data-l10n="Text size">Tekststørrelse</legend>
           <input type="radio" name="font-size" id="font-size-1" value="12px"/>
-          <label class="gatrack" for="font-size-1" title="mindst (12 pixels)"><span style="font-size:10px">A</span></label>
+          <label
+            class="gatrack"
+            for="font-size-1"
+            title="mindst (12 pixels)"
+            data-l10n-title="Minimum">
+            <span style="font-size:10px">A</span>
+          </label>
 
           <input type="radio" name="font-size" id="font-size-2" value="16px"/>
-          <label class="gatrack" for="font-size-2" title="mindre (16 pixels)"><span style="font-size:12px">A</span></label>
+          <label
+            class="gatrack"
+            for="font-size-2"
+            title="mindre (16 pixels)"
+            data-l10n-title="Small">
+            <span style="font-size:12px">A</span>
+          </label>
 
           <input type="radio" name="font-size" id="font-size-3" value="20px"/>
-          <label class="gatrack" for="font-size-3" title="større (20 pixels)"><span style="font-size:14px">A</span></label>
+          <label
+            class="gatrack"
+            for="font-size-3"
+            title="større (20 pixels)"
+            data-l10n-title="Medium">
+            <span style="font-size:14px">A</span>
+          </label>
 
           <input type="radio" name="font-size" id="font-size-4" value="24px"/>
-          <label class="gatrack" for="font-size-4" title="størst (24 pixels)"><span style="font-size:16px">A</span></label>
+          <label
+            class="gatrack"
+            for="font-size-4"
+            title="størst (24 pixels)"
+            data-l10n-title="Large">
+            <span style="font-size:16px">A</span>
+          </label>
         </fieldset>
       </div>
       <hr/>
 
       <div data-role="fieldcontain">
         <fieldset data-role="controlgroup" id="font-family">
-          <legend>Skrifttype</legend>
+          <legend data-l10n="Font">Skrifttype</legend>
           <input type="radio" name="font-family" id="font-family-1" value="Georgia, serif"/>
-          <label class="gatrack" style="font-family:Georgia, serif;" for="font-family-1" title="Klassisk skrifttype">Klassisk</label>
+          <label
+            class="gatrack"
+            style="font-family:Georgia, serif;"
+            for="font-family-1"
+            title="Klassisk skrifttype"
+            data-l10n="Classic"
+            data-l10n-title="Classic font">Klassisk</label>
 
           <input type="radio" name="font-family" id="font-family-2" value="Helvetica, sans-serif"/>
-          <label class="gatrack" style="font-family:Helvetica, sans-serif;" for="font-family-2" title="Moderne skrifttype">Moderne</label>
+          <label
+            class="gatrack"
+            style="font-family:Helvetica, sans-serif;"
+            for="font-family-2"
+            title="Moderne skrifttype"
+            data-l10n="Modern"
+            data-l10n-title="Modern font">Moderne</label>
           <input type="radio" name="font-family" id="font-family-3" value="Dyslexic, sans-serif"/>
-          <label class="gatrack" style="font-family:Dyslexic, sans-serif;" for="font-family-3" title="Dyslexia skrifttype">OpenDyslexic</label>
+          <label
+            class="gatrack"
+            style="font-family:Dyslexic, sans-serif;"
+            for="font-family-3"
+            title="Dyslexia skrifttype"
+            data-l10n="OpenDyslexic"
+            data-l10n-title="Dyslexic font">OpenDyslexic</label>
 
         </fieldset>
       </div>
@@ -48,18 +99,38 @@
 
       <div data-role="fieldcontain">
         <fieldset data-role="controlgroup" id="marking-color">
-          <legend>Farver</legend>
+          <legend data-l10n="Colors">Farver</legend>
           <input type="radio" name="marking-color" id="radio-choice-g" value="#fff;#000000"/>
-          <label class="gatrack" for="radio-choice-g" title="Sort på hvid">Sort på hvid</label>
+          <label
+            class="gatrack"
+            for="radio-choice-g"
+            title="Sort på hvid"
+            data-l10n="Black on white"
+            data-l10n-title="Black on white">Sort på hvid</label>
 
           <input type="radio" name="marking-color" id="radio-choice-h" value="#000000;#FFF800"/>
-          <label class="gatrack" for="radio-choice-h" title="Gul på sort">Gul på sort</label>
+          <label
+            class="gatrack"
+            for="radio-choice-h"
+            title="Gul på sort"
+            data-l10n="Yellow on black"
+            data-l10n-title="Yellow on black">Gul på sort</label>
 
           <input type="radio" name="marking-color" id="radio-choice-i" value="#FFF800;#000000"/>
-          <label class="gatrack" for="radio-choice-i" title="Sort på gul">Sort på gul</label>
+          <label
+            class="gatrack"
+            for="radio-choice-i"
+            title="Sort på gul"
+            data-l10n="Black on yellow"
+            data-l10n-title="Black on yellow">Sort på gul</label>
 
           <input type="radio" name="marking-color" id="radio-choice-j" value="#ffffff;#0000ff"/>
-          <label class="gatrack" for="radio-choice-j" title="Blå på hvid">Blå på hvid</label>
+          <label
+            class="gatrack"
+            for="radio-choice-j"
+            title="Blå på hvid"
+            data-l10n="Blue on white"
+            data-l10n-title="Blue on white">Blå på hvid</label>
         </fieldset>
       </div>
 
@@ -77,41 +148,103 @@
       <hr/>
       <div id="playback-rate" data-role="fieldcontain">
         <fieldset data-role="controlgroup" data-type="horizontal">
-          <legend>Afspilningshastighed</legend>
+          <legend data-l10n="Playback rate">Afspilningshastighed</legend>
 
           <input type="radio" name="playback-rate" id="playback-rate-1" value="0.5"/>
-          <label class="gatrack" for="playback-rate-1" aria-label="Langsomst">
+          <label
+            class="gatrack"
+            for="playback-rate-1"
+            aria-label="Langsomst"
+            data-l10n-aria-label="Slowest"
+            data-l10n-title="Slowest">
             <span style="font-size:16px">&#188;</span>
           </label>
 
           <input type="radio" name="playback-rate" id="playback-rate-2" value="0.8"/>
-          <label class="gatrack" for="playback-rate-2" aria-label="Langsommere">
+          <label
+            class="gatrack"
+            for="playback-rate-2"
+            aria-label="Langsommere"
+            data-l10n-aria-label="Slower"
+            data-l10n-title="Slower">
             <span style="font-size:16px">&#189;</span>
           </label>
 
           <input type="radio" name="playback-rate" id="playback-rate-3" value="1"/>
-          <label class="gatrack" for="playback-rate-3" aria-label="Normalt">
+          <label
+            class="gatrack"
+            for="playback-rate-3"
+            aria-label="Normalt"
+            data-l10n-aria-label="Normal"
+            data-l10n-title="Normal">
             <span style="font-size:16px"><b>1</b></span>
           </label>
 
           <input type="radio" name="playback-rate" id="playback-rate-4" value="1.5"/>
-          <label class="gatrack" for="playback-rate-4" aria-label="Hurtigere">
+          <label
+            class="gatrack"
+            for="playback-rate-4"
+            aria-label="Hurtigere"
+            data-l10n-aria-label="Fast"
+            data-l10n-title="Fast">
             <span style="font-size:16px">2</span>
           </label>
 
           <input type="radio" name="playback-rate" id="playback-rate-5" value="2"/>
-          <label class="gatrack" for="playback-rate-5" aria-label="Hurtigst">
+          <label
+            class="gatrack"
+            for="playback-rate-5"
+            aria-label="Hurtigst"
+            data-l10n-aria-label="Fastest"
+            data-l10n-title="Fastest">
             <span style="font-size:16px">3</span>
           </label>
         </fieldset>
-        <p style="display:none" class="message disabled">Denne browser understøtter ikke variabel afspilningshastighed.</p>
+        <p
+        style="display:none"
+        class="message disabled"
+        data-l10n="_PLAYBACKRATE_NOT_SUPPORTED_">Denne browser understøtter ikke variabel afspilningshastighed.</p>
       </div>
 
       <hr class="advanced-settings" />
       <div class="advanced-settings" data-role="collapsible">
-        <h3>Avancerede indstillinger</h3>
-        <a href="#instrumentation" data-role="button">Afspilningsmonitor</a>
-        <button type="submit" class="open-log-console">Vis log-konsol</button>
+        <h3 data-l10n="Advanced Settings">Avancerede indstillinger</h3>
+        <a
+          href="#instrumentation"
+          data-role="button"
+          data-l10n="Playback monitor">Afspilningsmonitor</a>
+        <button
+          type="submit"
+          class="open-log-console"
+          data-l10n="Show console">Vis log-konsol</button>
+      </div>
+
+      <hr/>
+    </div>
+
+    <!-- Profile and support part -->
+    <div class="profile-box">
+      <div data-role="content" data-theme="c">
+        <div class="ui-bar-c">
+          <div id="login-section">
+            <h2 class="logged-in-as">Du er logget ind som: <span id="current-user-name">No Name</span></h2>
+            <p>Efter dit første login, bliver du fremover automatisk logget ind på E17 Direkte. Tryk på knappen herunder, hvis du ønsker at logge ud.</p>
+          </div>
+        </div>
+        <div data-role="fieldcontain" id="log-off-button-wrapper">
+          <a id="log-off" class="gatrack" href="" data-role="button" role="button" title="Log ud nu">Log ud nu</a>
+        </div>
+        <hr/>
+        <div id="support-section">
+          <ul data-role="listview" data-inset="true">
+            <li class="support" data-icon="arrow_icn">
+              <a class="gatrack" href="#support">Support</a>
+            </li>
+            <li class="about" data-icon="arrow_icn">
+              <a class="gatrack" href="#about">Om E17 Direkte</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

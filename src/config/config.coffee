@@ -14,11 +14,18 @@
 
 # ## Central system configuration
 LYT.config =
-
   # ### LYT.rpc function config
   rpc:
     # The service's server-side URL
     url: "/DodpMobile/Service.svc" # No default - must be present
+
+  analytics:
+    id: null # insert Google Analytics TrackingID here
+
+  search:
+    enabled: true
+
+  locale: 'da'
 
   # ### LYT.protocol config
   protocol:
@@ -57,6 +64,8 @@ LYT.config =
     pageSize: 5 # default: 5
     # Number of books to show on bookshelf (whitout show more)...
     maxShow: 20
+    # Fetch books from the content list called "new"
+    fetchNew: false
 
 
   mobileMessage:
@@ -84,6 +93,8 @@ LYT.config =
 
     # Autocomplete options
     autocomplete:
+      # Enable ?
+      enabled: true
       # The URL to request results from
       url: "/CatalogSearch/search.asmx/Autocomplete" # No default - must be present
       # If suggestions from Autocomplete is léss than 'google_trigger' ask google

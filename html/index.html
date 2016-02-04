@@ -57,6 +57,7 @@
     <script src="lib/Mousetrap/mousetrap.min.js"></script>
     <script src="lib/jquery.scrollTo/jquery.scrollTo.min.js"></script>
     <script src="lib/jquery.simulate/jquery.simulate.min.js"></script>
+    <script src="lib/URIjs/URI.js"></script>
     <script src="lib/stacktracejs/stacktrace.min.js"></script>
 
     <!-- App-specific javascript -->
@@ -102,13 +103,25 @@
     <!-- Google Analytics -->
     <!-- TODO: Perhaps it'd be nice to get this out of the HTML - just to keep things clean -->
     <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-25712607-1']);
+      var _gaq = _gaq || [];
+      (function() {
+        var trackingID;
+        if (LYT && LYT.config && LYT.config.analytics) {
+          trackingID = LYT.config.analytics.id;
+        }
+
+        if (!trackingID) {
+          console && console.warn('No analytics ID. Set an ID in the config file');
+          return;
+        }
+
+        _gaq.push(['_setAccount', trackingID]);
         (function() {
             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
             ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
         })();
+      })();
     </script>
 
 </body>

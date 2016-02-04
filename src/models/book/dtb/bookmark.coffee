@@ -8,4 +8,4 @@
 
 class LYT.Bookmark
   constructor: (data) ->
-    @[key] = data[key] for key in ['note', 'URI', 'timeOffset']
+    @[key] = data[key] for key in ['note', 'URI', 'timeOffset', 'ncxRef']

@@ -1,6 +1,7 @@
 #!/usr/bin/env coffee
 
 express = require 'express'
+request = require 'request'
 watchr = require 'watchr'
 exec = require('child_process').exec
 proxy = require('http-proxy').createProxyServer()
@@ -10,6 +11,9 @@ argv = require 'optimist'
   .alias 'r', 'remote-host'
   .describe 'r', 'Proxy /DodpMobile, /DodpFiles and /CatalogSearch to this url'
   .default 'r', 'http://m.e17.dk/'
+
+  .alias 't', 'target'
+  .describe 't', 'Target a specific skin folder'
 
   .alias 'q', 'quiet'
   .describe 'q', 'Be quieter please'
@@ -37,8 +41,12 @@ app.use require('morgan')() if not (argv.quiet or argv.silence)
 app
   .use express.static( process.cwd() + '/build' )
   .use (req, res, next) ->
-    if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch)/ )
+    if req.url.match( /^\/(Dodp(Mobile|Files)|CatalogSearch|dodServices)/ )
       proxy.proxyRequest req, res, target: argv['remote-host']
+    else if req.url.match( /^\/proxyURL/ )
+      # Proxy request with data *and* headers forth and back
+      url = req.url.match /^\/proxyURL\?url=(.*)/
+      request( url: url[1], headers: req.headers ).pipe res
     else if req.url.match /\.buildnumber$/
       tries = 0
       delay = 10
@@ -61,9 +69,11 @@ app
     else
       next()
 
-exec 'cake -dnt app', ->
-  if not argv.silence
-    console.log 'Fininshed build'
+buildSource = (cb) ->
+  skinArg = if argv.target then "-s #{ argv.target }" else ""
+  exec "cake -dnt #{ skinArg } app", cb
+
+buildSource -> console.log 'Finished build' if not argv.silence
 
 server = app.listen argv.port, ->
   if not argv.silence
@@ -75,17 +85,18 @@ fileChanged = (filePath) ->
   clearTimeout( changedTimeout ) if changedTimeout
   if not argv.silence
     console.log 'Rebuild after change to ' + filePath
-  changedTimeout = setTimeout(
-    =>
-      exec 'cake -dnt app', ->
-        if not argv.silence
-          console.log 'Fininshed rebuild'
-        buildnumber++
-    100
+
+  changedTimeout = setTimeout( ->
+    buildSource ->
+      console.log 'Finished rebuild' if not argv.silence
+      buildnumber++
+
+  , 100
   )
 
 watchr.watch
   paths: [ 'html', 'src', 'scss' ],
   listeners:
     change: ( changeType, filePath, fileCurrentStat, filePreviousStat ) ->
+      return if filePath.match(/skinconfig/i) or filePath.match(/_overrides/i)
       fileChanged filePath

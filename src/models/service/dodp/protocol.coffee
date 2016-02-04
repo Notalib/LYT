@@ -103,7 +103,10 @@ LYT.protocol =
       password: password
     #$xml, data, status, xhr
     receive: ($xml, data, status, xhr) ->
-      throw "logOnFailed" unless $xml.find("logOnResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      logonResult = $xml[0].getElementsByTagNameNS(NS, "logOnResult")?[0]
+
+      throw "logOnFailed" unless logonResult.textContent is "true"
       # Note: Can't use the `"Envelope > Header"` syntax for some reason
       # but `find("Envelope").find("Header")` works...
       # It's probably because Sizzle has a proble with the XML namespacing...and IE and firefox...so use ->$xml.find("s\\:Envelope, Envelope").find("s\\:Header, Header").first()
@@ -128,9 +131,12 @@ LYT.protocol =
   # TODO: Do we need to pull anything besides the optional operations out of the response?
   getServiceAttributes:
     receive: ($xml, data) ->
-      operations = []
-      $xml.find("supportedOptionalOperations > operation").each ->
-        operations.push $(this).text()
+      NS = 'http://www.daisy.org/ns/daisy-online/'
+      container = $xml[0].getElementsByTagNameNS NS, 'supportedOptionalOperations'
+      if container.length
+        optionals = container[0].getElementsByTagNameNS NS, 'operation'
+        operations = [].slice.call(optionals).map (optional) -> optional.textContent
+
       [operations]
 
 
@@ -139,7 +145,10 @@ LYT.protocol =
       readingSystemAttributes: LYT.config.protocol.readingSystemAttributes
 
     receive: ($xml, data) ->
-      throw "setReadingSystemAttributes failed" unless $xml.find("setReadingSystemAttributesResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      attrs = $xml[0].getElementsByTagNameNS NS, "setReadingSystemAttributesResult"
+      throw "setReadingSystemAttributes failed" unless attrs?[0].textContent is "true"
+
       true
 
 
@@ -174,14 +183,18 @@ LYT.protocol =
       lastItem:  lastItem
 
     receive: ($xml, data) ->
+      NS = 'http://www.daisy.org/ns/daisy-online/'
       items = []
-      $xml.find("contentItem").each ->
-        item = jQuery this
+      contentItems = $xml[0].getElementsByTagNameNS NS, "contentItem"
+
+      for item in contentItems
+        label = item.getElementsByTagNameNS(NS, 'text')?[0].textContent
         # TODO: Should really extract the lang attribute too - it'd make it easier to correctly markup the list in the UI
         items.push {
-          id: item.attr("id")
-          label: item.find("label > text").text()
+          id: item.getAttribute "id"
+          label: label
         }
+
       [items]
 
 
@@ -190,7 +203,10 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-      throw "issueContent failed" unless $xml.find('issueContentResult').text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      result = $xml[0].getElementsByTagNameNS NS, "issueContentResult"
+
+      throw "issueContent failed" unless result?[0].textContent is "true"
       true
 
 
@@ -199,7 +215,10 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-      throw "returnContent failed" unless $xml.find("returnContentResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      result = $xml[0].getElementsByTagNameNS NS, "returnContentResult"
+
+      throw "returnContent failed" unless result?[0].textContent is "true"
       true
 
 
@@ -208,10 +227,25 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml, data) ->
+      NS = 'http://www.daisy.org/ns/daisy-online/'
+      containerEl = $xml[0].getElementsByTagNameNS(NS, 'contentMetadata')[0]
+      sampleEl = containerEl.getElementsByTagNameNS NS, 'sample'
       metadata =
-        sample: $xml.find("contentMetadata > sample").text()
-      $xml.find("contentMetadata > metadata > *").each ->
-        metadata[this.nodeName] = jQuery(this).text()
+        daisy: {}
+        misc: {}
+
+      metadata.sample = sampleEl[0].getAttribute('id') if sampleEl.length
+
+      metadataEl = containerEl.getElementsByTagNameNS(NS, 'metadata')[0]
+      metas = [].slice.call(metadataEl.childNodes).forEach (meta) ->
+        if meta.namespaceURI is NS
+          if meta.localName is 'meta'
+            metadata.daisy[meta.getAttribute('name').toLowerCase()] = meta.getAttribute('content')
+          else
+            metadata.daisy[meta.localName.toLowerCase()] = meta.textContent
+        else
+          metadata.misc[meta.localName.toLowerCase()] = meta.textContent
+
       metadata
 
 
@@ -221,8 +255,12 @@ LYT.protocol =
 
     receive: ($xml, data) ->
       resources = {}
-      $xml.find("resource").each ->
-        resources[ jQuery(this).attr("localURI") ] = jQuery(this).attr("uri")
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      response = $xml[0].getElementsByTagNameNS NS, "resource"
+
+      for resource in response
+        resources[ resource.getAttribute "localURI" ] = resource.getAttribute "uri"
+
       resources
 
 
@@ -232,9 +270,16 @@ LYT.protocol =
       contentID: bookID
 
     receive: ($xml) ->
-
+      NS_DODP = 'http://www.daisy.org/ns/daisy-online/'
+      NS_BOOKMARK = 'http://www.daisy.org/z3986/2005/bookmark/'
       deserialize = (data) ->
-        URI = $('URI', data).text()
+        for child in data.childNodes
+          switch child.localName.toLowerCase()
+            when 'uri' then uri = child.textContent
+            when 'timeoffset' then timeOffset = child.textContent
+            when 'ncxref' then ncxRef = child.textContent
+            when 'note' then note = child.textContent
+
         # Convert from Dodp offset to floating point in seconds
         # TODO: Implement correct parsing of all time formats provided in
         #       http://www.daisy.org/z3986/2005/Z3986-2005.html#Clock
@@ -250,33 +295,43 @@ LYT.protocol =
               values = jQuery.map values, parseFloat
               values[0] * 3600 + values[1] * 60 + values[2] + values[3]
 
-        timeOffset = parseOffset $('timeOffset', data).text()
-        note = $('note > text', data).text()
-
-        if URI and timeOffset?
+        timeOffset = parseOffset timeOffset
+        if uri and timeOffset?
           return new LYT.Bookmark
-            ncxRef:     null
-            URI:        URI
+            ncxRef:     ncxRef
+            URI:        uri
             timeOffset: timeOffset
             note:       text: note || '-'
 
 
+      # Fix MTM bug. <bookmarkSet> does *NOT* belong to NS_BOOKMARK
+      # but to NS_DODP
+      if LYT.config.isMTM
+        set = $xml[0].getElementsByTagNameNS(NS_BOOKMARK, 'bookmarkSet')?[0]
+      else
+        set = $xml[0].getElementsByTagNameNS(NS_DODP, 'bookmarkSet')?[0]
+
       bookmarkSet =
         bookmarks: []
-        book:
-          uid: $xml.find("bookmarkSet > uid").text()
-          title:
-            text: $xml.find("bookmarkSet > title > text").text()
-            audio: $xml.find("bookmarkSet > title > audio").text()
+        book: {}
 
-      $xml.find("bookmarkSet > bookmark").each ->
-        if bookmark = deserialize this
-          bookmarkSet.bookmarks.push bookmark
-        else
-          log.errorGroup 'Protocol: getBookmarks: receive: unable to parse bookmark', this
-
-      lastmark = $xml.find("bookmarkSet > lastmark").first()
-      bookmarkSet.lastmark = deserialize lastmark if lastmark.length
+      for child in set?.childNodes
+        switch child.localName?.toLowerCase()
+          when 'uid' then bookmarkSet.book.uid = child.textContent
+          when 'lastmark' then bookmarkSet.lastmark = deserialize child
+          when 'title'
+            text = child.getElementsByTagNameNS(NS_BOOKMARK, 'text')
+            audio = child.getElementsByTagNameNS(NS_BOOKMARK, 'audio')
+            title = {}
+            title.text = text[0].textContent if text.length
+            title.audio = audio[0].textContent if audio.length
+            bookmarkSet.book.title = title
+          when 'bookmark'
+            bookmark = deserialize child
+            if bookmark
+              bookmarkSet.bookmarks.push bookmark
+            else
+              log.errorGroup 'Protocol: getBookmarks: receive: unable to parse bookmark', child
 
       bookmarkSet
 
@@ -305,9 +360,15 @@ LYT.protocol =
         "#{hours}:#{minutes}:#{seconds}"
 
       serialize = (bookmark) ->
-        URI:        bookmark.URI
-        timeOffset: formatDodpOffset bookmark.timeOffset
-        note:       bookmark.note
+        if LYT.config.isMTM
+          URI:        bookmark.URI
+          ncxRef:     bookmark.ncxRef
+          timeOffset: formatDodpOffset bookmark.timeOffset
+          note:       bookmark.note
+        else
+          URI:        bookmark.URI
+          timeOffset: formatDodpOffset bookmark.timeOffset
+          note:       bookmark.note
 
       setnamespace = (ns, obj) ->
         if typeof obj == "object"
@@ -328,8 +389,16 @@ LYT.protocol =
         uid: book.getMetadata().identifier?.content
         bookmark: (serialize bookmark for bookmark in book.bookmarks)
 
+      #TODO: Very-not-nice, but MTM throws errors at us, if we call /setBookmarks
+      # several times with identical bookmarks. This is so weird.
+      if LYT.config.isMTM
+        bookmarkSet.title = text: bookmarkSet.title
+        delete bookmarkSet.bookmark
+
       if book.lastmark?
         bookmarkSet.lastmark = serialize book.lastmark
+        # A <lastmark> cannot have a <note> according to spec
+        delete bookmarkSet.lastmark.note
 
       bookmarkSet = setnamespace 'ns2', bookmarkSet
       data['ns2:bookmarkSet'] = bookmarkSet
@@ -339,3 +408,117 @@ LYT.protocol =
     receive: ($xml) ->
       throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"
       true
+
+  #
+  # Request:
+  #
+  # getQuestions([
+  #   { id: 'question1', value: 2 },
+  #   { id: 'question3', value: 6 }
+  # ])
+  #
+  # --
+  # Response:
+  # {
+  #   questions: [
+  #     { type: 'input', id: 'questionInput3' },
+  #     {
+  #       type: 'multipleChoice',
+  #       id: 'questionMultiple2',
+  #       choices: [
+  #         { id: 'c2', label: 'Choose this' },
+  #         { id: 'c5', label: 'No, this!' }
+  #       ]
+  #     }
+  #   ],
+  #
+  #   contentListRef: null
+  # }
+  #
+  #
+  getQuestions:
+    request: (responses) ->
+      responses = [responses] if not Array.isArray responses
+
+      userResponses:
+        userResponse: responses.map((response) ->
+          res = questionID: response.id
+          res.value = response.value if response.value
+
+          $attributes: res
+        )
+
+    receive: ($xml) ->
+      NS = 'http://www.daisy.org/ns/daisy-online/'
+
+      questions = $xml[0].getElementsByTagNameNS NS, 'questions'
+      for child in questions?[0].childNodes
+        if child.localName is 'label'
+          label = child.textContent
+
+
+      # Support multiple choice Questions
+      multiples = []
+      multipleChoices = $xml[0].getElementsByTagNameNS NS, 'multipleChoiceQuestion'
+      multipleChoices = [].slice.call multipleChoices
+      multiples = multipleChoices.map (multipleChoice) ->
+        label = ''
+        choices = []
+
+        for child in multipleChoice.childNodes
+          continue if child.namespaceURI isnt NS
+
+          # Find label
+          if child.localName is 'label'
+            label = child.textContent
+
+          # Find choices
+          if child.localName is 'choices'
+            for choice in child.childNodes
+              if choice.localName is 'choice'
+                choices.push(
+                  id: choice.getAttribute('id'),
+                  label: choice.textContent
+                )
+
+
+        type: 'multipleChoice'
+        label: label
+        id: multipleChoice.getAttribute 'id'
+        choices: choices
+
+      # Support inputQuestions
+      inputs = []
+      inputQuestions = $xml[0].getElementsByTagNameNS NS, 'inputQuestion'
+      inputQuestions = [].slice.call inputQuestions
+      inputs = inputQuestions.map (inputQuestion) ->
+        label = ''
+        types = []
+
+        for child in inputQuestion.childNodes
+          continue if child.namespaceURI isnt NS
+
+          # Find label
+          if child.localName is 'label'
+            label = child.textContent
+
+          # Find choices
+          if child.localName is 'inputTypes'
+            for input in child.childNodes
+              if input.localName is 'input'
+                types.push input.getAttribute('type')
+
+
+        type: 'inputQuestion'
+        label: label
+        id: inputQuestion.getAttribute 'id'
+        types: types
+
+      returnObj =
+        label: label
+        questions: multiples.concat inputs
+
+      # Get contentListRef if it's there
+      contentListRef = $xml[0].getElementsByTagNameNS NS, 'contentListRef'
+      returnObj.contentListRef = contentListRef[0].textContent if contentListRef.length
+      returnObj

@@ -24,6 +24,7 @@ LYT.player =
   playLoader: null
   elements: null
 
+
   # Be cautious only read from the returned status object
   getStatus: -> @el.data('jPlayer').status
 
@@ -87,12 +88,12 @@ LYT.player =
       switch event.jPlayer.error.type
         when $.jPlayer.error.URL
           log.message "Player: event error: jPlayer: url error: #{event.jPlayer.error.message}, #{event.jPlayer.error.hint}, #{event.jPlayer.status.src}"
-          parameters.prompt = LYT.i18n('Unable to retrieve sound file')
+          parameters.prompt = LYT.l10n.get('Unable to retrieve sound file')
           parameters.subTitle = ''
-          parameters.buttons[LYT.i18n('Try again')] =
+          parameters.buttons[LYT.l10n.get('Try again')] =
             click: -> window.location.reload()
             theme: 'c'
-          parameters.buttons[LYT.i18n('Cancel')] =
+          parameters.buttons[LYT.l10n.get('Cancel')] =
             click: -> $.mobile.changePage LYT.config.defaultPage.hash
             theme: 'c'
           LYT.render.showDialog($.mobile.activePage, parameters)
@@ -102,9 +103,9 @@ LYT.player =
           # tell people to try and login again, check their internet connection or try again later
         when $.jPlayer.error.NO_SOLUTION
           log.message 'Player: event error: jPlayer: no solution error, you need to install flash or update your browser.'
-          parameters.prompt = LYT.i18n('Platform not supported')
+          parameters.prompt = LYT.l10n.get('Platform not supported')
           parameters.subTitle = ''
-          parameters.buttons[LYT.i18n('OK')] =
+          parameters.buttons[LYT.l10n.get('OK')] =
             click: ->
               $(document).one 'pagechange', -> $.mobile.silentScroll $('#supported-platforms').offset().top
               $.mobile.changePage '#support'
@@ -223,7 +224,7 @@ LYT.player =
         # The .then below can be left out since the call above doesn't return
         # a promise.
       .then =>
-        if book is @book?.id then @book else LYT.Book.load book
+        if book is @book?.id then @book else LYT.Book.load book, LYT.control.selectVolume
       .then (book) =>
         # Setting @book should be done after seeking has completed, but the
         # dependency on the books playlist and firstplay issue prohibits this.
@@ -611,9 +612,12 @@ LYT.player =
       duration = @getStatus().duration
       seekTime = currTime + seconds
 
+      # This algorithm leads to unexpected behaviour if duration is 0
+      return if duration == 0
+
       deferred = $.Deferred()
       # if time is within boundaries of current section
-      if(seekTime >= 0 && seekTime < duration)
+      if seekTime >= 0 && seekTime < duration
         @wait()
           .then =>
             new LYT.player.command.seek @el, seekTime

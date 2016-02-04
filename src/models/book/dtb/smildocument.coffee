@@ -8,14 +8,14 @@ do ->
 
   # Class to model a SMIL document
   class LYT.SMILDocument extends LYT.DTBDocument
-    constructor: (url, book) ->
+    constructor: (url, book, localUri) ->
       super url, (deferred) =>
         mainSequence = @source.find("body > seq:first")
         @book        = book
+        @localUri    = localUri
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @segments    = parseMainSeqNode mainSequence, this, book.nccDocument.sections
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
-        @filename = @url.split('/').pop()
 
     getSegmentById: (id) ->
       for segment, index in @segments

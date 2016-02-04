@@ -259,6 +259,24 @@ LYT.service = do ->
   getResources: (bookId) ->
     withLogOn -> LYT.rpc "getContentResources", bookId
 
+  getQuestions: (responses = id: 'default') ->
+    return if not LYT.service.questionsSupported
+    response = withLogOn -> LYT.rpc("getQuestions", responses)
+
+  getContentList: (id, from = 0, to = -1) ->
+    response = withLogOn -> LYT.rpc 'getContentList', id, from, to
+    response.then (list) ->
+      for item in list
+        # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
+        # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
+        # See issue #17 on Github
+        [item.author, item.title] = item.label?.split("$") or ["", ""]
+        if not item.title and item.author
+          [item.title, item.author] = [item.author, item.title]
+        delete item.label
+
+      list
+
 
   # The the list of issued content (i.e. the bookshelf)
   # Note: The `getContentList` API gets items by range
@@ -267,22 +285,7 @@ LYT.service = do ->
   # Specifying `-1` as the `to` argument will get all
   # items from the `from` index to the end of the list
   getBookshelf: (from = 0, to = -1) ->
-    deferred = jQuery.Deferred()
-
-    response = withLogOn -> LYT.rpc("getContentList", "issued", from, to)
-
-    response.done (list) ->
-      for item in list
-        # TODO: Using $ as a make-shift delimiter in XML? Instead of y'know using... more XML? Wow.
-        # To quote [Nokogiri](http://nokogiri.org/): "XML is like violence - if it doesn’t solve your problems, you are not using enough of it."
-        # See issue #17 on Github
-        [item.author, item.title] = item.label?.split("$") or ["", ""]
-        delete item.label
-      deferred.resolve list
-
-    response.fail (err, message) -> deferred.reject err, message
-
-    deferred.promise()
+    @getContentList 'issued', from, to
 
   # -------
   # ## Optional operations
@@ -310,6 +313,8 @@ LYT.service = do ->
   announcementsSupported: ->
     operations.SERVICE_ANNOUNCEMENTS
 
+  questionsSupported: ->
+    operations.DYNAMIC_MENUS
 
   markAnnouncementsAsRead: (AnnouncementsIDS) ->
     withLogOn -> LYT.rpc("markAnnouncementsAsRead", AnnouncementsIDS)

@@ -52,6 +52,7 @@ LYT.rpc = do ->
     timeout:     10000
     type:        "POST"
     url:         LYT.config.rpc.url
+    xhrFields:   withCredentials: true
 
 
   identifyDODPError = do ->
@@ -59,7 +60,7 @@ LYT.rpc = do ->
     # They're defined here, and added dynamically since they're needed in obj-form later
     faultCodes =
       DODP_INTERNAL_ERROR:       ///\b internalServerError ///i
-      DODP_NO_SESSION_ERROR:     ///\b noActiveSession ///i
+      DODP_NO_SESSION_ERROR:     /// noActiveSession ///i
       DODP_UNSUPPORTED_OP_ERROR: ///\b operationNotSupported ///i
       DODP_INVALID_OP_ERROR:     ///\b invalidOperation ///i
       DODP_INVALID_PARAM_ERROR:  ///\b invalidParameter ///i
@@ -75,7 +76,7 @@ LYT.rpc = do ->
     # Return the function
     (code, string) ->
       for fault, signature of faultCodes
-        return window[fault] if signature.test code
+        return window[fault] if signature.test(code) or signature.test(string)
       window.DODP_UNKNOWN_ERROR
 
 
@@ -160,8 +161,13 @@ LYT.rpc = do ->
       # instead be handled by the success handler, since
       # it will parse the response (which contains fault
       # codes etc), and handle it appropriately.
-      if jqXHR.status is 500 and jqXHR.responseXML?
-        if isTherefault jqXHR.responseXML, deferred
+      
+      # This fixes a jQuery bug, where sometimes the response XML won't be
+      # parsed into .responseXML!
+      responseXML = jqXHR.responseXML || (jqXHR.responseText? && $(jqXHR.responseText))
+
+      if jqXHR.status is 500 and responseXML
+        if isTherefault responseXML, deferred
           return
 
       errCode = switch status
