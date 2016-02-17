@@ -32,6 +32,11 @@ LYT.config =
       version:      "1"
       config:       null
 
+  navigation:
+    # Single quotes are important here - otherwise this gets interpreted
+    # as a template already be CoffeeScript
+    backButtonURL: 'http://nota.dk/bibliotek/bogid/#{id}'
+
   # ### LYT.service config
   service:
     # The number of attempts to make when logging on

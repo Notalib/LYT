@@ -28,6 +28,12 @@ LYT.utils =
     return String(array[0]) if array.length is 1
     "#{array.slice(0, -1).join(", ")} & #{array.slice(-1)}"
 
+  # Renders a template string in the format:
+  # "/user/#{id}", where the #{id} part will be replaced by the value of
+  # the "id" property in "dict"
+  renderTemplate: (templateString, dict) ->
+    templateString.replace /\#\{(\w+)\}/g, (match, part) -> dict[part]
+
 
   # This utility function converts the arguments given to well-formed XML
   # CHANGED: This function now _will_ re-encode encoded entities.
