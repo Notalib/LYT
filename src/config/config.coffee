@@ -34,7 +34,7 @@ LYT.config =
 
   navigation:
     # Single quotes are important here - otherwise this gets interpreted
-    # as a template already be CoffeeScript
+    # as a template already by CoffeeScript
     backButtonURL: 'http://nota.dk/bibliotek/bogid/#{id}'
 
   # ### LYT.service config
