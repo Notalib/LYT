@@ -1218,7 +1218,15 @@ li.ui-li h3.no-search-results {
     line-height: 1.37;
 
     &.active {
-     opacity: 1;
+      opacity: 1;
+
+      span.sentence {
+        opacity: 0.4;
+
+        &.active {
+          opacity: 1;
+        }
+      }
     }
   }
 
