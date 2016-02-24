@@ -181,6 +181,7 @@ LYT.render.content = do ->
     panZoomImage segment, image, area, renderDelta
 
   prevActive = null
+  prevActiveParagraph = null
   segmentIntoView = (view, segment) ->
     el = view.find "##{segment.contentId}"
     isWordMarked = !!view.find( 'span.word' ).length
@@ -194,22 +195,27 @@ LYT.render.content = do ->
         # wordHighlighting is disabled, this would disable highlighting completely
         # for this book. Therfor we find the closest p-element and treat it like
         # it's the active element.
-        # We assume that the book structure is <p> -> <span id="#{segment.contentId}">,
-        # so we select the closest p parent to the el.
         isWordMarked = false
-        el = el.closest "p"
 
     if not isWordMarked
       # Not a word-marked book, set style to highlight paragraphs
       view.removeClass 'is-word-marked'
 
     # Remove highlighting of previous element
-    if prevActive
-      prevActive.removeClass "active"
+    prevActive.removeClass "active" if prevActive
+    prevActiveParagraph.removeClass "active" if prevActiveParagraph
+
+    # We assume that the book structure is <p> -> <span id="#{segment.contentId}">,
+    # so we select the closest p parent to the el.
+    unless el.is "p"
+      parentParagraph = el.closest "p"
 
     # Highlight element and scroll to element
     if el.length
       prevActive = el.addClass "active"
+      if parentParagraph
+        prevActiveParagraph = parentParagraph.addClass "active"
+
       if view.is ':visible'
         view.scrollTo( el, 100, { offset: -10 } )
       else
