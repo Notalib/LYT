@@ -168,9 +168,9 @@ task "html", "Build HTML", (options) ->
 
   if !options.skin?
     if options.test
-      scripts.push "http://test.e17.dk/getnotaauthtoken"
+      scripts.push "https://test.nota.dk/getnotaauthtoken"
     else
-      scripts.push "http://e17.dk/getnotaauthtoken"
+      scripts.push "https://nota.dk/getnotaauthtoken"
 
   if options.minify
     scripts.push "javascript/#{config.concatName}.min.js"
