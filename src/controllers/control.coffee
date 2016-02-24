@@ -27,8 +27,14 @@ LYT.control =
       if window.frameElement
         frame = $(window.frameElement)
         frame.fadeOut -> frame.remove()
+      else if LYT.config.navigation?.backButtonURL and LYT.player.book?.id
+        id = LYT.player.book.id
+        tmplUrl = LYT.config.navigation.backButtonURL
+
+        url = LYT.utils.renderTemplate tmplUrl, id: id
+        window.location.href = url
       else
-        window.history.go(-1)
+        window.history.go -1
 
     $("#bookmark-add-button").on 'click', ->
       if (segment = LYT.player.currentSegment) and segment.canBookmark
