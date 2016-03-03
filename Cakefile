@@ -83,8 +83,46 @@ task "deploy", "Deploys the build dir to $LYT_FTP_USER@host/$LYT_DESTINATION_DIR
         kicker.on "savedcheckfile", (chk) ->
           console.log "Saved to checkfile: '#{chk}'"
 
+fileWhitelist = [/^apple-touch-icon/, /^images/]
 task "assets", "Sync assets to build", (options) ->
-  sync "assets", "build", (copied) -> boast "synced", "assets", "build"
+  sync "assets", "build", (copied) ->
+    boast "synced", "assets", "build"
+
+    return unless options.skin
+    skinPkg = getSkinPackage options.skin
+    assetdir = skinPkg.directories?.assets
+
+    return unless assetdir
+
+    assetPath = fs.path.join options.skin, assetdir
+    list = fs.readdirSync assetPath
+
+    # Only allow whitelisted files to be overwritten
+    list = list.filter (filepath) ->
+      fileWhitelist.some (test) -> filepath.match test
+
+    # Get a list of all the files to be overwritten
+    files = []
+    for filename in list
+      fullPath = fs.path.join assetPath, filename
+      stats = fs.lstatSync fullPath
+      if stats.isDirectory()
+        files = files.concat walk(fullPath)
+      else if stats.isFile()
+        files.push fullPath
+
+    # Use paths relative to the asset folder instead of absolute paths which
+    # could cause troubles cross-platform
+    files = files.map (filename) -> fs.path.relative assetPath, filename
+
+    sync assetPath, "build"
+      , (copied) ->
+        boast "synced", "skin assets", "build"
+      , (fileobj) ->
+        filename = fs.path.relative assetPath, fileobj.file
+        return files.indexOf(filename) isnt -1
+      , true
+
 
 task "src", "Compile CoffeeScript source", (options) ->
   cleanDir "build/javascript"
@@ -459,7 +497,7 @@ fatal = (err, command, message) ->
 
 # A simple file synchronizer (like rsync)
 # Only syncs file that don't exist or are out of date in the destination
-sync = (from, to, callback) ->
+sync = (from, to, callback, whitelistCallback, forceOverwrite = false) ->
   {dirname, relative, join} = require "path"
   {lstatSync, createReadStream, createWriteStream, existsSync} = require "fs"
 
@@ -479,9 +517,13 @@ sync = (from, to, callback) ->
     dest: dest
   )
 
+  # Filter the files through the whitelist callback (if any is given)
+  if typeof whitelistCallback is "function"
+    queue = queue.filter whitelistCallback
+
   copy = (op, callback) ->
     # Only copy if dest file is missing or older than source
-    if existsSync(op.dest)
+    if existsSync(op.dest) and not forceOverwrite
       willCopy = lstatSync(op.file).mtime.getTime() > lstatSync(op.dest).mtime.getTime()
     else
       willCopy = yes
