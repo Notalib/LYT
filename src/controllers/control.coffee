@@ -219,6 +219,16 @@ LYT.control =
         LYT.loader.register 'Logging in', deferred.promise()
         promise.done -> deferred.resolve()
         promise.fail -> deferred.reject()
+      else if LYT.config.service.externalLogin?.url
+        # If there's an external login page, redirect to that
+        currentURL = location.href
+        redirectURL = LYT.config.service.externalLogin.url
+        url = LYT.utils.renderTemplate redirectURL,
+          url: currentURL
+          url64: btoa currentURL
+
+        # Redirect to external login page
+        location.href = url
       else
         LYT.var.next = window.location.hash
         $.mobile.changePage '#login'
