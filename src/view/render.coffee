@@ -239,8 +239,9 @@ LYT.render = do ->
 
     for book in books
       li = bookListItem 'book-player', book, 'bookshelf'
+      label = "#{LYT.l10n.get('Remove')} #{book.title}"
       removeLink = jQuery """
-        <a class="remove-book" href="#">#{LYT.l10n.get('Remove')} #{book.title}</a>
+        <a class="remove-book" aria-label="#{label}" href="#">#{label}</a>
       """
 
       attachRemoveBookClickEvent removeLink, book, li, list, view
