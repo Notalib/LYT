@@ -278,7 +278,10 @@ LYT.control =
       content = $(page).children(":jqmData(role=content)")
 
       # Show search icon if enabled
-      $('#bookshelf-search-icon').removeClass('ui-disabled') if LYT.config.search?.enabled
+      if LYT.config.search?.enabled
+        $('#bookshelf-search-icon').removeClass('ui-disabled')
+      else
+        $('#bookshelf-search-icon').hide()
 
       if LYT.bookshelf.nextPage is false
         LYT.render.loadBookshelfPage content
