@@ -50,7 +50,7 @@ LYT.config =
     guestLogin: "guest"
 
     externalLogin:
-      url: 'https://beta.nota.dk/bibliotek/notalogin?destination=redirectplay/#{url64}'
+      url: 'https://nota.dk/bibliotek/notalogin?destination=redirectplay/#{url64}'
 
   # ### LYT.book module config
 
