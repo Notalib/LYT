@@ -360,15 +360,10 @@ LYT.protocol =
         "#{hours}:#{minutes}:#{seconds}"
 
       serialize = (bookmark) ->
-        if LYT.config.isMTM
-          URI:        bookmark.URI
-          ncxRef:     bookmark.ncxRef
-          timeOffset: formatDodpOffset bookmark.timeOffset
-          note:       bookmark.note
-        else
-          URI:        bookmark.URI
-          timeOffset: formatDodpOffset bookmark.timeOffset
-          note:       bookmark.note
+        URI:        bookmark.URI
+        ncxRef:     bookmark.ncxRef
+        timeOffset: formatDodpOffset bookmark.timeOffset
+        note:       bookmark.note
 
       setnamespace = (ns, obj) ->
         if typeof obj == "object"
@@ -385,15 +380,9 @@ LYT.protocol =
       throw "setBookmarks failed - you have to provide a book with an id" unless book? and book.id?
       data = contentID: book.id
       bookmarkSet =
-        title: book.title
+        title: text: book.title
         uid: book.getMetadata().identifier?.content
         bookmark: (serialize bookmark for bookmark in book.bookmarks)
-
-      #TODO: Very-not-nice, but MTM throws errors at us, if we call /setBookmarks
-      # several times with identical bookmarks. This is so weird.
-      if LYT.config.isMTM
-        bookmarkSet.title = text: bookmarkSet.title
-        delete bookmarkSet.bookmark
 
       if book.lastmark?
         bookmarkSet.lastmark = serialize book.lastmark
