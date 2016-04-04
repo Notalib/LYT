@@ -230,7 +230,9 @@ LYT.render = do ->
     list.listview 'refresh'
     list.find('a').first().focus()
 
-  bookmarkAddedNotification: -> LYT.render.bubbleNotification $('#book-index-button'), 'Bogmærke tilføjet', 5
+  bookmarkAddedNotification: ->
+    btn = $ '#book-index-button'
+    LYT.render.bubbleNotification btn, LYT.l10n.get('Added bookmark'), 5
 
   bookshelf: (books, view, page, zeroAndUp) ->
     #todo: add pagination
@@ -615,7 +617,11 @@ LYT.render = do ->
     list = view.find 'ul'
     list.empty()
 
-    list.append jQuery '<li data-role="list-divider" role="heading">Mente du?</li>'
+    list.append $ """
+    <li data-role="list-divider" role="heading">
+      #{LYT.l10n.get('Did you mean?')}
+    </li>
+    """
 
     for item in results
       listItem = didYouMeanItem(item)
