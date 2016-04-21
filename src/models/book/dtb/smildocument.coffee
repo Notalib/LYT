@@ -8,14 +8,14 @@ do ->
 
   # Class to model a SMIL document
   class LYT.SMILDocument extends LYT.DTBDocument
-    constructor: (url, book) ->
+    constructor: (url, book, localUri) ->
       super url, (deferred) =>
         mainSequence = @source.find("body > seq:first")
         @book        = book
+        @localUri    = localUri
         @duration    = parseFloat(mainSequence.attr("dur")) or 0
         @segments    = parseMainSeqNode mainSequence, this, book.nccDocument.sections
         @absoluteOffset = LYT.utils.parseTime(@getMetadata().totalElapsedTime?.content) or null
-        @filename = @url.split('/').pop()
 
     getSegmentById: (id) ->
       for segment, index in @segments
@@ -107,8 +107,15 @@ do ->
     # Find all nested `audio` nodes
     clips = par.find("> audio, seq > audio").map ->
       audio = jQuery this
+      if par.attr 'id'
+        parID = par.attr 'id'
+      else
+        audioSrc = audio.attr 'src'
+        idCounts[audioSrc] ?= 0
+        idCounts[audioSrc]++
+        parID = "__LYT_auto_#{audioSrc}_#{idCounts[audioSrc]}"
 
-      id:          par.attr("id") or "__LYT_auto_#{audio.attr('src')}_#{idCounts[audio.attr('src')]++}"
+      id:          parID
       start:       parseNPT audio.attr("clip-begin")
       end:         parseNPT audio.attr("clip-end")
       text:        text

@@ -40,13 +40,22 @@ class LYT.Segment
     @_deferred = jQuery.Deferred()
     @_deferred.promise this
 
+    # If this is a audio segment, we need to find the proper localURI for the
+    # audio-clip. We do this by basing the URL on the base directory of the smil
+    resources = document.book.resources
+    dirname = URI(document.localUri).directory()
+    if data.audio?.src
+      src = data.audio.src.toLowerCase()
+      localUri = if dirname then dirname + '/' + src else src
+      audio = resources[localUri]?.url
+
     # Properties initialized in the constructor
     @id          = data.id
     @index       = data.index
     @start       = data.start
     @end         = data.end
     @canBookmark = data.canBookmark
-    @audio       = document.book.resources[data.audio?.src?.toLowerCase()]?.url
+    @audio       = audio
     @data        = data
     @el          = data.par
     @document    = document
@@ -69,6 +78,12 @@ class LYT.Segment
 
     # Parse transcript content
     [@contentUrl, @contentId] = @data.text.src.split "#"
+
+    # Find the localUri by adding the directory of the active ncc
+    # file to the localUri (Usually the ncc is at the root, but multivolume
+    # book will split a book up into subfolders)
+    @contentUrl = URI(@contentUrl).absoluteTo(@document.localUri).toString()
+    @contentUrl = URI.decode(@contentUrl)
     resources = @document.book.resources
     resource = resources[@contentUrl.toLowerCase()]
     if not resource
@@ -76,7 +91,7 @@ class LYT.Segment
       @_deferred.reject()
     else
       if not resource.document
-        resource.document = new LYT.TextContentDocument resource.url, resources
+        resource.document = new LYT.TextContentDocument resource.localUri, resources
 
       promise = resource.document.then (document) => @parseContent document
       promise.done => @_deferred.resolve this
@@ -86,7 +101,7 @@ class LYT.Segment
 
     @_deferred.promise( this )
 
-  url: -> "#{@document.filename}##{@id}"
+  url: -> "#{@document.localUri}##{@id}"
 
   ready: -> @_deferred.state() isnt "pending"
 

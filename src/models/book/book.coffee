@@ -81,38 +81,42 @@ class LYT.Book
         # Process the resources hash
         for own localUri, uri of resources
 
+          if LYT.config.rpc.proxyResources
+            url = LYT.config.rpc.proxyResources + encodeURI(uri)
+          else if LYT.config.rpc.proxyToLocal
+            origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
+            path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
+            url = origin + path
+          else
+            url = uri
+
+          url = URI(url).normalize().toString()
+
           # We lowercase all resource lookups to avoid general case-issues
           localUri = localUri.toLowerCase()
 
-          # Each resource is identified by its relative path,
-          # and contains the properties `url` and `document`
-          # (the latter initialized to `null`)
-          # Urls are rewritten to use the origin server just
-          # in case we are behind a proxy.
-          origin = document.location.href.match(/(https?:\/\/[^\/]+)/)[1]
-          path = uri.match(/https?:\/\/[^\/]+(.+)/)[1]
           @resources[localUri] =
-            url:      origin + path
+            url:      url
             document: null
+            localUri: localUri
 
-          # If the url of the resource is the NCC document,
+          # If the url of the resource is an NCC document,
           # save the resource for later
-          ncc = @resources[localUri] if localUri.match /^ncc\.x?html?$/i
+          ncc = @resources[localUri] if localUri.match /ncc\.x?html?$/i
 
         # If an NCC reference was found, go to the next step:
         # Getting the NCC document, and the bookmarks in
         # parallel. Otherwise, fail.
-        if ncc?
+        if ncc
           getNCC ncc
           getBookmarks()
         else
           deferred.reject BOOK_NCC_NOT_FOUND_ERROR
 
-
     # Third step: Get the NCC document
     getNCC = (obj) =>
       # Instantiate an NCC document
-      ncc = new LYT.NCCDocument obj.url, this
+      ncc = new LYT.NCCDocument obj.localUri, this
 
       # Propagate a failure
       ncc.fail -> deferred.reject BOOK_NCC_NOT_LOADED_ERROR
@@ -177,14 +181,16 @@ class LYT.Book
 
     ordered
 
-  getSMIL: (url) ->
-    url = url.toLowerCase()
+  getSMIL: (localUri) ->
     deferred = jQuery.Deferred()
-    if not (url of @resources)
+    localUri = URI(localUri).absoluteTo(@nccDocument.localUri).toString()
+    localUri = URI.decode(localUri)
+
+    if not (localUri of @resources)
       return deferred.reject()
 
-    smil = @resources[url]
-    smil.document or= new LYT.SMILDocument smil.url, this
+    smil = @resources[localUri]
+    smil.document or= new LYT.SMILDocument smil.url, this, localUri
 
     smil.document.done (smilDocument) ->
       deferred.resolve smilDocument

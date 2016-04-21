@@ -36,11 +36,14 @@ class LYT.player.command.load extends LYT.player.command
       # audio stream.
       status = event.jPlayer.status
       log.message "Player command: load: loadedmetadata: duration #{status.duration}"
-      if status.src is @src
+
+      if URI(status.src).resource() is URI(@src).resource()
         if status.duration is 0 or isNaN status.duration
           @load()
         else
           @resolve status
       else
+        log.message "Rejecting load command because of different media URLs: " +
+          "#{@src} -> #{status.src}"
         @reject() # This load command has been superseded by another
 

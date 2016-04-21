@@ -24,6 +24,7 @@ class LYT.Section
     # standard dictates that all references should point to a specific par or
     # seq id in the SMIL file. Since the section class represents the entire
     # SMIL file, we remove the id reference from the url.
+    # It should be noted that this URL is the localUrl and not the absolute URL
     [@url, @fragment] = (anchor.attr "href").split('#')
     # We get some weird uris from IE8 due to missing documentElement substituted with iframe contentDocument.
     # Here we trim away everything before the filename.
