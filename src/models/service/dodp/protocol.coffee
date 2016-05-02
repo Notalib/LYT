@@ -281,19 +281,42 @@ LYT.protocol =
             when 'note' then note = child.textContent
 
         # Convert from Dodp offset to floating point in seconds
-        # TODO: Implement correct parsing of all time formats provided in
-        #       http://www.daisy.org/z3986/2005/Z3986-2005.html#Clock
         # Parse offset strings ("HH:MM:SS.ss") to seconds, e. g.
         #     parseOffset("1:02:03.05") #=> 3723.05
-        # We keep this function as well as parseTime in LYT.utils because they
-        # are used to parse formats that are not completely identical.
         parseOffset = (timeOffset) ->
-          if values = timeOffset.match /\d+/g
-            if values.length is 4
-              values[3] or= "0"
-              values[3] = "0.#{values[3]}"
-              values = jQuery.map values, parseFloat
-              values[0] * 3600 + values[1] * 60 + values[2] + values[3]
+          timeOffset = timeOffset.trim()
+
+          fullClock = /^(\d+):(\d+):(\d+)\.?(\d+)?$/
+          partialClock = /^(\d+):(\d+)\.?(\d+)?$/
+          timecountClock = /^(\d+)\.?(\d+)?(h|min|s|ms)?$/
+
+          if fullClock.test timeOffset
+            values = timeOffset.match fullClock
+            hours = parseInt(values[1])
+            min = parseInt(values[2])
+            sec = parseInt(values[3])
+            if values[4]
+              mil = parseFloat("0.#{values[4]}")
+            else
+              mil = 0
+
+            hours * 3600 + min * 60 + sec + mil
+          else if partialClock.test timeOffset
+            values = timeOffset.match partialClock
+            min = parseInt(values[1])
+            sec = parseInt(values[2])
+            if values[3]
+              mil = parseFloat("0.#{values[3]}")
+            else
+              mil = 0
+
+            min * 60 + sec + mil
+          else if timecountClock.test timeOffset
+            values = timeOffset.match(timecountClock)
+            metric = values[3] || 's'
+            toSeconds = h: 3600, min: 60, s: 1, ms: 0.001
+
+            parseFloat(timeOffset) * toSeconds[metric]
 
         timeOffset = parseOffset timeOffset
         if uri and timeOffset?
