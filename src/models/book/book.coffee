@@ -330,7 +330,7 @@ class LYT.Book
     section = @getSectionBySegment segment
 
     @lastmark = segment.bookmark offset
-    @lastmark.ncxRef = section.ref if section.ref
+    @lastmark.ncxRef = section.ref if section?.ref
     @saveBookmarks()
 
   segmentByURL: (url) ->

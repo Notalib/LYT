@@ -280,6 +280,8 @@ LYT.protocol =
             when 'ncxref' then ncxRef = child.textContent
             when 'note' then note = child.textContent
 
+        label = data.getAttribute 'label' if data.hasAttribute 'label'
+
         # Convert from Dodp offset to floating point in seconds
         # Parse offset strings ("HH:MM:SS.ss") to seconds, e. g.
         #     parseOffset("1:02:03.05") #=> 3723.05
@@ -324,7 +326,8 @@ LYT.protocol =
             ncxRef:     ncxRef
             URI:        uri
             timeOffset: timeOffset
-            note:       text: note || '-'
+            label:      label
+            note:       text: note if note
 
 
       # Fix MTM bug. <bookmarkSet> does *NOT* belong to NS_BOOKMARK
@@ -367,26 +370,41 @@ LYT.protocol =
     request: (book) ->
 
       # Convert from floating point in seconds to Dodp offset
-      formatDodpOffset = (timeOffset) ->
+      formatDodpOffset = (timeOffset, toSecondsFormat) ->
         # TODO: The server doesn't support npt format, though it is required
         #timeOffset: "npt=#{hours}:#{minutes}:#{seconds}"
-        offset  = timeOffset
-        hours   = Math.floor(offset / 3600)
-        minutes = Math.floor((offset - hours*3600) / 60)
-        seconds = offset - hours * 3600 - minutes * 60
-        hours   = '0' + hours.toString()   if hours < 10
-        minutes = '0' + minutes.toString() if minutes < 10
-        if seconds < 10
-          seconds = '0' + seconds.toFixed(2)
+
+        if toSecondsFormat
+          String timeOffset
         else
-          seconds = seconds.toFixed(2)
-        "#{hours}:#{minutes}:#{seconds}"
+          offset  = timeOffset
+          hours   = Math.floor(offset / 3600)
+          minutes = Math.floor((offset - hours*3600) / 60)
+          seconds = offset - hours * 3600 - minutes * 60
+          hours   = '0' + hours.toString()   if hours < 10
+          minutes = '0' + minutes.toString() if minutes < 10
+          if seconds < 10
+            seconds = '0' + seconds.toFixed(2)
+          else
+            seconds = seconds.toFixed(2)
+          "#{hours}:#{minutes}:#{seconds}"
 
       serialize = (bookmark) ->
-        URI:        bookmark.URI
-        ncxRef:     bookmark.ncxRef
-        timeOffset: formatDodpOffset bookmark.timeOffset
-        note:       bookmark.note
+        if not bookmark.label and bookmark.note?.text
+          bookmark.label = bookmark.note.text
+
+        serialized =
+          URI:        bookmark.URI
+          ncxRef:     bookmark.ncxRef
+          timeOffset: formatDodpOffset bookmark.timeOffset, true
+          note:       bookmark.note
+
+        # The label attribute is set so as to also support
+        # MTM's DODP player Legimus
+        if bookmark.label or bookmark.note?.text
+          serialized['$attributes'] = label: bookmark.label or bookmark.note?.text
+
+        serialized
 
       setnamespace = (ns, obj) ->
         if typeof obj == "object"
@@ -395,7 +413,10 @@ LYT.protocol =
           else
             newObj = {}
             for key, value of obj
-              newObj[ns + ':' + key] = setnamespace(ns, value)
+              if key is '$attributes'
+                newObj[key] = value
+              else
+                newObj[ns + ':' + key] = setnamespace(ns, value)
             return newObj
         else
           return obj

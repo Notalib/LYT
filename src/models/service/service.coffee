@@ -299,7 +299,7 @@ LYT.service = do ->
   setBookmarks: (bookmarks) ->
     if lastBookmark and lastBookmark.bookId is bookmarks.id and
         lastBookmark.URI is bookmarks.lastmark?.URI and
-        lastBookmark.timeOffset is bookmarks.lastmark?.timeOffse
+        lastBookmark.timeOffset is bookmarks.lastmark?.timeOffset
       log.message "setBookmarks: same as last time"
       return
 

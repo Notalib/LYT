@@ -542,7 +542,7 @@ LYT.render = do ->
                data-book=\"#{book.id}\" data-smil=\"#{baseUrl}\" data-segment=\"#{id}\"
                data-offset=\"#{LYT.utils.formatTime bookmark.timeOffset}\"
                href="#book-player?book=#{book.id}">
-              #{bookmark.note?.text or bookmark.timeOffset}
+              #{bookmark.note?.text or bookmark.label or bookmark.timeOffset}
             </a>
           """
         element.append generateMoreItem(bookmark, index)

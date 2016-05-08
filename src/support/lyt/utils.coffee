@@ -51,7 +51,8 @@ LYT.utils =
         attributes = ''
         if data?.$attributes
           for own key, value of data.$attributes
-            attributes += " #{key}=\"#{value}\""
+            escaped = value.replace(/\"/g, '\\"').replace(/\'/g, "\\'")
+            attributes += " #{key}=\"#{escaped}\""
 
           delete data.$attributes
 
