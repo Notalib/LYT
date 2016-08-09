@@ -20,6 +20,11 @@
 
 # -------------------
 
+# The first thing we do is to set document.domain to "nota.dk" since this will
+# allow the player on subdomain to pass origin checks to the superdomain
+if LYT.config?.originDomain
+  document.domain = LYT.config.originDomain
+
 LYT.var =
   next: null # store nextpage
 

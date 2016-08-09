@@ -11,5 +11,7 @@ jQuery.extend log,
   receiver: 'local'
 
 jQuery.extend LYT.config,
+  originDomain: null
+
   settings:
     showAdvanced: yes

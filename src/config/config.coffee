@@ -14,6 +14,9 @@
 
 # ## Central system configuration
 LYT.config =
+  # If set, this changes document.domain to the given value. Useful when
+  # serving the player from a subdomain like m.nota.dk
+  originDomain: "nota.dk"
 
   # ### LYT.rpc function config
   rpc:

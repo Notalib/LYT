@@ -13,58 +13,57 @@
 # will be deleted from oldest to newest until there's room.
 
 LYT.cache = do =>
+  localStorageWrapper =
+    get: (key) ->
+      obj = localStorage.getItem key
+      obj && JSON.parse obj
+
+    set: (key, val) ->
+      localStorage.setItem key, val
+
+    remove: (key) ->
+      localStorage.removeItem key
+
+  localPersistence = do =>
+    data = {}
+
+    get: (key) ->
+      data[key] && JSON.parse data[key]
+
+    set: (key, val) ->
+      data[key] = val
+
+    remove: (key) ->
+      delete data[key]
+
   supported = do ->
+    support = 'issupported'
     try
-      window.localStorage?
+      localStorage.setItem support, support
+      localStorage.removeItem support, support
+      true
     catch
       false
 
+  # In case localStorage is not supported, we still need to persist some
+  # data just for the session - so we do so in an object
+  storage = if supported then localStorageWrapper else localPersistence
+
   # ## Privileged API
 
-  getCache = (key) ->
-    return null unless supported
-    cache = localStorage.getItem key
-    return null unless cache and (cache = JSON.parse(cache))
-    cache
-
-  removeCache = (key) ->
-    try
-      localStorage.removeItem key
-    catch error
-      return
-
   getTimestamp = -> (new Date).getTime()
-
-  # TODO: Save timestamps elsewhere for quicker/lighter lookup?
-  removeOldest = (prefix) ->
-    oldestTimestamp = getTimestamp()
-    oldestKey       = false
-
-    for index in [0...localStorage.length]
-      key = localStorage.key(index)
-      if key?.indexOf(prefix) is 0
-        cache = getCache key
-        if cache.timestamp < oldestTimestamp
-          oldestTimestamp = cache.timestamp
-          oldestKey = key
-
-    if oldestKey then removeCache key
-
-  # --------------------
 
   # ## Public API
 
   # Retrieve the object with the given namspace (prefix) and ID
   read: (prefix, id) ->
-    return null unless supported
-    cache = getCache "#{prefix}/#{id}"
+    cache = storage.get "#{prefix}/#{id}"
     cache?.data or null
 
   # Store an object under the given namspace (prefix) and ID
   write: (prefix, id, data) ->
-    return null unless supported
     log.message "Cache: Writing '#{prefix}/#{id}'"
-    removeCache "#{prefix}/#{id}"
+    storage.remove "#{prefix}/#{id}"
 
     if typeof data isnt "object"
       data = String data
@@ -73,22 +72,11 @@ LYT.cache = do =>
       type:      typeof data
       data:      data
       timestamp: getTimestamp()
-    success = false
-    until success
-      try
-        localStorage.setItem "#{prefix}/#{id}", JSON.stringify(cache)
-        success = true
-      catch error
-        if error.name is "QUOTA_EXCEEDED_ERR"
-          removeOldest prefix
-        else
-          break
 
-    success
+    storage.set "#{prefix}/#{id}", JSON.stringify(cache)
 
   # Delete the given object from `localStorage`
   remove: (prefix, id) ->
-    return null unless supported
     log.message "Cache: Deleting '#{prefix}/#{id}'"
-    removeCache "#{prefix}/#{id}"
+    storage.remove "#{prefix}/#{id}"
 
