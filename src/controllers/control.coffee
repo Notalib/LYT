@@ -222,10 +222,26 @@ LYT.control =
       else if LYT.config.service.externalLogin?.url
         # If there's an external login page, redirect to that
         currentURL = location.href
-        redirectURL = LYT.config.service.externalLogin.url
-        url = LYT.utils.renderTemplate redirectURL,
+
+        { url: redirectURL, parameters } = LYT.config.service.externalLogin
+
+        templateParams =
           url: currentURL
           url64: btoa currentURL
+
+        # "Render" the template if the url path used either the URL og Base64
+        url = LYT.utils.renderTemplate redirectURL, templateParams
+
+        # If there's parameters that need to be added, add them with
+        # "rendered" and URI encoded values
+        if parameters
+          parameters = Object.keys(parameters)
+            .map (param) ->
+              rendered = LYT.utils.renderTemplate parameters[param], templateParams
+              rendered = encodeURIComponent rendered
+              "#{param}=#{rendered}"
+
+          url += "?#{parameters.join('&')}"
 
         # Redirect to external login page
         location.href = url
