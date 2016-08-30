@@ -51,13 +51,13 @@ $(document).bind "mobileinit", ->
     "#book-index([?&].*)?": # Using & because of nested list from jQuery Mobile
       handler: "bookIndex"
       events: "bs"
-    "#settings":
+    "#settings([?].*)?":
       handler: "settings"
       events: "s,bs"
-    "#support":
+    "#support([?].*)?":
       handler: "support"
       events: "s"
-    "#about":
+    "#about([?].*)?":
       handler: "about"
       events: "s"
     "#share([?].*)?":
@@ -66,16 +66,16 @@ $(document).bind "mobileinit", ->
     "#search([?].*)?":
       handler: "search"
       events: "bs,s"
-    "#login":
+    "#login([?].*)?":
       handler: "login"
       events: "s,h,bs"
-    "#profile":
+    "#profile([?].*)?":
       handler: "profile"
       events: "s"
     "#bookshelf([?].*)?":
       handler: "bookshelf"
       events: "s"
-    "#instrumentation":
+    "#instrumentation([?].*)?":
       handler: 'instrumentation'
       events: 'bs'
     "#suggestions([?].*)?":
@@ -87,7 +87,7 @@ $(document).bind "mobileinit", ->
     "#guest":                # This url is deprecated, use #bookshelf?guest=true in stead
       handler: "guest"
       events: "s"
-    "#redirect":
+    "#redirect([?].*)?":
       handler: "redirect"
       events: "s"
     "#splash-upgrade([?].*)?":

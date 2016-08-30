@@ -243,8 +243,23 @@ LYT.control =
 
   ensureLogOn: (params) ->
     deferred = jQuery.Deferred()
-    if credentials = LYT.session.getCredentials()
-      deferred.resolve credentials
+
+    logout = () =>
+      # Remove the 'user' parameter, if it's there
+      LYT.var.next = window.location.hash.replace /(\?|\&)user\=[^&]+\&?/, '$1'
+
+      $.mobile.changePage '#login'
+      $(LYT.service).one 'logon:resolved', -> deferred.done()
+      $(LYT.service).one 'logon:rejected', -> deferred.fail()
+
+    credentials = LYT.session.getCredentials()
+    user = params?.user
+
+    if credentials
+      if LYT.config.singleUserMode and user and user isnt credentials.username
+        logout()
+      else
+        deferred.resolve credentials
     else
       if params?.guest?
         promise = LYT.service.logOn(LYT.config.service.guestUser, LYT.config.service.guestLogin)
@@ -252,10 +267,7 @@ LYT.control =
         promise.done -> deferred.resolve()
         promise.fail -> deferred.reject()
       else
-        LYT.var.next = window.location.hash
-        $.mobile.changePage '#login'
-        $(LYT.service).one 'logon:resolved', -> deferred.done()
-        $(LYT.service).one 'logon:rejected', -> deferred.fail()
+        logout()
 
     deferred.promise()
 

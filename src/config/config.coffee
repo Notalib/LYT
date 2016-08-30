@@ -25,6 +25,10 @@ LYT.config =
   search:
     enabled: true
 
+  # If enabled, a special url parameter "user" is used to check
+  # that only that user can use the current player instance
+  singleUserMode: false
+
   locale: 'da'
 
   # ### LYT.protocol config
