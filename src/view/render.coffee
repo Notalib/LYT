@@ -71,7 +71,7 @@ LYT.render = do ->
     if LYT.config.isMTM
       img.attr 'src', "http://www.legimus.se/app/covers/#{id}.png"
     else
-      img.attr 'src', "http://bookcover.e17.dk/#{imageid}_h200.jpg"
+      img.attr 'src', "http://bookcover.nota.dk/#{imageid}_h200.jpg"
 
 
   getMediaType = (mediastring) ->
