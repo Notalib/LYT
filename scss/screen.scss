@@ -249,7 +249,7 @@ html {
    Styling own elements
  * ************************************************************************* */
 
-img.e17-logo {
+img.nota-logo {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -493,11 +493,11 @@ img.e17-logo {
     height: 1px;
     border-width: 1px 0 0 0;
   }
-  #e17-button-wrapper {
+  #nota-button-wrapper {
     @include action-button(#8cbbe2, a);
   }
 
-  #e17-mobil-button-wrapper {
+  #nota-mobil-button-wrapper {
     @include action-button(#8cbbe2, a);
   }
 }

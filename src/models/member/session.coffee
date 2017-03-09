@@ -15,7 +15,7 @@ LYT.session = do ->
   # ## Public API
 
   init: ->
-    #The function getNotaAuthToken() is defined in http://wwww.e17.dk/getnotaauthtoken.js
+    #The function getNotaAuthToken() is defined in https://nota.dk/getnotaauthtoken
     if getNotaAuthToken?
       credentials = getNotaAuthToken()
       if credentials.status is 'ok'
