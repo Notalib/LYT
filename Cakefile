@@ -107,7 +107,7 @@ task "html", "Build HTML", (options) ->
   scripts = []
 
   if options.test
-    scripts.push "https://test.nota.dk/getnotaauthtoken"
+    scripts.push "https://nota.dk/getnotaauthtoken"
   else
     scripts.push "https://nota.dk/getnotaauthtoken"
 
