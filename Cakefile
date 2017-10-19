@@ -206,7 +206,7 @@ task "html", "Build HTML", (options) ->
 
   if !options.skin?
     if options.test
-      scripts.push "https://test.nota.dk/getnotaauthtoken"
+      scripts.push "https://nota.dk/getnotaauthtoken"
     else
       scripts.push "https://nota.dk/getnotaauthtoken"
 

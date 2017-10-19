@@ -116,7 +116,7 @@ class LYT.player.command.play extends LYT.player.command
           #
           # TODO: Find a better way to do this, so we don't have to rely on browser sniffing
           # TODO: We'll want to do this as a whitelist instead of a blacklist!
-          unless @browser.Safari or @browser.IOS9 or @browser.IOS10 or @browser.IE11 or @browser.Edge
+          unless @browser.Safari or @browser.IOS9ORBIGGER or @browser.IE11 or @browser.Edge
             @audio.playbackRate = @playbackRate - 0.0001
         else
           if Math.abs( @playbackRate - @audio.playbackRate ) > 0.1
@@ -164,6 +164,12 @@ class LYT.player.command.play extends LYT.player.command
     Safari = !!(userAgent.match( /Safari/i ) and userAgent.match( /Macintosh/i ) and not userAgent.match( /iPhone|iPad|iPod|Chrome/i ))
     IOS9   = !!(userAgent.match( /iPhone|iPad|iPod/ ) and userAgent.match( /OS 9/ ))
     IOS10  = !!(userAgent.match( /iPhone|iPad|iPod/ ) and userAgent.match( /OS 10/ ))
+
+    IOS9ORBIGGER =
+      if !!(userAgent.match( /iPhone|iPad|iPod/ ))
+        (parseInt userAgent.match( /OS (\d+)/ )?[1], 10) >= 9
+      else
+        false
 
     Edge:   Edge
     IE:     IE
