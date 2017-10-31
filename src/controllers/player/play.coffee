@@ -179,4 +179,5 @@ class LYT.player.command.play extends LYT.player.command
     Safari: Safari
     IOS9:   IOS9
     IOS10:   IOS10
+    IOS9ORBIGGER:   IOS9ORBIGGER
 
