@@ -365,7 +365,9 @@ LYT.control =
                 click: -> $.mobile.changePage LYT.config.defaultPage.hash
                 icon:  'delete'
                 theme: 'b'
+
               LYT.render.showDialog($.mobile.activePage, parameters)
+              LYT.service.reportError(error, 'warn', bookId: params.book)
         # else just show book player (done by default by the router)
 
   settings: (type, match, ui, page, event) ->

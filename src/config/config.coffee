@@ -52,6 +52,9 @@ LYT.config =
     guestUser: "guest"
     guestLogin: "guest"
 
+    errorReporting:
+      url: 'https://nota.dk/api/log/playerErrors'
+
     externalLogin:
       url: 'https://nota.dk/bibliotek/notalogin'
       parameters:

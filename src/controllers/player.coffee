@@ -93,6 +93,10 @@ LYT.player =
             click: -> $.mobile.changePage LYT.config.defaultPage.hash
             theme: 'c'
           LYT.render.showDialog($.mobile.activePage, parameters)
+          LYT.service.reportError(event.jPlayer.error.message, 'warn', {
+            hint: event.jPlayer.error.hint
+            src: event.jPlayer.status.src
+         })
 
           # reopen the dialog...
           # TODO: this is usually because something is wrong with the session or the internet connection,

@@ -204,6 +204,27 @@ LYT.service = do ->
 
   onCurrentLogOn: onCurrentLogOn
 
+  reportError: (message, severity, data = {}) ->
+    errorURL = LYT.config.service.errorReporting?.url
+    credentials = LYT.session.getCredentials()
+    unless errorURL and credentials?.username
+      return false
+
+
+    errorMessage = JSON.stringify
+      memberId: credentials.username
+      message: message
+      severity: severity
+      data: data
+
+    $.ajax(errorURL,
+      type: 'POST'
+      contentType: 'application/json'
+      data: errorMessage
+    ).done((res) ->
+      log.message("Reported error #{res}")
+    )
+
   # Silently attempt to refresh a session. I.e. if this fails, no logOn errors are
   # emitted directly. This is intended for use with e.g. DTBDocument.
   # However, if there's an explicit logon process running, it'll use that
