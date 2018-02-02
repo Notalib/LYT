@@ -24,6 +24,9 @@ argv = require 'optimist'
   .alias 'p', 'port'
   .describe 'p', 'Start the server at this port'
   .default 'p', 8080
+
+  .alias 'w', 'watch'
+  .describe 'w', 'Enable file watching and dynamic compilation'
   .argv
 
 proxy.off( 'error' ).on 'error', (e) ->
@@ -94,9 +97,10 @@ fileChanged = (filePath) ->
   , 100
   )
 
-watchr.watch
-  paths: [ 'html', 'src', 'scss' ],
-  listeners:
-    change: ( changeType, filePath, fileCurrentStat, filePreviousStat ) ->
-      return if filePath.match(/skinconfig/i) or filePath.match(/_overrides/i)
-      fileChanged filePath
+if argv.watch
+  watchr.watch
+    paths: [ 'html', 'src', 'scss' ],
+    listeners:
+      change: ( changeType, filePath, fileCurrentStat, filePreviousStat ) ->
+        return if filePath.match(/skinconfig/i) or filePath.match(/_overrides/i)
+        fileChanged filePath
