@@ -332,7 +332,7 @@ LYT.protocol =
 
       # Fix MTM bug. <bookmarkSet> does *NOT* belong to NS_BOOKMARK
       # but to NS_DODP
-      if LYT.config.isMTM
+      if LYT.config.isMTM or LYT.config.isSBS
         set = $xml[0].getElementsByTagNameNS(NS_BOOKMARK, 'bookmarkSet')?[0]
       else
         set = $xml[0].getElementsByTagNameNS(NS_DODP, 'bookmarkSet')?[0]
@@ -439,7 +439,9 @@ LYT.protocol =
       data
 
     receive: ($xml) ->
-      throw "setBookmarks failed" unless $xml.find("setBookmarksResult").text() is "true"
+      NS = "http://www.daisy.org/ns/daisy-online/"
+      result = $xml[0].getElementsByTagNameNS(NS, 'setBookmarksResult')?[0]
+      throw "setBookmarks failed" unless result?.textContent is "true"
       true
 
   #
