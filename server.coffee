@@ -9,7 +9,7 @@ argv = require 'optimist'
   .demand 'r'
   .alias 'r', 'remote-host'
   .describe 'r', 'Proxy /DodpMobile, /DodpFiles and /CatalogSearch to this url'
-  .default 'r', 'http://m.e17.dk/'
+  .default 'r', 'http://m.nota.dk/'
 
   .alias 'q', 'quiet'
   .describe 'q', 'Be quieter please'
