@@ -257,6 +257,12 @@ LYT.control =
   # Control handlers
 
   login: (type, match, ui, page, event) ->
+    # Embedded player should never show its own login form. Redirect to external login page.
+    if LYT.config.service.externalLogin?.url
+      log.message "Control: redirecting to external login!"
+      location.href = LYT.config.service.externalLogin?.url
+      return
+
     $page = $(page)
     if type is 'pageshow'
       $page.find('#username').focus()

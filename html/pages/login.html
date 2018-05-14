@@ -1,27 +1,3 @@
-<div data-role="page" id="login" data-title="Log ind | Nota Bibliotek">
-    <div data-role="content">
-        <h1>Log ind</h1>
-        <form action="#" method="get" id="login-form">
-            <div data-role="fieldcontain" id="loginwrapper">
-                <input type="text" name="username" id="username" value="" placeholder="CPR / Brugernummer" title="CPR / Brugernummer" aria-label="CPR / Brugernummer"/>
-                <input type="password" name="password" id="password" value="" placeholder="Kodeord" title="Kodeord" aria-label="Kodeord"/>
-                <div id="login-button-wrapper">
-                    <input class="gatrack" type="submit" data-theme="c" disabled="disabled" name="submit" id="submit" value="Log på" title="Log på" aria-label="Log på"/>
-                </div>
-            </div>
-            <div>
-                <p>
-                    <a class="gatrack" href="#bookshelf?guest=true">Prøv Nota Bibliotek uden login</a>
-                </p>
-            </div>
-            <div id="forgot-password">
-                <p>
-                    <a class="gatrack" href="#support">Support</a>
-                </p>
-            </div>
-        </form>
-        <div id="legal">
-           <p>Nota afspiller · Nota <span class="current-year"></span> · Version <span class="lyt-version"></span></p>
-       </div>
-   </div>
+<!-- Embedded player should never show its own login form. -->
+<div data-role="page" id="login" data-title="Log ind | Nota Bibliotek" style="display:none; opacity:0">
 </div>
