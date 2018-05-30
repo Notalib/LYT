@@ -1,7 +1,6 @@
 # -*- coffee -*-
 fs      = require "fs"
 fs.path = require "path"
-w3cjs   = require "w3cjs"
 {exec}  = require "child_process"
 ftpkick = require "ftpkick"
 
@@ -32,7 +31,6 @@ option "-m", "--minify",        "Concatenate CoffeeScript and then minify"
 option "-v", "--verbose",       "Be more talkative"
 option "-d", "--development",   "Use development settings"
 option "-t", "--test",          "Use test environment"
-option "-n", "--no-validate",   "Don't validate build"
 option "-f", "--force-deploy",  "Force a fresh re-deployment of all files"
 
 # --------------------------------------
@@ -135,8 +133,6 @@ task "html", "Build HTML", (options) ->
   fs.writeFileSync "build/index.html", template
 
   boast "rendered", "html", "build/index.html"
-  unless options['no-validate']
-    invoke "lint:html"
 
 
 task "scss", "Compile scss source", (options) ->
@@ -186,26 +182,10 @@ task "lint:coffee", "Validate the source style of all .coffee files", ->
   for file in files
     command += " \"#{file}\""
 
-  exec command, (err, stdout) ->
-    console.log stdout
-
-task "lint:html", "Validate build/index.html", ->
-  if not fs.existsSync "build/index.html"
-    return console.warn "Cannot find build/index.html. Try running `cake html`"
-
-  w3cjs.validate
-    file: 'build/index.html'
-    callback: (res) ->
-      errorCount = res.messages?.length
-      if errorCount > 0
-        console.warn "There were #{errorCount} HTML validation error messages:\n"
-        console.warn '<line>,\t<col>:\t<message>'
-        for msg in res.messages
-          console.warn "#{msg.lastLine},\t#{msg.lastColumn}:\t#{msg.message}"
-
-        if errorCount > config.maxHtmlErrors
-          throw 'Refusing to continue build: it seems that the number of errors has increased'
-
+  exec command, (err, stdout, stderr) ->
+    console.log stdout if stdout
+    console.log stderr if stderr
+    boast "linted", "src"
 
 # --------------------------------------
 
@@ -245,7 +225,7 @@ coffee = do ->
         bin = fs.path.relative output, config.minify
         minCmd =
           "node #{bin} " +
-          "--source-map #{concat}.map " +
+          "--source-map " +
           "-o #{concat}.min.js #{concat}.js"
 
         process.chdir output

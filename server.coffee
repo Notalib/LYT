@@ -61,7 +61,7 @@ app
     else
       next()
 
-exec 'cake -dnt app', ->
+exec 'cake -dt app', ->
   if not argv.silence
     console.log 'Fininshed build'
 
@@ -77,7 +77,7 @@ fileChanged = (filePath) ->
     console.log 'Rebuild after change to ' + filePath
   changedTimeout = setTimeout(
     =>
-      exec 'cake -dnt app', ->
+      exec 'cake -dt app', ->
         if not argv.silence
           console.log 'Fininshed rebuild'
         buildnumber++

@@ -8,16 +8,15 @@
   },
   "devDependencies": {
     "body-parser": "^1.8.4",
-    "coffeelint": "~0.6.1",
-    "express": "~4.4.3",
+    "coffeelint": "^2.1.0",
+    "express": "^4.16.3",
     "ftpkick": "~0.0.6",
     "http-proxy": "~1.1.4",
     "lyt-grinder": "~0.0.1",
     "morgan": "~1.1.1",
     "optimist": "~0.6.1",
     "q": "^1.0.1",
-    "uglify-js": "~2.4.6",
-    "w3cjs": "~0.1.20",
+    "uglify-js": "^3.3.28",
     "watchr": "~2.4.11"
   },
   "repository": {
