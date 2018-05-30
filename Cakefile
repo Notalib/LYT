@@ -228,14 +228,20 @@ coffee = do ->
   # Will *always* produce both concatenated and minified
   # versions if concat is true.
   compile = (files, output, concat, callback) ->
-    cmd = "#{config.coffee} --compile"
-    cmd += " --join #{concat}.js" if concat
     files = q(files).join " "
-    cmd += " --output #{q output} #{files}"
+
+    if concat
+      concatFile = fs.path.join(output, concat) + '.js'
+      cmd = "cat #{files} | #{config.coffee} --compile --stdio > #{concatFile}"
+    else
+      cmd = "#{config.coffee} --compile --output #{q output} #{files}"
+
     exec cmd, (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
-      if concat
+      if not concat
+        callback() if typeof callback is 'function'
+      else
         bin = fs.path.relative output, config.minify
         minCmd =
           "node #{bin} " +
@@ -445,7 +451,7 @@ createDir = (path) ->
   until segments.length is 0
     path = fs.path.join path, segments.shift()
     continue if fs.existsSync path
-    fs.mkdir path
+    fs.mkdirSync path
     created = true
   boast "mkdir", path
 
