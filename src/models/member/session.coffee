@@ -21,6 +21,7 @@ LYT.session = do ->
       if credentials.status is 'ok'
         log.message 'Session: init: reading credentials from getNotaAuthToken()'
         LYT.session.setCredentials credentials.username, credentials.token
+        LYT.service.logOn credentials.username, credentials.token
       else
         log.message 'Session: init: invalid reading credentials from getNotaAuthToken()'
         LYT.service.logOff()
