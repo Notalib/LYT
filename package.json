@@ -3,12 +3,18 @@
   "version": "2.1.0",
   "description": "A DAISY Online Delivery Protocol compatible book player for handheld devices",
   "private": true,
+  "scripts": {
+    "watch": "npx coffee ./server.coffee",
+    "build:dev": "npx cake -d app",
+    "build": "npx cake -cmt app"
+  },
   "directories": {
     "doc": "doc"
   },
   "devDependencies": {
     "body-parser": "^1.8.4",
     "coffeelint": "^2.1.0",
+    "coffeescript": "^1.11.1",
     "express": "^4.16.3",
     "ftpkick": "~0.0.6",
     "http-proxy": "~1.1.4",

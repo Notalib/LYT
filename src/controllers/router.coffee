@@ -32,7 +32,7 @@ $(document).ready ->
   LYT.session.init()
   LYT.player.init() if not LYT.player.ready
   LYT.render.init()
-  LYT.gatrack.init()
+  LYT.gatrack?.init()
   LYT.control.init()
 
 # This is a hack - redirect the first page load to use the real url location
