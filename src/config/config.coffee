@@ -38,7 +38,7 @@ LYT.config =
   navigation:
     # Single quotes are important here - otherwise this gets interpreted
     # as a template already by CoffeeScript
-    backButtonURL: 'https://nota.dk/bibliotek/bogid/#{id}'
+    backButtonURL: '/bibliotek/bogid/#{id}'
 
   # ### LYT.service config
   service:
@@ -53,8 +53,11 @@ LYT.config =
     guestLogin: "guest"
 
     externalLogin:
-      url: 'https://nota.dk/bibliotek/notalogin'
+      redirectOnNoBook: true
+      url: '/bibliotek/notalogin'
       parameters:
+        # Single quotes are important here - otherwise this gets interpreted
+        # as a template already by CoffeeScript
         destination: 'redirectplay?url=#{url64}'
 
   # ### LYT.book module config
@@ -66,11 +69,11 @@ LYT.config =
 
   mobileMessage:
     GetVersion:
-      url: "/mobileMessage/MobileMessage.svc/GetVersion"
+      url: "https://m.nota.dk/mobileMessage/MobileMessage.svc/GetVersion"
     NotifyMe:
-      url: "/mobileMessage/MobileMessage.svc/NotifyMe"
+      url: "https://m.nota.dk/mobileMessage/MobileMessage.svc/NotifyMe"
     LogError:
-      url: "/mobileMessage/MobileMessage.svc/LogError"
+      url: "https://m.nota.dk/mobileMessage/MobileMessage.svc/LogError"
 
   # ### LYT.player config
   player:

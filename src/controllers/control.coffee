@@ -274,7 +274,7 @@ LYT.control =
     params = LYT.router.getParams(match[1])
     if not params? or not params.book?
       # Embedded player should never show its own login form. Redirect to external login page.
-      if LYT.config.service.externalLogin?.url
+      if LYT.config.service.redirectOnNoBook && LYT.config.service.externalLogin?.url
         log.message "Control: redirecting to external login!"
         location.href = LYT.config.service.externalLogin?.url
       return
