@@ -21,7 +21,7 @@ LYT.config =
   # ### LYT.rpc function config
   rpc:
     # The service's server-side URL
-    url: "/DodpMobile/Service.svc" # No default - must be present
+    url: "https://m.nota.dk/DodpMobile/Service.svc" # No default - must be present
 
   # ### LYT.protocol config
   protocol:
@@ -38,7 +38,7 @@ LYT.config =
   navigation:
     # Single quotes are important here - otherwise this gets interpreted
     # as a template already by CoffeeScript
-    backButtonURL: 'http://nota.dk/bibliotek/bogid/#{id}'
+    backButtonURL: 'https://nota.dk/bibliotek/bogid/#{id}'
 
   # ### LYT.service config
   service:

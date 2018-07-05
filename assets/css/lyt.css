@@ -427,7 +427,7 @@
 
 
 /* Structure */
-/* links within "buttons" 
+/* links within "buttons"
 -----------------------------------------------------------------------------------------------------------*/
 a.ui-link-inherit {
 	text-decoration: none !important;
@@ -492,7 +492,7 @@ a.ui-link-inherit {
 .ui-icon-searchfield:after {
 	background-color: #FFFFFF /*{global-icon-color}*/;
 	background-color: transparent /*{global-icon-disc}*/;
-	background-image: url(http://code.jquery.com/mobile/latest/images/icons-18-white.png) /*{global-icon-set}*/;
+	background-image: url(images/icons-18-white.png) /*{global-icon-set}*/;
 	background-repeat: no-repeat;
 	-webkit-border-radius: 				9px;
 	border-radius: 						9px;
@@ -601,12 +601,12 @@ a.ui-link-inherit {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.3),
        only screen and (min--moz-device-pixel-ratio: 1.3),
        only screen and (min-resolution: 200dpi) {
-	
+
 	.ui-icon-plus, .ui-icon-minus, .ui-icon-delete, .ui-icon-arrow-r,
 	.ui-icon-arrow-l, .ui-icon-arrow-u, .ui-icon-arrow-d, .ui-icon-check,
 	.ui-icon-gear, .ui-icon-refresh, .ui-icon-forward, .ui-icon-back,
 	.ui-icon-grid, .ui-icon-star, .ui-icon-alert, .ui-icon-info, .ui-icon-home, .ui-icon-bars, .ui-icon-edit,
-	.ui-icon-search, .ui-icon-searchfield:after, 
+	.ui-icon-search, .ui-icon-searchfield:after,
 	.ui-icon-checkbox-off, .ui-icon-checkbox-on, .ui-icon-radio-off, .ui-icon-radio-on {
 		background-image: url(images/icons-36-white.png);
 		-moz-background-size: 864px 18px;
@@ -686,7 +686,7 @@ a.ui-link-inherit {
 	}
 	.ui-icon-bars {
 		background-position: 	-788px 50%;
-	
+
 	}.ui-icon-edit {
 		background-position: 	-824px 50%;
 	}
@@ -699,7 +699,7 @@ a.ui-link-inherit {
 }
 .ui-icon-checkbox-off,
 .ui-icon-radio-off {
-	background-color: transparent;	
+	background-color: transparent;
 }
 .ui-checkbox-on .ui-icon,
 .ui-radio-on .ui-icon {
@@ -777,7 +777,7 @@ a.ui-link-inherit {
 .ui-input-search.ui-focus {
 	-moz-box-shadow: 0 0 12px #8cbbe2 /*{global-active-background-color}*/;
 	-webkit-box-shadow: 0 0 12px #8cbbe2 /*{global-active-background-color}*/;
-	box-shadow: 0 0 12px #8cbbe2 /*{global-active-background-color}*/;	
+	box-shadow: 0 0 12px #8cbbe2 /*{global-active-background-color}*/;
 }
 /* unset box shadow in browsers that don't do it right
 -----------------------------------------------------------------------------------------------------------*/

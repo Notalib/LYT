@@ -15,3 +15,8 @@ jQuery.extend LYT.config,
 
   settings:
     showAdvanced: yes
+
+  # ### LYT.rpc function config
+  rpc:
+    # The service's server-side URL
+    url: "/DodpMobile/Service.svc" # No default - must be present

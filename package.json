@@ -14,11 +14,12 @@
   "devDependencies": {
     "body-parser": "^1.8.4",
     "coffeelint": "^2.1.0",
-    "coffeescript": "^1.11.1",
+    "coffeescript": "~1.11.1",
     "express": "^4.16.3",
     "ftpkick": "~0.0.6",
     "http-proxy": "~1.1.4",
     "lyt-grinder": "~0.0.1",
+    "minify": "^3.0.5",
     "morgan": "~1.1.1",
     "optimist": "~0.6.1",
     "q": "^1.0.1",
