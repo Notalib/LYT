@@ -295,7 +295,7 @@ html =
 
   styleSheets: (urls) ->
     urls = [urls] if typeof urls is "string"
-    ("""<link rel="stylesheet" type="text/css" href="#{url}">""" for url in urls).join "\n"
+    ("""<link rel="stylesheet" type="text/css" href="#{url}" />""" for url in urls).join "\n"
 
 
 # --------------------------------------

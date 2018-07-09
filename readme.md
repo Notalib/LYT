@@ -11,11 +11,11 @@ need a couple of things, [so check out these instructions](https://github.com/No
 
 To compile the app, run the following command from the repo's root:
 
-    $ cake app
+    $ npx cake app
 
 To see what else you can build, just run `cake` with no arguments:
 
-    $ cake
+    $ npx cake
 
 ## License and copyright
 
