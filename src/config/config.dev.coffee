@@ -46,7 +46,7 @@ jQuery.extend LYT.config,
     guestLogin: "guest"
 
     externalLogin:
-      redirectOnNoBook: true
+      redirectOnNoBook: false
       url: 'https://nota.dk/bibliotek/notalogin'
       parameters:
         # Single quotes are important here - otherwise this gets interpreted
