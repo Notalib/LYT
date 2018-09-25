@@ -21,7 +21,7 @@ LYT.config =
   # ### LYT.rpc function config
   rpc:
     # The service's server-side URL
-    url: "https://m.nota.dk/DodpMobile/Service.svc" # No default - must be present
+    url: "//m.nota.dk/DodpMobile/Service.svc" # No default - must be present
 
   # ### LYT.protocol config
   protocol:
@@ -38,7 +38,7 @@ LYT.config =
   navigation:
     # Single quotes are important here - otherwise this gets interpreted
     # as a template already by CoffeeScript
-    backButtonURL: '/bibliotek/bogid/#{id}'
+    backButtonURL: '//nota.dk/bibliotek/bogid/#{id}'
 
   # ### LYT.service config
   service:
@@ -54,7 +54,7 @@ LYT.config =
 
     externalLogin:
       redirectOnNoBook: true
-      url: '/bibliotek/notalogin'
+      url: '//nota.dk/bibliotek/notalogin'
       parameters:
         # Single quotes are important here - otherwise this gets interpreted
         # as a template already by CoffeeScript
@@ -69,11 +69,11 @@ LYT.config =
 
   mobileMessage:
     GetVersion:
-      url: "https://m.nota.dk/mobileMessage/MobileMessage.svc/GetVersion"
+      url: "//m.nota.dk/mobileMessage/MobileMessage.svc/GetVersion"
     NotifyMe:
-      url: "https://m.nota.dk/mobileMessage/MobileMessage.svc/NotifyMe"
+      url: "//m.nota.dk/mobileMessage/MobileMessage.svc/NotifyMe"
     LogError:
-      url: "https://m.nota.dk/mobileMessage/MobileMessage.svc/LogError"
+      url: "//m.nota.dk/mobileMessage/MobileMessage.svc/LogError"
 
   # ### LYT.player config
   player:
