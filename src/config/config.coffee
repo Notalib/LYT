@@ -71,7 +71,6 @@ LYT.config =
     # Fetch books from the content list called "new"
     fetchNew: false
 
-
   mobileMessage:
     GetVersion:
       url: "/mobileMessage/MobileMessage.svc/GetVersion"
@@ -79,7 +78,6 @@ LYT.config =
       url: "/mobileMessage/MobileMessage.svc/NotifyMe"
     LogError:
       url: "/mobileMessage/MobileMessage.svc/LogError"
-
 
   # ### LYT.google config
   google:

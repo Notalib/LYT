@@ -66,13 +66,13 @@ LYT.render = do ->
     return element
 
   loadCover = (img, id) ->
-    # if periodical, use periodical code (first 4 letters of id)
-    imageid = if $.isNumeric(id) then id else id.substring(0, 4)
+    portocol = ('https:' == document.location.protocol ? 'https://' : 'http://')
     if LYT.config.isMTM
-      img.attr 'src', "http://www.legimus.se/app/covers/#{id}.png"
+      img.attr 'src', "#{portocol}www.legimus.se/app/covers/#{id}.png"
     else
-      img.attr 'src', "http://bookcover.nota.dk/#{imageid}_h200.jpg"
-
+      # if periodical, use periodical code (first 4 letters of id)
+      imageid = if $.isNumeric(id) then id else id.substring(0, 4)
+      img.attr 'src', "#{portocol}bookcover.nota.dk/#{imageid}_h200.jpg"
 
   getMediaType = (mediastring) ->
     if /\bAA\b/i.test mediastring
