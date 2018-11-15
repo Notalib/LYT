@@ -11,3 +11,5 @@ DEADJOE
 .settings
 .lyt.checkfile.*
 fixtures.json
+package-lock.json
+skinconfig.coffee

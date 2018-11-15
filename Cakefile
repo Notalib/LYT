@@ -335,27 +335,30 @@ coffee = do ->
   # Will *always* produce both concatenated and minified
   # versions if concat is true.
   compile = (files, output, concat, callback) ->
-    cmd = "#{config.coffee} --compile"
-    cmd += " --join #{concat}.js" if concat
     files = q(files).join " "
-    cmd += " --output #{q output} #{files}"
+
+    if concat
+      concatFile = fs.path.join(output, concat) + '.js'
+      cmd = "cat #{files} | #{config.coffee} --compile --stdio > #{concatFile}"
+    else
+      cmd = "#{config.coffee} --compile --output #{q output} #{files}"
+
     exec cmd, (err, stdout, stderr) ->
       throw err if err?
       console.log stderr if stderr
-      if !concat
-       callback() if typeof callback is 'function'
+      if not concat
+        callback() if typeof callback is 'function'
       else
         bin = fs.path.relative output, config.minify
         minCmd =
           "node #{bin} " +
-          "--source-map #{concat}.map " +
+          "--source-map " +
           "-o #{concat}.min.js #{concat}.js"
 
-        cwd = process.cwd()
         process.chdir output
         exec minCmd, (err, stdout, stderr) ->
           throw err if err?
-          process.chdir cwd
+          process.chdir '..'
           console.log stderr if stderr
           callback() if typeof callback is 'function'
 
@@ -419,7 +422,7 @@ html =
 
   styleSheets: (urls) ->
     urls = [urls] if typeof urls is "string"
-    ("""<link rel="stylesheet" type="text/css" href="#{url}">""" for url in urls).join "\n"
+    ("""<link rel="stylesheet" type="text/css" href="#{url}" />""" for url in urls).join "\n"
 
 
 # --------------------------------------
