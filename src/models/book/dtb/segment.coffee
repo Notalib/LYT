@@ -226,7 +226,7 @@ class LYT.Segment
         # Set timeout, so we can retry again if the load stalls
         image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
         # 1998 called; they want their preloading technique back
-        tmp = new Image
+        tmp = new Image()
         $(tmp).load(doneHandler).error(errorHandler)
         tmp.src = image.src
 
@@ -242,7 +242,7 @@ class LYT.Segment
       @div = sourceContent.clone().wrap('<p>').parent().html()
       @canvasSize = getCanvasSize image
       imageData =
-        src: image.attr('src')
+        src: image.attr('data-src') or image.attr('src')
         element: image[0]
         attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
