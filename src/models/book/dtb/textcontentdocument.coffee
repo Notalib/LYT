@@ -17,12 +17,8 @@ class LYT.TextContentDocument extends LYT.DTBDocument
       url = item.attr("data-src").replace( /^\//, '' )
       new_url = resources[url]?.url
       item.data "resolved", "yes" # Mark as processed
-      if isCartoon
-        item.attr 'src', new_url
-        item.removeAttr 'data-src'
-      else
-        item.attr 'data-src', new_url
-        item.addClass 'loader-icon'
+      item.attr 'data-src', new_url
+      item.addClass 'loader-icon'
 
   constructor: (url, resources, callback) ->
     super url, =>
@@ -32,6 +28,5 @@ class LYT.TextContentDocument extends LYT.DTBDocument
   isCartoon: () ->
     return @_isCartoon unless typeof @_isCartoon is 'undefined'
 
-    pages = @source.find('.page').toArray()
+    pages = @source.find('div.page').toArray()
     @_isCartoon = pages.length != 0 && pages.every (page) -> $(page).children('img').length == 1
-

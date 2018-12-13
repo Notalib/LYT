@@ -151,12 +151,22 @@ LYT.render.content = do ->
     div   = segment.divObj or= jQuery segment.div
     image = segment.imgObj or= jQuery segment.image
 
-    if view.find('img').attr('src') is image.attr('src')
+    currentImage = view.find 'img'
+    currentSrc = currentImage.attr 'src'
+    dataSrc = image.attr 'data-src'
+    newSrc = dataSrc or= image.attr 'src'
+
+    if currentSrc is newSrc
       # We are already displaying the right image
-      image = view.find 'img'
+      image = currentImage
     else
       # Display new image
       view.css 'text-align', 'left'
+
+      if dataSrc
+        image.attr "src", newSrc
+        image.removeAttr "data-src"
+        image.removeClass "loader-icon"
       image.css 'position', 'relative'
       view.empty().append image
       focusImage image, wholeImageArea image
@@ -236,56 +246,56 @@ LYT.render.content = do ->
         view[0].firstChild
       )
 
-      if not isCartoon
-        images = view.find "img"
-        if images.length
-          margin = 200 # TODO Should be configurable
+      images = view.find "img"
+      if images.length
+        margin = 200 # TODO Should be configurable
 
-          images.filter( '[height]' ).each ->
-            image = $(this)
-            imgWidth = image.attr( 'width' )
-            imgHeight = image.attr( 'height' )
-            if imgWidth and imgHeight
-              image.data
-                realHeight: imgHeight
-                realWidth: imgWidth
+        images.filter( '[height]' ).each ->
+          image = $(this)
+          imgWidth = image.attr( 'width' )
+          imgHeight = image.attr( 'height' )
+          if imgWidth and imgHeight
+            image.data
+              realHeight: imgHeight
+              realWidth: imgWidth
 
-              viewHeight = view.height()
-              viewWidth = view.width()
+            viewHeight = view.height()
+            viewWidth = view.width()
 
-              scaleImage image, viewHeight, viewWidth
-
-          showImage = (image, viewHeight, viewWidth) ->
             scaleImage image, viewHeight, viewWidth
-            if (src = image.attr "data-src")
-              visibility = isVisible image, margin, viewHeight
-              if visibility is isVisible.visible
-                image.attr "src", src
-                image.removeAttr "data-src"
-                image.removeClass "loader-icon"
-                unless image.data( 'realHeight' ) and image.data( 'realWidth' )
-                  image.one( 'load', ->
-                    if @.naturalHeight? and @.naturalWidth?
-                      image.data
-                        realHeight: @.naturalHeight
-                        realWidth: @.naturalWidth
-                  )
-              else if visibility is isVisible.belowView
-                # The image is below the correct view, there is no
-                # point in continueing this loop, returning false.
-                false
 
-          scrollHandler = ->
-            unless view.is ':visible'
-              log.message "Render: Context scroll: View isn't visible do nothing"
-              return
+        showImage = (image, viewHeight, viewWidth) ->
+          scaleImage image, viewHeight, viewWidth
+          if (src = image.attr "data-src")
+            visibility = isVisible image, margin, viewHeight
+            if visibility is isVisible.visible
+              image.attr "src", src
+              image.removeAttr "data-src"
+              image.removeClass "loader-icon"
+              unless image.data( 'realHeight' ) and image.data( 'realWidth' )
+                image.one( 'load', ->
+                  if @.naturalHeight? and @.naturalWidth?
+                    image.data
+                      realHeight: @.naturalHeight
+                      realWidth: @.naturalWidth
+                )
+            else if visibility is isVisible.belowView
+              # The image is below the correct view, there is no
+              # point in continueing this loop, returning false.
+              false
 
-            height = view.height()
-            width = view.width()
-            images.each -> showImage $(this), height, width
+        scrollHandler = ->
+          unless view.is ':visible'
+            log.message "Render: Context scroll: View isn't visible do nothing"
+            return
 
-          view.scroll jQuery.throttle 150, scrollHandler
-      else
+          height = view.height()
+          width = view.width()
+          images.each -> showImage $(this), height, width
+
+        view.scroll jQuery.throttle 150, scrollHandler
+
+      if isCartoon
         view
           .find('.page,.page img')
           .css
