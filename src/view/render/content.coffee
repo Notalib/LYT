@@ -34,43 +34,44 @@ LYT.render.content = do ->
   # New width and height is returned as well.
   # The object returned contains css attributes that will do the translation.
   # FIXME: This function shouldn't depend on the image having a parent.
-  translate = (image, area, view) ->
+  translate = (segment, area, view) ->
     result = {}
-    view or= image.parent()
+
+    canvasSize = segment.canvasSize
 
     scale = 1
     scale = view.width() / area.width if scale > view.width() / area.width
     scale = vspace() / area.height if scale > vspace() / area.height
     # FIXME: resizing div to fit content in case div is too large
-    centering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
+    horizontalCentering = if area.width * scale < view.width() then (view.width() - area.width * scale)/2 else 0
+    verticalCentering = if area.height * scale < view.height() then (view.height() - area.height * scale)/2 else 0
 
-    width:  Math.floor(image[0].naturalWidth * scale)
-    height: Math.floor(image[0].naturalHeight * scale)
-    top:    Math.floor(-area.tl.y * scale)
-    left:   Math.floor(centering - area.tl.x * scale)
+    width:  Math.floor(canvasSize.width * scale)
+    height: Math.floor(canvasSize.height * scale)
+    top:    Math.floor(verticalCentering - area.tl.y * scale)
+    left:   Math.floor(horizontalCentering - area.tl.x * scale)
 
   # Move straight to focus area without any effects
-  focusImage = (image, area, segment) ->
-    nextFocus = translate image, area
-    thisFocus = image.data('LYT-focus') or translate image, wholeImageArea(segment)
+  focusImage = (image, area, segment, view) ->
+    nextFocus = translate segment, area, view
+    thisFocus = image.data('LYT-focus') or translate segment, wholeImageArea(segment), view
     image.data 'LYT-focus', nextFocus
     image.css nextFocus
 
   # Move to focus area with effects specified in focusDuration() and focusEasing()
-  panZoomImage = (segment, image, area, renderDelta) ->
+  panZoomImage = (segment, image, area, renderDelta, view) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
-    nextFocus = translate image, area
-    thisFocus = image.data('LYT-focus') or translate image, wholeImageArea(segment)
+    nextFocus = translate segment, area, view
+    thisFocus = image.data('LYT-focus') or translate segment, wholeImageArea(segment), view
     image.stop true
-    console.log nextFocus
     image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
       image.data 'LYT-focus', nextFocus
       if area.height/area.width > 2 and area.height > vspace() * 2
         panArea = jQuery.extend {}, area
         panArea.height = area.width
-        image.animate translate(image, panArea), timeScale*focusDuration(), focusEasing(), () ->
+        image.animate translate(segment, panArea, view), timeScale*focusDuration(), focusEasing(), () ->
           panArea.tl.y = area.height - panArea.height
-          image.animate translate(image, panArea), (segment.end - segment.start)*1000 - 2 * focusDuration(), 'linear'
+          image.animate translate(segment, panArea, view), (segment.end - segment.start)*1000 - 2 * focusDuration(), 'linear'
 
   # Return area object that will focus on the entire image
   # TODO: This method is not cross browser and needs to be rewritten
@@ -173,7 +174,7 @@ LYT.render.content = do ->
 
       image = image.clone()
       view.empty().append image
-      focusImage image, wholeImageArea(segment), segment
+      focusImage image, wholeImageArea(segment), segment, view
 
     unless view.is(':visible')
       log.message "Render: renderCartoon: while view isn't visible"
@@ -194,7 +195,7 @@ LYT.render.content = do ->
         x: areaLeft + areaWidth
         y: areaTop  + areaHeight
 
-    panZoomImage segment, image, area, renderDelta
+    panZoomImage segment, image, area, renderDelta, view
 
   prevActive = null
   segmentIntoView = (view, segment) ->

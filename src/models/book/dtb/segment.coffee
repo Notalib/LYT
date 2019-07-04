@@ -158,6 +158,7 @@ class LYT.Segment
           nextSection.firstSegment().done (next) ->
             next.preloadNext(preloadCount - 1)
 
+  # Read the canvas size from the cartoon page image
   getCanvasSize: (image) ->
     result = {}
     for type in ['height', 'width']
@@ -191,7 +192,8 @@ class LYT.Segment
     else
       return 1
 
-  loadImage: (imageData) =>
+  # Load the segment's cartoon image.
+  loadCartoonImage: (imageData) =>
     log.message "Segment: #{this.url()}: parseContent: initiate preload of image #{imageData.src}"
     imageElement = jQuery(imageData.element);
 
@@ -203,7 +205,7 @@ class LYT.Segment
       if imageData.attempts-- > 0
         backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - imageData.attempts + 1) * 50)
         log.message "Segment: parseContent: preloading image #{imageData.src} failed, #{imageData.attempts} attempts left. Waiting for #{backoff} ms."
-        doLoad = -> @loadImage imageData
+        doLoad = -> @loadCartoonImage imageData
         setTimeout doLoad, backoff
       else
         log.error "Segment: parseContent: unable to preload image #{imageData.src}"
@@ -225,6 +227,7 @@ class LYT.Segment
     imageElement.attr "src", imageData.src
     imageElement.removeAttr "data-src"
 
+  # Parse div.page > .area data for comicbook rendering
   parseArea: (area) =>
     left: parseInt (area[0].style.left.match /\d+/)[0]
     top: parseInt (area[0].style.top.match /\d+/)[0]
@@ -264,7 +267,7 @@ class LYT.Segment
           width:  event.target.width
           height: event.target.height
 
-      @loadImage imageData
+      @loadCartoonImage imageData
       return imageData.deferred.done =>
         log.group "Segment: #{@url()} finished extracting text, html and loading images",
           @text, image
