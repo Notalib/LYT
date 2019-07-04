@@ -158,6 +158,79 @@ class LYT.Segment
           nextSection.firstSegment().done (next) ->
             next.preloadNext(preloadCount - 1)
 
+  getCanvasSize: (image) ->
+    result = {}
+    for type in ['height', 'width']
+      # Try reading canvas size from height/width attribute on image
+      if dim = image.attr type
+        result[type] = Number(dim)
+        continue
+      # Try parsing style attribute
+      if dim = image.attr('style').match(type + '\\s*:\\s*(\\d+)\\s*px')
+        result[type] = Number(dim[1])
+        continue
+      # Try reading canvas size from css on the containing div
+      if image.parent().css(type).match(/(\d+)(?:px)?/)
+        result[type] = Number(dim[1])
+        continue
+      else
+        # Finally just give up and use naturalHeight/naturalWidth
+        attr = type.replace /^([a-z])/g, (m, p1) -> 'natural' + p1.toUpperCase()
+        log.warn "render.content: imageDim: no #{type} attribute or css #{type} on image. Falling back to #{attr} which is not known to be cross browser"
+        result[type] = Number(image[attr])
+    result
+
+  getCanvasScale: (canvasSize, imageSize) ->
+    # TODO: We should check that imageSize.width / canvasSize.width == imageSize.height / canvasSize.height
+    #       ...and complain loudly if it isn't the case
+    if canvasSize.width != imageSize.width
+      try
+        imageSize.width / canvasSize.width
+      catch e
+        1
+    else
+      return 1
+
+  loadImage: (imageData) =>
+    log.message "Segment: #{this.url()}: parseContent: initiate preload of image #{imageData.src}"
+    imageElement = jQuery(imageData.element);
+
+    # Note that clearing the timeout has to be done as the first thing in
+    # both handlers. We still have a race condition where the timer may
+    # fire just before being cleared.
+    errorHandler = (event) ->
+      clearTimeout imageData.timer
+      if imageData.attempts-- > 0
+        backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - imageData.attempts + 1) * 50)
+        log.message "Segment: parseContent: preloading image #{imageData.src} failed, #{imageData.attempts} attempts left. Waiting for #{backoff} ms."
+        doLoad = -> @loadImage imageData
+        setTimeout doLoad, backoff
+      else
+        log.error "Segment: parseContent: unable to preload image #{imageData.src}"
+        imageData.deferred.reject imageData, event
+
+    doneHandler = (event) ->
+      clearTimeout imageData.timer
+      log.message "Segment: parseContent: loaded image #{imageData.src}"
+      imageData.deferred.resolve imageData, event
+
+      imageElement.removeClass "loader-icon"
+
+    # Set timeout, so we can retry again if the load stalls
+    imageData.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
+    # 1998 called; they want their preloading technique back
+    tmp = new Image();
+    $(tmp).load(doneHandler).error(errorHandler)
+    tmp.src = imageData.src
+    imageElement.attr "src", imageData.src
+    imageElement.removeAttr "data-src"
+
+  parseArea: (area) =>
+    left: parseInt (area[0].style.left.match /\d+/)[0]
+    top: parseInt (area[0].style.top.match /\d+/)[0]
+    height: parseInt (area[0].style.height.match /\d+/)[0]
+    width: parseInt (area[0].style.width.match /\d+/)[0]
+
   # Parse content document and extract segment data
   # Used with deferreds, so should return this (the segment itself) or a failed
   # promise in order to reject processing.
@@ -167,68 +240,7 @@ class LYT.Segment
 
     # Check if the source document is using whole page cartoon html or not
     if sourceContent.parent().hasClass('page') and sourceContent.is('div') and image = sourceContent.parent().children('img')
-
       @type  = 'cartoon' # Cartoon html
-      getCanvasSize = (image) ->
-        result = {}
-        for type in ['height', 'width']
-          # Try reading canvas size from height/width attribute on image
-          if dim = image.attr type
-            result[type] = dim
-            continue
-          # Try parsing style attribute
-          if dim = image.attr('style').match(type + '\\s*:\\s*(\\d+)\\s*px')
-            result[type] = dim[1]
-            continue
-          # Try reading canvas size from css on the containing div
-          if image.parent().css(type).match(/(\d+)(?:px)?/)
-            result[type] = dim[1]
-            continue
-          else
-            # Finally just give up and use naturalHeight/naturalWidth
-            attr = type.replace /^([a-z])/g, (m, p1) -> 'natural' + p1.toUpperCase()
-            log.warn "render.content: imageDim: no #{type} attribute or css #{type} on image. Falling back to #{attr} which is not known to be cross browser"
-            result[type] = image[attr]
-        result
-
-      getCanvasScale = (canvasSize, imageSize) ->
-        # TODO: We should check that imageSize.width / canvasSize.width == imageSize.height / canvasSize.height
-        #       ...and complain loudly if it isn't the case
-        if canvasSize.width != imageSize.width
-          try
-            imageSize.width / canvasSize.width
-          catch e
-            1
-        else
-          return 1
-
-      loadImage = (image) =>
-        log.message "Segment: #{this.url()}: parseContent: initiate preload of image #{image.src}"
-        # Note that clearing the timeout has to be done as the first thing in
-        # both handlers. We still have a race condition where the timer may
-        # fire just before being cleared.
-        errorHandler = (event) ->
-          clearTimeout image.timer
-          if image.attempts-- > 0
-            backoff = Math.ceil(Math.exp(LYT.config.segment.imagePreload.attempts - image.attempts + 1) * 50)
-            log.message "Segment: parseContent: preloading image #{image.src} failed, #{image.attempts} attempts left. Waiting for #{backoff} ms."
-            doLoad = -> loadImage image
-            setTimeout doLoad, backoff
-          else
-            log.error "Segment: parseContent: unable to preload image #{image.src}"
-            image.deferred.reject image, event
-
-        doneHandler = (event) ->
-          clearTimeout image.timer
-          log.message "Segment: parseContent: loaded image #{image.src}"
-          image.deferred.resolve image, event
-
-        # Set timeout, so we can retry again if the load stalls
-        image.timer = setTimeout errorHandler, LYT.config.segment.imagePreload.timeout
-        # 1998 called; they want their preloading technique back
-        tmp = new Image()
-        $(tmp).load(doneHandler).error(errorHandler)
-        tmp.src = image.src
 
       if image.length != 1
         log.error "Segment: parseContent: can't create reliable cartoon type " +
@@ -236,22 +248,23 @@ class LYT.Segment
         throw "Segment: parseContent: unable to find exactly one image in " +
           "cartoon display div"
 
-      # FIXME: We're basically cloning the image and div elements. This should
-      # be fixed when we move to a better rendering architecture
-      @image = image.clone().wrap('<p>').parent().html()
-      @div = sourceContent.clone().wrap('<p>').parent().html()
-      @canvasSize = getCanvasSize image
+      @areaData = @parseArea sourceContent
+      @cartoonImage = image
+
+      @canvasSize = @getCanvasSize image
+
       imageData =
         src: image.attr('data-src') or image.attr('src')
         element: image[0]
         attempts: LYT.config.segment.imagePreload.attempts
         deferred: jQuery.Deferred()
+
       imageData.deferred.done (imageData, event) =>
-        @canvasScale = getCanvasScale @canvasSize,
+        @canvasScale = @getCanvasScale @canvasSize,
           width:  event.target.width
           height: event.target.height
 
-      loadImage imageData
+      @loadImage imageData
       return imageData.deferred.done =>
         log.group "Segment: #{@url()} finished extracting text, html and loading images",
           @text, image

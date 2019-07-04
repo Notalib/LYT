@@ -50,9 +50,9 @@ LYT.render.content = do ->
     left:   Math.floor(centering - area.tl.x * scale)
 
   # Move straight to focus area without any effects
-  focusImage = (image, area) ->
+  focusImage = (image, area, segment) ->
     nextFocus = translate image, area
-    thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
+    thisFocus = image.data('LYT-focus') or translate image, wholeImageArea(segment)
     image.data 'LYT-focus', nextFocus
     image.css nextFocus
 
@@ -60,8 +60,9 @@ LYT.render.content = do ->
   panZoomImage = (segment, image, area, renderDelta) ->
     timeScale = if renderDelta > 1000 then 1 else renderDelta / 1000
     nextFocus = translate image, area
-    thisFocus = image.data('LYT-focus') or translate image, wholeImageArea image
+    thisFocus = image.data('LYT-focus') or translate image, wholeImageArea(segment)
     image.stop true
+    console.log nextFocus
     image.animate nextFocus, timeScale*focusDuration(), focusEasing(), () ->
       image.data 'LYT-focus', nextFocus
       if area.height/area.width > 2 and area.height > vspace() * 2
@@ -73,15 +74,17 @@ LYT.render.content = do ->
 
   # Return area object that will focus on the entire image
   # TODO: This method is not cross browser and needs to be rewritten
-  wholeImageArea = (image) ->
-    width:  image[0].naturalWidth
-    height: image[0].naturalHeight
+  wholeImageArea = (segment) ->
+    canvasSize = segment.canvasSize
+
+    width:  canvasSize.width
+    height: canvasSize.height
     tl:
       x: 0
       y: 0
     br:
-      x: image[0].naturalWidth
-      y: image[0].naturalHeight
+      x: canvasSize.width
+      y: canvasSize.height
 
   scaleArea = (scale, area) ->
     width:  scale * area.width
@@ -148,8 +151,8 @@ LYT.render.content = do ->
 
   # Render cartoon - a cartoon page with one or more focus areas
   renderCartoon = (segment, view, renderDelta) ->
-    div   = segment.divObj or= jQuery segment.div
-    image = segment.imgObj or= jQuery segment.image
+    areaData = jQuery.extend {}, segment.areaData
+    image = segment.cartoonImage
 
     currentImage = view.find 'img'
     currentSrc = currentImage.attr 'src'
@@ -167,26 +170,29 @@ LYT.render.content = do ->
         image.attr "src", newSrc
         image.removeAttr "data-src"
         image.removeClass "loader-icon"
-      image.css 'position', 'relative'
+
+      image = image.clone()
       view.empty().append image
-      focusImage image, wholeImageArea image
+      focusImage image, wholeImageArea(segment), segment
 
     unless view.is(':visible')
       log.message "Render: renderCartoon: while view isn't visible"
       return
 
-    left = parseInt (div[0].style.left.match /\d+/)[0]
-    top  = parseInt (div[0].style.top.match /\d+/)[0]
+    areaLeft = areaData.left
+    areaTop  = areaData.top
+    areaHeight = areaData.height
+    areaWidth = areaData.width
 
     area = scaleArea segment.canvasScale,
-      width:  div.width()
-      height: div.height()
+      width:  areaWidth
+      height: areaHeight
       tl:
-        x: left
-        y: top
+        x: areaLeft
+        y: areaTop
       br:
-        x: left + div.width()
-        y: top  + div.height()
+        x: areaLeft + areaWidth
+        y: areaTop  + areaHeight
 
     panZoomImage segment, image, area, renderDelta
 
