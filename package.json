@@ -1,12 +1,12 @@
 {
   "name": "LYT",
-  "version": "2.1.0",
+  "version": "2.2.5",
   "description": "A DAISY Online Delivery Protocol compatible book player for handheld devices",
   "private": true,
   "scripts": {
     "watch": "npx coffee ./server.coffee",
     "build:dev": "npx cake -d app",
-    "build": "npx cake -cmt app"
+    "build": "npx cake -cm app"
   },
   "directories": {
     "doc": "doc"

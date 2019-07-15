@@ -77,8 +77,12 @@ task "src", "Compile CoffeeScript source", (options) ->
   files = coffee.grind "src", null, (file) ->
     if options.development
       return true
+    else if file.match /config.dev.coffee$/
+      return false
+    else if file.match /reloader.coffee$/
+      return false
     else
-      return not file.match /config.dev.coffee$/
+      return true
 
   coffee.brew files, "src", "build/javascript", (options.concat or options.minify), ->
     boast "compiled", "src", "build/javascript"
@@ -118,8 +122,12 @@ task "html", "Build HTML", (options) ->
     coffeeScripts = coffee.grind "src", null, (file) ->
       if options.development
         return true
+      else if file.match /config.dev.coffee$/
+        return false
+      else if file.match /reloader.coffee$/
+        return false
       else
-        return not file.match /config.dev.coffee$/ and not file.match /reloader.coffee$/
+        return true
     scripts = scripts.concat(coffee.filter coffeeScripts, "src", "javascript")
 
   template = html.interpolate template, (html.styleSheets [stylesheet, 'css/screen.css']), 'cake:stylesheets'
