@@ -134,6 +134,6 @@ LYT.config =
 
   ## Setup LYT3 testers. Member ids from getNotaAuthToken() must be added to the testers array.
   LYT3:
-    testers: ["10140346", "10140345", "10109178"]
+    testers: ["10140346", "10140345", "10109178", "10185435", "10231727"]
     URL: "https://lbs-next.nota.dk/embedded/{bookid}"
 
