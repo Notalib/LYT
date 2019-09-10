@@ -19,6 +19,11 @@ LYT.session = do ->
     if getNotaAuthToken?
       credentials = getNotaAuthToken()
       if credentials.status is 'ok'
+        if LYT.config.LYT3?.URL?.includes('{bookid}') and LYT.config.LYT3?.testers?.includes(credentials.username)
+          bookid = /book=(.*)/.exec(window.location.href)?[1]
+
+          window.location.href = LYT.config.LYT3?.URL.replace('{bookid}', bookid) if bookid
+
         log.message 'Session: init: reading credentials from getNotaAuthToken()'
         LYT.session.setCredentials credentials.username, credentials.token
         LYT.service.logOn credentials.username, credentials.token
