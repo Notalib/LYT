@@ -32,7 +32,7 @@ proxy.off( 'error' ).on 'error', (e) ->
 app = express()
 app.use require('body-parser').urlencoded
   extended: false
-app.use require('morgan')() if not (argv.quiet or argv.silence)
+app.use require('morgan')('combined') if not (argv.quiet or argv.silence)
 app
   .use express.static( process.cwd() + '/build' )
   .use (req, res, next) ->
