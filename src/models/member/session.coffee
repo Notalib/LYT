@@ -20,7 +20,7 @@ LYT.session = do ->
       credentials = getNotaAuthToken()
       if credentials.status is 'ok'
         if LYT.config.LYT3?.URL?.includes('{bookid}') and LYT.config.LYT3?.testers?.includes(credentials.username)
-          bookid = /book=(.*)/.exec(window.location.href)?[1]
+          bookid = /book=(\w+)&?/.exec(window.location.href)?[1]
 
           if bookid and confirm("Fortsæt til test versionen af den nye afspiller?")
             window.location.href = LYT.config.LYT3?.URL.replace '{bookid}', bookid
