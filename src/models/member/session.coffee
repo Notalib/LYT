@@ -19,12 +19,21 @@ LYT.session = do ->
     if getNotaAuthToken?
       credentials = getNotaAuthToken()
       if credentials.status is 'ok'
-        if LYT.config.LYT3?.URL?.includes('{bookid}') and LYT.config.LYT3?.testers?.includes(credentials.username)
-          bookid = /book=(\w+)&?/.exec(window.location.href)?[1]
+        LYT3URL = LYT.config.LYT3?.URL
+        LYT3Testers = LYT.config.LYT3?.testers
 
-          if bookid and confirm("Fortsæt til test versionen af den nye afspiller?")
-            window.location.href = LYT.config.LYT3?.URL.replace '{bookid}', bookid
-            return
+        if LYT3URL?.indexOf('{bookid}') isnt -1 and LYT3Testers
+          bookid = /book=(.*)/.exec(window.location.href)?[1]
+
+          for username in LYT3Testers
+            if username isnt credentials.username
+              continue
+
+            if bookid and confirm("Fortsæt til test versionen af den nye afspiller?")
+              window.location.href = LYT3URL.replace '{bookid}', bookid
+              return
+
+            break
 
         log.message 'Session: init: reading credentials from getNotaAuthToken()'
         LYT.session.setCredentials credentials.username, credentials.token
