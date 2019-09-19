@@ -23,7 +23,7 @@ LYT.session = do ->
         LYT3Testers = LYT.config.LYT3?.testers
 
         if LYT3URL?.indexOf('{bookid}') isnt -1 and LYT3Testers
-          bookid = /book=(.*)/.exec(window.location.href)?[1]
+          bookid = /book=(\w+)&?/.exec(window.location.href)?[1]
 
           for username in LYT3Testers
             if username isnt credentials.username
