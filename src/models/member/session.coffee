@@ -26,7 +26,7 @@ LYT.session = do ->
           bookid = /book=(\w+)&?/.exec(window.location.href)?[1]
 
           for username in LYT3Testers
-            if username isnt credentials.username
+            if "#{username}" isnt "#{credentials.username}"
               continue
 
             if bookid and confirm("Fortsæt til test versionen af den nye afspiller?")
