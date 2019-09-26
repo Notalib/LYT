@@ -11,3 +11,4 @@ DEADJOE
 .settings
 .lyt.checkfile.*
 fixtures.json
+*.zip
