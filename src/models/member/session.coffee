@@ -19,6 +19,10 @@ LYT.session = do ->
     if getNotaAuthToken?
       credentials = getNotaAuthToken()
       if credentials.status is 'ok'
+        log.message 'Session: init: reading credentials from getNotaAuthToken()'
+        LYT.session.setCredentials credentials.username, credentials.token
+        LYT.service.logOn credentials.username, credentials.token
+
         LYT3URL = LYT.config.LYT3?.URL
         LYT3Testers = LYT.config.LYT3?.testers
 
@@ -34,10 +38,6 @@ LYT.session = do ->
               return
 
             break
-
-        log.message 'Session: init: reading credentials from getNotaAuthToken()'
-        LYT.session.setCredentials credentials.username, credentials.token
-        LYT.service.logOn credentials.username, credentials.token
       else
         log.message 'Session: init: invalid reading credentials from getNotaAuthToken()'
         LYT.service.logOff()
