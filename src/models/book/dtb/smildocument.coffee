@@ -108,6 +108,8 @@ do ->
     clips = par.find("> audio, seq > audio").map ->
       audio = jQuery this
 
+      idCounts[audio.attr('src')] = 0 unless audio.attr('src') of idCounts
+
       id:          par.attr("id") or "__LYT_auto_#{audio.attr('src')}_#{idCounts[audio.attr('src')]++}"
       start:       parseNPT audio.attr("clip-begin")
       end:         parseNPT audio.attr("clip-end")
