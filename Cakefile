@@ -303,7 +303,7 @@ task "lint:html", "Validate build/index.html", ->
   w3cjs.validate
     file: 'build/index.html'
     callback: (res) ->
-      errorCount = res.messages?.length
+      errorCount = res?.messages?.length
       if errorCount > 0
         console.warn "There were #{errorCount} HTML validation error messages:\n"
         console.warn '<line>,\t<col>:\t<message>'
